@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('新增横向课题')" />
+    <th:block th:include="include :: datetimepicker-css" />
+    <th:block th:include="include :: bootstrap-fileinput-css"/>
+    <th:block th:include="include :: select2-css" />
+</head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-apply-add">
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">申请人：</label>
+                    <div class="col-sm-8">
+                        <select name="userId" class="form-control m-b" >
+                            <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${user.flag}"></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">课题类型：</label>
+                    <div class="col-sm-8">
+                        <select name="topType" class="form-control" th:with="type=${@dict.getType('sci_top_type')}" required>
+                            <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">课题名称：</label>
+                    <div class="col-sm-8">
+                        <input name="topName" class="form-control" type="text" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">项目金额(万)：</label>
+                    <div class="col-sm-8">
+                        <input name="amount" class="form-control" type="number" required>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">委托单位：</label>
+                    <div class="col-sm-8">
+                        <input name="client" class="form-control" type="text" required>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">承担单位：</label>
+                    <div class="col-sm-8">
+                        <input name="undertaking" class="form-control" type="text" required>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">甲方联系人：</label>
+                    <div class="col-sm-8">
+
+                        <select name="contacta" class="form-control m-b" >
+                            <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${user.flag}"></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">联系电话：</label>
+                    <div class="col-sm-8">
+                        <input name="contactaTel" class="form-control" type="text"  required>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">乙方联系人：</label>
+                    <div class="col-sm-8">
+                        <input name="contactb" class="form-control" type="text" required>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">联系电话：</label>
+                    <div class="col-sm-8">
+                        <input name="contactbTel" class="form-control" type="text" required>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">签订日期：</label>
+                    <div class="col-sm-8">
+                        <div class="input-group date">
+                            <input name="signingData" class="form-control" placeholder="yyyy-MM-dd" type="text" required>
+                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">合同有效日期：</label>
+                    <div class="col-sm-8">
+                        <div class="input-group date">
+<!--                            <input name="validityDate" class="form-control" placeholder="yyyy-MM-dd" type="text" required>-->
+                            <input type="text" name="validityDate" class="form-control" id="laydate-demo-4" placeholder="yyyy-MM-dd - yyyy-MM-dd">
+                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">第一负责人：</label>
+                    <div class="col-sm-8">
+
+                        <select name="firstPersonId" class="form-control m-b" >
+                            <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${user.flag}"></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">承担任务：</label>
+                    <div class="col-sm-8">
+                        <input name="firstPersonTask" class="form-control" type="text" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">第二负责人：</label>
+                    <div class="col-sm-8">
+
+                        <select name="secondPersonId" class="form-control m-b" >
+                            <option value="">---请选择--</option>
+                            <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}"></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+
+
+
+
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">承担任务：</label>
+                    <div class="col-sm-8">
+                        <input name="secondPersonTask" class="form-control" type="text" required>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">第三负责人：</label>
+                    <div class="col-sm-8">
+                        <select name="thirdPersonId" class="form-control m-b" >
+                            <option value="">---请选择--</option>
+                            <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}"></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">承担任务：</label>
+                    <div class="col-sm-8">
+                        <input name="thirdPersonTask" class="form-control" type="text" required>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">第四负责人：</label>
+                    <div class="col-sm-8">
+                        <select name="fourthPersonId" class="form-control m-b" >
+                            <option value="">--请选择--</option>
+                            <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}"></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">承担任务：</label>
+                    <div class="col-sm-8">
+                        <input name="fourthPersonTask" class="form-control" type="text" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">合同：</label>
+                    <div class="col-sm-8">
+                        <input type="hidden" name="contract">
+                        <div class="file-loading">
+                            <input class="form-control file-upload" id="contract" name="file" type="file">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">备案表：</label>
+                    <div class="col-sm-8">
+                        <input type="hidden" name="filing">
+                        <div class="file-loading">
+                            <input class="form-control file-upload" id="filing" name="file" type="file">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="row">
+        <div class="col-sm-offset-5 col-sm-10">
+            <button type="button" class="btn btn-sm btn-primary" onclick="submitHandler()"><i class="fa fa-check"></i>保 存</button>&nbsp;
+            <button type="button" class="btn btn-sm btn-danger" onclick="closeItem()"><i class="fa fa-reply-all"></i>关 闭 </button>
+        </div>
+    </div>
+    <th:block th:include="include :: footer" />
+    <th:block th:include="include :: datetimepicker-js" />
+    <th:block th:include="include :: bootstrap-fileinput-js"/>
+    <th:block th:include="include :: datetimepicker-js" />
+    <th:block th:include="include :: select2-js" />
+    <script type="text/javascript">
+        $(function(){
+            <!-- laydate示例 -->
+            layui.use('laydate', function(){
+                var laydate = layui.laydate;
+                laydate.render({
+                    elem: '#laydate-demo-4',
+                    range: true
+                });
+                var startDate = laydate.render({
+                    elem: '#laydate-startTime',
+                    max: $('#laydate-endTime').val(),
+                    theme: 'molv',
+                    trigger: 'click',
+                    done: function(value, date) {
+                        // 结束时间大于开始时间
+                        if (value !== '') {
+                            endDate.config.min.year = date.year;
+                            endDate.config.min.month = date.month - 1;
+                            endDate.config.min.date = date.date;
+                        } else {
+                            endDate.config.min.year = '';
+                            endDate.config.min.month = '';
+                            endDate.config.min.date = '';
+                        }
+                    }
+                });
+                var endDate = laydate.render({
+                    elem: '#laydate-endTime',
+                    min: $('#laydate-startTime').val(),
+                    theme: 'molv',
+                    trigger: 'click',
+                    done: function(value, date) {
+                        // 开始时间小于结束时间
+                        if (value !== '') {
+                            startDate.config.max.year = date.year;
+                            startDate.config.max.month = date.month - 1;
+                            startDate.config.max.date = date.date;
+                        } else {
+                            startDate.config.max.year = '';
+                            startDate.config.max.month = '';
+                            startDate.config.max.date = '';
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+    <script th:inline="javascript">
+        var prefix = ctx + "system/apply"
+        $("#form-apply-add").validate({
+            focusCleanup: true
+        });
+
+        function submitHandler() {
+            if ($.validate.form()) {
+                $.operate.saveTab(prefix + "/add", $('#form-apply-add').serialize());
+            }
+        }
+
+        $("input[name='signingData']").datetimepicker({
+            format: "yyyy-mm-dd",
+            minView: "month",
+            autoclose: true
+        });
+
+        // $("input[name='validityDate']").datetimepicker({
+        //     format: "yyyy-mm-dd",
+        //     minView: "month",
+        //     autoclose: true
+        // });
+
+        $(".file-upload").fileinput({
+            uploadUrl: ctx + 'common/upload',
+            maxFileCount: 1,
+            autoReplace: true
+        }).on('fileuploaded', function (event, data, previewId, index) {
+            $("input[name='" + event.currentTarget.id + "']").val(data.response.url)
+        }).on('fileremoved', function (event, id, index) {
+            $("input[name='" + event.currentTarget.id + "']").val('')
+        })
+    </script>
+</body>
+</html>

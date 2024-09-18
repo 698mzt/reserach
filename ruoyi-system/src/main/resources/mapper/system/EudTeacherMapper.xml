@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.EudTeacherMapper">
+    
+    <resultMap type="EudTeacher" id="EudTeacherResult">
+        <result property="id"    column="id"    />
+        <result property="tname"    column="tname"    />
+        <result property="num"    column="num"    />
+        <result property="zhicheng"    column="zhicheng"    />
+        <result property="zcName"    column="zcName"    />
+        <result property="teacourses"    column="teacourses"    />
+    </resultMap>
+
+    <sql id="selectEudTeacherVo">
+         select t.id,t.tname,t.num,t.zhicheng,d.dict_label zcName,
+            group_concat(s.cname) teacourses from eud_teacher t
+            left join edu_tea_course c on t.id = c.tid
+            left join edu_course s on c.cid = s.id
+              left join sys_dict_data d on d.dict_value=t.zhicheng
+            group by t.id,t.tname,t.num,t.zhicheng,d.dict_label
+    </sql>
+
+    <sql id="editEudTeacherVo">
+         select t.id,t.tname,t.num,t.zhicheng from eud_teacher t
+
+    </sql>
+
+    <select id="selectEudTeacherList" parameterType="EudTeacher" resultMap="EudTeacherResult">
+        <include refid="selectEudTeacherVo"/>
+        <where>  
+            <if test="tname != null  and tname != ''"> and tname like concat('%', #{tname}, '%')</if>
+            <if test="num != null  and num != ''"> and num = #{num}</if>
+            <if test="zhicheng != null  and zhicheng != ''"> and zhicheng = #{zhicheng}</if>
+        </where>
+    </select>
+    
+    <select id="selectEudTeacherById" parameterType="Integer" resultMap="EudTeacherResult">
+        <include refid="editEudTeacherVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertEudTeacher" parameterType="EudTeacher" useGeneratedKeys="true" keyProperty="id">
+        insert into eud_teacher
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="tname != null">tname,</if>
+            <if test="num != null">num,</if>
+            <if test="zhicheng != null">zhicheng,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="tname != null">#{tname},</if>
+            <if test="num != null">#{num},</if>
+            <if test="zhicheng != null">#{zhicheng},</if>
+         </trim>
+    </insert>
+
+    <update id="updateEudTeacher" parameterType="EudTeacher">
+        update eud_teacher
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="tname != null">tname = #{tname},</if>
+            <if test="num != null">num = #{num},</if>
+            <if test="zhicheng != null">zhicheng = #{zhicheng},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteEudTeacherById" parameterType="Integer">
+        delete from eud_teacher where id = #{id}
+    </delete>
+
+    <delete id="deleteEudTeacherByIds" parameterType="String">
+        delete from eud_teacher where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

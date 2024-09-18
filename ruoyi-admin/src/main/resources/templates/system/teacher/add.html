@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('新增教师管理')" />
+</head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-teacher-add">
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">教师：</label>
+                <div class="col-sm-8">
+                    <input name="tname" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">工号：</label>
+                <div class="col-sm-8">
+                    <input name="num" class="form-control" type="text">
+                </div>
+            </div>
+
+
+            <div class="form-group">
+                <label class="col-sm-3 control-label">职称：</label>
+                <div class="col-sm-8">
+                    <select name="zhicheng" class="form-control m-b" th:with="type=${@dict.getType('tea_zhicheng')}">
+                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
+                    </select>
+                </div>
+            </div>
+
+
+            <div class="form-group">
+                <label class="col-sm-3 control-label">科目：</label>
+                <div class="col-sm-8">
+                    <label th:each="c:${courses}" class="check-box">
+                        <input name="courses" type="checkbox" th:value="${c.id}" th:text="${c.cname}" >
+                    </label>
+                </div>
+            </div>
+
+
+        </form>
+    </div>
+    <th:block th:include="include :: footer" />
+    <script th:inline="javascript">
+        var prefix = ctx + "system/teacher"
+        $("#form-teacher-add").validate({
+            focusCleanup: true
+        });
+
+        function submitHandler() {
+            if ($.validate.form()) {
+                var data = $('#form-teacher-add').serialize();
+                $.operate.save(prefix + "/add",data);
+            }
+        }
+    </script>
+</body>
+</html>
