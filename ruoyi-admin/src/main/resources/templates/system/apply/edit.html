@@ -51,63 +51,17 @@
                     </div>
                 </div>
             </div>
+
+
+
+
+
             <div class="col-xs-6">
                 <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">委托单位：</label>
-                    <div class="col-sm-8">
-                        <input name="client" th:field="*{client}" class="form-control" type="text" required>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xs-6">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">承担单位：</label>
-                    <div class="col-sm-8">
-                        <input name="undertaking" th:field="*{undertaking}" class="form-control" type="text" required>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xs-6">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">甲方联系人：</label>
-                    <div class="col-sm-8">
-<!--                        <input name="contacta" th:field="*{contacta}" class="form-control" type="text" required>-->
-                        <select name="contacta" class="form-control m-b" >
-                            <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}"  th:selected="${ #strings.toString(user.userId) == sciHorizontalApply.contacta}"></option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xs-6">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">联系电话：</label>
-                    <div class="col-sm-8">
-                        <input name="contactaTel" th:field="*{contactaTel}" class="form-control" type="text" required>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xs-6">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">乙方联系人：</label>
-                    <div class="col-sm-8">
-                        <input name="contactb" th:field="*{contactb}" class="form-control" type="text" required>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xs-6">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">联系电话：</label>
-                    <div class="col-sm-8">
-                        <input name="contactbTel" th:field="*{contactbTel}" class="form-control" type="text" required>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xs-6">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">签订日期：</label>
+                    <label class="col-sm-4 control-label is-required">申请日期：</label>
                     <div class="col-sm-8">
                         <div class="input-group date">
-                           <input name="signingData" th:field="*{signingData}" th:value="${#dates.format(signingData, 'yyyy-MM-dd')}" class="form-control" placeholder="yyyy-MM-dd" type="text" required>
+                           <input name="signingData" autocomplete="off" th:field="*{signingData}" th:value="${#dates.format(signingData, 'yyyy-MM-dd')}" class="form-control" placeholder="yyyy-MM-dd" type="text" required>
                             <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
                         </div>
                     </div>
@@ -115,10 +69,10 @@
             </div>
             <div class="col-xs-6">
                 <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">合同有效日期：</label>
+                    <label class="col-sm-4 control-label is-required">结束日期：</label>
                     <div class="col-sm-8">
                         <div class="input-group date">
-                            <input name="validityDate" th:field="*{validityDate}" th:value="${#dates.format(validityDate, 'yyyy-MM-dd - yyyy-MM-dd')}" class="form-control" id="laydate-demo-4" placeholder="yyyy-MM-dd - yyyy-MM-dd" type="text" required>
+                            <input  autocomplete="off" name="validityDate" th:field="*{validityDate}" th:value="${#dates.format(validityDate, 'yyyy-MM-dd - yyyy-MM-dd')}" class="form-control" id="laydate-demo-4" placeholder="yyyy-MM-dd - yyyy-MM-dd" type="text" required>
                             <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
                         </div>
                     </div>
@@ -135,14 +89,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-xs-6">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">承担任务：</label>
-                    <div class="col-sm-8">
-                        <input name="firstPersonTask" th:field="*{firstPersonTask}" class="form-control" type="text" required>
-                    </div>
-                </div>
-            </div>
+
             <div class="col-xs-6">
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">第二负责人：</label>
@@ -154,14 +101,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-xs-6">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">承担任务：</label>
-                    <div class="col-sm-8">
-                        <input name="secondPersonTask" th:field="*{secondPersonTask}" class="form-control" type="text" required>
-                    </div>
-                </div>
-            </div>
+
             <div class="col-xs-6">
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">第三负责人：</label>
@@ -173,14 +113,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-xs-6">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">承担任务：</label>
-                    <div class="col-sm-8">
-                        <input name="thirdPersonTask" th:field="*{thirdPersonTask}" class="form-control" type="text" required>
-                    </div>
-                </div>
-            </div>
+
             <div class="col-xs-6">
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">第四负责人：</label>
@@ -192,14 +125,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-xs-6">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">承担任务：</label>
-                    <div class="col-sm-8">
-                        <input name="fourthPersonTask" th:field="*{fourthPersonTask}" class="form-control" type="text" required>
-                    </div>
-                </div>
-            </div>
+
 
             <div class="col-xs-6">
                 <div class="form-group">

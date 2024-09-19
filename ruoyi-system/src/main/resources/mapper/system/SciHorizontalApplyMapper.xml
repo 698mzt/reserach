@@ -33,7 +33,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectSciHorizontalApplyVo">
-        select s.id,u.user_name userName, s.user_id, s.top_name, s.top_type, s.client, s.undertaking, s.contacta, s.contacta_tel, s.contactb, s.contactb_tel, s.signing_data, s.validity_Date, s.first_person_id, s.first_person_task, s.second_person_task, s.second_person_id, s.third_person_id, s.third_person_task, fourth_person_id, s.fourth_person_task,concat( s.amount,'万') amount, s.contract, s.filing, s.state
+        select s.id,u.user_name userName, s.user_id, s.top_name, s.top_type,  s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.contract, s.filing, s.state
 	 from sci_horizontal_apply s left join sys_user u on  s.user_id=u.user_id
 	 left join sys_dept d on u.dept_id = d.dept_id
   </sql>
@@ -44,22 +44,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 <!--            <if test="userId != null "> and user_id = #{userId}</if>-->
             <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
             <if test="topType != null  and topType != ''"> and top_type = #{topType}</if>
-            <if test="client != null  and client != ''"> and client = #{client}</if>
-            <if test="undertaking != null  and undertaking != ''"> and undertaking = #{undertaking}</if>
-            <if test="contacta != null  and contacta != ''"> and contacta = #{contacta}</if>
-            <if test="contactaTel != null  and contactaTel != ''"> and contacta_tel = #{contactaTel}</if>
-            <if test="contactb != null  and contactb != ''"> and contactb = #{contactb}</if>
-            <if test="contactbTel != null  and contactbTel != ''"> and contactb_tel = #{contactbTel}</if>
-            <if test="signingData != null  and signingData != ''"> and signing_data = #{signingData}</if>
+
+              <if test="signingData != null  and signingData != ''"> and signing_data = #{signingData}</if>
             <if test="validityDate != null  and validityDate != ''"> and validity_Date = #{validityDate}</if>
             <if test="firstPersonId != null  and firstPersonId != ''"> and first_person_id = #{firstPersonId}</if>
-            <if test="firstPersonTask != null  and firstPersonTask != ''"> and first_person_task = #{firstPersonTask}</if>
-            <if test="secondPersonTask != null  and secondPersonTask != ''"> and second_person_task = #{secondPersonTask}</if>
             <if test="secondPersonId != null  and secondPersonId != ''"> and second_person_id = #{secondPersonId}</if>
             <if test="thirdPersonId != null  and thirdPersonId != ''"> and third_person_id = #{thirdPersonId}</if>
-            <if test="thirdPersonTask != null  and thirdPersonTask != ''"> and third_person_task = #{thirdPersonTask}</if>
             <if test="fourthPersonId != null  and fourthPersonId != ''"> and fourth_person_id = #{fourthPersonId}</if>
-            <if test="fourthPersonTask != null  and fourthPersonTask != ''"> and fourth_person_task = #{fourthPersonTask}</if>
             <if test="amount != null  and amount != ''"> and amount = #{amount}</if>
             <if test="contract != null  and contract != ''"> and contract = #{contract}</if>
             <if test="filing != null  and filing != ''"> and filing = #{filing}</if>
@@ -80,22 +71,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="userId != null">user_id,</if>
             <if test="topName != null and topName != ''">top_name,</if>
             <if test="topType != null and topType != ''">top_type,</if>
-            <if test="client != null and client != ''">client,</if>
-            <if test="undertaking != null and undertaking != ''">undertaking,</if>
-            <if test="contacta != null and contacta != ''">contacta,</if>
-            <if test="contactaTel != null and contactaTel != ''">contacta_tel,</if>
-            <if test="contactb != null and contactb != ''">contactb,</if>
-            <if test="contactbTel != null and contactbTel != ''">contactb_tel,</if>
             <if test="signingData != null and signingData != ''">signing_data,</if>
             <if test="validityDate != null and validityDate != ''">validity_Date,</if>
             <if test="firstPersonId != null and firstPersonId != ''">first_person_id,</if>
-            <if test="firstPersonTask != null and firstPersonTask != ''">first_person_task,</if>
-            <if test="secondPersonTask != null and secondPersonTask != ''">second_person_task,</if>
-            <if test="secondPersonId != null and secondPersonId != ''">second_person_id,</if>
+             <if test="secondPersonId != null and secondPersonId != ''">second_person_id,</if>
             <if test="thirdPersonId != null and thirdPersonId != ''">third_person_id,</if>
-            <if test="thirdPersonTask != null and thirdPersonTask != ''">third_person_task,</if>
             <if test="fourthPersonId != null and fourthPersonId != ''">fourth_person_id,</if>
-            <if test="fourthPersonTask != null and fourthPersonTask != ''">fourth_person_task,</if>
             <if test="amount != null and amount != ''">amount,</if>
             <if test="contract != null and contract != ''">contract,</if>
             <if test="filing != null and filing != ''">filing,</if>
@@ -105,23 +86,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="userId != null">#{userId},</if>
             <if test="topName != null and topName != ''">#{topName},</if>
             <if test="topType != null and topType != ''">#{topType},</if>
-            <if test="client != null and client != ''">#{client},</if>
-            <if test="undertaking != null and undertaking != ''">#{undertaking},</if>
-            <if test="contacta != null and contacta != ''">#{contacta},</if>
-            <if test="contactaTel != null and contactaTel != ''">#{contactaTel},</if>
-            <if test="contactb != null and contactb != ''">#{contactb},</if>
-            <if test="contactbTel != null and contactbTel != ''">#{contactbTel},</if>
+
             <if test="signingData != null and signingData != ''">#{signingData},</if>
             <if test="validityDate != null and validityDate != ''">#{validityDate},</if>
             <if test="firstPersonId != null and firstPersonId != ''">#{firstPersonId},</if>
-            <if test="firstPersonTask != null and firstPersonTask != ''">#{firstPersonTask},</if>
-            <if test="secondPersonTask != null and secondPersonTask != ''">#{secondPersonTask},</if>
             <if test="secondPersonId != null and secondPersonId != ''">#{secondPersonId},</if>
             <if test="thirdPersonId != null and thirdPersonId != ''">#{thirdPersonId},</if>
-            <if test="thirdPersonTask != null and thirdPersonTask != ''">#{thirdPersonTask},</if>
             <if test="fourthPersonId != null and fourthPersonId != ''">#{fourthPersonId},</if>
-            <if test="fourthPersonTask != null and fourthPersonTask != ''">#{fourthPersonTask},</if>
-            <if test="amount != null and amount != ''">#{amount},</if>
+             <if test="amount != null and amount != ''">#{amount},</if>
             <if test="contract != null and contract != ''">#{contract},</if>
             <if test="filing != null and filing != ''">#{filing},</if>
             <if test="state != null and state != ''">#{state},</if>
@@ -134,23 +106,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="userId != null">user_id = #{userId},</if>
             <if test="topName != null and topName != ''">top_name = #{topName},</if>
             <if test="topType != null and topType != ''">top_type = #{topType},</if>
-            <if test="client != null and client != ''">client = #{client},</if>
-            <if test="undertaking != null and undertaking != ''">undertaking = #{undertaking},</if>
-            <if test="contacta != null and contacta != ''">contacta = #{contacta},</if>
-            <if test="contactaTel != null and contactaTel != ''">contacta_tel = #{contactaTel},</if>
-            <if test="contactb != null and contactb != ''">contactb = #{contactb},</if>
-            <if test="contactbTel != null and contactbTel != ''">contactb_tel = #{contactbTel},</if>
-            <if test="signingData != null and signingData != ''">signing_data = #{signingData},</if>
+
+              <if test="signingData != null and signingData != ''">signing_data = #{signingData},</if>
             <if test="validityDate != null and validityDate != ''">validity_Date = #{validityDate},</if>
             <if test="firstPersonId != null and firstPersonId != ''">first_person_id = #{firstPersonId},</if>
-            <if test="firstPersonTask != null and firstPersonTask != ''">first_person_task = #{firstPersonTask},</if>
-            <if test="secondPersonTask != null and secondPersonTask != ''">second_person_task = #{secondPersonTask},</if>
-            <if test="secondPersonId != null and secondPersonId != ''">second_person_id = #{secondPersonId},</if>
+             <if test="secondPersonId != null and secondPersonId != ''">second_person_id = #{secondPersonId},</if>
             <if test="thirdPersonId != null and thirdPersonId != ''">third_person_id = #{thirdPersonId},</if>
-            <if test="thirdPersonTask != null and thirdPersonTask != ''">third_person_task = #{thirdPersonTask},</if>
             <if test="fourthPersonId != null and fourthPersonId != ''">fourth_person_id = #{fourthPersonId},</if>
-            <if test="fourthPersonTask != null and fourthPersonTask != ''">fourth_person_task = #{fourthPersonTask},</if>
-            <if test="amount != null and amount != ''">amount = #{amount},</if>
+             <if test="amount != null and amount != ''">amount = #{amount},</if>
             <if test="contract != null and contract != ''">contract = #{contract},</if>
             <if test="filing != null and filing != ''">filing = #{filing},</if>
             <if test="state != null and state != ''">state = #{state},</if>

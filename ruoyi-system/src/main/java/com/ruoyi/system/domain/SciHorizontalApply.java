@@ -7,7 +7,7 @@ import com.ruoyi.common.core.domain.BaseEntity;
 
 /**
  * 横向课题对象 sci_horizontal_apply
- * 
+ *
  * @author zhansan
  * @date 2024-08-16
  */
@@ -39,70 +39,70 @@ public class SciHorizontalApply extends BaseEntity
     @Excel(name = "课题类型")
     private String topType;
 
-    /** 委托单位 */
-    @Excel(name = "委托单位")
-    private String client;
+//    /** 委托单位 */
+//    @Excel(name = "委托单位")
+//    private String client;
 
-    /** 承担单位 */
-    @Excel(name = "承担单位")
-    private String undertaking;
+//    /** 承担单位 */
+//    @Excel(name = "承担单位")
+//    private String undertaking;
+//
+//    /** 甲方联系人 */
+//    @Excel(name = "甲方联系人")
+//    private String contacta;
+//
+//    /** 联系电话 */
+//    @Excel(name = "联系电话")
+//    private String contactaTel;
+//
+//    /** 乙方联系人 */
+//    @Excel(name = "乙方联系人")
+//    private String contactb;
 
-    /** 甲方联系人 */
-    @Excel(name = "甲方联系人")
-    private String contacta;
-
-    /** 联系电话 */
-    @Excel(name = "联系电话")
-    private String contactaTel;
-
-    /** 乙方联系人 */
-    @Excel(name = "乙方联系人")
-    private String contactb;
-
-    /** 联系电话 */
-    @Excel(name = "联系电话")
-    private String contactbTel;
+//    /** 联系电话 */
+//    @Excel(name = "联系电话")
+//    private String contactbTel;
 
     /** 签订日期 */
-    @Excel(name = "签订日期")
+    @Excel(name = "申请日期")
     private String signingData;
 
     /** 合同有效日期 */
-    @Excel(name = "合同有效日期")
+    @Excel(name = "结项日期")
     private String validityDate;
 
     /** 第一负责人 */
     @Excel(name = "第一负责人")
     private String firstPersonId;
 
-    /** 承担任务 */
-    @Excel(name = "承担任务")
-    private String firstPersonTask;
+//    /** 承担任务 */
+//    @Excel(name = "承担任务")
+//    private String firstPersonTask;
 
     /** 第二负责人 */
     @Excel(name = "第二负责人")
     private String secondPersonId;
 
 
-    /** 承担任务 */
-    @Excel(name = "承担任务")
-    private String secondPersonTask;
+//    /** 承担任务 */
+//    @Excel(name = "承担任务")
+//    private String secondPersonTask;
 
     /** 第三负责人 */
     @Excel(name = "第三负责人")
     private String thirdPersonId;
 
-    /** 承担任务 */
-    @Excel(name = "承担任务")
-    private String thirdPersonTask;
+//    /** 承担任务 */
+//    @Excel(name = "承担任务")
+//    private String thirdPersonTask;
 
     /** 第四负责人 */
     @Excel(name = "第四负责人")
     private String fourthPersonId;
 
-    /** 承担任务 */
-    @Excel(name = "承担任务")
-    private String fourthPersonTask;
+//    /** 承担任务 */
+//    @Excel(name = "承担任务")
+//    private String fourthPersonTask;
 
     /** 项目金额 */
     @Excel(name = "项目金额")
@@ -120,273 +120,151 @@ public class SciHorizontalApply extends BaseEntity
     @Excel(name = "状态")
     private String state;
 
-    public void setId(Integer id) 
+    public void setId(Integer id)
     {
         this.id = id;
     }
 
-    public Integer getId() 
+    public Integer getId()
     {
         return id;
     }
 
-    public void setUserId(Integer userId) 
+    public void setUserId(Integer userId)
     {
         this.userId = userId;
     }
 
-    public Integer getUserId() 
+    public Integer getUserId()
     {
         return userId;
     }
 
-    public void setTopName(String topName) 
+    public void setTopName(String topName)
     {
         this.topName = topName;
     }
 
-    public String getTopName() 
+    public String getTopName()
     {
         return topName;
     }
 
-    public void setTopType(String topType) 
+    public void setTopType(String topType)
     {
         this.topType = topType;
     }
 
-    public String getTopType() 
+    public String getTopType()
     {
         return topType;
     }
 
-    public void setClient(String client) 
-    {
-        this.client = client;
-    }
 
-    public String getClient() 
-    {
-        return client;
-    }
 
-    public void setUndertaking(String undertaking) 
-    {
-        this.undertaking = undertaking;
-    }
-
-    public String getUndertaking() 
-    {
-        return undertaking;
-    }
-
-    public void setContacta(String contacta) 
-    {
-        this.contacta = contacta;
-    }
-
-    public String getContacta() 
-    {
-        return contacta;
-    }
-
-    public void setContactaTel(String contactaTel) 
-    {
-        this.contactaTel = contactaTel;
-    }
-
-    public String getContactaTel() 
-    {
-        return contactaTel;
-    }
-
-    public void setContactb(String contactb) 
-    {
-        this.contactb = contactb;
-    }
-
-    public String getContactb() 
-    {
-        return contactb;
-    }
-
-    public void setContactbTel(String contactbTel) 
-    {
-        this.contactbTel = contactbTel;
-    }
-
-    public String getContactbTel() 
-    {
-        return contactbTel;
-    }
-
-    public void setSigningData(String signingData) 
+    public void setSigningData(String signingData)
     {
         this.signingData = signingData;
     }
 
-    public String getSigningData() 
+    public String getSigningData()
     {
         return signingData;
     }
 
-    public void setValidityDate(String validityDate) 
+    public void setValidityDate(String validityDate)
     {
         this.validityDate = validityDate;
     }
 
-    public String getValidityDate() 
+    public String getValidityDate()
     {
         return validityDate;
     }
 
-    public void setFirstPersonId(String firstPersonId) 
+    public void setFirstPersonId(String firstPersonId)
     {
         this.firstPersonId = firstPersonId;
     }
 
-    public String getFirstPersonId() 
+    public String getFirstPersonId()
     {
         return firstPersonId;
     }
 
-    public void setFirstPersonTask(String firstPersonTask) 
-    {
-        this.firstPersonTask = firstPersonTask;
-    }
-
-    public String getFirstPersonTask() 
-    {
-        return firstPersonTask;
-    }
-
-    public void setSecondPersonTask(String secondPersonTask) 
-    {
-        this.secondPersonTask = secondPersonTask;
-    }
-
-    public String getSecondPersonTask() 
-    {
-        return secondPersonTask;
-    }
-
-    public void setSecondPersonId(String secondPersonId) 
+    public void setSecondPersonId(String secondPersonId)
     {
         this.secondPersonId = secondPersonId;
     }
 
-    public String getSecondPersonId() 
+    public String getSecondPersonId()
     {
         return secondPersonId;
     }
 
-    public void setThirdPersonId(String thirdPersonId) 
+    public void setThirdPersonId(String thirdPersonId)
     {
         this.thirdPersonId = thirdPersonId;
     }
 
-    public String getThirdPersonId() 
+    public String getThirdPersonId()
     {
         return thirdPersonId;
     }
 
-    public void setThirdPersonTask(String thirdPersonTask) 
-    {
-        this.thirdPersonTask = thirdPersonTask;
-    }
 
-    public String getThirdPersonTask() 
-    {
-        return thirdPersonTask;
-    }
 
-    public void setFourthPersonId(String fourthPersonId) 
+    public void setFourthPersonId(String fourthPersonId)
     {
         this.fourthPersonId = fourthPersonId;
     }
 
-    public String getFourthPersonId() 
+    public String getFourthPersonId()
     {
         return fourthPersonId;
     }
 
-    public void setFourthPersonTask(String fourthPersonTask) 
-    {
-        this.fourthPersonTask = fourthPersonTask;
-    }
 
-    public String getFourthPersonTask() 
-    {
-        return fourthPersonTask;
-    }
 
-    public void setAmount(String amount) 
+    public void setAmount(String amount)
     {
         this.amount = amount;
     }
 
-    public String getAmount() 
+    public String getAmount()
     {
         return amount;
     }
 
-    public void setContract(String contract) 
+    public void setContract(String contract)
     {
         this.contract = contract;
     }
 
-    public String getContract() 
+    public String getContract()
     {
         return contract;
     }
 
-    public void setFiling(String filing) 
+    public void setFiling(String filing)
     {
         this.filing = filing;
     }
 
-    public String getFiling() 
+    public String getFiling()
     {
         return filing;
     }
 
-    public void setState(String state) 
+    public void setState(String state)
     {
         this.state = state;
     }
 
-    public String getState() 
+    public String getState()
     {
         return state;
     }
 
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
-            .append("id", getId())
-            .append("userId", getUserId())
-            .append("topName", getTopName())
-            .append("topType", getTopType())
-            .append("client", getClient())
-            .append("undertaking", getUndertaking())
-            .append("contacta", getContacta())
-            .append("contactaTel", getContactaTel())
-            .append("contactb", getContactb())
-            .append("contactbTel", getContactbTel())
-            .append("signingData", getSigningData())
-            .append("validityDate", getValidityDate())
-            .append("firstPersonId", getFirstPersonId())
-            .append("firstPersonTask", getFirstPersonTask())
-            .append("secondPersonTask", getSecondPersonTask())
-            .append("secondPersonId", getSecondPersonId())
-            .append("thirdPersonId", getThirdPersonId())
-            .append("thirdPersonTask", getThirdPersonTask())
-            .append("fourthPersonId", getFourthPersonId())
-            .append("fourthPersonTask", getFourthPersonTask())
-            .append("amount", getAmount())
-            .append("contract", getContract())
-            .append("filing", getFiling())
-            .append("state", getState())
-            .toString();
-    }
+
 }
