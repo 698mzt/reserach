@@ -3,6 +3,7 @@ package com.ruoyi.web.controller.system;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.ruoyi.common.core.domain.entity.SysRole;
 import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.system.domain.SciHorizontalPiyue;
 import com.ruoyi.system.service.ISciHorizontalPiyueService;
@@ -61,7 +62,22 @@ public class SciHorizontalApplyController extends BaseController
     public TableDataInfo list(SciHorizontalApply sciHorizontalApply)
     {
         startPage();
-        List<SciHorizontalApply> list = sciHorizontalApplyService.selectSciHorizontalApplyList(sciHorizontalApply);
+        List<SysRole> roles = getSysUser().getRoles();
+        boolean falg = false;
+        for (SysRole r :roles){
+            if(r.getRoleKey().equals("sci_tesearch")){
+                falg =true;
+                break;
+            }
+        }
+        List<SciHorizontalApply> list = new ArrayList<>();
+        if(falg){
+            list = sciHorizontalApplyService.selectSciHorizontalApplyListByKYC(sciHorizontalApply);
+        }else{
+            list = sciHorizontalApplyService.selectSciHorizontalApplyList(sciHorizontalApply);
+        }
+
+
         return getDataTable(list);
     }
 

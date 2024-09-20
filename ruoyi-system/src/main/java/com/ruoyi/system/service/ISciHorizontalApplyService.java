@@ -62,4 +62,6 @@ public interface ISciHorizontalApplyService
     int hxPass(String id,Long uid);
 
     int hxBh(String id,Long uid, String remark);
+
+    List<SciHorizontalApply> selectSciHorizontalApplyListByKYC(SciHorizontalApply sciHorizontalApply);
 }

@@ -61,4 +61,6 @@ public interface SciHorizontalApplyMapper
     public int deleteSciHorizontalApplyByIds(String[] ids);
 
     int hxPass(@Param("id") String id,@Param("state") String state);
+
+    List<SciHorizontalApply> selectSciHorizontalApplyListByKYC(SciHorizontalApply sciHorizontalApply);
 }

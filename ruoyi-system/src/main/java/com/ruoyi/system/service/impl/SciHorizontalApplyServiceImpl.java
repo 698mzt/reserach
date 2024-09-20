@@ -50,7 +50,10 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
     {
         return sciHorizontalApplyMapper.selectSciHorizontalApplyList(sciHorizontalApply);
     }
-
+    @Override
+    public List<SciHorizontalApply> selectSciHorizontalApplyListByKYC(SciHorizontalApply sciHorizontalApply) {
+        return sciHorizontalApplyMapper.selectSciHorizontalApplyListByKYC(sciHorizontalApply);
+    }
     /**
      * 新增横向课题
      * 
@@ -123,4 +126,6 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
         sciHorizontalPiyueMapper.insertSciHorizontalPiyue(sciHorizontalPiyue);
         return a;
     }
+
+
 }
