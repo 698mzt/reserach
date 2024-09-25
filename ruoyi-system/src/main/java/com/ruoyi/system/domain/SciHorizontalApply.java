@@ -15,6 +15,7 @@ public class SciHorizontalApply extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
 
+    private Long uid;
     /**  */
     private Integer id;
 
@@ -266,5 +267,11 @@ public class SciHorizontalApply extends BaseEntity
         return state;
     }
 
+    public Long getUid() {
+        return uid;
+    }
 
+    public void setUid(Long uid) {
+        this.uid = uid;
+    }
 }

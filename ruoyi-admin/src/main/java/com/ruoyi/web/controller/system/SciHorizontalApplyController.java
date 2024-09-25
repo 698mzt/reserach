@@ -61,6 +61,7 @@ public class SciHorizontalApplyController extends BaseController
     @ResponseBody
     public TableDataInfo list(SciHorizontalApply sciHorizontalApply)
     {
+        sciHorizontalApply.setUid(getUserId());
         startPage();
         List<SysRole> roles = getSysUser().getRoles();
         boolean falg = false;
@@ -170,60 +171,22 @@ public class SciHorizontalApplyController extends BaseController
 
         mmap.put("sysUsers1",userList1);
         mmap.put("sciHorizontalApply", sciHorizontalApply);
-//        for (int a = 0; a<userList.size();a++) {
-//            if(userList.get(a).getUserId() ==Long.valueOf(sciHorizontalApply.getFirstPersonId()) ){
-//                SysUser user = userList.get(a);
-//                user.setFlag(true);
-//                userList.set(a,user);
-//                mmap.put("sysUsers3",userList);
-//                user.setFlag(false);
-//                userList.set(a,user);
-//                break;
-//            }
-//        }
-
-//        for (int a = 0; a<userList.size();a++) {
-//            if(userList.get(a).getUserId() ==Long.valueOf(sciHorizontalApply.getSecondPersonId()) ){
-//                SysUser user = userList.get(a);
-//                user.setFlag(true);
-//                userList.set(a,user);
-//                mmap.put("sysUsers4",userList);
-//                user.setFlag(false);
-//                userList.set(a,user);
-//                break;
-//            }
-//        }
-
-//        for (int a = 0; a<userList.size();a++) {
-//            if(userList.get(a).getUserId() ==Long.valueOf(sciHorizontalApply.getThirdPersonId()) ){
-//                SysUser user = userList.get(a);
-//                user.setFlag(true);
-//                userList.set(a,user);
-//                mmap.put("sysUsers5",userList);
-//                user.setFlag(false);
-//                userList.set(a,user);
-//                break;
-//            }
-//        }
-//
-//        for (int a = 0; a<userList.size();a++) {
-//            if(userList.get(a).getUserId() ==Long.valueOf(sciHorizontalApply.getFourthPersonId()) ){
-//                SysUser user = userList.get(a);
-//                user.setFlag(true);
-//                userList.set(a,user);
-//                mmap.put("sysUsers6",userList);
-//                user.setFlag(false);
-//                userList.set(a,user);
-//
-//                break;
-//            }
-//        }
         return prefix + "/edit";
     }
 
     /**
      * 修改保存横向课题
      */
+    @RequiresPermissions("system:apply:edit")
+    @Log(title = "横向课题", businessType = BusinessType.UPDATE)
+    @PostMapping("/edit")
+    @ResponseBody
+    public AjaxResult editSave(SciHorizontalApply sciHorizontalApply)
+    {
+        sciHorizontalApply.setState("1");
+        return toAjax(sciHorizontalApplyService.updateSciHorizontalApply(sciHorizontalApply));
+    }
+
     @RequiresPermissions("system:apply:edit")
     @PostMapping("/bhyy/{kid}")
     @ResponseBody
