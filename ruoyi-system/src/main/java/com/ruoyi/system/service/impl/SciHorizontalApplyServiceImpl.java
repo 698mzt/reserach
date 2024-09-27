@@ -122,7 +122,7 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
         sciHorizontalPiyue.setUid(uid);
         sciHorizontalPiyue.setHxktId(Integer.valueOf(id));
         sciHorizontalPiyue.setConcate(remark);
-        sciHorizontalPiyue.setState("驳回");
+        sciHorizontalPiyue.setState("教研室驳回");
         sciHorizontalPiyueMapper.insertSciHorizontalPiyue(sciHorizontalPiyue);
         return a;
     }

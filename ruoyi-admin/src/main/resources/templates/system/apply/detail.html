@@ -146,20 +146,32 @@
             </div>
         </div>
         </div>
-        <h4 class="form-header h4" id="msg">退回原因</h4>
+
+
+
+
+        <h4 class="form-header h4" id="tdiv1" style="display:none;">退回原因</h4>
         <div class="row">
             <div class="col-sm-12">
-                <div class="form-group" style="display:none;" id="tdiv1">
+                <div class="form-group"  >
                     <label class="col-xs-2 control-label">批注：</label>
                     <div class="col-xs-10">
                         <textarea name="remark" required maxlength="500" class="form-control" rows="3"></textarea>
                     </div>
                 </div>
-                <div class="form-group" style="display:none;" id="tdiv2">
-                <table id='bootstrap-table'></table>
+
+            </div>
+        </div>
+        <h4 class="form-header h4 tdiv2"  style="display:none;">退回记录</h4>
+        <div class="row tdiv2" style="display:none;">
+            <div class="col-sm-12">
+
+                <div class="form-group"  >
+                    <table id='bootstrap-table'></table>
                 </div>
             </div>
         </div>
+
     </form>
 </div>
 <div class="row">
@@ -193,7 +205,6 @@
             showToggle: false,
             showColumns: false,
             pagination:false,
-
             columns: [
 
                 {
@@ -221,20 +232,29 @@
 
         $.table.init(options);
 
+        $('#bootstrap-table').on('load-success.bs.table', function (e, name, args) {
+            console.log('Event Name:', name.rows);
+
+            var a =$("#state").val();
+            if(a==4 || a == 3 || a==5){
+                $("#btn3").show();
+                $(".tdiv2").show();
+
+            } else if(a == 1 || a==2){
+                if(name.rows.length > 0){
+                    $(".tdiv2").show();
+                }
+                $(".tdiv1").show();
+
+                $("#btn1").show();
+                $("#btn2").show();
+            }
+
+        });
 
 
 
-        var a =$("#state").val();
-        if(a==2){
-            $("#btn3").show();
-            $("#msg").text("批阅记录");
-            $("#tdiv2").show();
 
-        }else{
-            $("#tdiv1").show();
-            $("#btn1").show();
-            $("#btn2").show();
-        }
         <!-- laydate示例 -->
         layui.use('laydate', function(){
             var laydate = layui.laydate;

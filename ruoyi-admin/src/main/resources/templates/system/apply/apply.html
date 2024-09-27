@@ -127,6 +127,7 @@
         var editFlag = [[${@permission.hasPermi('system:apply:edit')}]];
         var removeFlag = [[${@permission.hasPermi('system:apply:remove')}]];
         var editInfo = [[${@permission.hasPermi('system:apply:info')}]];
+        var hechaFlag = [[${@permission.hasPermi('system:apply:hecha')}]];
         var topTypeDatas = [[${@dict.getType('sci_top_type')}]];
         var datas = [[${@dict.getType('sci_crosswise_tasks')}]];
 
@@ -187,23 +188,28 @@
                     align: 'center',
                     formatter: function(value, row, index) {
                         var actions = [];
+
                         if(row.state == 1 ){
                              if(row.userId == row.uid){
                                  actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-remove"></i>删除</a>');
+                                 actions.push('<a   class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>更新</a> ');
                              }
-                            actions.push('<a  class="btn btn-success btn-xs ' + proFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>批阅</a> ');
+
+                            actions.push('<a  class="btn btn-success btn-xs ' + proFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id+'/pro' + '\')"><i class="fa fa-edit"></i>批阅</a> ');
 
                         }
-                        if(row.state == 3){
+                        if(row.state == 3 && row.userId == row.uid){
                             actions.push('<a   class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>更新</a> ');
                         }if(row.state == 2){
-                            actions.push('<a   class="btn btn-success btn-xs ' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>查看</a> ');
+
+                            actions.push('<a  class="btn btn-success btn-xs ' + hechaFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/hecha'+ '\')"><i class="fa fa-edit"></i>核查</a> ');
                         }
                         return actions.join('');
                     }
                 }]
             };
             $.table.init(options);
+
         });
     </script>
 </body>

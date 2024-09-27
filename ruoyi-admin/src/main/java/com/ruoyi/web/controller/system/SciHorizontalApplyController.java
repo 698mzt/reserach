@@ -77,9 +77,9 @@ public class SciHorizontalApplyController extends BaseController
         }else{
             list = sciHorizontalApplyService.selectSciHorizontalApplyList(sciHorizontalApply);
         }
+        TableDataInfo data= getDataTable(list);
 
-
-        return getDataTable(list);
+        return data;
     }
 
     /**
@@ -129,11 +129,12 @@ public class SciHorizontalApplyController extends BaseController
     }
 
     @RequiresPermissions("system:apply:info")
-    @GetMapping("/detail/{id}")
-    public String detail(@PathVariable("id") Integer id, ModelMap mmap)
+    @GetMapping("/detail/{id}/{urlFlag}")
+    public String detail(@PathVariable("id") Integer id,@PathVariable("urlFlag") String urlFlag, ModelMap mmap)
     {
         SciHorizontalApply sciHorizontalApply = sciHorizontalApplyService.selectSciHorizontalApplyById(id);
         List<SysUser> userList1 =  userService.selectAllUser();
+        System.out.println(urlFlag);
         mmap.put("sysUsers1",userList1);
         mmap.put("sciHorizontalApply", sciHorizontalApply);
         return prefix + "/detail";
