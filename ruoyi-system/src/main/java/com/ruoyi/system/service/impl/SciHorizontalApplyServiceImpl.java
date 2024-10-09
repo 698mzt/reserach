@@ -103,8 +103,14 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
     }
 
     @Override
-    public int hxPass(String id,Long uid) {
-        int a =  sciHorizontalApplyMapper.hxPass(id,"2");
+    public int hxPass(String id,Long uid,String urlFlag) {
+        String state = "0";
+        if(urlFlag.equals("hecha")){
+            state ="4";
+        }else if(urlFlag.equals("pro")){
+            state ="2";
+        }
+        int a =  sciHorizontalApplyMapper.hxPass(id,state);
         SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
         sciHorizontalPiyue.setUid(uid);
         sciHorizontalPiyue.setHxktId(Integer.valueOf(id));
@@ -115,9 +121,14 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
     }
 
     @Override
-    public int hxBh(String id,Long uid, String remark) {
-
-        int a = sciHorizontalApplyMapper.hxPass(id,"3");
+    public int hxBh(String id,Long uid, String remark,String urlFlag) {
+        String state = "0";
+        if(urlFlag.equals("hecha")){
+            state ="5";
+        }else if(urlFlag.equals("pro")){
+            state ="3";
+        }
+        int a = sciHorizontalApplyMapper.hxPass(id,state);
         SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
         sciHorizontalPiyue.setUid(uid);
         sciHorizontalPiyue.setHxktId(Integer.valueOf(id));

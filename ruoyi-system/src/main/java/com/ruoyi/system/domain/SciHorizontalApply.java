@@ -121,6 +121,16 @@ public class SciHorizontalApply extends BaseEntity
     @Excel(name = "状态")
     private String state;
 
+    private String urlFlag;
+
+    public String getUrlFlag() {
+        return urlFlag;
+    }
+
+    public void setUrlFlag(String urlFlag) {
+        this.urlFlag = urlFlag;
+    }
+
     public void setId(Integer id)
     {
         this.id = id;

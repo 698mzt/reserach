@@ -59,9 +59,9 @@ public interface ISciHorizontalApplyService
      */
     public int deleteSciHorizontalApplyById(Integer id);
 
-    int hxPass(String id,Long uid);
+    int hxPass(String id,Long uid,String urlFlag);
 
-    int hxBh(String id,Long uid, String remark);
+    int hxBh(String id,Long uid, String remark,String urlFlag);
 
     List<SciHorizontalApply> selectSciHorizontalApplyListByKYC(SciHorizontalApply sciHorizontalApply);
 }
