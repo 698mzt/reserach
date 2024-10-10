@@ -18,6 +18,10 @@ public class SciHorizontalApply extends BaseEntity
     private Long uid;
     /**  */
     private Integer id;
+    @Excel(name = "学院")
+    private String  yname;
+    @Excel(name = "专业")
+    private String  dname;
 
     /** 申请人 */
     @Excel(name = "申请人")
@@ -37,32 +41,8 @@ public class SciHorizontalApply extends BaseEntity
     private String topName;
 
     /** 课题类型 */
-    @Excel(name = "课题类型")
+   // @Excel(name = "课题类型")
     private String topType;
-
-//    /** 委托单位 */
-//    @Excel(name = "委托单位")
-//    private String client;
-
-//    /** 承担单位 */
-//    @Excel(name = "承担单位")
-//    private String undertaking;
-//
-//    /** 甲方联系人 */
-//    @Excel(name = "甲方联系人")
-//    private String contacta;
-//
-//    /** 联系电话 */
-//    @Excel(name = "联系电话")
-//    private String contactaTel;
-//
-//    /** 乙方联系人 */
-//    @Excel(name = "乙方联系人")
-//    private String contactb;
-
-//    /** 联系电话 */
-//    @Excel(name = "联系电话")
-//    private String contactbTel;
 
     /** 签订日期 */
     @Excel(name = "申请日期")
@@ -73,48 +53,39 @@ public class SciHorizontalApply extends BaseEntity
     private String validityDate;
 
     /** 第一负责人 */
-    @Excel(name = "第一负责人")
+    //@Excel(name = "第一负责人")
     private String firstPersonId;
 
-//    /** 承担任务 */
-//    @Excel(name = "承担任务")
-//    private String firstPersonTask;
+
 
     /** 第二负责人 */
-    @Excel(name = "第二负责人")
+   // @Excel(name = "第二负责人")
     private String secondPersonId;
 
 
-//    /** 承担任务 */
-//    @Excel(name = "承担任务")
-//    private String secondPersonTask;
 
     /** 第三负责人 */
-    @Excel(name = "第三负责人")
+   // @Excel(name = "第三负责人")
     private String thirdPersonId;
 
-//    /** 承担任务 */
-//    @Excel(name = "承担任务")
-//    private String thirdPersonTask;
+
 
     /** 第四负责人 */
-    @Excel(name = "第四负责人")
+  //  @Excel(name = "第四负责人")
     private String fourthPersonId;
 
-//    /** 承担任务 */
-//    @Excel(name = "承担任务")
-//    private String fourthPersonTask;
+
 
     /** 项目金额 */
     @Excel(name = "项目金额")
     private String amount;
 
     /** 合同 */
-    @Excel(name = "合同")
+    //@Excel(name = "合同")
     private String contract;
 
     /** 备案表 */
-    @Excel(name = "备案表")
+    //@Excel(name = "备案表")
     private String filing;
 
     /** 状态 */
@@ -283,5 +254,21 @@ public class SciHorizontalApply extends BaseEntity
 
     public void setUid(Long uid) {
         this.uid = uid;
+    }
+
+    public String getYname() {
+        return yname;
+    }
+
+    public void setYname(String yname) {
+        this.yname = yname;
+    }
+
+    public String getDname() {
+        return dname;
+    }
+
+    public void setDname(String dname) {
+        this.dname = dname;
     }
 }

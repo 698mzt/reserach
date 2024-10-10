@@ -92,6 +92,13 @@ public class SciHorizontalApplyController extends BaseController
     public AjaxResult export(SciHorizontalApply sciHorizontalApply)
     {
         List<SciHorizontalApply> list = sciHorizontalApplyService.selectSciHorizontalApplyList(sciHorizontalApply);
+        for (SciHorizontalApply apply: list ) {
+              if(apply.getState().equals("4")){
+                  apply.setState("结项");
+              }else{
+                  apply.setState("在研");
+              }
+        }
         ExcelUtil<SciHorizontalApply> util = new ExcelUtil<SciHorizontalApply>(SciHorizontalApply.class);
         return util.exportExcel(list, "横向课题数据");
     }
