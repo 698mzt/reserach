@@ -8,6 +8,7 @@ import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.system.domain.SciHorizontalPiyue;
 import com.ruoyi.system.service.ISciHorizontalPiyueService;
 import com.ruoyi.system.service.ISysUserService;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -56,6 +57,7 @@ public class SciHorizontalApplyController extends BaseController
     /**
      * 查询横向课题列表
      */
+
     @RequiresPermissions("system:apply:list")
     @PostMapping("/list")
     @ResponseBody
@@ -86,12 +88,19 @@ public class SciHorizontalApplyController extends BaseController
      * 导出横向课题列表
      */
     @RequiresPermissions("system:apply:export")
-    @Log(title = "横向课题", businessType = BusinessType.EXPORT)
+    @Log(title = "导出横向课题", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     @ResponseBody
     public AjaxResult export(SciHorizontalApply sciHorizontalApply)
     {
         List<SciHorizontalApply> list = sciHorizontalApplyService.selectSciHorizontalApplyList(sciHorizontalApply);
+        for (SciHorizontalApply apply: list ) {
+              if(apply.getState().equals("4")){
+                  apply.setState("结项");
+              }else{
+                  apply.setState("在研");
+              }
+        }
         ExcelUtil<SciHorizontalApply> util = new ExcelUtil<SciHorizontalApply>(SciHorizontalApply.class);
         return util.exportExcel(list, "横向课题数据");
     }
@@ -99,6 +108,7 @@ public class SciHorizontalApplyController extends BaseController
     /**
      * 新增横向课题
      */
+    @RequiresPermissions("system:apply:add")
     @GetMapping("/add")
     public String add( ModelMap mmap)
     {
@@ -120,7 +130,7 @@ public class SciHorizontalApplyController extends BaseController
      * 新增保存横向课题
      */
     @RequiresPermissions("system:apply:add")
-    @Log(title = "横向课题", businessType = BusinessType.INSERT)
+    @Log(title = "申请横向课题", businessType = BusinessType.INSERT)
     @PostMapping("/add")
     @ResponseBody
     public AjaxResult addSave(SciHorizontalApply sciHorizontalApply)
@@ -134,30 +144,33 @@ public class SciHorizontalApplyController extends BaseController
     {
         SciHorizontalApply sciHorizontalApply = sciHorizontalApplyService.selectSciHorizontalApplyById(id);
         List<SysUser> userList1 =  userService.selectAllUser();
-        System.out.println(urlFlag);
+        sciHorizontalApply.setUrlFlag(urlFlag);
+
         mmap.put("sysUsers1",userList1);
         mmap.put("sciHorizontalApply", sciHorizontalApply);
+        //mmap.put("urlFlag",urlFlag);
         return prefix + "/detail";
     }
 
 
-    @RequiresPermissions("system:apply:process")
+    @RequiresPermissions(value={"system:apply:hecha","system:apply:process"},logical= Logical.OR)
     @Log(title = "横向课题审核通过", businessType = BusinessType.UPDATE)
     @PostMapping( "/hxPass")
     @ResponseBody
-    public AjaxResult hxPass(String id)
+    public AjaxResult hxPass(String id,String urlFlag)
     {
-        return toAjax(sciHorizontalApplyService.hxPass(id,getUserId()));
+        return toAjax(sciHorizontalApplyService.hxPass(id,getUserId(),urlFlag));
     }
 
-    @RequiresPermissions("system:apply:process")
+
+    @RequiresPermissions({"system:apply:hecha","system:apply:process"})
     @Log(title = "横向课题被驳回", businessType = BusinessType.UPDATE)
     @PostMapping( "/hxBh")
     @ResponseBody
-    public AjaxResult hxBh(String id,String remark)
+    public AjaxResult hxBh(String id,String remark,String urlFlag)
     {
 
-        return toAjax(sciHorizontalApplyService.hxBh(id,getUserId(),remark));
+        return toAjax(sciHorizontalApplyService.hxBh(id,getUserId(),remark,urlFlag));
     }
     /**
      * 修改横向课题
@@ -179,7 +192,7 @@ public class SciHorizontalApplyController extends BaseController
      * 修改保存横向课题
      */
     @RequiresPermissions("system:apply:edit")
-    @Log(title = "横向课题", businessType = BusinessType.UPDATE)
+    @Log(title = "更新横向课题", businessType = BusinessType.UPDATE)
     @PostMapping("/edit")
     @ResponseBody
     public AjaxResult editSave(SciHorizontalApply sciHorizontalApply)
@@ -203,7 +216,7 @@ public class SciHorizontalApplyController extends BaseController
      * 删除横向课题
      */
     @RequiresPermissions("system:apply:remove")
-    @Log(title = "横向课题", businessType = BusinessType.DELETE)
+    @Log(title = "删除横向课题", businessType = BusinessType.DELETE)
     @PostMapping( "/remove")
     @ResponseBody
     public AjaxResult remove(String ids)

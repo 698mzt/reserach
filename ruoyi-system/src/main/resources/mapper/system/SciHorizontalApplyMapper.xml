@@ -33,9 +33,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectSciHorizontalApplyVo">
-        select #{uid} uid,s.id,u.user_name userName, s.user_id, s.top_name, s.top_type,  s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.contract, s.filing, s.state
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,  s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.contract, s.filing, s.state
 	 from sci_horizontal_apply s left join sys_user u on  s.user_id=u.user_id
 	 left join sys_dept d on u.dept_id = d.dept_id
+	  left join sys_dept p on d.parent_id =p.dept_id
   </sql>
 
     <select id="selectSciHorizontalApplyList" parameterType="SciHorizontalApply" resultMap="SciHorizontalApplyResult">
@@ -44,25 +45,26 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 <!--            <if test="userId != null "> and user_id = #{userId}</if>-->
             <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
 
-             <if test="firstPersonId != null  and firstPersonId != ''"> and first_person_id = #{firstPersonId}</if>
+             <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
              <if test="state != null  and state != ''"> and state = #{state}</if>
             	<!-- 数据范围过滤 -->
 		   ${params.dataScope}
         </where>
+        order  by createtime desc
     </select>
 
      <select id="selectSciHorizontalApplyListByKYC" parameterType="SciHorizontalApply" resultMap="SciHorizontalApplyResult">
-        select  #{uid} uid, s.id,u.user_name userName, s.user_id, s.top_name, s.top_type,  s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.contract, s.filing, s.state
+        select  #{uid} uid, s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,  s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.contract, s.filing, s.state
 	 from sci_horizontal_apply s left join sys_user u on  s.user_id=u.user_id
 	 left join sys_dept d on u.dept_id = d.dept_id
+	 left join sys_dept p on d.parent_id =p.dept_id
         where s.state in (2,4,5)
 <!--            <if test="userId != null "> and user_id = #{userId}</if>-->
-            <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
+               <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
 
-             <if test="firstPersonId != null  and firstPersonId != ''"> and first_person_id = #{firstPersonId}</if>
+             <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
              <if test="state != null  and state != ''"> and state = #{state}</if>
-
-
+ order  by createtime desc
     </select>
 
 
