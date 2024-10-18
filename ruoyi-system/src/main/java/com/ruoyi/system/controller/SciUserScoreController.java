@@ -17,7 +17,7 @@ public class SciUserScoreController  extends BaseController {
     ISciUserScoreService sciUserScoreService;
 
     public AjaxResult insertHistory(@RequestBody Map<String, Object> paramMap) {
-        AjaxResult ajaxResult = sciUserScoreService.insertHistory(paramMap);
+        AjaxResult ajaxResult = sciUserScoreService.insertScoreHistory(paramMap);
         return ajaxResult;
     }
 

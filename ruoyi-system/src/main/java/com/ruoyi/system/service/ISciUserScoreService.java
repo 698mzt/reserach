@@ -7,5 +7,5 @@ import java.util.Map;
 public interface ISciUserScoreService {
     AjaxResult computeUserScore(Map<String, Object> paramMap);
 
-    AjaxResult insertHistory(Map<String, Object> paramMap);
+    AjaxResult insertScoreHistory(Map<String, Object> paramMap);
 }
