@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('横向课题得分配置列表')"/>
+</head>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="btn-group-sm " id="toolbar" role="group">
+        <a class="btn btn-success" onclick="$.operate.add()" shiro:hasPermission="system:projectScoreCfg:add">
+            <i class="fa fa-plus"></i> 添加配置
+        </a>
+        <!--        <a class="btn btn-primary single disabled" onclick="$.operate.edit()" shiro:hasPermission="system:projectScoreCfg:edit">-->
+        <!--            <i class="fa fa-edit"></i> 修改-->
+        <!--        </a>-->
+        <!--        <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()" shiro:hasPermission="system:projectScoreCfg:remove">-->
+        <!--            <i class="fa fa-remove"></i> 删除-->
+        <!--        </a>-->
+        <!--        <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:projectScoreCfg:export">-->
+        <!--            <i class="fa fa-download"></i> 导出-->
+        <!--        </a>-->
+    </div>
+    <div class="row" id="rowDiv">
+        <div class="col-sm-4 tabs-container">
+            <h4 class="form-header h4">经费75-100万（含75万）</h4>
+            <div class="panel-body">
+                <p>第1负责人共计5500分，其中开题47501分，结题7501分。</p>
+                <p>第2负责人共计4500分，其中开题47502分，结题7502分。</p>
+                <p>第3负责人共计3500分，其中开题47503分，结题7503分。</p>
+                <p>第4负责人共计2500分，其中开题47504分，结题7504分。</p>
+                <button class="btn btn-sm btn-primary" onclick="del_cfg('1','2')">删除</button>
+            </div>
+            1
+        </div>
+
+
+        <!--            <div class="col-sm-12 search-collapse">-->
+        <!--                <form id="formId">-->
+        <!--                    <div class="select-list">-->
+        <!--                        <ul>-->
+        <!--                            <li>-->
+        <!--                                <label>经费小于：</label>-->
+        <!--                                <input type="text" name="fundsMax"/>-->
+        <!--                            </li>-->
+        <!--                            <li>-->
+        <!--                                <label>经费大于：</label>-->
+        <!--                                <input type="text" name="fundsMin"/>-->
+        <!--                            </li>-->
+        <!--                            <li>-->
+        <!--                                <label>负责人排名：</label>-->
+        <!--                                <input type="text" name="userOrder"/>-->
+        <!--                            </li>-->
+        <!--                            <li>-->
+        <!--                                <label>总分：</label>-->
+        <!--                                <input type="text" name="totalScore"/>-->
+        <!--                            </li>-->
+        <!--                            <li>-->
+        <!--                                <label>开题得分：</label>-->
+        <!--                                <input type="text" name="startScore"/>-->
+        <!--                            </li>-->
+        <!--                            <li>-->
+        <!--                                <label>结题得分：</label>-->
+        <!--                                <input type="text" name="endScore"/>-->
+        <!--                            </li>-->
+        <!--                            <li>-->
+        <!--                                <label>修改人：</label>-->
+        <!--                                <input type="text" name="updateUser"/>-->
+        <!--                            </li>-->
+        <!--                            <li>-->
+        <!--                                <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>-->
+        <!--                                <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>-->
+        <!--                            </li>-->
+        <!--                        </ul>-->
+        <!--                    </div>-->
+        <!--                </form>-->
+        <!--            </div>-->
+
+
+        <!--            <div class="col-sm-12 select-table table-striped">-->
+        <!--                <table id="bootstrap-table"></table>-->
+        <!--            </div>-->\
+
+        <div class='col-sm-4 tabs-container'><h4 class='form-header h4'>经费大于100万（含100万）</h4>
+            <div class='panel-body'><p>第1负责人共计2500分，其中开题1750
+                <p>第2负责人共计1000分，其中开题700
+                <p>第3负责人共计500分，其中开题350
+                <p>第4负责人共计250分，其中开题175
+                    <button class='btn btn-sm btn-primary'>删除</button>
+            </div>
+        </div>
+
+
+    </div>
+</div>
+<th:block th:include="include :: footer"/>
+<script th:inline="javascript">
+    var editFlag = [[${@permission.hasPermi('system:projectScoreCfg:edit')}]];
+    var removeFlag = [[${@permission.hasPermi('system:projectScoreCfg:remove')}]];
+    var prefix = ctx + "system/projectScoreCfg";
+
+
+    $(function () {
+        get_cfg_card();
+    });
+
+    function get_cfg_card() {
+
+        var url = prefix + "/getCfgCard";
+        var dataParam = {}
+
+        $.post(url, dataParam, function (result) {
+            var divStr = "";
+            var funsList = result.data.fundsList;
+            for (let i = 0; i < funsList.length; i++) {
+                var funsInfo = funsList[i];
+                var funsDesc = "";
+                if (funsInfo.funds_min == 0) {
+                    funsDesc = "经费小于" + funsInfo.funds_max + "万（含" + funsInfo.funds_max + "万）";
+                } else if (funsInfo.funds_max == 0) {
+                    funsDesc = "经费大于" + funsInfo.funds_min + "万（含" + funsInfo.funds_min + "万）";
+                } else {
+                    funsDesc = "经费" + funsInfo.funds_min + "-" + funsInfo.funds_max + "万（含" + funsInfo.funds_min + "万）"
+                }
+
+                divStr = divStr + "               <div class='col-sm-4 panel blank-panel'> "
+                    + "    <div class='panel-body'> "
+                    + "    <h4 class='form-header h4'>" + funsDesc + "</h4> ";
+
+
+                var userScoreList = funsInfo.userScoreList;
+                for (let j = 0; j < userScoreList.length; j++) {
+                    divStr = divStr + " <p >第" + userScoreList[j].user_order + "负责人" +
+                        "共计" + userScoreList[j].total_score + "分，" +
+                        "其中开题" + userScoreList[j].start_score + "分，" +
+                        "结题" + userScoreList[j].end_score + "分。</p> "
+                }
+
+                divStr = divStr + " <button class='btn btn-sm btn-primary' " +
+                    " onclick=\"del_cfg('" + funsInfo.funds_max + "','" + funsInfo.funds_min + "')\">删除</button> " +
+                    "            </div> " +
+                    "        </div>";
+
+            }
+            console.log("divStr", divStr)
+            $("#rowDiv").empty();
+            $("#rowDiv").html(divStr);
+        });
+    }
+
+    function del_cfg(funds_max, funds_min) {
+        var url = prefix + "/delCfg";
+        var dataParam = {funds_max, funds_min}
+        console.log(dataParam)
+        $.modal.confirm("确认要删除吗?", function () {
+            $.ajax({
+                url: url,
+                data: JSON.stringify(dataParam),
+                type: "post",
+                processData: false,
+                contentType: "application/json",
+                success: function (result) {
+                    $.modal.alert(result.msg);
+                    get_cfg_card();
+                }
+            })
+        });
+    }
+</script>
+</body>
+</html>
