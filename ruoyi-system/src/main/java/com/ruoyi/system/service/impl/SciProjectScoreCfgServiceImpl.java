@@ -112,4 +112,9 @@ public class SciProjectScoreCfgServiceImpl implements ISciProjectScoreCfgService
         System.out.println("returnMap = " + returnMap);
         return returnMap;
     }
+
+    @Override
+    public int deleteSciProjectScoreCfgByFunds(Map map) {
+        return sciProjectScoreCfgMapper.deleteSciProjectScoreCfgByFunds(map);
+    }
 }

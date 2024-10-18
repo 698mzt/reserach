@@ -62,4 +62,6 @@ public interface ISciProjectScoreCfgService
     public int deleteSciProjectScoreCfgById(Long id);
 
     Map<String, Object> getProjectScoreCfg();
+
+    int deleteSciProjectScoreCfgByFunds(Map map);
 }

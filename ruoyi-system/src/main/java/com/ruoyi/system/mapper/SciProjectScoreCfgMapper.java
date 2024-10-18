@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.ruoyi.system.domain.SciProjectScoreCfg;
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Select;
 
 /**
@@ -85,4 +86,8 @@ public interface SciProjectScoreCfgMapper {
             "ORDER BY " +
             " t.total_score + 0 DESC ")
     List<Map<String, Object>> getUserScoreList(Map<String, Object> fundsMap);
+
+    @Delete("  delete from sci_project_score_cfg   " +
+            "where funds_max = #{funds_max} and funds_min = #{funds_min}")
+    int deleteSciProjectScoreCfgByFunds(Map map);
 }

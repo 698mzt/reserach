@@ -159,4 +159,27 @@ public class SciProjectScoreCfgController extends BaseController {
     public AjaxResult remove(String ids) {
         return toAjax(sciProjectScoreCfgService.deleteSciProjectScoreCfgByIds(ids));
     }
+
+    @RequiresPermissions("system:projectScoreCfg:add")
+    @Log(title = "横向课题得分配置", businessType = BusinessType.INSERT)
+    @PostMapping("/delCfg")
+    @ResponseBody
+    public Map<String, Object> delCfg(@RequestBody  Map map) {
+        System.out.println("map = " + map);
+
+        int i = sciProjectScoreCfgService.deleteSciProjectScoreCfgByFunds(map);
+        Map<String, Object> returnMap = new HashMap<>();
+
+        if (i > 0) {
+            returnMap.put("code", "0");
+            returnMap.put("msg", "操作成功");
+            return returnMap;
+        } else {
+            returnMap.put("code", "-1");
+            returnMap.put("msg", "操作失败");
+            return returnMap;
+        }
+
+    }
+
 }
