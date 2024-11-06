@@ -16,12 +16,17 @@ public class SciHorizontalApply extends BaseEntity
     private static final long serialVersionUID = 1L;
 
     private Long uid;
+
+    private Integer appid;
+    private String agreeurl;
+    private String  filingurl;
     /**  */
     private Integer id;
     @Excel(name = "学院")
     private String  yname;
     @Excel(name = "专业")
     private String  dname;
+
 
     /** 申请人 */
     @Excel(name = "申请人")
@@ -41,7 +46,7 @@ public class SciHorizontalApply extends BaseEntity
     private String topName;
 
     /** 课题类型 */
-   // @Excel(name = "课题类型")
+    // @Excel(name = "课题类型")
     private String topType;
 
     /** 签订日期 */
@@ -52,6 +57,9 @@ public class SciHorizontalApply extends BaseEntity
     @Excel(name = "结项日期")
     private String validityDate;
 
+    @Excel(name = "申请结项日期")
+    private String createtime;
+
     /** 第一负责人 */
     //@Excel(name = "第一负责人")
     private String firstPersonId;
@@ -59,19 +67,19 @@ public class SciHorizontalApply extends BaseEntity
 
 
     /** 第二负责人 */
-   // @Excel(name = "第二负责人")
+    // @Excel(name = "第二负责人")
     private String secondPersonId;
 
 
 
     /** 第三负责人 */
-   // @Excel(name = "第三负责人")
+    // @Excel(name = "第三负责人")
     private String thirdPersonId;
 
 
 
     /** 第四负责人 */
-  //  @Excel(name = "第四负责人")
+    //  @Excel(name = "第四负责人")
     private String fourthPersonId;
 
 
@@ -270,5 +278,37 @@ public class SciHorizontalApply extends BaseEntity
 
     public void setDname(String dname) {
         this.dname = dname;
+    }
+
+    public String getCreatetime() {
+        return createtime;
+    }
+
+    public void setCreatetime(String createtime) {
+        this.createtime = createtime;
+    }
+
+    public Integer getAppid() {
+        return appid;
+    }
+
+    public void setAppid(Integer appid) {
+        this.appid = appid;
+    }
+
+    public String getAgreeurl() {
+        return agreeurl;
+    }
+
+    public void setAgreeurl(String agreeurl) {
+        this.agreeurl = agreeurl;
+    }
+
+    public String getFilingurl() {
+        return filingurl;
+    }
+
+    public void setFilingurl(String filingurl) {
+        this.filingurl = filingurl;
     }
 }

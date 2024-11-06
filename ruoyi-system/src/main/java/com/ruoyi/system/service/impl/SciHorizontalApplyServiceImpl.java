@@ -14,12 +14,12 @@ import com.ruoyi.common.core.text.Convert;
 
 /**
  * 横向课题Service业务层处理
- * 
+ *
  * @author zhansan
  * @date 2024-08-16
  */
 @Service
-public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService 
+public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
 {
     @Autowired
     private SciHorizontalApplyMapper sciHorizontalApplyMapper;
@@ -28,7 +28,7 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
 
     /**
      * 查询横向课题
-     * 
+     *
      * @param id 横向课题主键
      * @return 横向课题
      */
@@ -40,7 +40,7 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
 
     /**
      * 查询横向课题列表
-     * 
+     *
      * @param sciHorizontalApply 横向课题
      * @return 横向课题
      */
@@ -54,9 +54,43 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
     public List<SciHorizontalApply> selectSciHorizontalApplyListByKYC(SciHorizontalApply sciHorizontalApply) {
         return sciHorizontalApplyMapper.selectSciHorizontalApplyListByKYC(sciHorizontalApply);
     }
+    @Override
+    @DataScope(deptAlias = "d", userAlias = "u")
+    public List<SciHorizontalApply> selectSciHorizontalApplyListByJYS(SciHorizontalApply sciHorizontalApply) {
+        return sciHorizontalApplyMapper.selectSciHorizontalApplyListByJYS(sciHorizontalApply);
+    }
+
+    @Override
+    @DataScope(deptAlias = "d", userAlias = "u")
+    public List<SciHorizontalApply> selectSciHorizontalApplyListByOverApply(SciHorizontalApply sciHorizontalApply) {
+        return sciHorizontalApplyMapper.selectSciHorizontalApplyListByOverApply(sciHorizontalApply);
+    }
+    @Override
+    @DataScope(deptAlias = "d", userAlias = "u")
+    public List<SciHorizontalApply> selectSciHorizontalApplyListByOverApplyJYS(SciHorizontalApply sciHorizontalApply) {
+        return sciHorizontalApplyMapper.selectSciHorizontalApplyListByOverApplyJYS(sciHorizontalApply);
+    }
+    @Override
+    @DataScope(deptAlias = "d", userAlias = "u")
+    public List<SciHorizontalApply> selectSciHorizontalApplyListByOverApplyKYC(SciHorizontalApply sciHorizontalApply) {
+        return sciHorizontalApplyMapper.selectSciHorizontalApplyListByOverApplyKYC(sciHorizontalApply);
+    }
+
+
+    @Override
+    @DataScope(deptAlias = "d", userAlias = "u")
+    public List<SciHorizontalApply> selectSciHorizontalApplyListByOVER(SciHorizontalApply sciHorizontalApply) {
+        return sciHorizontalApplyMapper.selectSciHorizontalApplyListByOVER(sciHorizontalApply);
+    }
+
+    @Override
+    public int overApply(String id, String state) {
+        return sciHorizontalApplyMapper.overApply(id,state);
+    }
+
     /**
      * 新增横向课题
-     * 
+     *
      * @param sciHorizontalApply 横向课题
      * @return 结果
      */
@@ -67,8 +101,20 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
     }
 
     /**
+     * 结项横向课题
+     *
+     * @param sciHorizontalApply 横向课题
+     * @return 结果
+     */
+    @Override
+    public int insertSciHorizontalOverApply(SciHorizontalApply sciHorizontalApply)
+    {
+        return sciHorizontalApplyMapper.insertSciHorizontalOverApply(sciHorizontalApply);
+    }
+
+    /**
      * 修改横向课题
-     * 
+     *
      * @param sciHorizontalApply 横向课题
      * @return 结果
      */
@@ -80,7 +126,7 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
 
     /**
      * 批量删除横向课题
-     * 
+     *
      * @param ids 需要删除的横向课题主键
      * @return 结果
      */
@@ -92,7 +138,7 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
 
     /**
      * 删除横向课题信息
-     * 
+     *
      * @param id 横向课题主键
      * @return 结果
      */
@@ -110,6 +156,7 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
         }else if(urlFlag.equals("pro")){
             state ="2";
         }
+
         int a =  sciHorizontalApplyMapper.hxPass(id,state);
         SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
         sciHorizontalPiyue.setUid(uid);
@@ -117,6 +164,19 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
         sciHorizontalPiyue.setConcate("同意");
         sciHorizontalPiyue.setState("通过");
         sciHorizontalPiyueMapper.insertSciHorizontalPiyue(sciHorizontalPiyue);
+        return a;
+    }
+    @Override
+    public int hxover(String id,Long uid,String urlFlag) {
+        String state = "0";
+        if(urlFlag.equals("JYSOVER")){
+            state ="8";
+        }else if(urlFlag.equals("KYCOVER")){
+            state ="6";
+        }
+        int b =  sciHorizontalApplyMapper.hxover(id,state);
+        int a =  sciHorizontalApplyMapper.hxPass(id,state);
+        System.out.println(b);
         return a;
     }
 
@@ -138,5 +198,18 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
         return a;
     }
 
+    @Override
+    public int hxoverBh(String id, Long userId, String remark, String urlFlag) {
+        String state = "0";
+        if(urlFlag.equals("JYSOVER")){
+            state ="9";
+        }else if(urlFlag.equals("KYCOVER")){
+            state ="10";
+        }
+        int b =  sciHorizontalApplyMapper.hxover(id,state);
+        int a =  sciHorizontalApplyMapper.hxPass(id,state);
+        System.out.println(b);
+        return a;
+    }
 
 }

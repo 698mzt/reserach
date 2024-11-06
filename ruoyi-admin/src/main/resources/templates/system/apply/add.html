@@ -71,18 +71,7 @@
                     </div>
                 </div>
             </div>
-<!--            <div class="col-xs-6">-->
-<!--                <div class="form-group">-->
-<!--                    <label class="col-sm-4 control-label is-required">合同有效日期：</label>-->
-<!--                    <div class="col-sm-8">-->
-<!--                        <div class="input-group date">-->
-<!--&lt;!&ndash;                            <input name="validityDate" class="form-control" placeholder="yyyy-MM-dd" type="text" required>&ndash;&gt;-->
-<!--                            <input type="text" name="validityDate" class="form-control" id="laydate-demo-4" placeholder="yyyy-MM-dd - yyyy-MM-dd">-->
-<!--                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>-->
-<!--                        </div>-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--            </div>-->
+
             <div class="col-xs-6">
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">第一负责人：</label>
@@ -183,6 +172,13 @@
 
         function submitHandler() {
             if ($.validate.form()) {
+                if ($("input[name='contract']").val() == "") {
+                    $.modal.alertWarning("请上传合同");
+                    return;
+                }else if ($("input[name='filing']").val() == ""){
+                    $.modal.alertWarning("请上传备案表");
+                    return;
+                }
                 $.operate.saveTab(prefix + "/add", $('#form-apply-add').serialize());
             }
         }
