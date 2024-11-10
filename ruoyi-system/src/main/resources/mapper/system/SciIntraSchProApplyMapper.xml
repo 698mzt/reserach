@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.SciIntraSchProApplyMapper">
+    <resultMap type="SciIntraSchoolPro" id="SciIntraSchoolProResult">
+        <result property="id"    column="id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="topName"    column="top_name"    />
+        <result property="topType"    column="top_type"    />
+        <result property="client"    column="client"    />
+        <result property="undertaking"    column="undertaking"    />
+        <result property="contacta"    column="contacta"    />
+        <result property="contactaTel"    column="contacta_tel"    />
+        <result property="contactb"    column="contactb"    />
+        <result property="contactbTel"    column="contactb_tel"    />
+        <result property="signingData"    column="signing_data"    />
+        <result property="validityDate"    column="validity_Date"    />
+        <result property="firstPersonId"    column="first_person_id"    />
+        <result property="firstPersonTask"    column="first_person_task"    />
+        <result property="secondPersonTask"    column="second_person_task"    />
+        <result property="secondPersonId"    column="second_person_id"    />
+        <result property="thirdPersonId"    column="third_person_id"    />
+        <result property="thirdPersonTask"    column="third_person_task"    />
+        <result property="fourthPersonId"    column="fourth_person_id"    />
+        <result property="fourthPersonTask"    column="fourth_person_task"    />
+        <result property="amount"    column="amount"    />
+        <result property="state"    column="state"    />
+        <result property="userName"    column="userName"    />
+        <result property="createtime"    column="createtime"    />
+        <result property="PA"    column="PA"    />
+        <result property="PB"    column="PB"    />
+    </resultMap>
+
+
+
+    <select id="sel_IntraSchPro_isOVER" parameterType="SciIntraSchoolPro" resultMap="SciIntraSchoolProResult">
+        select
+            #{uid} uid, s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,
+            s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id,
+            concat( s.amount,'万') amount, s.contract, s.filing, s.state ,s.PA ,s.PB
+        from sci_IntraSchPro_apply s left join sys_user u on  s.user_id=u.user_id
+        left join sys_dept d on u.dept_id = d.dept_id
+        left join sys_dept p on d.parent_id =p.dept_id
+        where s.state = 6
+        <!--            <if test="userId != null "> and user_id = #{userId}</if>-->
+        <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
+
+        <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+        <if test="state != null  and state != ''"> and state = #{state}</if>
+        <!-- 数据范围过滤 -->
+        ${params.dataScope}
+        order  by createtime desc
+    </select>
+
+
+    <select id="sel_my_IntraSchPro_isOVER" parameterType="SciIntraSchoolPro" resultMap="SciIntraSchoolProResult">
+        select
+        #{uid} uid, s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,
+        s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id,
+        concat( s.amount,'万') amount, s.contract, s.filing, s.state ,s.PA ,s.PB
+        from sci_IntraSchPro_apply s left join sys_user u on  s.user_id=u.user_id
+        left join sys_dept d on u.dept_id = d.dept_id
+        left join sys_dept p on d.parent_id =p.dept_id
+        where s.state = 6
+        <!--            <if test="userId != null "> and user_id = #{userId}</if>-->
+        <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
+
+        <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+        <if test="state != null  and state != ''"> and state = #{state}</if>
+        <!-- 数据范围过滤 -->
+        ${params.dataScope}
+        order  by createtime desc
+    </select>
+
+</mapper>
