@@ -18,23 +18,23 @@ public class SciIntraSchoolPro extends BaseEntity {
     @Excel(name = "专业")
     private String  dname;
 
-    private String PA;
-    private String PB;
+    private String pa;
+    private String pb;
 
-    public String getPA() {
-        return PA;
+    public String getPa() {
+        return pa;
     }
 
-    public void setPA(String PA) {
-        this.PA = PA;
+    public void setPa(String pa) {
+        this.pa = pa;
     }
 
-    public String getPB() {
-        return PB;
+    public String getPb() {
+        return pb;
     }
 
-    public void setPB(String PB) {
-        this.PB = PB;
+    public void setPb(String pb) {
+        this.pb = pb;
     }
 
     /** 申请人 */
