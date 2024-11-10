@@ -3,6 +3,7 @@ package com.ruoyi.web.controller.IntraSchoolProject;
 import java.util.ArrayList;
 import java.util.List;
 import com.ruoyi.common.core.domain.entity.SysRole;
+import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.system.service.ISciHorizontalPiyueService;
 import com.ruoyi.system.service.ISciIntraSchProApplyService;
 import com.ruoyi.system.service.ISysUserService;
@@ -67,12 +68,12 @@ public class SciIntraSchoolProController extends BaseController {
                     list = sciIntraSchProApplyService.sel_IntraSchPro_isOVER(sciHorizontalApply);
                     System.out.println("list = " + list);
                     break;
-               /* case "bootstrap-table1":
-                    list = sciIntraSchProApplyService.selectSciHorizontalApplyListByKYC(sciHorizontalApply);
+                case "bootstrap-table1":
+                    list = sciIntraSchProApplyService.sel_IntraSchPro_approval_ky(sciHorizontalApply);
                     break;
                 case "bootstrap-table2":
-                    list = sciIntraSchProApplyService.selectSciHorizontalApplyListByOverApplyKYC(sciHorizontalApply);
-                    break;*/
+                    list = sciIntraSchProApplyService.sel_IntraSchPro_closure_ky(sciHorizontalApply);
+                    break;
             }
         }
 //        教研室
@@ -82,12 +83,12 @@ public class SciIntraSchoolProController extends BaseController {
                     list = sciIntraSchProApplyService.sel_IntraSchPro_isOVER(sciHorizontalApply);
                     System.out.println("list = " + list);
                     break;
-               /* case "bootstrap-table1":
-                    list = sciIntraSchProApplyService.selectSciHorizontalApplyListByJYS(sciHorizontalApply);
+                case "bootstrap-table1":
+                    list = sciIntraSchProApplyService.sel_IntraSchPro_approval_jy(sciHorizontalApply);
                     break;
                 case "bootstrap-table2":
-                    list = sciIntraSchProApplyService.selectSciHorizontalApplyListByOverApplyJYS(sciHorizontalApply);
-                    break;*/
+                    list = sciIntraSchProApplyService.sel_IntraSchPro_closure_jy(sciHorizontalApply);
+                    break;
             }
         } else {
             switch (tableId) {
@@ -95,17 +96,34 @@ public class SciIntraSchoolProController extends BaseController {
                     list = sciIntraSchProApplyService.sel_my_IntraSchPro_isOVER(sciHorizontalApply);
                     System.out.println("list = " + list);
                     break;
-                /*case "bootstrap-table1":
-                    list = sciIntraSchProApplyService.selectSciHorizontalApplyList(sciHorizontalApply);
+               case "bootstrap-table1":
+                    list = sciIntraSchProApplyService.sel_IntraSchPro_approval_my(sciHorizontalApply);
                     break;
                 case "bootstrap-table2":
-                    list = sciIntraSchProApplyService.selectSciHorizontalApplyListByOverApply(sciHorizontalApply);
-                    break;*/
+                    list = sciIntraSchProApplyService.sel_IntraSchPro_closure_my(sciHorizontalApply);
+                    break;
             }
         }
         TableDataInfo data = getDataTable(list);
         System.out.println("data = " + data);
         return data;
+    }
+
+    @GetMapping("/add")
+    public String add( ModelMap mmap)
+    {
+        // SysUser user=getSysUser();
+        List<SysUser> userList =  userService.selectAllUser();
+        for (int a = 0; a<userList.size();a++) {
+            if(userList.get(a).getUserId() == getUserId()){
+                SysUser user = userList.get(a);
+                user.setFlag(true);
+                userList.set(a,user);
+                break;
+            }
+        }
+        mmap.put("sysUsers",userList);
+        return prefix + "/add";
     }
 
 
