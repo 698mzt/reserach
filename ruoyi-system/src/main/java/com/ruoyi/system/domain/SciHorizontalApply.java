@@ -100,6 +100,17 @@ public class SciHorizontalApply extends BaseEntity
     @Excel(name = "状态")
     private String state;
 
+//    用户角色字段
+    private String role;
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
     private String urlFlag;
 
     public String getUrlFlag() {

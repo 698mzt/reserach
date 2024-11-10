@@ -170,17 +170,26 @@
     });
 
     function submitHandler() {
+        var contract = $("input[name='contract']").val();
+        var filing = $("input[name='filing']").val();
         if ($.validate.form()) {
-            if ($("input[name='filing']").val() == "") {
+            if (contract == "") {
                 $.modal.alertWarning("请上传合同");
                 return;
-            }else if ($("input[name='contract']").val() == ""){
+            }else if (filing == ""){
                 $.modal.alertWarning("请上传备案表");
                 return;
+            }else if (contract.split('.')[1] != "pdf"){
+                $.modal.alertWarning("合同格式不正确，请上传PDF格式");
+                return;
+            }else if (filing.split('.')[1] != "pdf"){
+                $.modal.alertWarning("备案表格式不正确，请上传PDF格式");
+                return;
             }
-            $.operate.saveTab(prefix + "/overadd", $('#form-apply-add').serialize());
         }
+            $.operate.saveTab(prefix + "/overadd", $('#form-apply-add').serialize());
     }
+
 
 
 
