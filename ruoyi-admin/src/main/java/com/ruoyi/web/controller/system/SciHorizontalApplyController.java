@@ -12,6 +12,7 @@ import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -61,7 +62,7 @@ public class SciHorizontalApplyController extends BaseController
     @RequiresPermissions("system:apply:list")
     @PostMapping("/list/{tableId}")
     @ResponseBody
-    public TableDataInfo list(@PathVariable("tableId") String tableId,SciHorizontalApply sciHorizontalApply)
+    public TableDataInfo list(@PathVariable("tableId") String tableId, SciHorizontalApply sciHorizontalApply,ModelMap model)
     {
         sciHorizontalApply.setUid(getUserId());
         startPage();
@@ -76,6 +77,7 @@ public class SciHorizontalApplyController extends BaseController
                 break;
             }
         }
+        sciHorizontalApply.setRole(role);
         List<SciHorizontalApply> list = new ArrayList<>();
 //        科研处
         if(role.equals("sci_tesearch")){
@@ -118,6 +120,7 @@ public class SciHorizontalApplyController extends BaseController
                     break;
             }
         }
+
         TableDataInfo data= getDataTable(list);
 
         return data;
