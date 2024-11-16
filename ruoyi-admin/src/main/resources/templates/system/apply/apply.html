@@ -10,11 +10,11 @@
 
         <div class="tabs-container">
             <ul class="nav nav-tabs">
-                <li class="active"><a data-toggle="tab" href="#tab-0" aria-expanded="true">已完结</a>
+                <li class="active"><a data-toggle="tab" href="#tab-0" onclick="$.table.refresh('bootstrap-table0')" aria-expanded="true">已完结</a>
                 </li>
-                <li class=""><a data-toggle="tab" href="#tab-1" aria-expanded="false"> 立项申请</a>
+                <li class=""><a data-toggle="tab" href="#tab-1" onclick="$.table.refresh('bootstrap-table1')" aria-expanded="false"> 立项申请</a>
                 </li>
-                <li class=""><a data-toggle="tab" href="#tab-2" aria-expanded="false">结项申请</a>
+                <li class=""><a data-toggle="tab" href="#tab-2" onclick="$.table.refresh('bootstrap-table2')" aria-expanded="false">结项申请</a>
                 </li>
 
             </ul>
@@ -213,6 +213,8 @@
     function getUrl(tableId) {
         return prefix+"/list/"+tableId;
     }
+
+
 
     $(function() {
 
@@ -542,7 +544,12 @@
                 }]
         };
         initTable(options2);
+
+
+
     });
+
+
 </script>
 </body>
 </html>

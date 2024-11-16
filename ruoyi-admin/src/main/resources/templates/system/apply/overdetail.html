@@ -134,8 +134,12 @@
 <!--                    <span id="filingFileName" class="form-control" readonly></span>-->
                     <div style="display: inline-block;">
                         <div id="filingFileName" style="display: inline; margin-right: 5px;"></div>
-                        <button onclick="chakan()" style="background: none; border:none; color: #007bff; padding: 5px 10px; cursor: pointer; font: inherit; text-decoration: none; border-radius: 3px;">预览</button>
-                        <button onclick="downloadFile('filing')" style="background: none; border:none; color: #007bff; padding: 5px 10px; cursor: pointer; font: inherit; text-decoration: none; border-radius: 3px;">下载</button>
+<!--                        <button onclick="chakan()" class="btn btn-sm btn-primary color">预览</button>-->
+<!--                        <button onclick="downloadFile('filing')" class="btn btn-sm btn-primary color">下载</button>-->
+                    </div>
+                    <div>
+                        <button onclick="chakan()" class="btn btn-sm btn-primary color">预览</button>
+                        <button onclick="downloadFile('filing')" class="btn btn-sm btn-primary color">下载</button>
                     </div>
 
 
@@ -149,8 +153,13 @@
                     <input th:field="*{agreeurl}" hidden id="contract" type="text" >
                     <div style="display: inline-block;">
                         <div id="contractFileName" style="display: inline; margin-right: 5px;"></div>
-                        <button onclick="beian()" style="background: none; border:none; color: #007bff; padding: 5px 10px; cursor: pointer; font: inherit; text-decoration: none; border-radius: 3px;">预览</button>
-                        <button onclick="downloadFile('contract')" style="background: none; border:none; color: #007bff; padding: 5px 10px; cursor: pointer; font: inherit; text-decoration: none; border-radius: 3px;">下载</button>
+<!--                        <button onclick="beian()" class="btn btn-sm btn-primary color">预览</button>-->
+<!--                        <button onclick="downloadFile('contract')" class="btn btn-sm btn-primary color">下载</button>-->
+                    </div>
+                    <div>
+                        <button onclick="beian()" class="btn btn-sm btn-primary color">预览</button>
+                        <button onclick="downloadFile('contract')" class="btn btn-sm btn-primary color">下载</button>
+
                     </div>
                 </div>
             </div>
@@ -214,14 +223,12 @@
     }
     function chakan(){
         var c = $("#filing").val();
-        // $.modal.openTab("查看合同" ,c );
-        window.open(c);
+        $.modal.openTab("查看合同" ,c );
         //window.location = "http://localhost:8081/profile/upload/2024/08/20/GXSZ086812_20240820090353A001.pdf";
     }
     function beian(){
         var c = $("#contract").val();
-        // $.modal.openTab("查看备案表" ,c );
-        window.open(c);
+        $.modal.openTab("查看备案表" ,c );
     }
     function downloadFile(type){
         var c = $("#"+type).val();
