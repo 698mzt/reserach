@@ -246,6 +246,7 @@
     <update id="hxover" >
         update sci_horizontal_over set state = #{state} where appid = #{id}
     </update>
+
     <update id="overApply" >
         update sci_horizontal_apply set state = #{state} where id = #{id}
     </update>

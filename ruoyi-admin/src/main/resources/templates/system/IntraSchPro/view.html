@@ -37,7 +37,7 @@
                                                 </li>
                                                 <li>
                                                     <label>状态：</label>
-                                                    <select name="state" th:with="type=${@dict.getType('sci_crosswise_tasks')}">
+                                                    <select name="state" th:with="type=${@dict.getType('sys_intraschpro_tasks')}">
                                                         <option value="">所有</option>
                                                         <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
                                                     </select>
@@ -92,7 +92,7 @@
                                                 </li>
                                                 <li>
                                                     <label>状态：</label>
-                                                    <select name="state" th:with="type=${@dict.getType('sci_crosswise_tasks')}">
+                                                    <select name="state" th:with="type=${@dict.getType('sys_intraschpro_tasks')}">
                                                         <option value="">所有</option>
                                                         <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
                                                     </select>
@@ -145,7 +145,7 @@
                                                 </li>
                                                 <li>
                                                     <label>状态：</label>
-                                                    <select name="state" th:with="type=${@dict.getType('sci_crosswise_tasks')}">
+                                                    <select name="state" th:with="type=${@dict.getType('sys_intraschpro_tasks')}">
                                                         <option value="">所有</option>
                                                         <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
                                                     </select>
@@ -204,7 +204,7 @@
     var editInfo = [[${@permission.hasPermi('system:apply:info')}]];
     var hechaFlag = [[${@permission.hasPermi('system:apply:hecha')}]];
     var topTypeDatas = [[${@dict.getType('sci_top_type')}]];
-    var datas = [[${@dict.getType('sci_crosswise_tasks')}]];
+    var datas = [[${@dict.getType('sys_intraschpro_tasks')}]];
     var createFlag = [[${@permission.hasPermi('system:apply:add')}]];
 
     var prefix = ctx + "IntraSchPro";
