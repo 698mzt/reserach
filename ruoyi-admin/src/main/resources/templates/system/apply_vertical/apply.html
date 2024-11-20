@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
 <head>
-    <th:block th:include="include :: header('横向课题列表')" />
+    <th:block th:include="include :: header('纵向课题列表')" />
 </head>
 <body class="gray-bg">
 <div class="wrapper wrapper-content animated fadeIn">
@@ -78,7 +78,7 @@
                     <div class="panel-body">
                         <div class="container-div">
                             <div class="row">
-                                <div class="col-sm-12 search-collapse" shiro:hasPermission="system:apply:select">
+                                <div class="col-sm-12 search-collapse" shiro:hasPermission="system:apply_vertical:select">
                                     <form id="formId1">
                                         <div class="select-list">
                                             <ul>
@@ -107,16 +107,10 @@
                                 </div>
 
                                 <div class="btn-group-sm" id="toolbar1" role="group">
-                                    <a class="btn btn-success" onclick="$.operate.addTab()" shiro:hasPermission="system:apply:add">
+                                    <a class="btn btn-success" onclick="$.operate.addTab()" shiro:hasPermission="system:apply_vertical:add">
                                         <i class="fa fa-plus"></i> 添加
                                     </a>
-                                    <!--                <a class="btn btn-primary single disabled" onclick="$.operate.editTab()" shiro:hasPermission="system:apply:edit">-->
-                                    <!--                    <i class="fa fa-edit"></i> 修改-->
-                                    <!--                </a>-->
-                                    <!--                <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()" shiro:hasPermission="system:apply:remove">-->
-                                    <!--                    <i class="fa fa-remove"></i> 删除-->
-                                    <!--                </a>-->
-                                    <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:apply:export">
+                                    <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:apply_vertical:export">
                                         <i class="fa fa-download"></i> 导出
                                     </a>
                                 </div>
@@ -197,17 +191,19 @@
 <th:block th:include="include :: footer" />
 <script th:inline="javascript">
 
-
-    var proFlag = [[${@permission.hasPermi('system:apply:process')}]];
-    var editFlag = [[${@permission.hasPermi('system:apply:edit')}]];
-    var removeFlag = [[${@permission.hasPermi('system:apply:remove')}]];
-    var editInfo = [[${@permission.hasPermi('system:apply:info')}]];
-    var hechaFlag = [[${@permission.hasPermi('system:apply:hecha')}]];
+<!--权限检查-->
+    var JYSFlag = [[${@permission.hasPermi('system:apply_vertical:JYS')}]];
+    var editFlag = [[${@permission.hasPermi('system:apply_vertical:edit')}]];
+    var removeFlag = [[${@permission.hasPermi('system:apply_vertical:remove')}]];
+    var editInfo = [[${@permission.hasPermi('system:apply_vertical:info')}]];
+    var KYCFlag = [[${@permission.hasPermi('system:apply_vertical:KYC')}]];
+    var createFlag = [[${@permission.hasPermi('system:apply_vertical:add')}]];
+    // 数据字典获取
     var topTypeDatas = [[${@dict.getType('sci_top_type')}]];
-    var datas = [[${@dict.getType('sci_crosswise_tasks')}]];
-    var createFlag = [[${@permission.hasPermi('system:apply:add')}]];
+    var datas = [[${@dict.getType('sci_vertical_tasks')}]];
 
-    var prefix = ctx + "system/apply";
+
+    var prefix = ctx + "system/apply_vertical";
 
     // 动态生成URL
     function getUrl(tableId) {
@@ -334,7 +330,7 @@
             updateUrl: prefix + "/edit/{id}",
             removeUrl: prefix + "/remove",
             exportUrl: prefix + "/export",
-            modalName: "横向课题",
+            modalName: "纵向课题",
             sortOrder: "asc",
             columns: [{
                 field: 'number',
@@ -390,7 +386,7 @@
                 {
                     field: 'signingData',
                     align: 'center',
-                    title: '签订日期'
+                    title: '申请日期'
                 },
                 {
                     field: 'amount',
@@ -417,20 +413,19 @@
                                 actions.push('<a   class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>更新</a> ');
                             }
 
-                            actions.push('<a  class="btn btn-success btn-xs ' + proFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id+'/pro' + '\')"><i class="fa fa-edit"></i>批阅</a> ');
+                            actions.push('<a  class="btn btn-success btn-xs ' + JYSFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id+'/JYS' + '\')"><i class="fa fa-edit"></i>批阅</a> ');
 
                         }else
                         if((row.state == 3 || row.state == 5)  && row.userId == row.uid){
                             actions.push('<a   class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> <i class="fa fa-edit"></i>更新</a> ');
                         }else if(row.state ==  2){
 
-                            actions.push('<a  class="btn btn-success btn-xs ' + hechaFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/hecha'+ '\')"><i class="fa fa-edit"></i>核查</a> ');
+                            actions.push('<a  class="btn btn-success btn-xs ' + KYCFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/KYC'+ '\')"><i class="fa fa-edit"></i>核查</a> ');
                         }else
                         if(row.state ==  4){
                             if(row.userId == row.uid){
                                 actions.push('<a  class="btn btn-success btn-xs ' + createFlag + '" href="javascript:void(0)" onclick="$.operate.overTab(\'' + row.id +'\')"><i class="fa fa-edit"></i>申请结项</a> ');
                             }
-
                             actions.push('<a  class="btn btn-success btn-xs ' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
                         }
                         return actions.join('');

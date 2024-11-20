@@ -19,16 +19,16 @@
                     </div>
                 </div>
             </div>
-            <div class="col-xs-6">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">课题类型：</label>
-                    <div class="col-sm-8">
-                        <select name="topType" class="form-control" th:with="type=${@dict.getType('sci_top_type')}" required>
-                            <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
-                        </select>
-                    </div>
-                </div>
-            </div>
+<!--            <div class="col-xs-6">-->
+<!--                <div class="form-group">-->
+<!--                    <label class="col-sm-4 control-label is-required">课题类型：</label>-->
+<!--                    <div class="col-sm-8">-->
+<!--                        <select name="topType" class="form-control" th:with="type=${@dict.getType('sci_top_type')}" required>-->
+<!--                            <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>-->
+<!--                        </select>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
             <div class="col-xs-6">
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">课题名称：</label>
@@ -51,7 +51,7 @@
 
             <div class="col-xs-6">
                 <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">立项日期：</label>
+                    <label class="col-sm-4 control-label is-required">申请日期：</label>
                     <div class="col-sm-8">
                         <div class="input-group date">
                             <input autocomplete="off" name="signingData" class="form-control" placeholder="yyyy-MM-dd" type="text" required>
@@ -60,17 +60,17 @@
                     </div>
                 </div>
             </div>
-            <div class="col-xs-6">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">结项日期：</label>
-                    <div class="col-sm-8">
-                        <div class="input-group date">
-                            <input autocomplete="off" name="validityDate" class="form-control" placeholder="yyyy-MM-dd" type="text" required>
-                             <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+<!--            <div class="col-xs-6" >-->
+<!--                <div class="form-group">-->
+<!--                    <label class="col-sm-4 control-label is-required">结项日期：</label>-->
+<!--                    <div class="col-sm-8">-->
+<!--                        <div class="input-group date">-->
+<!--                            <input autocomplete="off" name="validityDate" class="form-control" placeholder="yyyy-MM-dd" type="text" required>-->
+<!--                             <span class="input-group-addon"><i class="fa fa-calendar"></i></span>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
 
             <div class="col-xs-6">
                 <div class="form-group">
@@ -130,26 +130,16 @@
 
             <div class="col-xs-6">
                 <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">合同：</label>
+                    <label class="col-sm-4 control-label is-required">审批文件上传：</label>
                     <div class="col-sm-8">
-                        <input type="hidden" name="contract">
+                        <input type="hidden" name="file">
                         <div class="file-loading">
-                            <input class="form-control file-upload" id="contract" name="file" type="file">
+                            <input class="form-control file-upload" id="file" name="file" type="file">
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-xs-6">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">备案表：</label>
-                    <div class="col-sm-8">
-                        <input type="hidden" name="filing">
-                        <div class="file-loading">
-                            <input class="form-control file-upload" id="filing" name="file" type="file">
-                        </div>
-                    </div>
-                </div>
-            </div>
+
         </form>
     </div>
     <div class="row">
@@ -165,26 +155,21 @@
     <th:block th:include="include :: select2-js" />
 
     <script th:inline="javascript">
-        var prefix = ctx + "system/apply"
+        var prefix = ctx + "system/apply_vertical"
         $("#form-apply-add").validate({
             focusCleanup: true
         });
 
         function submitHandler() {
-            var contract = $("input[name='contract']").val();
-            var filing = $("input[name='filing']").val();
+            var file = $("input[name='file']").val();
+            console.log(file);
             if ($.validate.form()) {
-                if (contract == "") {
-                    $.modal.alertWarning("请上传合同");
+                if (file == "") {
+                    $.modal.alertWarning("请上传文件");
                     return;
-                }else if (filing == ""){
-                    $.modal.alertWarning("请上传备案表");
-                    return;
-                }else if (contract.split('.')[1] != "pdf"){
-                    $.modal.alertWarning("合同格式不正确，请上传PDF格式");
-                    return;
-                }else if (filing.split('.')[1] != "pdf"){
-                    $.modal.alertWarning("备案表格式不正确，请上传PDF格式");
+                }else if (file.split('.')[1] != "pdf"){
+                    $("#removebutton").click()
+                    $.modal.alertWarning("文件格式不正确，请上传PDF格式");
                     return;
                 }
             }
@@ -198,11 +183,6 @@
             autoclose: true
         });
 
-        $("input[name='validityDate']").datetimepicker({
-            format: "yyyy-mm-dd",
-            minView: "month",
-            autoclose: true
-        });
 
         $(".file-upload").fileinput({
             uploadUrl: ctx + 'common/upload',

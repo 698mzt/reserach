@@ -32,7 +32,7 @@
     </resultMap>
 
     <sql id="selectSciHorizontalApplyVo">
-        select #{uid} uid,#{role} role,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,  s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.contract, s.filing, s.state
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,  s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.contract, s.filing, s.state
         from sci_horizontal_apply s left join sys_user u on  s.user_id=u.user_id
                                     left join sys_dept d on u.dept_id = d.dept_id
                                     left join sys_dept p on d.parent_id =p.dept_id
@@ -53,7 +53,7 @@
     </select>
 
     <select id="selectSciHorizontalApplyListByJYS" parameterType="SciHorizontalApply" resultMap="SciHorizontalApplyResult">
-        select  #{uid} uid,#{role} role, s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,  s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.contract, s.filing, s.state
+        select  #{uid} uid, s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,  s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.contract, s.filing, s.state
         from sci_horizontal_apply s left join sys_user u on  s.user_id=u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
@@ -68,7 +68,7 @@
     </select>
 
     <select id="selectSciHorizontalApplyListByKYC" parameterType="SciHorizontalApply" resultMap="SciHorizontalApplyResult">
-        select  #{uid} uid,#{role} role, s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,  s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.contract, s.filing, s.state
+        select  #{uid} uid, s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,  s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.contract, s.filing, s.state
         from sci_horizontal_apply s left join sys_user u on  s.user_id=u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
@@ -82,7 +82,7 @@
     </select>
 
     <select id="selectSciHorizontalApplyListByOverApply" parameterType="SciHorizontalApply" resultMap="SciHorizontalApplyResult">
-        select #{uid} uid,#{role} role,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,  s.signing_data,o.createtime overtime,concat( s.amount,'万') amount, o.agreeurl, o.filingurl, o.state
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,  s.signing_data,o.createtime overtime,concat( s.amount,'万') amount, o.agreeurl, o.filingurl, o.state
         from sci_horizontal_apply s left join sci_horizontal_over o on o.appid=s.id
         left join sys_user u on s.user_id=u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
@@ -97,7 +97,7 @@
         order  by s.createtime desc
     </select>
     <select id="selectSciHorizontalApplyListByOverApplyJYS" parameterType="SciHorizontalApply" resultMap="SciHorizontalApplyResult">
-        select #{uid} uid,#{role} role,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,  s.signing_data,o.createtime overtime,concat( s.amount,'万') amount, o.agreeurl, o.filingurl, o.state
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,  s.signing_data,o.createtime overtime,concat( s.amount,'万') amount, o.agreeurl, o.filingurl, o.state
         from sci_horizontal_apply s left join sci_horizontal_over o on o.appid=s.id
         left join sys_user u on s.user_id=u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
@@ -112,7 +112,7 @@
         order  by s.createtime desc
     </select>
     <select id="selectSciHorizontalApplyListByOverApplyKYC" parameterType="SciHorizontalApply" resultMap="SciHorizontalApplyResult">
-        select #{uid} uid,#{role} role,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,  s.signing_data,o.createtime overtime,concat( s.amount,'万') amount, o.agreeurl, o.filingurl, o.state
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,  s.signing_data,o.createtime overtime,concat( s.amount,'万') amount, o.agreeurl, o.filingurl, o.state
         from sci_horizontal_apply s left join sci_horizontal_over o on o.appid=s.id
         left join sys_user u on s.user_id=u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
@@ -129,7 +129,7 @@
 
 
     <select id="selectSciHorizontalApplyListByOVER" parameterType="SciHorizontalApply" resultMap="SciHorizontalApplyResult">
-        select  #{uid} uid, #{role} role,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,  s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.contract, s.filing, s.state
+        select  #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,  s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.contract, s.filing, s.state
         from sci_horizontal_apply s left join sys_user u on  s.user_id=u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
