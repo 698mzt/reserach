@@ -5,6 +5,8 @@ package com.ruoyi.common.exception;
  * 
  * @author ruoyi
  */
+
+
 public class DemoModeException extends RuntimeException
 {
     private static final long serialVersionUID = 1L;

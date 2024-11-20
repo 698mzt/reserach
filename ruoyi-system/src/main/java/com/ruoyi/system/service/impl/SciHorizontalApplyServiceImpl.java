@@ -126,7 +126,6 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
 
     /**
      * 批量删除横向课题
-     *
      * @param ids 需要删除的横向课题主键
      * @return 结果
      */

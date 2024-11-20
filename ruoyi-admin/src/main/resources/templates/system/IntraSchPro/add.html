@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('新增横向课题')" />
+    <th:block th:include="include :: datetimepicker-css" />
+    <th:block th:include="include :: bootstrap-fileinput-css"/>
+    <th:block th:include="include :: select2-css" />
+</head>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <form class="form-horizontal m" id="form-apply-add">
+        <div class="col-xs-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label is-required">申请人：</label>
+                <div class="col-sm-8">
+                    <select name="userId" class="form-control m-b" >
+                        <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${user.flag}"></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label is-required">课题类型：</label>
+                <div class="col-sm-8">
+                    <select name="topType" class="form-control" th:with="type=${@dict.getType('sci_top_type')}" required>
+                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label is-required">课题名称：</label>
+                <div class="col-sm-8">
+                    <input name="topName" class="form-control" type="text" required>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xs-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label is-required">项目金额(万)：</label>
+                <div class="col-sm-8">
+                    <input name="amount" class="form-control" type="number" required>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xs-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label is-required">甲方：</label>
+                <div class="col-sm-8">
+                    <input name="pa" class="form-control" type="text" required>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xs-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label is-required">乙方：</label>
+                <div class="col-sm-8">
+                    <input name="pb" class="form-control" type="text" required>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-xs-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label is-required">立项日期：</label>
+                <div class="col-sm-8">
+                    <div class="input-group date">
+                        <input autocomplete="off" name="signingData" class="form-control" placeholder="yyyy-MM-dd" type="text" required>
+                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label is-required">结项日期：</label>
+                <div class="col-sm-8">
+                    <div class="input-group date">
+                        <input autocomplete="off" name="validityDate" class="form-control" placeholder="yyyy-MM-dd" type="text" required>
+                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xs-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label is-required">第一负责人：</label>
+                <div class="col-sm-8">
+
+                    <select name="firstPersonId" class="form-control m-b" >
+                        <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${user.flag}"></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-xs-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label is-required">第二负责人：</label>
+                <div class="col-sm-8">
+
+                    <select name="secondPersonId" class="form-control m-b" >
+                        <option value="">---请选择--</option>
+                        <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}"></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+
+        <div class="col-xs-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label is-required">第三负责人：</label>
+                <div class="col-sm-8">
+                    <select name="thirdPersonId" class="form-control m-b" >
+                        <option value="">---请选择--</option>
+                        <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}"></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xs-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label is-required">第四负责人：</label>
+                <div class="col-sm-8">
+                    <select name="fourthPersonId" class="form-control m-b" >
+                        <option value="">--请选择--</option>
+                        <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}"></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-xs-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label is-required">合同：</label>
+                <div class="col-sm-8">
+                    <input type="hidden" name="contract">
+                    <div class="file-loading">
+                        <input class="form-control file-upload" id="contract" name="file" type="file">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label is-required">备案表：</label>
+                <div class="col-sm-8">
+                    <input type="hidden" name="filing">
+                    <div class="file-loading">
+                        <input class="form-control file-upload" id="filing" name="file" type="file">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="row">
+    <div class="col-sm-offset-5 col-sm-10">
+        <button type="button" class="btn btn-sm btn-primary" onclick="submitHandler()"><i class="fa fa-check"></i>保 存</button>&nbsp;
+        <button type="button" class="btn btn-sm btn-danger" onclick="closeItem()"><i class="fa fa-reply-all"></i>关 闭 </button>
+    </div>
+</div>
+<th:block th:include="include :: footer" />
+<th:block th:include="include :: datetimepicker-js" />
+<th:block th:include="include :: bootstrap-fileinput-js"/>
+<th:block th:include="include :: datetimepicker-js" />
+<th:block th:include="include :: select2-js" />
+
+<script th:inline="javascript">
+    var prefix = ctx + "IntraSchPro"
+    $("#form-apply-add").validate({
+        focusCleanup: true
+    });
+
+    function submitHandler() {
+        if ($.validate.form()) {
+            if ($("input[name='contract']").val() == "") {
+                $.modal.alertWarning("请上传合同");
+                return;
+            }else if ($("input[name='filing']").val() == ""){
+                $.modal.alertWarning("请上传备案表");
+                return;
+            }
+            $.operate.saveTab(prefix + "/add", $('#form-apply-add').serialize());
+        }
+    }
+
+    $("input[name='signingData']").datetimepicker({
+        format: "yyyy-mm-dd",
+        minView: "month",
+        autoclose: true
+    });
+
+    $("input[name='validityDate']").datetimepicker({
+        format: "yyyy-mm-dd",
+        minView: "month",
+        autoclose: true
+    });
+
+    $(".file-upload").fileinput({
+        uploadUrl: ctx + 'common/upload',
+        maxFileCount: 1,
+        autoReplace: true,
+        allowedFileExtensions: ["pdf"]  //指定上传文件类型
+    }).on('fileuploaded', function (event, data, previewId, index) {
+        $("input[name='" + event.currentTarget.id + "']").val(data.response.url)
+    }).on('fileremoved', function (event, id, index) {
+        $("input[name='" + event.currentTarget.id + "']").val('')
+    })
+</script>
+</body>
+</html>

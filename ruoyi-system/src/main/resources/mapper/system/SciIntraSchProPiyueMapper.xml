@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.SciIntraSchProPiyueMapper">
+
+    <resultMap type="SciIntraSchProPiyue" id="SciIntraSchProPiyueResult">
+        <result property="id"    column="id"    />
+        <result property="schxktId"    column="schxkt_id"    />
+        <result property="concate"    column="concate"    />
+        <result property="uid"    column="uid"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="state"    column="state"    />
+        <result property="uname"    column="uname"    />
+    </resultMap>
+
+    <sql id="SciIntraSchProPiyueResult">
+        select id, schxkt_id, concate, uid ,u.user_name uname, s.create_time,state from sci_IntraSchPro_piyue s
+                                                                                          left join sys_user u on s.uid = u.user_id
+    </sql>
+
+    <select id="selectIntraSchProPiyueList" parameterType="SciIntraSchProPiyue" resultMap="SciIntraSchProPiyueResult">
+        <include refid="SciIntraSchProPiyueResult"/>
+        <where>
+            <if test="schxktId != null "> and schxkt_id = #{schxktId}</if>
+            <if test="concate != null  and concate != ''"> and concate = #{concate}</if>
+            <if test="uid != null "> and uid = #{uid}</if>
+        </where>
+    </select>
+
+    <insert id="insertIntraSchProPiyue" parameterType="SciIntraSchProPiyue" useGeneratedKeys="true" keyProperty="id">
+        insert into sci_IntraSchPro_piyue
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="schxktId != null">schxkt_id,</if>
+            <if test="concate != null">concate,</if>
+            <if test="uid != null">uid,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="state != null">state,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="schxktId != null">#{schxktId},</if>
+            <if test="concate != null">#{concate},</if>
+            <if test="uid != null">#{uid},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="state != null">#{state},</if>
+        </trim>
+    </insert>
+
+
+</mapper>
