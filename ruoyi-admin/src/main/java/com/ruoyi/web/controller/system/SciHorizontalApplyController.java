@@ -62,7 +62,7 @@ public class SciHorizontalApplyController extends BaseController
     @RequiresPermissions("system:apply:list")
     @PostMapping("/list/{tableId}")
     @ResponseBody
-    public TableDataInfo list(@PathVariable("tableId") String tableId, SciHorizontalApply sciHorizontalApply,ModelMap model)
+    public TableDataInfo list(@PathVariable("tableId") String tableId, SciHorizontalApply sciHorizontalApply)
     {
         sciHorizontalApply.setUid(getUserId());
         startPage();
@@ -217,12 +217,11 @@ public class SciHorizontalApplyController extends BaseController
         SciHorizontalApply sciHorizontalApply = sciHorizontalApplyService.selectSciHorizontalApplyById(id);
         List<SysUser> userList1 =  userService.selectAllUser();
         sciHorizontalApply.setUrlFlag(urlFlag);
-
         mmap.put("sysUsers1",userList1);
         mmap.put("sciHorizontalApply", sciHorizontalApply);
-        //mmap.put("urlFlag",urlFlag);
         return prefix + "/detail";
     }
+
     @RequiresPermissions("system:apply:info")
     @GetMapping("/overdetail/{id}/{urlFlag}")
     public String overdetail(@PathVariable("id") Integer id,@PathVariable("urlFlag") String urlFlag, ModelMap mmap)
@@ -232,7 +231,6 @@ public class SciHorizontalApplyController extends BaseController
         sciHorizontalApply.setUrlFlag(urlFlag);
         mmap.put("sysUsers1",userList1);
         mmap.put("sciHorizontalApply", sciHorizontalApply);
-        //mmap.put("urlFlag",urlFlag);
         return prefix + "/overdetail";
     }
 
@@ -279,9 +277,7 @@ public class SciHorizontalApplyController extends BaseController
     public String edit(@PathVariable("id") Integer id, ModelMap mmap)
     {
         SciHorizontalApply sciHorizontalApply = sciHorizontalApplyService.selectSciHorizontalApplyById(id);
-
         List<SysUser> userList1 =  userService.selectAllUser();
-
         mmap.put("sysUsers1",userList1);
         mmap.put("sciHorizontalApply", sciHorizontalApply);
         return prefix + "/edit";

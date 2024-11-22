@@ -70,7 +70,7 @@
                 <label class="col-sm-4 control-label is-required">合同有效日期：</label>
                 <div class="col-sm-8">
                     <div class="input-group date">
-                        <input  readonly th:field="*{validityDate}" th:value="${#dates.format(validityDate, 'yyyy-MM-dd - yyyy-MM-dd')}" class="form-control" id="laydate-demo-4" placeholder="yyyy-MM-dd - yyyy-MM-dd" type="text" required>
+                        <input  readonly th:field="*{createtime}" th:value="${#dates.format(createtime, 'yyyy-MM-dd ')}" class="form-control"  placeholder="yyyy-MM-dd " type="text" required>
                         <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
                     </div>
                 </div>
@@ -126,43 +126,44 @@
         </div>
 
 
-            <div class="col-xs-6">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">合同：</label>
-                    <div class="col-sm-8">
-                        <input th:field="*{filing}" hidden id="filing" type="text" >
-                        <div style="display: inline-block;">
-                            <div id="filingFileName" style="display: inline; margin-right: 5px;"></div>
-<!--                            <button onclick="chakan()" class="btn btn-sm btn-primary color">预览</button>-->
-<!--                            <button onclick="downloadFile('filing')" class="btn btn-sm btn-primary color">下载</button>-->
-                        </div>
-                        <div>
-                            <button onclick="chakan()" class="btn btn-sm btn-primary color">预览</button>
-                            <button onclick="downloadFile('filing')" class="btn btn-sm btn-primary color">下载</button>
+        <div class="col-xs-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label is-required">合同：</label>
+                <div class="col-sm-8">
+                    <input th:field="*{filingurl}" hidden id="filing" type="text" >
+<!--                    <span id="filingFileName" class="form-control" readonly></span>-->
+                    <div style="display: inline-block;">
+                        <div id="filingFileName" style="display: inline; margin-right: 5px;"></div>
+<!--                        <button onclick="chakan()" class="btn btn-sm btn-primary color">预览</button>-->
+<!--                        <button onclick="downloadFile('filing')" class="btn btn-sm btn-primary color">下载</button>-->
+                    </div>
+                    <div>
+                        <button onclick="chakan()" class="btn btn-sm btn-primary color">预览</button>
+                        <button onclick="downloadFile('filing')" class="btn btn-sm btn-primary color">下载</button>
+                    </div>
 
-                        </div>
 
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label is-required">备案表：</label>
+                <div class="col-sm-8">
+                    <input th:field="*{agreeurl}" hidden id="contract" type="text" >
+                    <div style="display: inline-block;">
+                        <div id="contractFileName" style="display: inline; margin-right: 5px;"></div>
+<!--                        <button onclick="beian()" class="btn btn-sm btn-primary color">预览</button>-->
+<!--                        <button onclick="downloadFile('contract')" class="btn btn-sm btn-primary color">下载</button>-->
+                    </div>
+                    <div>
+                        <button onclick="beian()" class="btn btn-sm btn-primary color">预览</button>
+                        <button onclick="downloadFile('contract')" class="btn btn-sm btn-primary color">下载</button>
 
                     </div>
                 </div>
             </div>
-            <div class="col-xs-6">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">备案表：</label>
-                    <div class="col-sm-8">
-                        <input th:field="*{contract}" hidden id="contract" type="text" >
-                        <div style="display: inline-block;">
-                            <div id="contractFileName" style="display: inline; margin-right: 5px;"></div>
-<!--                            <button onclick="beian()"  class="btn btn-sm btn-primary color">预览</button>-->
-<!--                            <button onclick="downloadFile('contract')" class="btn btn-sm btn-primary color">下载</button>-->
-                        </div>
-                        <div>
-                            <button onclick="beian()"  class="btn btn-sm btn-primary color">预览</button>
-                            <button onclick="downloadFile('contract')" class="btn btn-sm btn-primary color">下载</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        </div>
         </div>
 
 
@@ -238,7 +239,7 @@
             a.style.display = "none";
             document.body.appendChild(a);
             a.click();
-            document.Element.removeChild(a);
+            document.body.removeChild(a);
         }else{
             alert("网址无效");
         }
@@ -284,7 +285,7 @@
             console.log('Event Name:', name.rows);
 
             var a =$("#state").val();
-            if(a == 2 ||a == 1){
+            if(a == 7 ||a == 8){
                 if(name.rows.length > 0){
                     $(".tdiv2").show();
                 }
@@ -354,36 +355,26 @@
     function submitHandler() {
           //获取 URLflag
           var a = $("#urlFlag").val();
-
-        //if ($.validate.form()) {
-            $.operate.saveTab(prefix + "/hxPass", {"id":$("#ktid").val(),"urlFlag":a});
-       // }
+            $.operate.saveTab(prefix + "/hxover", {"id":$("#ktid").val(),"urlFlag":a});
     }
     function submitHandlerBH() {
         var a = $("#urlFlag").val();
         if ($.validate.form()) {
-        $.operate.saveTab(prefix + "/hxBh",   $('#form-apply-edit').serialize());
+        $.operate.saveTab(prefix + "/hxoverBh",   $('#form-apply-edit').serialize());
          }
     }
 
 
 
-
-    $(".file-upload").each(function (i) {
-        var val = $("input[name='" + this.id + "']").val()
-        $(this).fileinput({
-            'uploadUrl': ctx + 'common/upload',
-            initialPreviewAsData: true,
-            initialPreview: [val],
-            maxFileCount: 1,
-            autoReplace: true
-        }).on('fileuploaded', function (event, data, previewId, index) {
-            $("input[name='" + event.currentTarget.id + "']").val(data.response.url)
-        }).on('fileremoved', function (event, id, index) {
-            $("input[name='" + event.currentTarget.id + "']").val('')
-        })
-        $(this).fileinput('_initFileActions');
-    });
+    $(".file-download").fileinput({
+        uploadUrl: ctx + 'common/upload',
+        maxFileCount: 1,
+        autoReplace: true
+    }).on('fileuploaded', function (event, data, previewId, index) {
+        $("input[name='" + event.currentTarget.id + "']").val(data.response.url)
+    }).on('fileremoved', function (event, id, index) {
+        $("input[name='" + event.currentTarget.id + "']").val('')
+    })
     // 页面加载时显示文件名
     window.onload = function() {
         displayFileName('contract', 'contractFileName');

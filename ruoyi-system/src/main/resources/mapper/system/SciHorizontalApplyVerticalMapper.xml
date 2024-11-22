@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.SciHorizontalApplyVerticalMapper">
+
+    <resultMap type="SciHorizontalApplyVertical" id="SciHorizontalApplyVerticalResult">
+        <result property="id"    column="id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="topName"    column="top_name"    />
+        <result property="topType"    column="top_type"    />
+        <result property="signingData"    column="signing_data"    />
+        <result property="firstPersonId"    column="first_person_id"    />
+        <result property="secondPersonId"    column="second_person_id"    />
+        <result property="thirdPersonId"    column="third_person_id"    />
+        <result property="fourthPersonId"    column="fourth_person_id"    />
+        <result property="file"    column="file"    />
+        <result property="amount"    column="amount"    />
+        <result property="state"    column="state"    />
+        <result property="userName"    column="userName"    />
+        <result property="createtime"    column="createtime"    />
+    </resultMap>
+    <select id="selectSciHorizontalApplyVerticalList" resultType="SciHorizontalApplyVertical" resultMap="SciHorizontalApplyVerticalResult">
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file
+        from  sci_horizontal_apply_vertical s left join sys_user u on  s.user_id=u.user_id
+                                              left join sys_dept d on u.dept_id = d.dept_id
+                                              left join sys_dept p on d.parent_id =p.dept_id
+        ${params.dataScope}
+        order by s.createtime desc
+    </select>
+
+    <insert id="insertSciHorizontalApplyVertical" parameterType="SciHorizontalApplyVertical" useGeneratedKeys="true" keyProperty="id">
+        insert into sci_horizontal_apply_vertical
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">user_id,</if>
+            <if test="topName != null and topName != ''">top_name,</if>
+            <if test="topType != null and topType != ''">top_type,</if>
+            <if test="signingData != null and signingData != ''">signing_data,</if>
+            <if test="firstPersonId != null and firstPersonId != ''">first_person_id,</if>
+            <if test="secondPersonId != null and secondPersonId != ''">second_person_id,</if>
+            <if test="thirdPersonId != null and thirdPersonId != ''">third_person_id,</if>
+            <if test="fourthPersonId != null and fourthPersonId != ''">fourth_person_id,</if>
+            <if test="amount != null and amount != ''">amount,</if>
+            <if test="file != null and file != ''">file,</if>
+            <if test="state != null and state != ''">state,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">#{userId},</if>
+            <if test="topName != null and topName != ''">#{topName},</if>
+            <if test="topType != null and topType != ''">#{topType},</if>
+            <if test="signingData != null and signingData != ''">#{signingData},</if>
+            <if test="firstPersonId != null and firstPersonId != ''">#{firstPersonId},</if>
+            <if test="secondPersonId != null and secondPersonId != ''">#{secondPersonId},</if>
+            <if test="thirdPersonId != null and thirdPersonId != ''">#{thirdPersonId},</if>
+            <if test="fourthPersonId != null and fourthPersonId != ''">#{fourthPersonId},</if>
+            <if test="amount != null and amount != ''">#{amount},</if>
+            <if test="file != null and file != ''">#{file},</if>
+            <if test="state != null and state != ''">#{state},</if>
+        </trim>
+    </insert>
+
+    <select id="selectSciHorizontalApplyVerticalById" resultMap="SciHorizontalApplyVerticalResult" parameterType="Integer">
+        select s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file
+        from  sci_horizontal_apply_vertical s left join sys_user u on  s.user_id=u.user_id
+                                              left join sys_dept d on u.dept_id = d.dept_id
+                                              left join sys_dept p on d.parent_id =p.dept_id
+        where s.id=#{id}
+    </select>
+
+    <update id="updateSciHorizontalApplyVertical" parameterType="SciHorizontalApplyVertical">
+        update  sci_horizontal_apply_vertical
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="topName != null and topName != ''">top_name = #{topName},</if>
+            <if test="topType != null and topType != ''">top_type = #{topType},</if>
+
+            <if test="signingData != null and signingData != ''">signing_data = #{signingData},</if>
+            <if test="firstPersonId != null and firstPersonId != ''">first_person_id = #{firstPersonId},</if>
+            <if test="secondPersonId != null and secondPersonId != ''">second_person_id = #{secondPersonId},</if>
+            <if test="thirdPersonId != null and thirdPersonId != ''">third_person_id = #{thirdPersonId},</if>
+            <if test="fourthPersonId != null and fourthPersonId != ''">fourth_person_id = #{fourthPersonId},</if>
+            <if test="amount != null and amount != ''">amount = #{amount},</if>
+            <if test="file != null and file != ''">file = #{file},</if>
+            <if test="state != null and state != ''">state = #{state},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteSciHorizontalApplyVerticalByIds" parameterType="String">
+        delete from sci_horizontal_apply_vertical where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <update id="applyPass" >
+        update sci_horizontal_apply_vertical set state = #{state} where id = #{id}
+    </update>
+</mapper>
