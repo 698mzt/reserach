@@ -112,6 +112,15 @@ public class SysUser extends BaseEntity
     /** 岗位组 */
     private Long[] postIds;
 
+    /** 教师职称 */
+    private String teaZhicheng;
+
+    /** 社会职称 */
+    private String socialTitle;
+
+    /** 入职时间 */
+    private String serviceDate;
+
     public SysUser()
     {
 
@@ -120,6 +129,30 @@ public class SysUser extends BaseEntity
     public SysUser(Long userId)
     {
         this.userId = userId;
+    }
+
+    public String getTeaZhicheng() {
+        return teaZhicheng;
+    }
+
+    public void setTeaZhicheng(String teaZhicheng) {
+        this.teaZhicheng = teaZhicheng;
+    }
+
+    public String getSocialTitle() {
+        return socialTitle;
+    }
+
+    public void setSocialTitle(String socialTitle) {
+        this.socialTitle = socialTitle;
+    }
+
+    public String getServiceDate() {
+        return serviceDate;
+    }
+
+    public void setServiceDate(String serviceDate) {
+        this.serviceDate = serviceDate;
     }
 
     public Long getUserId()
