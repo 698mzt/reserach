@@ -5,9 +5,7 @@
 </head>
 <body class="gray-bg">
 <div class="wrapper wrapper-content animated fadeIn">
-
     <div class="row">
-
         <div class="tabs-container">
             <ul class="nav nav-tabs">
                 <li class="active"><a data-toggle="tab" href="#tab-0" onclick="$.table.refresh('bootstrap-table0')" aria-expanded="true">已完结</a>
@@ -211,7 +209,8 @@
 
     // 动态生成URL
     function getUrl(tableId) {
-        return prefix+"/list/"+tableId;
+        var year = localStorage.getItem("year");
+        return prefix+"/list/"+tableId+"?year="+year;
     }
 
 
@@ -546,7 +545,18 @@
         };
         initTable(options2);
 
+        window.addEventListener("storage",function (event){
+            if (event.key==="year"){
+                // 销毁表格，再初始化
+                $('#bootstrap-table0').bootstrapTable('destroy');
+                initTable(options0)
+                $('#bootstrap-table1').bootstrapTable('destroy');
+                initTable(options1)
+                $('#bootstrap-table2').bootstrapTable('destroy');
+                initTable(options2)
+            }
 
+        })
 
     });
 
