@@ -29,6 +29,7 @@
         <result property="state"    column="state"    />
         <result property="userName"    column="userName"    />
         <result property="createtime"    column="createtime"    />
+        <result property="year"    column="year"    />
     </resultMap>
 
     <sql id="selectSciHorizontalApplyVo">
@@ -38,7 +39,7 @@
                                     left join sys_dept p on d.parent_id =p.dept_id
     </sql>
 
-    <select id="selectSciHorizontalApplyList" parameterType="SciHorizontalApply" resultMap="SciHorizontalApplyResult">
+    <select id="selectSciHorizontalApplyList" parameterType="SciHorizontalApply" resultMap="SciHorizontalApplyResult" >
         <include refid="selectSciHorizontalApplyVo"/>
         where state in (1,2,3,4,5)
         <!--            <if test="userId != null "> and user_id = #{userId}</if>-->
@@ -46,6 +47,7 @@
 
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
+        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>
         <!-- 数据范围过滤 -->
         ${params.dataScope}
 
@@ -63,6 +65,7 @@
 
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
+        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>
         ${params.dataScope}
         order  by createtime desc
     </select>
@@ -78,6 +81,7 @@
 
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
+        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>
         order  by createtime desc
     </select>
 
@@ -93,6 +97,7 @@
 
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
+        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>
         ${params.dataScope}
         order  by s.createtime desc
     </select>
@@ -108,6 +113,7 @@
 
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
+        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>
         ${params.dataScope}
         order  by s.createtime desc
     </select>
@@ -123,6 +129,7 @@
 
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
+        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>
         ${params.dataScope}
         order  by s.createtime desc
     </select>
@@ -139,6 +146,7 @@
 
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
+        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>
         <!-- 数据范围过滤 -->
         ${params.dataScope}
         order  by createtime desc

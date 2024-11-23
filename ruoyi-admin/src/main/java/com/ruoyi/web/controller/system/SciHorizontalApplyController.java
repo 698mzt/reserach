@@ -62,8 +62,9 @@ public class SciHorizontalApplyController extends BaseController
     @RequiresPermissions("system:apply:list")
     @PostMapping("/list/{tableId}")
     @ResponseBody
-    public TableDataInfo list(@PathVariable("tableId") String tableId, SciHorizontalApply sciHorizontalApply)
+    public TableDataInfo list(@PathVariable("tableId") String tableId,String year, SciHorizontalApply sciHorizontalApply)
     {
+        sciHorizontalApply.setYear(year);
         sciHorizontalApply.setUid(getUserId());
         startPage();
         List<SysRole> roles = getSysUser().getRoles();

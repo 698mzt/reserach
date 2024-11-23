@@ -103,6 +103,17 @@ public class SciHorizontalApply extends BaseEntity
 //    用户角色字段
     private String role;
 
+//    查询年份
+    private String year;
+
+    public String getYear() {
+        return year;
+    }
+
+    public void setYear(String year) {
+        this.year = year;
+    }
+
     public String getRole() {
         return role;
     }
