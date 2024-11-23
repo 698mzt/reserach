@@ -55,7 +55,9 @@ public class SciIntraSchoolProController extends BaseController {
 
     @PostMapping("/list/{tableId}")
     @ResponseBody
-    public TableDataInfo list(@PathVariable("tableId") String tableId, SciIntraSchoolPro sciIntraSchoolPro) {
+    public TableDataInfo list(@PathVariable("tableId") String tableId,String year, SciIntraSchoolPro sciIntraSchoolPro) {
+        sciIntraSchoolPro.setYear(year);
+        System.out.println("year = " + year);
         sciIntraSchoolPro.setUid(getUserId());
         startPage();
         List<SysRole> roles = getSysUser().getRoles();
