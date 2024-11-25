@@ -12,18 +12,23 @@
             <ul class="nav nav-tabs">
                 <li class="active"><a data-toggle="tab" href="#tab-0" onclick="$.table.refresh('bootstrap-table0')" aria-expanded="true">已完结</a>
                 </li>
-                <li class=""><a data-toggle="tab" href="#tab-1" onclick="$.table.refresh('bootstrap-table1')" aria-expanded="false"> 立项申请</a>
+                <li class=""><a data-toggle="tab" href="#tab-1" onclick="$.table.refresh('bootstrap-table1')" aria-expanded="false"> 开题申请</a>
                 </li>
-                <li class=""><a data-toggle="tab" href="#tab-2" onclick="$.table.refresh('bootstrap-table2')" aria-expanded="false">结项申请</a>
+                <li class=""><a data-toggle="tab" href="#tab-4" onclick="$.table.refresh('bootstrap-table4')" aria-expanded="false"> 开题</a>
+                </li>
+                <li class=""><a data-toggle="tab" href="#tab-3" onclick="$.table.refresh('bootstrap-table3')" aria-expanded="false"> 中期</a>
+                </li>
+                <li class=""><a data-toggle="tab" href="#tab-2" onclick="$.table.refresh('bootstrap-table2')" aria-expanded="false"> 结项</a>
                 </li>
 
             </ul>
             <div class="tab-content">
+                <!--已结项-->
                 <div id="tab-0" class="tab-pane active">
                     <div class="panel-body">
                         <div class="container-div">
                             <div class="row">
-                                <div class="col-sm-12 search-collapse " shiro:hasPermission="system:apply:select">
+                                <div class="col-sm-12 search-collapse " shiro:hasPermission="system:apply_vertical:select">
                                     <form id="formId0">
                                         <div class="select-list">
                                             <ul>
@@ -74,6 +79,7 @@
 
                     </div>
                 </div>
+<!--                申请开题-->
                 <div id="tab-1" class="tab-pane ">
                     <div class="panel-body">
                         <div class="container-div">
@@ -121,11 +127,12 @@
                         </div>
                     </div>
                 </div>
+<!--                结项-->
                 <div id="tab-2" class="tab-pane">
                     <div class="panel-body">
                         <div class="container-div">
                             <div class="row">
-                                <div class="col-sm-12 search-collapse" shiro:hasPermission="system:apply:select">
+                                <div class="col-sm-12 search-collapse" shiro:hasPermission="system:apply_vertical:select">
                                     <form id="formId2">
                                         <div class="select-list">
                                             <ul>
@@ -174,6 +181,114 @@
                         </div>
                     </div>
                 </div>
+<!--                中期-->
+                <div id="tab-3" class="tab-pane">
+                    <div class="panel-body">
+                        <div class="container-div">
+                            <div class="row">
+                                <div class="col-sm-12 search-collapse" shiro:hasPermission="system:apply_vertical:select">
+                                    <form id="formId3">
+                                        <div class="select-list">
+                                            <ul>
+                                                <li>
+                                                    <label>申请人：</label>
+                                                    <input type="text" name="userName"/>
+                                                </li>
+                                                <li>
+                                                    <label>课题名称：</label>
+                                                    <input type="text" name="topName"/>
+                                                </li>
+                                                <li>
+                                                    <label>状态：</label>
+                                                    <select name="state" th:with="type=${@dict.getType('sci_crosswise_tasks')}">
+                                                        <option value="">所有</option>
+                                                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
+                                                    </select>
+                                                </li>
+                                                <li>
+                                                    <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                                                    <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </form>
+                                </div>
+
+                                <div class="btn-group-sm" id="toolbar3" role="group">
+<!--                                    <a class="btn btn-success" onclick="$.operate.addTab()">-->
+<!--                                        <i class="fa fa-plus"></i> 添加-->
+<!--                                    </a>-->
+                                    <!--                <a class="btn btn-primary single disabled" onclick="$.operate.editTab()" shiro:hasPermission="system:apply:edit">-->
+                                    <!--                    <i class="fa fa-edit"></i> 修改-->
+                                    <!--                </a>-->
+                                    <!--                <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()" shiro:hasPermission="system:apply:remove">-->
+                                    <!--                    <i class="fa fa-remove"></i> 删除-->
+                                    <!--                </a>-->
+                                    <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:apply:export">
+                                        <i class="fa fa-download"></i> 导出
+                                    </a>
+                                </div>
+                                <div class="col-sm-12 select-table table-striped">
+                                    <table id="bootstrap-table3"></table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+<!--                开题-->
+                 <div id="tab-4" class="tab-pane">
+                    <div class="panel-body">
+                        <div class="container-div">
+                            <div class="row">
+                                <div class="col-sm-12 search-collapse" shiro:hasPermission="system:apply_vertical:select">
+                                    <form id="formId4">
+                                        <div class="select-list">
+                                            <ul>
+                                                <li>
+                                                    <label>申请人：</label>
+                                                    <input type="text" name="userName"/>
+                                                </li>
+                                                <li>
+                                                    <label>课题名称：</label>
+                                                    <input type="text" name="topName"/>
+                                                </li>
+                                                <li>
+                                                    <label>状态：</label>
+                                                    <select name="state" th:with="type=${@dict.getType('sci_crosswise_tasks')}">
+                                                        <option value="">所有</option>
+                                                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
+                                                    </select>
+                                                </li>
+                                                <li>
+                                                    <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                                                    <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </form>
+                                </div>
+
+                                <div class="btn-group-sm" id="toolbar4" role="group">
+<!--                                    <a class="btn btn-success" onclick="$.operate.addTab()">-->
+<!--                                        <i class="fa fa-plus"></i> 添加-->
+<!--                                    </a>-->
+                                    <!--                <a class="btn btn-primary single disabled" onclick="$.operate.editTab()" shiro:hasPermission="system:apply:edit">-->
+                                    <!--                    <i class="fa fa-edit"></i> 修改-->
+                                    <!--                </a>-->
+                                    <!--                <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()" shiro:hasPermission="system:apply:remove">-->
+                                    <!--                    <i class="fa fa-remove"></i> 删除-->
+                                    <!--                </a>-->
+                                    <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:apply:export">
+                                        <i class="fa fa-download"></i> 导出
+                                    </a>
+                                </div>
+                                <div class="col-sm-12 select-table table-striped">
+                                    <table id="bootstrap-table4"></table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
 
@@ -198,6 +313,7 @@
     var editInfo = [[${@permission.hasPermi('system:apply_vertical:info')}]];
     var KYCFlag = [[${@permission.hasPermi('system:apply_vertical:KYC')}]];
     var createFlag = [[${@permission.hasPermi('system:apply_vertical:add')}]];
+    var downloadFlag = [[${@permission.hasPermi('system:apply_vertical:download')}]];
     // 数据字典获取
     var topTypeDatas = [[${@dict.getType('sci_top_type')}]];
     var datas = [[${@dict.getType('sci_vertical_tasks')}]];
@@ -223,6 +339,7 @@
             $.table.init(options);
         }
         // tab-0
+        // 完结
         var options0 = {
             id: "bootstrap-table0",
             toolbar:"toolbar0",
@@ -232,7 +349,7 @@
             updateUrl: prefix + "/edit/{id}",
             removeUrl: prefix + "/remove",
             exportUrl: prefix + "/export",
-            modalName: "横向课题",
+            modalName: "纵向课题完结",
             sortOrder: "asc",
             columns: [{
                 field: 'number',
@@ -308,29 +425,30 @@
                     align: 'center',
                     formatter: function(value, row, index) {
                         var actions = [];
-                        if(row.state ==  6){
-
+                        if(row.state ==  4444){
+                            actions.push('<a  class="btn btn-success btn-xs ' + downloadFlag + '" href="javascript:void(0)" onclick="downloadFiles(\''+row.id+'\')"><i class="fa fa-edit"></i>下载文件</a> ');
                             actions.push('<a  class="btn btn-success btn-xs ' + editInfo + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
                         }
                         return actions.join('');
                     }
                 }]
         };
-
         initTable(options0);
 
         // tab-1
+        // 申请
         var options1 = {
             id: "bootstrap-table1",
             toolbar:"toolbar1",
             url:getUrl($('table').attr('id')),
             createUrl: prefix + "/add",
-            overUrl: prefix + "/overadd?id={id}",
+            // overUrl: prefix + "/overadd?id={id}",
+            openUrl: prefix + "/openadd?id={id}",
             detailUrl: prefix + "/detail/{id}",
             updateUrl: prefix + "/edit/{id}",
             removeUrl: prefix + "/remove",
             exportUrl: prefix + "/export",
-            modalName: "纵向课题",
+            modalName: "纵向课题申请",
             sortOrder: "asc",
             columns: [{
                 field: 'number',
@@ -413,18 +531,18 @@
                                 actions.push('<a   class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>更新</a> ');
                             }
 
-                            actions.push('<a  class="btn btn-success btn-xs ' + JYSFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id+'/JYS' + '\')"><i class="fa fa-edit"></i>批阅</a> ');
+                            actions.push('<a  class="btn btn-success btn-xs ' + JYSFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id+'/JYS' + '\')"><i class="fa fa-edit"></i>批阅申请</a> ');
 
                         }else
                         if((row.state == 3 || row.state == 5)  && row.userId == row.uid){
                             actions.push('<a   class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> <i class="fa fa-edit"></i>更新</a> ');
                         }else if(row.state ==  2){
 
-                            actions.push('<a  class="btn btn-success btn-xs ' + KYCFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/KYC'+ '\')"><i class="fa fa-edit"></i>核查</a> ');
+                            actions.push('<a  class="btn btn-success btn-xs ' + KYCFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/KYC'+ '\')"><i class="fa fa-edit"></i>批阅申请</a> ');
                         }else
                         if(row.state ==  4){
                             if(row.userId == row.uid){
-                                actions.push('<a  class="btn btn-success btn-xs ' + createFlag + '" href="javascript:void(0)" onclick="$.operate.overTab(\'' + row.id +'\')"><i class="fa fa-edit"></i>申请结项</a> ');
+                                actions.push('<a  class="btn btn-success btn-xs ' + createFlag + '" href="javascript:void(0)" onclick="$.operate.openTab(\'' + row.id +'\')"><i class="fa fa-edit"></i>申请开题</a> ');
                             }
                             actions.push('<a  class="btn btn-success btn-xs ' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
                         }
@@ -434,17 +552,128 @@
         };
         initTable(options1);
 
-    //    tab-2
+        //    tab-2
+        // 结项
         var options2 = {
             id: "bootstrap-table2",
             toolbar:"toolbar2",
             url:getUrl($('table').attr('id')),
-            createUrl: prefix + "/overadd?id={id}",
+            createUrl: prefix + "",
             detailUrl: prefix + "/overdetail/{id}",
             updateUrl: prefix + "/edit/{id}",
             removeUrl: prefix + "/remove",
             exportUrl: prefix + "/export",
-            modalName: "横向课题结项",
+            modalName: "纵向课题结项",
+            sortOrder: "asc",
+            columns: [{
+                field: 'number',
+                title: '序号',
+                width:5 ,
+                align:'center',
+                switchable:false,
+                formatter:function(value,row,index){
+                    //return index+1; //序号正序排序从1开始
+
+                    //通过表的#id 可以得到每页多少条
+                    var pageSize=$('#bootstrap-table').bootstrapTable('getOptions').pageSize;
+                    //通过表的#id 可以得到当前第几页
+                    var pageNumber=$('#bootstrap-table').bootstrapTable('getOptions').pageNumber;
+                    //返回每条的序号： 每页条数 * （当前页 - 1 ）+ 序号
+                    // return pageSize * (pageNumber - 1) + index + 1;
+                    return $.table.serialNumber(index);
+                }
+            },
+                {
+                    field: 'id',
+                    title: '',
+                    visible: false
+                },
+                {
+                    field: 'yname',
+                    align: 'center',
+                    title: '学院'
+                },
+                {
+                    field: 'dname',
+                    align: 'center',
+                    title: '专业'
+                },
+                {
+                    field: 'userName',
+                    align: 'center',
+                    title: '申请人'
+                },
+                {
+                    field: 'topName',
+                    align: 'center',
+                    title: '课题名称'
+                },
+                // {
+                //     field: 'topType',
+                //     title: '课题类型',
+                //     formatter: function(value, row, index) {
+                //        return $.table.selectDictLabel(topTypeDatas, value);
+                //     }
+                // },
+
+                {
+                    field: 'signingData',
+                    align: 'center',
+                    title: '签订日期'
+                },
+                {
+                    field: 'amount',
+                    align: 'center',
+                    title: '项目金额'
+                },
+                {
+                    field: 'state',
+                    title: '申请状态',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                        return $.table.selectDictLabel(datas, value);
+                    }
+                }  ,
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                        var actions = [];
+                        // todo: 审核
+                        if(row.state == 1111 ){
+                            if(row.userId == row.uid){
+                                actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"> <i class="fa fa-remove"></i>删除</a>');
+                                actions.push('<a   class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> <i class="fa fa-edit"></i>更新</a> ');
+                            }
+                            actions.push('<a  class="btn btn-success btn-xs ' + JYSFlag + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id+'/JYS' + '\')"><i class="fa fa-edit"></i>批阅结项</a> ');
+
+                        }else
+                        if((row.state == 3333 || row.state == 5555)  && row.userId == row.uid){
+                            actions.push('<a   class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>更新</a> ');
+                        }else if(row.state ==  2222){
+
+                            actions.push('<a  class="btn btn-success btn-xs ' + KYCFlag + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id +'/KYC'+ '\')"><i class="fa fa-edit"></i>批阅结项</a> ');
+                        }
+                        return actions.join('');
+                    }
+                }]
+        };
+        initTable(options2);
+
+
+        //    tab-3
+        // 中期
+        var options3 = {
+            id: "bootstrap-table3",
+            toolbar:"toolbar3",
+            url:getUrl($('table').attr('id')),
+            createUrl: prefix + "",
+            overUrl: prefix + "/overadd?id={id}",
+            detailUrl: prefix + "/middetail/{id}",
+            updateUrl: prefix + "/edit/{id}",
+            removeUrl: prefix + "/remove",
+            exportUrl: prefix + "/export",
+            modalName: "纵向课题中期",
             sortOrder: "asc",
             columns: [{
                 field: 'number',
@@ -521,31 +750,154 @@
                     formatter: function(value, row, index) {
                         var actions = [];
 
-                        if(row.state == 7 ){
+                        if(row.state == 111 ){
                             if(row.userId == row.uid){
                                 actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"> <i class="fa fa-remove"></i>删除</a>');
                                 actions.push('<a   class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> <i class="fa fa-edit"></i>更新</a> ');
                             }
-                            actions.push('<a  class="btn btn-success btn-xs ' + proFlag + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id+'/JYSOVER' + '\')"><i class="fa fa-edit"></i>批阅结项</a> ');
-
+                            actions.push('<a  class="btn btn-success btn-xs ' + JYSFlag + '" href="javascript:void(0)" onclick="$.operate.middetailTab(\'' + row.id+'/JYS' + '\')"><i class="fa fa-edit"></i>中期批阅</a> ');
                         }else
-                        if((row.state == 9 || row.state == 10)  && row.userId == row.uid){
+                        //     被驳回后，申请人可以更新
+                        if((row.state == 333 || row.state == 555)  && row.userId == row.uid){
                             actions.push('<a   class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>更新</a> ');
-                        }else if(row.state ==  8){
-
-                            actions.push('<a  class="btn btn-success btn-xs ' + hechaFlag + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id +'/KYCOVER'+ '\')"><i class="fa fa-edit"></i>批阅结项</a> ');
+                        }else if(row.state ==  222){
+                            actions.push('<a  class="btn btn-success btn-xs ' + KYCFlag + '" href="javascript:void(0)" onclick="$.operate.middetailTab(\'' + row.id +'/KYC'+ '\')"><i class="fa fa-edit"></i>中期批阅</a> ');
+                        }
+                        if(row.state ==  444){
+                            if(row.userId == row.uid){
+                                actions.push('<a  class="btn btn-success btn-xs ' + createFlag + '" href="javascript:void(0)" onclick="$.operate.overTab(\'' + row.id +'\')"><i class="fa fa-edit"></i>申请结项</a> ');
+                            }
+                            actions.push('<a  class="btn btn-success btn-xs ' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
                         }
                         return actions.join('');
                     }
                 }]
         };
-        initTable(options2);
+        initTable(options3);
 
+        //    tab-4
+        // 开题
+        var options4 = {
+            id: "bootstrap-table4",
+            toolbar:"toolbar4",
+            url:getUrl($('table').attr('id')),
+            midUrl: prefix + "/midadd?id={id}",
+            createUrl: prefix + "",
+            detailUrl: prefix + "/opendetail/{id}",
+            updateUrl: prefix + "/edit/{id}",
+            removeUrl: prefix + "/remove",
+            exportUrl: prefix + "/export",
+            modalName: "纵向课题开题",
+            sortOrder: "asc",
+            columns: [{
+                field: 'number',
+                title: '序号',
+                width:5 ,
+                align:'center',
+                switchable:false,
+                formatter:function(value,row,index){
+                    //return index+1; //序号正序排序从1开始
 
+                    //通过表的#id 可以得到每页多少条
+                    var pageSize=$('#bootstrap-table').bootstrapTable('getOptions').pageSize;
+                    //通过表的#id 可以得到当前第几页
+                    var pageNumber=$('#bootstrap-table').bootstrapTable('getOptions').pageNumber;
+                    //返回每条的序号： 每页条数 * （当前页 - 1 ）+ 序号
+                    // return pageSize * (pageNumber - 1) + index + 1;
+                    return $.table.serialNumber(index);
+                }
+            },
+                {
+                    field: 'id',
+                    title: '',
+                    visible: false
+                },
+                {
+                    field: 'yname',
+                    align: 'center',
+                    title: '学院'
+                },
+                {
+                    field: 'dname',
+                    align: 'center',
+                    title: '专业'
+                },
+                {
+                    field: 'userName',
+                    align: 'center',
+                    title: '申请人'
+                },
+                {
+                    field: 'topName',
+                    align: 'center',
+                    title: '课题名称'
+                },
+                // {
+                //     field: 'topType',
+                //     title: '课题类型',
+                //     formatter: function(value, row, index) {
+                //        return $.table.selectDictLabel(topTypeDatas, value);
+                //     }
+                // },
+
+                {
+                    field: 'signingData',
+                    align: 'center',
+                    title: '签订日期'
+                },
+                {
+                    field: 'amount',
+                    align: 'center',
+                    title: '项目金额'
+                },
+                {
+                    field: 'state',
+                    title: '申请状态',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                        return $.table.selectDictLabel(datas, value);
+                    }
+                }  ,
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                        var actions = [];
+
+                        if(row.state == 11 ){
+                            if(row.userId == row.uid){
+                                actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"> <i class="fa fa-remove"></i>删除</a>');
+                                actions.push('<a   class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> <i class="fa fa-edit"></i>更新</a> ');
+                            }
+                            actions.push('<a  class="btn btn-success btn-xs ' + JYSFlag + '" href="javascript:void(0)" onclick="$.operate.opendetailTab(\'' + row.id+'/JYS' + '\')"><i class="fa fa-edit"></i>开题批阅</a> ');
+                        }else
+                        //     被驳回后，申请人可以更新
+                        if((row.state == 33 || row.state == 55)  && row.userId == row.uid){
+                            actions.push('<a   class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>更新</a> ');
+                        }else if(row.state ==  22){
+                            actions.push('<a  class="btn btn-success btn-xs ' + KYCFlag + '" href="javascript:void(0)" onclick="$.operate.opendetailTab(\'' + row.id +'/KYC'+ '\')"><i class="fa fa-edit"></i>开题批阅</a> ');
+                        }
+                        if(row.state ==  44){
+                            if(row.userId == row.uid){
+                                actions.push('<a  class="btn btn-success btn-xs ' + createFlag + '" href="javascript:void(0)" onclick="$.operate.midTab(\'' + row.id +'\')"><i class="fa fa-edit"></i>申请中期</a> ');
+                            }
+                            actions.push('<a  class="btn btn-success btn-xs ' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
+                        }
+                        return actions.join('');
+                    }
+                }]
+        };
+        initTable(options4);
 
     });
 
 
+</script>
+<script>
+    function downloadFiles(id) {
+        alert(ctx + 'common/downloadZip?id='+id)
+        window.location.href = ctx + 'common/downloadZip?id='+id;
+}
 </script>
 </body>
 </html>
