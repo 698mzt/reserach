@@ -6,7 +6,7 @@
 </head>
 <body>
     <div class="main-content">
-        <form id="form-user-add" class="form-horizontal">
+        <form id="form-user-add" class="form-horizontal" onsubmit="return validateFrom()">
             <input name="deptId" type="hidden" id="treeId"/>
             <h4 class="form-header h4">基本信息</h4>
             <div class="row">
@@ -105,7 +105,8 @@
                     <div class="form-group">
                         <label class="col-xs-2 control-label">岗位：</label>
                         <div class="col-xs-4">
-                            <select id="post" class="form-control select2-multiple" multiple>
+                            <select id="post" class="form-control select2-multiple" multiple required>
+                                <option value="0">请选择</option>
 								<option th:each="post:${posts}" th:value="${post.postId}" th:text="${post.postName}" th:disabled="${post.status == '1'}"></option>
 							</select>
                         </div>
@@ -147,6 +148,17 @@
 	<th:block th:include="include :: footer" />
 	<th:block th:include="include :: select2-js" />
 	<script>
+
+        //岗位必选
+        function validateFrom(){
+            var sValue = document.getElementById("post").value;
+            if (sValue ===""){
+                alert("请填写岗位");
+                return false;
+            }
+            return true;
+        }
+
 	    var prefix = ctx + "system/user";
 	
         $("#form-user-add").validate({
@@ -197,7 +209,7 @@
                         }
                     }
         		},
-        	},
+            },
         	messages: {
                 "loginName": {
                     remote: "用户已经存在"
@@ -211,7 +223,6 @@
             },
             focusCleanup: true
         });
-        
         function submitHandler() {
         	var chrtype = [[${#strings.defaultString(@config.getKey('sys.account.chrtype'), 0)}]];
 			var password = $("#password").val();
@@ -254,6 +265,19 @@
                 allowClear: true
             });
         })
+        /*function validateForm() {
+            // 获取所有的 <select> 元素
+            const selects = document.querySelectorAll('.form-control select2-multiple');
+            selects.forEach(select => {
+                if (select.selectedIndex === 0) { // 检查是否选择了非默认选项
+                    valid = false; // 如果没有选择任何有效选项，将有效标志设为 false
+                    alert(`请为 ${post.postId} 选择一个有效的选项！`); // 提示用户
+                    select.focus(); // 聚焦到未选择的 <select>
+                }
+            });
+
+            return valid; // 返回验证结果
+        }*/
     </script>
 </body>
 </html>

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('修改论文')" />
+    <th:block th:include="include :: datetimepicker-css" />
+    <th:block th:include="include :: bootstrap-fileinput-css"/>
+</head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-paper-edit" th:object="${sciPaperA}">
+            <input name="id" th:field="*{id}" type="hidden">
+            <!--<div class="form-group">
+                <label class="col-sm-3 control-label">学院：</label>
+                <div class="col-sm-8">
+                    <input name="college" th:field="*{college}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">教研室：</label>
+                <div class="col-sm-8">
+                    <input name="researchRoom" th:field="*{researchRoom}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">工号：</label>
+                <div class="col-sm-8">
+                    <input name="employeeId" th:field="*{employeeId}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">教师姓名：</label>
+                <div class="col-sm-8">
+                    <input name="teacherName" th:field="*{teacherName}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">行政职务：</label>
+                <div class="col-sm-8">
+                    <input name="administrativePosition" th:field="*{administrativePosition}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">社会职称：</label>
+                <div class="col-sm-8">
+                    <input name="socialTitle" th:field="*{socialTitle}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">校内职称：</label>
+                <div class="col-sm-8">
+                    <input name="onCampusTitle" th:field="*{onCampusTitle}" class="form-control" type="text">
+                </div>
+            </div>-->
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">论文名称：</label>
+                <div class="col-sm-8">
+                    <input name="paperTitle" th:field="*{paperTitle}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">论文类别：</label>
+                <div class="col-sm-8">
+                    <select name="topType" class="form-control" th:with="type=${@dict.getType('sci_paper_k')}" required>
+                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}" th:field="*{paperCategory}"></option>
+                    </select>
+                    <!--<input name="paperCategory" th:field="*{paperCategory}" class="form-control" type="text">-->
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">发表期刊：</label>
+                <div class="col-sm-8">
+                    <input name="publishedJournal" th:field="*{publishedJournal}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">发表时间：</label>
+                <div class="col-sm-8">
+                    <input name="publicationTime" th:field="*{publicationTime}" th:value="${#dates.format(publicationTime, 'yyyy-MM-dd')}" class="form-control" placeholder="yyyy-MM-dd" type="text">
+                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">是否与行业联合发表：</label>
+                <div class="col-sm-8">
+                    <input name="isIndustryCollaborative" th:field="*{isIndustryCollaborative}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">是否与地方联合发表：</label>
+                <div class="col-sm-8">
+                    <input name="isLocalCollaborative" th:field="*{isLocalCollaborative}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">是否与国际联合发表：</label>
+                <div class="col-sm-8">
+                    <input name="isInternationalCollaborative" th:field="*{isInternationalCollaborative}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">是否是跨学科论文：</label>
+                <div class="col-sm-8">
+                    <input name="isCrossDiscipline" th:field="*{isCrossDiscipline}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">排名：</label>
+                <div class="col-sm-8">
+                    <input name="paperRanking" th:field="*{paperRanking}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">科研分：</label>
+                <div class="col-sm-8">
+                    <input name="researchScore" th:field="*{researchScore}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">备注：</label>
+                <div class="col-sm-8">
+                    <input name="remarks" th:field="*{remarks}" class="form-control" type="text">
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="row">
+        <div class="col-sm-offset-5 col-sm-10">
+            <button type="button" class="btn btn-sm btn-primary" onclick="submitHandler()"><i class="fa fa-check"></i>保 存</button>&nbsp;
+            <button type="button" class="btn btn-sm btn-danger" onclick="closeItem()"><i class="fa fa-reply-all"></i>关 闭 </button>
+        </div>
+    </div>
+
+    <th:block th:include="include :: footer" />
+    <script th:inline="javascript">
+        var prefix = ctx + "system/paper";
+        $("#form-paper-edit").validate({
+            focusCleanup: true
+        });
+
+        function submitHandler() {
+            if ($.validate.form()) {
+                $.operate.saveTab(prefix + "/edit", $('#form-paper-edit').serialize());
+            }
+        }
+        $(document).ready(function() {
+            $('#publicationTime').datepicker({
+                format: "yyyy-mm-dd",
+                minView: "month",
+                autoclose: true
+            });
+        });
+    </script>
+</body>
+</html>
