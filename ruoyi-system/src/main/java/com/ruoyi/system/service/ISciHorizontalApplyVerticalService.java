@@ -94,4 +94,5 @@ public interface ISciHorizontalApplyVerticalService {
      * @return 结果
      */
     List<SciHorizontalApplyVertical> selectSciHorizontalApplyVerticalListOVER(SciHorizontalApplyVertical sciHorizontalApplyVertical);
-}
+
+    }

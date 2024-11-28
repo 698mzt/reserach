@@ -323,7 +323,8 @@
 
     // 动态生成URL
     function getUrl(tableId) {
-        return prefix+"/list/"+tableId;
+        var year = localStorage.getItem("year");
+        return prefix+"/list/"+tableId+"?year="+year;
     }
 
 
@@ -426,7 +427,7 @@
                     formatter: function(value, row, index) {
                         var actions = [];
                         if(row.state ==  4444){
-                            actions.push('<a  class="btn btn-success btn-xs ' + downloadFlag + '" href="javascript:void(0)" onclick="downloadFiles(\''+row.id+'\')"><i class="fa fa-edit"></i>下载文件</a> ');
+                            actions.push('<a  class="btn btn-success btn-xs ' + downloadFlag + '" href="javascript:void(0)" onclick="downloadFiles(\'' +row.id+'\')"><i class="fa fa-edit"></i>下载文件</a> ');
                             actions.push('<a  class="btn btn-success btn-xs ' + editInfo + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
                         }
                         return actions.join('');
@@ -442,7 +443,6 @@
             toolbar:"toolbar1",
             url:getUrl($('table').attr('id')),
             createUrl: prefix + "/add",
-            // overUrl: prefix + "/overadd?id={id}",
             openUrl: prefix + "/openadd?id={id}",
             detailUrl: prefix + "/detail/{id}",
             updateUrl: prefix + "/edit/{id}",
@@ -560,7 +560,7 @@
             url:getUrl($('table').attr('id')),
             createUrl: prefix + "",
             detailUrl: prefix + "/overdetail/{id}",
-            updateUrl: prefix + "/edit/{id}",
+            updateUrl: prefix + "/overedit/{id}",
             removeUrl: prefix + "/remove",
             exportUrl: prefix + "/export",
             modalName: "纵向课题结项",
@@ -670,7 +670,7 @@
             createUrl: prefix + "",
             overUrl: prefix + "/overadd?id={id}",
             detailUrl: prefix + "/middetail/{id}",
-            updateUrl: prefix + "/edit/{id}",
+            updateUrl: prefix + "/midedit/{id}",
             removeUrl: prefix + "/remove",
             exportUrl: prefix + "/export",
             modalName: "纵向课题中期",
@@ -784,7 +784,7 @@
             midUrl: prefix + "/midadd?id={id}",
             createUrl: prefix + "",
             detailUrl: prefix + "/opendetail/{id}",
-            updateUrl: prefix + "/edit/{id}",
+            updateUrl: prefix + "/openedit/{id}",
             removeUrl: prefix + "/remove",
             exportUrl: prefix + "/export",
             modalName: "纵向课题开题",
@@ -888,6 +888,23 @@
                 }]
         };
         initTable(options4);
+
+        window.addEventListener("storage",function (event){
+            if (event.key==="year"){
+                // 销毁表格，再初始化
+                $('#bootstrap-table0').bootstrapTable('destroy');
+                initTable(options0)
+                $('#bootstrap-table1').bootstrapTable('destroy');
+                initTable(options1)
+                $('#bootstrap-table2').bootstrapTable('destroy');
+                initTable(options2)
+                $('#bootstrap-table3').bootstrapTable('destroy');
+                initTable(options3)
+                $('#bootstrap-table4').bootstrapTable('destroy');
+                initTable(options4)
+            }
+
+        })
 
     });
 

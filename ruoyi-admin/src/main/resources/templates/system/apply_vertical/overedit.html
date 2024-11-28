@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh" xmlns:th="http://www.thymeleaf.org" >
 <head>
-    <th:block th:include="include :: header('修改立项申请')" />
+    <th:block th:include="include :: header('修改开题')" />
     <th:block th:include="include :: datetimepicker-css" />
     <th:block th:include="include :: bootstrap-fileinput-css"/>
     <th:block th:include="include :: select2-css" />
@@ -195,7 +195,6 @@
                     }
                 });
             });
-
         });
     </script>
     <script th:inline="javascript">
@@ -209,16 +208,16 @@
                 var filing = $("input[name='filing']").val();
                 console.log(filing);
                 if ($.validate.form()) {
-                if (filing == "") {
-                    $.modal.alertWarning("请上传文件");
-                    return;
+                    if (filing == "") {
+                        $.modal.alertWarning("请上传文件");
+                        return;
                 }else if (filing.split('.')[1] != "pdf"){
                     $("#removebutton").click()
                     $.modal.alertWarning("文件格式不正确，请上传PDF格式");
                     return;
                 }
             }
-                $.operate.saveTab(prefix + "/edit", $('#form-apply-edit').serialize());
+                $.operate.saveTab(prefix + "/overedit", $('#form-apply-edit').serialize());
             }
         }
 
