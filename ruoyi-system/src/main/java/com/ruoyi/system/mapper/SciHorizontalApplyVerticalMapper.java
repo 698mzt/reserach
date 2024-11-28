@@ -19,6 +19,10 @@ public interface SciHorizontalApplyVerticalMapper {
      */
     public List<SciHorizontalApplyVertical> selectSciHorizontalApplyVerticalList(SciHorizontalApplyVertical sciHorizontalApplyVertical);
 
+    public List<SciHorizontalApplyVertical> selectSciHorizontalApplyVerticalListJYS(SciHorizontalApplyVertical sciHorizontalApplyVertical);
+
+    public List<SciHorizontalApplyVertical> selectSciHorizontalApplyVerticalListKYC(SciHorizontalApplyVertical sciHorizontalApplyVertical);
+
     /**
      * 保存立项申请
      *
@@ -96,4 +100,5 @@ public interface SciHorizontalApplyVerticalMapper {
      * @return 结果
      */
     public List<SciHorizontalApplyVertical> selectSciHorizontalApplyVerticalListOVER(SciHorizontalApplyVertical sciHorizontalApplyVertical);
-}
+
+    }

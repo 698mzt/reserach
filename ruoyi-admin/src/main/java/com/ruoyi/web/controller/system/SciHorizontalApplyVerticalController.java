@@ -11,23 +11,14 @@ import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.system.domain.SciHorizontalApplyVertical;
 import com.ruoyi.system.service.ISciHorizontalApplyVerticalService;
 import com.ruoyi.system.service.ISysUserService;
-import org.apache.commons.io.FileUtils;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
-
-import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 /**
 * 纵向课题Controller
@@ -54,12 +45,13 @@ public class SciHorizontalApplyVerticalController extends BaseController {
     /**
      * 查询横向课题列表
      */
-    @RequiresPermissions("system:apply:list")
+    @RequiresPermissions("system:apply_vertical:select")
     @PostMapping("/list/{tableId}")
     @ResponseBody
-    public TableDataInfo list(@PathVariable("tableId") String tableId, SciHorizontalApplyVertical sciHorizontalApplyVertical)
+    public TableDataInfo list(@PathVariable("tableId") String tableId,String year ,SciHorizontalApplyVertical sciHorizontalApplyVertical)
     {
         sciHorizontalApplyVertical.setUid(getUserId());
+        sciHorizontalApplyVertical.setYear(year);
         startPage();
         List<SysRole> roles = getSysUser().getRoles();
         String role = "";
@@ -253,7 +245,7 @@ public class SciHorizontalApplyVerticalController extends BaseController {
     }
 
     /**
-     * 修改立项申请
+     * 修改申请
      */
     @RequiresPermissions("system:apply_vertical:edit")
     @GetMapping("/edit/{id}")
@@ -269,7 +261,7 @@ public class SciHorizontalApplyVerticalController extends BaseController {
     }
 
     /**
-     *保存修改立项申请
+     *保存修改申请
      */
     @RequiresPermissions("system:apply_vertical:edit")
     @Log(title = "更新立项申请", businessType = BusinessType.UPDATE)
@@ -278,6 +270,93 @@ public class SciHorizontalApplyVerticalController extends BaseController {
     public AjaxResult editSave(SciHorizontalApplyVertical sciHorizontalApplyVertical)
     {
         sciHorizontalApplyVertical.setState("1");
+        return toAjax(sciHorizontalApplyVerticalService.updateSciHorizontalApplyVertical(sciHorizontalApplyVertical));
+    }
+
+    /**
+     * 修改开题
+     */
+    @RequiresPermissions("system:apply_vertical:edit")
+    @GetMapping("/openedit/{id}")
+    public String openedit(@PathVariable("id") Integer id, ModelMap mmap)
+    {
+        SciHorizontalApplyVertical sciHorizontalApplyVertical = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalById(id);
+
+        List<SysUser> userList1 =  userService.selectAllUser();
+
+        mmap.put("sysUsers1",userList1);
+        mmap.put("sciHorizontalApplyVertical", sciHorizontalApplyVertical);
+        return prefix + "/openedit";
+    }
+
+    /**
+     *保存修改开题
+     */
+    @RequiresPermissions("system:apply_vertical:edit")
+    @Log(title = "更新立项申请", businessType = BusinessType.UPDATE)
+    @PostMapping("/openedit")
+    @ResponseBody
+    public AjaxResult openeditSave(SciHorizontalApplyVertical sciHorizontalApplyVertical)
+    {
+        sciHorizontalApplyVertical.setState("11");
+        return toAjax(sciHorizontalApplyVerticalService.updateSciHorizontalApplyVertical(sciHorizontalApplyVertical));
+    }
+
+    /**
+     * 修改中期
+     */
+    @RequiresPermissions("system:apply_vertical:edit")
+    @GetMapping("/midedit/{id}")
+    public String midedit(@PathVariable("id") Integer id, ModelMap mmap)
+    {
+        SciHorizontalApplyVertical sciHorizontalApplyVertical = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalById(id);
+
+        List<SysUser> userList1 =  userService.selectAllUser();
+
+        mmap.put("sysUsers1",userList1);
+        mmap.put("sciHorizontalApplyVertical", sciHorizontalApplyVertical);
+        return prefix + "/midedit";
+    }
+
+    /**
+     *保存修改中期
+     */
+    @RequiresPermissions("system:apply_vertical:edit")
+    @Log(title = "更新立项申请", businessType = BusinessType.UPDATE)
+    @PostMapping("/midedit")
+    @ResponseBody
+    public AjaxResult mideditSave(SciHorizontalApplyVertical sciHorizontalApplyVertical)
+    {
+        sciHorizontalApplyVertical.setState("111");
+        return toAjax(sciHorizontalApplyVerticalService.updateSciHorizontalApplyVertical(sciHorizontalApplyVertical));
+    }
+
+    /**
+     * 修改结项
+     */
+    @RequiresPermissions("system:apply_vertical:edit")
+    @GetMapping("/overedit/{id}")
+    public String overedit(@PathVariable("id") Integer id, ModelMap mmap)
+    {
+        SciHorizontalApplyVertical sciHorizontalApplyVertical = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalById(id);
+
+        List<SysUser> userList1 =  userService.selectAllUser();
+
+        mmap.put("sysUsers1",userList1);
+        mmap.put("sciHorizontalApplyVertical", sciHorizontalApplyVertical);
+        return prefix + "/overedit";
+    }
+
+    /**
+     *保存修改结项
+     */
+    @RequiresPermissions("system:apply_vertical:edit")
+    @Log(title = "更新立项申请", businessType = BusinessType.UPDATE)
+    @PostMapping("/overedit")
+    @ResponseBody
+    public AjaxResult overeditSave(SciHorizontalApplyVertical sciHorizontalApplyVertical)
+    {
+        sciHorizontalApplyVertical.setState("1111");
         return toAjax(sciHorizontalApplyVerticalService.updateSciHorizontalApplyVertical(sciHorizontalApplyVertical));
     }
 

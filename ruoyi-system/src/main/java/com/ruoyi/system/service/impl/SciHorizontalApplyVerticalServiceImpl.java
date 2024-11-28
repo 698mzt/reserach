@@ -30,7 +30,14 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
     @Override
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciHorizontalApplyVertical> selectSciHorizontalApplyVerticalList(SciHorizontalApplyVertical sciHorizontalApplyVertical) {
-        return sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalList(sciHorizontalApplyVertical);
+        List<SciHorizontalApplyVertical> list = new ArrayList<>();
+        if (sciHorizontalApplyVertical.getRole().equals("research"))
+            list = sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalListJYS(sciHorizontalApplyVertical);
+        else if (sciHorizontalApplyVertical.getRole().equals("sci_tesearch"))
+            list = sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalListKYC(sciHorizontalApplyVertical);
+        else
+            list = sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalList(sciHorizontalApplyVertical);
+        return list;
     }
 
     /**
@@ -63,7 +70,7 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
      */
     @Override
     public int updateSciHorizontalApplyVertical(SciHorizontalApplyVertical sciHorizontalApplyVertical) {
-        return sciHorizontalApplyVerticalMapper.updateSciHorizontalApplyVertical(sciHorizontalApplyVertical);
+         return sciHorizontalApplyVerticalMapper.updateSciHorizontalApplyVertical(sciHorizontalApplyVertical);
     }
 
     /**

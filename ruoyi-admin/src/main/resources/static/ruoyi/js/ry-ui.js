@@ -1091,17 +1091,14 @@ var table = {
             },
             opendetailTab: function(id) {
                 table.set();
-                alert($.operate.detailUrl(id))
                 $.modal.openTab("开题：" + table.options.modalName, $.operate.detailUrl(id));
             },
             middetailTab: function(id) {
                 table.set();
-                alert($.operate.detailUrl(id))
                 $.modal.openTab("开题：" + table.options.modalName, $.operate.detailUrl(id));
             },
             overdetailTab: function(id) {
                 table.set();
-                alert($.operate.detailUrl(id))
                 $.modal.openTab("开题：" + table.options.modalName, $.operate.detailUrl(id));
             },
             // 详细访问地址
@@ -1188,7 +1185,6 @@ var table = {
             },
             midTab: function (id) {
                 table.set();
-                alert($.operate.midUrl(id))
                 $.modal.openTab("开题：" + table.options.modalName, $.operate.midUrl(id));
             },
             // 添加信息 全屏
