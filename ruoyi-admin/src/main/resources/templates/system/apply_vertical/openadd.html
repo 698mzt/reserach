@@ -45,7 +45,7 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">项目金额(万)：</label>
                     <div class="col-sm-8">
-                        <input readonly name="amount" th:field="*{amount}" class="form-control" type="text" required>
+                        <input readonly name="amount" th:field="*{amount}" class="form-control" type="number" required>
                     </div>
                 </div>
             </div>
@@ -154,10 +154,6 @@
                 $.modal.alertWarning("请上传文件");
                 return;
             }
-            if (openfile.split('.')[1] != "pdf"){
-                $.modal.alertWarning("合同格式不正确，请上传PDF格式");
-                return;
-            }
         }
             $.operate.saveTab(prefix + "/openadd", $('#form-apply-add').serialize());
     }
@@ -168,7 +164,8 @@
     $(".file-upload").fileinput({
         uploadUrl: ctx + 'common/upload',
         maxFileCount: 1,
-        autoReplace: true
+        autoReplace: true,
+        allowedFileExtensions: ["pdf"]
     }).on('fileuploaded', function (event, data, previewId, index) {
         $("input[name='" + event.currentTarget.id + "']").val(data.response.url)
     }).on('fileremoved', function (event, id, index) {

@@ -95,4 +95,11 @@ public interface ISciHorizontalApplyVerticalService {
      */
     List<SciHorizontalApplyVertical> selectSciHorizontalApplyVerticalListOVER(SciHorizontalApplyVertical sciHorizontalApplyVertical);
 
-    }
+    /**
+     * 导出纵向课题列表
+     *
+     * @param sciHorizontalApplyVertical 纵向课题
+     * @return 结果
+     */
+    List<SciHorizontalApplyVertical> selectSciHorizontalApplyVerticalAllList(SciHorizontalApplyVertical sciHorizontalApplyVertical);
+}

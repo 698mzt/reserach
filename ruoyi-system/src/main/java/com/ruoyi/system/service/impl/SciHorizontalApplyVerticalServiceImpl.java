@@ -234,5 +234,16 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
 
     }
 
+    /**
+     * 导出纵向课题列表
+     *
+     * @param sciHorizontalApplyVertical 纵向课题
+     * @return 结果
+     */
+    @Override
+    public List<SciHorizontalApplyVertical> selectSciHorizontalApplyVerticalAllList(SciHorizontalApplyVertical sciHorizontalApplyVertical) {
+        return sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalAllList(sciHorizontalApplyVertical);
+    }
+
 
 }

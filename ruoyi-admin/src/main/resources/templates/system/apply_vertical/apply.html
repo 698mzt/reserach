@@ -42,7 +42,7 @@
                                                 </li>
                                                 <li>
                                                     <label>状态：</label>
-                                                    <select name="state" th:with="type=${@dict.getType('sci_crosswise_tasks')}">
+                                                    <select name="state" th:with="type=${@dict.getType('sci_vertical_tasks')}">
                                                         <option value="">所有</option>
                                                         <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
                                                     </select>
@@ -57,16 +57,7 @@
                                 </div>
 
                                 <div class="btn-group-sm" id="toolbar0" role="group">
-<!--                                    <a class="btn btn-success" onclick="$.operate.addTab()" shiro:hasPermission="system:apply:add">-->
-<!--                                        <i class="fa fa-plus"></i> 添加-->
-<!--                                    </a>-->
-                                    <!--                <a class="btn btn-primary single disabled" onclick="$.operate.editTab()" shiro:hasPermission="system:apply:edit">-->
-                                    <!--                    <i class="fa fa-edit"></i> 修改-->
-                                    <!--                </a>-->
-                                    <!--                <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()" shiro:hasPermission="system:apply:remove">-->
-                                    <!--                    <i class="fa fa-remove"></i> 删除-->
-                                    <!--                </a>-->
-                                    <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:apply:export">
+                                    <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:apply_vertical:export">
                                         <i class="fa fa-download"></i> 导出
                                     </a>
                                 </div>
@@ -98,7 +89,7 @@
                                                 </li>
                                                 <li>
                                                     <label>状态：</label>
-                                                    <select name="state" th:with="type=${@dict.getType('sci_crosswise_tasks')}">
+                                                    <select name="state" th:with="type=${@dict.getType('sci_vertical_tasks')}">
                                                         <option value="">所有</option>
                                                         <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
                                                     </select>
@@ -146,7 +137,7 @@
                                                 </li>
                                                 <li>
                                                     <label>状态：</label>
-                                                    <select name="state" th:with="type=${@dict.getType('sci_crosswise_tasks')}">
+                                                    <select name="state" th:with="type=${@dict.getType('sci_vertical_tasks')}">
                                                         <option value="">所有</option>
                                                         <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
                                                     </select>
@@ -161,16 +152,7 @@
                                 </div>
 
                                 <div class="btn-group-sm" id="toolbar2" role="group">
-<!--                                    <a class="btn btn-success" onclick="$.operate.addTab()">-->
-<!--                                        <i class="fa fa-plus"></i> 添加-->
-<!--                                    </a>-->
-                                    <!--                <a class="btn btn-primary single disabled" onclick="$.operate.editTab()" shiro:hasPermission="system:apply:edit">-->
-                                    <!--                    <i class="fa fa-edit"></i> 修改-->
-                                    <!--                </a>-->
-                                    <!--                <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()" shiro:hasPermission="system:apply:remove">-->
-                                    <!--                    <i class="fa fa-remove"></i> 删除-->
-                                    <!--                </a>-->
-                                    <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:apply:export">
+                                    <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:apply_vertical:export">
                                         <i class="fa fa-download"></i> 导出
                                     </a>
                                 </div>
@@ -200,7 +182,7 @@
                                                 </li>
                                                 <li>
                                                     <label>状态：</label>
-                                                    <select name="state" th:with="type=${@dict.getType('sci_crosswise_tasks')}">
+                                                    <select name="state" th:with="type=${@dict.getType('sci_vertical_tasks')}">
                                                         <option value="">所有</option>
                                                         <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
                                                     </select>
@@ -215,16 +197,7 @@
                                 </div>
 
                                 <div class="btn-group-sm" id="toolbar3" role="group">
-<!--                                    <a class="btn btn-success" onclick="$.operate.addTab()">-->
-<!--                                        <i class="fa fa-plus"></i> 添加-->
-<!--                                    </a>-->
-                                    <!--                <a class="btn btn-primary single disabled" onclick="$.operate.editTab()" shiro:hasPermission="system:apply:edit">-->
-                                    <!--                    <i class="fa fa-edit"></i> 修改-->
-                                    <!--                </a>-->
-                                    <!--                <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()" shiro:hasPermission="system:apply:remove">-->
-                                    <!--                    <i class="fa fa-remove"></i> 删除-->
-                                    <!--                </a>-->
-                                    <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:apply:export">
+                                    <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:apply_vertical:export">
                                         <i class="fa fa-download"></i> 导出
                                     </a>
                                 </div>
@@ -254,7 +227,7 @@
                                                 </li>
                                                 <li>
                                                     <label>状态：</label>
-                                                    <select name="state" th:with="type=${@dict.getType('sci_crosswise_tasks')}">
+                                                    <select name="state" th:with="type=${@dict.getType('sci_vertical_tasks')}">
                                                         <option value="">所有</option>
                                                         <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
                                                     </select>
@@ -269,16 +242,7 @@
                                 </div>
 
                                 <div class="btn-group-sm" id="toolbar4" role="group">
-<!--                                    <a class="btn btn-success" onclick="$.operate.addTab()">-->
-<!--                                        <i class="fa fa-plus"></i> 添加-->
-<!--                                    </a>-->
-                                    <!--                <a class="btn btn-primary single disabled" onclick="$.operate.editTab()" shiro:hasPermission="system:apply:edit">-->
-                                    <!--                    <i class="fa fa-edit"></i> 修改-->
-                                    <!--                </a>-->
-                                    <!--                <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()" shiro:hasPermission="system:apply:remove">-->
-                                    <!--                    <i class="fa fa-remove"></i> 删除-->
-                                    <!--                </a>-->
-                                    <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:apply:export">
+                                    <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:apply_vertical:export">
                                         <i class="fa fa-download"></i> 导出
                                     </a>
                                 </div>
@@ -912,9 +876,12 @@
 </script>
 <script>
     function downloadFiles(id) {
-        alert(ctx + 'common/downloadZip?id='+id)
         window.location.href = ctx + 'common/downloadZip?id='+id;
 }
+
+   function select(){
+        window.location.href = ctx + '';
+   }
 </script>
 </body>
 </html>
