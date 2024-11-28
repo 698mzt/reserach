@@ -11,15 +11,23 @@ import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.system.domain.SciHorizontalApplyVertical;
 import com.ruoyi.system.service.ISciHorizontalApplyVerticalService;
 import com.ruoyi.system.service.ISysUserService;
+import org.apache.commons.io.FileUtils;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 /**
 * 纵向课题Controller
@@ -46,7 +54,6 @@ public class SciHorizontalApplyVerticalController extends BaseController {
     /**
      * 查询横向课题列表
      */
-//    todo: 未完成
     @RequiresPermissions("system:apply:list")
     @PostMapping("/list/{tableId}")
     @ResponseBody
@@ -67,8 +74,78 @@ public class SciHorizontalApplyVerticalController extends BaseController {
         }
         sciHorizontalApplyVertical.setRole(role);
         List<SciHorizontalApplyVertical> list = new ArrayList<>();
-        list = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalList(sciHorizontalApplyVertical);
-        System.out.println(list);
+//        教研室
+        if (role.equals("research")){
+            switch (tableId){
+//                已结项
+                case "bootstrap-table0":
+                    list = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalListOVER(sciHorizontalApplyVertical);
+                    break;
+//                申请
+                case "bootstrap-table1":
+                    list = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalList(sciHorizontalApplyVertical);
+                    break;
+//                结项
+                case "bootstrap-table2":
+                    list = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalListJX(sciHorizontalApplyVertical);
+                    break;
+//                中期
+                case "bootstrap-table3":
+                    list = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalListZQ(sciHorizontalApplyVertical);
+                    break;
+//                开题
+                case "bootstrap-table4":
+                    list = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalListKT(sciHorizontalApplyVertical);
+                    break;
+            }
+        }else if (role.equals("sci_tesearch")){
+            switch (tableId){
+//                已结项
+                case "bootstrap-table0":
+                    list = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalListOVER(sciHorizontalApplyVertical);
+                    break;
+//                申请
+                case "bootstrap-table1":
+                    list = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalList(sciHorizontalApplyVertical);
+                    break;
+//                结项
+                case "bootstrap-table2":
+                    list = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalListJX(sciHorizontalApplyVertical);
+                    break;
+//                中期
+                case "bootstrap-table3":
+                   list = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalListZQ(sciHorizontalApplyVertical);
+                    break;
+//                开题
+                case "bootstrap-table4":
+                    list = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalListKT(sciHorizontalApplyVertical);
+                    break;
+            }
+        }else{
+            switch (tableId){
+//                已结项
+                case "bootstrap-table0":
+                    list = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalListOVER(sciHorizontalApplyVertical);
+                    break;
+//                申请
+                case "bootstrap-table1":
+                    list = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalList(sciHorizontalApplyVertical);
+                    break;
+//                结项
+                case "bootstrap-table2":
+                    list = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalListJX(sciHorizontalApplyVertical);
+                    break;
+//                中期
+                case "bootstrap-table3":
+                    list = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalListZQ(sciHorizontalApplyVertical);
+                    break;
+//                开题
+               case "bootstrap-table4":
+                    list = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalListKT(sciHorizontalApplyVertical);
+                    break;
+            }
+        }
+
         TableDataInfo data= getDataTable(list);
 
         return data;
@@ -104,6 +181,75 @@ public class SciHorizontalApplyVerticalController extends BaseController {
     public AjaxResult addSave(SciHorizontalApplyVertical sciHorizontalApplyVertical)
     {
         return toAjax(sciHorizontalApplyVerticalService.insertSciHorizontalApplyVertical(sciHorizontalApplyVertical));
+    }
+
+    /**
+     * 开题
+     */
+    @RequiresPermissions("system:apply_vertical:add")
+    @GetMapping("/openadd")
+    public String openadd( Integer id, ModelMap mmap)
+    {
+        SciHorizontalApplyVertical sciHorizontalApplyVertical = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalById(id);
+        List<SysUser> userList =  userService.selectAllUser();
+        mmap.put("sysUsers",userList);
+        mmap.put("sciHorizontalApplyVertical", sciHorizontalApplyVertical);
+        return prefix + "/openadd";
+    }
+    @RequiresPermissions("system:apply_vertical:add")
+    @Log(title = "开题", businessType = BusinessType.INSERT)
+    @PostMapping("/openadd")
+    @ResponseBody
+    public AjaxResult openaddSave(SciHorizontalApplyVertical sciHorizontalApplyVertical)
+    {
+        sciHorizontalApplyVertical.setState("11");
+        return toAjax(sciHorizontalApplyVerticalService.updateSciHorizontalApplyVertical(sciHorizontalApplyVertical));
+    }
+
+    /**
+     * 中期
+     */
+    @RequiresPermissions("system:apply_vertical:add")
+    @GetMapping("/midadd")
+    public String midadd( Integer id, ModelMap mmap)
+    {
+        SciHorizontalApplyVertical sciHorizontalApplyVertical = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalById(id);
+        List<SysUser> userList =  userService.selectAllUser();
+        mmap.put("sysUsers",userList);
+        mmap.put("sciHorizontalApplyVertical", sciHorizontalApplyVertical);
+        return prefix + "/midadd";
+    }
+    @RequiresPermissions("system:apply_vertical:add")
+    @Log(title = "中期", businessType = BusinessType.INSERT)
+    @PostMapping("/midadd")
+    @ResponseBody
+    public AjaxResult midaddSave(SciHorizontalApplyVertical sciHorizontalApplyVertical)
+    {
+        sciHorizontalApplyVertical.setState("111");
+        return toAjax(sciHorizontalApplyVerticalService.updateSciHorizontalApplyVertical(sciHorizontalApplyVertical));
+    }
+
+    /**
+     * 结项
+     */
+    @RequiresPermissions("system:apply_vertical:add")
+    @GetMapping("/overadd")
+    public String overadd( Integer id, ModelMap mmap)
+    {
+        SciHorizontalApplyVertical sciHorizontalApplyVertical = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalById(id);
+        List<SysUser> userList =  userService.selectAllUser();
+        mmap.put("sysUsers",userList);
+        mmap.put("sciHorizontalApplyVertical", sciHorizontalApplyVertical);
+        return prefix + "/overadd";
+    }
+    @RequiresPermissions("system:apply_vertical:add")
+    @Log(title = "中期", businessType = BusinessType.INSERT)
+    @PostMapping("/overadd")
+    @ResponseBody
+    public AjaxResult overaddSave(SciHorizontalApplyVertical sciHorizontalApplyVertical)
+    {
+        sciHorizontalApplyVertical.setState("1111");
+        return toAjax(sciHorizontalApplyVerticalService.updateSciHorizontalApplyVertical(sciHorizontalApplyVertical));
     }
 
     /**
@@ -146,7 +292,7 @@ public class SciHorizontalApplyVerticalController extends BaseController {
         return toAjax(sciHorizontalApplyVerticalService.deleteSciHorizontalApplyVerticalByIds(ids));
     }
 
-//  todo:审批
+
     /**  查询要审批的纵向课题*/
     @RequiresPermissions("system:apply_vertical:info")
     @GetMapping("/detail/{id}/{urlFlag}")
@@ -177,5 +323,97 @@ public class SciHorizontalApplyVerticalController extends BaseController {
     {
         return toAjax(sciHorizontalApplyVerticalService.applyBh(id,getUserId(),remark,urlFlag));
     }
+
+//    开题批阅
+    @RequiresPermissions("system:apply_vertical:info")
+    @GetMapping("/opendetail/{id}/{urlFlag}")
+    public String opendetail(@PathVariable("id") Integer id,@PathVariable("urlFlag") String urlFlag, ModelMap mmap)
+    {
+        SciHorizontalApplyVertical sciHorizontalApplyVertical = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalById(id);
+        List<SysUser> userList1 =  userService.selectAllUser();
+        sciHorizontalApplyVertical.setUrlFlag(urlFlag);
+        mmap.put("sysUsers1",userList1);
+        mmap.put("sciHorizontalApplyVertical", sciHorizontalApplyVertical);
+        return prefix + "/opendetail";
+    }
+    @RequiresPermissions(value={"system:apply_vertical:JYS","system:apply_vertical:KYC"},logical= Logical.OR)
+    @Log(title = "纵向课题申请通过", businessType = BusinessType.UPDATE)
+    @PostMapping( "/openPass")
+    @ResponseBody
+    public AjaxResult openPass(String id,String urlFlag)
+    {
+        return toAjax(sciHorizontalApplyVerticalService.openPass(id,getUserId(),urlFlag));
+    }
+
+    @RequiresPermissions(value={"system:apply_vertical:JYS","system:apply_vertical:KYC"},logical= Logical.OR)
+    @Log(title = "纵向课题申请通过驳回", businessType = BusinessType.UPDATE)
+    @PostMapping( "/openBh")
+    @ResponseBody
+    public AjaxResult openBh(String id,String remark,String urlFlag)
+    {
+        return toAjax(sciHorizontalApplyVerticalService.openBh(id,getUserId(),remark,urlFlag));
+    }
+
+//    中期批阅
+    @RequiresPermissions("system:apply_vertical:info")
+    @GetMapping("/middetail/{id}/{urlFlag}")
+    public String middetail(@PathVariable("id") Integer id,@PathVariable("urlFlag") String urlFlag, ModelMap mmap)
+    {
+        SciHorizontalApplyVertical sciHorizontalApplyVertical = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalById(id);
+        List<SysUser> userList1 =  userService.selectAllUser();
+        sciHorizontalApplyVertical.setUrlFlag(urlFlag);
+        mmap.put("sysUsers1",userList1);
+        mmap.put("sciHorizontalApplyVertical", sciHorizontalApplyVertical);
+        return prefix + "/middetail";
+    }
+    @RequiresPermissions(value={"system:apply_vertical:JYS","system:apply_vertical:KYC"},logical= Logical.OR)
+    @Log(title = "纵向课题申请通过", businessType = BusinessType.UPDATE)
+    @PostMapping( "/midPass")
+    @ResponseBody
+    public AjaxResult midPass(String id,String urlFlag)
+    {
+        return toAjax(sciHorizontalApplyVerticalService.midPass(id,getUserId(),urlFlag));
+    }
+
+    @RequiresPermissions(value={"system:apply_vertical:JYS","system:apply_vertical:KYC"},logical= Logical.OR)
+    @Log(title = "纵向课题申请通过驳回", businessType = BusinessType.UPDATE)
+    @PostMapping( "/midBh")
+    @ResponseBody
+    public AjaxResult midBh(String id,String remark,String urlFlag)
+    {
+        return toAjax(sciHorizontalApplyVerticalService.midBh(id,getUserId(),remark,urlFlag));
+    }
+
+    //  结项批阅
+    @RequiresPermissions("system:apply_vertical:info")
+    @GetMapping("/overdetail/{id}/{urlFlag}")
+    public String overdetail(@PathVariable("id") Integer id,@PathVariable("urlFlag") String urlFlag, ModelMap mmap)
+    {
+        SciHorizontalApplyVertical sciHorizontalApplyVertical = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalById(id);
+        List<SysUser> userList1 =  userService.selectAllUser();
+        sciHorizontalApplyVertical.setUrlFlag(urlFlag);
+        mmap.put("sysUsers1",userList1);
+        mmap.put("sciHorizontalApplyVertical", sciHorizontalApplyVertical);
+        return prefix + "/overdetail";
+    }
+    @RequiresPermissions(value={"system:apply_vertical:JYS","system:apply_vertical:KYC"},logical= Logical.OR)
+    @Log(title = "纵向课题申请通过", businessType = BusinessType.UPDATE)
+    @PostMapping( "/overPass")
+    @ResponseBody
+    public AjaxResult overPass(String id,String urlFlag)
+    {
+        return toAjax(sciHorizontalApplyVerticalService.overPass(id,getUserId(),urlFlag));
+    }
+
+    @RequiresPermissions(value={"system:apply_vertical:JYS","system:apply_vertical:KYC"},logical= Logical.OR)
+    @Log(title = "纵向课题申请通过驳回", businessType = BusinessType.UPDATE)
+    @PostMapping( "/overBh")
+    @ResponseBody
+    public AjaxResult overBh(String id,String remark,String urlFlag)
+    {
+        return toAjax(sciHorizontalApplyVerticalService.overBh(id,getUserId(),remark,urlFlag));
+    }
+
+
 
 }

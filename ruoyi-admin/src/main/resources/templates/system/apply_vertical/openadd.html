@@ -119,9 +119,9 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">文件：</label>
                     <div class="col-sm-8">
-                        <input type="hidden" name="overfile">
+                        <input type="hidden" name="openfile">
                         <div class="file-loading">
-                            <input class="form-control file-upload" id="overfile" name="file" type="file">
+                            <input class="form-control file-upload" id="openfile" name="file" type="file">
                         </div>
                     </div>
                 </div>
@@ -148,18 +148,18 @@
     });
 
     function submitHandler() {
-        var overfile = $("input[name='overfile']").val();
+        var openfile = $("input[name='openfile']").val();
         if ($.validate.form()) {
-            if (overfile == "") {
+            if (openfile == "") {
                 $.modal.alertWarning("请上传文件");
                 return;
             }
-            if (overfile.split('.')[1] != "pdf"){
+            if (openfile.split('.')[1] != "pdf"){
                 $.modal.alertWarning("合同格式不正确，请上传PDF格式");
                 return;
             }
         }
-            $.operate.saveTab(prefix + "/overadd", $('#form-apply-add').serialize());
+            $.operate.saveTab(prefix + "/openadd", $('#form-apply-add').serialize());
     }
 
 
