@@ -8,6 +8,8 @@ import com.ruoyi.common.core.domain.entity.SysRole;
 import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.enums.BusinessType;
+import com.ruoyi.common.utils.poi.ExcelUtil;
+import com.ruoyi.system.domain.SciHorizontalApply;
 import com.ruoyi.system.domain.SciHorizontalApplyVertical;
 import com.ruoyi.system.service.ISciHorizontalApplyVerticalService;
 import com.ruoyi.system.service.ISysUserService;
@@ -45,7 +47,7 @@ public class SciHorizontalApplyVerticalController extends BaseController {
     /**
      * 查询横向课题列表
      */
-    @RequiresPermissions("system:apply_vertical:select")
+    @RequiresPermissions("system:apply_vertical:list")
     @PostMapping("/list/{tableId}")
     @ResponseBody
     public TableDataInfo list(@PathVariable("tableId") String tableId,String year ,SciHorizontalApplyVertical sciHorizontalApplyVertical)
@@ -141,6 +143,27 @@ public class SciHorizontalApplyVerticalController extends BaseController {
         TableDataInfo data= getDataTable(list);
 
         return data;
+    }
+
+    /**
+     * 导出横向课题列表
+     */
+    @RequiresPermissions("system:apply_vertical:export")
+    @Log(title = "导出纵向课题", businessType = BusinessType.EXPORT)
+    @PostMapping("/export")
+    @ResponseBody
+    public AjaxResult export(SciHorizontalApplyVertical sciHorizontalApplyVertical)
+    {
+        List<SciHorizontalApplyVertical> list = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalAllList(sciHorizontalApplyVertical);
+        for (SciHorizontalApplyVertical applyVeryical: list ) {
+            if(applyVeryical.getState().equals("4444")){
+                applyVeryical.setState("结项");
+            }else{
+                applyVeryical.setState("在研");
+            }
+        }
+        ExcelUtil<SciHorizontalApplyVertical> util = new ExcelUtil<SciHorizontalApplyVertical>(SciHorizontalApplyVertical.class);
+        return util.exportExcel(list, "纵向课题数据");
     }
 
     /**
