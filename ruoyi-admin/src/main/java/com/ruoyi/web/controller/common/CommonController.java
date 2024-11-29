@@ -1,20 +1,28 @@
 package com.ruoyi.web.controller.common;
 
+import java.io.*;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.ruoyi.common.core.controller.BaseController;
+import com.ruoyi.system.domain.SciHorizontalApplyVertical;
+import com.ruoyi.system.service.ISciHorizontalApplyVerticalService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import com.ruoyi.common.config.RuoYiConfig;
 import com.ruoyi.common.config.ServerConfig;
@@ -37,6 +45,9 @@ public class CommonController extends BaseController
 
     @Autowired
     private ServerConfig serverConfig;
+
+    @Autowired
+    private ISciHorizontalApplyVerticalService sciHorizontalApplyVerticalService;
 
     private static final String FILE_DELIMETER = ",";
 
@@ -166,4 +177,102 @@ public class CommonController extends BaseController
             log.error("下载文件失败", e);
         }
     }
+
+    /**
+     * 下载压缩包请求
+     *
+     * @param id 文件名称
+     */
+    @GetMapping("/downloadZip")
+    public void doGet(@RequestParam("id") String id, HttpServletRequest request, HttpServletResponse response)  throws ServletException, IOException {
+        List<String> list = new ArrayList<>();
+        SciHorizontalApplyVertical sciHorizontalApplyVertical = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalById(Integer.parseInt(id));
+        list.add(getFileName(sciHorizontalApplyVertical.getFiling()));
+        list.add(getFileName(sciHorizontalApplyVertical.getOpenfile()));
+        list.add(getFileName(sciHorizontalApplyVertical.getMidfile()));
+        list.add(getFileName(sciHorizontalApplyVertical.getOverfile()));
+        String user= sciHorizontalApplyVertical.getUserName();
+        String Topname = sciHorizontalApplyVertical.getTopName();
+
+
+        // 创建压缩包名称
+        String zipFileName = user +'-'+ Topname + ".zip";
+        String zipFilePath = RuoYiConfig.getUploadPath() + zipFileName;
+
+        // 创建压缩包
+        try (FileOutputStream fos = new FileOutputStream(zipFilePath);
+             ZipOutputStream zos = new ZipOutputStream(fos)) {
+
+            for (String fileName : list) {
+                if (fileName != null && !fileName.isEmpty()) {
+                    String filePath = RuoYiConfig.getUploadPath() +'/'+ fileName;
+                    File file = new File(filePath);
+
+                    if (file.exists()) {
+                        FileInputStream fis = new FileInputStream(file);
+                        ZipEntry zipEntry = new ZipEntry(fileName.substring(fileName.lastIndexOf("/") + 1));
+                        zos.putNextEntry(zipEntry);
+
+                        byte[] bytes = new byte[1024];
+                        int length;
+                        while ((length = fis.read(bytes)) >= 0) {
+                            zos.write(bytes, 0, length);
+                        }
+                        zos.closeEntry();
+                        fis.close();
+                    }else {
+                        // 文件不存在，记录日志
+                        Logger logger = LoggerFactory.getLogger(CommonController.class);
+                        logger.error("File does not exist: " + filePath);
+                    }
+                } else {
+                    // 文件名为空，记录日志
+                    Logger logger = LoggerFactory.getLogger(CommonController.class);
+                    logger.error("File name is empty or null: " + fileName);
+                }
+            }
+        } catch (IOException e) {
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "File compression error");
+            return;
+        }
+
+        // 设置响应头，使浏览器下载文件
+        response.setContentType("application/zip");
+        String encodedFileName = URLEncoder.encode(zipFileName, StandardCharsets.UTF_8.toString());
+        response.setHeader("Content-Disposition", "attachment; filename=\"" + encodedFileName + "\"; filename*=UTF-8''" + encodedFileName);
+        response.getOutputStream().flush();
+
+
+        // 设置输入流和输出流
+        try (FileInputStream inStream = new FileInputStream(zipFilePath);
+             OutputStream outStream = response.getOutputStream()) {
+
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = inStream.read(buffer)) != -1) {
+                outStream.write(buffer, 0, bytesRead);
+            }
+            outStream.flush();
+        } catch (IOException e) {
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "File download error");
+        }
+    }
+
+    public String getFileName(String url)
+    {
+        String fileName = "";
+        String[] name = url.split("/");
+        int index =-1;
+        for (int i = 0; i < name.length; i++){
+            if ("upload".equals(name[i])){
+                index = i+1;
+                break;
+            }
+        }
+        if (index != -1){
+            fileName = String.join("/", Arrays.copyOfRange(name, index, name.length));
+        }
+        return fileName;
+    }
+
 }
