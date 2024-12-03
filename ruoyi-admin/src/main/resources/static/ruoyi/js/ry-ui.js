@@ -1089,9 +1089,17 @@ var table = {
                 table.set();
                 $.modal.openTab("详细" + table.options.modalName, $.operate.detailUrl(id));
             },
+            opendetailTab: function(id) {
+                table.set();
+                $.modal.openTab("开题：" + table.options.modalName, $.operate.detailUrl(id));
+            },
+            middetailTab: function(id) {
+                table.set();
+                $.modal.openTab("开题：" + table.options.modalName, $.operate.detailUrl(id));
+            },
             overdetailTab: function(id) {
                 table.set();
-                $.modal.openTab("详细" + table.options.modalName, $.operate.overdetailUrl(id));
+                $.modal.openTab("开题：" + table.options.modalName, $.operate.detailUrl(id));
             },
             // 详细访问地址
             detailUrl: function(id) {
@@ -1171,6 +1179,14 @@ var table = {
                 table.set();
                 $.modal.openTab("结项" + table.options.modalName, $.operate.overUrl(id));
             },
+            openTab: function (id) {
+                table.set();
+                $.modal.openTab("开题：" + table.options.modalName, $.operate.openUrl(id));
+            },
+            midTab: function (id) {
+                table.set();
+                $.modal.openTab("开题：" + table.options.modalName, $.operate.midUrl(id));
+            },
             // 添加信息 全屏
             addFull: function(id) {
                 table.set();
@@ -1183,7 +1199,14 @@ var table = {
             },
             overUrl:function (id){
                 var url = $.common.isEmpty(id) ? table.options.overUrl.replace("{id}", "") : table.options.overUrl.replace("{id}", id);
-
+                return url;
+            },
+            openUrl:function (id){
+                var url = $.common.isEmpty(id) ? table.options.openUrl.replace("{id}", "") : table.options.openUrl.replace("{id}", id);
+                return url;
+            },
+            midUrl:function (id){
+                var url = $.common.isEmpty(id) ? table.options.midUrl.replace("{id}", "") : table.options.midUrl.replace("{id}", id);
                 return url;
             },
             // 修改信息

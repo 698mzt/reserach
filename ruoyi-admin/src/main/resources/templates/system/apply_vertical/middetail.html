@@ -14,124 +14,124 @@
         <input name="id" id="ktid" th:field="*{id}" type="hidden">
         <h4 class="form-header h4">基本信息</h4>
         <div class="row">
-            <div class="col-xs-6">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">申请人：</label>
-                    <div class="col-sm-8">
-                        <input  readonly th:field="*{userName}" class="form-control" type="text" >
-                    </div>
+        <div class="col-xs-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label is-required">申请人：</label>
+                <div class="col-sm-8">
+               <input  readonly th:field="*{userName}" class="form-control" type="text" >
                 </div>
             </div>
+        </div>
 
-            <!--        <div class="col-xs-6">-->
-            <!--            <div class="form-group">-->
-            <!--                <label class="col-sm-4 control-label is-required">课题类型：</label>-->
-            <!--                <div class="col-sm-8">-->
+<!--        <div class="col-xs-6">-->
+<!--            <div class="form-group">-->
+<!--                <label class="col-sm-4 control-label is-required">课题类型：</label>-->
+<!--                <div class="col-sm-8">-->
 
-            <!--                    <select  readonly class="form-control" th:with="type=${@dict.getType('sci_top_type')}" required disabled>-->
-            <!--                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}" th:field="*{topType}"></option>-->
-            <!--                    </select>-->
-            <!--                </div>-->
-            <!--            </div>-->
-            <!--        </div>-->
-            <div class="col-xs-6">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">课题名称：</label>
-                    <div class="col-sm-8">
-                        <input  readonly th:field="*{topName}" class="form-control" type="text" required>
-                    </div>
+<!--                    <select  readonly class="form-control" th:with="type=${@dict.getType('sci_top_type')}" required disabled>-->
+<!--                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}" th:field="*{topType}"></option>-->
+<!--                    </select>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+        <div class="col-xs-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label is-required">课题名称：</label>
+                <div class="col-sm-8">
+                    <input  readonly th:field="*{topName}" class="form-control" type="text" required>
                 </div>
             </div>
-            <div class="col-xs-6">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">项目金额(万)：</label>
-                    <div class="col-sm-8">
-                        <input readonly th:field="*{amount}" class="form-control" type="text" required>
-                    </div>
+        </div>
+        <div class="col-xs-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label is-required">项目金额(万)：</label>
+                <div class="col-sm-8">
+                    <input readonly th:field="*{amount}" class="form-control" type="text" required>
                 </div>
             </div>
+        </div>
 
-            <div class="col-xs-6">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">申请日期：</label>
-                    <div class="col-sm-8">
-                        <div class="input-group date">
-                            <input  readonly th:field="*{signingData}" th:value="${#dates.format(signingData, 'yyyy-MM-dd')}" class="form-control" placeholder="yyyy-MM-dd" type="text" required>
-                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                        </div>
+        <div class="col-xs-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label is-required">申请日期：</label>
+                <div class="col-sm-8">
+                    <div class="input-group date">
+                        <input  readonly th:field="*{signingData}" th:value="${#dates.format(signingData, 'yyyy-MM-dd')}" class="form-control" placeholder="yyyy-MM-dd" type="text" required>
+                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
                     </div>
                 </div>
             </div>
-            <!--        <div class="col-xs-6">-->
-            <!--            <div class="form-group">-->
-            <!--                <label class="col-sm-4 control-label is-required">合同有效日期：</label>-->
-            <!--                <div class="col-sm-8">-->
-            <!--                    <div class="input-group date">-->
-            <!--                        <input  readonly th:field="*{validityDate}" th:value="${#dates.format(validityDate, 'yyyy-MM-dd - yyyy-MM-dd')}" class="form-control" id="laydate-demo-4" placeholder="yyyy-MM-dd - yyyy-MM-dd" type="text" required>-->
-            <!--                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>-->
-            <!--                    </div>-->
-            <!--                </div>-->
-            <!--            </div>-->
-            <!--        </div>-->
-            <div class="col-xs-6">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">第一负责人：</label>
-                    <div class="col-sm-8">
+        </div>
+<!--        <div class="col-xs-6">-->
+<!--            <div class="form-group">-->
+<!--                <label class="col-sm-4 control-label is-required">合同有效日期：</label>-->
+<!--                <div class="col-sm-8">-->
+<!--                    <div class="input-group date">-->
+<!--                        <input  readonly th:field="*{validityDate}" th:value="${#dates.format(validityDate, 'yyyy-MM-dd - yyyy-MM-dd')}" class="form-control" id="laydate-demo-4" placeholder="yyyy-MM-dd - yyyy-MM-dd" type="text" required>-->
+<!--                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+        <div class="col-xs-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label is-required">第一负责人：</label>
+                <div class="col-sm-8">
 
-                        <!--                        <input name="firstPersonId" th:field="*{firstPersonId}" class="form-control" type="text" required>-->
-                        <select name="firstPersonId" class="form-control m-b" disabled>
-                            <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ #strings.toString(user.userId) == sciHorizontalApplyVertical.firstPersonId}"></option>
-                        </select>
-                    </div>
+                    <!--                        <input name="firstPersonId" th:field="*{firstPersonId}" class="form-control" type="text" required>-->
+                    <select name="firstPersonId" class="form-control m-b" disabled>
+                        <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ #strings.toString(user.userId) == sciHorizontalApplyVertical.firstPersonId}"></option>
+                    </select>
                 </div>
             </div>
+        </div>
 
-            <div class="col-xs-6">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">第二负责人：</label>
-                    <div class="col-sm-8">
-                        <!--                        <input name="secondPersonTask" th:field="*{secondPersonTask}" class="form-control" type="text" required>-->
-                        <select name="secondPersonId" class="form-control m-b" disabled >
-                            <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ #strings.toString(user.userId) == sciHorizontalApplyVertical.secondPersonId}" ></option>
-                        </select>
-                    </div>
+        <div class="col-xs-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label is-required">第二负责人：</label>
+                <div class="col-sm-8">
+                    <!--                        <input name="secondPersonTask" th:field="*{secondPersonTask}" class="form-control" type="text" required>-->
+                    <select name="secondPersonId" class="form-control m-b" disabled >
+                        <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ #strings.toString(user.userId) == sciHorizontalApplyVertical.secondPersonId}" ></option>
+                    </select>
                 </div>
             </div>
+        </div>
 
-            <div class="col-xs-6">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">第三负责人：</label>
-                    <div class="col-sm-8">
-                        <!--                        <input name="thirdPersonId" th:field="*{thirdPersonId}" class="form-control" type="text" required>-->
-                        <select  class="form-control m-b" disabled>
-                            <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ #strings.toString(user.userId) == sciHorizontalApplyVertical.thirdPersonId}"  ></option>
-                        </select>
-                    </div>
+        <div class="col-xs-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label is-required">第三负责人：</label>
+                <div class="col-sm-8">
+                    <!--                        <input name="thirdPersonId" th:field="*{thirdPersonId}" class="form-control" type="text" required>-->
+                    <select  class="form-control m-b" disabled>
+                        <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ #strings.toString(user.userId) == sciHorizontalApplyVertical.thirdPersonId}"  ></option>
+                    </select>
                 </div>
             </div>
+        </div>
 
-            <div class="col-xs-6">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">第四负责人：</label>
-                    <div class="col-sm-8">
-                        <!--                        <input name="fourthPersonId" th:field="*{fourthPersonId}" class="form-control" type="text" required>-->
-                        <select  class="form-control m-b" disabled>
-                            <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ #strings.toString(user.userId) == sciHorizontalApplyVertical.fourthPersonId}"  ></option>
-                        </select>
-                    </div>
+        <div class="col-xs-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label is-required">第四负责人：</label>
+                <div class="col-sm-8">
+                    <!--                        <input name="fourthPersonId" th:field="*{fourthPersonId}" class="form-control" type="text" required>-->
+                    <select  class="form-control m-b" disabled>
+                        <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ #strings.toString(user.userId) == sciHorizontalApplyVertical.fourthPersonId}"  ></option>
+                    </select>
                 </div>
             </div>
+        </div>
 
 
             <div class="col-xs-6">
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">文件：</label>
                     <div class="col-sm-8">
-                        <input th:field="*{overfile}" hidden id="filing" type="text" >
+                        <input th:field="*{midfile}" hidden id="filing" type="text" >
                         <div style="display: inline-block;">
                             <div id="filingFileName" style="display: inline; margin-right: 5px;"></div>
-                            <!--                            <button onclick="chakan()" class="btn btn-sm btn-primary color">预览</button>-->
-                            <!--                            <button onclick="downloadFile('filing')" class="btn btn-sm btn-primary color">下载</button>-->
+<!--                            <button onclick="chakan()" class="btn btn-sm btn-primary color">预览</button>-->
+<!--                            <button onclick="downloadFile('filing')" class="btn btn-sm btn-primary color">下载</button>-->
                         </div>
                         <div>
                             <button onclick="chakan()" class="btn btn-sm btn-primary color">预览</button>
@@ -223,14 +223,14 @@
     }
 
     function showButton(){
-        var a =$("#state").val();
-        if(a == 1111 || a == 2222){
-            $("#btn1").fadeIn(500);
-            $("#btn2").fadeIn(500);
-            $("#btn3").fadeIn(500);
-        }else{
-            $("#btn3").fadeIn(500);
-        }
+         var a =$("#state").val();
+         if(a == 111 || a == 222){
+             $("#btn1").fadeIn(500);
+             $("#btn2").fadeIn(500);
+             $("#btn3").fadeIn(500);
+         }else{
+             $("#btn3").fadeIn(500);
+         }
     }
     $(function(){
 
@@ -291,16 +291,16 @@
     });
 
     function submitHandler() {
-        //获取 URLflag
-        var a = $("#urlFlag").val();
-        console.log(a);
-        $.operate.saveTab(prefix + "/overPass", {"id":$("#ktid").val(),"urlFlag":a});
+          //获取 URLflag
+          var a = $("#urlFlag").val();
+          console.log(a);
+            $.operate.saveTab(prefix + "/midPass", {"id":$("#ktid").val(),"urlFlag":a});
     }
     function submitHandlerBH() {
         var a = $("#urlFlag").val();
         if ($.validate.form()) {
-            $.operate.saveTab(prefix + "/overBh",   $('#form-apply-edit').serialize());
-        }
+        $.operate.saveTab(prefix + "/midBh",   $('#form-apply-edit').serialize());
+         }
     }
 
 

@@ -14,17 +14,201 @@
         <result property="secondPersonId"    column="second_person_id"    />
         <result property="thirdPersonId"    column="third_person_id"    />
         <result property="fourthPersonId"    column="fourth_person_id"    />
-        <result property="file"    column="file"    />
+        <result property="filing"    column="file"    />
+        <result property="openfile"    column="open_file"    />
+        <result property="midfile"    column="mid_file"    />
+        <result property="overfile"    column="over_file"    />
         <result property="amount"    column="amount"    />
         <result property="state"    column="state"    />
         <result property="userName"    column="userName"    />
         <result property="createtime"    column="createtime"    />
     </resultMap>
-    <select id="selectSciHorizontalApplyVerticalList" resultType="SciHorizontalApplyVertical" resultMap="SciHorizontalApplyVerticalResult">
+
+    <select id="selectSciHorizontalApplyVerticalAllList" resultType="SciHorizontalApplyVertical" resultMap="SciHorizontalApplyVerticalResult">
+        select s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file
+        from  sci_horizontal_apply_vertical s left join sys_user u on  s.user_id=u.user_id
+                                              left join sys_dept d on u.dept_id = d.dept_id
+                                              left join sys_dept p on d.parent_id =p.dept_id
+    </select>
+
+    <select id="selectSciHorizontalApplyVerticalList"  resultType="SciHorizontalApplyVertical" resultMap="SciHorizontalApplyVerticalResult">
         select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file
         from  sci_horizontal_apply_vertical s left join sys_user u on  s.user_id=u.user_id
                                               left join sys_dept d on u.dept_id = d.dept_id
                                               left join sys_dept p on d.parent_id =p.dept_id
+        where 1=1 and s.state in (1,2,3,4,5)
+        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>
+        <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+        <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
+        <if test="state != null  and state != ''"> and state = #{state}</if>
+        ${params.dataScope}
+        order by s.createtime desc
+    </select>
+
+    <select id="selectSciHorizontalApplyVerticalListJYS"  resultType="SciHorizontalApplyVertical" resultMap="SciHorizontalApplyVerticalResult">
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file
+        from  sci_horizontal_apply_vertical s left join sys_user u on  s.user_id=u.user_id
+                                              left join sys_dept d on u.dept_id = d.dept_id
+                                              left join sys_dept p on d.parent_id =p.dept_id
+        where 1=1 and s.state in (1,3,4,5)
+        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>
+        <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+        <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
+        <if test="state != null  and state != ''"> and state = #{state}</if>
+            ${params.dataScope}
+        order by s.createtime desc
+    </select>
+
+    <select id="selectSciHorizontalApplyVerticalListKYC"  resultType="SciHorizontalApplyVertical" resultMap="SciHorizontalApplyVerticalResult">
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file
+        from  sci_horizontal_apply_vertical s left join sys_user u on  s.user_id=u.user_id
+                                              left join sys_dept d on u.dept_id = d.dept_id
+                                              left join sys_dept p on d.parent_id =p.dept_id
+        where 1=1 and s.state in (2,3,4,5)
+        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>
+        <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+        <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
+        <if test="state != null  and state != ''"> and state = #{state}</if>
+            ${params.dataScope}
+        order by s.createtime desc
+    </select>
+
+    <select id="selectSciHorizontalApplyVerticalListKT"  resultType="SciHorizontalApplyVertical" resultMap="SciHorizontalApplyVerticalResult" >
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file
+        from  sci_horizontal_apply_vertical s left join sys_user u on  s.user_id=u.user_id
+                                              left join sys_dept d on u.dept_id = d.dept_id
+                                              left join sys_dept p on d.parent_id =p.dept_id
+        where 1=1  and s.state in (11,22,33,44,55)
+        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>
+        <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+        <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
+        <if test="state != null  and state != ''"> and state = #{state}</if>
+        ${params.dataScope}
+        order by s.createtime desc
+    </select>
+
+    <select id="selectSciHorizontalApplyVerticalListJYSKT"  resultType="SciHorizontalApplyVertical" resultMap="SciHorizontalApplyVerticalResult" >
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file
+        from  sci_horizontal_apply_vertical s left join sys_user u on  s.user_id=u.user_id
+                                              left join sys_dept d on u.dept_id = d.dept_id
+                                              left join sys_dept p on d.parent_id =p.dept_id
+        where 1=1 and s.state in (11,33,44,55)
+        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>
+        <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+        <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
+        <if test="state != null  and state != ''"> and state = #{state}</if>
+        ${params.dataScope}
+        order by s.createtime desc
+    </select>
+
+    <select id="selectSciHorizontalApplyVerticalListKYCKT"  resultType="SciHorizontalApplyVertical" resultMap="SciHorizontalApplyVerticalResult" >
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file
+        from  sci_horizontal_apply_vertical s left join sys_user u on  s.user_id=u.user_id
+                                              left join sys_dept d on u.dept_id = d.dept_id
+                                              left join sys_dept p on d.parent_id =p.dept_id
+        where 1=1 and s.state  in (22,33,44,55)
+        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>
+        <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+        <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
+        <if test="state != null  and state != ''"> and state = #{state}</if>
+        ${params.dataScope}
+        order by s.createtime desc
+    </select>
+
+    <select id="selectSciHorizontalApplyVerticalListZQ"  resultType="SciHorizontalApplyVertical" resultMap="SciHorizontalApplyVerticalResult" >
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file
+        from  sci_horizontal_apply_vertical s left join sys_user u on  s.user_id=u.user_id
+                                              left join sys_dept d on u.dept_id = d.dept_id
+                                              left join sys_dept p on d.parent_id =p.dept_id
+        where 1=1  and s.state in (111,222,333,444,555)
+        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>
+        <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+        <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
+        <if test="state != null  and state != ''"> and state = #{state}</if>
+        ${params.dataScope}
+        order by s.createtime desc
+    </select>
+
+    <select id="selectSciHorizontalApplyVerticalListJYSZQ"  resultType="SciHorizontalApplyVertical" resultMap="SciHorizontalApplyVerticalResult" >
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file
+        from  sci_horizontal_apply_vertical s left join sys_user u on  s.user_id=u.user_id
+                                              left join sys_dept d on u.dept_id = d.dept_id
+                                              left join sys_dept p on d.parent_id =p.dept_id
+        where 1=1 and s.state in (111,333,444,555)
+        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>
+        <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+        <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
+        <if test="state != null  and state != ''"> and state = #{state}</if>
+        ${params.dataScope}
+        order by s.createtime desc
+    </select>
+
+    <select id="selectSciHorizontalApplyVerticalListKYCZQ"  resultType="SciHorizontalApplyVertical" resultMap="SciHorizontalApplyVerticalResult" >
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file
+        from  sci_horizontal_apply_vertical s left join sys_user u on  s.user_id=u.user_id
+                                              left join sys_dept d on u.dept_id = d.dept_id
+                                              left join sys_dept p on d.parent_id =p.dept_id
+        where 1=1 and s.state in (222,333,444,555)
+        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>
+        <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+        <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
+        <if test="state != null  and state != ''"> and state = #{state}</if>
+        ${params.dataScope}
+        order by s.createtime desc
+    </select>
+
+    <select id="selectSciHorizontalApplyVerticalListJX"  resultType="SciHorizontalApplyVertical" resultMap="SciHorizontalApplyVerticalResult" >
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file
+        from  sci_horizontal_apply_vertical s left join sys_user u on  s.user_id=u.user_id
+                                              left join sys_dept d on u.dept_id = d.dept_id
+                                              left join sys_dept p on d.parent_id =p.dept_id
+        where 1=1  and s.state in (1111,2222,3333,5555)
+        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>
+        <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+        <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
+        <if test="state != null  and state != ''"> and state = #{state}</if>
+        ${params.dataScope}
+        order by s.createtime desc
+    </select>
+
+    <select id="selectSciHorizontalApplyVerticalListJYSJX"  resultType="SciHorizontalApplyVertical" resultMap="SciHorizontalApplyVerticalResult" >
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file
+        from  sci_horizontal_apply_vertical s left join sys_user u on  s.user_id=u.user_id
+                                              left join sys_dept d on u.dept_id = d.dept_id
+                                              left join sys_dept p on d.parent_id =p.dept_id
+        where 1=1 and s.state  in (1111,3333,5555)
+        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>
+        <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+        <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
+        <if test="state != null  and state != ''"> and state = #{state}</if>
+        ${params.dataScope}
+        order by s.createtime desc
+    </select>
+
+    <select id="selectSciHorizontalApplyVerticalListKYCJX"  resultType="SciHorizontalApplyVertical" resultMap="SciHorizontalApplyVerticalResult" >
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file
+        from  sci_horizontal_apply_vertical s left join sys_user u on  s.user_id=u.user_id
+                                              left join sys_dept d on u.dept_id = d.dept_id
+                                              left join sys_dept p on d.parent_id =p.dept_id
+        where 1=1 and s.state in (2222,3333,5555)
+        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>
+        <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+        <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
+        <if test="state != null  and state != ''"> and state = #{state}</if>
+        ${params.dataScope}
+        order by s.createtime desc
+    </select>
+
+    <select id="selectSciHorizontalApplyVerticalListOVER"  resultType="SciHorizontalApplyVertical" resultMap="SciHorizontalApplyVerticalResult" >
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file
+        from  sci_horizontal_apply_vertical s left join sys_user u on  s.user_id=u.user_id
+                                              left join sys_dept d on u.dept_id = d.dept_id
+                                              left join sys_dept p on d.parent_id =p.dept_id
+        where 1=1  and s.state = 4444
+        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>
+        <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+        <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
+        <if test="state != null  and state != ''"> and state = #{state}</if>
         ${params.dataScope}
         order by s.createtime desc
     </select>
@@ -41,7 +225,7 @@
             <if test="thirdPersonId != null and thirdPersonId != ''">third_person_id,</if>
             <if test="fourthPersonId != null and fourthPersonId != ''">fourth_person_id,</if>
             <if test="amount != null and amount != ''">amount,</if>
-            <if test="file != null and file != ''">file,</if>
+            <if test="filing != null and filing != ''">file,</if>
             <if test="state != null and state != ''">state,</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -54,13 +238,13 @@
             <if test="thirdPersonId != null and thirdPersonId != ''">#{thirdPersonId},</if>
             <if test="fourthPersonId != null and fourthPersonId != ''">#{fourthPersonId},</if>
             <if test="amount != null and amount != ''">#{amount},</if>
-            <if test="file != null and file != ''">#{file},</if>
+            <if test="filing != null and filing != ''">#{filing},</if>
             <if test="state != null and state != ''">#{state},</if>
         </trim>
     </insert>
 
     <select id="selectSciHorizontalApplyVerticalById" resultMap="SciHorizontalApplyVerticalResult" parameterType="Integer">
-        select s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file
+        select s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, s.fourth_person_id, s.amount, s.state,s.file,s.open_file,s.mid_file,s.over_file
         from  sci_horizontal_apply_vertical s left join sys_user u on  s.user_id=u.user_id
                                               left join sys_dept d on u.dept_id = d.dept_id
                                               left join sys_dept p on d.parent_id =p.dept_id
@@ -73,14 +257,16 @@
             <if test="userId != null">user_id = #{userId},</if>
             <if test="topName != null and topName != ''">top_name = #{topName},</if>
             <if test="topType != null and topType != ''">top_type = #{topType},</if>
-
             <if test="signingData != null and signingData != ''">signing_data = #{signingData},</if>
             <if test="firstPersonId != null and firstPersonId != ''">first_person_id = #{firstPersonId},</if>
             <if test="secondPersonId != null and secondPersonId != ''">second_person_id = #{secondPersonId},</if>
             <if test="thirdPersonId != null and thirdPersonId != ''">third_person_id = #{thirdPersonId},</if>
             <if test="fourthPersonId != null and fourthPersonId != ''">fourth_person_id = #{fourthPersonId},</if>
             <if test="amount != null and amount != ''">amount = #{amount},</if>
-            <if test="file != null and file != ''">file = #{file},</if>
+            <if test="filing != null and filing != ''">file = #{filing},</if>
+            <if test="openfile != null and openfile != ''">open_file = #{openfile},</if>
+            <if test="midfile != null and midfile != ''">mid_file = #{midfile},</if>
+            <if test="overfile != null and overfile != ''">over_file = #{overfile},</if>
             <if test="state != null and state != ''">state = #{state},</if>
         </trim>
         where id = #{id}
@@ -94,6 +280,18 @@
     </delete>
 
     <update id="applyPass" >
+        update sci_horizontal_apply_vertical set state = #{state} where id = #{id}
+    </update>
+
+    <update id="openPass" >
+        update sci_horizontal_apply_vertical set state = #{state} where id = #{id}
+    </update>
+
+     <update id="midPass" >
+        update sci_horizontal_apply_vertical set state = #{state} where id = #{id}
+    </update>
+
+    <update id="overPass" >
         update sci_horizontal_apply_vertical set state = #{state} where id = #{id}
     </update>
 </mapper>

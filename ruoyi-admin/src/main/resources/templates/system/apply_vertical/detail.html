@@ -44,7 +44,7 @@
         </div>
         <div class="col-xs-6">
             <div class="form-group">
-                <label class="col-sm-4 control-label is-required">项目金额：</label>
+                <label class="col-sm-4 control-label is-required">项目金额(万)：</label>
                 <div class="col-sm-8">
                     <input readonly th:field="*{amount}" class="form-control" type="text" required>
                 </div>
@@ -127,7 +127,7 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">文件：</label>
                     <div class="col-sm-8">
-                        <input th:field="*{file}" hidden id="filing" type="text" >
+                        <input th:field="*{filing}" hidden id="filing" type="text" >
                         <div style="display: inline-block;">
                             <div id="filingFileName" style="display: inline; margin-right: 5px;"></div>
 <!--                            <button onclick="chakan()" class="btn btn-sm btn-primary color">预览</button>-->
@@ -324,7 +324,7 @@
     $(".file-upload").each(function (i) {
         var val = $("input[name='" + this.id + "']").val()
         $(this).fileinput({
-            'uploadUrl': ctx + 'common/upload',
+            uploadUrl: ctx + 'common/upload',
             initialPreviewAsData: true,
             initialPreview: [val],
             maxFileCount: 1,
