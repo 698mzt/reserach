@@ -293,7 +293,8 @@
                 initialPreviewAsData: true,
                 initialPreview: [val],
                 maxFileCount: 1,
-                autoReplace: true
+                autoReplace: true,
+                allowedFileExtensions: ["pdf"]
             }).on('fileuploaded', function (event, data, previewId, index) {
                 $("input[name='" + event.currentTarget.id + "']").val(data.response.url)
             }).on('fileremoved', function (event, id, index) {
