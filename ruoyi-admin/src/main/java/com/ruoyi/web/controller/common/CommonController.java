@@ -15,7 +15,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.ruoyi.common.core.controller.BaseController;
+import com.ruoyi.system.domain.SciHorizontalApply;
 import com.ruoyi.system.domain.SciHorizontalApplyVertical;
+import com.ruoyi.system.service.ISciHorizontalApplyService;
 import com.ruoyi.system.service.ISciHorizontalApplyVerticalService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +50,9 @@ public class CommonController extends BaseController
 
     @Autowired
     private ISciHorizontalApplyVerticalService sciHorizontalApplyVerticalService;
+
+    @Autowired
+    private ISciHorizontalApplyService sciHorizontalApplyService;
 
     private static final String FILE_DELIMETER = ",";
 
@@ -193,6 +198,84 @@ public class CommonController extends BaseController
         list.add(getFileName(sciHorizontalApplyVertical.getOverfile()));
         String user= sciHorizontalApplyVertical.getUserName();
         String Topname = sciHorizontalApplyVertical.getTopName();
+
+
+        // 创建压缩包名称
+        String zipFileName = user +'-'+ Topname + ".zip";
+        String zipFilePath = RuoYiConfig.getUploadPath() + zipFileName;
+
+        // 创建压缩包
+        try (FileOutputStream fos = new FileOutputStream(zipFilePath);
+             ZipOutputStream zos = new ZipOutputStream(fos)) {
+
+            for (String fileName : list) {
+                if (fileName != null && !fileName.isEmpty()) {
+                    String filePath = RuoYiConfig.getUploadPath() +'/'+ fileName;
+                    File file = new File(filePath);
+
+                    if (file.exists()) {
+                        FileInputStream fis = new FileInputStream(file);
+                        ZipEntry zipEntry = new ZipEntry(fileName.substring(fileName.lastIndexOf("/") + 1));
+                        zos.putNextEntry(zipEntry);
+
+                        byte[] bytes = new byte[1024];
+                        int length;
+                        while ((length = fis.read(bytes)) >= 0) {
+                            zos.write(bytes, 0, length);
+                        }
+                        zos.closeEntry();
+                        fis.close();
+                    }else {
+                        // 文件不存在，记录日志
+                        Logger logger = LoggerFactory.getLogger(CommonController.class);
+                        logger.error("File does not exist: " + filePath);
+                    }
+                } else {
+                    // 文件名为空，记录日志
+                    Logger logger = LoggerFactory.getLogger(CommonController.class);
+                    logger.error("File name is empty or null: " + fileName);
+                }
+            }
+        } catch (IOException e) {
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "File compression error");
+            return;
+        }
+
+        // 设置响应头，使浏览器下载文件
+        response.setContentType("application/zip");
+        String encodedFileName = URLEncoder.encode(zipFileName, StandardCharsets.UTF_8.toString());
+        response.setHeader("Content-Disposition", "attachment; filename=\"" + encodedFileName + "\"; filename*=UTF-8''" + encodedFileName);
+        response.getOutputStream().flush();
+
+
+        // 设置输入流和输出流
+        try (FileInputStream inStream = new FileInputStream(zipFilePath);
+             OutputStream outStream = response.getOutputStream()) {
+
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = inStream.read(buffer)) != -1) {
+                outStream.write(buffer, 0, bytesRead);
+            }
+            outStream.flush();
+        } catch (IOException e) {
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "File download error");
+        }
+    }
+
+    /**
+     * 下载压缩包请求
+     *
+     * @param id 文件名称
+     */
+    @GetMapping("/HXdownloadZip")
+    public void HXdownloadZip(@RequestParam("id") String id, HttpServletRequest request, HttpServletResponse response)  throws ServletException, IOException {
+        List<String> list = new ArrayList<>();
+        SciHorizontalApply sciHorizontalApply = sciHorizontalApplyService.selectSciHorizontalApplyById(Integer.parseInt(id));
+        list.add(getFileName(sciHorizontalApply.getFiling()));
+        list.add(getFileName(sciHorizontalApply.getAgreeurl()));
+        String user= sciHorizontalApply.getUserName();
+        String Topname = sciHorizontalApply.getTopName();
 
 
         // 创建压缩包名称
