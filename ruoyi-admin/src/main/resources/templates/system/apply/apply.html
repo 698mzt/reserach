@@ -204,7 +204,7 @@
     var topTypeDatas = [[${@dict.getType('sci_top_type')}]];
     var datas = [[${@dict.getType('sci_crosswise_tasks')}]];
     var createFlag = [[${@permission.hasPermi('system:apply:add')}]];
-
+    var downloadFlag = [[${@permission.hasPermi('system:apply:download')}]];
     var prefix = ctx + "system/apply";
 
     // 动态生成URL
@@ -312,7 +312,7 @@
                     formatter: function(value, row, index) {
                         var actions = [];
                         if(row.state ==  6){
-
+                            actions.push('<a  class="btn btn-success btn-xs ' + downloadFlag + '" href="javascript:void(0)" onclick="downloadFiles(\'' +row.id+'\')"><i class="fa fa-edit"></i>下载文件</a> ');
                             actions.push('<a  class="btn btn-success btn-xs ' + editInfo + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
                         }
                         return actions.join('');
@@ -561,6 +561,11 @@
     });
 
 
+</script>
+<script>
+    function downloadFiles(id) {
+        window.location.href = ctx + 'common/HXdownloadZip?id='+id;
+    }
 </script>
 </body>
 </html>
