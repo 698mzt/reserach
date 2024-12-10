@@ -171,23 +171,7 @@
         });
 
         function submitHandler() {
-            var contract = $("input[name='contract']").val();
-            var filing = $("input[name='filing']").val();
-            if ($.validate.form()) {
-                if (contract == "") {
-                    $.modal.alertWarning("请上传合同");
-                    return;
-                }else if (filing == ""){
-                    $.modal.alertWarning("请上传备案表");
-                    return;
-                }else if (contract.split('.')[1] != "pdf"){
-                    $.modal.alertWarning("合同格式不正确，请上传PDF格式");
-                    return;
-                }else if (filing.split('.')[1] != "pdf"){
-                    $.modal.alertWarning("备案表格式不正确，请上传PDF格式");
-                    return;
-                }
-            }
+
                 $.operate.saveTab(prefix + "/add", $('#form-apply-add').serialize());
         }
 
@@ -207,19 +191,10 @@
         $(".file-upload").fileinput({
             uploadUrl: ctx + 'common/upload',
             maxFileCount: 1,
-            autoReplace: true
+            autoReplace: true,
+            allowedFileExtensions: ["pdf"]
         }).on('fileuploaded', function (event, data, previewId, index) {
-            // 判断文件大小
-            var sizeid = document.getElementById(event.currentTarget.id)
-            size = sizeid.files[0].size
-            if(size > 52428800){
-                // 自动点击删除按钮
-                $("#removebutton").click()
-                $("input[name='" + event.currentTarget.id + "']").val('')
-                $.modal.alertWarning("文件大小不能超过50M")
-            }else{
-                $("input[name='" + event.currentTarget.id + "']").val(data.response.url)
-            }
+            $("input[name='" + event.currentTarget.id + "']").val(data.response.url)
         }).on('fileremoved', function (event, id, index) {
             $("input[name='" + event.currentTarget.id + "']").val('')
         })
