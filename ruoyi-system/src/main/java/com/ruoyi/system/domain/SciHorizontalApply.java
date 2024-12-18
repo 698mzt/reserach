@@ -17,7 +17,7 @@ public class SciHorizontalApply extends BaseEntity
 
     private Long uid;
 
-    private Integer appid;
+    private Integer applyid;
     private String agreeurl;
     private String  filingurl;
     /**  */
@@ -52,6 +52,10 @@ public class SciHorizontalApply extends BaseEntity
     /** 签订日期 */
     @Excel(name = "申请日期")
     private String signingData;
+    /** 甲方*/
+    private String partyA;
+    /** 乙方*/
+    private String partyB;
 
     /** 合同有效日期 */
     @Excel(name = "结项日期")
@@ -106,6 +110,22 @@ public class SciHorizontalApply extends BaseEntity
 
 //    查询年份
     private String year;
+
+    public String getPartyA() {
+        return partyA;
+    }
+
+    public void setPartyA(String partyA) {
+        this.partyA = partyA;
+    }
+
+    public String getPartyB() {
+        return partyB;
+    }
+
+    public void setPartyB(String partyB) {
+        this.partyB = partyB;
+    }
 
     public String getOvertime() {
         return overtime;
@@ -319,12 +339,12 @@ public class SciHorizontalApply extends BaseEntity
         this.createtime = createtime;
     }
 
-    public Integer getAppid() {
-        return appid;
+    public Integer getApplyid() {
+        return applyid;
     }
 
-    public void setAppid(Integer appid) {
-        this.appid = appid;
+    public void setApplyid(Integer appid) {
+        this.applyid = appid;
     }
 
     public String getAgreeurl() {

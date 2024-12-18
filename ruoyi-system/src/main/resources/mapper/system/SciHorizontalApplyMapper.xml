@@ -9,6 +9,8 @@
         <result property="userId"    column="user_id"    />
         <result property="topName"    column="top_name"    />
         <result property="topType"    column="top_type"    />
+        <result property="partyA"    column="party_A"    />
+        <result property="partyB"    column="party_B"    />
         <result property="client"    column="client"    />
         <result property="undertaking"    column="undertaking"    />
         <result property="contacta"    column="contacta"    />
@@ -165,6 +167,8 @@
             <if test="userId != null">user_id,</if>
             <if test="topName != null and topName != ''">top_name,</if>
             <if test="topType != null and topType != ''">top_type,</if>
+            <if test="partyA != null and partyA != ''">party_A,</if>
+            <if test="partyB != null and partyB != ''">party_B,</if>
             <if test="signingData != null and signingData != ''">signing_data,</if>
             <if test="validityDate != null and validityDate != ''">validity_Date,</if>
             <if test="firstPersonId != null and firstPersonId != ''">first_person_id,</if>
@@ -180,7 +184,8 @@
             <if test="userId != null">#{userId},</if>
             <if test="topName != null and topName != ''">#{topName},</if>
             <if test="topType != null and topType != ''">#{topType},</if>
-
+            <if test="partyA != null and partyA != ''">#{partyA},</if>
+            <if test="partyB != null and partyB != ''">#{partyB},</if>
             <if test="signingData != null and signingData != ''">#{signingData},</if>
             <if test="validityDate != null and validityDate != ''">#{validityDate},</if>
             <if test="firstPersonId != null and firstPersonId != ''">#{firstPersonId},</if>
@@ -248,4 +253,6 @@
     <update id="overApply" >
         update sci_horizontal_apply set state = #{state} where id = #{id}
     </update>
+    
+
 </mapper>
