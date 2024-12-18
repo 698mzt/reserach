@@ -37,7 +37,7 @@
                         <div class="col-sm-8">
                             <select name="adminstrativeTitle" class="form-control" th:with="type=${@dict.getType('sys_adminstrative_title')}" required>
                                 <option selected>无</option>
-                                <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictLabel}"></option>
+                                <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
                             </select>
                         </div>
                     </div>
@@ -48,7 +48,7 @@
                         <div class="col-sm-8">
                             <select name="reserchDirection" class="form-control" th:with="type=${@dict.getType('sci_reserch_direction')}" required>
                                 <option selected>无</option>
-                                <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictLabel}"></option>
+                                <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
                             </select>
                         </div>
                     </div>
@@ -59,9 +59,9 @@
                     <div class="form-group">
                         <label class="col-sm-4 control-label">社会职称：</label>
                         <div class="col-sm-8">
-                            <select name="socialTitle" class="form-control" th:with="type=${@dict.getType('sci_social_title')}" required>
+                            <select name="socialTitle" class="form-control" th:with="type=${@dict.getType('social_title')}" required>
                                 <option selected>无</option>
-                                <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictLabel}"></option>
+                                <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
                             </select>
                         </div>
                     </div>
@@ -70,9 +70,9 @@
                     <div class="form-group">
                         <label class="col-sm-4 control-label">校内职称：</label>
                         <div class="col-sm-8">
-                            <select name="teaZhicheng" class="form-control" th:with="type=${@dict.getType('sci_tea_zhicheng')}" required>
+                            <select name="teaZhicheng" class="form-control" th:with="type=${@dict.getType('tea_zhicheng')}" required>
                                 <option selected>无</option>
-                                <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictLabel}"></option>
+                                <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
                             </select>
                         </div>
                     </div>
