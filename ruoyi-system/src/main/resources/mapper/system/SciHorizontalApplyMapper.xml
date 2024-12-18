@@ -9,6 +9,8 @@
         <result property="userId"    column="user_id"    />
         <result property="topName"    column="top_name"    />
         <result property="topType"    column="top_type"    />
+        <result property="partyA"    column="party_A"    />
+        <result property="partyB"    column="party_B"    />
         <result property="client"    column="client"    />
         <result property="undertaking"    column="undertaking"    />
         <result property="contacta"    column="contacta"    />
@@ -86,9 +88,8 @@
     </select>
 
     <select id="selectSciHorizontalApplyListByOverApply" parameterType="SciHorizontalApply" resultMap="SciHorizontalApplyResult">
-        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,  s.signing_data,o.createtime overtime,concat( s.amount,'万') amount, o.agreeurl, o.filingurl, o.state
-        from sci_horizontal_apply s left join sci_horizontal_over o on o.appid=s.id
-        left join sys_user u on s.user_id=u.user_id
+        select  #{uid} uid, s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,  s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.contract, s.filing, s.state
+        from sci_horizontal_apply s left join sys_user u on  s.user_id=u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
         where s.state in(7,8,9,10)
@@ -102,9 +103,8 @@
         order  by s.createtime desc
     </select>
     <select id="selectSciHorizontalApplyListByOverApplyJYS" parameterType="SciHorizontalApply" resultMap="SciHorizontalApplyResult">
-        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,  s.signing_data,o.createtime overtime,concat( s.amount,'万') amount, o.agreeurl, o.filingurl, o.state
-        from sci_horizontal_apply s left join sci_horizontal_over o on o.appid=s.id
-        left join sys_user u on s.user_id=u.user_id
+        select  #{uid} uid, s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,  s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.contract, s.filing, s.state
+        from sci_horizontal_apply s left join sys_user u on  s.user_id=u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
         where s.state in(7,9)
@@ -118,9 +118,8 @@
         order  by s.createtime desc
     </select>
     <select id="selectSciHorizontalApplyListByOverApplyKYC" parameterType="SciHorizontalApply" resultMap="SciHorizontalApplyResult">
-        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,  s.signing_data,o.createtime overtime,concat( s.amount,'万') amount, o.agreeurl, o.filingurl, o.state
-        from sci_horizontal_apply s left join sci_horizontal_over o on o.appid=s.id
-        left join sys_user u on s.user_id=u.user_id
+        select  #{uid} uid, s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,  s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.contract, s.filing, s.state
+        from sci_horizontal_apply s left join sys_user u on  s.user_id=u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
         where s.state in(8,10)
@@ -136,7 +135,7 @@
 
 
     <select id="selectSciHorizontalApplyListByOVER" parameterType="SciHorizontalApply" resultMap="SciHorizontalApplyResult">
-        select  #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,  s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.contract, s.filing, s.state
+        select  #{uid} uid, s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,  s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.contract, s.filing, s.state
         from sci_horizontal_apply s left join sys_user u on  s.user_id=u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
@@ -156,9 +155,8 @@
 
 
     <select id="selectSciHorizontalApplyById" parameterType="Integer" resultMap="SciHorizontalApplyResult">
-        select s.id,u.user_name userName, s.user_id, s.top_name, s.top_type,  s.signing_data, s.validity_Date,o.createtime, o.agreeurl,o.filingurl,s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id,  s.amount, amount, s.contract, s.filing, s.state
-        from sci_horizontal_apply s left join sci_horizontal_over o on s.id=o.appid left join sys_user u on  s.user_id=u.user_id
-
+        select s.id,u.user_name userName, s.user_id, s.top_name, s.top_type,  s.signing_data, s.validity_Date,s.first_person_id,  s.second_person_id, s.third_person_id, s.fourth_person_id,  s.amount, s.contract, s.filing,s.filingurl,s.agreeurl ,s.state
+        from sci_horizontal_apply s  left join sys_user u on  s.user_id=u.user_id
         where s.id = #{id}
 
     </select>
@@ -169,6 +167,8 @@
             <if test="userId != null">user_id,</if>
             <if test="topName != null and topName != ''">top_name,</if>
             <if test="topType != null and topType != ''">top_type,</if>
+            <if test="partyA != null and partyA != ''">party_A,</if>
+            <if test="partyB != null and partyB != ''">party_B,</if>
             <if test="signingData != null and signingData != ''">signing_data,</if>
             <if test="validityDate != null and validityDate != ''">validity_Date,</if>
             <if test="firstPersonId != null and firstPersonId != ''">first_person_id,</if>
@@ -184,7 +184,8 @@
             <if test="userId != null">#{userId},</if>
             <if test="topName != null and topName != ''">#{topName},</if>
             <if test="topType != null and topType != ''">#{topType},</if>
-
+            <if test="partyA != null and partyA != ''">#{partyA},</if>
+            <if test="partyB != null and partyB != ''">#{partyB},</if>
             <if test="signingData != null and signingData != ''">#{signingData},</if>
             <if test="validityDate != null and validityDate != ''">#{validityDate},</if>
             <if test="firstPersonId != null and firstPersonId != ''">#{firstPersonId},</if>
@@ -198,23 +199,15 @@
         </trim>
     </insert>
 
-    <insert id="insertSciHorizontalOverApply" parameterType="SciHorizontalApply" useGeneratedKeys="true" keyProperty="id">
-        insert into sci_horizontal_over
-        <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="id != null">appid,</if>
-            <if test="filing != null and filing != ''">filingurl,</if>
-            <if test="contract != null and contract != ''">agreeurl,</if>
-            <if test="createtime != null and createtime != ''">createtime,</if>
-            <if test="state != null and state != ''">state,</if>
+    <update id="updateSciHorizontalOverApply" parameterType="SciHorizontalApply" >
+        update  sci_horizontal_apply
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="filing != null and filing != ''">filingurl=#{filing},</if>
+            <if test="contract != null and contract != ''">agreeurl=#{contract},</if>
+            <if test="state != null and state != ''">state=#{state},</if>
         </trim>
-        <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="id != null">#{id},</if>
-            <if test="filing != null and filing != ''">#{filing},</if>
-            <if test="contract != null and contract != ''">#{contract},</if>
-            <if test="createtime != null and createtime != ''">#{createtime},</if>
-            <if test="state != null and state != ''">#{state},</if>
-        </trim>
-    </insert>
+        where id=#{id}
+    </update>
 
     <update id="updateSciHorizontalApply" parameterType="SciHorizontalApply">
         update sci_horizontal_apply
@@ -241,6 +234,10 @@
         delete from sci_horizontal_apply where id = #{id}
     </delete>
 
+    <delete id="deleteSciHorizontalOverApplyById" parameterType="Integer">
+        delete from sci_horizontal_apply where id = #{id}
+    </delete>
+
     <delete id="deleteSciHorizontalApplyByIds" parameterType="String">
         delete from sci_horizontal_apply where id in
         <foreach item="id" collection="array" open="(" separator="," close=")">
@@ -251,11 +248,11 @@
     <update id="hxPass" >
         update sci_horizontal_apply set state = #{state} where id = #{id}
     </update>
-    <update id="hxover" >
-        update sci_horizontal_over set state = #{state} where appid = #{id}
-    </update>
+
 
     <update id="overApply" >
         update sci_horizontal_apply set state = #{state} where id = #{id}
     </update>
+    
+
 </mapper>
