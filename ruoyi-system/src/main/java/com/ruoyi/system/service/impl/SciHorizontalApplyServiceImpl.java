@@ -107,9 +107,9 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
      * @return 结果
      */
     @Override
-    public int insertSciHorizontalOverApply(SciHorizontalApply sciHorizontalApply)
+    public int updateSciHorizontalOverApply(SciHorizontalApply sciHorizontalApply)
     {
-        return sciHorizontalApplyMapper.insertSciHorizontalOverApply(sciHorizontalApply);
+        return sciHorizontalApplyMapper.updateSciHorizontalOverApply(sciHorizontalApply);
     }
 
     /**
@@ -147,6 +147,18 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
         return sciHorizontalApplyMapper.deleteSciHorizontalApplyById(id);
     }
 
+    /**
+     * 删除横向课题另一个表信息
+     *
+     * @param id 横向课题主键
+     * @return 结果
+     */
+    @Override
+    public int deleteSciHorizontalOverApplyById(Integer id)
+    {
+        return sciHorizontalApplyMapper.deleteSciHorizontalOverApplyById(id);
+    }
+
     @Override
     public int hxPass(String id,Long uid,String urlFlag) {
         String state = "0";
@@ -173,9 +185,8 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
         }else if(urlFlag.equals("KYCOVER")){
             state ="6";
         }
-        int b =  sciHorizontalApplyMapper.hxover(id,state);
         int a =  sciHorizontalApplyMapper.hxPass(id,state);
-        System.out.println(b);
+        System.out.println(a);
         return a;
     }
 
@@ -192,22 +203,27 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
         sciHorizontalPiyue.setUid(uid);
         sciHorizontalPiyue.setHxktId(Integer.valueOf(id));
         sciHorizontalPiyue.setConcate(remark);
-        sciHorizontalPiyue.setState("教研室驳回");
+        sciHorizontalPiyue.setState("被驳回");
         sciHorizontalPiyueMapper.insertSciHorizontalPiyue(sciHorizontalPiyue);
         return a;
     }
 
     @Override
-    public int hxoverBh(String id, Long userId, String remark, String urlFlag) {
+    public int hxoverBh(String id, Long uid, String remark, String urlFlag) {
         String state = "0";
         if(urlFlag.equals("JYSOVER")){
             state ="9";
         }else if(urlFlag.equals("KYCOVER")){
             state ="10";
         }
-        int b =  sciHorizontalApplyMapper.hxover(id,state);
+
         int a =  sciHorizontalApplyMapper.hxPass(id,state);
-        System.out.println(b);
+        SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
+        sciHorizontalPiyue.setUid(uid);
+        sciHorizontalPiyue.setHxktId(Integer.valueOf(id));
+        sciHorizontalPiyue.setConcate(remark);
+        sciHorizontalPiyue.setState("被驳回");
+        sciHorizontalPiyueMapper.insertSciHorizontalPiyue(sciHorizontalPiyue);
         return a;
     }
 

@@ -207,7 +207,7 @@ public class SciHorizontalApplyController extends BaseController
         String state = sciHorizontalApply.getState();
         String id = String.valueOf(sciHorizontalApply.getId());
         sciHorizontalApplyService.overApply(id, state);
-        return toAjax(sciHorizontalApplyService.insertSciHorizontalOverApply(sciHorizontalApply));
+        return toAjax(sciHorizontalApplyService.updateSciHorizontalOverApply(sciHorizontalApply));
     }
 
 

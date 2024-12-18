@@ -41,7 +41,7 @@ public interface ISciHorizontalApplyService
      * @param sciHorizontalApply 横向课题
      * @return 结果
      */
-    public int insertSciHorizontalOverApply(SciHorizontalApply sciHorizontalApply);
+    public int updateSciHorizontalOverApply(SciHorizontalApply sciHorizontalApply);
 
     /**
      * 修改横向课题
@@ -66,6 +66,14 @@ public interface ISciHorizontalApplyService
      * @return 结果
      */
     public int deleteSciHorizontalApplyById(Integer id);
+
+    /**
+     * 删除横向课题另一个信息
+     *
+     * @param id 横向课题主键
+     * @return 结果
+     */
+    public int deleteSciHorizontalOverApplyById(Integer id);
 
     int hxPass(String id,Long uid,String urlFlag);
     int hxover(String id,Long uid,String urlFlag);

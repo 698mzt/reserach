@@ -42,7 +42,7 @@ public interface SciHorizontalApplyMapper
      * @param sciHorizontalApply 横向课题
      * @return 结果
      */
-    public int insertSciHorizontalOverApply(SciHorizontalApply sciHorizontalApply);
+    public int updateSciHorizontalOverApply(SciHorizontalApply sciHorizontalApply);
 
     /**
      * 修改横向课题
@@ -59,6 +59,14 @@ public interface SciHorizontalApplyMapper
      * @return 结果
      */
     public int deleteSciHorizontalApplyById(Integer id);
+
+    /**
+     * 删除横向课题另一个表信息
+     *
+     * @param id 横向课题主键
+     * @return 结果
+     */
+    public int deleteSciHorizontalOverApplyById(Integer id);
 
     /**
      * 批量删除横向课题
