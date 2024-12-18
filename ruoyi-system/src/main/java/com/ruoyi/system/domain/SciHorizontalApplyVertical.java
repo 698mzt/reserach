@@ -56,8 +56,14 @@ public class SciHorizontalApplyVertical extends BaseEntity {
     /** 项目金额 */
     @Excel(name = "项目金额")
     private String amount;
-    /** 文件 */
-    private String file;
+    /** 申请文件 */
+    private String filing;
+    /** 开题文件 */
+    private String openfile;
+    /** 中期文件 */
+    private String midfile;
+    /** 结项文件 */
+    private String overfile;
     /** 状态 */
     @Excel(name = "状态")
     private String state;
@@ -69,6 +75,40 @@ public class SciHorizontalApplyVertical extends BaseEntity {
     private String createtime;
 
     private String urlFlag;
+
+    private String year;
+
+    public String getYear() {
+        return year;
+    }
+
+    public void setYear(String year) {
+        this.year = year;
+    }
+
+    public String getOpenfile() {
+        return openfile;
+    }
+
+    public void setOpenfile(String openfile) {
+        this.openfile = openfile;
+    }
+
+    public String getMidfile() {
+        return midfile;
+    }
+
+    public void setMidfile(String midfile) {
+        this.midfile = midfile;
+    }
+
+    public String getOverfile() {
+        return overfile;
+    }
+
+    public void setOverfile(String overfile) {
+        this.overfile = overfile;
+    }
 
     public String getUrlFlag() {
         return urlFlag;
@@ -222,12 +262,12 @@ public class SciHorizontalApplyVertical extends BaseEntity {
         this.amount = amount;
     }
 
-    public String getFile() {
-        return file;
+    public String getFiling() {
+        return filing;
     }
 
-    public void setFile(String file) {
-        this.file = file;
+    public void setFiling(String filing) {
+        this.filing = filing;
     }
 
     public String getState() {
