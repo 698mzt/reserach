@@ -134,7 +134,7 @@
                     <div class="col-sm-8">
                         <input type="hidden" name="contract">
                         <div class="file-loading">
-                            <input class="form-control file-upload" id="contract" name="file" type="file">
+                            <input class="form-control file-upload" id="contract" name="file" type="file" >
                         </div>
                     </div>
                 </div>
@@ -145,7 +145,7 @@
                     <div class="col-sm-8">
                         <input type="hidden" name="filing">
                         <div class="file-loading">
-                            <input class="form-control file-upload" id="filing" name="file" type="file">
+                            <input class="form-control file-upload" id="filing" name="file" type="file" >
                         </div>
                     </div>
                 </div>
@@ -171,8 +171,14 @@
         });
 
         function submitHandler() {
-
+            if ($.validate.form()){
+                if($("input[name='contract']").val()=="")
+                    return $.modal.alertError("请上传合同");
+                if($("input[name='filing']").val()=="")
+                    return $.modal.alertError("请上传备案表");
                 $.operate.saveTab(prefix + "/add", $('#form-apply-add').serialize());
+            }
+
         }
 
 

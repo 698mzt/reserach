@@ -60,6 +60,7 @@ public class SciHorizontalApply extends BaseEntity
     @Excel(name = "申请结项日期")
     private String createtime;
 
+    private String overtime;
     /** 第一负责人 */
     //@Excel(name = "第一负责人")
     private String firstPersonId;
@@ -105,6 +106,14 @@ public class SciHorizontalApply extends BaseEntity
 
 //    查询年份
     private String year;
+
+    public String getOvertime() {
+        return overtime;
+    }
+
+    public void setOvertime(String overtime) {
+        this.overtime = overtime;
+    }
 
     public String getYear() {
         return year;

@@ -161,14 +161,8 @@
     });
 
     function submitHandler() {
-        var filing = $("input[name='filing']").val();
-        if ($.validate.form()) {
-           if (filing == ""){
-                $.modal.alertWarning("请上传备案表");
-                return;
-            }
-        }
-        $.operate.saveTab(prefix + "/add", $('#form-apply-add').serialize());
+        if ($.validate.form())
+            $.operate.saveTab(prefix + "/add", $('#form-apply-add').serialize());
     }
 
 
