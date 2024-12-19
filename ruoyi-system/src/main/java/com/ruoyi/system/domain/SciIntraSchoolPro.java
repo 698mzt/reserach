@@ -109,6 +109,15 @@ public class SciIntraSchoolPro extends BaseEntity {
     @Excel(name = "状态")
     private String state;
 
+    private String year;
+
+    public String getYear() {
+        return year;
+    }
+
+    public void setYear(String year) {
+        this.year = year;
+    }
 
     private String urlFlag;
 

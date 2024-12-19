@@ -211,7 +211,8 @@
 
     // 动态生成URL
     function getUrl(tableId) {
-        return prefix+"/list/"+tableId;
+        var year = localStorage.getItem("year");
+        return prefix+"/list/"+tableId+"?year="+year;
     }
 
     $(function() {
@@ -572,6 +573,19 @@
                 }]
         };
         initTable(options2);
+
+        window.addEventListener("storage",function (event){
+            if (event.key==="year"){
+                // 销毁表格，再初始化
+                $('#bootstrap-table0').bootstrapTable('destroy');
+                initTable(options0)
+                $('#bootstrap-table1').bootstrapTable('destroy');
+                initTable(options1)
+                $('#bootstrap-table2').bootstrapTable('destroy');
+                initTable(options2)
+            }
+
+        })
     });
 </script>
 </body>
