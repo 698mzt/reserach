@@ -206,7 +206,7 @@ public class SciHorizontalApplyController extends BaseController
     {
         String state = sciHorizontalApply.getState();
         String id = String.valueOf(sciHorizontalApply.getId());
-        sciHorizontalApplyService.overApply(id, state);
+//        sciHorizontalApplyService.overApply(id, state);
         return toAjax(sciHorizontalApplyService.updateSciHorizontalOverApply(sciHorizontalApply));
     }
 
@@ -233,6 +233,19 @@ public class SciHorizontalApplyController extends BaseController
         mmap.put("sysUsers1",userList1);
         mmap.put("sciHorizontalApply", sciHorizontalApply);
         return prefix + "/overdetail";
+    }
+
+    /**已结项查看 */
+    @RequiresPermissions("system:apply:info")
+    @GetMapping("/overView/{id}/{urlFlag}")
+    public String overView(@PathVariable("id") Integer id,@PathVariable("urlFlag") String urlFlag, ModelMap mmap)
+    {
+        SciHorizontalApply sciHorizontalApply = sciHorizontalApplyService.selectSciHorizontalApplyById(id);
+        List<SysUser> userList1 =  userService.selectAllUser();
+        sciHorizontalApply.setUrlFlag(urlFlag);
+        mmap.put("sysUsers1",userList1);
+        mmap.put("sciHorizontalApply", sciHorizontalApply);
+        return prefix + "/overView";
     }
 
 

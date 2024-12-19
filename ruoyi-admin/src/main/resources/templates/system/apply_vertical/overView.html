@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+  <th:block th:include="include :: header('课题批阅')" />
+  <th:block th:include="include :: datetimepicker-css" />
+  <th:block th:include="include :: bootstrap-fileinput-css"/>
+  <th:block th:include="include :: select2-css" />
+</head>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+  <form class="form-horizontal m" id="form-apply-edit" th:object="${sciHorizontalApplyVertical}">
+    <input name="urlFlag" id="urlFlag" th:field="*{urlFlag}"  type="hidden">
+    <input name="state" id="state" th:field="*{state}" type="hidden">
+    <input name="id" id="ktid" th:field="*{id}" type="hidden">
+    <h4 class="form-header h4">基本信息</h4>
+    <div class="row">
+      <div class="col-xs-6">
+        <div class="form-group">
+          <label class="col-sm-4 control-label is-required">申请人：</label>
+          <div class="col-sm-8">
+            <input  readonly th:field="*{userName}" class="form-control" type="text" >
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xs-6">
+        <div class="form-group">
+          <label class="col-sm-4 control-label is-required">课题类型：</label>
+          <div class="col-sm-8">
+
+            <select  readonly class="form-control" th:with="type=${@dict.getType('sci_top_type')}" required disabled>
+              <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}" th:field="*{topType}"></option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="col-xs-6">
+        <div class="form-group">
+          <label class="col-sm-4 control-label is-required">课题名称：</label>
+          <div class="col-sm-8">
+            <input  readonly th:field="*{topName}" class="form-control" type="text" required>
+          </div>
+        </div>
+      </div>
+      <div class="col-xs-6">
+        <div class="form-group">
+          <label class="col-sm-4 control-label is-required">课题编号：</label>
+          <div class="col-sm-8">
+            <input  readonly th:field="*{topNumber}" class="form-control" type="text" required>
+          </div>
+        </div>
+      </div>
+      <div class="col-xs-6">
+        <div class="form-group">
+          <label class="col-sm-4 control-label is-required">项目金额(万)：</label>
+          <div class="col-sm-8">
+            <input readonly th:field="*{amount}" class="form-control" type="text" required>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xs-6">
+        <div class="form-group">
+          <label class="col-sm-4 control-label is-required">申请日期：</label>
+          <div class="col-sm-8">
+            <div class="input-group date">
+              <input  readonly th:field="*{signingData}" th:value="${#dates.format(signingData, 'yyyy-MM-dd')}" class="form-control" placeholder="yyyy-MM-dd" type="text" required>
+              <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!--        <div class="col-xs-6">-->
+      <!--            <div class="form-group">-->
+      <!--                <label class="col-sm-4 control-label is-required">合同有效日期：</label>-->
+      <!--                <div class="col-sm-8">-->
+      <!--                    <div class="input-group date">-->
+      <!--                        <input  readonly th:field="*{validityDate}" th:value="${#dates.format(validityDate, 'yyyy-MM-dd - yyyy-MM-dd')}" class="form-control" id="laydate-demo-4" placeholder="yyyy-MM-dd - yyyy-MM-dd" type="text" required>-->
+      <!--                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>-->
+      <!--                    </div>-->
+      <!--                </div>-->
+      <!--            </div>-->
+      <!--        </div>-->
+      <div class="col-xs-6">
+        <div class="form-group">
+          <label class="col-sm-4 control-label is-required">第一负责人：</label>
+          <div class="col-sm-8">
+
+            <!--                        <input name="firstPersonId" th:field="*{firstPersonId}" class="form-control" type="text" required>-->
+            <select name="firstPersonId" class="form-control m-b" disabled>
+              <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ #strings.toString(user.userId) == sciHorizontalApplyVertical.firstPersonId}"></option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xs-6">
+        <div class="form-group">
+          <label class="col-sm-4 control-label is-required">第二负责人：</label>
+          <div class="col-sm-8">
+            <!--                        <input name="secondPersonTask" th:field="*{secondPersonTask}" class="form-control" type="text" required>-->
+            <select name="secondPersonId" class="form-control m-b" disabled >
+              <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ #strings.toString(user.userId) == sciHorizontalApplyVertical.secondPersonId}" ></option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xs-6">
+        <div class="form-group">
+          <label class="col-sm-4 control-label is-required">第三负责人：</label>
+          <div class="col-sm-8">
+            <!--                        <input name="thirdPersonId" th:field="*{thirdPersonId}" class="form-control" type="text" required>-->
+            <select  class="form-control m-b" disabled>
+              <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ #strings.toString(user.userId) == sciHorizontalApplyVertical.thirdPersonId}"  ></option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xs-6">
+        <div class="form-group">
+          <label class="col-sm-4 control-label is-required">第四负责人：</label>
+          <div class="col-sm-8">
+            <!--                        <input name="fourthPersonId" th:field="*{fourthPersonId}" class="form-control" type="text" required>-->
+            <select  class="form-control m-b" disabled>
+              <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ #strings.toString(user.userId) == sciHorizontalApplyVertical.fourthPersonId}"  ></option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xs-6">
+        <div class="form-group">
+          <label class="col-sm-4 control-label is-required">开题文件：</label>
+          <div class="col-sm-8">
+            <input th:field="*{openfile}" hidden id="openfiling" type="text" >
+            <div style="display: inline-block;">
+              <div id="openfilingFileName" style="display: inline; margin-right: 5px;"></div>
+            </div>
+            <div>
+              <button onclick="chakan('openfiling')" class="btn btn-sm btn-primary color">预览</button>
+              <button onclick="downloadFile('openfiling')" class="btn btn-sm btn-primary color">下载</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-xs-6">
+        <div class="form-group">
+          <label class="col-sm-4 control-label is-required">中期文件：</label>
+          <div class="col-sm-8">
+            <input th:field="*{midfile}" hidden id="midfiling" type="text" >
+            <div style="display: inline-block;">
+              <div id="midfilingFileName" style="display: inline; margin-right: 5px;"></div>
+            </div>
+            <div>
+              <button onclick="chakan('midfiling')" class="btn btn-sm btn-primary color">预览</button>
+              <button onclick="downloadFile('midfiling')" class="btn btn-sm btn-primary color">下载</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-xs-6">
+        <div class="form-group">
+          <label class="col-sm-4 control-label is-required">结项文件：</label>
+          <div class="col-sm-8">
+            <input th:field="*{overfile}" hidden id="overfiling" type="text" >
+            <div style="display: inline-block;">
+              <div id="overfilingFileName" style="display: inline; margin-right: 5px;"></div>
+            </div>
+            <div>
+              <button onclick="chakan('overfiling')" class="btn btn-sm btn-primary color">预览</button>
+              <button onclick="downloadFile('overfiling')" class="btn btn-sm btn-primary color">下载</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+
+
+
+    <h4 class="form-header h4 tdiv1" style="display:none;">退回原因</h4>
+    <div class="row tdiv1" style="display:none;">
+      <div class="col-sm-12">
+        <div class="form-group"  >
+          <label class="col-xs-2 control-label">批注：</label>
+          <div class="col-xs-10">
+            <textarea name="remark" required maxlength="500" class="form-control" rows="3"></textarea>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <h4 class="form-header h4 tdiv2"  style="display:none;">退回记录</h4>
+    <div class="row tdiv2" style="display:none;">
+      <div class="col-sm-12">
+
+        <div class="form-group"  >
+          <table id='bootstrap-table'></table>
+        </div>
+      </div>
+    </div>
+
+  </form>
+</div>
+<div class="row">
+  <div class="col-sm-offset-5 col-sm-10">
+    <button type="button" id="btn1" style="display:none;" class="btn btn-sm btn-primary" onclick="submitHandler()"><i class="fa fa-check"></i>通 过</button>&nbsp;
+    <button type="button" id="btn2" style="display:none;" class="btn btn-sm btn-danger" onclick="submitHandlerBH()"><i class="fa fa-reply-all"></i>驳 回</button>
+    <button type="button" id="btn3" style="display:none;" class="btn btn-sm btn-warning" onclick="closeItem()"><i class="fa fa-reply-all"></i>关 闭 </button>
+  </div>
+</div>
+<th:block th:include="include :: footer" />
+<th:block th:include="include :: datetimepicker-js" />
+<th:block th:include="include :: bootstrap-fileinput-js"/>
+<th:block th:include="include :: select2-js" />
+<script type="text/javascript">
+  function displayFileName(inputId, fileNameId) {
+    const input = document.getElementById(inputId);
+    const fileNameSpan = document.getElementById(fileNameId);
+    if (input.value) {
+      const fileName = input.value.split('/').pop(); // 获取文件名
+      const parts = fileName.split('_'); // 按下划线分割
+      const firstPart = parts[0]; // 下划线前的部分
+
+      const dotParts = fileName.split('.'); // 按点分割
+      const lastPart = dotParts[dotParts.length - 1]; // 点后的部分
+
+      fileNameSpan.textContent = `${firstPart}.${lastPart}`; // 组合并显示
+    } else {
+      fileNameSpan.textContent = '';
+    }
+  }
+
+  function chakan(id){
+    var c = $("#"+id).val();
+    $.modal.openTab("查看合同" ,c );
+  }
+
+  function downloadFile(type){
+    var c = $("#"+type).val();
+    if(c){
+      var a = document.createElement("a");
+      a.href=c;
+      a.download="";
+      a.style.display = "none";
+      document.body.appendChild(a);
+      a.click();
+      document.Element.removeChild(a);
+    }else{
+      alert("网址无效");
+    }
+  }
+
+  function showButton(){
+    var a =$("#state").val();
+    $("#btn3").fadeIn(500);
+
+  }
+  $(function(){
+
+
+
+
+
+    <!-- laydate示例 -->
+    layui.use('laydate', function(){
+      var laydate = layui.laydate;
+      laydate.render({
+        elem: '#laydate-demo-4',
+        range: true
+      });
+      var startDate = laydate.render({
+        elem: '#laydate-startTime',
+        max: $('#laydate-endTime').val(),
+        theme: 'molv',
+        trigger: 'click',
+        done: function(value, date) {
+          // 结束时间大于开始时间
+          if (value !== '') {
+            endDate.config.min.year = date.year;
+            endDate.config.min.month = date.month - 1;
+            endDate.config.min.date = date.date;
+          } else {
+            endDate.config.min.year = '';
+            endDate.config.min.month = '';
+            endDate.config.min.date = '';
+          }
+        }
+      });
+      var endDate = laydate.render({
+        elem: '#laydate-endTime',
+        min: $('#laydate-startTime').val(),
+        theme: 'molv',
+        trigger: 'click',
+        done: function(value, date) {
+          // 开始时间小于结束时间
+          if (value !== '') {
+            startDate.config.max.year = date.year;
+            startDate.config.max.month = date.month - 1;
+            startDate.config.max.date = date.date;
+          } else {
+            startDate.config.max.year = '';
+            startDate.config.max.month = '';
+            startDate.config.max.date = '';
+          }
+        }
+      });
+    });
+  });
+</script>
+<script th:inline="javascript">
+  var prefix = ctx + "system/apply_vertical";
+  $("#form-apply-edit").validate({
+    focusCleanup: true
+  });
+
+  function submitHandler() {
+    //获取 URLflag
+    var a = $("#urlFlag").val();
+    console.log(a);
+    $.operate.saveTab(prefix + "/overPass", {"id":$("#ktid").val(),"urlFlag":a});
+  }
+  function submitHandlerBH() {
+    var a = $("#urlFlag").val();
+    if ($.validate.form()) {
+      $.operate.saveTab(prefix + "/overBh",   $('#form-apply-edit').serialize());
+    }
+  }
+
+
+
+
+  $(".file-upload").each(function (i) {
+    var val = $("input[name='" + this.id + "']").val()
+    $(this).fileinput({
+      uploadUrl: ctx + 'common/upload',
+      initialPreviewAsData: true,
+      initialPreview: [val],
+      maxFileCount: 1,
+      autoReplace: true
+    }).on('fileuploaded', function (event, data, previewId, index) {
+      $("input[name='" + event.currentTarget.id + "']").val(data.response.url)
+    }).on('fileremoved', function (event, id, index) {
+      $("input[name='" + event.currentTarget.id + "']").val('')
+    })
+    $(this).fileinput('_initFileActions');
+  });
+  // 页面加载时显示文件名
+  window.onload = function() {
+    displayFileName('openfiling', 'openfilingFileName');
+    displayFileName('midfiling', 'midfilingFileName');
+    displayFileName('overfiling', 'overfilingFileName');
+    showButton();
+  };
+</script>
+</body>
+</html>
