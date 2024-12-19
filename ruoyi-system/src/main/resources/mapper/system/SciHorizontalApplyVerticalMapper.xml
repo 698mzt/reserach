@@ -8,6 +8,7 @@
         <result property="id"    column="id"    />
         <result property="userId"    column="user_id"    />
         <result property="topName"    column="top_name"    />
+        <result property="topNumber"    column="top_number"    />
         <result property="topType"    column="top_type"    />
         <result property="signingData"    column="signing_data"    />
         <result property="firstPersonId"    column="first_person_id"    />
@@ -25,14 +26,14 @@
     </resultMap>
 
     <select id="selectSciHorizontalApplyVerticalAllList" resultType="SciHorizontalApplyVertical" resultMap="SciHorizontalApplyVerticalResult">
-        select s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file
+        select s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,s.top_number ,s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file,s.open_file,s.mid_file,s.over_file
         from  sci_horizontal_apply_vertical s left join sys_user u on  s.user_id=u.user_id
                                               left join sys_dept d on u.dept_id = d.dept_id
                                               left join sys_dept p on d.parent_id =p.dept_id
     </select>
 
     <select id="selectSciHorizontalApplyVerticalList"  resultType="SciHorizontalApplyVertical" resultMap="SciHorizontalApplyVerticalResult">
-        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,s.top_number, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file,s.open_file,s.mid_file,s.over_file
         from  sci_horizontal_apply_vertical s left join sys_user u on  s.user_id=u.user_id
                                               left join sys_dept d on u.dept_id = d.dept_id
                                               left join sys_dept p on d.parent_id =p.dept_id
@@ -46,7 +47,7 @@
     </select>
 
     <select id="selectSciHorizontalApplyVerticalListJYS"  resultType="SciHorizontalApplyVertical" resultMap="SciHorizontalApplyVerticalResult">
-        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,s.top_number, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file,s.open_file,s.mid_file,s.over_file
         from  sci_horizontal_apply_vertical s left join sys_user u on  s.user_id=u.user_id
                                               left join sys_dept d on u.dept_id = d.dept_id
                                               left join sys_dept p on d.parent_id =p.dept_id
@@ -60,7 +61,7 @@
     </select>
 
     <select id="selectSciHorizontalApplyVerticalListKYC"  resultType="SciHorizontalApplyVertical" resultMap="SciHorizontalApplyVerticalResult">
-        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,s.top_number, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file,s.open_file,s.mid_file,s.over_file
         from  sci_horizontal_apply_vertical s left join sys_user u on  s.user_id=u.user_id
                                               left join sys_dept d on u.dept_id = d.dept_id
                                               left join sys_dept p on d.parent_id =p.dept_id
@@ -74,7 +75,7 @@
     </select>
 
     <select id="selectSciHorizontalApplyVerticalListKT"  resultType="SciHorizontalApplyVertical" resultMap="SciHorizontalApplyVerticalResult" >
-        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,s.top_number, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file,s.open_file,s.mid_file,s.over_file
         from  sci_horizontal_apply_vertical s left join sys_user u on  s.user_id=u.user_id
                                               left join sys_dept d on u.dept_id = d.dept_id
                                               left join sys_dept p on d.parent_id =p.dept_id
@@ -88,7 +89,7 @@
     </select>
 
     <select id="selectSciHorizontalApplyVerticalListJYSKT"  resultType="SciHorizontalApplyVertical" resultMap="SciHorizontalApplyVerticalResult" >
-        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,s.top_number, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file,s.open_file,s.mid_file,s.over_file
         from  sci_horizontal_apply_vertical s left join sys_user u on  s.user_id=u.user_id
                                               left join sys_dept d on u.dept_id = d.dept_id
                                               left join sys_dept p on d.parent_id =p.dept_id
@@ -102,7 +103,7 @@
     </select>
 
     <select id="selectSciHorizontalApplyVerticalListKYCKT"  resultType="SciHorizontalApplyVertical" resultMap="SciHorizontalApplyVerticalResult" >
-        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,s.top_number, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file,s.open_file,s.mid_file,s.over_file
         from  sci_horizontal_apply_vertical s left join sys_user u on  s.user_id=u.user_id
                                               left join sys_dept d on u.dept_id = d.dept_id
                                               left join sys_dept p on d.parent_id =p.dept_id
@@ -116,7 +117,7 @@
     </select>
 
     <select id="selectSciHorizontalApplyVerticalListZQ"  resultType="SciHorizontalApplyVertical" resultMap="SciHorizontalApplyVerticalResult" >
-        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,s.top_number, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file,s.open_file,s.mid_file,s.over_file
         from  sci_horizontal_apply_vertical s left join sys_user u on  s.user_id=u.user_id
                                               left join sys_dept d on u.dept_id = d.dept_id
                                               left join sys_dept p on d.parent_id =p.dept_id
@@ -130,7 +131,7 @@
     </select>
 
     <select id="selectSciHorizontalApplyVerticalListJYSZQ"  resultType="SciHorizontalApplyVertical" resultMap="SciHorizontalApplyVerticalResult" >
-        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,s.top_number, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file,s.open_file,s.mid_file,s.over_file
         from  sci_horizontal_apply_vertical s left join sys_user u on  s.user_id=u.user_id
                                               left join sys_dept d on u.dept_id = d.dept_id
                                               left join sys_dept p on d.parent_id =p.dept_id
@@ -144,7 +145,7 @@
     </select>
 
     <select id="selectSciHorizontalApplyVerticalListKYCZQ"  resultType="SciHorizontalApplyVertical" resultMap="SciHorizontalApplyVerticalResult" >
-        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,s.top_number, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file,s.open_file,s.mid_file,s.over_file
         from  sci_horizontal_apply_vertical s left join sys_user u on  s.user_id=u.user_id
                                               left join sys_dept d on u.dept_id = d.dept_id
                                               left join sys_dept p on d.parent_id =p.dept_id
@@ -158,7 +159,7 @@
     </select>
 
     <select id="selectSciHorizontalApplyVerticalListJX"  resultType="SciHorizontalApplyVertical" resultMap="SciHorizontalApplyVerticalResult" >
-        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,s.top_number, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file,s.open_file,s.mid_file,s.over_file
         from  sci_horizontal_apply_vertical s left join sys_user u on  s.user_id=u.user_id
                                               left join sys_dept d on u.dept_id = d.dept_id
                                               left join sys_dept p on d.parent_id =p.dept_id
@@ -172,7 +173,7 @@
     </select>
 
     <select id="selectSciHorizontalApplyVerticalListJYSJX"  resultType="SciHorizontalApplyVertical" resultMap="SciHorizontalApplyVerticalResult" >
-        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,s.top_number, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file,s.open_file,s.mid_file,s.over_file
         from  sci_horizontal_apply_vertical s left join sys_user u on  s.user_id=u.user_id
                                               left join sys_dept d on u.dept_id = d.dept_id
                                               left join sys_dept p on d.parent_id =p.dept_id
@@ -186,7 +187,7 @@
     </select>
 
     <select id="selectSciHorizontalApplyVerticalListKYCJX"  resultType="SciHorizontalApplyVertical" resultMap="SciHorizontalApplyVerticalResult" >
-        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,s.top_number, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file,s.open_file,s.mid_file,s.over_file
         from  sci_horizontal_apply_vertical s left join sys_user u on  s.user_id=u.user_id
                                               left join sys_dept d on u.dept_id = d.dept_id
                                               left join sys_dept p on d.parent_id =p.dept_id
@@ -200,7 +201,7 @@
     </select>
 
     <select id="selectSciHorizontalApplyVerticalListOVER"  resultType="SciHorizontalApplyVertical" resultMap="SciHorizontalApplyVerticalResult" >
-        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,s.top_number, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file,s.open_file,s.mid_file,s.over_file
         from  sci_horizontal_apply_vertical s left join sys_user u on  s.user_id=u.user_id
                                               left join sys_dept d on u.dept_id = d.dept_id
                                               left join sys_dept p on d.parent_id =p.dept_id
@@ -244,7 +245,7 @@
     </insert>
 
     <select id="selectSciHorizontalApplyVerticalById" resultMap="SciHorizontalApplyVerticalResult" parameterType="Integer">
-        select s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, s.fourth_person_id, s.amount, s.state,s.file,s.open_file,s.mid_file,s.over_file
+        select s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,s.top_number, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, s.fourth_person_id, s.amount, s.state,s.file,s.open_file,s.mid_file,s.over_file
         from  sci_horizontal_apply_vertical s left join sys_user u on  s.user_id=u.user_id
                                               left join sys_dept d on u.dept_id = d.dept_id
                                               left join sys_dept p on d.parent_id =p.dept_id
@@ -256,6 +257,7 @@
         <trim prefix="SET" suffixOverrides=",">
             <if test="userId != null">user_id = #{userId},</if>
             <if test="topName != null and topName != ''">top_name = #{topName},</if>
+            <if test="topNumber != null and topNumber != ''">top_number = #{topNumber},</if>
             <if test="topType != null and topType != ''">top_type = #{topType},</if>
             <if test="signingData != null and signingData != ''">signing_data = #{signingData},</if>
             <if test="firstPersonId != null and firstPersonId != ''">first_person_id = #{firstPersonId},</if>

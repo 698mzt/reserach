@@ -170,7 +170,7 @@
             <if test="partyA != null and partyA != ''">party_A,</if>
             <if test="partyB != null and partyB != ''">party_B,</if>
             <if test="signingData != null and signingData != ''">signing_data,</if>
-            <if test="validityDate != null and validityDate != ''">validity_Date,</if>
+
             <if test="firstPersonId != null and firstPersonId != ''">first_person_id,</if>
             <if test="secondPersonId != null and secondPersonId != ''">second_person_id,</if>
             <if test="thirdPersonId != null and thirdPersonId != ''">third_person_id,</if>
@@ -187,7 +187,7 @@
             <if test="partyA != null and partyA != ''">#{partyA},</if>
             <if test="partyB != null and partyB != ''">#{partyB},</if>
             <if test="signingData != null and signingData != ''">#{signingData},</if>
-            <if test="validityDate != null and validityDate != ''">#{validityDate},</if>
+
             <if test="firstPersonId != null and firstPersonId != ''">#{firstPersonId},</if>
             <if test="secondPersonId != null and secondPersonId != ''">#{secondPersonId},</if>
             <if test="thirdPersonId != null and thirdPersonId != ''">#{thirdPersonId},</if>
@@ -202,6 +202,7 @@
     <update id="updateSciHorizontalOverApply" parameterType="SciHorizontalApply" >
         update  sci_horizontal_apply
         <trim prefix="SET" suffixOverrides=",">
+            <if test="validityDate != null and validityDate != ''">validity_Date=#{validityDate},</if>
             <if test="filing != null and filing != ''">filingurl=#{filing},</if>
             <if test="contract != null and contract != ''">agreeurl=#{contract},</if>
             <if test="state != null and state != ''">state=#{state},</if>
