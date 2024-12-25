@@ -83,6 +83,7 @@
 
                         <!--                        <input name="firstPersonId" th:field="*{firstPersonId}" class="form-control" type="text" required>-->
                         <select name="firstPersonId" class="form-control m-b" disabled>
+                            <option value="">无</option>
                             <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ #strings.toString(user.userId) == sciHorizontalApply.firstPersonId}"></option>
                         </select>
                     </div>
@@ -95,6 +96,7 @@
                     <div class="col-sm-8">
                         <!--                        <input name="secondPersonTask" th:field="*{secondPersonTask}" class="form-control" type="text" required>-->
                         <select name="secondPersonId" class="form-control m-b" disabled >
+                            <option value="">无</option>
                             <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ #strings.toString(user.userId) == sciHorizontalApply.secondPersonId}" ></option>
                         </select>
                     </div>
@@ -107,6 +109,7 @@
                     <div class="col-sm-8">
                         <!--                        <input name="thirdPersonId" th:field="*{thirdPersonId}" class="form-control" type="text" required>-->
                         <select  class="form-control m-b" disabled>
+                            <option value="">无</option>
                             <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ #strings.toString(user.userId) == sciHorizontalApply.thirdPersonId}"  ></option>
                         </select>
                     </div>
@@ -119,6 +122,7 @@
                     <div class="col-sm-8">
                         <!--                        <input name="fourthPersonId" th:field="*{fourthPersonId}" class="form-control" type="text" required>-->
                         <select  class="form-control m-b" disabled>
+                            <option value="">无</option>
                             <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ #strings.toString(user.userId) == sciHorizontalApply.fourthPersonId}"  ></option>
                         </select>
                     </div>
@@ -205,7 +209,7 @@
 
             </div>
         </div>
-        <h4 class="form-header h4 tdiv2"  style="display:none;">退回记录</h4>
+        <h4 class="form-header h4 tdiv2"  style="display:none;">审批记录</h4>
         <div class="row tdiv2" style="display:none;">
             <div class="col-sm-12">
 
@@ -304,17 +308,19 @@
             console.log('Event Name:', name.rows);
 
             var a =$("#state").val();
-            if(a == 7 ||a == 8){
-                if(name.rows.length > 0){
-                    $(".tdiv2").show();
+            if ($("#urlFlag").val() == 'chakan'){
+                $(".tdiv2").show();
+                $("#btn3").show();
+            }else{
+                if(a == 7 ||a == 8){
+                    if(name.rows.length > 0){
+                        $(".tdiv2").show();
+                    }
+                    $(".tdiv1").show();
+                    $("#btn1").show();
+                    $("#btn2").show();
+                    $("#btn3").show();
                 }
-                $(".tdiv1").show();
-                $("#btn1").show();
-                $("#btn2").show();
-                $("#btn3").show();
-            }
-            if(a == 6 ){
-                $("#btn3").show();
             }
 
         });

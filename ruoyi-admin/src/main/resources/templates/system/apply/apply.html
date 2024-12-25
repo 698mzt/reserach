@@ -274,6 +274,7 @@
                     align: 'center',
                     title: '项目金额'
                 },
+
                 {
                     field: 'state',
                     title: '申请状态',
@@ -372,6 +373,11 @@
                     align: 'center',
                     title: '项目金额'
                 },
+                // {
+                //     field: 'ranking',
+                //     align: 'center',
+                //     title: '排名',
+                // },
                 {
                     field: 'state',
                     title: '申请状态',
@@ -385,27 +391,29 @@
                     align: 'center',
                     formatter: function(value, row, index) {
                         var actions = [];
-
                         if(row.state == 1 ){
                             if(row.userId == row.uid){
                                 actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-remove"></i>删除</a>');
                                 actions.push('<a   class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>更新</a> ');
                             }
-
-                            actions.push('<a  class="btn btn-success btn-xs ' + proFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id+'/pro' + '\')"><i class="fa fa-edit"></i>批阅</a> ');
+                                actions.push('<a  class="btn btn-success btn-xs ' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
+                                actions.push('<a  class="btn btn-success btn-xs ' + proFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id+'/pro' + '\')"><i class="fa fa-edit"></i>批阅</a> ');
 
                         }else
-                        if((row.state == 3 || row.state == 5)  && row.userId == row.uid){
-                            actions.push('<a   class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> <i class="fa fa-edit"></i>更新</a> ');
-                        }else if(row.state ==  2){
-
+                        if((row.state == 3 || row.state == 5)  ){
+                            if (row.userId == row.uid){
+                                actions.push('<a   class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> <i class="fa fa-edit"></i>更新</a> ');
+                            }
+                                actions.push('<a  class="btn btn-success btn-xs ' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
+                        }else
+                        if(row.state ==  2){
                             actions.push('<a  class="btn btn-success btn-xs ' + hechaFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/hecha'+ '\')"><i class="fa fa-edit"></i>核查</a> ');
+                            actions.push('<a  class="btn btn-success btn-xs ' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
                         }else
                         if(row.state ==  4){
                             if(row.userId == row.uid){
                                 actions.push('<a  class="btn btn-success btn-xs ' + createFlag + '" href="javascript:void(0)" onclick="$.operate.overTab(\'' + row.id +'\')"><i class="fa fa-edit"></i>申请结项</a> ');
                             }
-
                             actions.push('<a  class="btn btn-success btn-xs ' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
                         }
                         return actions.join('');
@@ -421,7 +429,7 @@
             url:getUrl($('table').attr('id')),
             createUrl: prefix + "/overadd?id={id}",
             detailUrl: prefix + "/overdetail/{id}",
-            updateUrl: prefix + "/edit/{id}",
+            updateUrl: prefix + "/overedit/{id}",
             removeUrl: prefix + "/remove",
             exportUrl: prefix + "/export",
             modalName: "横向课题结项",
@@ -506,13 +514,17 @@
                                 actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"> <i class="fa fa-remove"></i>删除</a>');
                                 actions.push('<a   class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> <i class="fa fa-edit"></i>更新</a> ');
                             }
-                            actions.push('<a  class="btn btn-success btn-xs ' + proFlag + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id+'/JYSOVER' + '\')"><i class="fa fa-edit"></i>批阅结项</a> ');
+                                actions.push('<a  class="btn btn-success btn-xs ' + proFlag + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id+'/JYSOVER' + '\')"><i class="fa fa-edit"></i>批阅结项</a> ');
+                                actions.push('<a  class="btn btn-success btn-xs ' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
 
                         }else
-                        if((row.state == 9 || row.state == 10)  && row.userId == row.uid){
-                            actions.push('<a   class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>更新</a> ');
-                        }else if(row.state ==  8){
+                        if((row.state == 9 || row.state == 10)  ){
+                            if (row.userId == row.uid)
+                                actions.push('<a   class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>更新</a> ');
+                            actions.push('<a  class="btn btn-success btn-xs ' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
 
+                        }else if(row.state ==  8){
+                            actions.push('<a  class="btn btn-success btn-xs ' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
                             actions.push('<a  class="btn btn-success btn-xs ' + hechaFlag + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id +'/KYCOVER'+ '\')"><i class="fa fa-edit"></i>批阅结项</a> ');
                         }
                         return actions.join('');
