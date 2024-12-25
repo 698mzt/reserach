@@ -16,8 +16,9 @@ public class SciHorizontalApply extends BaseEntity
     private static final long serialVersionUID = 1L;
 
     private Long uid;
+    private String tableId;
+    private String newsql;
 
-    private Integer applyid;
     private String agreeurl;
     private String  filingurl;
     /**  */
@@ -56,6 +57,9 @@ public class SciHorizontalApply extends BaseEntity
     private String partyA;
     /** 乙方*/
     private String partyB;
+
+    private String persionId;
+    private String ranking;
 
     /** 合同有效日期 */
     @Excel(name = "结项日期")
@@ -339,13 +343,6 @@ public class SciHorizontalApply extends BaseEntity
         this.createtime = createtime;
     }
 
-    public Integer getApplyid() {
-        return applyid;
-    }
-
-    public void setApplyid(Integer appid) {
-        this.applyid = appid;
-    }
 
     public String getAgreeurl() {
         return agreeurl;
@@ -361,5 +358,37 @@ public class SciHorizontalApply extends BaseEntity
 
     public void setFilingurl(String filingurl) {
         this.filingurl = filingurl;
+    }
+
+    public String getPersionId() {
+        return persionId;
+    }
+
+    public void setPersionId(String persionId) {
+        this.persionId = persionId;
+    }
+
+    public String getRanking() {
+        return ranking;
+    }
+
+    public void setRanking(String ranking) {
+        this.ranking = ranking;
+    }
+
+    public String getTableId() {
+        return tableId;
+    }
+
+    public void setTableId(String tableId) {
+        this.tableId = tableId;
+    }
+
+    public String getNewsql() {
+        return newsql;
+    }
+
+    public void setNewsql(String newsql) {
+        this.newsql = newsql;
     }
 }

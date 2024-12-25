@@ -2,6 +2,8 @@ package com.ruoyi.system.service;
 
 import java.util.List;
 import com.ruoyi.system.domain.SciHorizontalApply;
+import com.ruoyi.system.domain.SciHorizontalPersion;
+import org.apache.ibatis.annotations.Options;
 
 /**
  * 横向课题Service接口
@@ -33,7 +35,10 @@ public interface ISciHorizontalApplyService
      * @param sciHorizontalApply 横向课题
      * @return 结果
      */
+    @Options(useGeneratedKeys = true, keyProperty = "id")
     public int insertSciHorizontalApply(SciHorizontalApply sciHorizontalApply);
+
+
 
     /**
      * 结项横向课题
@@ -86,6 +91,7 @@ public interface ISciHorizontalApplyService
     List<SciHorizontalApply> selectSciHorizontalApplyListByJYS(SciHorizontalApply sciHorizontalApply);
 
     List<SciHorizontalApply> selectSciHorizontalApplyListByOverApply(SciHorizontalApply sciHorizontalApply);
+    List<SciHorizontalApply> selectSciHorizontalApplyListByOVERJYSKYC(SciHorizontalApply sciHorizontalApply);
     List<SciHorizontalApply> selectSciHorizontalApplyListByOverApplyJYS(SciHorizontalApply sciHorizontalApply);
     List<SciHorizontalApply> selectSciHorizontalApplyListByOverApplyKYC(SciHorizontalApply sciHorizontalApply);
 
@@ -94,4 +100,8 @@ public interface ISciHorizontalApplyService
     int overApply(String id, String state);
 
 
+
+
+
+    List<SciHorizontalApply> selectOtherListByUid(SciHorizontalApply sciHorizontalApply);
 }

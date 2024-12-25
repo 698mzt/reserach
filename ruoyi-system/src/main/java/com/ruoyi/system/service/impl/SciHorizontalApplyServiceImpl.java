@@ -1,8 +1,11 @@
 package com.ruoyi.system.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.ruoyi.common.annotation.DataScope;
+import com.ruoyi.common.utils.StringUtils;
+import com.ruoyi.system.domain.SciHorizontalPersion;
 import com.ruoyi.system.domain.SciHorizontalPiyue;
 import com.ruoyi.system.mapper.SciHorizontalPiyueMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,17 +48,18 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
      * @return 横向课题
      */
     @Override
-    @DataScope(deptAlias = "d", userAlias = "u")
+    @DataScope(deptAlias = "d",userAlias = "u")
     public List<SciHorizontalApply> selectSciHorizontalApplyList(SciHorizontalApply sciHorizontalApply)
     {
         return sciHorizontalApplyMapper.selectSciHorizontalApplyList(sciHorizontalApply);
     }
     @Override
-    public List<SciHorizontalApply> selectSciHorizontalApplyListByKYC(SciHorizontalApply sciHorizontalApply) {
+    public List<SciHorizontalApply> selectSciHorizontalApplyListByKYC(SciHorizontalApply sciHorizontalApply)
+    {
         return sciHorizontalApplyMapper.selectSciHorizontalApplyListByKYC(sciHorizontalApply);
     }
     @Override
-    @DataScope(deptAlias = "d", userAlias = "u")
+    @DataScope(deptAlias = "d",userAlias = "u")
     public List<SciHorizontalApply> selectSciHorizontalApplyListByJYS(SciHorizontalApply sciHorizontalApply) {
         return sciHorizontalApplyMapper.selectSciHorizontalApplyListByJYS(sciHorizontalApply);
     }
@@ -71,7 +75,6 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
         return sciHorizontalApplyMapper.selectSciHorizontalApplyListByOverApplyJYS(sciHorizontalApply);
     }
     @Override
-    @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciHorizontalApply> selectSciHorizontalApplyListByOverApplyKYC(SciHorizontalApply sciHorizontalApply) {
         return sciHorizontalApplyMapper.selectSciHorizontalApplyListByOverApplyKYC(sciHorizontalApply);
     }
@@ -84,9 +87,17 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
     }
 
     @Override
+    @DataScope(deptAlias = "d", userAlias = "u")
+    public List<SciHorizontalApply> selectSciHorizontalApplyListByOVERJYSKYC(SciHorizontalApply sciHorizontalApply) {
+        return sciHorizontalApplyMapper.selectSciHorizontalApplyListByOVERJYSKYC(sciHorizontalApply);
+    }
+
+    @Override
     public int overApply(String id, String state) {
         return sciHorizontalApplyMapper.overApply(id,state);
     }
+
+
 
     /**
      * 新增横向课题
@@ -97,8 +108,33 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
     @Override
     public int insertSciHorizontalApply(SciHorizontalApply sciHorizontalApply)
     {
-        return sciHorizontalApplyMapper.insertSciHorizontalApply(sciHorizontalApply);
+        sciHorizontalApplyMapper.insertSciHorizontalApply(sciHorizontalApply);
+        Integer id = sciHorizontalApply.getId();
+        SciHorizontalPersion sciHorizontalPersion = new SciHorizontalPersion();
+        sciHorizontalPersion.setApplyid(id);
+        if (StringUtils.isNotEmpty(sciHorizontalApply.getFirstPersonId())) {
+            sciHorizontalPersion.setRanking("1");
+            sciHorizontalPersion.setPersionid(sciHorizontalApply.getFirstPersonId());
+            sciHorizontalApplyMapper.insertPersion(sciHorizontalPersion);
+        }
+        if (StringUtils.isNotEmpty(sciHorizontalApply.getSecondPersonId())) {
+            sciHorizontalPersion.setRanking("2");
+            sciHorizontalPersion.setPersionid(sciHorizontalApply.getSecondPersonId());
+            sciHorizontalApplyMapper.insertPersion(sciHorizontalPersion);
+        }
+        if (StringUtils.isNotEmpty(sciHorizontalApply.getThirdPersonId())) {
+            sciHorizontalPersion.setRanking("3");
+            sciHorizontalPersion.setPersionid(sciHorizontalApply.getThirdPersonId());
+            sciHorizontalApplyMapper.insertPersion(sciHorizontalPersion);
+        }
+        if (StringUtils.isNotEmpty(sciHorizontalApply.getFourthPersonId())) {
+            sciHorizontalPersion.setRanking("4");
+            sciHorizontalPersion.setPersionid(sciHorizontalApply.getFourthPersonId());
+            sciHorizontalApplyMapper.insertPersion(sciHorizontalPersion);
+        }
+        return '1';
     }
+
 
     /**
      * 结项横向课题
@@ -225,6 +261,67 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
         sciHorizontalPiyue.setState("被驳回");
         sciHorizontalPiyueMapper.insertSciHorizontalPiyue(sciHorizontalPiyue);
         return a;
+    }
+
+
+
+    @Override
+    public List<SciHorizontalApply> selectOtherListByUid(SciHorizontalApply sciHorizontalApply) {
+        String role = sciHorizontalApply.getRole();
+        String tableId = sciHorizontalApply.getTableId();
+        List<SciHorizontalApply> list = new ArrayList<>();
+//        科研处
+        if(role.equals("sci_tesearch")){
+            switch (tableId){
+                case "bootstrap-table0":
+                    sciHorizontalApply.setNewsql("00");
+                    list = list = sciHorizontalApplyMapper.selectOtherListByUid(sciHorizontalApply);
+                    break;
+                case "bootstrap-table1":
+                    sciHorizontalApply.setNewsql("01");
+                    list = sciHorizontalApplyMapper.selectOtherListByUid(sciHorizontalApply);
+                    break;
+                case "bootstrap-table2":
+                    sciHorizontalApply.setNewsql("02");
+                    list = sciHorizontalApplyMapper.selectOtherListByUid(sciHorizontalApply);
+                    break;
+            }
+        }
+//        教研室
+        else if(role.equals("research")){
+            switch (tableId){
+                case "bootstrap-table0":
+                    sciHorizontalApply.setNewsql("00");
+                    list = sciHorizontalApplyMapper.selectOtherListByUid(sciHorizontalApply);
+                    break;
+                case "bootstrap-table1":
+                    sciHorizontalApply.setNewsql("01");
+                    list = sciHorizontalApplyMapper.selectOtherListByUid(sciHorizontalApply);
+                    break;
+                case "bootstrap-table2":
+                    sciHorizontalApply.setNewsql("02");
+                    list = sciHorizontalApplyMapper.selectOtherListByUid(sciHorizontalApply);
+                    break;
+            }
+        }
+//        教师
+        else {
+            switch (tableId){
+                case "bootstrap-table0":
+                    sciHorizontalApply.setNewsql("00");
+                    list = sciHorizontalApplyMapper.selectOtherListByUid(sciHorizontalApply);
+                    break;
+                case "bootstrap-table1":
+                    sciHorizontalApply.setNewsql("01");
+                    list = sciHorizontalApplyMapper.selectOtherListByUid(sciHorizontalApply);
+                    break;
+                case "bootstrap-table2":
+                    sciHorizontalApply.setNewsql("02");
+                    list = sciHorizontalApplyMapper.selectOtherListByUid(sciHorizontalApply);
+                    break;
+            }
+        }
+        return list;
     }
 
 }

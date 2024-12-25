@@ -11,42 +11,64 @@
         <result property="topType"    column="top_type"    />
         <result property="partyA"    column="party_A"    />
         <result property="partyB"    column="party_B"    />
-        <result property="client"    column="client"    />
-        <result property="undertaking"    column="undertaking"    />
-        <result property="contacta"    column="contacta"    />
-        <result property="contactaTel"    column="contacta_tel"    />
-        <result property="contactb"    column="contactb"    />
-        <result property="contactbTel"    column="contactb_tel"    />
+        <result property="persionId"    column="persion_id"    />
+        <result property="ranking"    column="ranking"    />
         <result property="signingData"    column="signing_data"    />
         <result property="validityDate"    column="validity_Date"    />
         <result property="firstPersonId"    column="first_person_id"    />
-        <result property="firstPersonTask"    column="first_person_task"    />
-        <result property="secondPersonTask"    column="second_person_task"    />
         <result property="secondPersonId"    column="second_person_id"    />
         <result property="thirdPersonId"    column="third_person_id"    />
-        <result property="thirdPersonTask"    column="third_person_task"    />
         <result property="fourthPersonId"    column="fourth_person_id"    />
-        <result property="fourthPersonTask"    column="fourth_person_task"    />
         <result property="amount"    column="amount"    />
         <result property="state"    column="state"    />
         <result property="userName"    column="userName"    />
         <result property="createtime"    column="createtime"    />
         <result property="year"    column="year"    />
+        <result property="newsql"    column="newsql"    />
+    </resultMap>
+
+    <resultMap id="SciHorizontalPersionResult" type="SciHorizontalPersion">
+        <result property="applyid"    column="apply_id"    />
+        <result property="persionid"    column="persion_id"    />
+        <result property="ranking"    column="ranking"    />
     </resultMap>
 
     <sql id="selectSciHorizontalApplyVo">
-        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,  s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.contract, s.filing, s.state
-        from sci_horizontal_apply s left join sys_user u on  s.user_id=u.user_id
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,s.party_A,s.party_B, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, s.signing_data, s.validity_Date,  concat( s.amount,'万') amount, s.contract, s.filing, s.state
+        from sci_horizontal_apply s
+                                    left join sys_user u on  s.user_id=u.user_id
                                     left join sys_dept d on u.dept_id = d.dept_id
                                     left join sys_dept p on d.parent_id =p.dept_id
     </sql>
+
+    <select id="selectOtherListByUid" parameterType="Long" resultMap="SciHorizontalApplyResult">
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, pe.persion_id,pe.ranking,s.top_type,s.party_A,s.party_B, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, s.signing_data, s.validity_Date,  concat( s.amount,'万') amount, s.contract, s.filing, s.state
+        from sci_horizontal_apply s left join sci_persion pe on pe.apply_id = s.id
+                                    left join sys_user u on  s.user_id=u.user_id
+                                    left join sys_dept d on u.dept_id = d.dept_id
+                                    left join sys_dept p on d.parent_id =p.dept_id
+        where pe.persion_id = #{uid}
+        <if test="newsql != null  and newsql != '' ">
+            <choose>
+                <when test="newsql == '00' ">
+                    and s.state = 6
+                </when>
+                <when test="newsql == '01'">
+                    and s.state in (1,2,3,4)
+                </when>
+                <when test="newsql == '02'">
+                    and s.state in (7,8,9,10)
+                </when>
+            </choose>
+        </if>
+
+    </select>
 
     <select id="selectSciHorizontalApplyList" parameterType="SciHorizontalApply" resultMap="SciHorizontalApplyResult" >
         <include refid="selectSciHorizontalApplyVo"/>
         where state in (1,2,3,4,5)
         <!--            <if test="userId != null "> and user_id = #{userId}</if>-->
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
-
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
         <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>
@@ -57,14 +79,14 @@
     </select>
 
     <select id="selectSciHorizontalApplyListByJYS" parameterType="SciHorizontalApply" resultMap="SciHorizontalApplyResult">
-        select  #{uid} uid, s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,  s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.contract, s.filing, s.state
-        from sci_horizontal_apply s left join sys_user u on  s.user_id=u.user_id
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,s.party_A,s.party_B, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, s.signing_data, s.validity_Date,  concat( s.amount,'万') amount, s.contract, s.filing, s.state
+        from sci_horizontal_apply s
+        left join sys_user u on  s.user_id=u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
-        where s.state in (1,3,4,5)
+        where s.state  = 1
         <!--            <if test="userId != null "> and user_id = #{userId}</if>-->
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
-
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
         <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>
@@ -73,14 +95,14 @@
     </select>
 
     <select id="selectSciHorizontalApplyListByKYC" parameterType="SciHorizontalApply" resultMap="SciHorizontalApplyResult">
-        select  #{uid} uid, s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,  s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.contract, s.filing, s.state
-        from sci_horizontal_apply s left join sys_user u on  s.user_id=u.user_id
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,s.party_A,s.party_B, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, s.signing_data, s.validity_Date,  concat( s.amount,'万') amount, s.contract, s.filing, s.state
+        from sci_horizontal_apply s
+        left join sys_user u on  s.user_id=u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
-        where s.state in (2,3,4,5)
+        where s.state  = 2
         <!--            <if test="userId != null "> and user_id = #{userId}</if>-->
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
-
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
         <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>
@@ -88,8 +110,9 @@
     </select>
 
     <select id="selectSciHorizontalApplyListByOverApply" parameterType="SciHorizontalApply" resultMap="SciHorizontalApplyResult">
-        select  #{uid} uid, s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,  s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.contract, s.filing, s.state
-        from sci_horizontal_apply s left join sys_user u on  s.user_id=u.user_id
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,s.party_A,s.party_B,s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, s.signing_data, s.validity_Date,  concat( s.amount,'万') amount, s.contract, s.filing, s.state
+        from sci_horizontal_apply s
+        left join sys_user u on  s.user_id=u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
         where s.state in(7,8,9,10)
@@ -103,11 +126,12 @@
         order  by s.createtime desc
     </select>
     <select id="selectSciHorizontalApplyListByOverApplyJYS" parameterType="SciHorizontalApply" resultMap="SciHorizontalApplyResult">
-        select  #{uid} uid, s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,  s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.contract, s.filing, s.state
-        from sci_horizontal_apply s left join sys_user u on  s.user_id=u.user_id
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,s.party_A,s.party_B,s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, s.signing_data, s.validity_Date,  concat( s.amount,'万') amount, s.contract, s.filing, s.state
+        from sci_horizontal_apply s
+        left join sys_user u on  s.user_id=u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
-        where s.state in(7,9)
+        where s.state = 7
         <!--            <if test="userId != null "> and user_id = #{userId}</if>-->
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
 
@@ -118,11 +142,12 @@
         order  by s.createtime desc
     </select>
     <select id="selectSciHorizontalApplyListByOverApplyKYC" parameterType="SciHorizontalApply" resultMap="SciHorizontalApplyResult">
-        select  #{uid} uid, s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,  s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.contract, s.filing, s.state
-        from sci_horizontal_apply s left join sys_user u on  s.user_id=u.user_id
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type, s.party_A,s.party_B,s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, s.signing_data, s.validity_Date,  concat( s.amount,'万') amount, s.contract, s.filing, s.state
+        from sci_horizontal_apply s
+        left join sys_user u on  s.user_id=u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
-        where s.state in(8,10)
+        where s.state = 8
         <!--            <if test="userId != null "> and user_id = #{userId}</if>-->
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
 
@@ -135,8 +160,27 @@
 
 
     <select id="selectSciHorizontalApplyListByOVER" parameterType="SciHorizontalApply" resultMap="SciHorizontalApplyResult">
-        select  #{uid} uid, s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,  s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.contract, s.filing, s.state
-        from sci_horizontal_apply s left join sys_user u on  s.user_id=u.user_id
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,s.party_A,s.party_B, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, s.signing_data, s.validity_Date,  concat( s.amount,'万') amount, s.contract, s.filing, s.state
+        from sci_horizontal_apply s
+        left join sys_user u on  s.user_id=u.user_id
+        left join sys_dept d on u.dept_id = d.dept_id
+        left join sys_dept p on d.parent_id =p.dept_id
+        where s.state = 6
+        <!--            <if test="userId != null "> and user_id = #{userId}</if>-->
+        <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
+
+        <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+        <if test="state != null  and state != ''"> and state = #{state}</if>
+        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>
+        <!-- 数据范围过滤 -->
+        ${params.dataScope}
+        order  by createtime desc
+    </select>
+
+    <select id="selectSciHorizontalApplyListByOVERJYSKYC" parameterType="SciHorizontalApply" resultMap="SciHorizontalApplyResult">
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,s.party_A,s.party_B,s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, s.signing_data, s.validity_Date,  concat( s.amount,'万') amount, s.contract, s.filing, s.state
+        from sci_horizontal_apply s
+        left join sys_user u on  s.user_id=u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
         where s.state = 6
@@ -155,7 +199,7 @@
 
 
     <select id="selectSciHorizontalApplyById" parameterType="Integer" resultMap="SciHorizontalApplyResult">
-        select s.id,u.user_name userName, s.user_id, s.top_name, s.top_type,  s.signing_data, s.validity_Date,s.first_person_id,  s.second_person_id, s.third_person_id, s.fourth_person_id,  s.amount, s.contract, s.filing,s.filingurl,s.agreeurl ,s.state
+        select s.id,u.user_name userName, s.user_id, s.top_name, s.top_type,s.party_A,s.party_B,  s.signing_data, s.validity_Date,s.first_person_id,  s.second_person_id, s.third_person_id, s.fourth_person_id,  s.amount, s.contract, s.filing,s.filingurl,s.agreeurl ,s.state
         from sci_horizontal_apply s  left join sys_user u on  s.user_id=u.user_id
         where s.id = #{id}
 
@@ -255,5 +299,19 @@
         update sci_horizontal_apply set state = #{state} where id = #{id}
     </update>
     
+    <insert id="insertPersion" useGeneratedKeys="true" keyProperty="id">
+        insert into sci_persion
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="persionid != null">persion_id,</if>
+            <if test="applyid != null">apply_id,</if>
+            <if test="ranking != null">ranking</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="persionid != null">#{persionid},</if>
+            <if test="applyid != null">#{applyid},</if>
+            <if test="ranking != null">#{ranking},</if>
+        </trim>
+    </insert>
+
 
 </mapper>
