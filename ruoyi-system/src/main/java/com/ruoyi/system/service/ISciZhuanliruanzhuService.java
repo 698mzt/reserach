@@ -1,6 +1,8 @@
 package com.ruoyi.system.service;
 
 import java.util.List;
+
+import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.system.domain.SciZhuanliruanzhu;
 
 /**
@@ -58,4 +60,17 @@ public interface ISciZhuanliruanzhuService
      * @return 结果
      */
     public int deleteSciZhuanliruanzhuById(Integer id);
+
+
+
+    int hxPass(String id,Long uid,String urlFlag);
+    int hxover(String id,Long uid,String urlFlag);
+
+    int hxBh(String id,Long uid, String remark,String urlFlag);
+    int hxoverBh(String id, Long userId, String remark, String urlFlag);
+
+
+
+
+
 }

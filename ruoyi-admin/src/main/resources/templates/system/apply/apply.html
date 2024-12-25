@@ -508,7 +508,7 @@
                     align: 'center',
                     formatter: function(value, row, index) {
                         var actions = [];
-
+console.log(row)
                         if(row.state == 7 ){
                             if(row.userId == row.uid){
                                 actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"> <i class="fa fa-remove"></i>删除</a>');

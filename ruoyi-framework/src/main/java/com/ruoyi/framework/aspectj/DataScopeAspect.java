@@ -105,7 +105,7 @@ public class DataScopeAspect
             }
             if (DATA_SCOPE_ALL.equals(dataScope))
             {
-                sqlString = new StringBuilder();
+//                sqlString = new StringBuilder();
                 conditions.add(dataScope);
                 break;
             }
