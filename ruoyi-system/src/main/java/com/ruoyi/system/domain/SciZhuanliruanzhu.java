@@ -18,6 +18,38 @@ public class SciZhuanliruanzhu extends BaseEntity
     private static final long serialVersionUID = 1L;
 
 
+    public String getUrlFlag() {
+        return urlFlag;
+    }
+
+    public void setUrlFlag(String urlFlag) {
+        this.urlFlag = urlFlag;
+    }
+
+    private String urlFlag;
+
+    public String getYname() {
+        return yname;
+    }
+
+    public void setYname(String yname) {
+        this.yname = yname;
+    }
+
+    private String yname;
+
+
+    public String getDname() {
+        return dname;
+    }
+
+    public void setDname(String dname) {
+        this.dname = dname;
+    }
+
+    private String dname;
+
+
     public String getUserName() {
         return userName;
     }

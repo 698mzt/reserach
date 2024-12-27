@@ -3,6 +3,8 @@ package com.ruoyi.system.controller;
 import java.util.List;
 
 import com.ruoyi.common.core.domain.entity.SysUser;
+import com.ruoyi.system.domain.SciHorizontalApply;
+import com.ruoyi.system.domain.SciHorizontalPiyue;
 import com.ruoyi.system.service.ISysUserService;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -150,6 +152,33 @@ public class SciZhuanliruanzhuController extends BaseController
     {
         return toAjax(sciZhuanliruanzhuService.deleteSciZhuanliruanzhuByIds(ids));
     }
+
+
+
+//    @RequiresPermissions("system:zhuanliruanzhu:process","system:zhuanliruanzhu:info")
+    @RequiresPermissions(value={"system:zhuanliruanzhu:process","system:zhuanliruanzhu:info"},logical= Logical.OR)
+    @GetMapping("/detail/{id}/{urlFlag}")
+    public String detail(@PathVariable("id") Integer id,@PathVariable("urlFlag") String urlFlag, ModelMap mmap)
+    {
+        SciZhuanliruanzhu sciZhuanliruanzhu = sciZhuanliruanzhuService.selectSciZhuanliruanzhuById(id);
+        List<SysUser> userList1 =  userService.selectAllUser();
+        sciZhuanliruanzhu.setUrlFlag(urlFlag);
+        mmap.put("sysUsers1",userList1);
+        mmap.put("sciZhuanliruanzhu", sciZhuanliruanzhu);
+        return prefix + "/detail";
+    }
+
+
+//    @RequiresPermissions("system:apply:edit")
+//    @PostMapping("/bhyy/{kid}")
+//    @ResponseBody
+//    public TableDataInfo bhyy(@PathVariable("kid")Integer kid)
+//    {
+//        SciHorizontalPiyue ob = new SciHorizontalPiyue();
+//        ob.setHxktId(kid);
+//        List<SciHorizontalPiyue> list = piyueService.selectSciHorizontalPiyueList(ob);
+//        return getDataTable(list);
+//    }
 
 
 
