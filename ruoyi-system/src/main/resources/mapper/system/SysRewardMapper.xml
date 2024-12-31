@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.SysRewardMapper">
+    
+    <resultMap type="SysReward" id="SysRewardResult">
+        <result property="id"    column="id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="rewardName"    column="reward_name"    />
+        <result property="rewardDanwei"    column="reward_danwei"    />
+        <result property="rewardLeixing"    column="reward_leixing"    />
+        <result property="rewardWenjian"    column="reward_wenjian"    />
+        <result property="rewardTime"    column="reward_time"    />
+        <result property="rewardFenlei"    column="reward_fenlei"    />
+        <result property="rewardDengji"    column="reward_dengji"    />
+        <result property="rewardPaiming"    column="reward_paiming"    />
+        <result property="rewardJibie"    column="reward_jibie"    />
+    </resultMap>
+
+    <sql id="selectSysRewardVo">
+        select id, user_id, reward_name, reward_danwei, reward_leixing, reward_wenjian, reward_time, reward_fenlei, reward_dengji, reward_paiming, reward_jibie from sys_reward
+    </sql>
+
+    <select id="selectSysRewardList" parameterType="SysReward" resultMap="SysRewardResult">
+        <include refid="selectSysRewardVo"/>
+        <where>  
+            <if test="userId != null "> and user_id = #{userId}</if>
+            <if test="rewardName != null  and rewardName != ''"> and reward_name like concat('%', #{rewardName}, '%')</if>
+            <if test="rewardDanwei != null  and rewardDanwei != ''"> and reward_danwei = #{rewardDanwei}</if>
+            <if test="rewardLeixing != null  and rewardLeixing != ''"> and reward_leixing = #{rewardLeixing}</if>
+            <if test="rewardWenjian != null  and rewardWenjian != ''"> and reward_wenjian = #{rewardWenjian}</if>
+            <if test="rewardTime != null "> and reward_time = #{rewardTime}</if>
+            <if test="rewardFenlei != null  and rewardFenlei != ''"> and reward_fenlei = #{rewardFenlei}</if>
+            <if test="rewardDengji != null  and rewardDengji != ''"> and reward_dengji = #{rewardDengji}</if>
+            <if test="rewardPaiming != null  and rewardPaiming != ''"> and reward_paiming = #{rewardPaiming}</if>
+            <if test="rewardJibie != null  and rewardJibie != ''"> and reward_jibie = #{rewardJibie}</if>
+        </where>
+    </select>
+    
+    <select id="selectSysRewardById" parameterType="Long" resultMap="SysRewardResult">
+        <include refid="selectSysRewardVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertSysReward" parameterType="SysReward" useGeneratedKeys="true" keyProperty="id">
+        insert into sys_reward
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">user_id,</if>
+            <if test="rewardName != null and rewardName != ''">reward_name,</if>
+            <if test="rewardDanwei != null and rewardDanwei != ''">reward_danwei,</if>
+            <if test="rewardLeixing != null and rewardLeixing != ''">reward_leixing,</if>
+            <if test="rewardWenjian != null and rewardWenjian != ''">reward_wenjian,</if>
+            <if test="rewardTime != null">reward_time,</if>
+            <if test="rewardFenlei != null and rewardFenlei != ''">reward_fenlei,</if>
+            <if test="rewardDengji != null and rewardDengji != ''">reward_dengji,</if>
+            <if test="rewardPaiming != null and rewardPaiming != ''">reward_paiming,</if>
+            <if test="rewardJibie != null and rewardJibie != ''">reward_jibie,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">#{userId},</if>
+            <if test="rewardName != null and rewardName != ''">#{rewardName},</if>
+            <if test="rewardDanwei != null and rewardDanwei != ''">#{rewardDanwei},</if>
+            <if test="rewardLeixing != null and rewardLeixing != ''">#{rewardLeixing},</if>
+            <if test="rewardWenjian != null and rewardWenjian != ''">#{rewardWenjian},</if>
+            <if test="rewardTime != null">#{rewardTime},</if>
+            <if test="rewardFenlei != null and rewardFenlei != ''">#{rewardFenlei},</if>
+            <if test="rewardDengji != null and rewardDengji != ''">#{rewardDengji},</if>
+            <if test="rewardPaiming != null and rewardPaiming != ''">#{rewardPaiming},</if>
+            <if test="rewardJibie != null and rewardJibie != ''">#{rewardJibie},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSysReward" parameterType="SysReward">
+        update sys_reward
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="rewardName != null and rewardName != ''">reward_name = #{rewardName},</if>
+            <if test="rewardDanwei != null and rewardDanwei != ''">reward_danwei = #{rewardDanwei},</if>
+            <if test="rewardLeixing != null and rewardLeixing != ''">reward_leixing = #{rewardLeixing},</if>
+            <if test="rewardWenjian != null and rewardWenjian != ''">reward_wenjian = #{rewardWenjian},</if>
+            <if test="rewardTime != null">reward_time = #{rewardTime},</if>
+            <if test="rewardFenlei != null and rewardFenlei != ''">reward_fenlei = #{rewardFenlei},</if>
+            <if test="rewardDengji != null and rewardDengji != ''">reward_dengji = #{rewardDengji},</if>
+            <if test="rewardPaiming != null and rewardPaiming != ''">reward_paiming = #{rewardPaiming},</if>
+            <if test="rewardJibie != null and rewardJibie != ''">reward_jibie = #{rewardJibie},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteSysRewardById" parameterType="Long">
+        delete from sys_reward where id = #{id}
+    </delete>
+
+    <delete id="deleteSysRewardByIds" parameterType="String">
+        delete from sys_reward where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

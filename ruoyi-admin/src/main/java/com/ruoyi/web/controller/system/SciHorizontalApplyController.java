@@ -2,6 +2,8 @@ package com.ruoyi.web.controller.system;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import com.ruoyi.common.core.domain.entity.SysRole;
 import com.ruoyi.common.core.domain.entity.SysUser;
@@ -79,12 +81,13 @@ public class SciHorizontalApplyController extends BaseController
             }
         }
         sciHorizontalApply.setRole(role);
+        sciHorizontalApply.setTableId(tableId);
         List<SciHorizontalApply> list = new ArrayList<>();
 //        科研处
         if(role.equals("sci_tesearch")){
             switch (tableId){
                 case "bootstrap-table0":
-                    list = sciHorizontalApplyService.selectSciHorizontalApplyListByOVER(sciHorizontalApply);
+                    list = sciHorizontalApplyService.selectSciHorizontalApplyListByOVERJYSKYC(sciHorizontalApply);
                     break;
                 case "bootstrap-table1":
                     list = sciHorizontalApplyService.selectSciHorizontalApplyListByKYC(sciHorizontalApply);
@@ -98,7 +101,7 @@ public class SciHorizontalApplyController extends BaseController
         else if(role.equals("research")){
             switch (tableId) {
                 case "bootstrap-table0":
-                    list = sciHorizontalApplyService.selectSciHorizontalApplyListByOVER(sciHorizontalApply);
+                    list = sciHorizontalApplyService.selectSciHorizontalApplyListByOVERJYSKYC(sciHorizontalApply);
                     break;
                 case "bootstrap-table1":
                     list = sciHorizontalApplyService.selectSciHorizontalApplyListByJYS(sciHorizontalApply);
@@ -108,6 +111,7 @@ public class SciHorizontalApplyController extends BaseController
                     break;
             }
         }
+//        教师
         else{
             switch (tableId) {
                 case "bootstrap-table0":
@@ -122,8 +126,25 @@ public class SciHorizontalApplyController extends BaseController
             }
         }
 
-        TableDataInfo data= getDataTable(list);
 
+        List<SciHorizontalApply> list1 = new ArrayList<>();
+        list1 = sciHorizontalApplyService.selectOtherListByUid(sciHorizontalApply);
+        list.addAll(list1);
+
+
+        // 去重操作
+        List<SciHorizontalApply> distinctList = list.stream()
+                .collect(Collectors.collectingAndThen(
+                        Collectors.toMap(
+                                SciHorizontalApply::getTopName,
+                                Function.identity(),
+                                (existing, replacement) -> existing
+                        ),
+                        map -> new ArrayList<>(map.values())
+                ));
+        TableDataInfo data= getDataTable(distinctList);
+
+//        TableDataInfo data= getDataTable(list);
         return data;
     }
 
@@ -206,8 +227,8 @@ public class SciHorizontalApplyController extends BaseController
     {
         String state = sciHorizontalApply.getState();
         String id = String.valueOf(sciHorizontalApply.getId());
-        sciHorizontalApplyService.overApply(id, state);
-        return toAjax(sciHorizontalApplyService.insertSciHorizontalOverApply(sciHorizontalApply));
+//        sciHorizontalApplyService.overApply(id, state);
+        return toAjax(sciHorizontalApplyService.updateSciHorizontalOverApply(sciHorizontalApply));
     }
 
 
@@ -233,6 +254,19 @@ public class SciHorizontalApplyController extends BaseController
         mmap.put("sysUsers1",userList1);
         mmap.put("sciHorizontalApply", sciHorizontalApply);
         return prefix + "/overdetail";
+    }
+
+    /**已结项查看 */
+    @RequiresPermissions("system:apply:info")
+    @GetMapping("/overView/{id}/{urlFlag}")
+    public String overView(@PathVariable("id") Integer id,@PathVariable("urlFlag") String urlFlag, ModelMap mmap)
+    {
+        SciHorizontalApply sciHorizontalApply = sciHorizontalApplyService.selectSciHorizontalApplyById(id);
+        List<SysUser> userList1 =  userService.selectAllUser();
+        sciHorizontalApply.setUrlFlag(urlFlag);
+        mmap.put("sysUsers1",userList1);
+        mmap.put("sciHorizontalApply", sciHorizontalApply);
+        return prefix + "/overView";
     }
 
 
@@ -292,6 +326,27 @@ public class SciHorizontalApplyController extends BaseController
     @PostMapping("/edit")
     @ResponseBody
     public AjaxResult editSave(SciHorizontalApply sciHorizontalApply)
+    {
+        sciHorizontalApply.setState("1");
+        return toAjax(sciHorizontalApplyService.updateSciHorizontalApply(sciHorizontalApply));
+    }
+
+    @RequiresPermissions("system:apply:edit")
+    @GetMapping("/overedit/{id}")
+    public String overedit(@PathVariable("id") Integer id, ModelMap mmap)
+    {
+        SciHorizontalApply sciHorizontalApply = sciHorizontalApplyService.selectSciHorizontalApplyById(id);
+        List<SysUser> userList1 =  userService.selectAllUser();
+        mmap.put("sysUsers1",userList1);
+        mmap.put("sciHorizontalApply", sciHorizontalApply);
+        return prefix + "/overedit";
+    }
+
+    @RequiresPermissions("system:apply:edit")
+    @Log(title = "更新横向课题", businessType = BusinessType.UPDATE)
+    @PostMapping("/overedit")
+    @ResponseBody
+    public AjaxResult overeditSave(SciHorizontalApply sciHorizontalApply)
     {
         sciHorizontalApply.setState("1");
         return toAjax(sciHorizontalApplyService.updateSciHorizontalApply(sciHorizontalApply));

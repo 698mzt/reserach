@@ -1,7 +1,11 @@
 package com.ruoyi.system.mapper;
 
 import java.util.List;
+
+import com.ruoyi.common.core.domain.entity.SysUser;
+import com.ruoyi.system.domain.SciHorizontalPiyue;
 import com.ruoyi.system.domain.SciZhuanliruanzhu;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * 专利软著Mapper接口
@@ -58,4 +62,15 @@ public interface SciZhuanliruanzhuMapper
      * @return 结果
      */
     public int deleteSciZhuanliruanzhuByIds(String[] ids);
+
+
+    int hxPass(@Param("id") String id, @Param("state") String state);
+    int hxover(@Param("id") String id,@Param("state") String state);
+
+    List<SysUser> selectUserList(@Param("user") SysUser user);
+
+
+//    void setUid(Long userId);
+
+//    void insertSciHorizontalPiyue(SciHorizontalPiyue sciHorizontalPiyue);
 }

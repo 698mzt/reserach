@@ -112,6 +112,43 @@ public class SysUser extends BaseEntity
     /** 岗位组 */
     private Long[] postIds;
 
+    private String teaZhicheng;
+    private String socialTitle;
+    private String adminstrativeTitle;
+    private String reserchDirection;
+
+    public String getTeaZhicheng() {
+        return teaZhicheng;
+    }
+
+    public void setTeaZhicheng(String teaZhicheng) {
+        this.teaZhicheng = teaZhicheng;
+    }
+
+    public String getSocialTitle() {
+        return socialTitle;
+    }
+
+    public void setSocialTitle(String socialTitle) {
+        this.socialTitle = socialTitle;
+    }
+
+    public String getAdminstrativeTitle() {
+        return adminstrativeTitle;
+    }
+
+    public void setAdminstrativeTitle(String adminstrativeTitle) {
+        this.adminstrativeTitle = adminstrativeTitle;
+    }
+
+    public String getReserchDirection() {
+        return reserchDirection;
+    }
+
+    public void setReserchDirection(String reserchDirection) {
+        this.reserchDirection = reserchDirection;
+    }
+
     public SysUser()
     {
 

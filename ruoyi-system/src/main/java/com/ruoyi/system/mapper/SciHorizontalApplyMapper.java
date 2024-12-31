@@ -2,6 +2,7 @@ package com.ruoyi.system.mapper;
 
 import java.util.List;
 import com.ruoyi.system.domain.SciHorizontalApply;
+import com.ruoyi.system.domain.SciHorizontalPersion;
 import org.apache.ibatis.annotations.Param;
 
 /**
@@ -42,7 +43,7 @@ public interface SciHorizontalApplyMapper
      * @param sciHorizontalApply 横向课题
      * @return 结果
      */
-    public int insertSciHorizontalOverApply(SciHorizontalApply sciHorizontalApply);
+    public int updateSciHorizontalOverApply(SciHorizontalApply sciHorizontalApply);
 
     /**
      * 修改横向课题
@@ -61,6 +62,14 @@ public interface SciHorizontalApplyMapper
     public int deleteSciHorizontalApplyById(Integer id);
 
     /**
+     * 删除横向课题另一个表信息
+     *
+     * @param id 横向课题主键
+     * @return 结果
+     */
+    public int deleteSciHorizontalOverApplyById(Integer id);
+
+    /**
      * 批量删除横向课题
      *
      * @param ids 需要删除的数据主键集合
@@ -69,7 +78,6 @@ public interface SciHorizontalApplyMapper
     public int deleteSciHorizontalApplyByIds(String[] ids);
 
     int hxPass(@Param("id") String id,@Param("state") String state);
-    int hxover(@Param("id") String id,@Param("state") String state);
 
     List<SciHorizontalApply> selectSciHorizontalApplyListByKYC(SciHorizontalApply sciHorizontalApply);
 
@@ -83,4 +91,10 @@ public interface SciHorizontalApplyMapper
     List<SciHorizontalApply> selectSciHorizontalApplyListByOVER(SciHorizontalApply sciHorizontalApply);
 
     int overApply(@Param("id") String id,@Param("state") String state);
+
+    int insertPersion(SciHorizontalPersion sciHorizontalPersion);
+
+    List<SciHorizontalApply> selectSciHorizontalApplyListByOVERJYSKYC(SciHorizontalApply sciHorizontalApply);
+
+    List<SciHorizontalApply> selectOtherListByUid(SciHorizontalApply sciHorizontalApply);
 }
