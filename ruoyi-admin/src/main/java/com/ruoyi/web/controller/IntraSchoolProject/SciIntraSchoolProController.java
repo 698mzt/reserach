@@ -101,7 +101,8 @@ public class SciIntraSchoolProController extends BaseController {
                     list = sciIntraSchProApplyService.sel_IntraSchPro_closure_jy(sciIntraSchoolPro);
                     break;
             }
-        } else {
+        }
+        else {
             switch (tableId) {
                 case "bootstrap-table0":
                     list = sciIntraSchProApplyService.sel_my_IntraSchPro_isOVER(sciIntraSchoolPro);
@@ -274,6 +275,7 @@ public class SciIntraSchoolProController extends BaseController {
     @ResponseBody
     public AjaxResult hxover(String id,String urlFlag)
     {
+        System.out.println("SciIntraSchoolProController.hxover"+"id="+id+" urlFlag="+urlFlag);
         return toAjax(sciIntraSchProApplyService.sch_hxover(id,getUserId(),urlFlag));
     }
 
