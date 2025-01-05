@@ -2,6 +2,7 @@ package com.ruoyi.system.mapper;
 
 import java.util.List;
 import com.ruoyi.system.domain.SciHorizontalApply;
+import com.ruoyi.system.domain.SciHorizontalPersion;
 import org.apache.ibatis.annotations.Param;
 
 /**
@@ -77,7 +78,6 @@ public interface SciHorizontalApplyMapper
     public int deleteSciHorizontalApplyByIds(String[] ids);
 
     int hxPass(@Param("id") String id,@Param("state") String state);
-    int hxover(@Param("id") String id,@Param("state") String state);
 
     List<SciHorizontalApply> selectSciHorizontalApplyListByKYC(SciHorizontalApply sciHorizontalApply);
 
@@ -91,4 +91,10 @@ public interface SciHorizontalApplyMapper
     List<SciHorizontalApply> selectSciHorizontalApplyListByOVER(SciHorizontalApply sciHorizontalApply);
 
     int overApply(@Param("id") String id,@Param("state") String state);
+
+    int insertPersion(SciHorizontalPersion sciHorizontalPersion);
+
+    List<SciHorizontalApply> selectSciHorizontalApplyListByOVERJYSKYC(SciHorizontalApply sciHorizontalApply);
+
+    List<SciHorizontalApply> selectOtherListByUid(SciHorizontalApply sciHorizontalApply);
 }

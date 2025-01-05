@@ -516,6 +516,16 @@ public class SciHorizontalApplyVerticalController extends BaseController {
         return toAjax(sciHorizontalApplyVerticalService.overBh(id,getUserId(),remark,urlFlag));
     }
 
-
+    /** 查看 */
+    @RequiresPermissions("system:apply_vertical:info")
+    @GetMapping("/overView/{id}/{urlFlag}")
+    public String overView(@PathVariable("id") Integer id, @PathVariable("urlFlag") String urlFlag,ModelMap mmap)
+    {
+        SciHorizontalApplyVertical sciHorizontalApplyVertical = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalById(id);
+        List<SysUser> userList1 =  userService.selectAllUser();
+        mmap.put("sysUsers1",userList1);
+        mmap.put("sciHorizontalApplyVertical", sciHorizontalApplyVertical);
+        return prefix + "/overView";
+    }
 
 }

@@ -17,6 +17,70 @@ public class SciZhuanliruanzhu extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
 
+
+    public String getUrlFlag() {
+        return urlFlag;
+    }
+
+    public void setUrlFlag(String urlFlag) {
+        this.urlFlag = urlFlag;
+    }
+
+    private String urlFlag;
+
+    public String getYname() {
+        return yname;
+    }
+
+    public void setYname(String yname) {
+        this.yname = yname;
+    }
+
+    private String yname;
+
+
+    public String getDname() {
+        return dname;
+    }
+
+    public void setDname(String dname) {
+        this.dname = dname;
+    }
+
+    private String dname;
+
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    private String  userName;
+
+    public Integer getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Integer userId) {
+        this.userId = userId;
+    }
+
+    private Integer userId;
+
+
+    public Long getUid() {
+        return uid;
+    }
+
+    public void setUid(Long uid) {
+        this.uid = uid;
+    }
+
+    private Long uid;
+
     /**  */
     private Integer id;
 
@@ -81,6 +145,16 @@ public class SciZhuanliruanzhu extends BaseEntity
     /** 科研分 */
     @Excel(name = "科研分")
     private Long keyanfen;
+
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
+    }
+
+    private String state;
 
     public void setId(Integer id) 
     {

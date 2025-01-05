@@ -12,7 +12,7 @@
             <ul class="nav nav-tabs">
                 <li class="active"><a data-toggle="tab" href="#tab-0" onclick="$.table.refresh('bootstrap-table0')" aria-expanded="true">已完结</a>
                 </li>
-                <li class=""><a data-toggle="tab" href="#tab-1" onclick="$.table.refresh('bootstrap-table1')" aria-expanded="false"> 开题申请</a>
+                <li class=""><a data-toggle="tab" href="#tab-1" onclick="$.table.refresh('bootstrap-table1')" aria-expanded="false"> 立项</a>
                 </li>
                 <li class=""><a data-toggle="tab" href="#tab-4" onclick="$.table.refresh('bootstrap-table4')" aria-expanded="false"> 开题</a>
                 </li>
@@ -310,7 +310,7 @@
             toolbar:"toolbar0",
             url:getUrl($('table').attr('id')),
             createUrl: prefix + "/add",
-            detailUrl: prefix + "/overdetail/{id}",
+            detailUrl: prefix + "/overView/{id}",
             updateUrl: prefix + "/edit/{id}",
             removeUrl: prefix + "/remove",
             exportUrl: prefix + "/export",
@@ -412,7 +412,7 @@
             updateUrl: prefix + "/edit/{id}",
             removeUrl: prefix + "/remove",
             exportUrl: prefix + "/export",
-            modalName: "纵向课题申请",
+            modalName: "纵向课题立项申请",
             sortOrder: "asc",
             columns: [{
                 field: 'number',

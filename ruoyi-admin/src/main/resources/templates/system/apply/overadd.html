@@ -66,13 +66,15 @@
                 </div>
             </div>
 
-            <div class="col-xs-6">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">结项日期：</label>
-                    <div class="col-sm-8">
-                        <div class="input-group date">
-                            <input readonly autocomplete="off" name="validityDate" th:field="*{validityDate}" th:value="${#dates.format(signingData, 'yyyy-MM-dd')}" class="form-control" placeholder="yyyy-MM-dd" type="text" required>
-                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+            <div class="row">
+                <div class="col-xs-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label is-required">结项日期：</label>
+                        <div class="col-sm-8">
+                            <div class="input-group date">
+                                <input autocomplete="off" name="validityDate" class="form-control" placeholder="yyyy-MM-dd" type="text" required>
+                                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -170,10 +172,21 @@
     });
 
     function submitHandler() {
+        if ($.validate.form()){
+            if($("input[name='contract']").val()=="")
+                return $.modal.alertError("请上传合同");
+            if($("input[name='filing']").val()=="")
+                return $.modal.alertError("请上传备案表");
             $.operate.saveTab(prefix + "/overadd", $('#form-apply-add').serialize());
+        }
+
     }
 
-
+    $("input[name='validityDate']").datetimepicker({
+        format: "yyyy-mm-dd",
+        minView: "month",
+        autoclose: true
+    });
 
 
     $(".file-upload").fileinput({
