@@ -1,3 +1,4 @@
+<!--校内横向课题管理的页面，包含已完结，立项申请，结项申请的三个tab页面-->
 <!DOCTYPE html>
 <html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
 <head>
@@ -428,6 +429,7 @@
                     title: '操作',
                     align: 'center',
                     formatter: function(value, row, index) {
+                        console.log("roe=",row)
                         var actions = [];
 
                         if(row.state == 1 ){
@@ -438,19 +440,29 @@
 
                             actions.push('<a  class="btn btn-success btn-xs ' + proFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id+'/pro' + '\')"><i class="fa fa-edit"></i>批阅</a> ');
 
-                        }else
-                        if((row.state == 3 || row.state == 5)  && row.userId == row.uid){
+                        }else if((row.state == 3 || row.state == 5)  && row.userId == row.uid){/*被俩退回了，还是自己的*/
                             actions.push('<a   class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> <i class="fa fa-edit"></i>更新</a> ');
-                        }else if(row.state ==  2){
-
+                        }else if(row.state ==  2){/*教研室通过的*/
+                            //console.log("this state is 2")
                             actions.push('<a  class="btn btn-success btn-xs ' + hechaFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/hecha'+ '\')"><i class="fa fa-edit"></i>核查</a> ');
+                            //待科研处处理，不能查看
+                            /*if(row.secondPersonId == row.uid || row.thirdPersonId == row.uid || row.fourthPersonId == row.uid ) {/!*如果不是自己的项目但是自己是负责人*!/
+                                //console.log("this state is 2 and i in this")
+                                actions.push('<a  class="btn btn-success btn-xs ' + editInfo + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
+                            }*/
                         }else
-                        if(row.state ==  4){
+                        if(row.state ==  4){/*科研处通过*/
+                            console.log("this is 4 ")
                             if(row.userId == row.uid){
+                                console.log("this is 4 and this is my")
                                 actions.push('<a  class="btn btn-success btn-xs ' + createFlag + '" href="javascript:void(0)" onclick="$.operate.overTab(\'' + row.id +'\')"><i class="fa fa-edit"></i>申请结项</a> ');
                                 actions.push('<a  class="btn btn-success btn-xs ' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
 
-                            }}
+                            }else if(row.secondPersonId == row.uid || row.thirdPersonId == row.uid || row.fourthPersonId == row.uid) {/*如果不是自己的项目但是自己是负责人*/
+                                actions.push('<a  class="btn btn-success btn-xs ' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
+                            }
+                        }
+
                         return actions.join('');
                     }
                 }]

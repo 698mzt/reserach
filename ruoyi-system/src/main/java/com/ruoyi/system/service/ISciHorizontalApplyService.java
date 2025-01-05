@@ -40,13 +40,6 @@ public interface ISciHorizontalApplyService
 
 
 
-    /**
-     * 结项横向课题
-     *
-     * @param sciHorizontalApply 横向课题
-     * @return 结果
-     */
-    public int updateSciHorizontalOverApply(SciHorizontalApply sciHorizontalApply);
 
     /**
      * 修改横向课题
@@ -91,17 +84,21 @@ public interface ISciHorizontalApplyService
     List<SciHorizontalApply> selectSciHorizontalApplyListByJYS(SciHorizontalApply sciHorizontalApply);
 
     List<SciHorizontalApply> selectSciHorizontalApplyListByOverApply(SciHorizontalApply sciHorizontalApply);
-    List<SciHorizontalApply> selectSciHorizontalApplyListByOVERJYSKYC(SciHorizontalApply sciHorizontalApply);
+
     List<SciHorizontalApply> selectSciHorizontalApplyListByOverApplyJYS(SciHorizontalApply sciHorizontalApply);
+
     List<SciHorizontalApply> selectSciHorizontalApplyListByOverApplyKYC(SciHorizontalApply sciHorizontalApply);
 
     List<SciHorizontalApply> selectSciHorizontalApplyListByOVER(SciHorizontalApply sciHorizontalApply);
 
+    List<SciHorizontalApply> selectSciHorizontalApplyListByOVERKYC(SciHorizontalApply sciHorizontalApply);
+
     int overApply(String id, String state);
 
 
-
-
-
     List<SciHorizontalApply> selectOtherListByUid(SciHorizontalApply sciHorizontalApply);
+    //申请结项流程
+    int overSaveSciHorizontalApply(SciHorizontalApply sciHorizontalApply);
+
+    List<SciHorizontalApply> exportSciHorizontalApplyList(SciHorizontalApply sciHorizontalApply);
 }

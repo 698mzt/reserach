@@ -29,9 +29,7 @@ public class SciHorizontalApply extends BaseEntity
     private String  dname;
 
 
-    /** 申请人 */
-    @Excel(name = "申请人")
-    private String  userName;
+
 
     public String getUserName() {
         return userName;
@@ -43,29 +41,39 @@ public class SciHorizontalApply extends BaseEntity
 
     private Integer userId;
     /** 课题名称 */
-    @Excel(name = "课题名称")
+    @Excel(name = "项目名称")
     private String topName;
 
+    /** 申请人 */
+    @Excel(name = "主持人姓名")
+    private String  userName;
+    /** 甲方*/
+    @Excel(name = "甲方")
+    private String partyA;
+    /** 乙方*/
+    @Excel(name = "乙方")
+    private String partyB;
+    /** 项目金额 */
+    @Excel(name = "项目金额")
+    private String amount;
     /** 课题类型 */
     // @Excel(name = "课题类型")
     private String topType;
 
     /** 签订日期 */
-    @Excel(name = "申请日期")
+    @Excel(name = "起始时间")
     private String signingData;
-    /** 甲方*/
-    private String partyA;
-    /** 乙方*/
-    private String partyB;
-
-    private String persionId;
-    private String ranking;
-
     /** 合同有效日期 */
-    @Excel(name = "结项日期")
+    @Excel(name = "终止时间")
     private String validityDate;
 
-    @Excel(name = "申请结项日期")
+    private String persionId;
+    /** 排名 */
+    @Excel(name = "排名")
+    private String ranking;
+
+
+
     private String createtime;
 
     private String overtime;
@@ -93,9 +101,7 @@ public class SciHorizontalApply extends BaseEntity
 
 
 
-    /** 项目金额 */
-    @Excel(name = "项目金额")
-    private String amount;
+
 
     /** 合同 */
     //@Excel(name = "合同")

@@ -11,6 +11,7 @@ import com.ruoyi.system.domain.SciHorizontalPiyue;
 import com.ruoyi.system.service.ISciHorizontalPiyueService;
 import com.ruoyi.system.service.ISysUserService;
 import org.apache.shiro.authz.annotation.Logical;
+
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -87,7 +88,7 @@ public class SciHorizontalApplyController extends BaseController
         if(role.equals("sci_tesearch")){
             switch (tableId){
                 case "bootstrap-table0":
-                    list = sciHorizontalApplyService.selectSciHorizontalApplyListByOVERJYSKYC(sciHorizontalApply);
+                    list = sciHorizontalApplyService.selectSciHorizontalApplyListByOVERKYC(sciHorizontalApply);
                     break;
                 case "bootstrap-table1":
                     list = sciHorizontalApplyService.selectSciHorizontalApplyListByKYC(sciHorizontalApply);
@@ -101,7 +102,7 @@ public class SciHorizontalApplyController extends BaseController
         else if(role.equals("research")){
             switch (tableId) {
                 case "bootstrap-table0":
-                    list = sciHorizontalApplyService.selectSciHorizontalApplyListByOVERJYSKYC(sciHorizontalApply);
+                    list = sciHorizontalApplyService.selectSciHorizontalApplyListByOVER(sciHorizontalApply);
                     break;
                 case "bootstrap-table1":
                     list = sciHorizontalApplyService.selectSciHorizontalApplyListByJYS(sciHorizontalApply);
@@ -157,16 +158,22 @@ public class SciHorizontalApplyController extends BaseController
     @ResponseBody
     public AjaxResult export(SciHorizontalApply sciHorizontalApply)
     {
-        List<SciHorizontalApply> list = sciHorizontalApplyService.selectSciHorizontalApplyList(sciHorizontalApply);
+        List<SciHorizontalApply> list = sciHorizontalApplyService.exportSciHorizontalApplyList(sciHorizontalApply);
+        List<SciHorizontalApply> newList = new ArrayList<>();
         for (SciHorizontalApply apply: list ) {
-            if(apply.getState().equals("4")){
-                apply.setState("结项");
-            }else{
-                apply.setState("在研");
+            if (apply.getRanking().equals("1")){
+                apply.setRanking("第一");
+                if(apply.getState().equals("6")){
+                    apply.setState("结项");
+                }else{
+                    apply.setState("在研");
+                }
+                newList.add(apply);
             }
+
         }
         ExcelUtil<SciHorizontalApply> util = new ExcelUtil<SciHorizontalApply>(SciHorizontalApply.class);
-        return util.exportExcel(list, "横向课题数据");
+        return util.exportExcel(newList, "横向课题数据");
     }
 
     /**
@@ -179,7 +186,7 @@ public class SciHorizontalApplyController extends BaseController
         // SysUser user=getSysUser();
         List<SysUser> userList =  userService.selectAllUser();
         for (int a = 0; a<userList.size();a++) {
-            if(userList.get(a).getUserId() == getUserId()){
+            if(userList.get(a).getUserId().equals(getUserId())){
                 SysUser user = userList.get(a);
                 user.setFlag(true);
                 userList.set(a,user);
@@ -225,10 +232,7 @@ public class SciHorizontalApplyController extends BaseController
     @ResponseBody
     public AjaxResult overaddSave(SciHorizontalApply sciHorizontalApply)
     {
-        String state = sciHorizontalApply.getState();
-        String id = String.valueOf(sciHorizontalApply.getId());
-//        sciHorizontalApplyService.overApply(id, state);
-        return toAjax(sciHorizontalApplyService.updateSciHorizontalOverApply(sciHorizontalApply));
+        return toAjax(sciHorizontalApplyService.overSaveSciHorizontalApply(sciHorizontalApply));
     }
 
 
@@ -293,7 +297,6 @@ public class SciHorizontalApplyController extends BaseController
     @ResponseBody
     public AjaxResult hxBh(String id,String remark,String urlFlag)
     {
-
         return toAjax(sciHorizontalApplyService.hxBh(id,getUserId(),remark,urlFlag));
     }
     @RequiresPermissions(value={"system:apply:hecha","system:apply:process"},logical= Logical.OR)
@@ -304,6 +307,7 @@ public class SciHorizontalApplyController extends BaseController
     {
         return toAjax(sciHorizontalApplyService.hxoverBh(id,getUserId(),remark,urlFlag));
     }
+
     /**
      * 修改横向课题
      */
@@ -317,7 +321,6 @@ public class SciHorizontalApplyController extends BaseController
         mmap.put("sciHorizontalApply", sciHorizontalApply);
         return prefix + "/edit";
     }
-
     /**
      * 修改保存横向课题
      */
@@ -348,7 +351,7 @@ public class SciHorizontalApplyController extends BaseController
     @ResponseBody
     public AjaxResult overeditSave(SciHorizontalApply sciHorizontalApply)
     {
-        sciHorizontalApply.setState("1");
+        sciHorizontalApply.setState("7");
         return toAjax(sciHorizontalApplyService.updateSciHorizontalApply(sciHorizontalApply));
     }
 

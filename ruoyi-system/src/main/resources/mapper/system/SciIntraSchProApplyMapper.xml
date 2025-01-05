@@ -63,6 +63,13 @@
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
         where s.state = 6
+        AND (
+        s.user_id = #{uid}
+        OR s.first_person_id = #{uid}
+        OR s.second_person_id = #{uid}
+        OR s.third_person_id = #{uid}
+        OR s.fourth_person_id = #{uid}
+        )
         <!--            <if test="userId != null "> and user_id = #{userId}</if>-->
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
 
@@ -71,7 +78,7 @@
         <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>
 
         <!-- 数据范围过滤 -->
-        ${params.dataScope}
+        /*${params.dataScope}*/
         order  by createtime desc
     </select>
 
@@ -105,7 +112,15 @@
         from sci_IntraSchPro_apply s left join sys_user u on  s.user_id=u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
-        where s.state in (1,3)
+        /*todo:这里之前只是1，3为了查到负责人包含自己的，该成了1,2,3,4,5,之后在前端判断一下这个项目的状态，然后加一个按钮可以查看详情*/
+        where s.state in (1,2,3,4,5)
+        AND (
+        s.user_id = #{uid}
+        OR s.first_person_id = #{uid}
+        OR s.second_person_id = #{uid}
+        OR s.third_person_id = #{uid}
+        OR s.fourth_person_id = #{uid}
+        )
         <!--            <if test="userId != null "> and user_id = #{userId}</if>-->
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
 
@@ -114,7 +129,7 @@
         <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>
 
         <!-- 数据范围过滤 -->
-        ${params.dataScope}
+        /*${params.dataScope}*/
         order  by createtime desc
     </select>
     <select id="sel_IntraSchPro_approval_my" parameterType="SciIntraSchoolPro" resultMap="SciIntraSchoolProResult">
@@ -126,6 +141,13 @@
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
         where s.state in (1,2,3,4,5)
+        AND (
+        s.user_id = #{uid}
+        OR s.first_person_id = #{uid}
+        OR s.second_person_id = #{uid}
+        OR s.third_person_id = #{uid}
+        OR s.fourth_person_id = #{uid}
+        )
         <!--            <if test="userId != null "> and user_id = #{userId}</if>-->
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
 
@@ -134,7 +156,7 @@
         <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>
 
         <!-- 数据范围过滤 -->
-        ${params.dataScope}
+        /*${params.dataScope}*/
         order  by createtime desc
     </select>
 
@@ -189,6 +211,13 @@
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
         where s.state in (8,10,7,9)
+        AND (
+        s.user_id = #{uid}
+        OR s.first_person_id = #{uid}
+        OR s.second_person_id = #{uid}
+        OR s.third_person_id = #{uid}
+        OR s.fourth_person_id = #{uid}
+        )
         <!--            <if test="userId != null "> and user_id = #{userId}</if>-->
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
 
@@ -197,7 +226,7 @@
         <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>
 
         <!-- 数据范围过滤 -->
-        ${params.dataScope}
+        /*${params.dataScope}*/
         order  by createtime desc
     </select>
 
@@ -292,13 +321,13 @@
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="id != null">#{id},</if>
             <if test="filing != null and filing != ''">#{filing},</if>
-            <if test="contract != null and contract != ''">#{contract},</if>
+            <if test="contract != null and contract != 'sch_hxover'">#{contract},</if>
             <if test="createtime != null and createtime != ''">#{createtime},</if>
             <if test="state != null and state != ''">#{state},</if>
         </trim>
     </insert>
 
-    <update id="sch_hxover  " >
+    <update id="sch_hxover" >
         update sci_IntraSchPro_over set state = #{state} where appid = #{id}
     </update>
 

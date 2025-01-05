@@ -37,13 +37,7 @@ public interface SciHorizontalApplyMapper
      */
     public int insertSciHorizontalApply(SciHorizontalApply sciHorizontalApply);
 
-    /**
-     * 结项横向课题
-     *
-     * @param sciHorizontalApply 横向课题
-     * @return 结果
-     */
-    public int updateSciHorizontalOverApply(SciHorizontalApply sciHorizontalApply);
+
 
     /**
      * 修改横向课题
@@ -89,12 +83,16 @@ public interface SciHorizontalApplyMapper
 
 
     List<SciHorizontalApply> selectSciHorizontalApplyListByOVER(SciHorizontalApply sciHorizontalApply);
+    List<SciHorizontalApply> selectSciHorizontalApplyListByOVERKYC(SciHorizontalApply sciHorizontalApply);
 
     int overApply(@Param("id") String id,@Param("state") String state);
 
     int insertPersion(SciHorizontalPersion sciHorizontalPersion);
 
-    List<SciHorizontalApply> selectSciHorizontalApplyListByOVERJYSKYC(SciHorizontalApply sciHorizontalApply);
 
     List<SciHorizontalApply> selectOtherListByUid(SciHorizontalApply sciHorizontalApply);
+
+    public int deletePersion(SciHorizontalPersion sciHorizontalPersion);
+
+    List<SciHorizontalApply> exportSciHorizontalApplyList(SciHorizontalApply sciHorizontalApply);
 }

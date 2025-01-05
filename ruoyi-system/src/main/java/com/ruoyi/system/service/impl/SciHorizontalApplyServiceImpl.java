@@ -85,12 +85,12 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
     public List<SciHorizontalApply> selectSciHorizontalApplyListByOVER(SciHorizontalApply sciHorizontalApply) {
         return sciHorizontalApplyMapper.selectSciHorizontalApplyListByOVER(sciHorizontalApply);
     }
-
     @Override
-    @DataScope(deptAlias = "d", userAlias = "u")
-    public List<SciHorizontalApply> selectSciHorizontalApplyListByOVERJYSKYC(SciHorizontalApply sciHorizontalApply) {
-        return sciHorizontalApplyMapper.selectSciHorizontalApplyListByOVERJYSKYC(sciHorizontalApply);
+    @DataScope(deptAlias = "d")
+    public List<SciHorizontalApply> selectSciHorizontalApplyListByOVERKYC(SciHorizontalApply sciHorizontalApply) {
+        return sciHorizontalApplyMapper.selectSciHorizontalApplyListByOVERKYC(sciHorizontalApply);
     }
+
 
     @Override
     public int overApply(String id, String state) {
@@ -136,17 +136,7 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
     }
 
 
-    /**
-     * 结项横向课题
-     *
-     * @param sciHorizontalApply 横向课题
-     * @return 结果
-     */
-    @Override
-    public int updateSciHorizontalOverApply(SciHorizontalApply sciHorizontalApply)
-    {
-        return sciHorizontalApplyMapper.updateSciHorizontalOverApply(sciHorizontalApply);
-    }
+
 
     /**
      * 修改横向课题
@@ -157,7 +147,33 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
     @Override
     public int updateSciHorizontalApply(SciHorizontalApply sciHorizontalApply)
     {
-        return sciHorizontalApplyMapper.updateSciHorizontalApply(sciHorizontalApply);
+
+        sciHorizontalApplyMapper.updateSciHorizontalApply(sciHorizontalApply);
+        Integer id = sciHorizontalApply.getId();
+        SciHorizontalPersion sciHorizontalPersion = new SciHorizontalPersion();
+        sciHorizontalPersion.setApplyid(id);
+        sciHorizontalApplyMapper.deletePersion(sciHorizontalPersion);
+        if (StringUtils.isNotEmpty(sciHorizontalApply.getFirstPersonId())) {
+            sciHorizontalPersion.setRanking("1");
+            sciHorizontalPersion.setPersionid(sciHorizontalApply.getFirstPersonId());
+            sciHorizontalApplyMapper.insertPersion(sciHorizontalPersion);
+        }
+        if (StringUtils.isNotEmpty(sciHorizontalApply.getSecondPersonId())) {
+            sciHorizontalPersion.setRanking("2");
+            sciHorizontalPersion.setPersionid(sciHorizontalApply.getSecondPersonId());
+            sciHorizontalApplyMapper.insertPersion(sciHorizontalPersion);
+        }
+        if (StringUtils.isNotEmpty(sciHorizontalApply.getThirdPersonId())) {
+            sciHorizontalPersion.setRanking("3");
+            sciHorizontalPersion.setPersionid(sciHorizontalApply.getThirdPersonId());
+            sciHorizontalApplyMapper.insertPersion(sciHorizontalPersion);
+        }
+        if (StringUtils.isNotEmpty(sciHorizontalApply.getFourthPersonId())) {
+            sciHorizontalPersion.setRanking("4");
+            sciHorizontalPersion.setPersionid(sciHorizontalApply.getFourthPersonId());
+            sciHorizontalApplyMapper.insertPersion(sciHorizontalPersion);
+        }
+        return '1';
     }
 
     /**
@@ -222,7 +238,12 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
             state ="6";
         }
         int a =  sciHorizontalApplyMapper.hxPass(id,state);
-        System.out.println(a);
+        SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
+        sciHorizontalPiyue.setUid(uid);
+        sciHorizontalPiyue.setHxktId(Integer.valueOf(id));
+        sciHorizontalPiyue.setConcate("同意");
+        sciHorizontalPiyue.setState("通过");
+        sciHorizontalPiyueMapper.insertSciHorizontalPiyue(sciHorizontalPiyue);
         return a;
     }
 
@@ -252,7 +273,6 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
         }else if(urlFlag.equals("KYCOVER")){
             state ="10";
         }
-
         int a =  sciHorizontalApplyMapper.hxPass(id,state);
         SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
         sciHorizontalPiyue.setUid(uid);
@@ -322,6 +342,17 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
             }
         }
         return list;
+    }
+
+//     申请结项流程
+    @Override
+    public int overSaveSciHorizontalApply(SciHorizontalApply sciHorizontalApply) {
+        return sciHorizontalApplyMapper.updateSciHorizontalApply(sciHorizontalApply);
+    }
+
+    @Override
+    public List<SciHorizontalApply> exportSciHorizontalApplyList(SciHorizontalApply sciHorizontalApply) {
+        return sciHorizontalApplyMapper.exportSciHorizontalApplyList(sciHorizontalApply);
     }
 
 }
