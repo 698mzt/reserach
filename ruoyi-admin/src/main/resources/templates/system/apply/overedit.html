@@ -51,7 +51,7 @@
                     </div>
                 </div>
             </div>
-            <div class="row">
+
                 <div class="col-xs-6">
                     <div class="form-group">
                         <label class="col-sm-4 control-label is-required">申请日期：</label>
@@ -63,7 +63,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
+
             <div class="col-xs-6">
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">结束日期：</label>
@@ -81,6 +81,7 @@
                     <div class="col-sm-8">
                         <!--                        <input name="firstPersonId" th:field="*{firstPersonId}" class="form-control" type="text" required>-->
                         <select name="firstPersonId" class="form-control m-b" >
+                            <option value="">无</option>
                             <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ #strings.toString(user.userId) == sciHorizontalApply.firstPersonId}"></option>
                         </select>
                     </div>
@@ -93,6 +94,7 @@
                     <div class="col-sm-8">
                         <!--                        <input name="secondPersonTask" th:field="*{secondPersonTask}" class="form-control" type="text" required>-->
                         <select name="secondPersonId" class="form-control m-b" >
+                            <option value="">无</option>
                             <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ #strings.toString(user.userId) == sciHorizontalApply.secondPersonId}" ></option>
                         </select>
                     </div>
@@ -105,6 +107,7 @@
                     <div class="col-sm-8">
                         <!--                        <input name="thirdPersonId" th:field="*{thirdPersonId}" class="form-control" type="text" required>-->
                         <select name="thirdPersonId" class="form-control m-b" >
+                            <option value="">无</option>
                             <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ #strings.toString(user.userId) == sciHorizontalApply.thirdPersonId}"  ></option>
                         </select>
                     </div>
@@ -117,6 +120,7 @@
                     <div class="col-sm-8">
                         <!--                        <input name="fourthPersonId" th:field="*{fourthPersonId}" class="form-control" type="text" required>-->
                         <select name="fourthPersonId" class="form-control m-b" >
+                            <option value="">无</option>
                             <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ #strings.toString(user.userId) == sciHorizontalApply.fourthPersonId}"  ></option>
                         </select>
                     </div>
@@ -128,9 +132,9 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">合同：</label>
                     <div class="col-sm-8">
-                        <input type="hidden" name="contract" th:field="*{contract}">
+                        <input type="hidden" name="filingurl" th:field="*{filingurl}">
                         <div class="file-loading">
-                            <input class="form-control file-upload" id="contract" name="file" type="file">
+                            <input class="form-control file-upload" id="filingurl" name="file" type="file">
                         </div>
                     </div>
                 </div>
@@ -139,9 +143,9 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">备案表：</label>
                     <div class="col-sm-8">
-                        <input type="hidden" name="filing" th:field="*{filing}">
+                        <input type="hidden" name="agreeurl" th:field="*{agreeurl}">
                         <div class="file-loading">
-                            <input class="form-control file-upload" id="filing" name="file" type="file">
+                            <input class="form-control file-upload" id="agreeurl" name="file" type="file">
                         </div>
                     </div>
                 </div>
@@ -269,7 +273,7 @@
 
     function submitHandler() {
         if ($.validate.form()) {
-            $.operate.saveTab(prefix + "/edit", $('#form-apply-edit').serialize()); 啊啊啊啊啊
+            $.operate.saveTab(prefix + "/overedit", $('#form-apply-edit').serialize());
         }
     }
 

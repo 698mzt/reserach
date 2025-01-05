@@ -184,19 +184,8 @@
 						<a href="javascript:void(0)" class="dropdown-toggle" data-hover="dropdown">
 							<span class="hidden-xs" id="n-year"></span><span class="hidden-xs">届</span>
 						</a>
-						<ul class="dropdown-menu" style="min-width: 100px !important;">
-							<li style="height: 21px;width: 100px">
-								<a href="#" style="display: block;height: 20px;line-height: 20px;text-align: center" onclick="selectByYear(2024)">2024</a>
-							</li>
-							<li style="height: 21px;width: 100px">
-								<a href="#" style="display: block;height: 20px;line-height: 20px;text-align: center" onclick="selectByYear(2023)">2023</a>
-							</li>
-							<li style="height: 21px;width: 100px">
-								<a href="#" style="display: block;height: 20px;line-height: 20px;text-align: center" onclick="selectByYear(2022)">2022</a>
-							</li>
-							<li style="height: 21px;width: 100px">
-								<a href="#" style="display: block;height: 20px;line-height: 20px;text-align: center" onclick="selectByYear(2021)">2021</a>
-							</li>
+						<ul class="dropdown-menu" id="yearDropdown" style="min-width: 100px !important;">
+<!--							生成动态下拉框-->
 						</ul>
 
 					</li>
@@ -396,6 +385,35 @@ $(function() {
 	}
 	$("[data-toggle='tooltip']").tooltip();
 });
+</script>
+<script>    function generateYearDropdown() {
+	const dropdown = document.getElementById('yearDropdown');
+	const currentYear = new Date().getFullYear();
+
+	for (let i = 0; i < 5; i++) {
+		const year = currentYear - i;
+		const li = document.createElement('li');
+		li.style.height = '21px';
+		li.style.width = '100px';
+
+		const a = document.createElement('a');
+		a.href = '#';
+		a.style.display = 'block';
+		a.style.height = '20px';
+		a.style.lineHeight = '20px';
+		a.style.textAlign = 'center';
+		a.onclick = function() {
+			selectByYear(year);
+		};
+		a.textContent = year;
+
+		li.appendChild(a);
+		dropdown.appendChild(li);
+	}
+}
+
+// 在页面加载完成后生成下拉菜单
+window.onload = generateYearDropdown;
 </script>
 </body>
 </html>
