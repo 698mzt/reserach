@@ -54,16 +54,18 @@
                     and s.state = 6
                 </when>
                 <when test="newsql == '01'">
-                    and s.state in (1,2,3,4)
+                    and s.state in (1,2,3,4,5)
                 </when>
                 <when test="newsql == '02'">
                     and s.state in (7,8,9,10)
                 </when>
             </choose>
         </if>
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
 
     </select>
 
+<!--    查询申请流程-->
     <select id="selectSciHorizontalApplyList" parameterType="SciHorizontalApply" resultMap="SciHorizontalApplyResult" >
         <include refid="selectSciHorizontalApplyVo"/>
         where state in (1,2,3,4,5)
@@ -71,13 +73,14 @@
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
-        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
         <!-- 数据范围过滤 -->
         ${params.dataScope}
 
         order  by createtime desc
     </select>
 
+<!--    教研室查询申请审批-->
     <select id="selectSciHorizontalApplyListByJYS" parameterType="SciHorizontalApply" resultMap="SciHorizontalApplyResult">
         select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,s.party_A,s.party_B, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, s.signing_data, s.validity_Date,  concat( s.amount,'万') amount, s.contract, s.filing, s.state
         from sci_horizontal_apply s
@@ -89,11 +92,12 @@
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
-        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
         ${params.dataScope}
         order  by createtime desc
     </select>
 
+<!--    科研处查询申请审批-->
     <select id="selectSciHorizontalApplyListByKYC" parameterType="SciHorizontalApply" resultMap="SciHorizontalApplyResult">
         select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,s.party_A,s.party_B, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, s.signing_data, s.validity_Date,  concat( s.amount,'万') amount, s.contract, s.filing, s.state
         from sci_horizontal_apply s
@@ -105,10 +109,11 @@
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
-        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
         order  by createtime desc
     </select>
 
+<!--    查询结项申请流程-->
     <select id="selectSciHorizontalApplyListByOverApply" parameterType="SciHorizontalApply" resultMap="SciHorizontalApplyResult">
         select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,s.party_A,s.party_B,s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, s.signing_data, s.validity_Date,  concat( s.amount,'万') amount, s.contract, s.filing, s.state
         from sci_horizontal_apply s
@@ -121,10 +126,12 @@
 
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
-        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
         ${params.dataScope}
         order  by s.createtime desc
     </select>
+
+<!--    教研室查询结项审批-->
     <select id="selectSciHorizontalApplyListByOverApplyJYS" parameterType="SciHorizontalApply" resultMap="SciHorizontalApplyResult">
         select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,s.party_A,s.party_B,s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, s.signing_data, s.validity_Date,  concat( s.amount,'万') amount, s.contract, s.filing, s.state
         from sci_horizontal_apply s
@@ -134,13 +141,13 @@
         where s.state = 7
         <!--            <if test="userId != null "> and user_id = #{userId}</if>-->
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
-
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
-        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
         ${params.dataScope}
         order  by s.createtime desc
     </select>
+<!--    科研处查询结项审批-->
     <select id="selectSciHorizontalApplyListByOverApplyKYC" parameterType="SciHorizontalApply" resultMap="SciHorizontalApplyResult">
         select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type, s.party_A,s.party_B,s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, s.signing_data, s.validity_Date,  concat( s.amount,'万') amount, s.contract, s.filing, s.state
         from sci_horizontal_apply s
@@ -153,12 +160,12 @@
 
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
-        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
         ${params.dataScope}
         order  by s.createtime desc
     </select>
 
-
+<!--查询已结项-->
     <select id="selectSciHorizontalApplyListByOVER" parameterType="SciHorizontalApply" resultMap="SciHorizontalApplyResult">
         select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,s.party_A,s.party_B, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, s.signing_data, s.validity_Date,  concat( s.amount,'万') amount, s.contract, s.filing, s.state
         from sci_horizontal_apply s
@@ -168,17 +175,15 @@
         where s.state = 6
         <!--            <if test="userId != null "> and user_id = #{userId}</if>-->
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
-
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
-        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
         <!-- 数据范围过滤 -->
         ${params.dataScope}
         order  by createtime desc
     </select>
-
-    <select id="selectSciHorizontalApplyListByOVERJYSKYC" parameterType="SciHorizontalApply" resultMap="SciHorizontalApplyResult">
-        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,s.party_A,s.party_B,s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, s.signing_data, s.validity_Date,  concat( s.amount,'万') amount, s.contract, s.filing, s.state
+    <select id="selectSciHorizontalApplyListByOVERKYC" parameterType="SciHorizontalApply" resultMap="SciHorizontalApplyResult">
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,s.party_A,s.party_B, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, s.signing_data, s.validity_Date,  concat( s.amount,'万') amount, s.contract, s.filing, s.state
         from sci_horizontal_apply s
         left join sys_user u on  s.user_id=u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
@@ -186,15 +191,13 @@
         where s.state = 6
         <!--            <if test="userId != null "> and user_id = #{userId}</if>-->
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
-
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
-        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
         <!-- 数据范围过滤 -->
         ${params.dataScope}
         order  by createtime desc
     </select>
-
 
 
 
@@ -214,7 +217,6 @@
             <if test="partyA != null and partyA != ''">party_A,</if>
             <if test="partyB != null and partyB != ''">party_B,</if>
             <if test="signingData != null and signingData != ''">signing_data,</if>
-
             <if test="firstPersonId != null and firstPersonId != ''">first_person_id,</if>
             <if test="secondPersonId != null and secondPersonId != ''">second_person_id,</if>
             <if test="thirdPersonId != null and thirdPersonId != ''">third_person_id,</if>
@@ -231,7 +233,6 @@
             <if test="partyA != null and partyA != ''">#{partyA},</if>
             <if test="partyB != null and partyB != ''">#{partyB},</if>
             <if test="signingData != null and signingData != ''">#{signingData},</if>
-
             <if test="firstPersonId != null and firstPersonId != ''">#{firstPersonId},</if>
             <if test="secondPersonId != null and secondPersonId != ''">#{secondPersonId},</if>
             <if test="thirdPersonId != null and thirdPersonId != ''">#{thirdPersonId},</if>
@@ -243,16 +244,7 @@
         </trim>
     </insert>
 
-    <update id="updateSciHorizontalOverApply" parameterType="SciHorizontalApply" >
-        update  sci_horizontal_apply
-        <trim prefix="SET" suffixOverrides=",">
-            <if test="validityDate != null and validityDate != ''">validity_Date=#{validityDate},</if>
-            <if test="filing != null and filing != ''">filingurl=#{filing},</if>
-            <if test="contract != null and contract != ''">agreeurl=#{contract},</if>
-            <if test="state != null and state != ''">state=#{state},</if>
-        </trim>
-        where id=#{id}
-    </update>
+
 
     <update id="updateSciHorizontalApply" parameterType="SciHorizontalApply">
         update sci_horizontal_apply
@@ -260,7 +252,6 @@
             <if test="userId != null">user_id = #{userId},</if>
             <if test="topName != null and topName != ''">top_name = #{topName},</if>
             <if test="topType != null and topType != ''">top_type = #{topType},</if>
-
             <if test="signingData != null and signingData != ''">signing_data = #{signingData},</if>
             <if test="validityDate != null and validityDate != ''">validity_Date = #{validityDate},</if>
             <if test="firstPersonId != null and firstPersonId != ''">first_person_id = #{firstPersonId},</if>
@@ -270,6 +261,8 @@
             <if test="amount != null and amount != ''">amount = #{amount},</if>
             <if test="contract != null and contract != ''">contract = #{contract},</if>
             <if test="filing != null and filing != ''">filing = #{filing},</if>
+            <if test="filingurl != null and filingurl != ''">filingurl = #{filingurl},</if>
+            <if test="agreeurl != null and agreeurl != ''">agreeurl = #{agreeurl},</if>
             <if test="state != null and state != ''">state = #{state},</if>
         </trim>
         where id = #{id}
@@ -313,5 +306,26 @@
         </trim>
     </insert>
 
+
+
+    <delete id="deletePersion">
+        delete from sci_persion where apply_id = #{applyid}
+    </delete>
+
+    <select id="exportSciHorizontalApplyList" parameterType="SciHorizontalApply" resultMap="SciHorizontalApplyResult">
+        select s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,s.party_A,s.party_B, s.first_person_id, pe.ranking, s.second_person_id, s.third_person_id, fourth_person_id, s.signing_data, s.validity_Date,  concat( s.amount,'万') amount, s.contract, s.filing, s.state
+        from sci_horizontal_apply s
+        left join sci_persion pe on s.id=pe.apply_id
+        left join sys_user u on  s.user_id=u.user_id
+        left join sys_dept d on u.dept_id = d.dept_id
+        left join sys_dept p on d.parent_id =p.dept_id
+        <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
+        <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+        <if test="state != null  and state != ''"> and state = #{state}</if>
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
+        <!-- 数据范围过滤 -->
+        ${params.dataScope}
+        order  by createtime desc
+    </select>
 
 </mapper>
