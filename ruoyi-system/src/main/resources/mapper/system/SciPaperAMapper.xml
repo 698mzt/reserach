@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.SciPaperAMapper">
+
+    <resultMap type="SciPaperA" id="SciPaperAResult">
+
+        <result property="id"    column="id"    />
+        <result property="college"    column="college"    />
+        <result property="researchRoom"    column="research_room"    />
+        <result property="employeeId"    column="employee_id"    />
+        <result property="teacherName"    column="teacher_name"    />
+        <result property="administrativePosition"    column="administrative_position"    />
+        <result property="socialTitle"    column="social_title"    />
+        <result property="onCampusTitle"    column="on_campus_title"    />
+        <result property="authorType"    column="author_type"    />
+
+        <result property="paperTitle"    column="paper_title"    />
+        <result property="paperCategory"    column="paper_category"    />
+        <result property="publishedJournal"    column="published_journal"    />
+        <result property="inclusionStatus"    column="inclusion_status"    />
+        <result property="publicationTime"    column="publication_time"    />
+        <result property="isIndustryCollaborative"    column="is_industry_collaborative"    />
+        <result property="isLocalCollaborative"    column="is_local_collaborative"    />
+        <result property="isInternationalCollaborative"    column="is_international_collaborative"    />
+        <result property="isCrossDiscipline"    column="is_cross_discipline"    />
+        <result property="paperRanking"    column="paper_ranking"    />
+        <result property="researchScore"    column="research_score"    />
+        <result property="remarks"    column="remarks"    />
+
+        <result property="year"    column="year"    />
+    </resultMap>
+
+    <sql id="selectSciPaperAVo">
+        select id, college, research_room, employee_id, teacher_name, administrative_position, social_title, on_campus_title, author_type, paper_title, paper_category, published_journal, inclusion_status, publication_time, is_industry_collaborative, is_local_collaborative, is_international_collaborative, is_cross_discipline, paper_ranking, research_score, remarks
+        from sci_paper_a
+    </sql>
+
+    <select id="selectSciPaperAList" parameterType="SciPaperA" resultMap="SciPaperAResult">
+        <include refid="selectSciPaperAVo"/>
+        <where>
+           <!-- <if test="college != null  and college != ''"> and college = #{college}</if>
+            <if test="researchRoom != null  and researchRoom != ''"> and research_room = #{researchRoom}</if>
+            <if test="employeeId != null  and employeeId != ''"> and employee_id = #{employeeId}</if>-->
+            <if test="teacherName != null  and teacherName != ''"> and teacher_name like concat('%', #{teacherName}, '%')</if>
+            <!--<if test="administrativePosition != null  and administrativePosition != ''"> and administrative_position = #{administrativePosition}</if>
+            <if test="socialTitle != null  and socialTitle != ''"> and social_title = #{socialTitle}</if>
+            <if test="onCampusTitle != null  and onCampusTitle != ''"> and on_campus_title = #{onCampusTitle}</if>
+            <if test="authorType != null  and authorType != ''"> and author_type = #{authorType}</if>-->
+
+            <if test="paperTitle != null  and paperTitle != ''"> and paper_title = #{paperTitle}</if>
+            <if test="paperCategory != null  and paperCategory != ''"> and paper_category = #{paperCategory}</if>
+            <if test="publishedJournal != null  and publishedJournal != ''"> and published_journal = #{publishedJournal}</if>
+            <if test="inclusionStatus != null  and inclusionStatus != ''"> and inclusion_status = #{inclusionStatus}</if>
+            <if test="publicationTime != null "> and publication_time = #{publicationTime}</if>
+            <if test="isIndustryCollaborative != null  and isIndustryCollaborative != ''"> and is_industry_collaborative = #{isIndustryCollaborative}</if>
+            <if test="isLocalCollaborative != null  and isLocalCollaborative != ''"> and is_local_collaborative = #{isLocalCollaborative}</if>
+            <if test="isInternationalCollaborative != null  and isInternationalCollaborative != ''"> and is_international_collaborative = #{isInternationalCollaborative}</if>
+            <if test="isCrossDiscipline != null  and isCrossDiscipline != ''"> and is_cross_discipline = #{isCrossDiscipline}</if>
+            <if test="paperRanking != null  and paperRanking != ''"> and paper_ranking = #{paperRanking}</if>
+            <if test="researchScore != null  and researchScore != ''"> and research_score = #{researchScore}</if>
+            <if test="remarks != null  and remarks != ''"> and remarks = #{remarks}</if>
+            <if test="year != null  and year != ''"> and YEAR(publication_time) = #{year}</if>
+
+        </where>
+    </select>
+
+    <select id="selectSciPaperAById" parameterType="Long" resultMap="SciPaperAResult">
+        <include refid="selectSciPaperAVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertSciPaperA" parameterType="SciPaperA" useGeneratedKeys="true" keyProperty="id">
+        insert into sci_paper_a
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+          <!--  &lt;!&ndash;<if test="college != null">college,</if>
+            <if test="researchRoom != null">research_room,</if>
+            <if test="employeeId != null">employee_id,</if>-->
+            <if test="teacherName != null">teacher_name,</if>
+        <!--<if test="administrativePosition != null">administrative_position,</if>
+            <if test="socialTitle != null">social_title,</if>
+            <if test="onCampusTitle != null">on_campus_title,</if>&ndash;&gt;
+            <if test="authorType != null">author_type,</if>-->
+            <if test="paperTitle != null">paper_title,</if>
+            <if test="paperCategory != null">paper_category,</if>
+            <if test="publishedJournal != null">published_journal,</if>
+            <if test="inclusionStatus != null">inclusion_status,</if>
+            <if test="publicationTime != null">publication_time,</if>
+            <if test="isIndustryCollaborative != null">is_industry_collaborative,</if>
+            <if test="isLocalCollaborative != null">is_local_collaborative,</if>
+            <if test="isInternationalCollaborative != null">is_international_collaborative,</if>
+            <if test="isCrossDiscipline != null">is_cross_discipline,</if>
+            <if test="paperRanking != null">paper_ranking,</if>
+            <if test="researchScore != null">research_score,</if>
+            <if test="remarks != null">remarks,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+          <!--  <if test="college != null">#{college},</if>
+            <if test="researchRoom != null">#{researchRoom},</if>
+            <if test="employeeId != null">#{employeeId},</if>-->
+            <if test="teacherName != null">#{teacherName},</if>
+            <!--<if test="administrativePosition != null">#{administrativePosition},</if>
+            <if test="socialTitle != null">#{socialTitle},</if>
+            <if test="onCampusTitle != null">#{onCampusTitle},</if>
+            <if test="authorType != null">#{authorType},</if>-->
+            <if test="paperTitle != null">#{paperTitle},</if>
+            <if test="paperCategory != null">#{paperCategory},</if>
+            <if test="publishedJournal != null">#{publishedJournal},</if>
+            <if test="inclusionStatus != null">#{inclusionStatus},</if>
+            <if test="publicationTime != null">#{publicationTime},</if>
+            <if test="isIndustryCollaborative != null">#{isIndustryCollaborative},</if>
+            <if test="isLocalCollaborative != null">#{isLocalCollaborative},</if>
+            <if test="isInternationalCollaborative != null">#{isInternationalCollaborative},</if>
+            <if test="isCrossDiscipline != null">#{isCrossDiscipline},</if>
+            <if test="paperRanking != null">#{paperRanking},</if>
+            <if test="researchScore != null">#{researchScore},</if>
+            <if test="remarks != null">#{remarks},</if>
+        </trim>
+    </insert>
+
+    <update id="updateSciPaperA" parameterType="SciPaperA">
+        update sci_paper_a
+        <trim prefix="SET" suffixOverrides=",">
+        <!--    <if test="college != null">college = #{college},</if>
+            <if test="researchRoom != null">research_room = #{researchRoom},</if>
+            <if test="employeeId != null">employee_id = #{employeeId},</if>-->
+            <if test="teacherName != null">teacher_name = #{teacherName},</if>
+        <!--<if test="administrativePosition != null">administrative_position = #{administrativePosition},</if>
+            <if test="socialTitle != null">social_title = #{socialTitle},</if>
+            <if test="onCampusTitle != null">on_campus_title = #{onCampusTitle},</if>
+            <if test="authorType != null">author_type = #{authorType},</if>-->
+            <if test="paperTitle != null">paper_title = #{paperTitle},</if>
+            <if test="paperCategory != null">paper_category = #{paperCategory},</if>
+            <if test="publishedJournal != null">published_journal = #{publishedJournal},</if>
+            <if test="inclusionStatus != null">inclusion_status = #{inclusionStatus},</if>
+            <if test="publicationTime != null">publication_time = #{publicationTime},</if>
+            <if test="isIndustryCollaborative != null">is_industry_collaborative = #{isIndustryCollaborative},</if>
+            <if test="isLocalCollaborative != null">is_local_collaborative = #{isLocalCollaborative},</if>
+            <if test="isInternationalCollaborative != null">is_international_collaborative = #{isInternationalCollaborative},</if>
+            <if test="isCrossDiscipline != null">is_cross_discipline = #{isCrossDiscipline},</if>
+            <if test="paperRanking != null">paper_ranking = #{paperRanking},</if>
+            <if test="researchScore != null">research_score = #{researchScore},</if>
+            <if test="remarks != null">remarks = #{remarks},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteSciPaperAById" parameterType="Long">
+        delete from sci_paper_a where id = #{id}
+    </delete>
+
+    <delete id="deleteSciPaperAByIds" parameterType="String">
+        delete from sci_paper_a where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>
