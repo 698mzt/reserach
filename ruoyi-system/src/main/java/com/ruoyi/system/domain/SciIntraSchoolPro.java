@@ -331,5 +331,35 @@ public class SciIntraSchoolPro extends BaseEntity {
         this.filingurl = filingurl;
     }
 
-
+    @Override
+    public String toString() {
+        return "SciIntraSchoolPro{" +
+                "uid=" + uid +
+                ", appid=" + appid +
+                ", agreeurl='" + agreeurl + '\'' +
+                ", filingurl='" + filingurl + '\'' +
+                ", id=" + id +
+                ", yname='" + yname + '\'' +
+                ", dname='" + dname + '\'' +
+                ", pa='" + pa + '\'' +
+                ", pb='" + pb + '\'' +
+                ", userName='" + userName + '\'' +
+                ", userId=" + userId +
+                ", topName='" + topName + '\'' +
+                ", topType='" + topType + '\'' +
+                ", signingData='" + signingData + '\'' +
+                ", validityDate='" + validityDate + '\'' +
+                ", createtime='" + createtime + '\'' +
+                ", firstPersonId='" + firstPersonId + '\'' +
+                ", secondPersonId='" + secondPersonId + '\'' +
+                ", thirdPersonId='" + thirdPersonId + '\'' +
+                ", fourthPersonId='" + fourthPersonId + '\'' +
+                ", amount='" + amount + '\'' +
+                ", contract='" + contract + '\'' +
+                ", filing='" + filing + '\'' +
+                ", state='" + state + '\'' +
+                ", year='" + year + '\'' +
+                ", urlFlag='" + urlFlag + '\'' +
+                '}';
+    }
 }
