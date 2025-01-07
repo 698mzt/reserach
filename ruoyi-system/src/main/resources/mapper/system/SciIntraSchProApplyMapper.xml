@@ -75,7 +75,8 @@
 
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
-        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>
+<!--        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>-->
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
 
         <!-- 数据范围过滤 -->
         /*${params.dataScope}*/
@@ -98,7 +99,8 @@
 
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
-        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>
+<!--        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>-->
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
 
         <!-- 数据范围过滤 -->
         ${params.dataScope}
@@ -126,7 +128,8 @@
 
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
-        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>
+<!--        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>-->
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
 
         <!-- 数据范围过滤 -->
         /*${params.dataScope}*/
@@ -153,7 +156,8 @@
 
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
-        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>
+<!--        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>-->
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
 
         <!-- 数据范围过滤 -->
         /*${params.dataScope}*/
@@ -176,7 +180,8 @@
 
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
-        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>
+<!--        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>-->
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
 
         <!-- 数据范围过滤 -->
         ${params.dataScope}
@@ -196,7 +201,8 @@
 
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
-        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>
+<!--        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>-->
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
 
         <!-- 数据范围过滤 -->
         ${params.dataScope}
@@ -223,7 +229,8 @@
 
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
-        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>
+<!--        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>-->
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
 
         <!-- 数据范围过滤 -->
         /*${params.dataScope}*/
