@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('百度ECharts')" />
+</head>
+<body>
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="col-sm-6">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>饼状图</h5>
+<!--                <div class="ibox-tools">-->
+<!--                    <a class="collapse-link">-->
+<!--                        <i class="fa fa-chevron-up"></i>-->
+<!--                    </a>-->
+<!--                    <a class="dropdown-toggle" data-toggle="dropdown" href="javascript:;">-->
+<!--                        <i class="fa fa-wrench"></i>-->
+<!--                    </a>-->
+<!--                    <ul class="dropdown-menu dropdown-user">-->
+<!--                        <li><a href="javascript:;">选项1</a>-->
+<!--                        </li>-->
+<!--                        <li><a href="javascript:;">选项2</a>-->
+<!--                        </li>-->
+<!--                    </ul>-->
+<!--                    <a class="close-link">-->
+<!--                        <i class="fa fa-times"></i>-->
+<!--                    </a>-->
+<!--                </div>-->
+            </div>
+            <div class="ibox-content">
+                <div class="echarts" id="echarts-pie-chart"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>雷达图</h5>
+<!--                <div class="ibox-tools">-->
+<!--                    <a class="collapse-link">-->
+<!--                        <i class="fa fa-chevron-up"></i>-->
+<!--                    </a>-->
+<!--                    <a class="dropdown-toggle" data-toggle="dropdown" href="javascript:;">-->
+<!--                        <i class="fa fa-wrench"></i>-->
+<!--                    </a>-->
+<!--                    <ul class="dropdown-menu dropdown-user">-->
+<!--                        <li><a href="javascript:;">选项1</a>-->
+<!--                        </li>-->
+<!--                        <li><a href="javascript:;">选项2</a>-->
+<!--                        </li>-->
+<!--                    </ul>-->
+<!--                    <a class="close-link">-->
+<!--                        <i class="fa fa-times"></i>-->
+<!--                    </a>-->
+<!--                </div>-->
+            </div>
+            <div class="ibox-content">
+                <div class="echarts" id="echarts-radar-chart"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-12 select-table table-striped">
+        <table id="bootstrap-table"></table>
+    </div>
+
+</div>
+<th:block th:include="include :: footer" />
+<th:block th:include="include :: echarts-js" />
+<script type="text/javascript">
+    $(function (){
+        var pieChart = echarts.init(document.getElementById("echarts-pie-chart"));
+        var pieoption = {
+            title : {
+                text: '？？？？',
+                subtext: '？？？？',
+                x:'center'
+            },
+            tooltip : {
+                trigger: 'item',
+                formatter: "{a} <br/>{b} : {c} ({d}%)"
+            },
+            legend: {
+                orient : 'vertical',
+                x : 'left',
+                data:['横向课题','纵向课题','校内横向','专利软著','奖励']
+            },
+            calculable : true,
+            series : [
+                {
+                    name:'???',
+                    type:'pie',
+                    radius : '55%',
+                    center: ['50%', '60%'],
+                    data:[
+                        {value:335, name:'横向课题'},
+                        {value:310, name:'纵向课题'},
+                        {value:234, name:'校内横向'},
+                        {value:135, name:'专利软著'},
+                        {value:1548, name:'奖励'}
+                    ]
+                }
+            ]
+        };
+        pieChart.setOption(pieoption);
+        $(window).resize(pieChart.resize);
+        // 点击事件
+        pieChart.on('click', function (params) {
+            // 销毁表格，再初始化
+            $('#bootstrap-table').bootstrapTable('destroy');
+            initTable(options,params.name);
+        });
+
+
+        var radarChart = echarts.init(document.getElementById("echarts-radar-chart"));
+        var radaroption = {
+            title : {
+                text: '预算 vs 开销',
+                subtext: '纯属虚构'
+            },
+            tooltip : {
+                trigger: 'axis'
+            },
+            legend: {
+                orient : 'vertical',
+                x : 'right',
+                y : 'bottom',
+                data:['预算分配','实际开销']
+            },
+            polar : [
+                {
+                    indicator : [
+                        { text: '销售', max: 6000},
+                        { text: '管理', max: 16000},
+                        { text: '信息技术', max: 30000},
+                        { text: '客服', max: 38000},
+                        { text: '研发', max: 52000},
+                        { text: '市场', max: 25000},
+                        { text: 'aa', max: 25000}
+                    ]
+                }
+            ],
+            calculable : true,
+            series : [
+                {
+                    name: '预算 vs 开销',
+                    type: 'radar',
+                    data : [
+                        {
+                            value : [4300, 10000, 28000, 35000, 50000, 19000],
+                            name : '预算分配'
+                        },
+                        {
+                            value : [5000, 14000, 28000, 31000, 42000, 21000],
+                            name : '实际开销'
+                        }
+                    ]
+                }
+            ]
+        };
+        radarChart.setOption(radaroption);
+        $(window).resize(radarChart.resize);
+    })
+</script>
+<script th:inline="javascript">
+    var prefix = ctx + "system/overView";
+    // 动态生成URL
+    function getUrl(pname) {
+        var year = localStorage.getItem("year");
+        return prefix+"/list/"+pname+"?year="+year;
+    }
+
+    function initTable(options,pname) {
+        options.url = getUrl(pname);
+        // 使用生成的选项初始化表格
+        $.table.init(options);
+    }
+
+    var options = {
+        id: "bootstrap-table",
+        url: "",
+        modalName: "课题",
+        sortOrder: "asc",
+        columns: [{
+            field: 'number',
+            title: '序号',
+            width:5 ,
+            align:'center',
+            switchable:false,
+            formatter:function(value,row,index){
+                //return index+1; //序号正序排序从1开始
+
+                //通过表的#id 可以得到每页多少条
+                var pageSize=$('#bootstrap-table').bootstrapTable('getOptions').pageSize;
+                //通过表的#id 可以得到当前第几页
+                var pageNumber=$('#bootstrap-table').bootstrapTable('getOptions').pageNumber;
+                //返回每条的序号： 每页条数 * （当前页 - 1 ）+ 序号
+                // return pageSize * (pageNumber - 1) + index + 1;
+                return $.table.serialNumber(index);
+            }
+        },
+            {
+                field: 'yname',
+                align: 'center',
+                title: '学院'
+            },
+            {
+                field: 'dname',
+                align: 'center',
+                title: '专业'
+            },
+            {
+                field: 'userName',
+                align: 'center',
+                title: '申请人'
+            },
+            {
+                field: 'topName',
+                align: 'center',
+                title: '课题名称'
+            },
+            {
+                field: 'signingData',
+                align: 'center',
+                title: '签订日期'
+            },
+            {
+                field: 'amount',
+                align: 'center',
+                title: '项目金额'
+            },
+
+            {
+                field: 'state',
+                title: '申请状态',
+                align: 'center',
+                formatter: function(value, row, index) {
+                    var state = ""
+                    if (value === '6'){
+                        state = "结项";
+                    }else{
+                        state = "在研";
+                    }
+                    return state;
+                }
+            },
+        ]
+    };
+
+
+</script>
+</body>
+</html>
