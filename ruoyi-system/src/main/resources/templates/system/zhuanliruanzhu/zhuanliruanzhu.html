@@ -92,6 +92,7 @@
 
 
 
+
             function initTable(options) {
                 // 获取当前表格的ID
                 var tableId = options.id;
@@ -99,6 +100,14 @@
                 options.url = getUrl(tableId);
                 // 使用生成的选项初始化表格
                 $.table.init(options);
+            }
+
+
+            function getUrl(tableId) {
+                var year = localStorage.getItem("year");
+
+                return prefix + "/list/"+tableId+"?year=" + year;
+
             }
             var options = {
                 url: prefix + "/list",
@@ -237,6 +246,15 @@
                 }]
             };
             $.table.init(options);
+            window.addEventListener("storage",function (event){
+                if (event.key==="year"){
+                    // 销毁表格，再初始化
+                    $('#bootstrap-table').bootstrapTable('destroy');
+                    initTable(options)
+
+                }
+
+            })
         });
     </script>
 </body>
