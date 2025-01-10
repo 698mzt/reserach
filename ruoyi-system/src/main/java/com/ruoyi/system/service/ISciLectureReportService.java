@@ -1,0 +1,82 @@
+package com.ruoyi.system.service;
+
+import java.util.List;
+import com.ruoyi.system.domain.SciLectureReport;
+
+/**
+ * 讲座报告Service接口
+ * 
+ * @author ruoyi
+ * @date 2024-11-23
+ */
+public interface ISciLectureReportService 
+{
+    /**
+     * 查询讲座报告
+     * 
+     * @param id 讲座报告主键
+     * @return 讲座报告
+     */
+    public SciLectureReport selectSciLectureReportById(Integer id);
+
+    /**
+     * 查询讲座报告列表
+     * 
+     * @param sciLectureReport 讲座报告
+     * @return 讲座报告集合
+     */
+    public List<SciLectureReport> selectSciLectureReportList(SciLectureReport sciLectureReport);
+
+    /**
+     * 新增讲座报告
+     * 
+     * @param sciLectureReport 讲座报告
+     * @return 结果
+     */
+    public int insertSciLectureReport(SciLectureReport sciLectureReport);
+
+    /**
+     * 修改讲座报告
+     * 
+     * @param sciLectureReport 讲座报告
+     * @return 结果
+     */
+    public int updateSciLectureReport(SciLectureReport sciLectureReport);
+
+    /**
+     * 批量删除讲座报告
+     * 
+     * @param ids 需要删除的讲座报告主键集合
+     * @return 结果
+     */
+    public int deleteSciLectureReportByIds(String ids);
+
+    /**
+     * 删除讲座报告信息
+     * 
+     * @param id 讲座报告主键
+     * @return 结果
+     */
+    public int deleteSciLectureReportById(Integer id);
+
+    /**
+     *通过批阅操作修改讲座报告的状态
+     */
+    int criticism(Integer id, Long userId,String remark,String urlFlag);
+
+    int reject(Integer id, Long userId, String remark, String urlFlag);
+
+    List<SciLectureReport> selectSciLectureReportListJYS_Tab1(SciLectureReport sciLectureReport);
+
+    List<SciLectureReport> selectSciLectureReportListJYS_Tab0(SciLectureReport sciLectureReport);
+
+    List<SciLectureReport> selectSciLectureReportListJYS_Tab2(SciLectureReport sciLectureReport);
+
+    List<SciLectureReport> selectSciLectureReportListKYS_Tab1(SciLectureReport sciLectureReport);
+
+    List<SciLectureReport> selectSciLectureReportListKYS_Tab2(SciLectureReport sciLectureReport);
+
+    int SciLectureReportOverAdd(SciLectureReport sciLectureReport);
+
+//    List<SciLectureReport> selectSciLectureReportListByKYS(SciLectureReport sciLectureReport);
+}

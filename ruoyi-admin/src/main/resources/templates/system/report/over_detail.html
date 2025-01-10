@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('结项申请批阅')" />
+    <th:block th:include="include :: datetimepicker-css" />
+    <style>
+        .form-group{
+            flex: 0 0 50%;
+            box-sizing: border-box;
+        }
+        .card{
+            display: flex;
+            flex-wrap: wrap;
+        }
+    </style>
+</head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-report-edit" th:object="${sciLectureReport}">
+            <!--批阅或核查的标识-->
+            <input name="urlFlag" id="urlFlag" th:field="*{urlFlag}" type="hidden">
+            <!--状态-->
+            <input id="state" th:field="*{state}" type="hidden">
+            <!--被批阅的表单或报告的id-->
+            <input name="id" id="report_id" th:field="*{id}" type="hidden">
+            <h4 class="form-header h4">基本信息</h4>
+            <div class="card">
+
+                <div class="form-group">
+                    <label class="col-sm-3 control-label is-required">申请人：</label>
+                    <div class="col-sm-8">
+                        <!--                    <input name="teacherName" class="form-control" type="text" required>-->
+                        <select class="form-control m-b" disabled>
+                            <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${user.userId == sciLectureReport.userId}"></option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">讲座主题：</label>
+                    <div class="col-sm-8">
+                        <input th:field="*{reportTheme}" class="form-control" type="text" readonly>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label is-required">讲座题目：</label>
+                    <div class="col-sm-8">
+                        <input th:field="*{reportSubject}" class="form-control" type="text" required readonly>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-sm-3 control-label is-required">主办单位：</label>
+                    <div class="col-sm-8">
+                        <input th:field="*{hostUnit}" class="form-control" type="text" required readonly>
+                    </div>
+                </div>
+
+
+                <div class="form-group">
+                    <label class="col-sm-3 control-label is-required">讲座时间：</label>
+                    <div class="col-sm-8">
+                        <div class="input-group date">
+                            <input autocomplete="off" th:field="*{reportTime}" th:value="${#dates.format(reportTime, 'yyyy-MM-dd hh:ii')}" class="form-control" placeholder="yyyy-MM-dd" type="text" required readonly>
+                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label is-required">讲座地点：</label>
+                    <div class="col-sm-8">
+                        <input th:field="*{reportPlace}" class="form-control" type="text" required disabled>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">预期参与人数：</label>
+                    <div class="col-sm-8">
+                        <input th:field="*{reportNumber}" class="form-control" type="text" readonly>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">预期报告时长：</label>
+                    <div class="col-sm-8">
+                        <input th:field="*{reportDuration}" class="form-control" type="text" readonly>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">分类：</label>
+                    <div class="col-sm-8">
+                        <input th:field="*{reportClassify}" class="form-control" type="text" readonly>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="card">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label is-required">实际参与人数：</label>
+                    <div class="col-sm-8">
+                        <input th:field="*{actualNumber}" class="form-control" type="text" required readonly>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-sm-3 control-label is-required">实际报告时长：</label>
+                    <div class="col-sm-8">
+                        <input th:field="*{actualTime}" class="form-control" type="text" required readonly>
+                    </div>
+                </div>
+            </div>
+
+            <h4 class="form-header h4 tdiv1" style="display:none;">退回原因</h4>
+            <div class="row tdiv1" style="display:none;">
+                <div class="col-sm-12">
+                    <div class="form-group"  >
+                        <label class="col-xs-2 control-label">批注：</label>
+                        <div class="col-xs-10">
+                            <textarea name="remark" required maxlength="500" class="form-control" rows="3"></textarea>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <h4 class="form-header h4 tdiv2"  style="display:none;">退回记录</h4>
+            <div class="row tdiv2" style="display:none;">
+                <div class="col-sm-12">
+
+                    <div class="form-group"  >
+                        <table id='bootstrap-table'></table>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="row">
+        <div class="col-sm-offset-5 col-sm-10">
+            <button type="button" style="display:none;" id="btn1" class="btn btn-sm btn-primary" onclick="submitHandler()"><i class="fa fa-check"></i>通 过</button>&nbsp;
+            <button type="button" style="display:none;" id="btn2" class="btn btn-sm btn-primary" onclick="submitHandlerBH()"><i class="fa fa-check"></i>驳 回</button>&nbsp;
+            <button type="button" style="display:none;" id="btn3" class="btn btn-sm btn-danger" onclick="closeItem()"><i class="fa fa-reply-all"></i>关 闭 </button>
+        </div>
+    </div>
+    <th:block th:include="include :: footer" />
+    <th:block th:include="include :: datetimepicker-js" />
+    <script th:inline="javascript">
+
+        var prefix = ctx + "system/report";
+        // $("#form-report-edit").validate({
+        //     focusCleanup: true
+        // });
+
+
+
+        $(function(){
+            var rid = $("#report_id").val();
+            // alert("审批的讲座报告id："+rid)
+            console.log("当前审批的讲座报告id为："+rid)
+            var options = {
+                url: prefix + "/opinion/"+rid,
+                showSearch: false,
+                showRefresh: false,
+                showToggle: false,
+                showColumns: false,
+                pagination:false,
+                columns: [
+
+                    {
+                        field : 'createTime',
+                        title : '批阅时间',
+                        width: 200
+
+                    } ,
+                    {
+                        field : 'uname',
+                        title : '批阅人',
+                        width: 100
+                    },
+                    {
+                        field : 'concate',
+                        title : '内容',
+                        width: 500
+                    },
+                    {
+                        field : 'state',
+                        title : '审核状态',
+                        width: 100
+                    } ]
+            };
+            $.table.init(options);
+
+            $('#bootstrap-table').on('load-success.bs.table', function (e, name, args) {
+                console.log('Event Name:', name.rows);
+
+                var a =$("#state").val();
+                // alert("状态为:"+a)
+                if(a == 6 ||a == 7){
+                    if(name.rows.length > 0){
+                        $(".tdiv2").show();
+                    }
+                    $(".tdiv1").show();
+                    $("#btn1").show();
+                    $("#btn2").show();
+                }
+                if(a == 9){
+                    if(name.rows.length > 0){
+                        $(".tdiv2").show();
+                    }
+                }
+                $("#btn3").show();
+            });
+        })
+
+        // 批阅通过保存方法
+        function submitHandler() {
+
+            if ($.validate.form()) {
+                $.operate.saveTab(prefix + "/criticism", $('#form-report-edit').serialize());
+            }
+        }
+        // 讲座报告驳回保存方法
+        function submitHandlerBH() {
+
+            if ($.validate.form()) {
+                // reject ===> 驳回
+                $.operate.saveTab(prefix + "/reject", $('#form-report-edit').serialize());
+            }
+        }
+
+    </script>
+</body>
+</html>
