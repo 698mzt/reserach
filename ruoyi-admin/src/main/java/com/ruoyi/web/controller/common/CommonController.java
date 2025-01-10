@@ -273,6 +273,8 @@ public class CommonController extends BaseController
         List<String> list = new ArrayList<>();
         SciHorizontalApply sciHorizontalApply = sciHorizontalApplyService.selectSciHorizontalApplyById(Integer.parseInt(id));
         list.add(getFileName(sciHorizontalApply.getFiling()));
+        list.add(getFileName(sciHorizontalApply.getContract()));
+        list.add(getFileName(sciHorizontalApply.getFilingurl()));
         list.add(getFileName(sciHorizontalApply.getAgreeurl()));
         String user= sciHorizontalApply.getUserName();
         String Topname = sciHorizontalApply.getTopName();

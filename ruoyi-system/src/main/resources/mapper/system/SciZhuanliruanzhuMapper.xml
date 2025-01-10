@@ -6,14 +6,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     
     <resultMap type="SciZhuanliruanzhu" id="SciZhuanliruanzhuResult">
         <result property="id"    column="id"    />
-        <result property="xueyuan"    column="xueyuan"    />
-        <result property="jiaoyanshi"    column="jiaoyanshi"    />
-        <result property="gonghao"    column="gonghao"    />
-        <result property="xingming"    column="xingming"    />
-        <result property="xingzhengzhiwu"    column="xingzhengzhiwu"    />
-        <result property="shehuizhicheng"    column="shehuizhicheng"    />
-        <result property="xiaoneizhicheng"    column="xiaoneizhicheng"    />
-        <result property="jiaoshixingming"    column="jiaoshixingming"    />
+        <result property="userId"    column="user_id"    />
+
+
         <result property="mingcheng"    column="mingcheng"    />
         <result property="leixing"    column="leixing"    />
         <result property="shoquanhao"    column="shoquanhao"    />
@@ -21,23 +16,29 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="shifouyingyon"    column="shifouyingyon"    />
         <result property="hangyelianhe"    column="hangyelianhe"    />
         <result property="fenlei"    column="fenlei"    />
-        <result property="paiming"    column="paiming"    />
-        <result property="keyanfen"    column="keyanfen"    />
+
     </resultMap>
 
     <sql id="selectSciZhuanliruanzhuVo">
-        select id, xueyuan, jiaoyanshi, gonghao, xingming, xingzhengzhiwu, shehuizhicheng, xiaoneizhicheng, jiaoshixingming, mingcheng, leixing, shoquanhao, huopishijain, shifouyingyon, hangyelianhe, fenlei, paiming, keyanfen from sci_zhuanliruanzhu
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.mingcheng, s.leixing, s.shoquanhao, s.huopishijain, s.shifouyingyon, s.hangyelianhe, s.fenlei, s.state
+        from sci_zhuanliruanzhu s left join sys_user u on  s.user_id=u.user_id
+                                  left join sys_dept d on u.dept_id = d.dept_id
+                                  left join sys_dept p on d.parent_id =p.dept_id
     </sql>
 
     <select id="selectSciZhuanliruanzhuList" parameterType="SciZhuanliruanzhu" resultMap="SciZhuanliruanzhuResult">
         <include refid="selectSciZhuanliruanzhuVo"/>
-        <where>  
+        where state in (1,2,3,4,5)
+
             <if test="xueyuan != null  and xueyuan != ''"> and xueyuan = #{xueyuan}</if>
-            <if test="xingming != null  and xingming != ''"> and xingming like concat('%', #{xingming}, '%')</if>
+
+
             <if test="mingcheng != null  and mingcheng != ''"> and mingcheng like concat('%', #{mingcheng}, '%')</if>
             <if test="huopishijain != null "> and huopishijain = #{huopishijain}</if>
             <if test="fenlei != null  and fenlei != ''"> and fenlei = #{fenlei}</if>
-        </where>
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
+
+
     </select>
     
     <select id="selectSciZhuanliruanzhuById" parameterType="Integer" resultMap="SciZhuanliruanzhuResult">
@@ -48,14 +49,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <insert id="insertSciZhuanliruanzhu" parameterType="SciZhuanliruanzhu" useGeneratedKeys="true" keyProperty="id">
         insert into sci_zhuanliruanzhu
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="xueyuan != null and xueyuan != ''">xueyuan,</if>
-            <if test="jiaoyanshi != null">jiaoyanshi,</if>
-            <if test="gonghao != null">gonghao,</if>
-            <if test="xingming != null and xingming != ''">xingming,</if>
-            <if test="xingzhengzhiwu != null">xingzhengzhiwu,</if>
-            <if test="shehuizhicheng != null">shehuizhicheng,</if>
-            <if test="xiaoneizhicheng != null">xiaoneizhicheng,</if>
-            <if test="jiaoshixingming != null">jiaoshixingming,</if>
+            <if test="userId != null">user_id,</if>
+
+
             <if test="mingcheng != null and mingcheng != ''">mingcheng,</if>
             <if test="leixing != null and leixing != ''">leixing,</if>
             <if test="shoquanhao != null">shoquanhao,</if>
@@ -63,18 +59,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="shifouyingyon != null">shifouyingyon,</if>
             <if test="hangyelianhe != null">hangyelianhe,</if>
             <if test="fenlei != null and fenlei != ''">fenlei,</if>
-            <if test="paiming != null">paiming,</if>
-            <if test="keyanfen != null">keyanfen,</if>
+
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="xueyuan != null and xueyuan != ''">#{xueyuan},</if>
-            <if test="jiaoyanshi != null">#{jiaoyanshi},</if>
-            <if test="gonghao != null">#{gonghao},</if>
-            <if test="xingming != null and xingming != ''">#{xingming},</if>
-            <if test="xingzhengzhiwu != null">#{xingzhengzhiwu},</if>
-            <if test="shehuizhicheng != null">#{shehuizhicheng},</if>
-            <if test="xiaoneizhicheng != null">#{xiaoneizhicheng},</if>
-            <if test="jiaoshixingming != null">#{jiaoshixingming},</if>
+            <if test="userId != null">#{userId},</if>
+
+
             <if test="mingcheng != null and mingcheng != ''">#{mingcheng},</if>
             <if test="leixing != null and leixing != ''">#{leixing},</if>
             <if test="shoquanhao != null">#{shoquanhao},</if>
@@ -82,22 +72,17 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="shifouyingyon != null">#{shifouyingyon},</if>
             <if test="hangyelianhe != null">#{hangyelianhe},</if>
             <if test="fenlei != null and fenlei != ''">#{fenlei},</if>
-            <if test="paiming != null">#{paiming},</if>
-            <if test="keyanfen != null">#{keyanfen},</if>
+
          </trim>
     </insert>
 
     <update id="updateSciZhuanliruanzhu" parameterType="SciZhuanliruanzhu">
         update sci_zhuanliruanzhu
         <trim prefix="SET" suffixOverrides=",">
-            <if test="xueyuan != null and xueyuan != ''">xueyuan = #{xueyuan},</if>
-            <if test="jiaoyanshi != null">jiaoyanshi = #{jiaoyanshi},</if>
-            <if test="gonghao != null">gonghao = #{gonghao},</if>
-            <if test="xingming != null and xingming != ''">xingming = #{xingming},</if>
-            <if test="xingzhengzhiwu != null">xingzhengzhiwu = #{xingzhengzhiwu},</if>
-            <if test="shehuizhicheng != null">shehuizhicheng = #{shehuizhicheng},</if>
-            <if test="xiaoneizhicheng != null">xiaoneizhicheng = #{xiaoneizhicheng},</if>
-            <if test="jiaoshixingming != null">jiaoshixingming = #{jiaoshixingming},</if>
+
+
+            <if test="userId != null">user_id = #{userId},</if>
+
             <if test="mingcheng != null and mingcheng != ''">mingcheng = #{mingcheng},</if>
             <if test="leixing != null and leixing != ''">leixing = #{leixing},</if>
             <if test="shoquanhao != null">shoquanhao = #{shoquanhao},</if>
@@ -105,8 +90,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="shifouyingyon != null">shifouyingyon = #{shifouyingyon},</if>
             <if test="hangyelianhe != null">hangyelianhe = #{hangyelianhe},</if>
             <if test="fenlei != null and fenlei != ''">fenlei = #{fenlei},</if>
-            <if test="paiming != null">paiming = #{paiming},</if>
-            <if test="keyanfen != null">keyanfen = #{keyanfen},</if>
+
         </trim>
         where id = #{id}
     </update>
@@ -116,10 +100,17 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </delete>
 
     <delete id="deleteSciZhuanliruanzhuByIds" parameterType="String">
-        delete from sci_zhuanliruanzhu where id in 
+        delete from sci_zhuanliruanzhu where id in
         <foreach item="id" collection="array" open="(" separator="," close=")">
             #{id}
         </foreach>
     </delete>
+
+
+    <update id="hxPass" >
+        update sci_zhuanliruanzhu set state = #{state} where id = #{id}
+    </update>
+
+
 
 </mapper>

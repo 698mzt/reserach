@@ -25,9 +25,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		<result property="createTime"    column="create_time"     />
 		<result property="updateBy"      column="update_by"       />
 		<result property="updateTime"    column="update_time"     />
-		<result property="teaZhicheng"    column="tea_zhicheng"     />
-		<result property="socialTitle"    column="social_title"     />
-		<result property="serviceDate"    column="service_date"     />
+		<result property="teaZhicheng"   column="tea_zhicheng"     />
+		<result property="socialTitle"   column="social_title"     />
+		<result property="adminstrativeTitle"   column="adminstrative_title"     />
+		<result property="reserchDirection"   column="reserch_direction"     />
 		<result property="remark"        column="remark"          />
 		<association property="dept"     javaType="SysDept"         resultMap="deptResult" />
 		<collection  property="roles"    javaType="java.util.List"  resultMap="RoleResult" />
@@ -53,7 +54,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	</resultMap>
 	
 	<sql id="selectUserVo">
-        select  u.user_id, u.dept_id, u.login_name, u.user_name, u.user_type, u.email, u.avatar, u.phonenumber, u.sex, u.password, u.salt, u.status, u.del_flag, u.login_ip, u.login_date, u.pwd_update_date, u.create_by, u.create_time, u.update_by, u.update_time, u.tea_zhicheng, u.social_title, u.service_date,u.remark,
+        select  u.user_id, u.dept_id, u.login_name, u.user_name, u.user_type, u.email, u.avatar, u.phonenumber, u.sex, u.password, u.salt, u.status, u.del_flag, u.login_ip, u.login_date, u.pwd_update_date, u.create_by, u.create_time, u.update_by, u.update_time, u.remark,u.tea_zhicheng,u.social_title,u.adminstrative_title,u.reserch_direction,
        		    d.dept_id, d.parent_id, d.ancestors, d.dept_name, d.order_num, d.leader, d.status as dept_status,
        		    r.role_id, r.role_name, r.role_key, r.role_sort, r.data_scope, r.status as role_status
 		from sys_user u
@@ -125,8 +126,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		<!-- 数据范围过滤 -->
 		${params.dataScope}
 	</select>
-
-<!--	用户个人信息查询-->
+	
 	<select id="selectUserByLoginName" parameterType="String" resultMap="SysUserResult">
 	    <include refid="selectUserVo"/>
 		where u.login_name = #{userName} and u.del_flag = '0'
@@ -188,10 +188,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
  			<if test="loginDate != null">login_date = #{loginDate},</if>
  			<if test="pwdUpdateDate != null">pwd_update_date = #{pwdUpdateDate},</if>
  			<if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
- 			<if test="teaZhicheng != null and teaZhicheng != ''">tea_zhicheng = #{teaZhicheng},</if>
- 			<if test="socialTitle != null and socialTitle != ''">social_title = #{socialTitle},</if>
- 			<if test="serviceDate != null and serviceDate != ''">service_date = #{serviceDate},</if>
  			<if test="remark != null">remark = #{remark},</if>
+			<if test="teaZhicheng != null and teaZhicheng != ''">tea_zhicheng = #{teaZhicheng},</if>
+			<if test="socialTitle != null and socialTitle != ''">social_title = #{socialTitle},</if>
+			<if test="adminstrativeTitle != null and adminstrativeTitle != ''">adminstrative_title = #{adminstrativeTitle},</if>
+			<if test="reserchDirection != null and reserchDirection != ''">reserch_direction = #{reserchDirection},</if>
  			update_time = sysdate()
  		</set>
  		where user_id = #{userId}
@@ -214,6 +215,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
  			<if test="pwdUpdateDate != null">pwd_update_date,</if>
  			<if test="createBy != null and createBy != ''">create_by,</if>
  			<if test="remark != null and remark != ''">remark,</if>
+		    <if test="teaZhicheng != null">tea_zhicheng,</if>
+			<if test="socialTitle != null">social_title,</if>
+			<if test="adminstrativeTitle != null">adminstrative_title,</if>
+			<if test="reserchDirection != null">reserch_direction,</if>
  			create_time
  		)values(
  			<if test="userId != null and userId != ''">#{userId},</if>
@@ -231,6 +236,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
  			<if test="pwdUpdateDate != null">#{pwdUpdateDate},</if>
  			<if test="createBy != null and createBy != ''">#{createBy},</if>
  			<if test="remark != null and remark != ''">#{remark},</if>
+			<if test="teaZhicheng != null">#{teaZhicheng},</if>
+			<if test="socialTitle != null">#{socialTitle},</if>
+			<if test="adminstrativeTitle != null">#{adminstrativeTitle},</if>
+			<if test="reserchDirection != null">#{reserchDirection},</if>
  			sysdate()
  		)
 	</insert>

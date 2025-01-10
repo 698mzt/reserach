@@ -1,6 +1,9 @@
 package com.ruoyi.system.service.impl;
 
 import java.util.List;
+
+import com.ruoyi.common.core.domain.entity.SysUser;
+import com.ruoyi.system.domain.SciHorizontalPiyue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.ruoyi.system.mapper.SciZhuanliruanzhuMapper;
@@ -19,6 +22,7 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
 {
     @Autowired
     private SciZhuanliruanzhuMapper sciZhuanliruanzhuMapper;
+
 
     /**
      * 查询专利软著
@@ -91,4 +95,75 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
     {
         return sciZhuanliruanzhuMapper.deleteSciZhuanliruanzhuById(id);
     }
+
+
+    @Override
+    public int hxPass(String id,Long uid,String urlFlag) {
+        String state = "0";
+        if(urlFlag.equals("hecha")){
+            state ="4";
+        }else if(urlFlag.equals("pro")){
+            state ="2";
+        }
+
+        int a =  sciZhuanliruanzhuMapper.hxPass(id,state);
+        SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
+        sciHorizontalPiyue.setUid(uid);
+        sciHorizontalPiyue.setHxktId(Integer.valueOf(id));
+        sciHorizontalPiyue.setConcate("同意");
+        sciHorizontalPiyue.setState("通过");
+//        sciZhuanliruanzhuMapper.insertSciHorizontalPiyue(sciHorizontalPiyue);
+        return a;
+    }
+    @Override
+    public int hxover(String id,Long uid,String urlFlag) {
+        String state = "0";
+        if(urlFlag.equals("JYSOVER")){
+            state ="8";
+        }else if(urlFlag.equals("KYCOVER")){
+            state ="6";
+        }
+        int a =  sciZhuanliruanzhuMapper.hxPass(id,state);
+        System.out.println(a);
+        return a;
+    }
+
+    @Override
+    public int hxBh(String id,Long uid, String remark,String urlFlag) {
+        String state = "0";
+        if(urlFlag.equals("hecha")){
+            state ="5";
+        }else if(urlFlag.equals("pro")){
+            state ="3";
+        }
+        int a = sciZhuanliruanzhuMapper.hxPass(id,state);
+        SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
+        sciHorizontalPiyue.setUid(uid);
+        sciHorizontalPiyue.setHxktId(Integer.valueOf(id));
+        sciHorizontalPiyue.setConcate(remark);
+        sciHorizontalPiyue.setState("被驳回");
+//        sciZhuanliruanzhuMapper.insertSciHorizontalPiyue(sciHorizontalPiyue);
+        return a;
+    }
+
+    @Override
+    public int hxoverBh(String id, Long uid, String remark, String urlFlag) {
+        String state = "0";
+        if(urlFlag.equals("JYSOVER")){
+            state ="9";
+        }else if(urlFlag.equals("KYCOVER")){
+            state ="10";
+        }
+
+        int a =  sciZhuanliruanzhuMapper.hxPass(id,state);
+        SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
+        sciHorizontalPiyue.setUid(uid);
+        sciHorizontalPiyue.setHxktId(Integer.valueOf(id));
+        sciHorizontalPiyue.setConcate(remark);
+        sciHorizontalPiyue.setState("被驳回");
+//        sciZhuanliruanzhuMapper.insertSciHorizontalPiyue(sciHorizontalPiyue);
+        return a;
+    }
+
+
 }

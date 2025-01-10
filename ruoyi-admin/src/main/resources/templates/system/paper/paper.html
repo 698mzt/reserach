@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('论文列表')" />
+</head>
+<body class="gray-bg">
+     <div class="container-div">
+        <div class="row">
+            <div class="col-sm-12 search-collapse">
+                <form id="formId">
+                    <div class="select-list">
+                        <ul>
+                            <li>
+                                <label>学院：</label>
+                                <input type="text" name="college"/>
+                            </li>
+                            <!--<li>
+                                <label>教研室：</label>
+                                <input type="text" name="researchRoom"/>
+                            </li>-->
+                            <li>
+                                <label>工号：</label>
+                                <input type="text" name="employeeId"/>
+                            </li>
+                            <li>
+                                <label>教师姓名：</label>
+                                <input type="text" name="teacherName"/>
+                            </li>
+                            <!--<li>
+                                <label>行政职务：</label>
+                                <input type="text" name="administrativePosition"/>
+                            </li>
+                            <li>
+                                <label>社会职称：</label>
+                                <input type="text" name="socialTitle"/>
+                            </li>
+                            <li>
+                                <label>校内职称：</label>
+                                <input type="text" name="onCampusTitle"/>
+                            </li>
+                            <li>
+                                <label>论文名称：</label>
+                                <input type="text" name="paperTitle"/>
+                            </li>
+                            <li>
+                                <label>论文类别：</label>
+                                <input type="text" name="paperCategory"/>
+                            </li>
+                            <li>
+                                <label>发表期刊：</label>
+                                <input type="text" name="publishedJournal"/>
+                            </li>
+                            <li>
+                                <label>发表时间：</label>
+                                <input type="text" name="publicationTime"/>
+                            </li>
+                            <li>
+                                <label>是否与行业联合发表：</label>
+                                <input type="text" name="isIndustryCollaborative"/>
+                            </li>
+                            <li>
+                                <label>是否与地方联合发表：</label>
+                                <input type="text" name="isLocalCollaborative"/>
+                            </li>
+                            <li>
+                                <label>是否与国际联合发表：</label>
+                                <input type="text" name="isInternationalCollaborative"/>
+                            </li>
+                            <li>
+                                <label>是否是跨学科论文：</label>
+                                <input type="text" name="isCrossDiscipline"/>
+                            </li>
+                            <li>
+                                <label>排名：</label>
+                                <input type="text" name="paperRanking"/>
+                            </li>
+                            <li>
+                                <label>科研分：</label>
+                                <input type="text" name="researchScore"/>
+                            </li>
+                            <li>
+                                <label>备注：</label>
+                                <input type="text" name="remarks"/>
+                            </li>-->
+                            <li>
+                                <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                                <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                            </li>
+                        </ul>
+                    </div>
+                </form>
+            </div>
+
+            <div class="btn-group-sm" id="toolbar" role="group">
+                <a class="btn btn-success" onclick="$.operate.addTab()" shiro:hasPermission="system:paper:add">
+                    <i class="fa fa-plus"></i> 添加
+                </a>
+                <a class="btn btn-primary single disabled" onclick="$.operate.editTab()" shiro:hasPermission="system:paper:edit">
+                    <i class="fa fa-edit"></i> 修改
+                </a>
+                <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()" shiro:hasPermission="system:paper:remove">
+                    <i class="fa fa-remove"></i> 删除
+                </a>
+                <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:paper:export">
+                    <i class="fa fa-download"></i> 导出
+                </a>
+            </div>
+            <div class="col-sm-12 select-table table-striped">
+                <table id="bootstrap-table"></table>
+            </div>
+        </div>
+    </div>
+    <th:block th:include="include :: footer" />
+    <script th:inline="javascript">
+        var editFlag = [[${@permission.hasPermi('system:paper:edit')}]];
+        var removeFlag = [[${@permission.hasPermi('system:paper:remove')}]];
+
+        var prefix = ctx + "system/paper";
+
+        function getUrl() {
+            var year = localStorage.getItem("year");
+            return prefix+"/list/?year="+year;
+        }
+        function initTable(options) {
+            options.url = getUrl();
+            $.table.init(options);
+        }
+
+        $(function() {
+
+            var options = {
+                url: prefix + "/list",
+                createUrl: prefix + "/add",
+                updateUrl: prefix + "/edit/{id}",
+                removeUrl: prefix + "/remove",
+                exportUrl: prefix + "/export",
+                modalName: "论文",
+                columns: [{
+                    checkbox: true
+                },
+                {
+                    field: 'id',
+                    title: '序号',
+                    visible: false
+                },
+                {
+                    field: 'college',
+                    title: '学院'
+                },
+                {
+                    field: 'researchRoom',
+                    title: '教研室'
+                },
+                {
+                    field: 'employeeId',
+                    title: '工号'
+                },
+                {
+                    field: 'teacherName',
+                    title: '教师姓名'
+                },
+                {
+                    field: 'administrativePosition',
+                    title: '行政职务'
+                },
+                {
+                    field: 'socialTitle',
+                    title: '社会职称'
+                },
+                {
+                    field: 'onCampusTitle',
+                    title: '校内职称'
+                },
+                {
+                    field: 'authorType',
+                    title: '作者类型'
+                },
+                {
+                    field: 'paperTitle',
+                    title: '论文名称'
+                },
+                {
+                    field: 'paperCategory',
+                    title: '论文类别'
+                },
+                {
+                    field: 'publishedJournal',
+                    title: '发表期刊'
+                },
+                {
+                    field: 'inclusionStatus',
+                    title: '收录情况'
+                },
+                {
+                    field: 'publicationTime',
+                    title: '发表时间'
+                },
+                {
+                    field: 'isIndustryCollaborative',
+                    title: '是否与行业联合发表'
+                },
+                {
+                    field: 'isLocalCollaborative',
+                    title: '是否与地方联合发表'
+                },
+                {
+                    field: 'isInternationalCollaborative',
+                    title: '是否与国际联合发表'
+                },
+                {
+                    field: 'isCrossDiscipline',
+                    title: '是否是跨学科论文'
+                },
+                {
+                    field: 'paperRanking',
+                    title: '排名'
+                },
+                {
+                    field: 'researchScore',
+                    title: '科研分'
+                },
+                {
+                    field: 'remarks',
+                    title: '备注'
+                },
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                        var actions = [];
+                        actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>编辑</a> ');
+                        actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-remove"></i>删除</a>');
+                        return actions.join('');
+                    }
+                }]
+            };
+            initTable(options);
+
+            window.addEventListener("storage",function (event) {
+                if (event.key === "year") {
+                    $('#bootstrap-table').bootstrapTable("destroy")
+                    initTable(options);
+                }
+            })
+        });
+
+    </script>
+</body>
+</html>

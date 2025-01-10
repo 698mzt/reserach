@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Edumin - Bootstrap Admin Dashboard </title>
+    <!-- Favicon icon -->
+
+    <link rel="stylesheet" href="static/css/jqvmap.min.css">
+    <link rel="stylesheet" href="static/css/chartist.min.css">
+    <link rel="stylesheet" href="static/css/lunbotu.css">
+    <!-- Summernote -->
+    <link href="static/css/summernote.css" rel="stylesheet">
+    <link rel="stylesheet" href="static/css/bootstrap-select.min.css">
+    <link rel="stylesheet" href="static/css/style2.css">
+    <link rel="stylesheet" href="static/css/skin-3.css">
+<!--    <link rel="stylesheet" href="static/css/background.css">-->
+<!--    <style>-->
+<!--        .main-content-container {-->
+<!--            padding: 20px; /* 根据需要调整内边距 */-->
+<!--            margin: 0 auto; /* 居中显示 */-->
+<!--            /* max-width: 1200px; /* 移除或设置为一个非常大的值 */-->
+<!--        }-->
+<!--        .container-fluid {-->
+<!--            padding-left: 20px; /* 确保左右内边距相等 */-->
+<!--            padding-right: 20px; /* 确保左右内边距相等 */-->
+<!--        }-->
+<!--    </style>-->
+</head>
+
+<body>
+
+<!-- 导航栏 -->
+<div class="navbar">
+    <div class="logo" > <!-- 添加了id属性 -->
+        <img src="static/picture/schoollogo.png" alt="Logo"> <!-- 替换为实际的logo图片路径 -->
+    </div>
+    <!--    <div class="nav-links">-->
+    <!--        <a href="#">Home</a>-->
+    <!--        <a href="#">About</a>-->
+    <!--        <a href="#">Services</a>-->
+    <!--        <a href="#">Contact</a>-->
+    <!--    </div>-->
+<!--    <div class="search-section" onclick="toggleSearch()">-->
+<!--        <img src="search-icon.png" alt="Search Icon" style="width: 20px; height: 20px;"> &lt;!&ndash; 替换为实际的搜索图标路径 &ndash;&gt;-->
+<!--        <input type="text" placeholder="Search...">-->
+<!--    </div>-->
+</div>
+
+<div class="quick-links" id="quickLinks">
+    <a href="#">Link 1</a>
+    <a href="#">Link 2</a>
+    <a href="#">Link 3</a>
+</div>
+
+<div class="box">
+    <div class="imglist">
+        <a href="#" class="show"><img src="static/picture/img1.jpg" alt=""></a>
+        <a href="#"><img src="static/picture/img2.jpg" alt=""></a>
+        <a href="#"><img src="static/picture/img3.jpg" alt=""></a>
+    </div>
+    <div class="leftBtn">&lt;</div>
+    <div class="rightBtn">&gt;</div>
+    <div class="btnlist">
+        <span class="che"></span>
+        <span></span>
+        <span></span>
+    </div>
+</div>
+
+
+<!-- Preloader -->
+<div id="preloader">
+    <div class="sk-three-bounce">
+        <div class="sk-child sk-bounce1"></div>
+        <div class="sk-child sk-bounce2"></div>
+        <div class="sk-child sk-bounce3"></div>
+    </div>
+</div>
+
+<!-- Main wrapper -->
+<div id="main-wrapper">
+
+
+
+    <div class="content-body">
+        <!-- row -->
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-xl-3 col-xxl-3 col-sm-6">
+                    <div class="widget-stat card bg-primary hover-box link-item">
+                        <div class="card-body">
+                            <div class="media">
+                <span class="mr-3">
+                    <i class="la la-users"></i>
+                </span>
+                                <div class="media-body text-white">
+                                    <p class="mb-1">Horizontal Topic</p>
+                                    <h3 class="text-white">科研管理系统</h3>
+                                    <div class="progress mb-2 bg-white">
+                                        <div class="progress-bar progress-animated bg-light" style="width: 80%"></div>
+                                    </div>
+                                    <small>20天内增加80%</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-xxl-3 col-sm-6">
+                    <div class="widget-stat card bg-warning hover-box link-item">
+                        <div class="card-body">
+                            <div class="media">
+                <span class="mr-3">
+                    <i class="la la-user"></i>
+                </span>
+                                <div class="media-body text-white">
+                                    <p class="mb-1">Longitudinal Topic</p>
+                                    <h3 class="text-white">纵向课题</h3>
+                                    <div class="progress mb-2 bg-white">
+                                        <div class="progress-bar progress-animated bg-light" style="width: 50%"></div>
+                                    </div>
+                                    <small>20天内增加50%</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-xxl-3 col-sm-6">
+                    <div class="widget-stat card bg-secondary hover-box link-item">
+                        <div class="card-body">
+                            <div class="media">
+                <span class="mr-3">
+                    <i class="la la-graduation-cap"></i>
+                </span>
+                                <div class="media-body text-white">
+                                    <p class="mb-1">Data Center</p>
+                                    <h3 class="text-white">数据中心</h3>
+                                    <div class="progress mb-2 bg-white">
+                                        <div class="progress-bar progress-animated bg-light" style="width: 76%"></div>
+                                    </div>
+                                    <small>20天内增加76%</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-xxl-3 col-sm-6">
+                    <div class="widget-stat card bg-danger hover-box link-item">
+                        <div class="card-body">
+                            <div class="media">
+                <span class="mr-3">
+                    <i class="la la-dollar"></i>
+                </span>
+                                <div class="media-body text-white">
+                                    <p class="mb-1">Download Zone</p>
+                                    <h3 class="text-white">下载专区</h3>
+                                <div class="progress mb-2 bg-white">
+                                    <div class="progress-bar progress-animated bg-light" style="width: 30%"></div>
+                                </div>
+                                <small>20天内增加30%</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+<!--                <div class="col-xl-6 col-xxl-6 col-lg-12 col-sm-12">-->
+<!--                    <div class="card">-->
+<!--                        <div class="card-header">-->
+<!--                            <h3 class="card-title">University Survey</h3>-->
+<!--                        </div>-->
+<!--                        <div class="card-body">-->
+<!--                            <div id="morris_bar_stalked" class="morris_chart_height" style="height: 300px !important;"></div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--                <div class="col-xl-3 col-xxl-3 col-sm-6">-->
+<!--                    <div class="card">-->
+<!--                        <div class="card-header">-->
+<!--                            <h3 class="card-title">Donught Chart</h3>-->
+<!--                        </div>-->
+<!--                        <div class="card-body">-->
+<!--                            <div id="morris_donught_2" class="morris_chart_height" style="height: 300px !important;"></div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--                <div class="col-xl-3 col-xxl-3 col-sm-6">-->
+<!--                    <div class="card">-->
+<!--                        <div class="card-header">-->
+<!--                            <h3 class="card-title">University Survey</h3>-->
+<!--                        </div>-->
+<!--                        <div class="card-body">-->
+<!--                            <div id="morris_area" class="morris_chart_height" style="height: 300px !important;"></div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
+
+
+                <div class="col-xl-3 col-xxl-3 col-lg-6 col-md-6">
+                    <div class="card">
+                        <img class="img-fluid" src="static/picture/pic11.jpg" alt="">
+                        <div class="card-body">
+                            <h4><a href="about-courses.html">为什么早期教育是必不可少的?</a></h4>
+                            <ul class="list-group mb-3 list-group-flush">
+                                <li class="list-group-item px-0 border-top-0 d-flex justify-content-between"><span class="mb-0 text-muted">April 23</span>
+                                    <a href="javascript:void(0);"><i class="la la-heart-o mr-1"></i><strong>230</strong></a></li>
+                                <li class="list-group-item px-0 d-flex justify-content-between">
+                                    <span class="mb-0">Duration :</span><strong>12 Months</strong></li>
+                                <li class="list-group-item px-0 d-flex justify-content-between">
+                                    <span class="mb-0">Professor :</span><strong>Jack Ronan</strong></li>
+                                <li class="list-group-item px-0 d-flex justify-content-between">
+                                    <span><i class="fa fa-graduation-cap text-primary mr-2"></i>Student</span><strong>+120</strong></li>
+                            </ul>
+                            <a href="about-courses.html" class="btn btn-primary">Read More</a>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- 合并第二个和第三个卡片为一个新的卡片 -->
+                <div class="col-xl-6 col-xxl-6 col-lg-12 col-md-12">
+                    <div class="card article-card">
+                        <div class="card-header d-flex justify-content-between align-items-center custom-header-bg">
+                            <h2 class="card-title custom-title">教育科技|文章推选</h2>
+                            <a href="#" class="btn btn-link btn-more">更多 &gt;&gt;</a>
+                        </div>
+                        <div class="card-body">
+                            <div class="article-list">
+<!--                                <div class="article-item">-->
+<!--                                    <span class="bullet">·</span>-->
+<!--                                    <h4 class="article-title"><a href="about-courses.html" class="article-link">令人震惊的教育启示</a><span class="article-date float-right">2024-07-25</span></h4>-->
+<!--                                </div>-->
+                                <div class="article-item">
+                                    <span class="bullet">·</span>
+                                    <h4 class="article-title">
+                                        <a href="about-courses.html" class="article-link">令人震惊的教育启示</a>
+                                        <scan><a href="about-courses.html" class="article-date float-right">2024-07-25</a></scan>
+                                    </h4>
+                                </div>
+                                <div class="article-item">
+                                    <span class="bullet">·</span>
+                                    <h4 class="article-title">
+                                        <a href="about-courses.html" class="article-link">没人告诉你的五件事</a>
+                                        <scan><a href="about-courses.html" class="article-date float-right">2024-07-25</a></scan>
+                                    </h4>
+                                </div>
+                                <div class="article-item">
+                                    <span class="bullet">·</span>
+                                    <h4 class="article-title">
+                                        <a href="about-courses.html" class="article-link">共建更加美好未来注入强大动力</a>
+                                        <scan><a href="about-courses.html" class="article-date float-right">2024-07-25</a></scan>
+                                    </h4>
+                                </div>
+                                <div class="article-item">
+                                    <span class="bullet">·</span>
+                                    <h4 class="article-title">
+                                        <a href="about-courses.html" class="article-link">“一带一路”建设惠及发展中国家经济发展和民生福祉</a>
+                                        <scan><a href="about-courses.html" class="article-date float-right">2024-07-25</a></scan>
+                                    </h4>
+                                </div>
+                                <div class="article-item">
+                                    <span class="bullet">·</span>
+                                    <h4 class="article-title">
+                                        <a href="about-courses.html" class="article-link">新闻发言人吴谦就美国新一轮对台售武答记者问</a>
+                                        <scan><a href="about-courses.html" class="article-date float-right">2024-07-25</a></scan>
+                                    </h4>
+                                </div>
+                                <div class="article-item">
+                                    <span class="bullet">·</span>
+                                    <h4 class="article-title">
+                                        <a href="about-courses.html" class="article-link">以任何名义任何理由“过境”美国</a>
+                                        <scan><a href="about-courses.html" class="article-date float-right">2024-07-25</a></scan>
+                                    </h4>
+                                </div>
+                                <div class="article-item">
+                                    <span class="bullet">·</span>
+                                    <h4 class="article-title">
+                                        <a href="about-courses.html" class="article-link">发号施令接缝处杜甫路</a>
+                                        <scan><a href="about-courses.html" class="article-date float-right">2024-07-25</a></scan>
+                                    </h4>
+                                </div>
+<!--                                <div class="article-item">-->
+<!--                                    <span class="bullet">·</span>-->
+<!--                                    <h4 class="article-title"><a href="about-courses.html" class="article-link">没人告诉你的五件事</a><span class="article-date float-right">2024-06-19</span></h4>-->
+<!--                                </div>-->
+<!--                                <div class="article-item">-->
+<!--                                    <span class="bullet">·</span>-->
+<!--                                    <h4 class="article-title"><a href="about-courses.html" class="article-link">共建更加美好未来注入强大动力</a><span class="article-date float-right">2024-06-10</span></h4>-->
+<!--                                </div>-->
+<!--                                <div class="article-item">-->
+<!--                                    <span class="bullet">·</span>-->
+<!--                                    <h4 class="article-title"><a href="about-courses.html" class="article-link">“一带一路”建设惠及发展中国家经济发展和民生福祉</a><span class="article-date float-right">2024-06-10</span></h4>-->
+<!--                                </div>-->
+<!--                                <div class="article-item">-->
+<!--                                    <span class="bullet">·</span>-->
+<!--                                    <h4 class="article-title"><a href="about-courses.html" class="article-link">新闻发言人吴谦就美国新一轮对台售武答记者问</a><span class="article-date float-right">2024-06-10</span></h4>-->
+<!--                                </div>-->
+<!--                                <div class="article-item">-->
+<!--                                    <span class="bullet">·</span>-->
+<!--                                    <h4 class="article-title"><a href="about-courses.html" class="article-link">以任何名义任何理由“过境”美国</a><span class="article-date float-right">2024-06-10</span></h4>-->
+<!--                                </div>-->
+<!--                                <div class="article-item">-->
+<!--                                    <span class="bullet">·</span>-->
+<!--                                    <h4 class="article-title"><a href="about-courses.html" class="article-link">发号施令接缝处杜甫路</a><span class="article-date float-right">2024-06-10</span></h4>-->
+<!--                                </div>-->
+                                <!-- 可以添加更多文章项，但当前布局仅显示前七条 -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="col-xl-3 col-xxl-3 col-lg-6 col-md-6">
+                        <div class="card">
+                            <img class="img-fluid" src="static/picture/pic4.jpg" alt="">
+                            <div class="card-body">
+                                <h4><a href="about-courses.html">学习Python-交互式Python教程</a></h4>
+                                <ul class="list-group mb-3 list-group-flush">
+                                    <li class="list-group-item px-0 border-top-0 d-flex justify-content-between"><span class="mb-0 text-muted">April 23</span>
+                                        <a href="javascript:void(0);"><i class="la la-heart-o mr-1"></i><strong>230</strong></a></li>
+                                    <li class="list-group-item px-0 d-flex justify-content-between">
+                                        <span class="mb-0">Duration :</span><strong>12 Months</strong></li>
+                                    <li class="list-group-item px-0 d-flex justify-content-between">
+                                        <span class="mb-0">Professor :</span><strong>Nashid Martines</strong></li>
+                                    <li class="list-group-item px-0 d-flex justify-content-between">
+                                        <span><i class="fa fa-graduation-cap text-primary mr-2"></i>Student</span><strong>+120</strong></li>
+                                </ul>
+                                <a href="about-courses.html" class="btn btn-primary">Read More</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-6 col-xxl-6 col-lg-6 col-md-12 col-sm-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <form action="#" method="post">
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text">To</span>
+                                            </div>
+                                            <input type="text" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text">Subject</span>
+                                            </div>
+                                            <input type="text" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="summernote"></div>
+                                    </div>
+                                    <div class="row align-items-center">
+                                        <div class="col-lg-6">
+                                            <div class="fallback w-100">
+                                                <input type="file" class="dropify" data-default-file="">
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <button type="button" class="btn btn-primary float-right">
+												Send <i class="fa fa-paper-plane-o"></i>
+											</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-6 col-xxl-6 col-lg-6 col-md-12 col-sm-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4 class="card-title">Exam Toppers</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table verticle-middle">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">Roll No.</th>
+                                                <th scope="col">Name</th>
+                                                <th scope="col">Status</th>
+                                                <th scope="col">Edit</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>542</td>
+                                                <td>Jack Ronan</td>
+                                                <td><span id="widget_sparklinedash"><canvas></canvas></span></td>
+                                                <td>
+                                                    <a href="javascript:void(0);" class="btn btn-sm btn-primary"><i class="la la-pencil"></i></a>
+                                                    <a href="javascript:void(0);" class="btn btn-sm btn-danger"><i class="la la-trash-o"></i></a>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>243 </td>
+                                                <td>Jimmy Morris</td>
+                                                <td>
+                                                    <div class="ico-sparkline">
+                                                        <div id="widget_spark-bar"></div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <a href="javascript:void(0);" class="btn btn-sm btn-primary"><i class="la la-pencil"></i></a>
+                                                    <a href="javascript:void(0);" class="btn btn-sm btn-danger"><i class="la la-trash-o"></i></a>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>452 </td>
+                                                <td>Nashid Martines</td>
+                                                <td>
+                                                    <div class="ico-sparkline">
+                                                        <div id="widget_StackedBarChart"></div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <a href="javascript:void(0);" class="btn btn-sm btn-primary"><i class="la la-pencil"></i></a>
+                                                    <a href="javascript:void(0);" class="btn btn-sm btn-danger"><i class="la la-trash-o"></i></a>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>124</td>
+                                                <td>Roman Aurora</td>
+                                                <td>
+                                                    <div class="ico-sparkline">
+                                                        <div id="widget_tristate"></div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <a href="javascript:void(0);" class="btn btn-sm btn-primary"><i class="la la-pencil"></i></a>
+                                                    <a href="javascript:void(0);" class="btn btn-sm btn-danger"><i class="la la-trash-o"></i></a>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>234</td>
+                                                <td>Samantha</td>
+                                                <td>
+                                                    <div class="ico-sparkline">
+                                                        <div id="widget_composite-bar"></div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <a href="javascript:void(0);" class="btn btn-sm btn-primary"><i class="la la-pencil"></i></a>
+                                                    <a href="javascript:void(0);" class="btn btn-sm btn-danger"><i class="la la-trash-o"></i></a>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-12 col-xxl-12 col-lg-12 col-md-12 col-sm-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4 class="card-title">New Student List</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive recentOrderTable">
+                                    <table class="table verticle-middle table-responsive-md">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">No.</th>
+                                                <th scope="col">Name</th>
+                                                <th scope="col">Assigned Professor</th>
+                                                <th scope="col">Date Of Admit</th>
+                                                <th scope="col">Status</th>
+                                                <th scope="col">Subject</th>
+                                                <th scope="col">Fees</th>
+                                                <th scope="col">Edit</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>01</td>
+                                                <td>Jack Ronan</td>
+                                                <td>Airi Satou</td>
+                                                <td>01 August 2020</td>
+                                                <td><span class="badge badge-rounded badge-primary">Checkin</span></td>
+                                                <td>Commerce</td>
+                                                <td>120$</td>
+                                                <td>
+                                                    <a href="edit-student.html" class="btn btn-sm btn-primary"><i class="la la-pencil"></i></a>
+                                                    <a href="javascript:void(0);" class="btn btn-sm btn-danger"><i class="la la-trash-o"></i></a>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>02 </td>
+                                                <td>Jimmy Morris</td>
+                                                <td>Angelica Ramos</td>
+                                                <td>31 July 2020</td>
+                                                <td><span class="badge badge-rounded badge-warning">Panding</span></td>
+                                                <td>Mechanical</td>
+                                                <td>120$</td>
+                                                <td>
+                                                    <a href="edit-student.html" class="btn btn-sm btn-primary"><i class="la la-pencil"></i></a>
+                                                    <a href="javascript:void(0);" class="btn btn-sm btn-danger"><i class="la la-trash-o"></i></a>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>03 </td>
+                                                <td>Nashid Martines</td>
+                                                <td>Ashton Cox</td>
+                                                <td>30 July 2020</td>
+                                                <td><span class="badge badge-rounded badge-danger">Canceled</span></td>
+                                                <td>Science</td>
+                                                <td>520$</td>
+                                                <td>
+                                                    <a href="edit-student.html" class="btn btn-sm btn-primary"><i class="la la-pencil"></i></a>
+                                                    <a href="javascript:void(0);" class="btn btn-sm btn-danger"><i class="la la-trash-o"></i></a>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>04</td>
+                                                <td>Roman Aurora</td>
+                                                <td>Cara Stevens</td>
+                                                <td>29 July 2020</td>
+                                                <td><span class="badge badge-rounded badge-success">Checkin</span></td>
+                                                <td>Arts</td>
+                                                <td>220$</td>
+                                                <td>
+                                                    <a href="edit-student.html" class="btn btn-sm btn-primary"><i class="la la-pencil"></i></a>
+                                                    <a href="javascript:void(0);" class="btn btn-sm btn-danger"><i class="la la-trash-o"></i></a>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>05</td>
+                                                <td>Samantha</td>
+                                                <td>Bruno Nash </td>
+                                                <td>28 July 2020</td>
+                                                <td><span class="badge badge-rounded badge-success">Checkin</span></td>
+                                                <td>Maths</td>
+                                                <td>130$</td>
+                                                <td>
+                                                    <a href="edit-student.html" class="btn btn-sm btn-primary"><i class="la la-pencil"></i></a>
+                                                    <a href="javascript:void(0);" class="btn btn-sm btn-danger"><i class="la la-trash-o"></i></a>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <!--**********************************
+            Content body end
+        ***********************************-->
+
+
+        <!--**********************************
+            Footer start
+        ***********************************-->
+        <div class="footer">
+            <div class="copyright">
+                <p>Copyright © Designed &amp; Developed by 2020</p>
+            </div>
+        </div>
+
+
+<!--</div>-->
+    </div>
+
+    <script src="static/js/global.min.js"></script>
+    <script src="static/js/bootstrap-select.min.js"></script>
+    <script src="static/js/custom.min.js"></script>
+    <script src="static/js/dlabnav-init.js"></script>
+
+    <!-- Chart sparkline plugin files -->
+    <script src="static/js/jquery.sparkline.min.js"></script>
+    <script src="static/js/sparkline-init.js"></script>
+
+    <!-- Chart Morris plugin files -->
+    <script src="static/js/raphael.min.js"></script>
+    <script src="static/js/morris.min.js"></script>
+
+    <!-- Init file -->
+    <script src="static/js/widgets-script-init.js"></script>
+
+    <!-- Demo scripts -->
+    <script src="static/js/dashboard.js"></script>
+
+    <!-- Summernote -->
+    <script src="static/js/summernote.min.js"></script>
+    <!-- Summernote init -->
+    <script src="static/js/summernote-init.js"></script>
+
+    <!-- Svganimation scripts -->
+    <script src="static/js/vivus.min.js"></script>
+    <script src="static/js/svg.animation.js"></script>
+    <script src="static/js/styleSwitcher.js"></script>
+    <script src="static/js/lunbotu.js"></script>
+    <script src="static/js/logo.refresh.js"></script>
+    <script src="static/js/hyperlink.js"></script>
+
+<style>
+    :root {
+        --background-image: none; /* 初始值设为无背景 */
+        --background-opacity: 1;  /* 初始透明度为1（不透明） */
+    }
+
+    body {
+        transition: background-color 0.3s ease, --background-opacity 0.3s ease;
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-image: var(--background-image);
+        background-color: rgba(255, 255, 255, var(--background-opacity)); /* 使用透明度作为背景颜色 */
+    }
+
+    body.has-background {
+        /* 这里不需要额外设置背景属性，因为它们在body选择器中已经定义了 */
+    }
+
+
+     /*保留之前的 CSS 样式不变，只需确保 article-card 及其子元素的样式正确应用*/
+    .article-card {
+        /*border: 0; !* 移除边框，如果需要的话 *!*/
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 添加阴影效果 */
+        transition: box-shadow 0.3s ease;
+        background-color: #9da1a4; /* 使用半透明灰蓝色，以保留阴影效果 */
+    }
+
+    .article-card:hover {
+        background-color: #9da1a4; /* 更改背景颜色为浅灰色 #9da1a4*/
+        box-shadow: 0 8px 16px rgb(255, 255, 255); /* 鼠标悬停时增加阴影 */
+    }
+
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    /* 为card-header添加自定义背景颜色 */
+    .custom-header-bg {
+        background-color: #e1eaeb; /* e1eaeb */
+        padding: 15px 20px; /* 可选：为header添加内边距，以便更好地展示背景色 */
+        border-radius: 8px 8px 0 0; /* 可选：为header添加圆角，与卡片底部形成对比 */
+        color: white; /* 设置文本颜色为白色，以确保在深色背景上可读 */
+    }
+
+    /* 如果需要，也可以为card-title设置一些样式 */
+    .custom-header-bg .card-title {
+        font-size: 24px; /* 可选：设置字体大小 */
+        font-weight: bold; /* 可选：加粗字体 */
+    }
+
+    .article-list {
+        list-style: none;
+        padding: 0;
+    }
+
+    .article-item {
+        display: flex;
+        align-items: center;
+        padding: 15px 0;
+        border-bottom: 1px solid #eee; /* 分隔线 */
+    }
+
+    /* 为card-title添加自定义样式 */
+    .custom-title {
+        font-size: 24px; /* 设置字体大小 */
+        color: #3498db; /* 设置字体颜色为酷炫的蓝色 */
+        font-weight: bold; /* 加粗字体 */
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); /* 添加文本阴影，增加立体感 */
+        background: linear-gradient(to right, #ff7e5f, #feb47b); /* 应用渐变背景色，使其更加酷炫 */
+        -webkit-background-clip: text; /* 将背景色应用于文本 */
+        -webkit-text-fill-color: transparent; /* 使文本颜色透明，以显示背景色 */
+        padding: 0 10px; /* 可选：为文本添加一些内边距，以便更好地显示渐变效果 */
+    }
+
+    .article-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%; /* 确保标题占据整行 */
+
+        position: relative; /* 为后续的对齐调整提供定位上下文 */
+    }
+
+    /*.article-title a.article-link {*/
+    /*    flex-grow: 0.6666; !* 占据约2/3的宽度 *!*/
+    /*    white-space: nowrap;*/
+    /*    overflow: hidden;*/
+    /*    text-overflow: ellipsis;*/
+    /*    position: relative;*/
+    /*}*/
+
+    .article-title a {
+        flex-grow: 1; /* 使链接占据除日期外的剩余空间 */
+
+        position: relative; /* 为下划线定位 */
+        /*padding-bottom: 4px; !* 与.article-date的padding-bottom保持一致，确保下划线对齐 *!*/
+    }
+
+    .article-date {
+        /* 移除之前的浮动和间距设置 */
+        margin-left: auto; /* 自动右边距，使日期靠右对齐 */
+        color: #6c757d; /* 日期颜色 */
+        font-size: 0.875rem; /* 日期字体大小 */
+        position: relative; /* 为下划线定位 */
+
+        padding-bottom: 5px; /*2 为下划线留出空间 */
+        display: inline-block; /* 确保伪元素只影响日期文本 */
+    }
+
+    .article-title a::after,
+    .article-date::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        bottom: -5px; /* -5px */
+        width: 0;
+        height: 2px;
+        background-color: #d14c67; /* 下划线颜色，您可以根据需要调整 */
+        transition: width 0.3s ease; /* 平滑过渡效果 */
+    }
+
+    .article-item:hover .article-title a::after,
+    .article-item:hover .article-date::after {
+        width: 100%; /* 鼠标悬停时下划线扩展到文字末尾 */
+    }
+
+    /*.article-item:last-child {*/
+    /*    border-bottom: 0; !* 移除最后一个项目的分隔线 *!*/
+    /*}*/
+
+    .bullet {
+        color: white; /* 红色点 */
+        font-size: 2.0rem; /* 增大红点大小 */
+        margin-right: 10px; /* 点与文章标题之间的间距 */
+    }
+
+    .article-link {
+        color: #333; /* 初始链接颜色 */
+        text-decoration: none; /* 移除下划线 */
+        position: relative; /* 为下划线定位 */
+        display: inline-block; /* 确保伪元素只影响链接文本 */
+        transition: color 0.3s ease, text-decoration 0.3s ease; /* 平滑过渡效果 */
+    }
+
+    .article-link:hover,
+    .article-item:hover .article-date {
+        color: #007bff; /* 鼠标悬停时链接和日期变色 */
+        text-decoration: underline; /* 鼠标悬停时显示下划线（虽然这里不需要，因为我们有自定义下划线） */
+    }
+
+    .article-link::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        bottom: -4px; /* 调整下划线与文字的距离 */
+        width: 0;
+        height: 2px;
+        background-color: #d14c67; /* 下划线颜色 */
+        transition: width 0.3s ease; /* 平滑过渡效果 */
+    }
+
+    .article-link:hover::after {
+        width: 100%; /* 鼠标悬停时下划线扩展到文字末尾 */
+    }
+
+    /*.article-date {*/
+    /*    color: #6c757d; !* 日期颜色 *!*/
+    /*    font-size: 0.875rem; !* 日期字体大小 *!*/
+    /*    margin-left: 15px; !* 日期与文章标题之间的间距 *!*/
+    /*}*/
+
+    .btn-more {
+        color: #007bff; /* 链接颜色 */
+        text-decoration: none; /* 移除下划线 */
+        transition: color 0.3s ease; /* 平滑过渡效果 */
+    }
+
+    .btn-more:hover {
+        color: #0056b3; /* 鼠标悬停时链接变色 */
+        text-decoration: underline; /* 鼠标悬停时显示下划线 */
+    }
+</style>
+
+</body>
+
+
+</html>

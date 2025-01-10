@@ -2,6 +2,8 @@ package com.ruoyi.system.service;
 
 import java.util.List;
 import com.ruoyi.system.domain.SciHorizontalApply;
+import com.ruoyi.system.domain.SciHorizontalPersion;
+import org.apache.ibatis.annotations.Options;
 
 /**
  * 横向课题Service接口
@@ -33,15 +35,11 @@ public interface ISciHorizontalApplyService
      * @param sciHorizontalApply 横向课题
      * @return 结果
      */
+    @Options(useGeneratedKeys = true, keyProperty = "id")
     public int insertSciHorizontalApply(SciHorizontalApply sciHorizontalApply);
 
-    /**
-     * 结项横向课题
-     *
-     * @param sciHorizontalApply 横向课题
-     * @return 结果
-     */
-    public int insertSciHorizontalOverApply(SciHorizontalApply sciHorizontalApply);
+
+
 
     /**
      * 修改横向课题
@@ -67,6 +65,14 @@ public interface ISciHorizontalApplyService
      */
     public int deleteSciHorizontalApplyById(Integer id);
 
+    /**
+     * 删除横向课题另一个信息
+     *
+     * @param id 横向课题主键
+     * @return 结果
+     */
+    public int deleteSciHorizontalOverApplyById(Integer id);
+
     int hxPass(String id,Long uid,String urlFlag);
     int hxover(String id,Long uid,String urlFlag);
 
@@ -78,12 +84,21 @@ public interface ISciHorizontalApplyService
     List<SciHorizontalApply> selectSciHorizontalApplyListByJYS(SciHorizontalApply sciHorizontalApply);
 
     List<SciHorizontalApply> selectSciHorizontalApplyListByOverApply(SciHorizontalApply sciHorizontalApply);
+
     List<SciHorizontalApply> selectSciHorizontalApplyListByOverApplyJYS(SciHorizontalApply sciHorizontalApply);
+
     List<SciHorizontalApply> selectSciHorizontalApplyListByOverApplyKYC(SciHorizontalApply sciHorizontalApply);
 
     List<SciHorizontalApply> selectSciHorizontalApplyListByOVER(SciHorizontalApply sciHorizontalApply);
 
+    List<SciHorizontalApply> selectSciHorizontalApplyListByOVERKYC(SciHorizontalApply sciHorizontalApply);
+
     int overApply(String id, String state);
 
 
+    List<SciHorizontalApply> selectOtherListByUid(SciHorizontalApply sciHorizontalApply);
+    //申请结项流程
+    int overSaveSciHorizontalApply(SciHorizontalApply sciHorizontalApply);
+
+    List<SciHorizontalApply> exportSciHorizontalApplyList(SciHorizontalApply sciHorizontalApply);
 }

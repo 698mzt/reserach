@@ -1,6 +1,12 @@
 package com.ruoyi.system.controller;
 
 import java.util.List;
+
+import com.ruoyi.common.core.domain.entity.SysUser;
+import com.ruoyi.system.domain.SciHorizontalApply;
+import com.ruoyi.system.domain.SciHorizontalPiyue;
+import com.ruoyi.system.service.ISysUserService;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -34,6 +40,9 @@ public class SciZhuanliruanzhuController extends BaseController
     @Autowired
     private ISciZhuanliruanzhuService sciZhuanliruanzhuService;
 
+    @Autowired
+    private ISysUserService userService;
+
     @RequiresPermissions("system:zhuanliruanzhu:view")
     @GetMapping()
     public String zhuanliruanzhu()
@@ -47,8 +56,10 @@ public class SciZhuanliruanzhuController extends BaseController
     @RequiresPermissions("system:zhuanliruanzhu:list")
     @PostMapping("/list")
     @ResponseBody
-    public TableDataInfo list(SciZhuanliruanzhu sciZhuanliruanzhu)
+    public TableDataInfo list(SciZhuanliruanzhu sciZhuanliruanzhu,String year)
     {
+        sciZhuanliruanzhu.setYear(year);
+        sciZhuanliruanzhu.setUid(getUserId());
         startPage();
         List<SciZhuanliruanzhu> list = sciZhuanliruanzhuService.selectSciZhuanliruanzhuList(sciZhuanliruanzhu);
         return getDataTable(list);
@@ -72,8 +83,19 @@ public class SciZhuanliruanzhuController extends BaseController
      * 新增专利软著
      */
     @GetMapping("/add")
-    public String add()
+    public String add( ModelMap mmap)
     {
+
+        List<SysUser> userList =  userService.selectAllUser();
+        for (int a = 0; a<userList.size();a++) {
+            if(userList.get(a).getUserId() == getUserId()){
+                SysUser user = userList.get(a);
+                user.setFlag(true);
+                userList.set(a,user);
+                break;
+            }
+        }
+        mmap.put("sysUsers",userList);
         return prefix + "/add";
     }
 
@@ -98,6 +120,13 @@ public class SciZhuanliruanzhuController extends BaseController
     {
         SciZhuanliruanzhu sciZhuanliruanzhu = sciZhuanliruanzhuService.selectSciZhuanliruanzhuById(id);
         mmap.put("sciZhuanliruanzhu", sciZhuanliruanzhu);
+
+        // 获取用户列表并添加到模型中
+//        List<SysUser> sysUsers = userService.selectUserList(null);
+//        mmap.put("sysUsers", sysUsers);
+        List<SysUser> userList1 =  userService.selectAllUser();
+        mmap.put("sysUsers1",userList1);
+
         return prefix + "/edit";
     }
 
@@ -123,5 +152,69 @@ public class SciZhuanliruanzhuController extends BaseController
     public AjaxResult remove(String ids)
     {
         return toAjax(sciZhuanliruanzhuService.deleteSciZhuanliruanzhuByIds(ids));
+    }
+
+
+
+//    @RequiresPermissions("system:zhuanliruanzhu:process","system:zhuanliruanzhu:info")
+    @RequiresPermissions(value={"system:zhuanliruanzhu:process","system:zhuanliruanzhu:info"},logical= Logical.OR)
+    @GetMapping("/detail/{id}/{urlFlag}")
+    public String detail(@PathVariable("id") Integer id,@PathVariable("urlFlag") String urlFlag, ModelMap mmap)
+    {
+        SciZhuanliruanzhu sciZhuanliruanzhu = sciZhuanliruanzhuService.selectSciZhuanliruanzhuById(id);
+        List<SysUser> userList1 =  userService.selectAllUser();
+        sciZhuanliruanzhu.setUrlFlag(urlFlag);
+        mmap.put("sysUsers1",userList1);
+        mmap.put("sciZhuanliruanzhu", sciZhuanliruanzhu);
+        return prefix + "/detail";
+    }
+
+
+//    @RequiresPermissions("system:apply:edit")
+//    @PostMapping("/bhyy/{kid}")
+//    @ResponseBody
+//    public TableDataInfo bhyy(@PathVariable("kid")Integer kid)
+//    {
+//        SciHorizontalPiyue ob = new SciHorizontalPiyue();
+//        ob.setHxktId(kid);
+//        List<SciHorizontalPiyue> list = piyueService.selectSciHorizontalPiyueList(ob);
+//        return getDataTable(list);
+//    }
+
+
+
+    @RequiresPermissions(value={"system:zhuanliruanzhu:hecha","system:zhuanliruanzhu:process"},logical= Logical.OR)
+    @Log(title = "专利软著审核通过", businessType = BusinessType.UPDATE)
+    @PostMapping( "/hxPass")
+    @ResponseBody
+    public AjaxResult hxPass(String id,String urlFlag)
+    {
+        return toAjax(sciZhuanliruanzhuService.hxPass(id,getUserId(),urlFlag));
+    }
+    @RequiresPermissions(value={"system:zhuanliruanzhu:hecha","system:zhuanliruanzhu:process"},logical= Logical.OR)
+    @Log(title = "结项专利软著审核通过", businessType = BusinessType.UPDATE)
+    @PostMapping( "/hxover")
+    @ResponseBody
+    public AjaxResult hxover(String id,String urlFlag)
+    {
+        return toAjax(sciZhuanliruanzhuService.hxover(id,getUserId(),urlFlag));
+    }
+
+    @RequiresPermissions(value={"system:zhuanliruanzhu:hecha","system:zhuanliruanzhu:process"},logical= Logical.OR)
+    @Log(title = "专利软著被驳回", businessType = BusinessType.UPDATE)
+    @PostMapping( "/hxBh")
+    @ResponseBody
+    public AjaxResult hxBh(String id,String remark,String urlFlag)
+    {
+
+        return toAjax(sciZhuanliruanzhuService.hxBh(id,getUserId(),remark,urlFlag));
+    }
+    @RequiresPermissions(value={"system:zhuanliruanzhu:hecha","system:zhuanliruanzhu:process"},logical= Logical.OR)
+    @Log(title = "结项专利软著被驳回", businessType = BusinessType.UPDATE)
+    @PostMapping( "/hxoverBh")
+    @ResponseBody
+    public AjaxResult hxoverBh(String id,String remark,String urlFlag)
+    {
+        return toAjax(sciZhuanliruanzhuService.hxoverBh(id,getUserId(),remark,urlFlag));
     }
 }

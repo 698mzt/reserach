@@ -55,7 +55,10 @@ public class SciIntraSchoolProController extends BaseController {
 
     @PostMapping("/list/{tableId}")
     @ResponseBody
-    public TableDataInfo list(@PathVariable("tableId") String tableId, SciIntraSchoolPro sciIntraSchoolPro) {
+    public TableDataInfo list(@PathVariable("tableId") String tableId,String year, SciIntraSchoolPro sciIntraSchoolPro) {
+
+        sciIntraSchoolPro.setYear(year);
+        //System.out.println("year = " + year);
         sciIntraSchoolPro.setUid(getUserId());
         startPage();
         List<SysRole> roles = getSysUser().getRoles();
@@ -70,6 +73,7 @@ public class SciIntraSchoolProController extends BaseController {
             }
         }
         List<SciIntraSchoolPro> list = new ArrayList<>();
+        System.out.println("sciIntraSchoolPro="+sciIntraSchoolPro.toString());
 //        科研处
         if (role.equals("sci_tesearch")) {
             switch (tableId) {
@@ -99,7 +103,8 @@ public class SciIntraSchoolProController extends BaseController {
                     list = sciIntraSchProApplyService.sel_IntraSchPro_closure_jy(sciIntraSchoolPro);
                     break;
             }
-        } else {
+        }
+        else {
             switch (tableId) {
                 case "bootstrap-table0":
                     list = sciIntraSchProApplyService.sel_my_IntraSchPro_isOVER(sciIntraSchoolPro);
@@ -114,7 +119,7 @@ public class SciIntraSchoolProController extends BaseController {
             }
         }
         TableDataInfo data = getDataTable(list);
-        System.out.println("data = " + data);
+        //System.out.println("data = " + data);
         return data;
     }
 
@@ -272,6 +277,7 @@ public class SciIntraSchoolProController extends BaseController {
     @ResponseBody
     public AjaxResult hxover(String id,String urlFlag)
     {
+        System.out.println("SciIntraSchoolProController.hxover"+"id="+id+" urlFlag="+urlFlag);
         return toAjax(sciIntraSchProApplyService.sch_hxover(id,getUserId(),urlFlag));
     }
 
