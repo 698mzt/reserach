@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.SciJcrzTextbooksMapper">
+
+    <resultMap type="SciJcrzTextbooks" id="SciJcrzTextbooksResult">
+        <result property="id"    column="id"    />
+        <result property="title"    column="title"    />
+        <result property="isbn"    column="isbn"    />
+        <result property="category"    column="category"    />
+        <result property="remarks"    column="remarks"    />
+        <result property="publisher"    column="publisher"    />
+        <result property="publishDate"    column="publish_date"    />
+        <result property="classification"    column="classification"    />
+        <result property="authorRank"    column="author_rank"    />
+        <result property="researchScore"    column="research_score"    />
+        <result property="isSchoolBook"    column="is_school_book"    />
+    </resultMap>
+
+    <sql id="selectSciJcrzTextbooksVo">
+        select id, title, isbn, category, remarks, publisher, publish_date, classification, author_rank, research_score, is_school_book from sci_jcrz_textbooks
+    </sql>
+
+    <select id="selectSciJcrzTextbooksList" parameterType="SciJcrzTextbooks" resultMap="SciJcrzTextbooksResult">
+        <include refid="selectSciJcrzTextbooksVo"/>
+        <where>
+            <if test="title != null  and title != ''"> and title like concat('%', #{title}, '%')</if>
+            <if test="category != null  and category != ''"> and category = #{category}</if>
+            <if test="researchScore != null "> and research_score &gt;= #{researchScore}</if>
+            <if test="isSchoolBook != null  and isSchoolBook != ''"> and is_school_book = #{isSchoolBook}</if>
+        </where>
+    </select>
+
+    <select id="selectSciJcrzTextbooksById" parameterType="Long" resultMap="SciJcrzTextbooksResult">
+        <include refid="selectSciJcrzTextbooksVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertSciJcrzTextbooks" parameterType="SciJcrzTextbooks" useGeneratedKeys="true" keyProperty="id">
+        insert into sci_jcrz_textbooks
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="title != null and title != ''">title,</if>
+            <if test="isbn != null">isbn,</if>
+            <if test="category != null and category != ''">category,</if>
+            <if test="remarks != null">remarks,</if>
+            <if test="publisher != null">publisher,</if>
+            <if test="publishDate != null">publish_date,</if>
+            <if test="classification != null and classification != ''">classification,</if>
+            <if test="authorRank != null and authorRank != ''">author_rank,</if>
+            <if test="researchScore != null">research_score,</if>
+            <if test="isSchoolBook != null and isSchoolBook != ''">is_school_book,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="title != null and title != ''">#{title},</if>
+            <if test="isbn != null">#{isbn},</if>
+            <if test="category != null and category != ''">#{category},</if>
+            <if test="remarks != null">#{remarks},</if>
+            <if test="publisher != null">#{publisher},</if>
+            <if test="publishDate != null">#{publishDate},</if>
+            <if test="classification != null and classification != ''">#{classification},</if>
+            <if test="authorRank != null and authorRank != ''">#{authorRank},</if>
+            <if test="researchScore != null">#{researchScore},</if>
+            <if test="isSchoolBook != null and isSchoolBook != ''">#{isSchoolBook},</if>
+        </trim>
+    </insert>
+
+    <update id="updateSciJcrzTextbooks" parameterType="SciJcrzTextbooks">
+        update sci_jcrz_textbooks
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="title != null and title != ''">title = #{title},</if>
+            <if test="isbn != null">isbn = #{isbn},</if>
+            <if test="category != null and category != ''">category = #{category},</if>
+            <if test="remarks != null">remarks = #{remarks},</if>
+            <if test="publisher != null">publisher = #{publisher},</if>
+            <if test="publishDate != null">publish_date = #{publishDate},</if>
+            <if test="classification != null and classification != ''">classification = #{classification},</if>
+            <if test="authorRank != null and authorRank != ''">author_rank = #{authorRank},</if>
+            <if test="researchScore != null">research_score = #{researchScore},</if>
+            <if test="isSchoolBook != null and isSchoolBook != ''">is_school_book = #{isSchoolBook},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteSciJcrzTextbooksById" parameterType="Long">
+        delete from sci_jcrz_textbooks where id = #{id}
+    </delete>
+
+    <delete id="deleteSciJcrzTextbooksByIds" parameterType="String">
+        delete from sci_jcrz_textbooks where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>
