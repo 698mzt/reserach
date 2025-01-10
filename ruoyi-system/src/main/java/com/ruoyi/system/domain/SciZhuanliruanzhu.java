@@ -17,6 +17,17 @@ public class SciZhuanliruanzhu extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
 
+    public String getYear() {
+        return year;
+    }
+
+    public void setYear(String year) {
+        this.year = year;
+    }
+
+    //    查询年份
+    private String year;
+
 
     public String getUrlFlag() {
         return urlFlag;

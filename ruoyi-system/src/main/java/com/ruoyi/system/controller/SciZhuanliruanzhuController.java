@@ -56,8 +56,9 @@ public class SciZhuanliruanzhuController extends BaseController
     @RequiresPermissions("system:zhuanliruanzhu:list")
     @PostMapping("/list")
     @ResponseBody
-    public TableDataInfo list(SciZhuanliruanzhu sciZhuanliruanzhu)
+    public TableDataInfo list(SciZhuanliruanzhu sciZhuanliruanzhu,String year)
     {
+        sciZhuanliruanzhu.setYear(year);
         sciZhuanliruanzhu.setUid(getUserId());
         startPage();
         List<SciZhuanliruanzhu> list = sciZhuanliruanzhuService.selectSciZhuanliruanzhuList(sciZhuanliruanzhu);
