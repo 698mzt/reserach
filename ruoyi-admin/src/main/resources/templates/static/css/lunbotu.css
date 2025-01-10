@@ -1,0 +1,190 @@
+/* 导航栏样式 */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #333;
+    margin-bottom: 0; /* 确保导航栏下方没有间距 */
+}
+.navbar .logo img {
+    height: 40px; /* 根据需要调整高度 */
+}
+.navbar .nav-links {
+    display: flex;
+    gap: 15px; /* 导航链接之间的间距 */
+}
+.navbar .nav-links a {
+    color: white;
+    text-decoration: none;
+    padding: 5px 10px;
+    transition: background-color 0.3s;
+}
+.navbar .nav-links a:hover {
+    background-color: #575757;
+}
+.navbar .search-section {
+    display: flex;
+    align-items: center;
+    cursor: pointer; /* 添加点击手型 */
+}
+.navbar .search-section input[type="text"] {
+    display: none; /* 默认隐藏搜索框 */
+    padding: 5px;
+    border: none;
+    border-radius: 3px;
+    margin-left: 10px; /* 与搜索图标之间的间距 */
+}
+.navbar .search-section.active input[type="text"] {
+    display: block; /* 点击后显示搜索框 */
+}
+.quick-links {
+    display: none; /* 默认隐藏快速链接栏 */
+    margin-top: 10px; /* 与搜索框之间的间距 */
+    text-align: center;
+}
+.quick-links.active {
+    display: block; /* 点击搜索框后显示快速链接栏 */
+}
+
+/* 轮滚图片样式 */
+.box {
+    width: 100%;
+    height: 65vh; /* 使用视口高度百分比 */
+    border: 2px solid white;
+    position: relative; /* 无需固定定位 */
+    top: auto;
+    left: auto;
+    transform: none;
+}
+/*如果把position:fixed改成relative,则是靠左(下面三行不要)*/
+.box>.imglist{
+    width: 100%;
+    height: 100%;
+}
+.box>.imglist>a{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: none;
+}
+.box>.imglist>a>img{
+    width: 100%;
+    height: 100%;
+}
+.leftBtn,.rightBtn{
+    position: absolute;
+    top:50%;
+    transform: translate(0,-50%);
+    font-size: 50px;
+    font-weight: bold;
+}
+.leftBtn{
+    left: 10px;
+}
+.rightBtn{
+    right: 10px;
+}
+.btnlist{
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translate(-50%,0);
+    display: flex;
+}
+.btnlist>span{
+    background: #ccc;
+    width: 20px;
+    height: 20px;
+    border-radius: 100%;
+    display: block;
+    margin-right: 10px;
+}
+.btnlist>span:last-child{
+    margin-right: 0;
+}
+.che{
+    background: deepskyblue !important;
+}
+.show{
+    display: block !important;
+}
+
+.navbar .logo {
+    display: flex;
+    align-items: center;
+}
+.navbar .logo img {
+    height: 40px;
+    transition: transform 0.3s;
+}
+.navbar .logo:hover img {
+    transform: scale(1.1); /* 悬停时放大 */
+}
+
+/* 初始隐藏左右切换按钮 */
+.box>.leftBtn,
+.box>.rightBtn {
+    display: none;
+    position: absolute;
+    top: 50%;
+    transform: translate(0, -50%);
+    font-size: 50px;
+    font-weight: bold;
+    color: white; /* 设置按钮文字颜色为白色，可根据需求调整 */
+    background-color: rgba(0, 0, 0, 0.5); /* 设置半透明背景色，可根据需求调整 */
+    border-radius: 50%; /* 将按钮设置为圆形 */
+    width: 50px; /* 设置按钮宽度 */
+    height: 57px; /* 设置按钮高度 */
+    line-height: 50px; /* 使按钮内文字垂直居中 */
+    text-align: center;
+    cursor: pointer; /* 添加鼠标指针样式为手型 */
+    transition: background-color 0.3s; /* 添加背景色过渡效果 */
+
+    /* 新增以下样式确保文本在按钮内完全居中 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.box>.leftBtn:hover,
+.box>.rightBtn:hover {
+    background-color: rgba(0, 0, 0, 0.8); /* 鼠标悬停时加深背景色 */
+}
+
+/* 当鼠标悬停在轮播图图片上时显示左右切换按钮 */
+.box>.imglist>a:hover +.leftBtn,
+.box>.imglist>a:hover +.rightBtn,
+.box>.leftBtn:hover,
+.box>.rightBtn:hover {
+    display: block;
+}
+
+/* 为按钮添加动画填充背景效果 */
+@keyframes circle-fill {
+    from {
+        background-color: rgba(0, 0, 0, 0.5); /* 初始背景色 */
+    }
+    to {
+        background-color: rgba(0, 0, 0, 0.8); /* 结束背景色 */
+    }
+}
+
+.box>.leftBtn:hover,
+.box>.rightBtn:hover {
+    animation: circle-fill 0.3s forwards; /* 应用动画并保持结束状态 */
+}
+
+/* 为白色文字添加边框 */
+.color-options span label[for="carousel_button_text_color_white"] {
+    border: 1px solid #000; /* 黑色边框 */
+}
+
+/* 其他颜色选项的样式（如果需要的话） */
+.color-options span label {
+    display: inline-block;
+    width: 20px; /* 根据需要调整宽度 */
+    height: 20px; /* 根据需要调整高度 */
+    border-radius: 50%; /* 圆形边框 */
+    cursor: pointer;
+}
