@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('新增教材软著')" />
+    <th:block th:include="include :: datetimepicker-css" />
+</head>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <form class="form-horizontal m" id="form-textbooks-add">
+        <div class="form-group">
+            <label class="col-sm-3 control-label is-required">专著或教材名称：</label>
+            <div class="col-sm-8">
+                <input name="title" class="form-control" type="text" required>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">ISBN：</label>
+            <div class="col-sm-8">
+                <input name="isbn" class="form-control" type="text">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">类别：</label>
+            <div class="col-sm-8">
+                <select class="form-control" name="category">
+                    <option value="专著">专著</option>
+                    <option value="译著">译著</option>
+                    <option value="辞书">辞书</option>
+                    <option value="教材">教材</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">备注：</label>
+            <div class="col-sm-8">
+                <textarea name="remarks" class="form-control"></textarea>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">出版社：</label>
+            <div class="col-sm-8">
+                <input name="publisher" class="form-control" type="text">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">出版时间：</label>
+            <div class="col-sm-8">
+                <div class="input-group date">
+                    <input name="publishDate" class="form-control" placeholder="yyyy-MM-dd" type="text">
+                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">具体类别：</label>
+            <div class="col-sm-8">
+                <select class="form-control" name="classification">
+                    <option value="专著(一类出版社)">专著(一类出版社)</option>
+                    <option value="专著(二类出版社)">专著(二类出版社)</option>
+                    <option value="译著(一类出版社)">译著(一类出版社)</option>
+                    <option value="译著(二类出版社)">译著(二类出版社)</option>
+                    <option value="教材(国家规划、省级规划)">教材(国家规划、省级规划)</option>
+                    <option value="教材">教材</option>
+                    <option value="自编教材(校内使用)">自编教材(校内使用)</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">作者排名：</label>
+            <div class="col-sm-8">
+                <select class="form-control" name="authorRank">
+                    <option value="第一">第一</option>
+                    <option value="第二">第二</option>
+                    <option value="第三">第三</option>
+                    <option value="第四">第四</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label is-required">科研分：</label>
+            <div class="col-sm-8">
+                <input name="researchScore" class="form-control" type="text" required>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">学校是否用书：</label>
+            <div class="col-sm-9">
+                <label class="radio-box">
+                    <input type="radio" checked="" value="是" id="optionsRadios1" name="isSchoolBook">是</label>
+                <label class="radio-box">
+                    <input type="radio" value="否" id="optionsRadios2" name="isSchoolBook">否</label>
+            </div>
+        </div>
+
+    </form>
+</div>
+<th:block th:include="include :: footer" />
+<th:block th:include="include :: datetimepicker-js" />
+<script th:inline="javascript">
+    var prefix = ctx + "system/textbooks"
+    $("#form-textbooks-add").validate({
+        focusCleanup: true
+    });
+
+    function submitHandler() {
+        if ($.validate.form()) {
+            $.operate.save(prefix + "/add", $('#form-textbooks-add').serialize());
+        }
+    }
+
+    $("input[name='publishDate']").datetimepicker({
+        format: "yyyy-mm-dd",
+        minView: "month",
+        autoclose: true
+    });
+</script>
+</body>
+</html>
