@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.SciLectureReportOpinionMapper">
+    <resultMap type="SciLectureReportOpinion" id="SciLectureReportOpinionResult">
+        <result property="id"    column="id"    />
+        <result property="baogaoId"    column="baogao_id"    />
+        <result property="concate"    column="concate"    />
+        <result property="uid"    column="uid"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="state"    column="state"    />
+        <result property="uname"    column="uname"    />
+    </resultMap>
+
+
+    <sql id="SciLectureReportOpinionVo">
+        select id, baogao_id, concate, uid ,u.user_name uname, s.create_time,state from sci_lecture_report_opinion s
+                                                                                          left join sys_user u on s.uid = u.user_id
+    </sql>
+<!--查询意见-->
+    <select id="opinionlist" parameterType="SciLectureReportOpinion" resultMap="SciLectureReportOpinionResult">
+        <include refid="SciLectureReportOpinionVo"/>
+        <where>
+            <if test="baogaoId != null "> and baogao_id = #{baogaoId}</if>
+            <if test="concate != null  and concate != ''"> and concate = #{concate}</if>
+            <if test="uid != null "> and uid = #{uid}</if>
+        </where>
+    </select>
+
+
+<!--    添加审批意见-->
+    <insert id="opinionadd" parameterType="SciLectureReportOpinion" useGeneratedKeys="true" keyProperty="id">
+        insert into sci_lecture_report_opinion
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="baogaoId != null">baogao_id,</if>
+            <if test="concate != null">concate,</if>
+            <if test="uid != null">uid,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="state != null">state,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="baogaoId != null">#{baogaoId},</if>
+            <if test="concate != null">#{concate},</if>
+            <if test="uid != null">#{uid},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="state != null">#{state},</if>
+        </trim>
+    </insert>
+
+</mapper>

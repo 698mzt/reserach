@@ -9,7 +9,7 @@
     <input id="userId" name="userId" type="hidden" th:value="${user.userId}" />
     <section class="section-content">
     <div class="row">
-        <div class="col-sm-3 pr5">
+        <div class="col-sm-3 pr5" style="visibility: hidden">
             <div class="ibox float-e-margins">
                 <div class="ibox-title ibox-title-gray dashboard-header gray-bg">
                     <h5>个人资料</h5>
@@ -30,7 +30,12 @@
                         </li>
                         <li class="list-group-item" th:if="${user.dept?.deptName != null}"><i class="fa fa-group"></i>
                             <b  class="font-noraml">所属部门：</b>
-                            <p class="pull-right" style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;width:120px;">[[${user.dept?.deptName}]] / [[${#strings.defaultString(postGroup,'无岗位')}]]</p>
+                            <p class="pull-right" style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;width:120px;">[[${user.dept?.deptName}]]</p>
+<!--                            <p class="pull-right" style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;width:120px;">[[${user.dept?.deptName}]] / [[${#strings.defaultString(postGroup,'无岗位')}]]</p>-->
+                        </li>
+                        <li class="list-group-item" th:if="${user.dept?.deptName != null}"><i class="fa fa-group"></i>
+                            <b  class="font-noraml">行政职务：</b>
+                            <p class="pull-right" style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;width:120px;">[[${#strings.defaultString(postGroup,'无岗位')}]]</p>
                         </li>
                         <li class="list-group-item"><i class="fa fa-envelope-o"></i>
                             <b  class="font-noraml">邮箱地址：</b>
@@ -78,6 +83,31 @@
                                         <label class="col-sm-2 control-label">邮箱：</label>
                                         <div class="col-sm-10">
                                             <input type="text" maxlength="50" class="form-control" name="email" th:field="*{email}" placeholder="请输入邮箱">
+                                        </div>
+                                    </div>
+                                    <div class="form-group"  th:style="${user.loginName == 'admin' ? 'display: none;' : ''}">
+                                        <label class="col-sm-2 control-label">社会职称：</label>
+                                        <div class="col-sm-10">
+                                            <select name="socialTitle" class="form-control" th:with="type=${@dict.getType('social_title')}" required>
+                                                <option value="">请选择职称</option>
+                                                <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}" th:selected="${dict.dictValue == user.socialTitle}"></option>
+                                            </select>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group" th:style="${user.loginName == 'admin' ? 'display: none;' : ''}">
+                                        <label class="col-sm-2 control-label">校内职称：</label>
+                                        <div class="col-sm-10">
+                                            <select name="teaZhicheng" class="form-control" th:with="type=${@dict.getType('tea_zhicheng')}" required>
+                                                <option value="">请选择职称</option>
+                                                <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}" th:selected="${dict.dictValue == user.teaZhicheng}"></option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group" style="display: none">
+                                        <label class="col-sm-2 control-label">入职时间：</label>
+                                        <div class="col-sm-10">
+                                            <input type="date" maxlength="50" class="form-control" name="serviceDate" th:field="*{serviceDate}" placeholder="请输入">
                                         </div>
                                     </div>
                                     <div class="form-group">
