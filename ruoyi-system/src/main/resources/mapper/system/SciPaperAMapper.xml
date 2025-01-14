@@ -16,6 +16,7 @@
         <result property="onCampusTitle"    column="on_campus_title"    />
         <result property="authorType"    column="author_type"    />
 
+        <result property="signingData"    column="signing_data"    />
         <result property="paperTitle"    column="paper_title"    />
         <result property="paperCategory"    column="paper_category"    />
         <result property="publishedJournal"    column="published_journal"    />
@@ -62,6 +63,8 @@
             <if test="researchScore != null  and researchScore != ''"> and research_score = #{researchScore}</if>
             <if test="remarks != null  and remarks != ''"> and remarks = #{remarks}</if>
             <if test="year != null  and year != ''"> and YEAR(publication_time) = #{year}</if>
+<!--            <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>-->
+
 
         </where>
     </select>
