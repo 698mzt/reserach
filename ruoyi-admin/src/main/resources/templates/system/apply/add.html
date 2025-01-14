@@ -13,7 +13,7 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">申请人：</label>
                     <div class="col-sm-8">
-                        <select name="userId" class="form-control m-b" >
+                        <select name="userId" class="form-control m-b" disabled>
                             <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${user.flag}"></option>
                         </select>
                     </div>
