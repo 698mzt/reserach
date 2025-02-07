@@ -12,6 +12,7 @@
         <input name="urlFlag" id="urlFlag" th:field="*{urlFlag}"  type="hidden">
         <input name="state" id="state" th:field="*{state}" type="hidden">
         <input name="id" id="ktid" th:field="*{id}" type="hidden">
+        <input name="amount" id="amount" th:field="*{amount}" type="hidden">
         <h4 class="form-header h4">基本信息</h4>
         <div class="row">
         <div class="col-xs-6">
@@ -359,7 +360,7 @@
           var a = $("#urlFlag").val();
 
         //if ($.validate.form()) {
-            $.operate.saveTab(prefix + "/hxPass", {"id":$("#ktid").val(),"urlFlag":a});
+            $.operate.saveTab(prefix + "/hxPass", {"id":$("#ktid").val(),"urlFlag":a,"amount":$("#amount").val()});
        // }
     }
     function submitHandlerBH() {

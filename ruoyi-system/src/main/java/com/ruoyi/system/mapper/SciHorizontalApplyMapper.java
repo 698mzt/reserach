@@ -95,4 +95,6 @@ public interface SciHorizontalApplyMapper
     public int deletePersion(SciHorizontalPersion sciHorizontalPersion);
 
     List<SciHorizontalApply> exportSciHorizontalApplyList(SciHorizontalApply sciHorizontalApply);
+
+    public int deletePersionByid(String[] ids);
 }

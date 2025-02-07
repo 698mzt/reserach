@@ -312,6 +312,13 @@
         delete from sci_persion where apply_id = #{applyid}
     </delete>
 
+    <delete id="deletePersionByid" parameterType="String">
+        delete from sci_persion where apply_id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
     <select id="exportSciHorizontalApplyList" parameterType="SciHorizontalApply" resultMap="SciHorizontalApplyResult">
         select s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,s.party_A,s.party_B, s.first_person_id, pe.ranking, s.second_person_id, s.third_person_id, fourth_person_id, s.signing_data, s.validity_Date,  concat( s.amount,'万') amount, s.contract, s.filing, s.state
         from sci_horizontal_apply s

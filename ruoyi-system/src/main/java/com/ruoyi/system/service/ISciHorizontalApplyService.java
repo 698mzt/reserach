@@ -73,8 +73,8 @@ public interface ISciHorizontalApplyService
      */
     public int deleteSciHorizontalOverApplyById(Integer id);
 
-    int hxPass(String id,Long uid,String urlFlag);
-    int hxover(String id,Long uid,String urlFlag);
+    int hxPass(String id,Long uid,String urlFlag,List score,List persion);
+    int hxover(String id,Long uid,String urlFlag,List score,List persion);
 
     int hxBh(String id,Long uid, String remark,String urlFlag);
     int hxoverBh(String id, Long userId, String remark, String urlFlag);
@@ -101,4 +101,6 @@ public interface ISciHorizontalApplyService
     int overSaveSciHorizontalApply(SciHorizontalApply sciHorizontalApply);
 
     List<SciHorizontalApply> exportSciHorizontalApplyList(SciHorizontalApply sciHorizontalApply);
+
+    int deletePersionByid(String ids);
 }

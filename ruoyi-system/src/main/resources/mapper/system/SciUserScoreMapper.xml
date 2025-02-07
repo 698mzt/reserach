@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.SciUserScoreMapper">
+
+    <resultMap  id="SciUserScoreResult" type="SciUserScore">
+        <result property="userId" column="user_id"/>
+        <result property="changeStatus" column="change_status"/>
+        <result property="scoreType" column="score_type"/>
+        <result property="changeValue" column="change_value"/>
+
+    </resultMap>
+
+    <insert id="insertScoreHistory" parameterType="SciUserScore" useGeneratedKeys="true" keyProperty="id">
+        insert into sci_user_score_history
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">user_id,</if>
+            <if test="changeStatus != null">change_status,</if>
+            <if test="scoreType != null">score_type,</if>
+            <if test="changeValue != null">change_value,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">#{userId},</if>
+            <if test="changeStatus != null">#{changeStatus},</if>
+            <if test="scoreType != null">#{scoreType},</if>
+            <if test="changeValue != null">#{changeValue},</if>
+        </trim>
+    </insert>
+</mapper>
