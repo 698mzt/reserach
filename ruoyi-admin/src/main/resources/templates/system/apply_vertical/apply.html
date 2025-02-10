@@ -14,9 +14,9 @@
                 </li>
                 <li class=""><a data-toggle="tab" href="#tab-1" onclick="$.table.refresh('bootstrap-table1')" aria-expanded="false"> 立项</a>
                 </li>
-                <li class=""><a data-toggle="tab" href="#tab-4" onclick="$.table.refresh('bootstrap-table4')" aria-expanded="false"> 开题</a>
-                </li>
-                <li class=""><a data-toggle="tab" href="#tab-3" onclick="$.table.refresh('bootstrap-table3')" aria-expanded="false"> 中期</a>
+<!--                <li class=""><a data-toggle="tab" href="#tab-4" onclick="$.table.refresh('bootstrap-table4')" aria-expanded="false"> 开题</a>-->
+<!--                </li>-->
+<!--                <li class=""><a data-toggle="tab" href="#tab-3" onclick="$.table.refresh('bootstrap-table3')" aria-expanded="false"> 中期</a>-->
                 </li>
                 <li class=""><a data-toggle="tab" href="#tab-2" onclick="$.table.refresh('bootstrap-table2')" aria-expanded="false"> 结项</a>
                 </li>
@@ -70,7 +70,7 @@
 
                     </div>
                 </div>
-<!--                申请开题-->
+<!--                立项-->
                 <div id="tab-1" class="tab-pane ">
                     <div class="panel-body">
                         <div class="container-div">
@@ -164,95 +164,95 @@
                     </div>
                 </div>
 <!--                中期-->
-                <div id="tab-3" class="tab-pane">
-                    <div class="panel-body">
-                        <div class="container-div">
-                            <div class="row">
-                                <div class="col-sm-12 search-collapse" shiro:hasPermission="system:apply_vertical:select">
-                                    <form id="formId3">
-                                        <div class="select-list">
-                                            <ul>
-                                                <li>
-                                                    <label>申请人：</label>
-                                                    <input type="text" name="userName"/>
-                                                </li>
-                                                <li>
-                                                    <label>课题名称：</label>
-                                                    <input type="text" name="topName"/>
-                                                </li>
-                                                <li>
-                                                    <label>状态：</label>
-                                                    <select name="state" th:with="type=${@dict.getType('sci_vertical_tasks')}">
-                                                        <option value="">所有</option>
-                                                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
-                                                    </select>
-                                                </li>
-                                                <li>
-                                                    <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search('formId3','bootstrap-table3')"><i class="fa fa-search"></i>&nbsp;搜索</a>
-                                                    <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </form>
-                                </div>
+<!--                <div id="tab-3" class="tab-pane">-->
+<!--                    <div class="panel-body">-->
+<!--                        <div class="container-div">-->
+<!--                            <div class="row">-->
+<!--                                <div class="col-sm-12 search-collapse" shiro:hasPermission="system:apply_vertical:select">-->
+<!--                                    <form id="formId3">-->
+<!--                                        <div class="select-list">-->
+<!--                                            <ul>-->
+<!--                                                <li>-->
+<!--                                                    <label>申请人：</label>-->
+<!--                                                    <input type="text" name="userName"/>-->
+<!--                                                </li>-->
+<!--                                                <li>-->
+<!--                                                    <label>课题名称：</label>-->
+<!--                                                    <input type="text" name="topName"/>-->
+<!--                                                </li>-->
+<!--                                                <li>-->
+<!--                                                    <label>状态：</label>-->
+<!--                                                    <select name="state" th:with="type=${@dict.getType('sci_vertical_tasks')}">-->
+<!--                                                        <option value="">所有</option>-->
+<!--                                                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>-->
+<!--                                                    </select>-->
+<!--                                                </li>-->
+<!--                                                <li>-->
+<!--                                                    <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search('formId3','bootstrap-table3')"><i class="fa fa-search"></i>&nbsp;搜索</a>-->
+<!--                                                    <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>-->
+<!--                                                </li>-->
+<!--                                            </ul>-->
+<!--                                        </div>-->
+<!--                                    </form>-->
+<!--                                </div>-->
 
-                                <div class="btn-group-sm" id="toolbar3" role="group">
-                                    <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:apply_vertical:export">
-                                        <i class="fa fa-download"></i> 导出
-                                    </a>
-                                </div>
-                                <div class="col-sm-12 select-table table-striped">
-                                    <table id="bootstrap-table3"></table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-<!--                开题-->
-                 <div id="tab-4" class="tab-pane">
-                    <div class="panel-body">
-                        <div class="container-div">
-                            <div class="row">
-                                <div class="col-sm-12 search-collapse" shiro:hasPermission="system:apply_vertical:select">
-                                    <form id="formId4">
-                                        <div class="select-list">
-                                            <ul>
-                                                <li>
-                                                    <label>申请人：</label>
-                                                    <input type="text" name="userName"/>
-                                                </li>
-                                                <li>
-                                                    <label>课题名称：</label>
-                                                    <input type="text" name="topName"/>
-                                                </li>
-                                                <li>
-                                                    <label>状态：</label>
-                                                    <select name="state" th:with="type=${@dict.getType('sci_vertical_tasks')}">
-                                                        <option value="">所有</option>
-                                                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
-                                                    </select>
-                                                </li>
-                                                <li>
-                                                    <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search('formId4','bootstrap-table4')"><i class="fa fa-search"></i>&nbsp;搜索</a>
-                                                    <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </form>
-                                </div>
+<!--                                <div class="btn-group-sm" id="toolbar3" role="group">-->
+<!--                                    <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:apply_vertical:export">-->
+<!--                                        <i class="fa fa-download"></i> 导出-->
+<!--                                    </a>-->
+<!--                                </div>-->
+<!--                                <div class="col-sm-12 select-table table-striped">-->
+<!--                                    <table id="bootstrap-table3"></table>-->
+<!--                                </div>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--&lt;!&ndash;                开题&ndash;&gt;-->
+<!--                 <div id="tab-4" class="tab-pane">-->
+<!--                    <div class="panel-body">-->
+<!--                        <div class="container-div">-->
+<!--                            <div class="row">-->
+<!--                                <div class="col-sm-12 search-collapse" shiro:hasPermission="system:apply_vertical:select">-->
+<!--                                    <form id="formId4">-->
+<!--                                        <div class="select-list">-->
+<!--                                            <ul>-->
+<!--                                                <li>-->
+<!--                                                    <label>申请人：</label>-->
+<!--                                                    <input type="text" name="userName"/>-->
+<!--                                                </li>-->
+<!--                                                <li>-->
+<!--                                                    <label>课题名称：</label>-->
+<!--                                                    <input type="text" name="topName"/>-->
+<!--                                                </li>-->
+<!--                                                <li>-->
+<!--                                                    <label>状态：</label>-->
+<!--                                                    <select name="state" th:with="type=${@dict.getType('sci_vertical_tasks')}">-->
+<!--                                                        <option value="">所有</option>-->
+<!--                                                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>-->
+<!--                                                    </select>-->
+<!--                                                </li>-->
+<!--                                                <li>-->
+<!--                                                    <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search('formId4','bootstrap-table4')"><i class="fa fa-search"></i>&nbsp;搜索</a>-->
+<!--                                                    <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>-->
+<!--                                                </li>-->
+<!--                                            </ul>-->
+<!--                                        </div>-->
+<!--                                    </form>-->
+<!--                                </div>-->
 
-                                <div class="btn-group-sm" id="toolbar4" role="group">
-                                    <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:apply_vertical:export">
-                                        <i class="fa fa-download"></i> 导出
-                                    </a>
-                                </div>
-                                <div class="col-sm-12 select-table table-striped">
-                                    <table id="bootstrap-table4"></table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+<!--                                <div class="btn-group-sm" id="toolbar4" role="group">-->
+<!--                                    <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:apply_vertical:export">-->
+<!--                                        <i class="fa fa-download"></i> 导出-->
+<!--                                    </a>-->
+<!--                                </div>-->
+<!--                                <div class="col-sm-12 select-table table-striped">-->
+<!--                                    <table id="bootstrap-table4"></table>-->
+<!--                                </div>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
             </div>
 
 
@@ -279,7 +279,7 @@
     var createFlag = [[${@permission.hasPermi('system:apply_vertical:add')}]];
     var downloadFlag = [[${@permission.hasPermi('system:apply_vertical:download')}]];
     // 数据字典获取
-    var topTypeDatas = [[${@dict.getType('sci_top_type')}]];
+    var topTypeDatas = [[${@dict.getType('sci_vertical_type')}]];
     var datas = [[${@dict.getType('sci_vertical_tasks')}]];
 
 
@@ -407,7 +407,7 @@
             toolbar:"toolbar1",
             url:getUrl($('table').attr('id')),
             createUrl: prefix + "/add",
-            openUrl: prefix + "/openadd?id={id}",
+            openUrl: prefix + "/overadd?id={id}",
             detailUrl: prefix + "/detail/{id}",
             updateUrl: prefix + "/edit/{id}",
             removeUrl: prefix + "/remove",

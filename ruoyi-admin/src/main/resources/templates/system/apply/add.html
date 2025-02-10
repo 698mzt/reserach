@@ -25,6 +25,14 @@
             </div>
             <div class="col-xs-6">
                 <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">课题编号：</label>
+                    <div class="col-sm-8">
+                        <input name="topNumber" class="form-control" type="text" required>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <div class="form-group">
                     <label class="col-sm-4 control-label is-required">课题类型：</label>
                     <div class="col-sm-8">
                         <select name="topType" class="form-control" th:with="type=${@dict.getType('sci_top_type')}" required>
@@ -38,15 +46,6 @@
                     <label class="col-sm-4 control-label is-required">课题名称：</label>
                     <div class="col-sm-8">
                         <input name="topName" class="form-control" type="text" required>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-xs-6">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">项目金额(万)：</label>
-                    <div class="col-sm-8">
-                        <input name="amount" class="form-control" type="number" required>
                     </div>
                 </div>
             </div>
@@ -66,7 +65,16 @@
                     </div>
                 </div>
             </div>
-
+            <div class="row">
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">项目金额(万)：</label>
+                    <div class="col-sm-8">
+                        <input name="amount" class="form-control" type="number" required>
+                    </div>
+                </div>
+            </div>
+            </div>
 
             <div class="row">
             <div class="col-xs-6">
@@ -98,7 +106,7 @@
                     <label class="col-sm-4 control-label is-required">主持人：</label>
                     <div class="col-sm-8">
 
-                        <select name="firstPersonId" class="form-control m-b" >
+                        <select name="firstPersonId" class="form-control m-b" required>
                             <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${user.flag}" th:if="${user.userId} != 1"></option>
                         </select>
                     </div>
@@ -111,7 +119,7 @@
                     <label class="col-sm-4 control-label is-required">成员1：</label>
                     <div class="col-sm-8">
 
-                        <select name="secondPersonId" class="form-control m-b" >
+                        <select name="secondPersonId" class="form-control m-b" required>
                             <option value="">---请选择--</option>
                             <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}"  th:if="${user.userId} != 1" ></option>
                         </select>
@@ -128,7 +136,7 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">成员2：</label>
                     <div class="col-sm-8">
-                        <select name="thirdPersonId" class="form-control m-b" >
+                        <select name="thirdPersonId" class="form-control m-b" required>
                             <option value="">---请选择--</option>
                             <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}" th:if="${user.userId} != 1"></option>
                         </select>
@@ -140,7 +148,7 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">成员3：</label>
                     <div class="col-sm-8">
-                        <select name="fourthPersonId" class="form-control m-b" >
+                        <select name="fourthPersonId" class="form-control m-b" required>
                             <option value="">--请选择--</option>
                             <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}" th:if="${user.userId} != 1"></option>
                         </select>

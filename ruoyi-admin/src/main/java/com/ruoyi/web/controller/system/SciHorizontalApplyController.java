@@ -479,7 +479,8 @@ public class SciHorizontalApplyController extends BaseController
     @ResponseBody
     public AjaxResult editSave(SciHorizontalApply sciHorizontalApply)
     {
-        sciHorizontalApply.setState("1");
+        if (sciHorizontalApply.getState().equals("3") || sciHorizontalApply.getState().equals("5") || sciHorizontalApply.getState().equals("22"))
+            sciHorizontalApply.setState("1");
         return toAjax(sciHorizontalApplyService.updateSciHorizontalApply(sciHorizontalApply));
     }
 
