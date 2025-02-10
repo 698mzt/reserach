@@ -62,7 +62,7 @@
                 var funsInfo = funsList[i];
                 var funsDesc = "";
                 if (funsInfo.funds_min == 0) {
-                    funsDesc = "经费小于" + funsInfo.funds_max + "万（含" + funsInfo.funds_max + "万）";
+                    funsDesc = "经费小于" + funsInfo.funds_max + "万";
                 } else if (funsInfo.funds_max == 0) {
                     funsDesc = "经费大于" + funsInfo.funds_min + "万（含" + funsInfo.funds_min + "万）";
                 } else {
@@ -85,6 +85,7 @@
                     " onclick=\"del_cfg('" + funsInfo.funds_max + "','" + funsInfo.funds_min + "')\">删除</button> " +
                     "            </div> " +
                     "        </div>";
+
 
             }
             console.log("divStr", divStr)
@@ -110,6 +111,23 @@
                 }
             })
         });
+    }
+
+    function edit_cfg(funds_max, funds_min) {
+        var url = prefix + "/editCfg";
+        var dataParam = {funds_max, funds_min}
+        console.log(dataParam)
+        $.ajax({
+            url: url,
+            data: JSON.stringify(dataParam),
+            type: "post",
+            processData: false,
+            contentType: "application/json",
+            success: function (result) {
+                $.modal.alert(result.msg);
+                get_cfg_card();
+            }
+        })
     }
 </script>
 </body>

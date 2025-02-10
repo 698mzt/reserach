@@ -149,6 +149,28 @@ public class SciProjectScoreCfgController extends BaseController {
         return toAjax(sciProjectScoreCfgService.updateSciProjectScoreCfg(sciProjectScoreCfg));
     }
 
+    @RequiresPermissions("system:projectScoreCfg:add")
+    @Log(title = "横向课题得分配置", businessType = BusinessType.INSERT)
+    @PostMapping("/editCfg")
+    @ResponseBody
+    public Map<String, Object> editCfg(@RequestBody  Map map) {
+        System.out.println("map = " + map);
+
+        int i = sciProjectScoreCfgService.deleteSciProjectScoreCfgByFunds(map);
+        Map<String, Object> returnMap = new HashMap<>();
+
+        if (i > 0) {
+            returnMap.put("code", "0");
+            returnMap.put("msg", "操作成功");
+            return returnMap;
+        } else {
+            returnMap.put("code", "-1");
+            returnMap.put("msg", "操作失败");
+            return returnMap;
+        }
+
+    }
+
     /**
      * 删除横向课题得分配置
      */

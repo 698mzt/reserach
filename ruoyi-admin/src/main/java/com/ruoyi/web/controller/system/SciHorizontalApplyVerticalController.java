@@ -174,8 +174,9 @@ public class SciHorizontalApplyVerticalController extends BaseController {
     public String add( ModelMap mmap)
     {
         List<SysUser> userList =  userService.selectAllUser();
+        System.out.println(getUserId());
         for (int a = 0; a<userList.size();a++) {
-            if(userList.get(a).getUserId() == getUserId()){
+            if(userList.get(a).getUserId().equals(getUserId())){
                 SysUser user = userList.get(a);
                 user.setFlag(true);
                 userList.set(a,user);

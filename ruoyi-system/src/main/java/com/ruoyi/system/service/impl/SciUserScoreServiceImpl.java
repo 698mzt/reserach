@@ -1,7 +1,9 @@
 package com.ruoyi.system.service.impl;
 
 import com.ruoyi.common.core.domain.AjaxResult;
+import com.ruoyi.system.mapper.SciProjectScoreCfgMapper;
 import com.ruoyi.system.service.ISciUserScoreService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -9,7 +11,12 @@ import java.util.Map;
 @Service
 public class SciUserScoreServiceImpl implements ISciUserScoreService {
 
+    @Autowired
+    private SciProjectScoreCfgMapper sciProjectScoreCfgMapper;
+
+
     public AjaxResult insertScoreHistory(Map<String, Object> paramMap){
+
         return null;
     }
 

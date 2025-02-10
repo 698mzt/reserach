@@ -7,7 +7,10 @@ import com.ruoyi.common.annotation.DataScope;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.system.domain.SciHorizontalPersion;
 import com.ruoyi.system.domain.SciHorizontalPiyue;
+import com.ruoyi.system.domain.SciUserScore;
 import com.ruoyi.system.mapper.SciHorizontalPiyueMapper;
+import com.ruoyi.system.mapper.SciProjectScoreCfgMapper;
+import com.ruoyi.system.mapper.SciUserScoreMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.ruoyi.system.mapper.SciHorizontalApplyMapper;
@@ -28,6 +31,8 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
     private SciHorizontalApplyMapper sciHorizontalApplyMapper;
     @Autowired
     private SciHorizontalPiyueMapper sciHorizontalPiyueMapper;
+    @Autowired
+    private SciUserScoreMapper sciUserScoreMapper;
 
     /**
      * 查询横向课题
@@ -190,13 +195,13 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
     /**
      * 删除横向课题信息
      *
-     * @param id 横向课题主键
+     * @param ids 横向课题主键
      * @return 结果
      */
     @Override
-    public int deleteSciHorizontalApplyById(Integer id)
+    public int deleteSciHorizontalApplyById(Integer ids)
     {
-        return sciHorizontalApplyMapper.deleteSciHorizontalApplyById(id);
+        return sciHorizontalApplyMapper.deleteSciHorizontalApplyById(ids);
     }
 
     /**
@@ -212,12 +217,24 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
     }
 
     @Override
-    public int hxPass(String id,Long uid,String urlFlag) {
+    public int hxPass(String id,Long uid,String urlFlag,List score,List persion,Integer applyId) {
         String state = "0";
+        SciUserScore sciUserScore = new SciUserScore();
+        sciUserScore.setApplyId(applyId.toString());
         if(urlFlag.equals("hecha")){
             state ="4";
+//            以负责人列表大小为准，顺序匹配每个负责人所对应的分数，记录到sciUserScore中。
+            for (int i = 0; i < persion.size(); i++) {
+                sciUserScore.setUserId(persion.get(i).toString());
+                sciUserScore.setChangeValue(score.get(i).toString());
+                sciUserScore.setChangeStatus("立项");
+                sciUserScoreMapper.insertScoreHistory(sciUserScore);
+            }
         }else if(urlFlag.equals("pro")){
             state ="2";
+//            学院通过
+        }else if (urlFlag.equals("Dept")){
+            state ="11";
         }
 
         int a =  sciHorizontalApplyMapper.hxPass(id,state);
@@ -230,12 +247,23 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
         return a;
     }
     @Override
-    public int hxover(String id,Long uid,String urlFlag) {
+    public int hxover(String id,Long uid,String urlFlag,List score,List persion,Integer applyId) {
         String state = "0";
+        SciUserScore sciUserScore = new SciUserScore();
+        sciUserScore.setApplyId(applyId.toString());
         if(urlFlag.equals("JYSOVER")){
             state ="8";
         }else if(urlFlag.equals("KYCOVER")){
             state ="6";
+            //            以负责人列表大小为准，顺序匹配每个负责人所对应的分数，记录到sciUserScore中。
+            for (int i = 0; i < persion.size(); i++) {
+                sciUserScore.setUserId(persion.get(i).toString());
+                sciUserScore.setChangeValue(score.get(i).toString());
+                sciUserScore.setChangeStatus("结项");
+                sciUserScoreMapper.insertScoreHistory(sciUserScore);
+            }
+        }else if (urlFlag.equals("DeptOVER")){
+            state ="33";
         }
         int a =  sciHorizontalApplyMapper.hxPass(id,state);
         SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
@@ -254,6 +282,8 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
             state ="5";
         }else if(urlFlag.equals("pro")){
             state ="3";
+        }else if (urlFlag.equals("Dept")){
+            state ="22";
         }
         int a = sciHorizontalApplyMapper.hxPass(id,state);
         SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
@@ -272,6 +302,8 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
             state ="9";
         }else if(urlFlag.equals("KYCOVER")){
             state ="10";
+        }else if (urlFlag.equals("DeptOVER")){
+            state ="44";
         }
         int a =  sciHorizontalApplyMapper.hxPass(id,state);
         SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
@@ -353,6 +385,79 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
     @Override
     public List<SciHorizontalApply> exportSciHorizontalApplyList(SciHorizontalApply sciHorizontalApply) {
         return sciHorizontalApplyMapper.exportSciHorizontalApplyList(sciHorizontalApply);
+    }
+
+    @Override
+    public int deletePersionByid(String ids) {
+        return sciHorizontalApplyMapper.deletePersionByid(Convert.toStrArray(ids));
+    }
+
+    @Override
+    @DataScope(deptAlias = "d", userAlias = "u")
+    public List<SciHorizontalApply> selectSciHorizontalApplyListByDept(SciHorizontalApply sciHorizontalApply) {
+        return sciHorizontalApplyMapper.selectSciHorizontalApplyListByDept(sciHorizontalApply);
+    }
+
+    @Override
+    @DataScope(deptAlias = "d", userAlias = "u")
+    public List<SciHorizontalApply> selectSciHorizontalApplyListByOverDept(SciHorizontalApply sciHorizontalApply) {
+        return sciHorizontalApplyMapper.selectSciHorizontalApplyListByOverDept(sciHorizontalApply);
+    }
+
+    @Override
+    public int sci_horizontal_piyue(Integer id) {
+        return sciHorizontalApplyMapper.sci_horizontal_piyue(id);
+    }
+
+    @Override
+    public int recall(Integer id, String state,Long uid, String remark, String urlFlag) {
+        String newState = state;
+        switch (state){
+//            教研室
+            case "2": case "3":
+                newState = "1";
+                break;
+            case "8": case "9":
+                newState = "7";
+                break;
+//                学院
+            case "11":  case "22":
+                newState = "2";
+                break;
+            case "33": case"44":
+                newState = "8";
+                break;
+//                科研处
+            case "4":  case "5":
+                newState = "11";
+                break;
+            case "6": case "10":
+                newState = "33";
+                break;
+//                教师
+            case "7":
+                newState = "4";
+                break;
+        }
+        if(state.equals("4")){
+            String status = "立项";
+            sciUserScoreMapper.deleteScoreById(id.toString(),status);
+        }else
+        if(state.equals("6")){
+            String status = "结项";
+            sciUserScoreMapper.deleteScoreById(id.toString(),status);
+        }
+
+//        设置状态
+        int a =sciHorizontalApplyMapper.hxPass(id.toString(),newState);
+//        插入日志
+        SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
+        sciHorizontalPiyue.setUid(uid);
+        sciHorizontalPiyue.setHxktId(id);
+        sciHorizontalPiyue.setConcate(remark);
+        sciHorizontalPiyue.setState("撤回上一条操作");
+        sciHorizontalPiyueMapper.insertSciHorizontalPiyue(sciHorizontalPiyue);
+        return a;
     }
 
 }

@@ -43,6 +43,8 @@ public class SciHorizontalApply extends BaseEntity
     /** 课题名称 */
     @Excel(name = "项目名称")
     private String topName;
+    /** 课题编号*/
+    private String topNumber;
 
     /** 申请人 */
     @Excel(name = "主持人姓名")
@@ -396,5 +398,25 @@ public class SciHorizontalApply extends BaseEntity
 
     public void setNewsql(String newsql) {
         this.newsql = newsql;
+    }
+
+
+
+    private String score;
+
+    public String getScore() {
+        return score;
+    }
+
+    public void setScore(String score) {
+        this.score = score;
+    }
+
+    public String getTopNumber() {
+        return topNumber;
+    }
+
+    public void setTopNumber(String topNumber) {
+        this.topNumber = topNumber;
     }
 }
