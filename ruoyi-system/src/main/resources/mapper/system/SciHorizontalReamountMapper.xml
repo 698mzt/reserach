@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.SciHorizontalReamountMapper">
+    <resultMap type="SciHorizontalReamount" id="SciHorizontalReamountResult">
+        <result property="id" column="id"/>
+        <result property="applyId" column="apply_id"/>
+        <result property="reAmount" column="re_amount"/>
+        <result property="accountData" column="account_data"/>
+        <result property="reamountUrl" column="reamount_url"/>
+    </resultMap>
+    <insert id="insertAmount" parameterType="SciHorizontalReamount" useGeneratedKeys="true" keyProperty="id">
+        insert into sci_horizontal_reamount
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="applyId != null">apply_id,</if>
+            <if test="reAmount != null">re_amount,</if>
+            <if test="accountData != null">account_data,</if>
+            <if test="reamountUrl != null">reamount_url,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="applyId != null">#{applyId},</if>
+            <if test="reAmount != null">#{reAmount},</if>
+            <if test="accountData != null">#{accountData},</if>
+            <if test="reamountUrl != null">#{reamountUrl},</if>
+        </trim>
+    </insert>
+</mapper>

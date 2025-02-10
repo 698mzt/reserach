@@ -97,4 +97,10 @@ public interface SciHorizontalApplyMapper
     List<SciHorizontalApply> exportSciHorizontalApplyList(SciHorizontalApply sciHorizontalApply);
 
     public int deletePersionByid(String[] ids);
+
+    List<SciHorizontalApply> selectSciHorizontalApplyListByDept(SciHorizontalApply sciHorizontalApply);
+
+    List<SciHorizontalApply> selectSciHorizontalApplyListByOverDept(SciHorizontalApply sciHorizontalApply);
+
+    int sci_horizontal_piyue(Integer id);
 }

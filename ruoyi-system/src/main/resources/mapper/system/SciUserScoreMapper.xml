@@ -6,6 +6,7 @@
 
     <resultMap  id="SciUserScoreResult" type="SciUserScore">
         <result property="userId" column="user_id"/>
+        <result property="applyId" column="apply_id"/>
         <result property="changeStatus" column="change_status"/>
         <result property="scoreType" column="score_type"/>
         <result property="changeValue" column="change_value"/>
@@ -16,15 +17,25 @@
         insert into sci_user_score_history
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="userId != null">user_id,</if>
+            <if test="applyId != null">apply_id,</if>
             <if test="changeStatus != null">change_status,</if>
             <if test="scoreType != null">score_type,</if>
             <if test="changeValue != null">change_value,</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="userId != null">#{userId},</if>
+            <if test="applyId != null">#{applyId},</if>
             <if test="changeStatus != null">#{changeStatus},</if>
             <if test="scoreType != null">#{scoreType},</if>
             <if test="changeValue != null">#{changeValue},</if>
         </trim>
     </insert>
+
+    <select id="selectScoreHistoryById" parameterType="Integer" resultMap="SciUserScoreResult">
+        select s.user_id,s.apply_id,s.change_value from sci_user_score_history s where s.apply_id = #{id}
+    </select>
+
+    <delete id="deleteScoreById">
+        delete from sci_user_score_history where apply_id = #{id} and change_status = #{status}
+    </delete>
 </mapper>

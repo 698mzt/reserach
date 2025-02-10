@@ -7,11 +7,14 @@ import java.util.stream.Collectors;
 
 import com.ruoyi.common.core.domain.entity.SysRole;
 import com.ruoyi.common.core.domain.entity.SysUser;
-import com.ruoyi.system.domain.SciHorizontalPiyue;
-import com.ruoyi.system.domain.SciProjectScoreCfg;
+import com.ruoyi.system.domain.*;
+import com.ruoyi.system.mapper.SciHorizontalApplyMapper;
 import com.ruoyi.system.mapper.SciProjectScoreCfgMapper;
+import com.ruoyi.system.mapper.SciUserScoreMapper;
 import com.ruoyi.system.service.ISciHorizontalPiyueService;
 import com.ruoyi.system.service.ISysUserService;
+import com.ruoyi.system.service.SciHorizontalReamountService;
+import org.apache.ibatis.annotations.Param;
 import org.apache.shiro.authz.annotation.Logical;
 
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -26,7 +29,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.enums.BusinessType;
-import com.ruoyi.system.domain.SciHorizontalApply;
 import com.ruoyi.system.service.ISciHorizontalApplyService;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
@@ -53,6 +55,10 @@ public class SciHorizontalApplyController extends BaseController
     private ISciHorizontalPiyueService piyueService;
     @Autowired
     private SciProjectScoreCfgMapper sciProjectScoreCfgMapper;
+    @Autowired
+    private SciUserScoreMapper sciUserScoreMapper;
+    @Autowired
+    private SciHorizontalReamountService sciHorizontalReamountService;
 
     @RequiresPermissions("system:apply:view")
     @GetMapping()
@@ -125,13 +131,13 @@ public class SciHorizontalApplyController extends BaseController
             case "dept_teacher":
                 switch (tableId) {
                     case "bootstrap-table0":
-                        list = sciHorizontalApplyService.selectSciHorizontalApplyListByOVERKYC(sciHorizontalApply);
+                        list = sciHorizontalApplyService.selectSciHorizontalApplyListByOVER(sciHorizontalApply);
                         break;
                     case "bootstrap-table1":
-                        list = sciHorizontalApplyService.selectSciHorizontalApplyListByKYC(sciHorizontalApply);
+                        list = sciHorizontalApplyService.selectSciHorizontalApplyListByDept(sciHorizontalApply);
                         break;
                     case "bootstrap-table2":
-                        list = sciHorizontalApplyService.selectSciHorizontalApplyListByOverApplyKYC(sciHorizontalApply);
+                        list = sciHorizontalApplyService.selectSciHorizontalApplyListByOverDept(sciHorizontalApply);
                         break;
                 }
                 break;
@@ -151,7 +157,6 @@ public class SciHorizontalApplyController extends BaseController
                 break;
         }
 
-
         List<SciHorizontalApply> list1 = new ArrayList<>();
         list1 = sciHorizontalApplyService.selectOtherListByUid(sciHorizontalApply);
         list.addAll(list1);
@@ -167,8 +172,31 @@ public class SciHorizontalApplyController extends BaseController
                         ),
                         map -> new ArrayList<>(map.values())
                 ));
+
+        if(!distinctList.isEmpty()){
+            for (SciHorizontalApply apply: distinctList){
+                List<SciUserScore> score = sciUserScoreMapper.selectScoreHistoryById(apply.getId());
+                ArrayList<Integer> allscore = new ArrayList<>();
+                for(SciUserScore score1: score){
+                    if (apply.getFirstPersonId().equals(score1.getUserId()) && apply.getFirstPersonId().equals(getUserId().toString()))
+                        allscore.add(Integer.parseInt(score1.getChangeValue()));
+                    else if (apply.getSecondPersonId().equals(score1.getUserId()) && apply.getSecondPersonId().equals(getUserId().toString())){
+                        allscore.add(Integer.parseInt(score1.getChangeValue()));
+                    }else if (apply.getThirdPersonId().equals(score1.getUserId()) && apply.getThirdPersonId().equals(getUserId().toString())){
+                        allscore.add(Integer.parseInt(score1.getChangeValue()));
+                    }else if (apply.getFourthPersonId().equals(score1.getUserId()) && apply.getFourthPersonId().equals(getUserId().toString())){
+                        allscore.add(Integer.parseInt(score1.getChangeValue()));
+                    }
+                }
+                Integer count = 0;
+                for (int i : allscore){
+                    count += i;
+                }
+                apply.setScore(count.toString());
+            }
+        }
+
         TableDataInfo data= getDataTable(distinctList);
-//        TableDataInfo data= getDataTable(list1);
         return data;
     }
 
@@ -297,7 +325,7 @@ public class SciHorizontalApplyController extends BaseController
     }
 
 
-    @RequiresPermissions(value={"system:apply:hecha","system:apply:process"},logical= Logical.OR)
+    @RequiresPermissions(value={"system:apply:hecha","system:apply:process","system:apply:Dept"},logical= Logical.OR)
     @Log(title = "横向课题审核通过", businessType = BusinessType.UPDATE)
     @PostMapping( "/hxPass")
     @ResponseBody
@@ -306,12 +334,10 @@ public class SciHorizontalApplyController extends BaseController
 //        初始化一个新对象，存储最大值和最小值
         SciProjectScoreCfg sciProjectScoreCfg1 = new SciProjectScoreCfg();
 
-//        查询该条数据的负责人id
-        SciHorizontalApply sciHorizontalApply = sciHorizontalApplyService.selectSciHorizontalApplyById(Integer.valueOf(id));
-
 //        查询积分的所有范围
         List<SciProjectScoreCfg> list= sciProjectScoreCfgMapper.selectSciProjectScoreCfgList(sciProjectScoreCfg);
 
+        Integer applyId;
         Integer Damount;
         try {
             Damount = Integer.valueOf(amount);
@@ -330,6 +356,10 @@ public class SciHorizontalApplyController extends BaseController
 
 //       查询范围为 min-max 的分数
         List<SciProjectScoreCfg> score_list = sciProjectScoreCfgMapper.selectSciProjectScoreCfgList(sciProjectScoreCfg1);
+
+        //        查询该条数据的负责人id
+        SciHorizontalApply sciHorizontalApply = sciHorizontalApplyService.selectSciHorizontalApplyById(Integer.valueOf(id));
+        applyId = sciHorizontalApply.getId();
 
 //        将负责人和积分顺序存储到列表中传到实现类中
         List score = new ArrayList();
@@ -352,9 +382,9 @@ public class SciHorizontalApplyController extends BaseController
         }
 
 
-        return toAjax(sciHorizontalApplyService.hxPass(id,getUserId(),urlFlag,score,persion));
+        return toAjax(sciHorizontalApplyService.hxPass(id,getUserId(),urlFlag,score,persion,applyId));
     }
-    @RequiresPermissions(value={"system:apply:hecha","system:apply:process"},logical= Logical.OR)
+    @RequiresPermissions(value={"system:apply:hecha","system:apply:process","system:apply:Dept"},logical= Logical.OR)
     @Log(title = "结项横向课题审核通过", businessType = BusinessType.UPDATE)
     @PostMapping( "/hxover")
     @ResponseBody
@@ -363,6 +393,7 @@ public class SciHorizontalApplyController extends BaseController
 //        初始化一个新对象，存储最大值和最小值
         SciProjectScoreCfg sciProjectScoreCfg1 = new SciProjectScoreCfg();
 
+        Integer applyId;
         Integer Damount;
         try {
             Damount = Integer.valueOf(amount);
@@ -385,6 +416,7 @@ public class SciHorizontalApplyController extends BaseController
 
 //        查询该条数据的负责人id
         SciHorizontalApply sciHorizontalApply = sciHorizontalApplyService.selectSciHorizontalApplyById(Integer.valueOf(id));
+        applyId = sciHorizontalApply.getId();
 //        将负责人和积分顺序存储到列表中传到实现类中
         List score = new ArrayList();
         List persion = new ArrayList();
@@ -405,10 +437,10 @@ public class SciHorizontalApplyController extends BaseController
             persion.add(sciHorizontalApply.getFourthPersonId());
         }
 
-        return toAjax(sciHorizontalApplyService.hxover(id,getUserId(),urlFlag,score,persion));
+        return toAjax(sciHorizontalApplyService.hxover(id,getUserId(),urlFlag,score,persion,applyId));
     }
 
-    @RequiresPermissions(value={"system:apply:hecha","system:apply:process"},logical= Logical.OR)
+    @RequiresPermissions(value={"system:apply:hecha","system:apply:process","system:apply:Dept"},logical= Logical.OR)
     @Log(title = "横向课题被驳回", businessType = BusinessType.UPDATE)
     @PostMapping( "/hxBh")
     @ResponseBody
@@ -416,7 +448,7 @@ public class SciHorizontalApplyController extends BaseController
     {
         return toAjax(sciHorizontalApplyService.hxBh(id,getUserId(),remark,urlFlag));
     }
-    @RequiresPermissions(value={"system:apply:hecha","system:apply:process"},logical= Logical.OR)
+    @RequiresPermissions(value={"system:apply:hecha","system:apply:process","system:apply:Dept"},logical= Logical.OR)
     @Log(title = "结项横向课题被驳回", businessType = BusinessType.UPDATE)
     @PostMapping( "/hxoverBh")
     @ResponseBody
@@ -494,5 +526,42 @@ public class SciHorizontalApplyController extends BaseController
     {
         sciHorizontalApplyService.deletePersionByid(ids);
         return toAjax(sciHorizontalApplyService.deleteSciHorizontalApplyByIds(ids));
+    }
+
+    /**
+     * 删除审批 横向课题操作
+     */
+    @RequiresPermissions(value={"system:apply:hecha","system:apply:process","system:apply:Dept"},logical= Logical.OR)
+    @GetMapping("/recall/{id}")
+    public String recall(@PathVariable("id") Integer id, ModelMap mmap)
+    {
+        SciHorizontalApply sciHorizontalApply = sciHorizontalApplyService.selectSciHorizontalApplyById(id);
+        List<SysUser> userList1 =  userService.selectAllUser();
+        mmap.put("sysUsers1",userList1);
+        mmap.put("sciHorizontalApply", sciHorizontalApply);
+        return prefix + "/recall";
+    }
+    /**
+     * 删除审批 横向课题操作
+     */
+    @RequiresPermissions(value={"system:apply:hecha","system:apply:process","system:apply:Dept"},logical= Logical.OR)
+    @Log(title = "横向课题审核通过", businessType = BusinessType.UPDATE)
+    @PostMapping( "/recallsave")
+    @ResponseBody
+    public AjaxResult recallSave(Integer id,String state,String remark,String urlFlag)
+    {
+        return toAjax(sciHorizontalApplyService.recall(id,state,getUserId(),remark,urlFlag));
+    }
+
+    /**
+     * 添加到账金额
+     */
+    @RequiresPermissions("system:apply:edit")
+    @Log(title = "申请横向课题", businessType = BusinessType.INSERT)
+    @PostMapping("/Reamount")
+    @ResponseBody
+    public AjaxResult Reamount(SciHorizontalReamount sciHorizontalReamount)
+    {
+        return toAjax(sciHorizontalReamountService.insertAmount(sciHorizontalReamount));
     }
 }

@@ -7,6 +7,8 @@ public class SciUserScore extends BaseEntity
     private Integer id;
     /**负责人*/
     private String userId;
+    /**创建数据id*/
+    private String applyId;
     /**创建时间*/
     private String Createtime;
     /**积分类型*/
@@ -31,6 +33,14 @@ public class SciUserScore extends BaseEntity
 
     public void setUserId(String userId) {
         this.userId = userId;
+    }
+
+    public String getApplyId() {
+        return applyId;
+    }
+
+    public void setApplyId(String applyId) {
+        this.applyId = applyId;
     }
 
     public String getCreatetime() {

@@ -1197,6 +1197,10 @@ var table = {
                 var url = $.common.isEmpty(id) ? table.options.createUrl.replace("{id}", "") : table.options.createUrl.replace("{id}", id);
                 return url;
             },
+            recallUrl:function (id){
+                var url = $.common.isEmpty(id) ? table.options.recallUrl.replace("{id}", "") : table.options.recallUrl.replace("{id}", id);
+                return url;
+            },
             overUrl:function (id){
                 var url = $.common.isEmpty(id) ? table.options.overUrl.replace("{id}", "") : table.options.overUrl.replace("{id}", id);
                 return url;
@@ -1226,9 +1230,13 @@ var table = {
             },
             // 修改信息，以tab页展现
             editTab: function(id) {
-                console.log(id)
                 table.set();
                 $.modal.openTab("修改" + table.options.modalName, $.operate.editUrl(id));
+            },
+            // 撤回操作
+            recallTab: function(id) {
+                table.set();
+                $.modal.openTab("撤回" + table.options.modalName, $.operate.recallUrl(id));
             },
             // 修改信息 全屏
             editFull: function(id) {

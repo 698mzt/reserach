@@ -397,4 +397,16 @@ public class SciHorizontalApply extends BaseEntity
     public void setNewsql(String newsql) {
         this.newsql = newsql;
     }
+
+
+
+    private String score;
+
+    public String getScore() {
+        return score;
+    }
+
+    public void setScore(String score) {
+        this.score = score;
+    }
 }
