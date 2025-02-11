@@ -13,7 +13,7 @@
             <div class="form-group">
                 <label class="col-sm-4 control-label is-required">申请人：</label>
                 <div class="col-sm-8">
-                    <select name="userId" class="form-control m-b" >
+                    <select name="userId" class="form-control m-b" disabled>
                         <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${user.flag}"></option>
                     </select>
                 </div>
@@ -23,7 +23,7 @@
             <div class="form-group">
                 <label class="col-sm-4 control-label is-required">课题类型：</label>
                 <div class="col-sm-8">
-                    <select name="topType" class="form-control" th:with="type=${@dict.getType('sci_top_type')}" required>
+                    <select name="topType" class="form-control" th:with="type=${@dict.getType('sci_vertical_type')}" required>
                         <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
                     </select>
                 </div>
@@ -68,7 +68,7 @@
                 <div class="col-sm-8">
 
                     <select name="firstPersonId" class="form-control m-b" >
-                        <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${user.flag}"></option>
+                        <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${user.flag}" th:if="${user.userId} != 1"></option>
                     </select>
                 </div>
             </div>
@@ -82,7 +82,7 @@
 
                     <select name="secondPersonId" class="form-control m-b" >
                         <option value="">---请选择--</option>
-                        <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}"></option>
+                        <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}" th:if="${user.userId} != 1"></option>
                     </select>
                 </div>
             </div>
@@ -99,7 +99,7 @@
                 <div class="col-sm-8">
                     <select name="thirdPersonId" class="form-control m-b" >
                         <option value="">---请选择--</option>
-                        <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}"></option>
+                        <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}" th:if="${user.userId} != 1"></option>
                     </select>
                 </div>
             </div>
@@ -111,7 +111,7 @@
                 <div class="col-sm-8">
                     <select name="fourthPersonId" class="form-control m-b" >
                         <option value="">--请选择--</option>
-                        <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}"></option>
+                        <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}" th:if="${user.userId} != 1"></option>
                     </select>
                 </div>
             </div>

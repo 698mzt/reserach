@@ -12,6 +12,7 @@
         <input name="urlFlag" id="urlFlag" th:field="*{urlFlag}"  type="hidden">
         <input name="state" id="state" th:field="*{state}" type="hidden">
         <input name="id" id="ktid" th:field="*{id}" type="hidden">
+        <input name="amount" id="amount" th:field="*{amount}" type="hidden">
         <h4 class="form-header h4">基本信息</h4>
         <div class="row">
         <div class="col-xs-6">
@@ -25,7 +26,14 @@
                 </div>
             </div>
         </div>
-
+        <div class="col-xs-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label is-required">课题编号：</label>
+                <div class="col-sm-8">
+                    <input  readonly th:field="*{topNumber}" class="form-control" type="text" required>
+                </div>
+            </div>
+        </div>
         <div class="col-xs-6">
             <div class="form-group">
                 <label class="col-sm-4 control-label is-required">课题类型：</label>
@@ -285,7 +293,7 @@
                 $(".tdiv2").show();
                 $("#btn3").show();
             }else{
-                if(a == 7 ||a == 8){
+                if(a == 7 ||a == 8 || a == 33){
                     if(name.rows.length > 0){
                         $(".tdiv2").show();
                     }
@@ -357,7 +365,7 @@
     function submitHandler() {
           //获取 URLflag
           var a = $("#urlFlag").val();
-            $.operate.saveTab(prefix + "/hxover", {"id":$("#ktid").val(),"urlFlag":a});
+            $.operate.saveTab(prefix + "/hxover", {"id":$("#ktid").val(),"urlFlag":a,"amount":$("#amount").val()});
     }
     function submitHandlerBH() {
         var a = $("#urlFlag").val();
