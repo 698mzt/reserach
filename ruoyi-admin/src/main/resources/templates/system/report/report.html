@@ -8,72 +8,8 @@
 <div class="row">
 
     <div class="tabs-container">
-        <ul class="nav nav-tabs">
-            <li class="">
-                <a data-toggle="tab" href="#tab-0" aria-expanded="true" onclick="$.table.refresh('bootstrap-table0')"> 已完结</a>
-            </li>
-            <li class="active">
-                <a data-toggle="tab" href="#tab-1" aria-expanded="false" onclick="$.table.refresh('bootstrap-table1')">项目申请</a>
-            </li>
-            <li class="">
-                <a data-toggle="tab" href="#tab-2" aria-expanded="false" onclick="$.table.refresh('bootstrap-table2')">结项申请</a>
-            </li>
-        </ul>
         <div class="tab-content">
-            <div id="tab-0" class="tab-pane">
-                <div class="panel-body">
-                    <div class="container-div">
-                        <div class="row">
-                            <div class="col-sm-12 search-collapse">
-                                <form id="formId-0">
-                                    <div class="select-list">
-                                        <ul>
-                                            <li>
-                                                <label>讲座主题：</label>
-                                                <input type="text" name="reportTheme"/>
-                                            </li>
-                                            <li>
-                                                <label>主办单位：</label>
-                                                <input type="text" name="hostUnit"/>
-                                            </li>
-                                            <li>
-                                                <label>讲座地点：</label>
-                                                <input type="text" name="reportPlace"/>
-                                            </li>
-                                            <li>
-                                                <a class="btn btn-primary btn-rounded btn-sm"
-                                                   onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
-                                                <a class="btn btn-warning btn-rounded btn-sm"
-                                                   onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </form>
-                            </div>
 
-                            <div class="btn-group-sm" role="group">
-                                <a class="btn btn-success" onclick="$.operate.addTab()"
-                                   shiro:hasPermission="system:report:add">
-                                    <i class="fa fa-plus"></i> 添加
-                                </a>
-                                <!--                <a class="btn btn-primary single disabled" onclick="$.operate.editTab()" shiro:hasPermission="system:report:edit">-->
-                                <!--                    <i class="fa fa-edit"></i> 修改-->
-                                <!--                </a>-->
-                                <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()"
-                                   shiro:hasPermission="system:report:remove">
-                                    <i class="fa fa-remove"></i> 批量删除
-                                </a>
-                                <!--                <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:report:export">-->
-                                <!--                    <i class="fa fa-download"></i> 导出-->
-                                <!--                </a>-->
-                            </div>
-                            <div class="col-sm-12 select-table table-striped">
-                                <table id="bootstrap-table0"></table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
             <div id="tab-1" class="tab-pane active">
                 <div class="panel-body">
                     <div class="container-div">
@@ -113,10 +49,10 @@
                                 <!--                <a class="btn btn-primary single disabled" onclick="$.operate.editTab()" shiro:hasPermission="system:report:edit">-->
                                 <!--                    <i class="fa fa-edit"></i> 修改-->
                                 <!--                </a>-->
-                                <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()"
-                                   shiro:hasPermission="system:report:remove">
-                                    <i class="fa fa-remove"></i> 批量删除
-                                </a>
+<!--                                <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()"-->
+<!--                                   shiro:hasPermission="system:report:remove">-->
+<!--                                    <i class="fa fa-remove"></i> 批量删除-->
+<!--                                </a>-->
                                 <!--                <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:report:export">-->
                                 <!--                    <i class="fa fa-download"></i> 导出-->
                                 <!--                </a>-->
@@ -128,62 +64,7 @@
                     </div>
                 </div>
             </div>
-            <div id="tab-2" class="tab-pane">
-                <div class="panel-body">
 
-                    <div class="container-div">
-                        <div class="row">
-                            <div class="col-sm-12 search-collapse">
-                                <form id="formId-2">
-                                    <div class="select-list">
-                                        <ul>
-                                            <li>
-                                                <label>讲座主题：</label>
-                                                <input type="text" name="reportTheme"/>
-                                            </li>
-                                            <li>
-                                                <label>主办单位：</label>
-                                                <input type="text" name="hostUnit"/>
-                                            </li>
-                                            <li>
-                                                <label>讲座地点：</label>
-                                                <input type="text" name="reportPlace"/>
-                                            </li>
-                                            <li>
-                                                <a class="btn btn-primary btn-rounded btn-sm"
-                                                   onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
-                                                <a class="btn btn-warning btn-rounded btn-sm"
-                                                   onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </form>
-                            </div>
-
-                            <div class="btn-group-sm" role="group">
-                                <a class="btn btn-success" onclick="$.operate.addTab()"
-                                   shiro:hasPermission="system:report:add">
-                                    <i class="fa fa-plus"></i> 添加
-                                </a>
-                                <!--                <a class="btn btn-primary single disabled" onclick="$.operate.editTab()" shiro:hasPermission="system:report:edit">-->
-                                <!--                    <i class="fa fa-edit"></i> 修改-->
-                                <!--                </a>-->
-                                <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()"
-                                   shiro:hasPermission="system:report:remove">
-                                    <i class="fa fa-remove"></i> 批量删除
-                                </a>
-                                <!--                <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:report:export">-->
-                                <!--                    <i class="fa fa-download"></i> 导出-->
-                                <!--                </a>-->
-                            </div>
-                            <div class="col-sm-12 select-table table-striped">
-                                <table id="bootstrap-table2"></table>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
         </div>
     </div>
 
@@ -198,10 +79,12 @@
     var schoolTitleDatas = [[${@dict.getType('tea_zhicheng')}]];
     var prefix = ctx + "system/report";
     var datas = [[${@dict.getType('sci_report_status')}]];
-    var proFlag = [[${@permission.hasPermi('system:report:process')}]];  // 审核
+    var proFlag = [[${@permission.hasPermi('system:report:process')}]];  // 教研室批阅
     var infoFlag = [[${@permission.hasPermi('system:report:info')}]];  // 查看
     var checkFlag = [[${@permission.hasPermi('system:report:check')}]];  // 核查
-    var jiexiangFlag = [[${@permission.hasPermi('system:report:jiexiang')}]];  // 结项申请
+    var xyproFlag = [[${@permission.hasPermi('system:report:xyprocess')}]];  // 学院批阅
+    var tuihuiFlag = [[${@permission.hasPermi('system:report:tuihui')}]];  // 退回  == 》 教研室负责人的特权
+    var chexiaoFlag = [[${@permission.hasPermi('system:report:chexiao')}]];  // 撤销 == 》 学院负责人的特权
 
     function getUrl(tableId) {
         var year = localStorage.getItem("year");
@@ -219,126 +102,7 @@
             $.table.init(options);
         }
 
-        // tab-0  也完结
-        var options0 = {
-            id: "bootstrap-table0",
-            url: prefix + "/list",
-            // url:getUrl($('table').attr('id')),
-            createUrl: prefix + "/add",
-            updateUrl: prefix + "/edit/{id}",
-            detailUrl: prefix + "/detail/{id}",
-            removeUrl: prefix + "/remove",
-            exportUrl: prefix + "/export",
-            overUrl: prefix + "/over/{id}", // 结项申请后端路径
-            modalName: "讲座报告",
-            columns: [{
-                checkbox: true
-            },
-                {
-                    field: 'id',
-                    align: 'center',
-                    title: '序号',
-                    visible: false
-                },
-                {
-                    field: 'xueyuan',
-                    align: 'center',
-                    title: '学院'
-                },
-                {
-                    field: 'keyanshi',
-                    align: 'center',
-                    title: '专业'
-                },
-                {
-                    field: 'teacherName',
-                    align: 'center',
-                    title: '申请人'
-                },
 
-                {
-                    field: 'reportTheme',
-                    align: 'center',
-                    title: '讲座主题'
-                },
-                {
-                    field: 'reportSubject',
-                    align: 'center',
-                    title: '讲座题目'
-                },
-                {
-                    field: 'hostUnit',
-                    align: 'center',
-                    title: '主办单位'
-                },
-                {
-                    field: 'reportTime',
-                    align: 'center',
-                    title: '讲座时间'
-                },
-                {
-                    field: 'reportPlace',
-                    align: 'center',
-                    title: '讲座地点'
-                },
-                {
-                    field: 'reportNumber',
-                    align: 'center',
-                    title: '参与人数'
-                },
-                {
-                    field: 'state',
-                    title: '申请状态',
-                    align: 'center',
-                    formatter: function (value, row, index) {
-                        return $.table.selectDictLabel(datas, value);
-                    }
-                },
-                // {
-                //     title: '操作',
-                //     align: 'center',
-                //     formatter: function(value, row, index) {
-                //         var actions = [];
-                //         actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>编辑</a> ');
-                //         actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-remove"></i>删除</a>');
-                //         return actions.join('');
-                //     }
-                // },
-                {
-                    title: '操作',
-                    align: 'center',
-                    formatter: function (value, row, index) {
-                        console.log(row)
-                        var actions = [];
-
-                        if (row.state == 1) {
-                            if (row.userId == row.uid) {
-                                actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-remove"></i>删除</a>');
-                                actions.push('<a   class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>修改</a> ');
-                            }
-
-                            actions.push('<a  class="btn btn-success btn-xs ' + proFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro' + '\')"><i class="fa fa-edit"></i>批阅</a> ');
-                            // actions.push('<a  class="btn btn-success btn-xs ' + proFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>批阅</a> ');
-
-                        } else if ((row.state == 3 || row.state == 5) && row.userId == row.uid) {
-                            actions.push('<a   class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> <i class="fa fa-edit"></i>更新</a> ');
-                        } else if (row.state == 2) {
-
-                            actions.push('<a  class="btn btn-success btn-xs ' + checkFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/check' + '\')"><i class="fa fa-edit"></i>核查</a> ');
-                        } else if (row.state == 4) {
-                            if (row.userId == row.uid) {
-                                actions.push('<a  class="btn btn-success btn-xs ' + jiexiangFlag + '" href="javascript:void(0)" onclick="$.operate.overTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>申请结项</a> ');
-                            }
-
-                            actions.push('<a  class="btn btn-success btn-xs ' + infoFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/info' + '\')"><i class="fa fa-edit"></i>查看</a> ');
-                        }
-                        return actions.join('');
-                    }
-                }
-            ]
-        };
-        // $.table.init(options);
-        initTable(options0);
         // tab-1  项目申请
         var options1 = {
             id: "bootstrap-table1",
@@ -440,12 +204,19 @@
                             actions.push('<a  class="btn btn-success btn-xs ' + proFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro' + '\')"><i class="fa fa-edit"></i>批阅</a> ');
                             // actions.push('<a  class="btn btn-success btn-xs ' + proFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>批阅</a> ');
 
-                        } else if ((row.state == 3 || row.state == 5) && row.userId == row.uid) {
-                            actions.push('<a   class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> <i class="fa fa-edit"></i>更新</a> ');
-                        } else if (row.state == 2) {
+                        }else if (row.state == 6){
+                                actions.push('<a  class="btn btn-success btn-xs ' + xyproFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/xypro' + '\')"><i class="fa fa-edit"></i>学院批阅</a> ');
+                                actions.push('<a  class="btn btn-success btn-xs ' + tuihuiFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/tuihui' + '\')"><i class="fa fa-edit"></i>撤销</a> ');
 
+                        } else if ((row.state == 3 || row.state == 5 || row.state == 7) && row.userId == row.uid) {
+                            actions.push('<a   class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> <i class="fa fa-edit"></i>更新</a> ');
+                        }
+                        else if (row.state == 2) {
                             actions.push('<a  class="btn btn-success btn-xs ' + checkFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/check' + '\')"><i class="fa fa-edit"></i>核查</a> ');
-                        } else if (row.state == 4) {
+                            actions.push('<a  class="btn btn-success btn-xs ' + chexiaoFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/xytuihui' + '\')"><i class="fa fa-edit"></i>撤销</a> ');
+                            // actions.push('<a  class="btn btn-success btn-xs ' + checkFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/check' + '\')"><i class="fa fa-edit"></i>核查</a> ');
+                        }
+                        else if (row.state == 4) {
                             // if (row.userId == row.uid) {
                             //     actions.push('<a  class="btn btn-success btn-xs ' + jiexiangFlag + '" href="javascript:void(0)" onclick="$.operate.overTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>申请结项</a> ');
                             // }
@@ -460,134 +231,6 @@
         // $.table.init(options);
         initTable(options1);
 
-        // tab-2  结项申请
-        var options2 = {
-            id: "bootstrap-table2",
-            url: prefix + "/list",
-            // url:getUrl($('table').attr('id')),
-            createUrl: prefix + "/add",
-            updateUrl: prefix + "/edit/{id}",
-            detailUrl: prefix + "/over_detail/{id}",
-            removeUrl: prefix + "/remove",
-            exportUrl: prefix + "/export",
-            overUrl: prefix + "/over/{id}", // 结项申请后端路径
-            modalName: "讲座报告",
-            columns: [{
-                checkbox: true
-            },
-                {
-                    field: 'id',
-                    align: 'center',
-                    title: '序号',
-                    visible: false
-                },
-                {
-                    field: 'xueyuan',
-                    align: 'center',
-                    title: '学院'
-                },
-                {
-                    field: 'keyanshi',
-                    align: 'center',
-                    title: '专业'
-                },
-                {
-                    field: 'teacherName',
-                    align: 'center',
-                    title: '申请人'
-                },
-
-                {
-                    field: 'reportTheme',
-                    align: 'center',
-                    title: '讲座主题'
-                },
-                {
-                    field: 'reportSubject',
-                    align: 'center',
-                    title: '讲座题目'
-                },
-                {
-                    field: 'hostUnit',
-                    align: 'center',
-                    title: '主办单位'
-                },
-                {
-                    field: 'reportTime',
-                    align: 'center',
-                    title: '讲座时间'
-                },
-                {
-                    field: 'reportPlace',
-                    align: 'center',
-                    title: '讲座地点'
-                },
-                {
-                    field: 'reportNumber',
-                    align: 'center',
-                    title: '参与人数'
-                },
-                {
-                    field: 'state',
-                    title: '申请状态',
-                    align: 'center',
-                    formatter: function (value, row, index) {
-                        return $.table.selectDictLabel(datas, value);
-                    }
-                },
-                // {
-                //     title: '操作',
-                //     align: 'center',
-                //     formatter: function(value, row, index) {
-                //         var actions = [];
-                //         actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>编辑</a> ');
-                //         actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-remove"></i>删除</a>');
-                //         return actions.join('');
-                //     }
-                // },
-                {
-                    title: '操作',
-                    align: 'center',
-                    formatter: function (value, row, index) {
-                        console.log(row)
-                        var actions = [];
-                        if (row.state == 4) {
-                            if (row.userId == row.uid) {
-                                actions.push('<a  class="btn btn-success btn-xs ' + jiexiangFlag + '" href="javascript:void(0)" onclick="$.operate.overTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>申请结项</a> ');
-                                actions.push('<a  class="btn btn-success btn-xs ' + infoFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/info' + '\')"><i class="fa fa-edit"></i>查看</a> ');
-                            }
-                        }else if (row.state == 6){
-                            actions.push('<a  class="btn btn-success btn-xs ' + proFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro' + '\')"><i class="fa fa-edit"></i>批阅</a> ');
-                        }
-
-                        // if (row.state == 1) {
-                        //     if (row.userId == row.uid) {
-                        //         actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-remove"></i>删除</a>');
-                        //         actions.push('<a   class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>修改</a> ');
-                        //     }
-                        //
-                        //     actions.push('<a  class="btn btn-success btn-xs ' + proFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro' + '\')"><i class="fa fa-edit"></i>批阅</a> ');
-                        //     // actions.push('<a  class="btn btn-success btn-xs ' + proFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>批阅</a> ');
-                        //
-                        // }
-                        else if ((row.state == 8 || row.state == 10) && row.userId == row.uid) {
-                            actions.push('<a   class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> <i class="fa fa-edit"></i>更新</a> ');
-                        } else if (row.state == 7) {
-                            actions.push('<a  class="btn btn-success btn-xs ' + checkFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/check' + '\')"><i class="fa fa-edit"></i>核查</a> ');
-                        }
-                        // else if (row.state == 4) {
-                        //     if (row.userId == row.uid) {
-                        //         actions.push('<a  class="btn btn-success btn-xs ' + jiexiangFlag + '" href="javascript:void(0)" onclick="$.operate.overTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>申请结项</a> ');
-                        //     }
-                        //     actions.push('<a  class="btn btn-success btn-xs ' + infoFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/info' + '\')"><i class="fa fa-edit"></i>查看</a> ');
-                        // }
-                        return actions.join('');
-                    }
-                }
-            ]
-        };
-        // $.table.init(options);
-        initTable(options2);
 
         // 监听localStorage的变化,当year值改变时，重新初始化表格
         window.addEventListener("storage", function (event) {

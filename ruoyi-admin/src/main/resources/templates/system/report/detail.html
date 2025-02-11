@@ -176,16 +176,20 @@
                 console.log('Event Name:', name.rows);
 
                 var a =$("#state").val();
+                var b =$("#urlFlag").val();
+                console.log("当前路径为:"+b)
                 // alert("状态为:"+a)
-                if(a == 2 ||a == 1){
+                if(a == 2 || a == 1 || a == 6){
                     if(name.rows.length > 0){
                         $(".tdiv2").show();
                     }
                     $(".tdiv1").show();
-                    $("#btn1").show();
+                    if (b != "tuihui" && b != "xytuihui"){
+                        $("#btn1").show();
+                    }
                     $("#btn2").show();
                 }
-                if(a == 4){
+                if(a == 4 || a == 2 || a == 6){
                     if(name.rows.length > 0){
                         $(".tdiv2").show();
                     }
