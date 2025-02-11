@@ -84,11 +84,11 @@ public class SciLectureReport extends BaseEntity
     private String reportSubject;
 
     /** 预期参与人数 */
-    @Excel(name = "预期参与人数")
+    @Excel(name = "参与人数")
     private Integer reportNumber;
 
     /** 预期报告时长 */
-    @Excel(name = "预期报告时长")
+    @Excel(name = "报告时长")
     private String reportDuration;
 
     /** 实际参与人数 */
@@ -105,13 +105,21 @@ public class SciLectureReport extends BaseEntity
     /** 科研分 */
     private String reportKeyanfen;
 
-
+    /** 退回状态 */
+    private String returnState;
 
 
     /**
      * get---set方法
      * */
 
+    public String getReturnState() {
+        return returnState;
+    }
+
+    public void setReturnState(String returnState) {
+        this.returnState = returnState;
+    }
 
     public Integer getActualNumber() {
         return actualNumber;

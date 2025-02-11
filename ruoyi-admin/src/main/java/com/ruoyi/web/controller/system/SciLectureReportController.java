@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.ruoyi.common.core.domain.entity.SysRole;
 import com.ruoyi.common.core.domain.entity.SysUser;
+import com.ruoyi.common.utils.ShiroUtils;
 import com.ruoyi.system.domain.SciLectureReportOpinion;
 import com.ruoyi.system.service.ISciLectureReportOpinionService;
 import com.ruoyi.system.service.ISysUserService;
@@ -83,79 +84,84 @@ public class SciLectureReportController extends BaseController
         }
         sciLectureReport.setRole(role);
         List<SciLectureReport> list = new ArrayList<>();
-        // 科研室
-        if(role.equals("sci_tesearch")){
-            switch (tableId){
-                case "bootstrap-table0":  // 也完结
+        sciLectureReport.setStatelist(Arrays.asList(1, 2, 3, 5,4,6,7)); // 查询时状态设置
+        list = sciLectureReportService.selectSciLectureReportList(sciLectureReport);
 
-                    break;
-                case "bootstrap-table1": // 项目申请
-                    sciLectureReport.setStatelist(Arrays.asList(1,2, 3,4,5));
-                    sciLectureReport.setState("4");  // 设置状态为4的并且是当前用户的项目不查询
-                    sciLectureReport.setTab("bootstrap-table1");
-                    list = sciLectureReportService.selectSciLectureReportListKYS_Tab1(sciLectureReport);
-                    break;
-                case "bootstrap-table2":  // 结项申请
-                    sciLectureReport.setStatelist(Arrays.asList(4,6,7,8,10));
-                    sciLectureReport.setState("4");
-                    sciLectureReport.setTab("bootstrap-table2");
-                    list = sciLectureReportService.selectSciLectureReportListKYS_Tab2(sciLectureReport);
-                    break;
-            }
-        }
-        // 教研室
-        else if(role.equals("research")){
-            switch (tableId){
-                case "bootstrap-table0":  // 也完结
-                    sciLectureReport.setStatelist(Arrays.asList(9));
-                    list = sciLectureReportService.selectSciLectureReportListJYS_Tab0(sciLectureReport);
-                    break;
-                case "bootstrap-table1": // 项目申请
-                    sciLectureReport.setStatelist(Arrays.asList(1,2,3,4,5));
-                    sciLectureReport.setState("4");  // 设置状态为4的并且是当前用户的项目不查询
-                    sciLectureReport.setTab("bootstrap-table1");
-                    list = sciLectureReportService.selectSciLectureReportListJYS_Tab1(sciLectureReport);
-                    break;
-                case "bootstrap-table2":  // 结项申请
-                    sciLectureReport.setStatelist(Arrays.asList(4,6,7,8,10));
-                    sciLectureReport.setState("4");
-                    sciLectureReport.setTab("bootstrap-table2");
-                    list = sciLectureReportService.selectSciLectureReportListJYS_Tab2(sciLectureReport);
-                    break;
-            }
-        }
-        // 管理员
-        else if(role.equals("admin")){
-            switch (tableId){
-                case "bootstrap-table0":  // 也完结
+//        // 科研室
+//        if(role.equals("sci_tesearch")){
+//            switch (tableId){
+//                case "bootstrap-table0":  // 也完结
+//
+//                    break;
+//                case "bootstrap-table1": // 项目申请
+//                    sciLectureReport.setStatelist(Arrays.asList(1,2, 3,4,5));
+//                    sciLectureReport.setState("4");  // 设置状态为4的并且是当前用户的项目不查询
+//                    sciLectureReport.setTab("bootstrap-table1");
+//                    list = sciLectureReportService.selectSciLectureReportListKYS_Tab1(sciLectureReport);
+//                    break;
+////                case "bootstrap-table2":  // 结项申请
+////                    sciLectureReport.setStatelist(Arrays.asList(4,6,7,8,10));
+////                    sciLectureReport.setState("4");
+////                    sciLectureReport.setTab("bootstrap-table2");
+////                    list = sciLectureReportService.selectSciLectureReportListKYS_Tab2(sciLectureReport);
+////                    break;
+//            }
+//        }
+//        // 教研室
+//        else if(role.equals("research")){
+//            switch (tableId){
+//                case "bootstrap-table0":  // 也完结
+////                    sciLectureReport.setStatelist(Arrays.asList(9));
+////                    list = sciLectureReportService.selectSciLectureReportListJYS_Tab0(sciLectureReport);
+//                    break;
+//                case "bootstrap-table1": // 项目申请
+//                    sciLectureReport.setStatelist(Arrays.asList(1,2,3,4,5));
+//                    sciLectureReport.setState("4");  // 设置状态为4的并且是当前用户的项目不查询
+//                    sciLectureReport.setTab("bootstrap-table1");
+//                    list = sciLectureReportService.selectSciLectureReportListJYS_Tab1(sciLectureReport);
+//                    break;
+////                case "bootstrap-table2":  // 结项申请
+////                    sciLectureReport.setStatelist(Arrays.asList(4,6,7,8,10));
+////                    sciLectureReport.setState("4");
+////                    sciLectureReport.setTab("bootstrap-table2");
+////                    list = sciLectureReportService.selectSciLectureReportListJYS_Tab2(sciLectureReport);
+////                    break;
+//            }
+//        }
+//        // 管理员
+//        else if(role.equals("admin")){
+//            switch (tableId){
+//                case "bootstrap-table0":  // 也完结
+//
+//                    break;
+//                case "bootstrap-table1": // 项目申请
+//                    sciLectureReport.setStatelist(Arrays.asList(1, 2, 3, 4, 5));
+//                    list = sciLectureReportService.selectSciLectureReportList(sciLectureReport);
+//                    break;
+////                case "bootstrap-table2":  // 结项申请
+////                    sciLectureReport.setStatelist(Arrays.asList(6,7,8,10)); // 讲座报告状态
+////                    list = sciLectureReportService.selectSciLectureReportList(sciLectureReport);
+////                    break;
+//            }
+//        }
+//        // 普通用户
+//        else{
+//            switch (tableId){
+//                case "bootstrap-table0":  // 也完结
+//
+//                    break;
+//                case "bootstrap-table1": // 项目申请
+////                    sciLectureReport.setStatelist(Arrays.asList(1, 2, 3, 5)); // 也完结和申请分开时的状态
+//                    sciLectureReport.setStatelist(Arrays.asList(1, 2, 3, 5,4));
+//                    list = sciLectureReportService.selectSciLectureReportList(sciLectureReport);
+//                    break;
+////                case "bootstrap-table2":  // 结项申请
+////                    sciLectureReport.setStatelist(Arrays.asList(4,6,7,8,10)); // 讲座报告状态
+////                    list = sciLectureReportService.selectSciLectureReportList(sciLectureReport);
+////                    break;
+//            }
+//        }
 
-                    break;
-                case "bootstrap-table1": // 项目申请
-                    sciLectureReport.setStatelist(Arrays.asList(1, 2, 3, 4, 5));
-                    list = sciLectureReportService.selectSciLectureReportList(sciLectureReport);
-                    break;
-                case "bootstrap-table2":  // 结项申请
-                    sciLectureReport.setStatelist(Arrays.asList(6,7,8,10)); // 讲座报告状态
-                    list = sciLectureReportService.selectSciLectureReportList(sciLectureReport);
-                    break;
-            }
-        }
-        // 普通用户
-        else{
-            switch (tableId){
-                case "bootstrap-table0":  // 也完结
-
-                    break;
-                case "bootstrap-table1": // 项目申请
-                    sciLectureReport.setStatelist(Arrays.asList(1, 2, 3, 5));
-                    list = sciLectureReportService.selectSciLectureReportList(sciLectureReport);
-                    break;
-                case "bootstrap-table2":  // 结项申请
-                    sciLectureReport.setStatelist(Arrays.asList(4,6,7,8,10)); // 讲座报告状态
-                    list = sciLectureReportService.selectSciLectureReportList(sciLectureReport);
-                    break;
-            }
-        }
         return getDataTable(list);
     }
 
@@ -180,16 +186,20 @@ public class SciLectureReportController extends BaseController
     @GetMapping("/add")
     public String add(ModelMap mmap)
     {
-        List<SysUser> userList =  userService.selectAllUser();
-        for (int a = 0; a<userList.size();a++) {
-            if(userList.get(a).getUserId() == getUserId()){
-                SysUser user = userList.get(a);
-                user.setFlag(true);
-                userList.set(a,user);
-                break;
-            }
-        }
-        mmap.put("sysUsers",userList);
+        // 获取当前的用户信息
+        SysUser currentUser = ShiroUtils.getSysUser();
+
+//        List<SysUser> userList =  userService.selectAllUser();
+//        for (int a = 0; a<userList.size();a++) {
+//            if(userList.get(a).getUserId() == getUserId()){
+//                SysUser user = userList.get(a);
+//                user.setFlag(true);
+//                userList.set(a,user);
+//                break;
+//            }
+//        }
+//        mmap.put("sysUsers",userList);
+        mmap.put("sysUsers",currentUser);
         return prefix + "/add";
     }
 
@@ -212,9 +222,12 @@ public class SciLectureReportController extends BaseController
     @GetMapping("/edit/{id}")
     public String edit(@PathVariable("id") Integer id, ModelMap mmap)
     {
+        // 获取当前的用户信息
+        SysUser currentUser = ShiroUtils.getSysUser();
         SciLectureReport sciLectureReport = sciLectureReportService.selectSciLectureReportById(id);
-        List<SysUser> userList =  userService.selectAllUser();
-        mmap.put("sysUsers",userList);
+//        List<SysUser> userList =  userService.selectAllUser();
+//        mmap.put("sysUsers",userList);
+        mmap.put("sysUsers",currentUser);
         mmap.put("sciLectureReport", sciLectureReport);
         return prefix + "/edit";
     }
@@ -248,7 +261,7 @@ public class SciLectureReportController extends BaseController
      * 讲座报告 （批阅  核查  查看 ）操作根据id查询对应的数据
      * detail ===> 详细页面
      */
-    @RequiresPermissions(value = {"system:report:process","system:report:check","system:report:info"},logical= Logical.OR)
+    @RequiresPermissions(value = {"system:report:process","system:report:check","system:report:info","system:report:xyprocess"},logical= Logical.OR)
     @GetMapping("/detail/{id}/{urlFlag}")
     public String detail(@PathVariable("id") Integer id, @PathVariable("urlFlag") String urlFlag, ModelMap mmap)
     {
@@ -264,7 +277,7 @@ public class SciLectureReportController extends BaseController
      * 讲座报告  批阅通过保存
      * criticism  ===> 批阅
      */
-    @RequiresPermissions(value = {"system:report:process","system:report:check"},logical= Logical.OR)
+    @RequiresPermissions(value = {"system:report:process","system:report:check","system:report:xyprocess"},logical= Logical.OR)
     @Log(title = "讲座报告审核通过", businessType = BusinessType.UPDATE)
     @PostMapping("/criticism")
     @ResponseBody
@@ -278,7 +291,7 @@ public class SciLectureReportController extends BaseController
      * 讲座报告  批阅驳回保存
      * criticism  ===> 批阅
      */
-    @RequiresPermissions(value = {"system:report:process","system:report:check"},logical= Logical.OR)
+    @RequiresPermissions(value = {"system:report:process","system:report:check","system:report:xyprocess","system:report:tuihui","system:report:chexiao"},logical= Logical.OR)
     @Log(title = "讲座报告审核驳回", businessType = BusinessType.UPDATE)
     @PostMapping("/reject")
     @ResponseBody
