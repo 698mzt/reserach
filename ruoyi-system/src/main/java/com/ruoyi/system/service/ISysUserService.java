@@ -213,4 +213,5 @@ public interface ISysUserService
     public int changeStatus(SysUser user);
 
     List<SysUser> selectAllUser();
+
 }
