@@ -1,6 +1,7 @@
 package com.ruoyi.system.service.impl;
 
 import com.ruoyi.common.annotation.DataScope;
+import com.ruoyi.common.core.text.Convert;
 import com.ruoyi.system.domain.SciHorizontalApply;
 import com.ruoyi.system.domain.SciHorizontalPiyue;
 import com.ruoyi.system.domain.SciIntraSchProPiyue;
@@ -20,7 +21,9 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
     private SciIntraSchProApplyMapper sciIntraSchProApplyMapper;
     @Autowired
     private SciIntraSchProPiyueMapper sciIntraSchProPiyueMapper;
+
     @Override
+    @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciIntraSchoolPro> sel_IntraSchPro_isOVER(SciIntraSchoolPro sciIntraSchoolPro) {
         return sciIntraSchProApplyMapper.sel_IntraSchPro_isOVER(sciIntraSchoolPro);
     }
@@ -37,6 +40,7 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
     }
 
     @Override
+    @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciIntraSchoolPro> sel_IntraSchPro_approval_jy(SciIntraSchoolPro sciIntraSchoolPro) {
         return sciIntraSchProApplyMapper.sel_IntraSchPro_approval_jy(sciIntraSchoolPro);
     }
@@ -53,6 +57,7 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
     }
 
     @Override
+    @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciIntraSchoolPro> sel_IntraSchPro_closure_jy(SciIntraSchoolPro sciIntraSchoolPro) {
         return sciIntraSchProApplyMapper.sel_IntraSchPro_closure_jy(sciIntraSchoolPro);
     }
@@ -72,27 +77,208 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
         return sciIntraSchProApplyMapper.sel_IntraSchPro_by_id(id);
     }
 
+
+
+    /**
+     * 开题通过
+     * @param id
+     * @param uid
+     * @param urlFlag
+     * @return
+     */
     @Override
-    public int sch_hxBh(String id,Long uid, String remark,String urlFlag) {
+    public int sch_hxPass(String id,Long uid,String urlFlag) {
         String state = "0";
-        if(urlFlag.equals("hecha")){
-            state ="5";
-        }else if(urlFlag.equals("pro")){
-            state ="3";
-        }
-        System.out.println("state = " + state);
-        int a = sciIntraSchProApplyMapper.sch_hxPass(id,state);
         SciIntraSchProPiyue sciIntraSchProPiyue = new SciIntraSchProPiyue();
+        if(urlFlag.equals("hecha")){
+            state ="4";
+            sciIntraSchProPiyue.setConcate("科研：开题同意");
+        }else if(urlFlag.equals("pro")){
+            state ="11";
+            sciIntraSchProPiyue.setConcate("教研：开题同意");
+        }else if(urlFlag.equals("dept_teacher")){
+            state ="2";
+            sciIntraSchProPiyue.setConcate("学院：开题同意");
+        }
+        int a =  sciIntraSchProApplyMapper.sch_hxPass(id,state);
+
         sciIntraSchProPiyue.setUid(uid);
         sciIntraSchProPiyue.setSchxktId(Integer.valueOf(id));
-        sciIntraSchProPiyue.setConcate(remark);
-        sciIntraSchProPiyue.setState("教研室驳回");
+
+        sciIntraSchProPiyue.setState("通过");
         sciIntraSchProPiyueMapper.insertIntraSchProPiyue(sciIntraSchProPiyue);
         return a;
     }
 
+    /**
+     * 结项通过
+     * @param id
+     * @param userId
+     * @param urlFlag
+     * @return
+     */
+    @Override
+    public int sch_hxover(String id, Long userId, String urlFlag) {
+        String state = "0";
+        SciIntraSchProPiyue sciIntraSchProPiyue = new SciIntraSchProPiyue();
+        System.out.println("urlFlag = " + urlFlag);
+        if(urlFlag.equals("JYSOVER")){
+            state ="13";
+            sciIntraSchProPiyue.setConcate("教研：结题同意");
+        }else if(urlFlag.equals("KYCOVER")){
+            state ="6";
+            sciIntraSchProPiyue.setConcate("科研：结题同意");
+        }else if(urlFlag.equals("dept_teacher")){
+            state ="8";
+            sciIntraSchProPiyue.setConcate("学院：结题同意");
+        }
+        //int b =  sciIntraSchProApplyMapper.sch_hxover(id,state);
+        int a =  sciIntraSchProApplyMapper.sch_hxPass(id,state);
+        //System.out.println(b);
+
+        sciIntraSchProPiyue.setUid(userId);
+        sciIntraSchProPiyue.setSchxktId(Integer.valueOf(id));
+
+        sciIntraSchProPiyue.setState("通过");
+        sciIntraSchProPiyueMapper.insertIntraSchProPiyue(sciIntraSchProPiyue);
+        return a;
+    }
+    /**
+     * 开题驳回
+     * @param id
+     * @param uid
+     * @param remark 驳回理由
+     * @param urlFlag
+     * @return
+     */
+    @Override
+    public int sch_hxBh(String id,Long uid, String remark,String urlFlag) {
+        String state = "0";
+        SciIntraSchProPiyue sciIntraSchProPiyue = new SciIntraSchProPiyue();
+        //科研
+        if(urlFlag.equals("hecha")){
+            state ="5";
+        }else if(urlFlag.equals("pro")){
+            state ="3";
+        }else if (urlFlag.equals("dept_teacher")){
+            state ="12";
+        }
+        int a = sciIntraSchProApplyMapper.sch_hxPass(id,state);
+
+        sciIntraSchProPiyue.setUid(uid);
+        sciIntraSchProPiyue.setSchxktId(Integer.valueOf(id));
+        sciIntraSchProPiyue.setConcate(remark);
+        sciIntraSchProPiyue.setState("驳回");
+        sciIntraSchProPiyueMapper.insertIntraSchProPiyue(sciIntraSchProPiyue);
+        return a;
+    }
+    /**
+     * 结项驳回
+     * @param id
+     * @param userId
+     * @param remark
+     * @param urlFlag
+     * @return
+     */
+    @Override
+    public int sch_hxoverBh(String id, Long userId, String remark, String urlFlag) {
+        String state = "0";
+        SciIntraSchProPiyue sciIntraSchProPiyue = new SciIntraSchProPiyue();
+        if(urlFlag.equals("JYSOVER")){
+            state ="9";
+        }else if(urlFlag.equals("KYCOVER")){
+            state ="10";
+        }else if(urlFlag.equals("dept_teacher")){
+            state ="14";
+        }
+        int a =  sciIntraSchProApplyMapper.sch_hxPass(id,state);
+
+        sciIntraSchProPiyue.setUid(userId);
+        sciIntraSchProPiyue.setSchxktId(Integer.valueOf(id));
+        sciIntraSchProPiyue.setConcate(remark);
+        sciIntraSchProPiyue.setState("驳回");
+        sciIntraSchProPiyueMapper.insertIntraSchProPiyue(sciIntraSchProPiyue);
+        return a;
+    }
+
+    /**
+     * 开题撤回
+     * @param id
+     * @param remark
+     * @param urlFlag
+     * @return
+     */
+    @Override
+    public int sch_hxCH(String id, Long userId, String remark, String urlFlag) {
+        String state = "0";
+        SciIntraSchProPiyue sciIntraSchProPiyue = new SciIntraSchProPiyue();
+        if(urlFlag.equals("pro")){
+            sciIntraSchProPiyue.setState("开题：教研驳回（撤回）");
+            state ="3";
+
+        }else if(urlFlag.equals("hecha")){
+            sciIntraSchProPiyue.setState("开题：科研驳回（撤回）");
+            state ="5";
+
+        }else if(urlFlag.equals("dept_teacher")){
+            sciIntraSchProPiyue.setState("开题：学院驳回（撤回）");
+            state ="12";
+
+        }
+        int a =  sciIntraSchProApplyMapper.sch_hxPass(id,state);
+
+        sciIntraSchProPiyue.setUid(userId);
+        sciIntraSchProPiyue.setSchxktId(Integer.valueOf(id));
+        sciIntraSchProPiyue.setConcate(remark);
+        sciIntraSchProPiyueMapper.insertIntraSchProPiyue(sciIntraSchProPiyue);
+
+        return a;
+    }
+
+    /**
+     * 结题撤回
+     * @param id
+     * @param userId
+     * @param remark
+     * @param urlFlag
+     * @return
+     */
+    @Override
+    public int sch_hxOverCH(String id, Long userId, String remark, String urlFlag) {
+        String state = "0";
+        SciIntraSchProPiyue sciIntraSchProPiyue = new SciIntraSchProPiyue();
+        if(urlFlag.equals("JYSOVER")){
+            sciIntraSchProPiyue.setState("结题：教研驳回（撤回）");
+            state ="9";
+
+        }else if(urlFlag.equals("KYCOVER")){
+            sciIntraSchProPiyue.setState("结题：科研驳回（撤回）");
+            state ="10";
+
+        }else if(urlFlag.equals("dept_teacher")){
+            sciIntraSchProPiyue.setState("结题：学院驳回（撤回）");
+            state ="14";
+
+        }
+        int a =  sciIntraSchProApplyMapper.sch_hxPass(id,state);
+        sciIntraSchProPiyue.setUid(userId);
+        sciIntraSchProPiyue.setSchxktId(Integer.valueOf(id));
+        sciIntraSchProPiyue.setConcate(remark);
+        sciIntraSchProPiyueMapper.insertIntraSchProPiyue(sciIntraSchProPiyue);
+
+        return a;
+    }
     @Override
     public int updateIntraSchoolApply(SciIntraSchoolPro sciIntraSchoolPro) {
+        String NowState = sciIntraSchProApplyMapper.geStaticById(sciIntraSchoolPro.getId());
+
+        String id = String.valueOf(sciIntraSchoolPro.getId());
+        if (NowState.equals("3") || NowState.equals("5") ||NowState.equals("12")){
+            sciIntraSchProApplyMapper.sch_hxPass(id,"1");
+        }else if (NowState.equals("9") || NowState.equals("10") ||NowState.equals("14")){
+
+            sciIntraSchProApplyMapper.sch_hxPass(id,"7");
+        }
         return sciIntraSchProApplyMapper.updateIntraSchoolApply(sciIntraSchoolPro);
     }
 
@@ -106,52 +292,53 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
         return sciIntraSchProApplyMapper.insert_IntraSchPro_OverApply(sciIntraSchoolPro);
     }
 
+
+
+
+
     @Override
-    public int sch_hxover(String id, Long userId, String urlFlag) {
-        String state = "0";
-        if(urlFlag.equals("JYSOVER")){
-            state ="8";
-        }else if(urlFlag.equals("KYCOVER")){
-            state ="6";
-        }
-        int b =  sciIntraSchProApplyMapper.sch_hxover(id,state);
-        int a =  sciIntraSchProApplyMapper.sch_hxPass(id,state);
-        System.out.println(b);
-        return a;
+    public List<SciIntraSchoolPro> sel_IntraSchPro_isOVER_admin(SciIntraSchoolPro sciIntraSchoolPro) {
+        return sciIntraSchProApplyMapper.sel_IntraSchPro_isOVER_admin(sciIntraSchoolPro);
     }
 
     @Override
-    public int sch_hxoverBh(String id, Long userId, String remark, String urlFlag) {
-        String state = "0";
-        if(urlFlag.equals("JYSOVER")){
-            state ="9";
-        }else if(urlFlag.equals("KYCOVER")){
-            state ="10";
-        }
-        int b =  sciIntraSchProApplyMapper.sch_hxover(id,state);
-        int a =  sciIntraSchProApplyMapper.sch_hxPass(id,state);
-        System.out.println(b);
-        return a;
+    public List<SciIntraSchoolPro> sel_IntraSchPro_approval_admin(SciIntraSchoolPro sciIntraSchoolPro) {
+        return sciIntraSchProApplyMapper.sel_IntraSchPro_approval_admin(sciIntraSchoolPro);
     }
 
     @Override
-    public int sch_hxPass(String id,Long uid,String urlFlag) {
-        String state = "0";
-        if(urlFlag.equals("hecha")){
-            state ="4";
-        }else if(urlFlag.equals("pro")){
-            state ="2";
-        }
-        System.out.println("sch_hxPass:state = " + state);
-        int a =  sciIntraSchProApplyMapper.sch_hxPass(id,state);
-        SciIntraSchProPiyue sciIntraSchProPiyue = new SciIntraSchProPiyue();
-        sciIntraSchProPiyue.setUid(uid);
-        sciIntraSchProPiyue.setSchxktId(Integer.valueOf(id));
-        sciIntraSchProPiyue.setConcate("同意");
-        sciIntraSchProPiyue.setState("通过");
-        sciIntraSchProPiyueMapper.insertIntraSchProPiyue(sciIntraSchProPiyue);
-        return a;
+    public List<SciIntraSchoolPro> sel_IntraSchPro_closure_admin(SciIntraSchoolPro sciIntraSchoolPro) {
+        return sciIntraSchProApplyMapper.sel_IntraSchPro_closure_admin(sciIntraSchoolPro);
     }
 
+    @Override
+    public List<Long> getRoleid_list(Long userId) {
+        return sciIntraSchProApplyMapper.getRoleid_list(userId);
+    }
+
+    @Override
+    @DataScope(deptAlias = "d", userAlias = "u")
+    public List<SciIntraSchoolPro> sel_IntraSchPro_approval_dept_teacher(SciIntraSchoolPro sciIntraSchoolPro) {
+        return sciIntraSchProApplyMapper.sel_IntraSchPro_approval_dept_teacher(sciIntraSchoolPro);
+    }
+
+    @Override
+    @DataScope(deptAlias = "d", userAlias = "u")
+    public List<SciIntraSchoolPro> sel_IntraSchPro_closure_dept_teacher(SciIntraSchoolPro sciIntraSchoolPro) {
+        return sciIntraSchProApplyMapper.sel_IntraSchPro_closure_dept_teacher(sciIntraSchoolPro);
+    }
+
+    @Override
+    @DataScope(deptAlias = "d", userAlias = "u")
+    public List<SciIntraSchoolPro> sel_IntraSchPro_isOVER_dept_teacher(SciIntraSchoolPro sciIntraSchoolPro) {
+        return sciIntraSchProApplyMapper.sel_IntraSchPro_isOVER_dept_teacher(sciIntraSchoolPro);
+    }
+
+
+    @Override
+    public int deleteSciSCHHorizontalApplyByIds(String ids)
+    {
+        return sciIntraSchProApplyMapper.deleteSciSCHHorizontalApplyByIds(Convert.toStrArray(ids));
+    }
 
 }

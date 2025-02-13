@@ -111,6 +111,17 @@ public class SciIntraSchoolPro extends BaseEntity {
 
     private String year;
 
+    //角色
+    private String role;
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
     public String getYear() {
         return year;
     }

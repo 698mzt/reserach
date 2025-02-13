@@ -10,6 +10,7 @@ import java.util.List;
 
 public interface SciIntraSchProApplyMapper {
 
+
     List<SciIntraSchoolPro> sel_IntraSchPro_isOVER(SciIntraSchoolPro sciIntraSchoolPro);
 
     List<SciIntraSchoolPro> sel_my_IntraSchPro_isOVER(SciIntraSchoolPro sciIntraSchoolPro);
@@ -42,4 +43,21 @@ public interface SciIntraSchProApplyMapper {
     int insert_IntraSchPro_OverApply(SciIntraSchoolPro sciIntraSchoolPro);
 
 
+    List<SciIntraSchoolPro> sel_IntraSchPro_isOVER_admin(SciIntraSchoolPro sciIntraSchoolPro);
+
+    List<SciIntraSchoolPro> sel_IntraSchPro_approval_admin(SciIntraSchoolPro sciIntraSchoolPro);
+
+    List<SciIntraSchoolPro> sel_IntraSchPro_closure_admin(SciIntraSchoolPro sciIntraSchoolPro);
+
+    List<Long> getRoleid_list(Long userId);
+
+    List<SciIntraSchoolPro> sel_IntraSchPro_approval_dept_teacher(SciIntraSchoolPro sciIntraSchoolPro);
+
+    List<SciIntraSchoolPro> sel_IntraSchPro_closure_dept_teacher(SciIntraSchoolPro sciIntraSchoolPro);
+
+    List<SciIntraSchoolPro> sel_IntraSchPro_isOVER_dept_teacher(SciIntraSchoolPro sciIntraSchoolPro);
+
+    int deleteSciSCHHorizontalApplyByIds(String[] toStrArray);
+
+    String geStaticById(Integer id);
 }

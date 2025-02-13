@@ -1,5 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+
+
 <head>
     <th:block th:include="include :: header('新增横向课题')" />
     <th:block th:include="include :: datetimepicker-css" />
@@ -7,15 +9,18 @@
     <th:block th:include="include :: select2-css" />
 </head>
 <body class="white-bg">
+
 <div class="wrapper wrapper-content animated fadeInRight ibox-content">
     <form class="form-horizontal m" id="form-apply-add">
         <div class="col-xs-6">
             <div class="form-group">
                 <label class="col-sm-4 control-label is-required">申请人：</label>
                 <div class="col-sm-8">
-                    <select name="userId" class="form-control m-b" >
-                        <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${user.flag}"></option>
-                    </select>
+                    <input type="text" id="userName"  class="form-control" name="userName" readonly>
+                    <input type="hidden" id="userId"  class="form-control" name="userId" readonly>
+<!--                    <select name="userId" class="form-control m-b" >-->
+<!--                        <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${user.flag}"></option>-->
+<!--                    </select>-->
                 </div>
             </div>
         </div>
@@ -186,6 +191,20 @@
     $("#form-apply-add").validate({
         focusCleanup: true
     });
+    $.ajax({
+        type: "POST",
+        url:prefix+"/getLoginData",
+        contentType:"application/json",
+        async:false,
+        error:function (request){
+            alter("超时")
+        },
+        success:function (data){
+            console.log(data.userName)
+            $("#userName").val(data.userName);
+            $("#userId").val(data.userId);
+        },
+    })
 
     function submitHandler() {
         if ($.validate.form()) {

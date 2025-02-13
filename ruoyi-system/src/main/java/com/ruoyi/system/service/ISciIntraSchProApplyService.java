@@ -39,4 +39,23 @@ public interface ISciIntraSchProApplyService {
     int sch_hxover(String id, Long userId, String urlFlag);
 
     int sch_hxoverBh(String id, Long userId, String remark, String urlFlag);
+
+    int sch_hxCH(String id,Long userId, String remark, String urlFlag);
+    int sch_hxOverCH(String id,Long userId, String remark, String urlFlag);
+    List<SciIntraSchoolPro> sel_IntraSchPro_isOVER_admin(SciIntraSchoolPro sciIntraSchoolPro);
+
+    List<SciIntraSchoolPro> sel_IntraSchPro_approval_admin(SciIntraSchoolPro sciIntraSchoolPro);
+
+    List<SciIntraSchoolPro> sel_IntraSchPro_closure_admin(SciIntraSchoolPro sciIntraSchoolPro);
+
+    List<Long> getRoleid_list(Long userId);
+
+    List<SciIntraSchoolPro> sel_IntraSchPro_approval_dept_teacher(SciIntraSchoolPro sciIntraSchoolPro);
+
+    List<SciIntraSchoolPro> sel_IntraSchPro_closure_dept_teacher(SciIntraSchoolPro sciIntraSchoolPro);
+
+    List<SciIntraSchoolPro> sel_IntraSchPro_isOVER_dept_teacher(SciIntraSchoolPro sciIntraSchoolPro);
+
+    public int deleteSciSCHHorizontalApplyByIds(String ids);
+
 }
