@@ -456,7 +456,8 @@
                                     actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
                                 }
                             }else{
-                                //不是自己项目
+                                //不是自己项目，审批过的
+                                actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
                             }
                         }
                         //学院
@@ -466,6 +467,10 @@
                                 actions.push('<a  class="btn btn-success btn-xs ' + XYPY + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/dept_teacher' + '\')"><i class="fa fa-edit"></i>批阅</a> ');
                             }else if (row.state=='2'){
                                 actions.push('<a  class="btn btn-danger btn-xs ' + XYPY + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/dept_teacher' + '\')"><i class="fa fa-edit"></i>撤回</a> ');
+                            }else {
+                                //审批过的
+                                actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
+
                             }
 
                         }
@@ -494,7 +499,9 @@
                                     actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
                                 }
                             }else{
-                                //不是自己项目
+                                //不是自己项目，审批过的
+                                actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
+
                             }
                         }
                         //admin
@@ -760,7 +767,8 @@
                                 }
 
                             }else{
-                                //不是自己项目
+                                //不是自己项目,审批过的
+                                actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
                             }
                         }
                         //学院
@@ -770,6 +778,10 @@
                                 actions.push('<a  class="btn btn-success btn-xs ' + XYPY + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/dept_teacher' + '\')"><i class="fa fa-edit"></i>批阅</a> ');
                             }else if (row.state=='8'){
                                 actions.push('<a  class="btn btn-danger btn-xs ' + XYPY + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/dept_teacher' + '\')"><i class="fa fa-edit"></i>撤回</a> ');
+                            }else{
+                                //审批过的
+                                actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
+
                             }
 
                         }
@@ -795,7 +807,9 @@
                                     actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
                                 }
                             }else{
-                                //不是自己项目
+                                //不是自己项目，审批过的
+                                actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
+
                             }
                         }
                         //admin
