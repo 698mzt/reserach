@@ -217,11 +217,12 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService
     public int criticism(Integer rid, Long userId, String remark, String urlFlag) {
         String state;
         if (urlFlag.equals("pro")){
-            state = "2"; // 教研室通过
+            state = "6"; // 教研室通过
         }else if (urlFlag.equals("check")){
             state = "4"; // 科研室通过
-        }
-        else {
+        } else if (urlFlag.equals("xypro")) {
+            state = "2"; // 学院通过
+        } else {
             return 0;
         }
         int i = sciLectureReportMapper.criticism(rid, state);  // 修改讲座报告的状态
@@ -238,10 +239,12 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService
     @Override
     public int reject(Integer id, Long userId, String remark, String urlFlag) {
         String state;
-        if (urlFlag.equals("pro")){
+        if (urlFlag.equals("pro") || urlFlag.equals("tuihui")){
             state = "3"; // 教研室驳回
         }else if (urlFlag.equals("check")){
             state = "5"; // 科研室驳回
+        }else if(urlFlag.equals("xypro") || urlFlag.equals("xytuihui")){
+            state = "7"; // 学院驳回
         }
         else {
             return 0;
