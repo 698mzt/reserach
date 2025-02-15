@@ -8,20 +8,14 @@ import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.domain.entity.SysRole;
 import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.common.enums.BusinessType;
-import com.ruoyi.system.domain.SciHorizontalApply;
-import com.ruoyi.system.domain.SciHorizontalPiyue;
-import com.ruoyi.system.domain.SciIntraSchProPiyue;
-import com.ruoyi.system.service.ISciHorizontalPiyueService;
-import com.ruoyi.system.service.ISciIntraSchProApplyService;
-import com.ruoyi.system.service.ISciIntraSchProPiyueService;
-import com.ruoyi.system.service.ISysUserService;
+import com.ruoyi.system.domain.*;
+import com.ruoyi.system.service.*;
 import io.swagger.models.auth.In;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
-import com.ruoyi.system.domain.SciIntraSchoolPro;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.page.TableDataInfo;
 
@@ -38,8 +32,11 @@ public class SciIntraSchoolProController extends BaseController {
     private ISysUserService userService;
     @Autowired
     private ISciIntraSchProPiyueService piyueService;
-
+    @Autowired
+    private SciIntraSchProReamountService sciIntraSchProReamountService;
     private String role_str="";
+    private String deptNamekey="";
+
     @GetMapping("")
     String view() {
         return prefix + "/view";
@@ -146,8 +143,9 @@ public class SciIntraSchoolProController extends BaseController {
             switch (tableId) {
                 case "bootstrap-table0":
                     list = sciIntraSchProApplyService.sel_IntraSchPro_isOVER(sciIntraSchoolPro);
+
                     //System.out.println("this is table0 list = " + list);
-                    System.out.println("this is table0 list = " );
+                    System.out.println("this is table0 list = "+ list);
                     break;
                 case "bootstrap-table1":
                     list = sciIntraSchProApplyService.sel_IntraSchPro_approval_jy(sciIntraSchoolPro);
@@ -246,24 +244,25 @@ public class SciIntraSchoolProController extends BaseController {
         mmap.put("sysUsers1",userList1);
         mmap.put("sciIntraSchoolPro", sciIntraSchoolPro);
         System.out.println("SciIntraSchoolProController.edit");
-        if (sciIntraSchoolPro.getState().equals("3")||sciIntraSchoolPro.getState().equals("5")){
-            System.out.println("1");
-            return prefix + "/edit";
-        }else if(sciIntraSchoolPro.getState().equals("6")){
-            System.out.println("1");
-            return prefix + "/is_Over";
-        } else {
-            System.out.println("1");
-            return prefix + "/edit_Over";
-        }
-        //return prefix + "/edit";
+//        if (sciIntraSchoolPro.getState().equals("3")||sciIntraSchoolPro.getState().equals("5")){
+//            System.out.println("1");
+//            return prefix + "/edit";
+//        }else if(sciIntraSchoolPro.getState().equals("6")){
+//            System.out.println("2");
+//            return prefix + "/is_Over";
+//        } else {
+//            System.out.println("3");
+//            return prefix + "/edit_Over";
+//        }
+        return prefix + "/edit";
     }
 
     @GetMapping("/detail/{id}/{urlFlag}")
     public String detail(@PathVariable("id") Integer id,@PathVariable("urlFlag") String urlFlag, ModelMap mmap)
     {
         SciIntraSchoolPro sciIntraSchoolPro = sciIntraSchProApplyService.sel_IntraSchPro_by_id(id);
-
+        String user_dname=sciIntraSchProApplyService.getuser_dnameById(getUserId());
+        System.out.println("user_dname = " + user_dname);
         //这里把全局变量role_str放进去用于对detail.html处理的判定
         sciIntraSchoolPro.setRole(role_str);
         System.out.println("sciIntraSchoolPro = " + sciIntraSchoolPro);
@@ -271,6 +270,11 @@ public class SciIntraSchoolProController extends BaseController {
         sciIntraSchoolPro.setUrlFlag(urlFlag);
 
         mmap.put("sysUsers1",userList1);
+        if (user_dname.equals(sciIntraSchoolPro.getDname())){
+            sciIntraSchoolPro.setDeptNamekey("1");
+        }else {
+            sciIntraSchoolPro.setDeptNamekey("0");
+        }
         mmap.put("sciIntraSchoolPro", sciIntraSchoolPro);
         //mmap.put("urlFlag",urlFlag);
         System.out.println("SciIntraSchoolProController.detail");
@@ -465,5 +469,18 @@ public class SciIntraSchoolProController extends BaseController {
         return toAjax(sciIntraSchProApplyService.deleteSciSCHHorizontalApplyByIds(ids));
     }
 
-
+    /**
+     * 增加项目金额
+     * @param sciIntraSchProReamount
+     * @return
+     */
+    @PostMapping("/Reamount")
+    @ResponseBody
+    public AjaxResult Reamount(SciIntraSchProReamount sciIntraSchProReamount)
+    {
+        System.out.println("sciIntraSchProReamount = " + sciIntraSchProReamount);
+        String userid=String.valueOf(getUserId());
+        sciIntraSchProReamount.setApplyId(userid);
+        return toAjax(sciIntraSchProReamountService.insertAmount(sciIntraSchProReamount));
+    }
 }

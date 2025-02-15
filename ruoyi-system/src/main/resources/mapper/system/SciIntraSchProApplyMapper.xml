@@ -119,7 +119,7 @@
 <!--    教研室的立项申请：有所有的申请-->
     <select id="sel_IntraSchPro_approval_jy" parameterType="SciIntraSchoolPro" resultMap="SciIntraSchoolProResult">
         select
-        'research' role,#{uid} uid, s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,
+        'research' role,#{uid} uid,(SELECT dept_name FROM sys_dept WHERE dept_id=(SELECT dept_id from sys_user WHERE user_id=#{uid}))=d.dept_name deptNamekey, s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,
         s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id,
         concat( s.amount,'万') amount, s.contract, s.filing, s.state ,s.PA ,s.PB
         from sci_IntraSchPro_apply s left join sys_user u on  s.user_id=u.user_id
@@ -307,10 +307,16 @@
     </insert>
 
     <select id="sel_IntraSchPro_by_id" parameterType="Integer" resultMap="SciIntraSchoolProResult">
-        select s.PA,s.PB,s.id,u.user_name userName, s.user_id, s.top_name, s.top_type,  s.signing_data, s.validity_Date,s.createtime, o.agreeurl,o.filingurl,s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id,  s.amount, amount, s.contract, s.filing, s.state
-        from sci_IntraSchPro_apply s left join sci_IntraSchPro_over o on s.id=o.appid left join sys_user u on  s.user_id=u.user_id
-
+        select s.PA,s.PB,s.id,u.user_name userName, d.dept_name dname,s.user_id, s.top_name, s.top_type,  s.signing_data, s.validity_Date,s.createtime, o.agreeurl,o.filingurl,s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id,  s.amount, amount, s.contract, s.filing, s.state
+        from sci_IntraSchPro_apply s
+            left join sci_IntraSchPro_over o on s.id=o.appid
+            left join sys_user u on  s.user_id=u.user_id
+            left join sys_dept d on u.dept_id = d.dept_id
         where s.id = #{id}
+
+    </select>
+    <select id="getuser_dnameById" parameterType="java.lang.Long" >
+        SELECT dept_name from sys_dept WHERE dept_id=(SELECT dept_id from sys_user WHERE user_id=#{id})
 
     </select>
 
@@ -527,7 +533,7 @@
     </delete>
 
     <select id="geStaticById" parameterType="SciIntraSchoolPro" >
-        SELECT state from sci_intraschpro_apply WHERE id=#{id}
+        SELECT state from sci_IntraSchPro_apply WHERE id=#{id}
 
     </select>
 </mapper>

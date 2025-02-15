@@ -341,4 +341,9 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
         return sciIntraSchProApplyMapper.deleteSciSCHHorizontalApplyByIds(Convert.toStrArray(ids));
     }
 
+    @Override
+    public String getuser_dnameById(Long userId) {
+        return sciIntraSchProApplyMapper.getuser_dnameById(userId);
+    }
+
 }

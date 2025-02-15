@@ -60,4 +60,6 @@ public interface SciIntraSchProApplyMapper {
     int deleteSciSCHHorizontalApplyByIds(String[] toStrArray);
 
     String geStaticById(Integer id);
+
+    String getuser_dnameById(Long userId);
 }

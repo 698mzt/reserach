@@ -1,6 +1,7 @@
 package com.ruoyi.system.service;
 
 import com.ruoyi.system.domain.SciHorizontalApply;
+import com.ruoyi.system.domain.SciHorizontalReamount;
 import com.ruoyi.system.domain.SciIntraSchoolPro;
 
 import java.util.List;
@@ -58,4 +59,6 @@ public interface ISciIntraSchProApplyService {
 
     public int deleteSciSCHHorizontalApplyByIds(String ids);
 
+
+    String getuser_dnameById(Long userId);
 }
