@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.SciZhuanliruanzhuScoreCfgMapper">
+
+    <resultMap type="SciZhuanliruanzhuScoreCfg" id="SciZhuanliruanzhuScoreCfgResult">
+        <result property="id"    column="id"    />
+        <result property="fundsMax"    column="funds_max"    />
+        <result property="fundsMin"    column="funds_min"    />
+        <result property="userOrder"    column="user_order"    />
+        <result property="totalScore"    column="total_score"    />
+
+        <result property="updateUser"    column="update_user"    />
+        <result property="updateTime"    column="update_time"    />
+
+    </resultMap>
+
+    <sql id="selectSciZhuanliruanzhuScoreCfgVo">
+        select id, funds_max, funds_min, user_order, total_score, update_user, update_time from sci_zhuanliruanzhu_score_cfg
+    </sql>
+
+    <select id="selectSciZhuanliruanzhuScoreCfgList" parameterType="SciZhuanliruanzhuScoreCfg" resultMap="SciZhuanliruanzhuScoreCfgResult">
+        <include refid="selectSciZhuanliruanzhuScoreCfgVo"/>
+        <where>
+            <if test="fundsMax != null  and fundsMax != ''"> and funds_max = #{fundsMax}</if>
+            <if test="fundsMin != null  and fundsMin != ''"> and funds_min = #{fundsMin}</if>
+            <if test="userOrder != null  and userOrder != ''"> and user_order = #{userOrder}</if>
+            <if test="totalScore != null  and totalScore != ''"> and total_score = #{totalScore}</if>
+
+            <if test="updateUser != null  and updateUser != ''"> and update_user = #{updateUser}</if>
+        </where>
+    </select>
+
+    <select id="selectSciZhuanliruanzhuScoreCfgById" parameterType="Long" resultMap="SciZhuanliruanzhuScoreCfgResult">
+        <include refid="selectSciZhuanliruanzhuScoreCfgVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertSciZhuanliruanzhuScoreCfg" parameterType="SciZhuanliruanzhuScoreCfg" useGeneratedKeys="true" keyProperty="id">
+        insert into sci_zhuanliruanzhu_score_cfg
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="fundsMax != null">funds_max,</if>
+            <if test="fundsMin != null">funds_min,</if>
+            <if test="userOrder != null">user_order,</if>
+            <if test="totalScore != null">total_score,</if>
+
+            <if test="updateUser != null">update_user,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="fundsMax != null">#{fundsMax},</if>
+            <if test="fundsMin != null">#{fundsMin},</if>
+            <if test="userOrder != null">#{userOrder},</if>
+            <if test="totalScore != null">#{totalScore},</if>
+
+            <if test="updateUser != null">#{updateUser},</if>
+            <if test="updateTime != null">now(),</if>
+        </trim>
+    </insert>
+
+    <update id="updateSciZhuanliruanzhuScoreCfg" parameterType="SciZhuanliruanzhuScoreCfg">
+        update sci_zhuanliruanzhu_score_cfg
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="fundsMax != null">funds_max = #{fundsMax},</if>
+            <if test="fundsMin != null">funds_min = #{fundsMin},</if>
+            <if test="userOrder != null">user_order = #{userOrder},</if>
+            <if test="totalScore != null">total_score = #{totalScore},</if>
+
+
+            <if test="updateUser != null">update_user = #{updateUser},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteSciZhuanliruanzhuScoreCfgById" parameterType="Long">
+        delete from sci_zhuanliruanzhu_score_cfg where id = #{id}
+    </delete>
+
+    <delete id="deleteSciZhuanliruanzhuScoreCfgByIds" parameterType="String">
+        delete from sci_zhuanliruanzhu_score_cfg where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>
