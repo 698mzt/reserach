@@ -1,16 +1,15 @@
 package com.ruoyi.system.controller;
 
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-import com.ruoyi.common.utils.ShiroUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.system.domain.SciZhuanliruanzhuScoreCfg;
@@ -21,177 +20,108 @@ import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.common.core.page.TableDataInfo;
 
 /**
- * 专利软著得分配置Controller
- *
+ * 专利软著积分管理Controller
+ * 
  * @author ruoyi
- * @date 2024-09-30
+ * @date 2025-02-15
  */
 @Controller
-@RequestMapping("/system/zhuanliruanzhuScoreCfg")
-public class SciZhuanliruanzhuScoreCfgController extends BaseController {
-    private String prefix = "system/zhuanliruanzhuScoreCfg";
+@RequestMapping("/system/zhuanliruanzhuCfg")
+public class SciZhuanliruanzhuScoreCfgController extends BaseController
+{
+    private String prefix = "system/zhuanliruanzhuCfg";
 
     @Autowired
     private ISciZhuanliruanzhuScoreCfgService sciZhuanliruanzhuScoreCfgService;
 
-    @RequiresPermissions("system:zhuanliruanzhuScoreCfg:view")
+    @RequiresPermissions("system:zhuanliruanzhuCfg:view")
     @GetMapping()
-    public String zhuanliruanzhuScoreCfg() {
-        return prefix + "/zhuanliruanzhuScoreCfg";
+    public String zhuanliruanzhuCfg()
+    {
+        return prefix + "/zhuanliruanzhuCfg";
     }
 
     /**
-     * 查询专利软著得分配置列表
+     * 查询专利软著积分管理列表
      */
-    @PostMapping("/getCfgCard")
-    @ResponseBody
-    public Map<String, Object> getCfgCard(SciZhuanliruanzhuScoreCfg sciZhuanliruanzhuScoreCfg) {
-        Map<String, Object> resultMap = new HashMap<>();
-        resultMap.put("code", "0");
-        resultMap.put("msg", "操作成功");
-        Map<String, Object> cfgMap = sciZhuanliruanzhuScoreCfgService.getZhuanliruanzhuScoreCfg();
-        resultMap.put("data", cfgMap);
-        System.out.println("resultMap = " + resultMap);
-        return resultMap;
-    }
-
-    /**
-     * 查询专利软著得分配置列表
-     */
-    @RequiresPermissions("system:zhuanliruanzhuScoreCfg:list")
+    @RequiresPermissions("system:zhuanliruanzhuCfg:list")
     @PostMapping("/list")
     @ResponseBody
-    public TableDataInfo list(SciZhuanliruanzhuScoreCfg sciZhuanliruanzhuScoreCfg) {
+    public TableDataInfo list(SciZhuanliruanzhuScoreCfg sciZhuanliruanzhuScoreCfg)
+    {
         startPage();
         List<SciZhuanliruanzhuScoreCfg> list = sciZhuanliruanzhuScoreCfgService.selectSciZhuanliruanzhuScoreCfgList(sciZhuanliruanzhuScoreCfg);
         return getDataTable(list);
     }
 
     /**
-     * 导出专利软著得分配置列表
+     * 导出专利软著积分管理列表
      */
-    @RequiresPermissions("system:zhuanliruanzhuScoreCfg:export")
-    @Log(title = "专利软著得分配置", businessType = BusinessType.EXPORT)
+    @RequiresPermissions("system:zhuanliruanzhuCfg:export")
+    @Log(title = "专利软著积分管理", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     @ResponseBody
-    public AjaxResult export(SciZhuanliruanzhuScoreCfg sciZhuanliruanzhuScoreCfg) {
+    public AjaxResult export(SciZhuanliruanzhuScoreCfg sciZhuanliruanzhuScoreCfg)
+    {
         List<SciZhuanliruanzhuScoreCfg> list = sciZhuanliruanzhuScoreCfgService.selectSciZhuanliruanzhuScoreCfgList(sciZhuanliruanzhuScoreCfg);
         ExcelUtil<SciZhuanliruanzhuScoreCfg> util = new ExcelUtil<SciZhuanliruanzhuScoreCfg>(SciZhuanliruanzhuScoreCfg.class);
-        return util.exportExcel(list, "专利软著得分配置数据");
+        return util.exportExcel(list, "专利软著积分管理数据");
     }
 
     /**
-     * 新增专利软著得分配置
+     * 新增专利软著积分管理
      */
     @GetMapping("/add")
-    public String add() {
+    public String add()
+    {
         return prefix + "/add";
     }
 
     /**
-     * 新增保存专利软著得分配置
+     * 新增保存专利软著积分管理
      */
-    @RequiresPermissions("system:zhuanliruanzhuScoreCfg:add")
-    @Log(title = "专利软著得分配置", businessType = BusinessType.INSERT)
+    @RequiresPermissions("system:zhuanliruanzhuCfg:add")
+    @Log(title = "专利软著积分管理", businessType = BusinessType.INSERT)
     @PostMapping("/add")
     @ResponseBody
-    public AjaxResult addSave(@RequestParam("userOrder") String userOrderStr
-            , @RequestParam("totalScore") String totalStoreStr
-
-            , @RequestParam String fundsMax
-            , @RequestParam String fundsMin
-
-    ) {
-        String[] userOrder = userOrderStr.split(",");
-        String[] totalScore = totalStoreStr.split(",");
-
-        for (int i = 0; i < userOrder.length; i++) {
-            SciZhuanliruanzhuScoreCfg sciZhuanliruanzhuScoreCfg = new SciZhuanliruanzhuScoreCfg();
-
-            sciZhuanliruanzhuScoreCfg.setFundsMax(fundsMax);
-            sciZhuanliruanzhuScoreCfg.setFundsMin(fundsMin);
-            sciZhuanliruanzhuScoreCfg.setUserOrder(userOrder[i] + "");
-            sciZhuanliruanzhuScoreCfg.setTotalScore(totalScore[i] + "");
-
-            sciZhuanliruanzhuScoreCfg.setUpdateUser(ShiroUtils.getUserId() + "");
-            sciZhuanliruanzhuScoreCfgService.insertSciZhuanliruanzhuScoreCfg(sciZhuanliruanzhuScoreCfg);
-        }
-
-        return toAjax(1);
+    public AjaxResult addSave(SciZhuanliruanzhuScoreCfg sciZhuanliruanzhuScoreCfg)
+    {
+        return toAjax(sciZhuanliruanzhuScoreCfgService.insertSciZhuanliruanzhuScoreCfg(sciZhuanliruanzhuScoreCfg));
     }
 
     /**
-     * 修改专利软著得分配置
+     * 修改专利软著积分管理
      */
-    @RequiresPermissions("system:zhuanliruanzhuScoreCfg:edit")
+    @RequiresPermissions("system:zhuanliruanzhuCfg:edit")
     @GetMapping("/edit/{id}")
-    public String edit(@PathVariable("id") Long id, ModelMap mmap) {
+    public String edit(@PathVariable("id") Long id, ModelMap mmap)
+    {
         SciZhuanliruanzhuScoreCfg sciZhuanliruanzhuScoreCfg = sciZhuanliruanzhuScoreCfgService.selectSciZhuanliruanzhuScoreCfgById(id);
         mmap.put("sciZhuanliruanzhuScoreCfg", sciZhuanliruanzhuScoreCfg);
         return prefix + "/edit";
     }
 
     /**
-     * 修改保存专利软著得分配置
+     * 修改保存专利软著积分管理
      */
-    @RequiresPermissions("system:zhuanliruanzhuScoreCfg:edit")
-    @Log(title = "专利软著得分配置", businessType = BusinessType.UPDATE)
+    @RequiresPermissions("system:zhuanliruanzhuCfg:edit")
+    @Log(title = "专利软著积分管理", businessType = BusinessType.UPDATE)
     @PostMapping("/edit")
     @ResponseBody
-    public AjaxResult editSave(SciZhuanliruanzhuScoreCfg sciZhuanliruanzhuScoreCfg) {
+    public AjaxResult editSave(SciZhuanliruanzhuScoreCfg sciZhuanliruanzhuScoreCfg)
+    {
         return toAjax(sciZhuanliruanzhuScoreCfgService.updateSciZhuanliruanzhuScoreCfg(sciZhuanliruanzhuScoreCfg));
     }
 
-    @RequiresPermissions("system:zhuanliruanzhuScoreCfg:add")
-    @Log(title = "专利软著得分配置", businessType = BusinessType.INSERT)
-    @PostMapping("/editCfg")
-    @ResponseBody
-    public Map<String, Object> editCfg(@RequestBody Map map) {
-        System.out.println("map = " + map);
-
-        int i = sciZhuanliruanzhuScoreCfgService.deleteSciZhuanliruanzhuScoreCfgByFunds(map);
-        Map<String, Object> returnMap = new HashMap<>();
-
-        if (i > 0) {
-            returnMap.put("code", "0");
-            returnMap.put("msg", "操作成功");
-            return returnMap;
-        } else {
-            returnMap.put("code", "-1");
-            returnMap.put("msg", "操作失败");
-            return returnMap;
-        }
-    }
-
     /**
-     * 删除专利软著得分配置
+     * 删除专利软著积分管理
      */
-    @RequiresPermissions("system:zhuanliruanzhuScoreCfg:remove")
-    @Log(title = "专利软著得分配置", businessType = BusinessType.DELETE)
-    @PostMapping("/remove")
+    @RequiresPermissions("system:zhuanliruanzhuCfg:remove")
+    @Log(title = "专利软著积分管理", businessType = BusinessType.DELETE)
+    @PostMapping( "/remove")
     @ResponseBody
-    public AjaxResult remove(String ids) {
+    public AjaxResult remove(String ids)
+    {
         return toAjax(sciZhuanliruanzhuScoreCfgService.deleteSciZhuanliruanzhuScoreCfgByIds(ids));
-    }
-
-    @RequiresPermissions("system:zhuanliruanzhuScoreCfg:add")
-    @Log(title = "专利软著得分配置", businessType = BusinessType.INSERT)
-    @PostMapping("/delCfg")
-    @ResponseBody
-    public Map<String, Object> delCfg(@RequestBody Map map) {
-        System.out.println("map = " + map);
-
-        int i = sciZhuanliruanzhuScoreCfgService.deleteSciZhuanliruanzhuScoreCfgByFunds(map);
-        Map<String, Object> returnMap = new HashMap<>();
-
-        if (i > 0) {
-            returnMap.put("code", "0");
-            returnMap.put("msg", "操作成功");
-            return returnMap;
-        } else {
-            returnMap.put("code", "-1");
-            returnMap.put("msg", "操作失败");
-            return returnMap;
-        }
     }
 }

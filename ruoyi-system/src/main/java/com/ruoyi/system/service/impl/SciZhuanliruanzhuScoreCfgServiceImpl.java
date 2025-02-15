@@ -1,9 +1,6 @@
 package com.ruoyi.system.service.impl;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
 import com.ruoyi.common.utils.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,22 +10,22 @@ import com.ruoyi.system.service.ISciZhuanliruanzhuScoreCfgService;
 import com.ruoyi.common.core.text.Convert;
 
 /**
- * 专利软著得分配置Service业务层处理
- *
+ * 专利软著积分管理Service业务层处理
+ * 
  * @author ruoyi
- * @date 2024-09-30
+ * @date 2025-02-15
  */
 @Service
-public class SciZhuanliruanzhuScoreCfgServiceImpl implements ISciZhuanliruanzhuScoreCfgService
+public class SciZhuanliruanzhuScoreCfgServiceImpl implements ISciZhuanliruanzhuScoreCfgService 
 {
     @Autowired
     private SciZhuanliruanzhuScoreCfgMapper sciZhuanliruanzhuScoreCfgMapper;
 
     /**
-     * 查询专利软著得分配置
-     *
-     * @param id 专利软著得分配置主键
-     * @return 专利软著得分配置
+     * 查询专利软著积分管理
+     * 
+     * @param id 专利软著积分管理主键
+     * @return 专利软著积分管理
      */
     @Override
     public SciZhuanliruanzhuScoreCfg selectSciZhuanliruanzhuScoreCfgById(Long id)
@@ -37,10 +34,10 @@ public class SciZhuanliruanzhuScoreCfgServiceImpl implements ISciZhuanliruanzhuS
     }
 
     /**
-     * 查询专利软著得分配置列表
-     *
-     * @param sciZhuanliruanzhuScoreCfg 专利软著得分配置
-     * @return 专利软著得分配置
+     * 查询专利软著积分管理列表
+     * 
+     * @param sciZhuanliruanzhuScoreCfg 专利软著积分管理
+     * @return 专利软著积分管理
      */
     @Override
     public List<SciZhuanliruanzhuScoreCfg> selectSciZhuanliruanzhuScoreCfgList(SciZhuanliruanzhuScoreCfg sciZhuanliruanzhuScoreCfg)
@@ -49,9 +46,9 @@ public class SciZhuanliruanzhuScoreCfgServiceImpl implements ISciZhuanliruanzhuS
     }
 
     /**
-     * 新增专利软著得分配置
-     *
-     * @param sciZhuanliruanzhuScoreCfg 专利软著得分配置
+     * 新增专利软著积分管理
+     * 
+     * @param sciZhuanliruanzhuScoreCfg 专利软著积分管理
      * @return 结果
      */
     @Override
@@ -61,9 +58,9 @@ public class SciZhuanliruanzhuScoreCfgServiceImpl implements ISciZhuanliruanzhuS
     }
 
     /**
-     * 修改专利软著得分配置
-     *
-     * @param sciZhuanliruanzhuScoreCfg 专利软著得分配置
+     * 修改专利软著积分管理
+     * 
+     * @param sciZhuanliruanzhuScoreCfg 专利软著积分管理
      * @return 结果
      */
     @Override
@@ -74,9 +71,9 @@ public class SciZhuanliruanzhuScoreCfgServiceImpl implements ISciZhuanliruanzhuS
     }
 
     /**
-     * 批量删除专利软著得分配置
-     *
-     * @param ids 需要删除的专利软著得分配置主键
+     * 批量删除专利软著积分管理
+     * 
+     * @param ids 需要删除的专利软著积分管理主键
      * @return 结果
      */
     @Override
@@ -86,35 +83,14 @@ public class SciZhuanliruanzhuScoreCfgServiceImpl implements ISciZhuanliruanzhuS
     }
 
     /**
-     * 删除专利软著得分配置信息
-     *
-     * @param id 专利软著得分配置主键
+     * 删除专利软著积分管理信息
+     * 
+     * @param id 专利软著积分管理主键
      * @return 结果
      */
     @Override
     public int deleteSciZhuanliruanzhuScoreCfgById(Long id)
     {
         return sciZhuanliruanzhuScoreCfgMapper.deleteSciZhuanliruanzhuScoreCfgById(id);
-    }
-
-    @Override
-    public Map<String, Object> getZhuanliruanzhuScoreCfg() {
-        Map<String, Object> returnMap = new HashMap<>();
-
-        List<Map<String,Object>> fundsList = sciZhuanliruanzhuScoreCfgMapper.getCfgFunds();
-        for (int i = 0; i < fundsList.size(); i++) {
-            Map<String,Object> fundsMap = fundsList.get(i);
-            List<Map<String,Object>> userScoreList = sciZhuanliruanzhuScoreCfgMapper.getUserScoreList(fundsMap);
-            fundsMap.put("userScoreList",userScoreList);
-        }
-
-        returnMap.put("fundsList",fundsList);
-        System.out.println("returnMap = " + returnMap);
-        return returnMap;
-    }
-
-    @Override
-    public int deleteSciZhuanliruanzhuScoreCfgByFunds(Map map) {
-        return sciZhuanliruanzhuScoreCfgMapper.deleteSciZhuanliruanzhuScoreCfgByFunds(map);
     }
 }

@@ -6,10 +6,10 @@ import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
 
 /**
- * 横向课题得分配置对象 sci_project_score_cfg
- *
+ * 专利软著积分管理对象 sci_zhuanliruanzhu_score_cfg
+ * 
  * @author ruoyi
- * @date 2024-09-30
+ * @date 2025-02-15
  */
 public class SciZhuanliruanzhuScoreCfg extends BaseEntity
 {
@@ -18,133 +18,77 @@ public class SciZhuanliruanzhuScoreCfg extends BaseEntity
     /** 编号 */
     private Long id;
 
-    /** 经费小于 */
-    @Excel(name = "经费小于")
-    private String fundsMax;
-
-    /** 经费大于 */
-    @Excel(name = "经费大于")
-    private String fundsMin;
+    /** 分类 */
+    @Excel(name = "分类")
+    private String fenLei;
 
     /** 负责人排名 */
     @Excel(name = "负责人排名")
-    private String userOrder;
+    private String paiMing;
 
     /** 总分 */
     @Excel(name = "总分")
     private String totalScore;
 
-    /** 开题得分 */
-    @Excel(name = "开题得分")
-    private String startScore;
-
-    /** 结题得分 */
-    @Excel(name = "结题得分")
-    private String endScore;
-
     /** 修改人 */
     @Excel(name = "修改人")
     private String updateUser;
 
-    /** 课题类型，H-横向，V-纵向 */
-    @Excel(name = "课题类型，H-横向，V-纵向")
-    private String projectType;
-
-    public void setId(Long id)
+    public void setId(Long id) 
     {
         this.id = id;
     }
 
-    public Long getId()
+    public Long getId() 
     {
         return id;
     }
-    public void setFundsMax(String fundsMax)
+    public void setFenLei(String fenLei) 
     {
-        this.fundsMax = fundsMax;
+        this.fenLei = fenLei;
     }
 
-    public String getFundsMax()
+    public String getFenLei() 
     {
-        return fundsMax;
+        return fenLei;
     }
-    public void setFundsMin(String fundsMin)
+    public void setPaiMing(String paiMing) 
     {
-        this.fundsMin = fundsMin;
-    }
-
-    public String getFundsMin()
-    {
-        return fundsMin;
-    }
-    public void setUserOrder(String userOrder)
-    {
-        this.userOrder = userOrder;
+        this.paiMing = paiMing;
     }
 
-    public String getUserOrder()
+    public String getPaiMing() 
     {
-        return userOrder;
+        return paiMing;
     }
-    public void setTotalScore(String totalScore)
+    public void setTotalScore(String totalScore) 
     {
         this.totalScore = totalScore;
     }
 
-    public String getTotalScore()
+    public String getTotalScore() 
     {
         return totalScore;
     }
-    public void setStartScore(String startScore)
-    {
-        this.startScore = startScore;
-    }
-
-    public String getStartScore()
-    {
-        return startScore;
-    }
-    public void setEndScore(String endScore)
-    {
-        this.endScore = endScore;
-    }
-
-    public String getEndScore()
-    {
-        return endScore;
-    }
-    public void setUpdateUser(String updateUser)
+    public void setUpdateUser(String updateUser) 
     {
         this.updateUser = updateUser;
     }
 
-    public String getUpdateUser()
+    public String getUpdateUser() 
     {
         return updateUser;
-    }
-    public void setProjectType(String projectType)
-    {
-        this.projectType = projectType;
-    }
-
-    public String getProjectType()
-    {
-        return projectType;
     }
 
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
-                .append("id", getId())
-                .append("fundsMax", getFundsMax())
-                .append("fundsMin", getFundsMin())
-                .append("userOrder", getUserOrder())
-                .append("totalScore", getTotalScore())
-                .append("startScore", getStartScore())
-                .append("endScore", getEndScore())
-                .append("updateUser", getUpdateUser())
-                .append("updateTime", getUpdateTime())
-                .append("projectType", getProjectType())
-                .toString();
+            .append("id", getId())
+            .append("fenLei", getFenLei())
+            .append("paiMing", getPaiMing())
+            .append("totalScore", getTotalScore())
+            .append("updateUser", getUpdateUser())
+            .append("updateTime", getUpdateTime())
+            .toString();
     }
 }
