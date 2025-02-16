@@ -225,7 +225,7 @@ public class SciIntraSchoolProController extends BaseController {
      * 新增保存横向课题
      */
 
-    @Log(title = "申请横向课题", businessType = BusinessType.INSERT)
+    @Log(title = "申请校内横向课题", businessType = BusinessType.INSERT)
     @PostMapping("/add")
     @ResponseBody
     public AjaxResult addSave(SciIntraSchoolPro sciIntraSchoolPro)
@@ -244,6 +244,8 @@ public class SciIntraSchoolProController extends BaseController {
         mmap.put("sysUsers1",userList1);
         mmap.put("sciIntraSchoolPro", sciIntraSchoolPro);
         System.out.println("SciIntraSchoolProController.edit");
+        //1,2,3,4,5,11,12
+        //7,8,9,10,13,14
 //        if (sciIntraSchoolPro.getState().equals("3")||sciIntraSchoolPro.getState().equals("5")){
 //            System.out.println("1");
 //            return prefix + "/edit";
@@ -254,7 +256,17 @@ public class SciIntraSchoolProController extends BaseController {
 //            System.out.println("3");
 //            return prefix + "/edit_Over";
 //        }
-        return prefix + "/edit";
+
+        if (Arrays.asList("1","2","3","4","5","11","12").contains(sciIntraSchoolPro.getState())){
+            return prefix + "/edit";
+        }else if(sciIntraSchoolPro.getState().equals("6")){
+            System.out.println("2");
+            return prefix + "/is_Over";
+        }else {
+            System.out.println("3");
+            return prefix + "/edit_Over";
+        }
+        //return prefix + "/edit";
     }
 
     @GetMapping("/detail/{id}/{urlFlag}")
@@ -441,8 +453,9 @@ public class SciIntraSchoolProController extends BaseController {
         String state = sciIntraSchoolPro.getState();
         System.out.println("state = " + state);
         String id = String.valueOf(sciIntraSchoolPro.getId());
+        //todo:这里可以优化，把overApply合并到update_IntraSchPro_OverApply
         sciIntraSchProApplyService.overApply(id, state);
-        return toAjax(sciIntraSchProApplyService.insert_IntraSchPro_OverApply(sciIntraSchoolPro));
+        return toAjax(sciIntraSchProApplyService.update_IntraSchPro_OverApply(sciIntraSchoolPro));
     }
 
     @PostMapping( "/sch_hxover")
