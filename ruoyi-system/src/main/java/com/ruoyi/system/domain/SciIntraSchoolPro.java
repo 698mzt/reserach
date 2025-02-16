@@ -117,6 +117,27 @@ public class SciIntraSchoolPro extends BaseEntity {
     //判定登陆人的dept是否和当前课题负责人的dept是否相等
     private String deptNamekey;
 
+    //结项合同
+    private String overContract;
+    //结项备案表
+    private String overFiling;
+
+    public String getOverContract() {
+        return overContract;
+    }
+
+    public void setOverContract(String overContract) {
+        this.overContract = overContract;
+    }
+
+    public String getOverFiling() {
+        return overFiling;
+    }
+
+    public void setOverFiling(String overFiling) {
+        this.overFiling = overFiling;
+    }
+
     public String getDeptNamekey() {
         return deptNamekey;
     }

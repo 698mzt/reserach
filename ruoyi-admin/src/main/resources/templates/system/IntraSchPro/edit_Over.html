@@ -132,7 +132,7 @@
         <div class="form-group">
           <label class="col-sm-4 control-label is-required">合同：</label>
           <div class="col-sm-8">
-            <input type="text" name="contract" th:field="*{contract}">
+            <input type="text" name="contract" th:field="*{overContract}">
 
             <div class="file-loading">
               <input class="form-control file-upload" id="contract" name="file" type="file">
@@ -144,7 +144,7 @@
         <div class="form-group">
           <label class="col-sm-4 control-label is-required">备案表：</label>
           <div class="col-sm-8">
-            <input type="hidden" name="filing" th:field="*{filing}">
+            <input type="hidden" name="filing" th:field="*{overFiling}">
             <div class="file-loading">
               <input class="form-control file-upload" id="filing" name="file" type="file">
             </div>
