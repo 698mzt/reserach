@@ -258,6 +258,7 @@ public class SciIntraSchoolProController extends BaseController {
 //        }
 
         if (Arrays.asList("1","2","3","4","5","11","12").contains(sciIntraSchoolPro.getState())){
+            System.out.println("1");
             return prefix + "/edit";
         }else if(sciIntraSchoolPro.getState().equals("6")){
             System.out.println("2");

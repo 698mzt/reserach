@@ -97,7 +97,7 @@
         left join sys_dept p on d.parent_id =p.dept_id
         <!--这里加上4是为了同意之后可以取消-->
        <!--where s.state in (2,4)-->
-       where s.state in (2,4,1,3,11,12)
+       where s.state in (2,4,1,3,12)
        OR (
        s.user_id = #{uid}
        OR s.first_person_id = #{uid}
@@ -190,7 +190,7 @@
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
 <!--         这个6是为了通过之后可以撤回-->
-        where s.state in (6,8,7,9,10,13,14)
+        where s.state in (6,8,7,9,10,14)
         OR (
         s.user_id = #{uid}
         OR s.first_person_id = #{uid}
