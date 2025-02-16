@@ -317,7 +317,6 @@
     </select>
     <select id="getuser_dnameById" parameterType="java.lang.Long" >
         SELECT dept_name from sys_dept WHERE dept_id=(SELECT dept_id from sys_user WHERE user_id=#{id})
-
     </select>
 
     <update id="sch_hxPass" >

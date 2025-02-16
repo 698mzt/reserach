@@ -225,7 +225,7 @@ public class SciIntraSchoolProController extends BaseController {
      * 新增保存横向课题
      */
 
-    @Log(title = "申请横向课题", businessType = BusinessType.INSERT)
+    @Log(title = "申请校内横向课题", businessType = BusinessType.INSERT)
     @PostMapping("/add")
     @ResponseBody
     public AjaxResult addSave(SciIntraSchoolPro sciIntraSchoolPro)
