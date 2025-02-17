@@ -67,6 +67,10 @@ public interface SciZhuanliruanzhuMapper
 
 
     int hxPass(@Param("id") String id, @Param("state") String state);
+
+
+    int updateJifen(@Param("id") Long id, @Param("jifen") int jifen);
+
     int hxover(@Param("id") String id,@Param("state") String state);
 
     List<SysUser> selectUserList(@Param("user") SysUser user);

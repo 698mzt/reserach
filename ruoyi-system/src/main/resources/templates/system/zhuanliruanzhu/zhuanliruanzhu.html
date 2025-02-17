@@ -63,7 +63,7 @@
             </div>
 
             <div class="btn-group-sm" id="toolbar" role="group">
-                <a class="btn btn-success" onclick="$.operate.add()" shiro:hasPermission="system:zhuanliruanzhu:add">
+                <a class="btn btn-success" onclick="$.operate.addTab()" shiro:hasPermission="system:zhuanliruanzhu:add">
                     <i class="fa fa-plus"></i> 添加
                 </a>
 <!--                <a class="btn btn-primary single disabled" onclick="$.operate.edit()" shiro:hasPermission="system:zhuanliruanzhu:edit">-->
@@ -98,6 +98,7 @@
         var createFlag = [[${@permission.hasPermi('system:zhuanliruanzhu:add')}]];
         var chayueFlag = [[${@permission.hasPermi('system:zhuanliruanzhu:chayue')}]];
         var chexiaoFlag = [[${@permission.hasPermi('system:zhuanliruanzhu:chexiao')}]];
+        var paiMingDatas = [[${@dict.getType('sys_zhuanliruanzhu_fzr')}]];
 
 
 
@@ -229,10 +230,13 @@
                 }  ,
                 {
                     field: 'paiming',
-                    title: '排名'
+                    title: '负责人排名',
+                    formatter: function(value, row, index) {
+                        return $.table.selectDictLabel(paiMingDatas, value);
+                    }
                 },
                 {
-                    field: 'changeValue',
+                    field: 'jifen',
                     title: '积分'
                 },
                 {
@@ -248,14 +252,14 @@
                             console.log(row)
                             if(row.userId == row.uid){
                                 actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-remove"></i>删除</a>');
-                                actions.push('<a   class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.edit(\'' + row.id + '\')"><i class="fa fa-edit"></i>更新</a> ');
+                                actions.push('<a   class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>更新</a> ');
                             }
                             actions.push('<a  class="btn btn-success btn-xs ' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
                             actions.push('<a  class="btn btn-success btn-xs ' + proFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id+ '/pro'+'\')"><i class="fa fa-edit"></i>批阅</a> ');
 
                         }else
                         if((row.state == 3 || row.state == 5 || row.state == 7)  && row.userId == row.uid) {
-                            actions.push('<a   class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.edit(\'' + row.id + '\')"> <i class="fa fa-edit"></i>更新</a> ');
+                            actions.push('<a   class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> <i class="fa fa-edit"></i>更新</a> ');
                             actions.push('<a  class="btn btn-success btn-xs ' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan' + '\')"><i class="fa fa-edit"></i>查看</a> ');
                         }
                         else if(row.state == 3 || row.state == 5 || row.state == 7){
