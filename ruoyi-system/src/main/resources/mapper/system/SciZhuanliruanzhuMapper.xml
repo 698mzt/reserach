@@ -17,10 +17,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="hangyelianhe"    column="hangyelianhe"    />
         <result property="fenlei"    column="fenlei"    />
 
+
     </resultMap>
 
     <sql id="selectSciZhuanliruanzhuVo">
-        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.mingcheng, s.leixing, s.shoquanhao, s.huopishijain, s.shifouyingyon, s.hangyelianhe, s.fenlei, s.state
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.mingcheng, s.leixing, s.shoquanhao, s.huopishijain, s.shifouyingyon, s.hangyelianhe, s.fenlei, s.state,s.changeValue,s.paiming
         from sci_zhuanliruanzhu s left join sys_user u on  s.user_id=u.user_id
                                   left join sys_dept d on u.dept_id = d.dept_id
                                   left join sys_dept p on d.parent_id =p.dept_id
@@ -28,15 +29,87 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="selectSciZhuanliruanzhuList" parameterType="SciZhuanliruanzhu" resultMap="SciZhuanliruanzhuResult">
         <include refid="selectSciZhuanliruanzhuVo"/>
-        where state in (1,2,3,4,5)
+        where state in (1,2,3,4,5,6)and s.user_id = #{uid}
 
-            <if test="xueyuan != null  and xueyuan != ''"> and xueyuan = #{xueyuan}</if>
+        <if test="xueyuan != null  and xueyuan != ''"> and xueyuan = #{xueyuan}</if>
+
+
+        <if test="mingcheng != null  and mingcheng != ''"> and mingcheng like concat('%', #{mingcheng}, '%')</if>
+        <if test="huopishijain != null "> and huopishijain = #{huopishijain}</if>
+        <if test="fenlei != null  and fenlei != ''"> and fenlei = #{fenlei}</if>
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
+        <if test="userId != null  and userId != ''">and s.user_id = #{uid}</if>
+
+
+
+    </select>
+
+    <select id="selectSciZhuanliruanzhuList1" parameterType="SciZhuanliruanzhu" resultMap="SciZhuanliruanzhuResult">
+        <include refid="selectSciZhuanliruanzhuVo"/>
+        where state in (1,2,3,4,5,6,7) and s.user_id = #{uid}
+        <if test="userId != null  and userId != ''">and s.user_id = #{uid}</if>
+
+
 
 
             <if test="mingcheng != null  and mingcheng != ''"> and mingcheng like concat('%', #{mingcheng}, '%')</if>
             <if test="huopishijain != null "> and huopishijain = #{huopishijain}</if>
             <if test="fenlei != null  and fenlei != ''"> and fenlei = #{fenlei}</if>
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
+
+
+
+    </select>
+
+
+
+    <select id="selectSciZhuanliruanzhuList2" parameterType="SciZhuanliruanzhu" resultMap="SciZhuanliruanzhuResult">
+        <include refid="selectSciZhuanliruanzhuVo"/>
+        where (state in (1,2,3,4,5,6) and d.dept_id = #{deptId}) or s.user_id = #{uid}
+
+        <if test="xueyuan != null  and xueyuan != ''"> and xueyuan = #{xueyuan}</if>
+
+
+        <if test="mingcheng != null  and mingcheng != ''"> and mingcheng like concat('%', #{mingcheng}, '%')</if>
+        <if test="huopishijain != null "> and huopishijain = #{huopishijain}</if>
+        <if test="fenlei != null  and fenlei != ''"> and fenlei = #{fenlei}</if>
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
+
+
+    </select>
+
+
+
+    <select id="selectSciZhuanliruanzhuList3" parameterType="SciZhuanliruanzhu" resultMap="SciZhuanliruanzhuResult">
+        <include refid="selectSciZhuanliruanzhuVo"/>
+        where (state in (2,4,5,6) and d.parent_id = #{deptId}) or s.user_id = #{uid}
+
+        <if test="xueyuan != null  and xueyuan != ''"> and xueyuan = #{xueyuan}</if>
+
+
+        <if test="mingcheng != null  and mingcheng != ''"> and mingcheng like concat('%', #{mingcheng}, '%')</if>
+        <if test="huopishijain != null "> and huopishijain = #{huopishijain}</if>
+        <if test="fenlei != null  and fenlei != ''"> and fenlei = #{fenlei}</if>
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
+
+
+    </select>
+
+
+
+    <select id="selectSciZhuanliruanzhuList4" parameterType="SciZhuanliruanzhu" resultMap="SciZhuanliruanzhuResult">
+        <include refid="selectSciZhuanliruanzhuVo"/>
+        where state in (4,6) or s.user_id = #{uid}
+
+        <if test="xueyuan != null  and xueyuan != ''"> and xueyuan = #{xueyuan}</if>
+
+
+        <if test="mingcheng != null  and mingcheng != ''"> and mingcheng like concat('%', #{mingcheng}, '%')</if>
+        <if test="huopishijain != null "> and huopishijain = #{huopishijain}</if>
+        <if test="fenlei != null  and fenlei != ''"> and fenlei = #{fenlei}</if>
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
+        <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+        <if test="state != null  and state != ''"> and state = #{state}</if>
 
 
     </select>
@@ -59,6 +132,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="shifouyingyon != null">shifouyingyon,</if>
             <if test="hangyelianhe != null">hangyelianhe,</if>
             <if test="fenlei != null and fenlei != ''">fenlei,</if>
+            <if test="paiming != null and paiming != ''">paiming,</if>
 
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -72,8 +146,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="shifouyingyon != null">#{shifouyingyon},</if>
             <if test="hangyelianhe != null">#{hangyelianhe},</if>
             <if test="fenlei != null and fenlei != ''">#{fenlei},</if>
+            <if test="paiming != null and paiming != ''">#{paiming},</if>
 
-         </trim>
+
+        </trim>
     </insert>
 
     <update id="updateSciZhuanliruanzhu" parameterType="SciZhuanliruanzhu">
@@ -90,6 +166,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="shifouyingyon != null">shifouyingyon = #{shifouyingyon},</if>
             <if test="hangyelianhe != null">hangyelianhe = #{hangyelianhe},</if>
             <if test="fenlei != null and fenlei != ''">fenlei = #{fenlei},</if>
+            <if test="paiming != null and paiming != ''">paiming = #{paiming},</if>
+            state = "1"
 
         </trim>
         where id = #{id}
@@ -110,6 +188,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <update id="hxPass" >
         update sci_zhuanliruanzhu set state = #{state} where id = #{id}
     </update>
+
+
+    <insert id="insertScoreHistory" parameterType="com.ruoyi.system.domain.SciZhuanliruanzhu">
+        INSERT INTO sci_zhuanliruanzhu (changeValue)
+        VALUES (#{changeValue})
+    </insert>
 
 
 
