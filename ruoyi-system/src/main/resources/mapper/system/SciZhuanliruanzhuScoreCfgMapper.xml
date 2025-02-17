@@ -9,12 +9,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="fenLei"    column="fen_lei"    />
         <result property="paiMing"    column="pai_ming"    />
         <result property="totalScore"    column="total_score"    />
-        <result property="updateUser"    column="update_user"    />
-        <result property="updateTime"    column="update_time"    />
+
     </resultMap>
 
     <sql id="selectSciZhuanliruanzhuScoreCfgVo">
-        select id, fen_lei, pai_ming, total_score, update_user, update_time from sci_zhuanliruanzhu_score_cfg
+        select id, fen_lei, pai_ming, total_score from sci_zhuanliruanzhu_score_cfg
     </sql>
 
     <select id="selectSciZhuanliruanzhuScoreCfgList" parameterType="SciZhuanliruanzhuScoreCfg" resultMap="SciZhuanliruanzhuScoreCfgResult">
@@ -23,7 +22,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="fenLei != null  and fenLei != ''"> and fen_lei like concat('%', #{fenLei}, '%')</if>
             <if test="paiMing != null  and paiMing != ''"> and pai_ming = #{paiMing}</if>
             <if test="totalScore != null  and totalScore != ''"> and total_score = #{totalScore}</if>
-            <if test="updateUser != null  and updateUser != ''"> and update_user like concat('%', #{updateUser}, '%')</if>
+
         </where>
     </select>
     
@@ -38,15 +37,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="fenLei != null and fenLei != ''">fen_lei,</if>
             <if test="paiMing != null and paiMing != ''">pai_ming,</if>
             <if test="totalScore != null and totalScore != ''">total_score,</if>
-            <if test="updateUser != null">update_user,</if>
-            <if test="updateTime != null">update_time,</if>
+
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="fenLei != null and fenLei != ''">#{fenLei},</if>
             <if test="paiMing != null and paiMing != ''">#{paiMing},</if>
             <if test="totalScore != null and totalScore != ''">#{totalScore},</if>
-            <if test="updateUser != null">#{updateUser},</if>
-            <if test="updateTime != null">#{updateTime},</if>
+
          </trim>
     </insert>
 
@@ -56,8 +53,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="fenLei != null and fenLei != ''">fen_lei = #{fenLei},</if>
             <if test="paiMing != null and paiMing != ''">pai_ming = #{paiMing},</if>
             <if test="totalScore != null and totalScore != ''">total_score = #{totalScore},</if>
-            <if test="updateUser != null">update_user = #{updateUser},</if>
-            <if test="updateTime != null">update_time = #{updateTime},</if>
+
         </trim>
         where id = #{id}
     </update>
