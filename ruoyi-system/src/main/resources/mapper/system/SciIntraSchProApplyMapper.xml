@@ -31,6 +31,8 @@
         <result property="pa"    column="PA"    />
         <result property="pb"    column="PB"    />
         <result property="year"    column="year"    />
+        <result property="overContract"    column="over_contract"    />
+        <result property="overFiling"    column="over_filing"    />
     </resultMap>
 
 
@@ -307,9 +309,8 @@
     </insert>
 
     <select id="sel_IntraSchPro_by_id" parameterType="Integer" resultMap="SciIntraSchoolProResult">
-        select s.PA,s.PB,s.id,u.user_name userName, d.dept_name dname,s.user_id, s.top_name, s.top_type,  s.signing_data, s.validity_Date,s.createtime, o.agreeurl,o.filingurl,s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id,  s.amount, amount, s.contract, s.filing, s.state
+        select s.PA,s.PB,s.id,u.user_name userName, d.dept_name dname,s.user_id, s.top_name, s.top_type,  s.signing_data, s.validity_Date,s.createtime, s.over_contract,s.over_filing,s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id,  s.amount, amount, s.contract, s.filing, s.state
         from sci_IntraSchPro_apply s
-            left join sci_IntraSchPro_over o on s.id=o.appid
             left join sys_user u on  s.user_id=u.user_id
             left join sys_dept d on u.dept_id = d.dept_id
         where s.id = #{id}
@@ -317,7 +318,6 @@
     </select>
     <select id="getuser_dnameById" parameterType="java.lang.Long" >
         SELECT dept_name from sys_dept WHERE dept_id=(SELECT dept_id from sys_user WHERE user_id=#{id})
-
     </select>
 
     <update id="sch_hxPass" >
@@ -351,23 +351,15 @@
         update sci_IntraSchPro_apply set state = #{state} where id = #{id}
     </update>
 
-    <insert id="insert_IntraSchPro_OverApply" parameterType="SciIntraSchoolPro" useGeneratedKeys="true" keyProperty="id">
-        insert into sci_IntraSchPro_over
-        <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="id != null">appid,</if>
-            <if test="filing != null and filing != ''">filingurl,</if>
-            <if test="contract != null and contract != ''">agreeurl,</if>
-            <if test="createtime != null and createtime != ''">createtime,</if>
-            <if test="state != null and state != ''">state,</if>
+    <update id="update_IntraSchPro_OverApply" parameterType="SciIntraSchoolPro">
+        update sci_IntraSchPro_apply
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="overFiling != null and overFiling != ''">over_filing = #{overFiling},</if>
+            <if test="overContract != null and overContract != ''">over_contract = #{overContract},</if>
+            <if test="validityDate != null and validityDate != ''">validity_Date = #{validityDate},</if>
         </trim>
-        <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="id != null">#{id},</if>
-            <if test="filing != null and filing != ''">#{filing},</if>
-            <if test="contract != null and contract != 'sch_hxover'">#{contract},</if>
-            <if test="createtime != null and createtime != ''">#{createtime},</if>
-            <if test="state != null and state != ''">#{state},</if>
-        </trim>
-    </insert>
+        where id = #{id}
+    </update>
 
     <update id="sch_hxover" >
         update sci_IntraSchPro_over set state = #{state} where appid = #{id}

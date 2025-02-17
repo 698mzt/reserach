@@ -87,7 +87,8 @@
                 <label class="col-sm-4 control-label is-required">结项日期：</label>
                 <div class="col-sm-8">
                     <div class="input-group date">
-                        <input autocomplete="off" name="validityDate" class="form-control" placeholder="yyyy-MM-dd" type="text" required>
+<!--                        <input autocomplete="off" name="validityDate" class="form-control" placeholder="yyyy-MM-dd" type="text" required>-->
+                        <input  autocomplete="off" name="validityDatee" class="form-control" placeholder="待申请结项时填写" type="text" readonly>
                         <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
                     </div>
                 </div>
@@ -98,10 +99,11 @@
             <div class="form-group">
                 <label class="col-sm-4 control-label is-required">第一负责人：</label>
                 <div class="col-sm-8">
-
-                    <select name="firstPersonId" class="form-control m-b" >
-                        <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${user.flag}"></option>
-                    </select>
+                    <input type="text" id="firstPersonName"  class="form-control" name="firstPersonName" readonly>
+                    <input type="hidden" id="firstPersonId"  class="form-control" name="firstPersonId" readonly>
+<!--                    <select name="firstPersonId" class="form-control m-b" >-->
+<!--                        <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${user.flag}"></option>-->
+<!--                    </select>-->
                 </div>
             </div>
         </div>
@@ -200,9 +202,11 @@
             alter("超时")
         },
         success:function (data){
-            console.log(data.userName)
+            // console.log(data.userName)
             $("#userName").val(data.userName);
             $("#userId").val(data.userId);
+            $("#firstPersonName").val(data.userName);
+            $("#firstPersonId").val(data.userId);
         },
     })
 

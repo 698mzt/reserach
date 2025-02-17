@@ -40,7 +40,7 @@ public interface SciIntraSchProApplyMapper {
 
     int overApply(@Param("id") String id,@Param("state") String state);
 
-    int insert_IntraSchPro_OverApply(SciIntraSchoolPro sciIntraSchoolPro);
+    int update_IntraSchPro_OverApply(SciIntraSchoolPro sciIntraSchoolPro);
 
 
     List<SciIntraSchoolPro> sel_IntraSchPro_isOVER_admin(SciIntraSchoolPro sciIntraSchoolPro);

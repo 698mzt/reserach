@@ -288,8 +288,8 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
     }
 
     @Override
-    public int insert_IntraSchPro_OverApply(SciIntraSchoolPro sciIntraSchoolPro) {
-        return sciIntraSchProApplyMapper.insert_IntraSchPro_OverApply(sciIntraSchoolPro);
+    public int update_IntraSchPro_OverApply(SciIntraSchoolPro sciIntraSchoolPro) {
+        return sciIntraSchProApplyMapper.update_IntraSchPro_OverApply(sciIntraSchoolPro);
     }
 
 

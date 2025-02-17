@@ -35,7 +35,7 @@ public interface ISciIntraSchProApplyService {
 
     int overApply(String id, String state);
 
-    int insert_IntraSchPro_OverApply(SciIntraSchoolPro sciIntraSchoolPro);
+    int update_IntraSchPro_OverApply(SciIntraSchoolPro sciIntraSchoolPro);
 
     int sch_hxover(String id, Long userId, String urlFlag);
 
