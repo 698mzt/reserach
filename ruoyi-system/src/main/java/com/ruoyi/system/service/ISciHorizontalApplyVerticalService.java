@@ -50,34 +50,10 @@ public interface ISciHorizontalApplyVerticalService {
 
     int applyBh(String id, Long userId, String remark, String urlFlag);
 
-    int openPass(String id, Long userId, String urlFlag);
-
-    int openBh(String id, Long userId, String remark, String urlFlag);
-
-    int midPass(String id, Long userId, String urlFlag);
-
-    int midBh(String id, Long userId, String remark, String urlFlag);
-
     int overPass(String id, Long userId, String urlFlag);
 
     int overBh(String id, Long userId, String remark, String urlFlag);
 
-//    开题列表
-    /**
-     * 查询开题申请列表
-     *
-     * @param sciHorizontalApplyVertical 纵向课题
-     * @return 结果
-     */
-    List<SciHorizontalApplyVertical> selectSciHorizontalApplyVerticalListKT(SciHorizontalApplyVertical sciHorizontalApplyVertical);
-
-     /**
-     * 查询中期申请列表
-     *
-     * @param sciHorizontalApplyVertical 纵向课题
-     * @return 结果
-     */
-    List<SciHorizontalApplyVertical> selectSciHorizontalApplyVerticalListZQ(SciHorizontalApplyVertical sciHorizontalApplyVertical);
 
     /**
      * 查询结项申请列表

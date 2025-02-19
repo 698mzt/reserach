@@ -1179,14 +1179,6 @@ var table = {
                 table.set();
                 $.modal.openTab("结项" + table.options.modalName, $.operate.overUrl(id));
             },
-            openTab: function (id) {
-                table.set();
-                $.modal.openTab("开题：" + table.options.modalName, $.operate.openUrl(id));
-            },
-            midTab: function (id) {
-                table.set();
-                $.modal.openTab("开题：" + table.options.modalName, $.operate.midUrl(id));
-            },
             // 添加信息 全屏
             addFull: function(id) {
                 table.set();
@@ -1199,6 +1191,10 @@ var table = {
             },
             recallUrl:function (id){
                 var url = $.common.isEmpty(id) ? table.options.recallUrl.replace("{id}", "") : table.options.recallUrl.replace("{id}", id);
+                return url;
+            },
+            reamountUrl:function (id){
+                var url = $.common.isEmpty(id) ? table.options.reamountUrl.replace("{id}", "") : table.options.reamountUrl.replace("{id}", id);
                 return url;
             },
             overUrl:function (id){
@@ -1232,6 +1228,11 @@ var table = {
             editTab: function(id) {
                 table.set();
                 $.modal.openTab("修改" + table.options.modalName, $.operate.editUrl(id));
+            },
+            // 追加到账信息，以tab页展现
+            reamountTab: function(id) {
+                table.set();
+                $.modal.openTab("修改" + table.options.modalName, $.operate.reamountUrl(id));
             },
             // 撤回操作
             recallTab: function(id) {

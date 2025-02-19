@@ -7,6 +7,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	<resultMap type="SysUser" id="SysUserResult">
 		<id     property="userId"        column="user_id"         />
 		<result property="deptId"        column="dept_id"         />
+		<result property="parentId"     column="parent_id"       />
 		<result property="loginName"     column="login_name"      />
 		<result property="userName"      column="user_name"       />
 		<result property="userType"      column="user_type"       />
@@ -247,4 +248,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	<select id="selectAllUser" resultMap="SysUserResult">
 	select user_id,  user_name from sys_user
 </select>
+
+	<select id="selectUser"	parameterType="Integer" resultMap="SysUserResult">
+		select u.user_id, u.dept_id, u.user_name,d.parent_id from sys_user u left join sys_dept d on u.dept_id	= d.dept_id
+		order by
+		    case
+		        when u.dept_id = #{deptId} then 0
+				else 1
+			end,
+			u.dept_id ,u.user_id
+	</select>
 </mapper> 
