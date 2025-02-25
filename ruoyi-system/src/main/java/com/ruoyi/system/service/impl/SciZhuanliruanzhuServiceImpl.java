@@ -210,15 +210,15 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
         switch (state){
 //            教研室
             case "2":
-                newState = "3";
+                newState = "1";
                 break;
             //            学院
             case "4":
-                newState = "5";
+                newState = "2";
                 break;
             //            科研处
             case "6":
-                newState = "7";
+                newState = "4";
                 sciZhuanliruanzhuMapper.updateJifen(Long.valueOf(id),0);
                 break;
         }

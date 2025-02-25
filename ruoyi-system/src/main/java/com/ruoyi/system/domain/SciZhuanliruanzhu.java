@@ -17,6 +17,55 @@ public class SciZhuanliruanzhu extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
 
+    public Date getCreatetime() {
+        return createtime;
+    }
+
+    @Override
+    public String toString() {
+        return "SciZhuanliruanzhu{" +
+                "createtime=" + createtime +
+                ", wenjian='" + wenjian + '\'' +
+                ", parentId=" + parentId +
+                ", deptId=" + deptId +
+                ", role='" + role + '\'' +
+                ", amount='" + amount + '\'' +
+                ", jifen='" + jifen + '\'' +
+                ", year='" + year + '\'' +
+                ", urlFlag='" + urlFlag + '\'' +
+                ", yname='" + yname + '\'' +
+                ", dname='" + dname + '\'' +
+                ", userName='" + userName + '\'' +
+                ", userId=" + userId +
+                ", uid=" + uid +
+                ", id=" + id +
+                ", xueyuan='" + xueyuan + '\'' +
+                ", jiaoyanshi='" + jiaoyanshi + '\'' +
+                ", gonghao=" + gonghao +
+                ", xingming='" + xingming + '\'' +
+                ", xingzhengzhiwu='" + xingzhengzhiwu + '\'' +
+                ", shehuizhicheng='" + shehuizhicheng + '\'' +
+                ", xiaoneizhicheng='" + xiaoneizhicheng + '\'' +
+                ", jiaoshixingming='" + jiaoshixingming + '\'' +
+                ", mingcheng='" + mingcheng + '\'' +
+                ", leixing='" + leixing + '\'' +
+                ", shoquanhao='" + shoquanhao + '\'' +
+                ", huopishijain=" + huopishijain +
+                ", shifouyingyon='" + shifouyingyon + '\'' +
+                ", hangyelianhe='" + hangyelianhe + '\'' +
+                ", fenlei='" + fenlei + '\'' +
+                ", paiming='" + paiming + '\'' +
+                ", keyanfen=" + keyanfen +
+                ", state='" + state + '\'' +
+                '}';
+    }
+
+    public void setCreatetime(Date createtime) {
+        this.createtime = createtime;
+    }
+
+    private Date createtime;
+
     public String getWenjian() {
         return wenjian;
     }
@@ -397,41 +446,4 @@ public class SciZhuanliruanzhu extends BaseEntity
         return keyanfen;
     }
 
-    @Override
-    public String toString() {
-        return "SciZhuanliruanzhu{" +
-                "wenjian='" + wenjian + '\'' +
-                ", parentId=" + parentId +
-                ", deptId=" + deptId +
-                ", role='" + role + '\'' +
-                ", amount='" + amount + '\'' +
-                ", jifen='" + jifen + '\'' +
-                ", year='" + year + '\'' +
-                ", urlFlag='" + urlFlag + '\'' +
-                ", yname='" + yname + '\'' +
-                ", dname='" + dname + '\'' +
-                ", userName='" + userName + '\'' +
-                ", userId=" + userId +
-                ", uid=" + uid +
-                ", id=" + id +
-                ", xueyuan='" + xueyuan + '\'' +
-                ", jiaoyanshi='" + jiaoyanshi + '\'' +
-                ", gonghao=" + gonghao +
-                ", xingming='" + xingming + '\'' +
-                ", xingzhengzhiwu='" + xingzhengzhiwu + '\'' +
-                ", shehuizhicheng='" + shehuizhicheng + '\'' +
-                ", xiaoneizhicheng='" + xiaoneizhicheng + '\'' +
-                ", jiaoshixingming='" + jiaoshixingming + '\'' +
-                ", mingcheng='" + mingcheng + '\'' +
-                ", leixing='" + leixing + '\'' +
-                ", shoquanhao='" + shoquanhao + '\'' +
-                ", huopishijain=" + huopishijain +
-                ", shifouyingyon='" + shifouyingyon + '\'' +
-                ", hangyelianhe='" + hangyelianhe + '\'' +
-                ", fenlei='" + fenlei + '\'' +
-                ", paiming='" + paiming + '\'' +
-                ", keyanfen=" + keyanfen +
-                ", state='" + state + '\'' +
-                '}';
-    }
 }

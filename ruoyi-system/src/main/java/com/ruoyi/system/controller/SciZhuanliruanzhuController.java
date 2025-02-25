@@ -93,6 +93,9 @@ public class SciZhuanliruanzhuController extends BaseController
                 case "dept_teacher":
                     role = "dept_teacher";
                     break label;
+                case "admin":
+                    role = "admin";
+                    break label;
             }
         }
         sciZhuanliruanzhu.setRole(role);
@@ -105,13 +108,13 @@ public class SciZhuanliruanzhuController extends BaseController
 //          无用了//设置部门父id，传输过去用来为查询设置部门限制，这个是为查询部门负责人时，查询出部门负责人的部门，并设置查询条件，查询出部门负责人的部门下的所有子部门，
 //        sciZhuanliruanzhu.setParentId(user.getDept().getParentId());
 //        sciZhuanliruanzhu.setParentId(getSysUser().getAncestors());
-        System.out.println(getSysUser());
-        System.out.println(user.getDept().getParentId());
+//        System.out.println(getSysUser());
+//        System.out.println(user.getDept().getParentId());
 
 
 
 
-        System.out.println(sciZhuanliruanzhu);
+//        System.out.println(sciZhuanliruanzhu);
 
         List<SciZhuanliruanzhu> list = new ArrayList<>();
 //        科研处
@@ -129,7 +132,11 @@ public class SciZhuanliruanzhuController extends BaseController
                 list = sciZhuanliruanzhuService.selectSciZhuanliruanzhuList2(sciZhuanliruanzhu);
                 break;
 
-//        教师
+
+            case "admin":
+                list = sciZhuanliruanzhuService.selectSciZhuanliruanzhuList(sciZhuanliruanzhu);
+                break;
+            //        教师
             default:
                 list = sciZhuanliruanzhuService.selectSciZhuanliruanzhuList1(sciZhuanliruanzhu);
                 break;
