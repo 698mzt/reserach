@@ -11,7 +11,7 @@ import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.system.domain.*;
 import com.ruoyi.system.service.*;
 import io.swagger.models.auth.In;
-import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -34,8 +34,12 @@ public class SciIntraSchoolProController extends BaseController {
     private ISciIntraSchProPiyueService piyueService;
     @Autowired
     private SciIntraSchProReamountService sciIntraSchProReamountService;
+
+    @Autowired
+    private SciIntraSchProScoreService sciIntraSchProScoreService;
     private String role_str="";
     private String deptNamekey="";
+
 
     @GetMapping("")
     String view() {
@@ -143,7 +147,6 @@ public class SciIntraSchoolProController extends BaseController {
             switch (tableId) {
                 case "bootstrap-table0":
                     list = sciIntraSchProApplyService.sel_IntraSchPro_isOVER(sciIntraSchoolPro);
-
                     //System.out.println("this is table0 list = " + list);
                     System.out.println("this is table0 list = "+ list);
                     break;
@@ -230,7 +233,11 @@ public class SciIntraSchoolProController extends BaseController {
     @ResponseBody
     public AjaxResult addSave(SciIntraSchoolPro sciIntraSchoolPro)
     {
-        return toAjax(sciIntraSchProApplyService.insert_SchPro_Apply(sciIntraSchoolPro));
+        //sciIntraSchProScoreService.set_SchPro_score_noScore(sciIntraSchoolPro);
+//        return toAjax(sciIntraSchProApplyService.insert_SchPro_Apply(sciIntraSchoolPro));
+        int id =sciIntraSchProApplyService.insert_SchPro_Apply(sciIntraSchoolPro);
+        System.out.println("id = " + id);
+        return toAjax(sciIntraSchProScoreService.set_SchPro_score_noScore(sciIntraSchoolPro));
     }
 
     @GetMapping("/edit/{id}")
@@ -310,6 +317,11 @@ public class SciIntraSchoolProController extends BaseController {
         return prefix + "/overdetail";
     }
 
+    /**
+     * 驳回原因
+     * @param kid
+     * @returnx`
+     */
     @PostMapping("/bhyy/{kid}")
     @ResponseBody
     public TableDataInfo bhyy(@PathVariable("kid")Integer kid)
@@ -335,10 +347,22 @@ public class SciIntraSchoolProController extends BaseController {
         return toAjax(sciIntraSchProApplyService.sch_hxBh(id,getUserId(),remark,urlFlag));
     }
 
+    /**
+     * 开题通过
+     * @param id
+     * @param urlFlag
+     * @return
+     */
     @PostMapping( "/sch_hxPass")
     @ResponseBody
     public AjaxResult hxPass(String id,String urlFlag)
     {
+        //如果时科研室通过，就设置积分
+        if(urlFlag.equals("hecha")){
+            SciIntraSchoolPro sciIntraSchoolPro1 = sciIntraSchProApplyService.sel_IntraSchPro_by_id(Integer.valueOf(id));
+            //0 是开题
+            sciIntraSchProScoreService.set_SchPro_score(sciIntraSchoolPro1,0);
+        }
         return toAjax(sciIntraSchProApplyService.sch_hxPass(id,getUserId(),urlFlag));
     }
 
@@ -397,6 +421,11 @@ public class SciIntraSchoolProController extends BaseController {
 //        String idString = (String) data.get("id");
 //        Integer id = Integer.parseInt(idString);
 //        sciIntraSchoolPro.setId(id);
+        //更改积分
+        SciIntraSchoolPro sciIntraSchoolPro1 = sciIntraSchProApplyService.sel_IntraSchPro_by_id(Integer.valueOf(id));
+        int i = sciIntraSchProScoreService.update_SchPro_score(sciIntraSchoolPro1);
+        System.out.println("i = " + i);
+        //撤回
         return toAjax(sciIntraSchProApplyService.sch_hxCH(id,getUserId(),remark,urlFlag));
     }
 
@@ -459,11 +488,21 @@ public class SciIntraSchoolProController extends BaseController {
         return toAjax(sciIntraSchProApplyService.update_IntraSchPro_OverApply(sciIntraSchoolPro));
     }
 
+    /**
+     * 结项通过
+     * @param id
+     * @param urlFlag
+     * @return
+     */
     @PostMapping( "/sch_hxover")
     @ResponseBody
     public AjaxResult hxover(String id,String urlFlag)
     {
         System.out.println("SciIntraSchoolProController.hxover"+"id="+id+" urlFlag="+urlFlag);
+        if (urlFlag.equals("KYCOVER")){
+            SciIntraSchoolPro sciIntraSchoolPro1 = sciIntraSchProApplyService.sel_IntraSchPro_by_id(Integer.valueOf(id));
+            sciIntraSchProScoreService.set_SchPro_score(sciIntraSchoolPro1,1);
+        }
         return toAjax(sciIntraSchProApplyService.sch_hxover(id,getUserId(),urlFlag));
     }
 
@@ -497,4 +536,34 @@ public class SciIntraSchoolProController extends BaseController {
         sciIntraSchProReamount.setApplyId(userid);
         return toAjax(sciIntraSchProReamountService.insertAmount(sciIntraSchProReamount));
     }
+
+//    List<String> fourHead = Arrays.asList(sciIntraSchoolPro.getFirstPersonId(),sciIntraSchoolPro.getSecondPersonId(),sciIntraSchoolPro.getSecondPersonId(),sciIntraSchoolPro.getThirdPersonId());
+//        System.out.println("fourHead = " + fourHead);
+
+    /**
+     * 暂未使用
+     * @param request
+     * @return
+     */
+    @PostMapping("/getscore_byId")
+    @ResponseBody
+    public Map<String,Object> getscore(@RequestBody Map<String, Object> request)
+    {
+        Object id = request.get("id");
+
+        Map<String,Object> resp=new HashMap<>();
+
+        Integer  score = sciIntraSchProScoreService.getScoreById(id,getUserId());
+        System.out.println("score = " + score);
+        if (score==null){
+            resp.put("score",0);
+        }else {
+            resp.put("score",score);
+        }
+
+
+        return resp;
+
+    }
+
 }
