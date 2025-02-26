@@ -11,36 +11,48 @@
                     <div class="select-list">
                         <ul>
                             <li>
-                                <label>学院：</label>
-                                <select name="xueyuan" th:with="type=${@dict.getType('sys_dept')}">
-                                    <option value="">所有</option>
-                                    <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
-<!--                                    <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${user.flag}"></option>-->
-                                </select>
-<!--                                <select name="xueyuan" class="form-control m-b" >-->
-<!--                                    &lt;!&ndash;                            <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${user.flag}"></option>&ndash;&gt;-->
-<!--                                    <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${user.flag}"></option>-->
+<!--                                <label>学院：</label>-->
+<!--                                <select name="xueyuan" th:with="type=${@dict.getType('sys_dept')}">-->
+<!--                                    <option value="">所有</option>-->
+<!--                                    <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>-->
+<!--&lt;!&ndash;                                    <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${user.flag}"></option>&ndash;&gt;-->
 <!--                                </select>-->
-                            </li>
-<!--                            <li>-->
-<!--                                <label>姓名：</label>-->
-<!--                                <input type="text" name="xingming"/>-->
+<!--&lt;!&ndash;                                <select name="xueyuan" class="form-control m-b" >&ndash;&gt;-->
+<!--&lt;!&ndash;                                    &lt;!&ndash;                            <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${user.flag}"></option>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;                                    <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${user.flag}"></option>&ndash;&gt;-->
+<!--&lt;!&ndash;                                </select>&ndash;&gt;-->
 <!--                            </li>-->
-                            <li>
-                                <label>名称：</label>
-                                <input type="text" name="mingcheng"/>
-                            </li>
-                            <li>
-                                <label>获批时间：</label>
-                                <input type="text" class="time-input" placeholder="请选择获批时间" name="huopishijain"/>
-                            </li>
-                            <li>
-                                <label>分类：</label>
-                                <select name="fenlei" th:with="type=${@dict.getType('sys_zhuanli_fenlei')}">
-                                    <option value="">所有</option>
-                                    <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
-                                </select>
-                            </li>
+<!--&lt;!&ndash;                            <li>&ndash;&gt;-->
+<!--&lt;!&ndash;                                <label>姓名：</label>&ndash;&gt;-->
+<!--&lt;!&ndash;                                <input type="text" name="xingming"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                            </li>&ndash;&gt;-->
+<!--                            <li>-->
+<!--                                <label>专利名称：</label>-->
+<!--                                <input type="text" name="mingcheng"/>-->
+<!--                            </li>-->
+
+<!--                            <li>-->
+<!--                                <label>授权号：</label>-->
+<!--                                <input type="text" name="shoquanhao"/>-->
+<!--                            </li>-->
+
+
+<!--                            <li>-->
+<!--                                <label>获批时间：</label>-->
+<!--                                <input type="text" class="time-input" placeholder="请选择获批时间" name="huopishijain"/>-->
+<!--                            </li>-->
+<!--                            <li>-->
+<!--                                <label>分类：</label>-->
+<!--                                <select name="fenlei" th:with="type=${@dict.getType('sys_zhuanli_fenlei')}">-->
+<!--                                    <option value="">所有</option>-->
+<!--                                    <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>-->
+<!--                                </select>-->
+<!--                            </li>-->
+<!--                            <li>-->
+<!--                                <label>排名：</label>-->
+<!--                                <input type="text" name="paiming"/>-->
+<!--                            </li>-->
+
                             <li>
                                 <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
                                 <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
@@ -51,7 +63,7 @@
             </div>
 
             <div class="btn-group-sm" id="toolbar" role="group">
-                <a class="btn btn-success" onclick="$.operate.add()" shiro:hasPermission="system:zhuanliruanzhu:add">
+                <a class="btn btn-success" onclick="$.operate.addTab()" shiro:hasPermission="system:zhuanliruanzhu:add">
                     <i class="fa fa-plus"></i> 添加
                 </a>
 <!--                <a class="btn btn-primary single disabled" onclick="$.operate.edit()" shiro:hasPermission="system:zhuanliruanzhu:edit">-->
@@ -82,13 +94,18 @@
         var proFlag = [[${@permission.hasPermi('system:zhuanliruanzhu:process')}]];
         var editInfo = [[${@permission.hasPermi('system:zhuanliruanzhu:info')}]];
         var hechaFlag = [[${@permission.hasPermi('system:zhuanliruanzhu:hecha')}]];
-        var datas = [[${@dict.getType('sci_crosswise_tasks')}]];
+        var datas = [[${@dict.getType('sys_zhuanli_zd')}]];
         var createFlag = [[${@permission.hasPermi('system:zhuanliruanzhu:add')}]];
+        var chayueFlag = [[${@permission.hasPermi('system:zhuanliruanzhu:chayue')}]];
+        var chexiaoFlag = [[${@permission.hasPermi('system:zhuanliruanzhu:chexiao')}]];
+        var paiMingDatas = [[${@dict.getType('sys_zhuanliruanzhu_fzr')}]];
+
 
 
         var prefix = ctx + "system/zhuanliruanzhu";
 
         $(function() {
+
 
 
 
@@ -116,6 +133,7 @@
                 removeUrl: prefix + "/remove",
                 detailUrl: prefix + "/detail/{id}",
                 exportUrl: prefix + "/export",
+                recallUrl: prefix + "/recall/{id}",
                 modalName: "专利软著",
                 columns: [
                     {
@@ -158,14 +176,19 @@
                 },
                 {
                     field: 'mingcheng',
-                    title: '名称'
+                    title: '专利名称'
                 },
+
                 {
                     field: 'leixing',
                     title: '类型',
                     formatter: function(value, row, index) {
                        return $.table.selectDictLabel(leixingDatas, value);
                     }
+                },
+                {
+                    field: 'shoquanhao',
+                    title: '授权号'
                 },
                 {
                     field: 'huopishijain',
@@ -196,18 +219,26 @@
                 //     field: 'paiming',
                 //     title: '排名'
                 // },
-                // {
-                //     field: 'keyanfen',
-                //     title: '科研分'
-                // },
-                    {
-                        field: 'state',
-                        title: '申请状态',
-                        align: 'center',
-                        formatter: function(value, row, index) {
-                            return $.table.selectDictLabel(datas, value);               //1
-                        }
-                    }  ,
+
+                {
+                    field: 'state',
+                    title: '申请状态',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                        return $.table.selectDictLabel(datas, value);               //1
+                    }
+                }  ,
+                {
+                    field: 'paiming',
+                    title: '负责人排名',
+                    formatter: function(value, row, index) {
+                        return $.table.selectDictLabel(paiMingDatas, value);
+                    }
+                },
+                {
+                    field: 'jifen',
+                    title: '积分'
+                },
                 {
                     title: '操作',
                     align: 'center',
@@ -221,26 +252,46 @@
                             console.log(row)
                             if(row.userId == row.uid){
                                 actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-remove"></i>删除</a>');
-                                actions.push('<a   class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.edit(\'' + row.id + '\')"><i class="fa fa-edit"></i>更新</a> ');
+                                actions.push('<a   class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>更新</a> ');
                             }
                             actions.push('<a  class="btn btn-success btn-xs ' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
                             actions.push('<a  class="btn btn-success btn-xs ' + proFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id+ '/pro'+'\')"><i class="fa fa-edit"></i>批阅</a> ');
 
                         }else
-                        if((row.state == 3 || row.state == 5)  && row.userId == row.uid){
-                            actions.push('<a   class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.edit(\'' + row.id + '\')"> <i class="fa fa-edit"></i>更新</a> ');
-                        }else if(row.state ==  2){
+                        if((row.state == 3 || row.state == 5 || row.state == 7)  && row.userId == row.uid) {
+                            actions.push('<a   class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> <i class="fa fa-edit"></i>更新</a> ');
+                            actions.push('<a  class="btn btn-success btn-xs ' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan' + '\')"><i class="fa fa-edit"></i>查看</a> ');
+                        }
+                        else if(row.state == 3 || row.state == 5 || row.state == 7){
 
+                            actions.push('<a  class="btn btn-success btn-xs ' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
+
+
+                        }else if(row.state ==  2){
+                            actions.push('<a  class="btn btn-success btn-xs ' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
+                            actions.push('<a  class="btn btn-danger btn-xs ' + proFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>撤回</a> ');
                             actions.push('<a  class="btn btn-success btn-xs ' + hechaFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/hecha'+ '\')"><i class="fa fa-edit"></i>核查</a> ');
                         }else
                         if(row.state ==  4){
-                            if(row.userId == row.uid){
+                            actions.push('<a  class="btn btn-success btn-xs ' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
+                            actions.push('<a  class="btn btn-danger btn-xs ' + hechaFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>撤回</a> ');
+                            // if(row.userId == row.uid){
+                            //     actions.push('<a  class="btn btn-success btn-xs ' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
+
+                            // }
+                            actions.push('<a  class="btn btn-success btn-xs ' + chayueFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chayue'+ '\')"><i class="fa fa-edit"></i>查阅</a> ');}
+
+                        else if(row.state ==  6){
                                 actions.push('<a  class="btn btn-success btn-xs ' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
-                                // actions.push('<a  class="btn btn-success btn-xs ' + createFlag + '" href="javascript:void(0)" onclick="$.operate.overTab(\'' + row.id +'\')"><i class="fa fa-edit"></i>申请结项</a> ');
-                            }
+                                actions.push('<a  class="btn btn-danger btn-xs ' + chayueFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>撤回</a> ');
+
+
+
+                            // actions.push('<a  class="btn btn-success btn-xs ' + chayueFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chayue'+ '\')"><i class="fa fa-edit"></i>查阅</a> ');
+                        }
 
                             // actions.push('<a  class="btn btn-success btn-xs ' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
-                        }
+
                         return actions.join('');
                     }
                 }]

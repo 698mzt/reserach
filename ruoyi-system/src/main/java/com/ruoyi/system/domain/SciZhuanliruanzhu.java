@@ -17,6 +17,73 @@ public class SciZhuanliruanzhu extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
 
+    public String getWenjian() {
+        return wenjian;
+    }
+
+    public void setWenjian(String wenjian) {
+        this.wenjian = wenjian;
+    }
+
+    private String wenjian;
+
+
+    public Long getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(Long parentId) {
+        this.parentId = parentId;
+    }
+
+    private Long parentId;
+
+
+
+
+    public Long getDeptId() {
+        return deptId;
+    }
+
+    public void setDeptId(Long deptId) {
+        this.deptId = deptId;
+    }
+
+    private Long deptId;
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+    private String role;
+
+    public String getAmount() {
+        return amount;
+    }
+
+    public void setAmount(String amount) {
+        this.amount = amount;
+    }
+
+    @Excel(name = "项目金额")
+    private String amount;
+
+
+    public String getJifen() {
+        return jifen;
+    }
+
+    public void setJifen(String jifen) {
+        this.jifen = jifen;
+    }
+
+    private String jifen;
+
+
     public String getYear() {
         return year;
     }
@@ -332,25 +399,39 @@ public class SciZhuanliruanzhu extends BaseEntity
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
-            .append("id", getId())
-            .append("xueyuan", getXueyuan())
-            .append("jiaoyanshi", getJiaoyanshi())
-            .append("gonghao", getGonghao())
-            .append("xingming", getXingming())
-            .append("xingzhengzhiwu", getXingzhengzhiwu())
-            .append("shehuizhicheng", getShehuizhicheng())
-            .append("xiaoneizhicheng", getXiaoneizhicheng())
-            .append("jiaoshixingming", getJiaoshixingming())
-            .append("mingcheng", getMingcheng())
-            .append("leixing", getLeixing())
-            .append("shoquanhao", getShoquanhao())
-            .append("huopishijain", getHuopishijain())
-            .append("shifouyingyon", getShifouyingyon())
-            .append("hangyelianhe", getHangyelianhe())
-            .append("fenlei", getFenlei())
-            .append("paiming", getPaiming())
-            .append("keyanfen", getKeyanfen())
-            .toString();
+        return "SciZhuanliruanzhu{" +
+                "wenjian='" + wenjian + '\'' +
+                ", parentId=" + parentId +
+                ", deptId=" + deptId +
+                ", role='" + role + '\'' +
+                ", amount='" + amount + '\'' +
+                ", jifen='" + jifen + '\'' +
+                ", year='" + year + '\'' +
+                ", urlFlag='" + urlFlag + '\'' +
+                ", yname='" + yname + '\'' +
+                ", dname='" + dname + '\'' +
+                ", userName='" + userName + '\'' +
+                ", userId=" + userId +
+                ", uid=" + uid +
+                ", id=" + id +
+                ", xueyuan='" + xueyuan + '\'' +
+                ", jiaoyanshi='" + jiaoyanshi + '\'' +
+                ", gonghao=" + gonghao +
+                ", xingming='" + xingming + '\'' +
+                ", xingzhengzhiwu='" + xingzhengzhiwu + '\'' +
+                ", shehuizhicheng='" + shehuizhicheng + '\'' +
+                ", xiaoneizhicheng='" + xiaoneizhicheng + '\'' +
+                ", jiaoshixingming='" + jiaoshixingming + '\'' +
+                ", mingcheng='" + mingcheng + '\'' +
+                ", leixing='" + leixing + '\'' +
+                ", shoquanhao='" + shoquanhao + '\'' +
+                ", huopishijain=" + huopishijain +
+                ", shifouyingyon='" + shifouyingyon + '\'' +
+                ", hangyelianhe='" + hangyelianhe + '\'' +
+                ", fenlei='" + fenlei + '\'' +
+                ", paiming='" + paiming + '\'' +
+                ", keyanfen=" + keyanfen +
+                ", state='" + state + '\'' +
+                '}';
     }
 }

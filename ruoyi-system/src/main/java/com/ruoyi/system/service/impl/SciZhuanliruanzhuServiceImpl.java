@@ -4,12 +4,19 @@ import java.util.List;
 
 import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.system.domain.SciHorizontalPiyue;
+import com.ruoyi.system.domain.SciZhuanliruanzhuPiyue;
+import com.ruoyi.system.domain.SciZhuanliruanzhuScoreCfg;
+import com.ruoyi.system.mapper.SciHorizontalPiyueMapper;
+import com.ruoyi.system.mapper.SciZhuanliruanzhuPiyueMapper;
+import com.ruoyi.system.mapper.SciZhuanliruanzhuScoreCfgMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.ruoyi.system.mapper.SciZhuanliruanzhuMapper;
 import com.ruoyi.system.domain.SciZhuanliruanzhu;
 import com.ruoyi.system.service.ISciZhuanliruanzhuService;
 import com.ruoyi.common.core.text.Convert;
+
+
 
 /**
  * 专利软著Service业务层处理
@@ -22,6 +29,14 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
 {
     @Autowired
     private SciZhuanliruanzhuMapper sciZhuanliruanzhuMapper;
+
+    @Autowired
+    private SciZhuanliruanzhuPiyueMapper sciZhuanliruanzhuPiyueMapper;
+
+
+    @Autowired
+    private SciZhuanliruanzhuScoreCfgMapper sciZhuanliruanzhuScoreCfgMapper;
+
 
 
     /**
@@ -98,35 +113,52 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
 
 
     @Override
-    public int hxPass(String id,Long uid,String urlFlag) {
+    public int updateJifen(Long id, int jifen) {
+        return sciZhuanliruanzhuMapper.updateJifen(id, jifen);
+    }
+
+
+    @Override
+
+        public int hxPass(String id,Long uid,String urlFlag) {
         String state = "0";
+//        SciZhuanliruanzhu sciZhuanliruanzhu = new SciZhuanliruanzhu();
+
         if(urlFlag.equals("hecha")){
             state ="4";
         }else if(urlFlag.equals("pro")){
             state ="2";
         }
+        else if(urlFlag.equals("chayue")) {
+            state = "6";
+            SciZhuanliruanzhu sciZhuanliruanzhu = sciZhuanliruanzhuMapper.selectSciZhuanliruanzhuById(Integer.valueOf(id));
+            String a = sciZhuanliruanzhu.getFenlei();
+            String b = sciZhuanliruanzhu.getPaiming();
+            SciZhuanliruanzhuScoreCfg sciZhuanliruanzhuScoreCfg = new SciZhuanliruanzhuScoreCfg();
+            sciZhuanliruanzhuScoreCfg.setFenLei(a);
+            sciZhuanliruanzhuScoreCfg.setPaiMing(b);
+            List<SciZhuanliruanzhuScoreCfg> c = sciZhuanliruanzhuScoreCfgMapper.selectSciZhuanliruanzhuScoreCfgList(sciZhuanliruanzhuScoreCfg);
+
+            int jifen = 0;
+            for (SciZhuanliruanzhuScoreCfg cfg : c) {
+                jifen = Integer.parseInt(cfg.getTotalScore());
+                System.out.println("Jifen: " + jifen);
+            }
+            sciZhuanliruanzhuMapper.updateJifen(Long.valueOf(id), jifen);
+
+
+        }
 
         int a =  sciZhuanliruanzhuMapper.hxPass(id,state);
-        SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
-        sciHorizontalPiyue.setUid(uid);
-        sciHorizontalPiyue.setHxktId(Integer.valueOf(id));
-        sciHorizontalPiyue.setConcate("同意");
-        sciHorizontalPiyue.setState("通过");
-//        sciZhuanliruanzhuMapper.insertSciHorizontalPiyue(sciHorizontalPiyue);
+        SciZhuanliruanzhuPiyue sciZhuanliruanzhuPiyue = new SciZhuanliruanzhuPiyue();
+        sciZhuanliruanzhuPiyue.setUid(uid);
+        sciZhuanliruanzhuPiyue.setHxktId(Integer.valueOf(id));
+        sciZhuanliruanzhuPiyue.setConcate("同意");
+        sciZhuanliruanzhuPiyue.setState("通过");
+        sciZhuanliruanzhuPiyueMapper.insertSciZhuanliruanzhuPiyue(sciZhuanliruanzhuPiyue);
         return a;
     }
-    @Override
-    public int hxover(String id,Long uid,String urlFlag) {
-        String state = "0";
-        if(urlFlag.equals("JYSOVER")){
-            state ="8";
-        }else if(urlFlag.equals("KYCOVER")){
-            state ="6";
-        }
-        int a =  sciZhuanliruanzhuMapper.hxPass(id,state);
-        System.out.println(a);
-        return a;
-    }
+
 
     @Override
     public int hxBh(String id,Long uid, String remark,String urlFlag) {
@@ -135,35 +167,73 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
             state ="5";
         }else if(urlFlag.equals("pro")){
             state ="3";
+        }else if(urlFlag.equals("chayue")){
+            state ="7";
         }
         int a = sciZhuanliruanzhuMapper.hxPass(id,state);
-        SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
-        sciHorizontalPiyue.setUid(uid);
-        sciHorizontalPiyue.setHxktId(Integer.valueOf(id));
-        sciHorizontalPiyue.setConcate(remark);
-        sciHorizontalPiyue.setState("被驳回");
-//        sciZhuanliruanzhuMapper.insertSciHorizontalPiyue(sciHorizontalPiyue);
+        SciZhuanliruanzhuPiyue sciZhuanliruanzhuPiyue = new SciZhuanliruanzhuPiyue();
+        sciZhuanliruanzhuPiyue.setUid(uid);
+        sciZhuanliruanzhuPiyue.setHxktId(Integer.valueOf(id));
+        sciZhuanliruanzhuPiyue.setConcate(remark);
+        sciZhuanliruanzhuPiyue.setState("被驳回");
+        sciZhuanliruanzhuPiyueMapper.insertSciZhuanliruanzhuPiyue(sciZhuanliruanzhuPiyue);
         return a;
+    }
+
+
+
+
+    @Override
+    public List<SciZhuanliruanzhu> selectSciZhuanliruanzhuList4(SciZhuanliruanzhu sciZhuanliruanzhu)
+    {
+        return sciZhuanliruanzhuMapper.selectSciZhuanliruanzhuList4(sciZhuanliruanzhu);
+    }
+    @Override
+    public List<SciZhuanliruanzhu> selectSciZhuanliruanzhuList3(SciZhuanliruanzhu sciZhuanliruanzhu)
+    {
+        return sciZhuanliruanzhuMapper.selectSciZhuanliruanzhuList3(sciZhuanliruanzhu);
+    }
+    @Override
+    public List<SciZhuanliruanzhu> selectSciZhuanliruanzhuList2(SciZhuanliruanzhu sciZhuanliruanzhu)
+    {
+        return sciZhuanliruanzhuMapper.selectSciZhuanliruanzhuList2(sciZhuanliruanzhu);
+    }
+    @Override
+    public List<SciZhuanliruanzhu> selectSciZhuanliruanzhuList1(SciZhuanliruanzhu sciZhuanliruanzhu)
+    {
+        return sciZhuanliruanzhuMapper.selectSciZhuanliruanzhuList1(sciZhuanliruanzhu);
     }
 
     @Override
-    public int hxoverBh(String id, Long uid, String remark, String urlFlag) {
-        String state = "0";
-        if(urlFlag.equals("JYSOVER")){
-            state ="9";
-        }else if(urlFlag.equals("KYCOVER")){
-            state ="10";
+    public int recall(Integer id, String state,Long uid, String remark, String urlFlag) {
+        String newState = state;
+        switch (state){
+//            教研室
+            case "2":
+                newState = "3";
+                break;
+            //            学院
+            case "4":
+                newState = "5";
+                break;
+            //            科研处
+            case "6":
+                newState = "7";
+                sciZhuanliruanzhuMapper.updateJifen(Long.valueOf(id),0);
+                break;
         }
 
-        int a =  sciZhuanliruanzhuMapper.hxPass(id,state);
-        SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
-        sciHorizontalPiyue.setUid(uid);
-        sciHorizontalPiyue.setHxktId(Integer.valueOf(id));
-        sciHorizontalPiyue.setConcate(remark);
-        sciHorizontalPiyue.setState("被驳回");
-//        sciZhuanliruanzhuMapper.insertSciHorizontalPiyue(sciHorizontalPiyue);
+
+//        设置状态
+        int a =sciZhuanliruanzhuMapper.hxPass(id.toString(),newState);
+//        插入日志
+        SciZhuanliruanzhuPiyue sciZhuanliruanzhuPiyue = new SciZhuanliruanzhuPiyue();
+        sciZhuanliruanzhuPiyue.setUid(uid);
+        sciZhuanliruanzhuPiyue.setHxktId(id);
+        sciZhuanliruanzhuPiyue.setConcate(remark);
+        sciZhuanliruanzhuPiyue.setState("撤回上一条操作");
+        sciZhuanliruanzhuPiyueMapper.insertSciZhuanliruanzhuPiyue(sciZhuanliruanzhuPiyue);
         return a;
     }
-
 
 }

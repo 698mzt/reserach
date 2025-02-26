@@ -64,10 +64,29 @@ public interface ISciZhuanliruanzhuService
 
 
     int hxPass(String id,Long uid,String urlFlag);
-    int hxover(String id,Long uid,String urlFlag);
+
+    int updateJifen(Long id, int jifen);
+
+
+
+//    int hxPass(String id,Long uid,String urlFlag,List score,List persion,Integer applyId);
+//    int hxover(String id,Long uid,String urlFlag);
 
     int hxBh(String id,Long uid, String remark,String urlFlag);
-    int hxoverBh(String id, Long userId, String remark, String urlFlag);
+
+    List<SciZhuanliruanzhu> selectSciZhuanliruanzhuList4(SciZhuanliruanzhu sciZhuanliruanzhu);
+
+    List<SciZhuanliruanzhu> selectSciZhuanliruanzhuList3(SciZhuanliruanzhu sciZhuanliruanzhu);
+
+    List<SciZhuanliruanzhu> selectSciZhuanliruanzhuList2(SciZhuanliruanzhu sciZhuanliruanzhu);
+
+    List<SciZhuanliruanzhu> selectSciZhuanliruanzhuList1(SciZhuanliruanzhu sciZhuanliruanzhu);
+
+    int recall(Integer id, String state, Long userId, String remark, String urlFlag);
+//    int hxoverBh(String id, Long userId, String remark, String urlFlag);
+
+//    int collegeAudit(String id, Long userId, String urlFlag);
+
 
 
 

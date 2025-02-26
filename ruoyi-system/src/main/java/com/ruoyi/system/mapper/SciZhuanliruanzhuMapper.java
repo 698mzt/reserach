@@ -15,6 +15,8 @@ import org.apache.ibatis.annotations.Param;
  */
 public interface SciZhuanliruanzhuMapper 
 {
+
+
     /**
      * 查询专利软著
      * 
@@ -65,12 +67,24 @@ public interface SciZhuanliruanzhuMapper
 
 
     int hxPass(@Param("id") String id, @Param("state") String state);
+
+
+    int updateJifen(@Param("id") Long id, @Param("jifen") int jifen);
+
     int hxover(@Param("id") String id,@Param("state") String state);
 
     List<SysUser> selectUserList(@Param("user") SysUser user);
+
+    public int insertScoreHistory(SciZhuanliruanzhu sciZhuanliruanzhu);
 
 
 //    void setUid(Long userId);
 
 //    void insertSciHorizontalPiyue(SciHorizontalPiyue sciHorizontalPiyue);
+
+    public List<SciZhuanliruanzhu> selectSciZhuanliruanzhuList4(SciZhuanliruanzhu sciZhuanliruanzhu);
+    public List<SciZhuanliruanzhu> selectSciZhuanliruanzhuList3(SciZhuanliruanzhu sciZhuanliruanzhu);
+    public List<SciZhuanliruanzhu> selectSciZhuanliruanzhuList2(SciZhuanliruanzhu sciZhuanliruanzhu);
+    public List<SciZhuanliruanzhu> selectSciZhuanliruanzhuList1(SciZhuanliruanzhu sciZhuanliruanzhu);
+
 }

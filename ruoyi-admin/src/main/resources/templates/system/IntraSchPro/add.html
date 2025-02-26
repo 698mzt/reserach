@@ -1,5 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+
+
 <head>
     <th:block th:include="include :: header('新增横向课题')" />
     <th:block th:include="include :: datetimepicker-css" />
@@ -7,15 +9,18 @@
     <th:block th:include="include :: select2-css" />
 </head>
 <body class="white-bg">
+
 <div class="wrapper wrapper-content animated fadeInRight ibox-content">
     <form class="form-horizontal m" id="form-apply-add">
         <div class="col-xs-6">
             <div class="form-group">
                 <label class="col-sm-4 control-label is-required">申请人：</label>
                 <div class="col-sm-8">
-                    <select name="userId" class="form-control m-b" >
-                        <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${user.flag}"></option>
-                    </select>
+                    <input type="text" id="userName"  class="form-control" name="userName" readonly>
+                    <input type="hidden" id="userId"  class="form-control" name="userId" readonly>
+<!--                    <select name="userId" class="form-control m-b" >-->
+<!--                        <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${user.flag}"></option>-->
+<!--                    </select>-->
                 </div>
             </div>
         </div>
@@ -82,7 +87,8 @@
                 <label class="col-sm-4 control-label is-required">结项日期：</label>
                 <div class="col-sm-8">
                     <div class="input-group date">
-                        <input autocomplete="off" name="validityDate" class="form-control" placeholder="yyyy-MM-dd" type="text" required>
+<!--                        <input autocomplete="off" name="validityDate" class="form-control" placeholder="yyyy-MM-dd" type="text" required>-->
+                        <input  autocomplete="off" name="validityDatee" class="form-control" placeholder="待申请结项时填写" type="text" readonly>
                         <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
                     </div>
                 </div>
@@ -93,10 +99,11 @@
             <div class="form-group">
                 <label class="col-sm-4 control-label is-required">第一负责人：</label>
                 <div class="col-sm-8">
-
-                    <select name="firstPersonId" class="form-control m-b" >
-                        <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${user.flag}"></option>
-                    </select>
+                    <input type="text" id="firstPersonName"  class="form-control" name="firstPersonName" readonly>
+                    <input type="hidden" id="firstPersonId"  class="form-control" name="firstPersonId" readonly>
+<!--                    <select name="firstPersonId" class="form-control m-b" >-->
+<!--                        <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${user.flag}"></option>-->
+<!--                    </select>-->
                 </div>
             </div>
         </div>
@@ -186,6 +193,22 @@
     $("#form-apply-add").validate({
         focusCleanup: true
     });
+    $.ajax({
+        type: "POST",
+        url:prefix+"/getLoginData",
+        contentType:"application/json",
+        async:false,
+        error:function (request){
+            alter("超时")
+        },
+        success:function (data){
+            // console.log(data.userName)
+            $("#userName").val(data.userName);
+            $("#userId").val(data.userId);
+            $("#firstPersonName").val(data.userName);
+            $("#firstPersonId").val(data.userId);
+        },
+    })
 
     function submitHandler() {
         if ($.validate.form()) {

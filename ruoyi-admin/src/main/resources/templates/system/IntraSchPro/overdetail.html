@@ -12,6 +12,7 @@
         <input name="urlFlag" id="urlFlag" th:field="*{urlFlag}" type="hidden">
         <input name="state" id="state" th:field="*{state}" type="hidden">
         <input name="id" id="ktid" th:field="*{id}" type="hidden">
+        <input name="role" id="role" th:field="*{role}" type="hidden">
         <h4 class="form-header h4">基本信息</h4>
         <div class="row">
             <div class="col-xs-6">
@@ -159,7 +160,7 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">合同：</label>
                     <div class="col-sm-8">
-                        <input th:field="*{filingurl}" hidden id="filing" type="text">
+                        <input th:field="*{overContract}" hidden id="filing" type="text">
                         <!--                    <span id="filingFileName" class="form-control" readonly></span>-->
                         <div style="display: inline-block;">
                             <div id="filingFileName" style="display: inline; margin-right: 5px;"></div>
@@ -181,7 +182,7 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">备案表：</label>
                     <div class="col-sm-8">
-                        <input th:field="*{agreeurl}" hidden id="contract" type="text">
+                        <input th:field="*{overFiling}" hidden id="contract" type="text">
                         <div style="display: inline-block;">
                             <div id="contractFileName" style="display: inline; margin-right: 5px;"></div>
                             <button onclick="beian()"
@@ -233,6 +234,9 @@
         </button>
         <button type="button" id="btn3" style="display:none;" class="btn btn-sm btn-warning" onclick="closeItem()"><i
                 class="fa fa-reply-all"></i>关 闭
+        </button>
+        <button type="button" id="btn4" style="display:none;" class="btn btn-sm btn-warning" onclick="retract()"><i
+                class="fa fa-reply-all"></i>撤 回
         </button>
     </div>
 </div>
@@ -325,17 +329,76 @@
 
         $('#bootstrap-table').on('load-success.bs.table', function (e, name, args) {
             console.log('Event Name:', name.rows);
-
-            var a = $("#state").val();
-            if (a == 7 || a == 8) {
-                if (name.rows.length > 0) {
+            var a =$("#state").val();
+            var role_str =$("#role").val();
+            //如果是科研
+            if (role_str=="sci_tesearch"){
+                //批阅记录
+                if(name.rows.length > 0){
                     $(".tdiv2").show();
                 }
-                $(".tdiv1").show();
-                $("#btn1").show();
-                $("#btn2").show();
-                $("#btn3").show();
+                if(a == 7 ||a == 9||a == 10){
+
+                }else if (a==8){
+                    $(".tdiv1").show();
+                    $("#btn1").show();
+                    $("#btn2").show();
+                    $("#btn3").show();
+                }else if (a == 6){
+                    $(".tdiv1").show();
+                    $("#btn4").show();
+                    $("#btn3").show();
+                }
+            }else if (role_str=="research"){
+                //批阅记录
+                if(name.rows.length > 0){
+                    $(".tdiv2").show();
+                }
+                if(a == 9 ||a == 6||a == 10){
+
+                }else if (a==7){
+                    $(".tdiv1").show();
+                    $("#btn1").show();
+                    $("#btn2").show();
+                    $("#btn3").show();
+                }else if (a == 13){
+                    $(".tdiv1").show();
+                    $("#btn4").show();
+                    $("#btn3").show();
+                }
             }
+            else if (role_str=="teacher"){
+                //批阅记录
+                if(name.rows.length > 0){
+                    $(".tdiv2").show();
+                }
+
+            }else if (role_str=="dept_teacher"){
+
+                if(name.rows.length > 0){
+                    $(".tdiv2").show();
+                }
+                if (a==13){
+                    $(".tdiv1").show();
+                    $("#btn1").show();
+                    $("#btn2").show();
+                    $("#btn3").show();
+                }else if (a == 8){
+                    $(".tdiv1").show();
+                    $("#btn4").show();
+                    $("#btn3").show();
+                }
+            }
+            // var a = $("#state").val();
+            // if (a == 7 || a == 8) {
+            //     if (name.rows.length > 0) {
+            //         $(".tdiv2").show();
+            //     }
+            //     $(".tdiv1").show();
+            //     $("#btn1").show();
+            //     $("#btn2").show();
+            //     $("#btn3").show();
+            // }
 
         });
 
@@ -404,7 +467,15 @@
             $.operate.saveTab(prefix + "/sch_hxoverBh", $('#form-apply-edit').serialize());
         }
     }
-
+    function retract() {
+        var urlFlag = $("#urlFlag").val();
+        var state= $("#state").val();
+        var id= $("#ktid").val();
+        var data={"urlFlag":urlFlag,"state":state,"id":id}
+        if ($.validate.form()) {
+            $.operate.saveTab(prefix + "/over_retract", data);
+        }
+    }
 
     $(".file-download").fileinput({
         uploadUrl: ctx + 'common/upload',
