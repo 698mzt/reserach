@@ -105,20 +105,19 @@ public class SciLectureReport extends BaseEntity
     /** 科研分 */
     private String reportKeyanfen;
 
-    /** 退回状态 */
-    private String returnState;
-
+    /** 该条记录的报告对应的积分id */
+    private int repIntId;
 
     /**
      * get---set方法
      * */
 
-    public String getReturnState() {
-        return returnState;
+    public int getRepIntId() {
+        return repIntId;
     }
 
-    public void setReturnState(String returnState) {
-        this.returnState = returnState;
+    public void setRepIntId(int repIntId) {
+        this.repIntId = repIntId;
     }
 
     public Integer getActualNumber() {

@@ -85,6 +85,7 @@
     var xyproFlag = [[${@permission.hasPermi('system:report:xyprocess')}]];  // 学院批阅
     var tuihuiFlag = [[${@permission.hasPermi('system:report:tuihui')}]];  // 退回  == 》 教研室负责人的特权
     var chexiaoFlag = [[${@permission.hasPermi('system:report:chexiao')}]];  // 撤销 == 》 学院负责人的特权
+    var zgqxtuihuiFlag = [[${@permission.hasPermi('system:report:zgqxtuihui')}]];  // 驳回  == 》 科研室负责人的特权
 
     function getUrl(tableId) {
         var year = localStorage.getItem("year");
@@ -171,6 +172,11 @@
                     title: '参与人数'
                 },
                 {
+                    field: 'reportKeyanfen',
+                    align: 'center',
+                    title: '科研分'
+                },
+                {
                     field: 'state',
                     title: '申请状态',
                     align: 'center',
@@ -205,23 +211,27 @@
                             // actions.push('<a  class="btn btn-success btn-xs ' + proFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>批阅</a> ');
 
                         }else if (row.state == 6){
-                                actions.push('<a  class="btn btn-success btn-xs ' + xyproFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/xypro' + '\')"><i class="fa fa-edit"></i>学院批阅</a> ');
-                                actions.push('<a  class="btn btn-success btn-xs ' + tuihuiFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/tuihui' + '\')"><i class="fa fa-edit"></i>撤销</a> ');
+                                actions.push('<a  class="btn btn-success btn-xs ' + xyproFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/xypro' + '\')"><i class="fa fa-edit"></i>批阅</a> ');
+                                actions.push('<a  class="btn btn-danger btn-xs ' + tuihuiFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/tuihui' + '\')"><i class="fa fa-edit"></i>撤销</a> ');
 
                         } else if ((row.state == 3 || row.state == 5 || row.state == 7) && row.userId == row.uid) {
                             actions.push('<a   class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> <i class="fa fa-edit"></i>更新</a> ');
                         }
                         else if (row.state == 2) {
                             actions.push('<a  class="btn btn-success btn-xs ' + checkFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/check' + '\')"><i class="fa fa-edit"></i>核查</a> ');
-                            actions.push('<a  class="btn btn-success btn-xs ' + chexiaoFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/xytuihui' + '\')"><i class="fa fa-edit"></i>撤销</a> ');
+                            actions.push('<a  class="btn btn-danger btn-xs ' + chexiaoFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/xytuihui' + '\')"><i class="fa fa-edit"></i>撤销</a> ');
                             // actions.push('<a  class="btn btn-success btn-xs ' + checkFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/check' + '\')"><i class="fa fa-edit"></i>核查</a> ');
                         }
-                        else if (row.state == 4) {
+                        // else if (row.state == 4) {
+                        else if (row.state != 1) {
                             // if (row.userId == row.uid) {
                             //     actions.push('<a  class="btn btn-success btn-xs ' + jiexiangFlag + '" href="javascript:void(0)" onclick="$.operate.overTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>申请结项</a> ');
                             // }
 
                             actions.push('<a  class="btn btn-success btn-xs ' + infoFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/info' + '\')"><i class="fa fa-edit"></i>查看</a> ');
+                            if (row.state == 4){
+                                actions.push('<a  class="btn btn-danger btn-xs ' + zgqxtuihuiFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/zgqxtuihui' + '\')"><i class="fa fa-edit"></i>撤销</a> ');
+                            }
                         }
                         return actions.join('');
                     }
