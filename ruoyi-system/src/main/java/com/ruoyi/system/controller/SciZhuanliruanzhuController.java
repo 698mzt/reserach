@@ -110,19 +110,7 @@ public class SciZhuanliruanzhuController extends BaseController
 
 
 
-//        if (user != null && user.getDept() != null) {
-//            Long parentDeptId = user.getDept().getParentId();
-//            System.out.println("Parent Department ID: " + parentDeptId);
-//        } else {
-//            System.out.println("User or Department information is not available.");
-//        }
-//        SysUser user = getSysUser();
-//        System.out.println(user);  // 检查整个对象
-//        System.out.println(user.getAncestors());  // 检查 parentId
 
-//        System.out.println(getSysUser().getDeptId());
-//
-//        // 输出 sciZhuanliruanzhu 对象到控制台
         System.out.println(sciZhuanliruanzhu);
 
         List<SciZhuanliruanzhu> list = new ArrayList<>();
@@ -147,47 +135,7 @@ public class SciZhuanliruanzhuController extends BaseController
                 break;
         }
 
-//        List<SciHorizontalApply> list1 = new ArrayList<>();
-//        list1 = sciHorizontalApplyService.selectOtherListByUid(sciHorizontalApply);
-//        list.addAll(list1);
 
-//        // 去重操作
-//        List<SciZhuanliruanzhu> distinctList = list.stream()
-//                .collect(Collectors.collectingAndThen(
-//                        Collectors.toMap(
-//                                SciZhuanliruanzhu::getTopName,  // 假设 getTopName 是 SciZhuanliruanzhu 类的方法
-//                                Function.identity(),
-//                                (existing, replacement) -> existing
-//                        ),
-//                        map -> new ArrayList<>(map.values())
-//                ));
-//
-//        if(!distinctList.isEmpty()) {
-//            for (SciZhuanliruanzhu apply : distinctList) {
-//                List<SciZhuanliruanzhu> score = sciZhuanliruanzhuMapper.selectScoreHistoryById(apply.getId());
-//                ArrayList<Integer> allscore = new ArrayList<>();
-//                for (SciZhuanliruanzhu score1 : score) {
-//
-//
-////                    if (apply.getUserId().equals(score1.getUserId()) && apply.getUserId().equals(getUserId().toString()))
-//                        allscore.add(Integer.parseInt(score1.getChangeValue()));
-////                    if (apply.getFirstPersonId().equals(score1.getUserId()) && apply.getFirstPersonId().equals(getUserId().toString()))
-////                        allscore.add(Integer.parseInt(score1.getChangeValue()));
-////                    else if (apply.getSecondPersonId().equals(score1.getUserId()) && apply.getSecondPersonId().equals(getUserId().toString())) {
-////                        allscore.add(Integer.parseInt(score1.getChangeValue()));
-////                    } else if (apply.getThirdPersonId().equals(score1.getUserId()) && apply.getThirdPersonId().equals(getUserId().toString())) {
-////                        allscore.add(Integer.parseInt(score1.getChangeValue()));
-////                    } else if (apply.getFourthPersonId().equals(score1.getUserId()) && apply.getFourthPersonId().equals(getUserId().toString())) {
-////                        allscore.add(Integer.parseInt(score1.getChangeValue()));
-////                    }
-//                }
-//                Integer count = 0;
-//                for (int i : allscore) {
-//                    count += i;
-//                }
-//                apply.setScore(count.toString());
-//            }
-//        }
 
 
         return getDataTable(list);
@@ -210,6 +158,8 @@ public class SciZhuanliruanzhuController extends BaseController
     /**
      * 新增专利软著
      */
+
+    //get请求一般是加载表单页面，而不是处理表单提交
     @GetMapping("/add")
     public String add( ModelMap mmap)
     {
@@ -298,16 +248,6 @@ public class SciZhuanliruanzhuController extends BaseController
     }
 
 
-//    @RequiresPermissions("system:apply:edit")
-//    @PostMapping("/bhyy/{kid}")
-//    @ResponseBody
-//    public TableDataInfo bhyy(@PathVariable("kid")Integer kid)
-//    {
-//        SciHorizontalPiyue ob = new SciHorizontalPiyue();
-//        ob.setHxktId(kid);
-//        List<SciHorizontalPiyue> list = piyueService.selectSciHorizontalPiyueList(ob);
-//        return getDataTable(list);
-//    }
 
 
 
@@ -317,74 +257,10 @@ public class SciZhuanliruanzhuController extends BaseController
     @ResponseBody
     public AjaxResult hxPass(String id, String urlFlag, String amount, SciProjectScoreCfg sciProjectScoreCfg)
     {
-        //        初始化一个新对象，存储最大值和最小值
-//        SciProjectScoreCfg sciProjectScoreCfg1 = new SciProjectScoreCfg();
-//
-////        查询积分的所有范围
-//        List<SciProjectScoreCfg> list= sciProjectScoreCfgMapper.selectSciProjectScoreCfgList(sciProjectScoreCfg);
-//
-//        Integer applyId;
-//        Integer Damount;
-//        try {
-//            Damount = Integer.valueOf(amount);
-//        } catch (NumberFormatException e) {
-//            return AjaxResult.error("金额无效");
-//        }
-//
-////        查询项目金额在积分的哪个范围内，并将范围记录到sciProjectScoreCfg1中
-//        for (SciProjectScoreCfg scoreCfg : list) {
-//            if (Damount >= Integer.valueOf(scoreCfg.getFundsMin()) && Damount < Integer.valueOf(scoreCfg.getFundsMax())) {
-//                sciProjectScoreCfg1.setFundsMin(scoreCfg.getFundsMin());
-//                sciProjectScoreCfg1.setFundsMax(scoreCfg.getFundsMax());
-//                break;
-//            }
-//        }
-//
-////       查询范围为 min-max 的分数
-//        List<SciProjectScoreCfg> score_list = sciProjectScoreCfgMapper.selectSciProjectScoreCfgList(sciProjectScoreCfg1);
-//
-//        //        查询该条数据的负责人id
-//        SciZhuanliruanzhu sciZhuanliruanzhu = sciZhuanliruanzhuService.selectSciZhuanliruanzhuById(Integer.valueOf(id));
-//        applyId = sciZhuanliruanzhu.getId();
-//
-////        将负责人和积分顺序存储到列表中传到实现类中
-//        List score = new ArrayList();
-//        List persion = new ArrayList();
-//        for (SciProjectScoreCfg scoreCfg : score_list) {
-//            score.add(scoreCfg.getStartScore());
-//        }
-//
-//
-//        if (sciZhuanliruanzhu.getUid() != null && sciZhuanliruanzhu.getUid() != 0L) {
-//            persion.add(sciZhuanliruanzhu.getUid().toString());  // 如果需要添加字符串形式的 UID
-//        }
 
-
-//        if (sciZhuanliruanzhu.getUid() != null && !sciZhuanliruanzhu.getUid().isEmpty()) {
-//            persion.add(sciZhuanliruanzhu.getUid());
-//        }
-//        if (sciZhuanliruanzhu.getSecondPersonId() != null && !sciZhuanliruanzhu.getSecondPersonId().isEmpty()) {
-//            persion.add(sciZhuanliruanzhu.getSecondPersonId());
-//        }
-//        if (sciZhuanliruanzhu.getThirdPersonId() != null && !sciZhuanliruanzhu.getThirdPersonId().isEmpty()) {
-//            persion.add(sciZhuanliruanzhu.getThirdPersonId());
-//        }
-//        if (sciZhuanliruanzhu.getFourthPersonId() != null && !sciZhuanliruanzhu.getFourthPersonId().isEmpty()) {
-//            persion.add(sciZhuanliruanzhu.getFourthPersonId());
-//        }
-
-
-//        return toAjax(sciZhuanliruanzhuService.hxPass(id,getUserId(),urlFlag,score,persion,applyId));
         return toAjax(sciZhuanliruanzhuService.hxPass(id,getUserId(),urlFlag));
     }
-//    @RequiresPermissions(value={"system:zhuanliruanzhu:hecha","system:zhuanliruanzhu:process"},logical= Logical.OR)
-//    @Log(title = "结项专利软著审核通过", businessType = BusinessType.UPDATE)
-//    @PostMapping( "/hxover")
-//    @ResponseBody
-//    public AjaxResult hxover(String id,String urlFlag)
-//    {
-//        return toAjax(sciZhuanliruanzhuService.hxover(id,getUserId(),urlFlag));
-//    }
+
 
     @RequiresPermissions(value={"system:zhuanliruanzhu:hecha","system:zhuanliruanzhu:process","system:zhuanliruanzhu:chayue"},logical= Logical.OR)
     @Log(title = "专利软著被驳回", businessType = BusinessType.UPDATE)
@@ -395,39 +271,6 @@ public class SciZhuanliruanzhuController extends BaseController
 
         return toAjax(sciZhuanliruanzhuService.hxBh(id,getUserId(),remark,urlFlag));
     }
-//    @RequiresPermissions(value={"system:zhuanliruanzhu:hecha","system:zhuanliruanzhu:process"},logical= Logical.OR)
-//    @Log(title = "结项专利软著被驳回", businessType = BusinessType.UPDATE)
-//    @PostMapping( "/hxoverBh")
-//    @ResponseBody
-//    public AjaxResult hxoverBh(String id,String remark,String urlFlag)
-//    {
-//        return toAjax(sciZhuanliruanzhuService.hxoverBh(id,getUserId(),remark,urlFlag));
-//    }
-
-
-
-
-//    /**
-//     * 学院审核人审核通过
-//     */
-//    @RequiresPermissions("system:zhuanliruanzhu:collegeAudit")
-//    @Log(title = "专利软著学院审核通过", businessType = BusinessType.UPDATE)
-//    @PostMapping("/collegeAudit")
-//    @ResponseBody
-//    public AjaxResult collegeAudit(String id, String urlFlag) {
-//        return toAjax(sciZhuanliruanzhuService.collegeAudit(id, getUserId(), urlFlag));
-//    }
-//
-//    /**
-//     * 学院审核人驳回
-//     */
-//    @RequiresPermissions("system:zhuanliruanzhu:collegeAudit")
-//    @Log(title = "专利软著学院驳回", businessType = BusinessType.UPDATE)
-//    @PostMapping("/collegeBh")
-//    @ResponseBody
-//    public AjaxResult collegeBh(String id, String remark, String urlFlag) {
-//        return toAjax(sciZhuanliruanzhuService.collegeBh(id, getUserId(), remark, urlFlag));
-//    }
 
 
 

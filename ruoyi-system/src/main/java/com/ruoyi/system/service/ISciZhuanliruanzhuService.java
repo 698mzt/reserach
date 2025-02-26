@@ -64,6 +64,11 @@ public interface ISciZhuanliruanzhuService
 
 
     int hxPass(String id,Long uid,String urlFlag);
+
+    int updateJifen(Long id, int jifen);
+
+
+
 //    int hxPass(String id,Long uid,String urlFlag,List score,List persion,Integer applyId);
 //    int hxover(String id,Long uid,String urlFlag);
 

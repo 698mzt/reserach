@@ -17,6 +17,16 @@ public class SciZhuanliruanzhu extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
 
+    public String getWenjian() {
+        return wenjian;
+    }
+
+    public void setWenjian(String wenjian) {
+        this.wenjian = wenjian;
+    }
+
+    private String wenjian;
+
 
     public Long getParentId() {
         return parentId;
@@ -62,15 +72,16 @@ public class SciZhuanliruanzhu extends BaseEntity
     @Excel(name = "项目金额")
     private String amount;
 
-    public String getChangeValue() {
-        return changeValue;
+
+    public String getJifen() {
+        return jifen;
     }
 
-    public void setChangeValue(String changeValue) {
-        this.changeValue = changeValue;
+    public void setJifen(String jifen) {
+        this.jifen = jifen;
     }
 
-    private String changeValue;
+    private String jifen;
 
 
     public String getYear() {
@@ -389,11 +400,12 @@ public class SciZhuanliruanzhu extends BaseEntity
     @Override
     public String toString() {
         return "SciZhuanliruanzhu{" +
-                "parentId=" + parentId +
+                "wenjian='" + wenjian + '\'' +
+                ", parentId=" + parentId +
                 ", deptId=" + deptId +
                 ", role='" + role + '\'' +
                 ", amount='" + amount + '\'' +
-                ", changeValue='" + changeValue + '\'' +
+                ", jifen='" + jifen + '\'' +
                 ", year='" + year + '\'' +
                 ", urlFlag='" + urlFlag + '\'' +
                 ", yname='" + yname + '\'' +
