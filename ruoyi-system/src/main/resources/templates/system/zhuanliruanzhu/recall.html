@@ -207,6 +207,7 @@
     }
 
     function chakan(){
+        event.preventDefault();          // 阻止默认行为
         var c = $("#wenjian").val();
         $.modal.openTab("查看合同" ,c );
     }
