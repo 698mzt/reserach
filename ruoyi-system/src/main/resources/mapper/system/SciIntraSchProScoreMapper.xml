@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.SciIntraSchProScoreMapper">
+    <resultMap type="SciIntraSchoolScore" id="SciIntraSchoolScoreProResult">
+        <result property="sciIntraSchid"    column="sciIntraSch_Id"/>
+        <result property="sciIntraSchResponTier"    column="sciIntraSchResponTier"    />
+        <result property="earnedPoints"    column="earned_Points"    />
+        <result property="userid"    column="userid"    />
+    </resultMap>
+    <resultMap type="SciProjectScoreCfg" id="SciProjectScoreCfgProResult">
+        <result property="fundsMax"    column="funds_max"/>
+        <result property="fundsMin"    column="funds_min"    />
+        <result property="userOrder"    column="user_order"    />
+        <result property="totalScore"    column="total_score"    />
+        <result property="startScore"    column="start_score"    />
+        <result property="endScore"    column="end_score"    />
+        <result property="updateUser"    column="update_user"    />
+        <result property="projectType"    column="project_type"    />
+    </resultMap>
+
+    <update id="set_SchPro_score" parameterType="SciIntraSchoolScore" >
+        update  sci_IntraSchPro_score
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="score != null">earned_Points = #{score},</if>
+        </trim>
+        where sciIntraSch_Id = #{id} and userid = #{useridd}
+    </update>
+
+    <update id="set_SchPro_JT_score" parameterType="SciIntraSchoolScore" >
+        update  sci_IntraSchPro_score
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="score != null">earnedJT_Points = #{score},</if>
+        </trim>
+        where sciIntraSch_Id = #{id} and userid = #{useridd}
+    </update>
+
+<!--    教师添加一个新课题的时候就往数据库里面写入一份数据-->
+    <insert id="set_SchPro_score_noScore" parameterType="SciIntraSchoolScore" >
+        insert into sci_IntraSchPro_score
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="sciIntraSchid != null and sciIntraSchid != ''">sciIntraSch_Id,</if>
+            <if test="sciIntraSchResponTier != null and sciIntraSchResponTier != ''">sciIntraSchResponTier,</if>
+            <if test="earnedPoints != null and earnedPoints != ''">earned_Points,</if>
+            <if test="userid != null and userid != ''">userid,</if>
+            <if test="earnedJTPoints != null and earnedJTPoints != ''">earnedJT_Points,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="sciIntraSchid != null and sciIntraSchid != ''">#{sciIntraSchid},</if>
+            <if test="sciIntraSchResponTier != null and sciIntraSchResponTier != ''">#{sciIntraSchResponTier},</if>
+            <if test="earnedPoints != null and earnedPoints != ''">#{earnedPoints},</if>
+            <if test="userid != null and userid != ''">#{userid},</if>
+            <if test="earnedJTPoints != null and earnedJTPoints != ''">#{earnedJTPoints},</if>
+        </trim>
+    </insert>
+<!--&lt;-->
+    <select id="getUserScoreList"  resultMap="SciProjectScoreCfgProResult">
+        SELECT
+        *
+        FROM
+        sci_project_score_cfg
+        WHERE
+        ( #{amount} >= funds_min AND #{amount} &lt; funds_max )
+        OR (
+        funds_min > funds_max
+        AND ( #{amount} >= funds_min AND funds_max = 0 ))
+        ORDER BY
+        user_order;
+    </select>
+
+    <select id="getScoreById" >
+        SELECT
+            CASE
+                WHEN earned_Points IS NULL THEN 0
+                ELSE earned_Points
+            END AS earned_Points
+        FROM
+            sci_IntraSchPro_score
+        WHERE
+            sciIntraSch_Id = #{id}
+          AND userid =#{uid}
+    </select>
+
+    <update id="update_SchPro_score" >
+        update sci_IntraSchPro_score
+        set earned_Points=0
+        where sciIntraSch_Id = #{sciIntraSch_Id} and userid = #{userid}
+    </update>
+</mapper>
