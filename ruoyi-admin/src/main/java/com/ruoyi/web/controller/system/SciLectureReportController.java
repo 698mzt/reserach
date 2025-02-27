@@ -7,7 +7,9 @@ import java.util.List;
 import com.ruoyi.common.core.domain.entity.SysRole;
 import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.common.utils.ShiroUtils;
+import com.ruoyi.system.domain.SciLectureReportIntegral;
 import com.ruoyi.system.domain.SciLectureReportOpinion;
+import com.ruoyi.system.service.ISciLectureReportIntegralService;
 import com.ruoyi.system.service.ISciLectureReportOpinionService;
 import com.ruoyi.system.service.ISysUserService;
 import io.swagger.models.auth.In;
@@ -42,12 +44,18 @@ public class SciLectureReportController extends BaseController
 {
     private String prefix = "system/report";
 
+    // 讲座报告Service接口
     @Autowired
     private ISciLectureReportService sciLectureReportService;
+    // 用户Service接口
     @Autowired
     private ISysUserService userService;
+    // 讲座报告审核意见的Service接口
     @Autowired
     private ISciLectureReportOpinionService opinion;
+    // 讲座报告积分的Service接口
+    @Autowired
+    private ISciLectureReportIntegralService sciLectureReportIntegralService;
 
     @RequiresPermissions("system:report:view")
     @GetMapping()
@@ -80,12 +88,36 @@ public class SciLectureReportController extends BaseController
             }else if (r.getRoleKey().equals("admin")){
                 role="admin";
                 break;
+            }else if (r.getRoleKey().equals("dept_teacher")){
+                role="dept_teacher";
+                break;
             }
         }
         sciLectureReport.setRole(role);
         List<SciLectureReport> list = new ArrayList<>();
-        sciLectureReport.setStatelist(Arrays.asList(1, 2, 3, 5,4,6,7)); // 查询时状态设置
+//        sciLectureReport.setStatelist(Arrays.asList(1, 2, 3, 5,4,6,7)); // 查询时状态设置
+//        list = sciLectureReportService.selectSciLectureReportList(sciLectureReport);
+
+        // ====》 调整
+        // 科研室
+        if(role.equals("sci_tesearch")){
+            sciLectureReport.setStatelist(Arrays.asList(2,5,4)); // 查询时状态设置
+        }
+        // 教研室
+        else if(role.equals("research")){
+            sciLectureReport.setStatelist(Arrays.asList(1,6, 3, 4)); // 查询时状态设置
+//            sciLectureReport.setStatelist(Arrays.asList(1, 2, 3, 5,4,6,7)); // 查询时状态设置
+        }
+        // 学院
+        else if(role.equals("dept_teacher")){
+            sciLectureReport.setStatelist(Arrays.asList(2,4,6,7)); // 查询时状态设置
+        }
+        // 普通用户以及管理员
+        else{
+            sciLectureReport.setStatelist(Arrays.asList(1, 2, 3, 5,4,6,7)); // 查询时状态设置
+        }
         list = sciLectureReportService.selectSciLectureReportList(sciLectureReport);
+        // === 》 结束
 
 //        // 科研室
 //        if(role.equals("sci_tesearch")){
@@ -184,7 +216,7 @@ public class SciLectureReportController extends BaseController
      * 页面跳转
      */
     @GetMapping("/add")
-    public String add(ModelMap mmap)
+    public String add(ModelMap mmap,SciLectureReportIntegral sciLectureReportIntegral)
     {
         // 获取当前的用户信息
         SysUser currentUser = ShiroUtils.getSysUser();
@@ -199,6 +231,8 @@ public class SciLectureReportController extends BaseController
 //            }
 //        }
 //        mmap.put("sysUsers",userList);
+        List<SciLectureReportIntegral> reportIntegralList = sciLectureReportIntegralService.selectSciLectureReportIntegralList(sciLectureReportIntegral);
+        mmap.put("reportIntegralList",reportIntegralList);
         mmap.put("sysUsers",currentUser);
         return prefix + "/add";
     }
@@ -220,13 +254,15 @@ public class SciLectureReportController extends BaseController
      */
     @RequiresPermissions("system:report:edit")
     @GetMapping("/edit/{id}")
-    public String edit(@PathVariable("id") Integer id, ModelMap mmap)
+    public String edit(@PathVariable("id") Integer id, ModelMap mmap, SciLectureReportIntegral sciLectureReportIntegral)
     {
         // 获取当前的用户信息
         SysUser currentUser = ShiroUtils.getSysUser();
         SciLectureReport sciLectureReport = sciLectureReportService.selectSciLectureReportById(id);
 //        List<SysUser> userList =  userService.selectAllUser();
 //        mmap.put("sysUsers",userList);
+        List<SciLectureReportIntegral> reportIntegralList = sciLectureReportIntegralService.selectSciLectureReportIntegralList(sciLectureReportIntegral);
+        mmap.put("reportIntegralList",reportIntegralList);
         mmap.put("sysUsers",currentUser);
         mmap.put("sciLectureReport", sciLectureReport);
         return prefix + "/edit";

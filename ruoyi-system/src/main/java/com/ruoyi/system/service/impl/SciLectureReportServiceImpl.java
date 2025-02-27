@@ -6,7 +6,9 @@ import java.util.List;
 import java.util.Objects;
 
 import com.ruoyi.common.annotation.DataScope;
+import com.ruoyi.system.domain.SciLectureReportIntegral;
 import com.ruoyi.system.domain.SciLectureReportOpinion;
+import com.ruoyi.system.mapper.SciLectureReportIntegralMapper;
 import com.ruoyi.system.mapper.SciLectureReportOpinionMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,6 +30,9 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService
     private SciLectureReportMapper sciLectureReportMapper;
     @Autowired
     private SciLectureReportOpinionMapper opinionMapper;
+    // 讲座报告积分的Mapper接口
+    @Autowired
+    private SciLectureReportIntegralMapper reportIntegralMapper;
 
     /**
      * 查询讲座报告
@@ -220,6 +225,9 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService
             state = "6"; // 教研室通过
         }else if (urlFlag.equals("check")){
             state = "4"; // 科研室通过
+            SciLectureReport report = sciLectureReportMapper.selectSciLectureReportById(rid);
+            SciLectureReportIntegral sciLectureReportIntegral = reportIntegralMapper.selectSciLectureReportIntegralById(report.getRepIntId());
+            int kyf = sciLectureReportMapper.reportKeyanfen(rid, sciLectureReportIntegral.getIntegral());
         } else if (urlFlag.equals("xypro")) {
             state = "2"; // 学院通过
         } else {
@@ -229,6 +237,9 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService
         SciLectureReportOpinion sciLectureReportOpinion = new SciLectureReportOpinion();
         sciLectureReportOpinion.setUid(userId);
         sciLectureReportOpinion.setBaogaoId(rid); // 被批阅的报告id
+        if (remark.equals("")){
+            remark = "通过";
+        }
         sciLectureReportOpinion.setConcate(remark);
         sciLectureReportOpinion.setState("通过");
         opinionMapper.opinionadd(sciLectureReportOpinion); // 将批阅记录插入数据库
@@ -241,8 +252,9 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService
         String state;
         if (urlFlag.equals("pro") || urlFlag.equals("tuihui")){
             state = "3"; // 教研室驳回
-        }else if (urlFlag.equals("check")){
+        }else if (urlFlag.equals("check") || urlFlag.equals("zgqxtuihui")){
             state = "5"; // 科研室驳回
+            int kyf = sciLectureReportMapper.reportKeyanfen(id,"0");
         }else if(urlFlag.equals("xypro") || urlFlag.equals("xytuihui")){
             state = "7"; // 学院驳回
         }

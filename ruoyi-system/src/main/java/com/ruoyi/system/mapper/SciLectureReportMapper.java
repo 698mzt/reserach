@@ -61,6 +61,7 @@ public interface SciLectureReportMapper
     public int deleteSciLectureReportByIds(String[] ids);
 
     int criticism(@Param("id") Integer id, @Param("state") String state);
+    int reportKeyanfen(@Param("id") Integer id, @Param("keyanfen") String keyanfen);
 
 //    int SciLectureReportOverAdd(@Param("id") Integer id, @Param("actualNumber") Integer actualNumber, @Param("actualTime") String actualTime);
     int SciLectureReportOverAdd(SciLectureReport sciLectureReport);
