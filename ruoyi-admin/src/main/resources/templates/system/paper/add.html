@@ -7,60 +7,26 @@
 </head>
 <body class="white-bg">
     <div class="wrapper wrapper-content animated fadeInRight ibox-content">
-        <form class="form-horizontal m" id="form-paper-add">
-            <!--<div class="form-group">
-                <label class="col-sm-3 control-label">学院：</label>
-                <div class="col-sm-8">
-                    <input name="college" class="form-control" type="text">
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="col-sm-3 control-label">教研室：</label>
-                <div class="col-sm-8">
-                    <input name="researchRoom" class="form-control" type="text">
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="col-sm-3 control-label">工号：</label>
-                <div class="col-sm-8">
-                    <input name="employeeId" class="form-control" type="text">
-                </div>
-            </div>-->
-            <div class="form-group">
-                <label class="col-sm-3 control-label">教师姓名：</label>
-                <div class="col-sm-8">
-                    <input name="teacherName"  class="form-control"  type="text" >
-                </div>
-            </div>
-           <!-- th:value="${user.userName}"
-           <div class="form-group">
-                <label class="col-sm-3 control-label">行政职务：</label>
-                <div class="col-sm-8">
-                    <input name="administrativePosition" class="form-control" type="text">
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="col-sm-3 control-label">社会职称：</label>
-                <div class="col-sm-8">
-                    <input name="socialTitle" class="form-control" type="text">
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="col-sm-3 control-label">校内职称：</label>
-                <div class="col-sm-8">
-                    <input name="onCampusTitle" class="form-control" type="text">
-                </div>
-            </div>-->
+        <form class="form-horizontal m" id="form-paper-add" >
+
+<!--            <div class="form-group">-->
+<!--                <label class="col-sm-3 control-label">教师姓名：</label>-->
+<!--                <div class="col-sm-8">-->
+<!--                    <input name="teacherName"  class="form-control"  type="text" required  >-->
+<!--                </div>-->
+
+<!--            </div>-->
+
             <div class="form-group">
                 <label class="col-sm-3 control-label">论文名称：</label>
                 <div class="col-sm-8">
-                    <input name="paperTitle" class="form-control" type="text">
+                    <input name="paperTitle" class="form-control" type="text"required>
                 </div>
             </div>
             <div class="form-group">
                 <label class="col-sm-3 control-label">论文类别：</label>
                 <div class="col-sm-8">
-                    <select  name="topType" class="form-control" th:with="type=${@dict.getType('sci_paper_k')}" required>
+                    <select  name="paperCategory" class="form-control" th:with="type=${@dict.getType('sci_paper_k')}" required>
                         <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
                     </select>
                 </div>
@@ -68,13 +34,13 @@
             <div class="form-group">
                 <label class="col-sm-3 control-label">发表期刊：</label>
                 <div class="col-sm-8">
-                    <input name="publishedJournal" class="form-control" type="text">
+                    <input name="publishedJournal" class="form-control" type="text" required>
                 </div>
             </div>
             <div class="form-group">
                 <label class="col-sm-3 control-label">发表时间：</label>
                 <div class="input-group date">
-                    <input  id="publicationTime" name="publicationTime" class="form-control" placeholder="yyyy-MM-dd" type="text">
+                    <input autocomplete="off" id="publicationTime" name="publicationTime" class="form-control" placeholder="yyyy-MM-dd" type="text" >
                     <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
                 </div>
             </div>
@@ -131,20 +97,31 @@
             <div class="form-group">
                 <label class="col-sm-3 control-label">排名：</label>
                 <div class="col-sm-8">
-                    <input name="paperRanking" class="form-control" type="text">
+                    <select  name="paperRanking" id="paperRanking" class="form-control" th:with="type=${@dict.getType('sci_paper_qwer')}" required>
+                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
+                    </select>
                 </div>
             </div>
+<!--            <div class="form-group">-->
+<!--                <label class="col-sm-3 control-label">科研分：</label>-->
+<!--                <div class="col-sm-8">-->
+<!--                    <input name="researchScore" class="form-control" type="text" required>-->
+<!--                </div>-->
+<!--            </div>-->
             <div class="form-group">
-                <label class="col-sm-3 control-label">科研分：</label>
+                <label class="col-sm-3 control-label">论文文件：</label>
                 <div class="col-sm-8">
-                    <input name="researchScore" class="form-control" type="text">
+                    <input type="hidden" name="text_paper">
+                    <div class="file-loading">
+                        <input class="form-control file-upload" id="text_paper" name="text_paper" type="file" >
+                    </div>
                 </div>
             </div>
             <div class="form-group">
                 <label class="col-sm-3 control-label">备注：</label>
                 <div class="col-sm-8">
-                    <input name="remarks" class="form-control" type="text">
-                    <input type="hidden" class="form-control" name="remarks">
+                    <input name="remarks" class="form-control" type="text" required>
+                    <input type="hidden" class="form-control" name="remarks" >
                     <div class="summernote" id="remarks"></div>
                 </div>
             </div>
@@ -175,13 +152,23 @@
             }
         }
 
-        $(document).ready(function() {
-            $('#publicationTime').datepicker({
-                format: 'yyyy-mm-dd',
-                minView: "month",
-                autoclose: true
-            });
+        $(".file-upload").fileinput({
+            uploadUrl: ctx + 'common/upload',
+            maxFileCount: 1,
+            autoReplace: true,
+            allowedFileExtensions: ["pdf"]
+        }).on('fileuploaded', function (event, data, previewId, index) {
+            $("input[name='" + event.currentTarget.id + "']").val(data.response.url)
+        }).on('fileremoved', function (event, id, index) {
+            $("input[name='" + event.currentTarget.id + "']").val('')
+        })
+
+        $("input[name='publicationTime']").datetimepicker({
+            format: "yyyy-mm-dd",
+            minView: "month",
+            autoclose: true
         });
+
     </script>
 </body>
 </html>

@@ -95,12 +95,12 @@
                 <a class="btn btn-success" onclick="$.operate.addTab()" shiro:hasPermission="system:paper:add">
                     <i class="fa fa-plus"></i> 添加
                 </a>
-                <a class="btn btn-primary single disabled" onclick="$.operate.editTab()" shiro:hasPermission="system:paper:edit">
-                    <i class="fa fa-edit"></i> 修改
-                </a>
-                <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()" shiro:hasPermission="system:paper:remove">
-                    <i class="fa fa-remove"></i> 删除
-                </a>
+<!--                <a class="btn btn-primary single disabled" onclick="$.operate.editTab()" shiro:hasPermission="system:paper:edit">-->
+<!--                    <i class="fa fa-edit"></i> 修改-->
+<!--                </a>-->
+<!--                <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()" shiro:hasPermission="system:paper:remove">-->
+<!--                    <i class="fa fa-remove"></i> 删除-->
+<!--                </a>-->
                 <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:paper:export">
                     <i class="fa fa-download"></i> 导出
                 </a>
@@ -114,6 +114,18 @@
     <script th:inline="javascript">
         var editFlag = [[${@permission.hasPermi('system:paper:edit')}]];
         var removeFlag = [[${@permission.hasPermi('system:paper:remove')}]];
+        var editInfo = [[${@permission.hasPermi('system:paper:info')}]];
+        var revokeInfo = [[${@permission.hasPermi('system:paper:revoke')}]];
+        var XYPYFlag = [[${@permission.hasPermi('system:paper:xypy')}]];
+        var KYPYFlag = [[${@permission.hasPermi('system:paper:kypy')}]];
+
+        var proFlag = [[${@permission.hasPermi('system:paper:process')}]];
+        var XyRevoke = [[${@permission.hasPermi('system:paper:xyrevoke')}]];
+        var KyRevoke = [[${@permission.hasPermi('system:paper:kyrevoke')}]];
+        var QWERDates = [[${@dict.getType('sci_paper_qwer')}]];
+
+        var PaperDates = [[${@dict.getType('sci_paper_ar')}]];
+        var KDates = [[${@dict.getType('sci_paper_k')}]];
 
         var prefix = ctx + "system/paper";
 
@@ -122,15 +134,16 @@
             return prefix+"/list/?year="+year;
         }
         function initTable(options) {
+
             options.url = getUrl();
             $.table.init(options);
         }
 
         $(function() {
-
             var options = {
-                url: prefix + "/list",
+                // url:getUrl($('table').attr('id')),
                 createUrl: prefix + "/add",
+                detailUrl: prefix + "/detail/{id}",
                 updateUrl: prefix + "/edit/{id}",
                 removeUrl: prefix + "/remove",
                 exportUrl: prefix + "/export",
@@ -145,92 +158,174 @@
                 },
                 {
                     field: 'college',
-                    title: '学院'
+                    title: '学院',
                 },
-                {
-                    field: 'researchRoom',
-                    title: '教研室'
-                },
+                    {
+                        field: ' dname',
+                        title: '专业',
+                        visible: false
+                    },
+                // {
+                //     field: 'researchRoom',
+                //     title: '教研室',
+                // },
                 {
                     field: 'employeeId',
-                    title: '工号'
+                    title: '工号',
+                    visible: false
                 },
                 {
                     field: 'teacherName',
-                    title: '教师姓名'
+                    title: '教师姓名',
+                    align: 'center',
                 },
                 {
                     field: 'administrativePosition',
-                    title: '行政职务'
+                    title: '行政职务',
+                    visible: false
                 },
                 {
                     field: 'socialTitle',
-                    title: '社会职称'
+                    title: '社会职称',
+                    visible: false
                 },
                 {
                     field: 'onCampusTitle',
-                    title: '校内职称'
+                    title: '校内职称',
+                    align: 'center',
+                    visible: false
                 },
                 {
                     field: 'authorType',
-                    title: '作者类型'
+                    title: '作者类型',
+                    visible: false
                 },
                 {
                     field: 'paperTitle',
-                    title: '论文名称'
+                    title: '论文名称',
+                    align: 'center',
                 },
                 {
                     field: 'paperCategory',
-                    title: '论文类别'
+                    title: '论文类别',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                        console.log( $.table.selectDictLabels(KDates, value))
+                        return $.table.selectDictLabel(KDates, value);
+                    }
                 },
                 {
                     field: 'publishedJournal',
-                    title: '发表期刊'
+                    title: '发表期刊',
+                    align: 'center',
                 },
                 {
                     field: 'inclusionStatus',
-                    title: '收录情况'
+                    title: '收录情况',
+                    align: 'center',
                 },
                 {
                     field: 'publicationTime',
-                    title: '发表时间'
+                    title: '发表时间',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                        var date = new Date(value);
+                        var year = date.getFullYear();
+                        var month = (date.getMonth() + 1).toString().padStart(2, '0'); // 月份从0开始，所以要加1
+                        var day = date.getDate().toString().padStart(2, '0');
+                        return year + '-' + month + '-' + day;
+                    }
                 },
                 {
                     field: 'isIndustryCollaborative',
-                    title: '是否与行业联合发表'
+                    title: '是否与行业联合发表',
+                    align: 'center',
                 },
                 {
                     field: 'isLocalCollaborative',
-                    title: '是否与地方联合发表'
+                    title: '是否与地方联合发表',
+                    align: 'center',
                 },
                 {
                     field: 'isInternationalCollaborative',
-                    title: '是否与国际联合发表'
+                    title: '是否与国际联合发表',
+                    align: 'center',
                 },
                 {
                     field: 'isCrossDiscipline',
-                    title: '是否是跨学科论文'
+                    title: '是否是跨学科论文',
+                    align: 'center',
                 },
                 {
                     field: 'paperRanking',
-                    title: '排名'
+                    title: '项目负责人',
+                    formatter: function(value, row, index) {
+                        console.log( $.table.selectDictLabels(QWERDates, value))
+                        return $.table.selectDictLabel(QWERDates, value);
+                    }
                 },
                 {
                     field: 'researchScore',
                     title: '科研分'
                 },
+                // {
+                //     field: 'remarks',
+                //     title: '备注'
+                // },
                 {
-                    field: 'remarks',
-                    title: '备注'
+                    field: 'state',
+                    title: '申请状态',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                         return $.table.selectDictLabel(PaperDates, value);
+                    }
                 },
                 {
                     title: '操作',
                     align: 'center',
                     formatter: function(value, row, index) {
-                        // console.log("你好:",row)
+                        console.log("row.roleId:",row.roleId)
+                        console.log("row.rolekey:",row.rolekey)
+
+                        // console.log("row.state:",row.state)
+                         console.log("row.userId:",row.userId) // 角色自己ID
+                         console.log("row.uid:",row.uid) //登录人的ID
+
                         var actions = [];
-                        actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>编辑</a> ');
-                        actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-remove"></i>删除</a>');
+                        if (row.state == 1) { // 待处理
+                            if (row.userId == row.uid) {
+                                actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>编辑</a>');
+                                actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-remove"></i>删除</a>');
+                            }
+                            actions.push('<a class="btn btn-success btn-xs ' + proFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro\')"><i class="fa fa-edit"></i>批阅</a>');
+                        } else if (row.state == 2) { // 教研室通过
+                            actions.push('<a  class="btn btn-danger btn-xs ' + revokeInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/proth\')"><i class="fa fa-edit"></i>撤回</a> ');
+                            actions.push('<a class="btn btn-success btn-xs ' + XYPYFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/xytg\')"><i class="fa fa-edit"></i>核查</a>');
+                            if (row.userId == row.uid) {
+                                actions.push('<a class="btn btn-success btn-xs ' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan\')"><i class="fa fa-edit"></i>查看</a>');
+                            }
+                        } else if (row.state == 3 ||row.state == 7||row.state == 5) { //退回
+                            actions.push('<a class="btn btn-success btn-xs ' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan\')"><i class="fa fa-edit"></i>查看</a>');
+                            if (row.userId == row.uid) {
+                                actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>更新</a>');
+                            }
+                        } else if (row.state == 4) { // 学院通过
+                            actions.push('<a  class="btn btn-danger btn-xs ' + XyRevoke + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/xyth\')"><i class="fa fa-edit"></i>撤回</a> ');
+                            actions.push('<a class="btn btn-success btn-xs ' + KYPYFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/kytg\')"><i class="fa fa-edit"></i>核查批阅</a>');
+                            if (row.userId == row.uid) {
+                                actions.push('<a class="btn btn-success btn-xs ' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan\')"><i class="fa fa-edit"></i>查看</a>');
+                            }
+                        }  else if (row.state == 6) { // 科研处通过
+                            actions.push('<a class="btn btn-success btn-xs ' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan\')"><i class="fa fa-edit"></i>查看</a>');
+                            if (row.userId == row.uid) {
+                                actions.push('<a class="btn btn-success btn-xs ' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan\')"><i class="fa fa-edit"></i>查看</a>');
+                            }
+                        }  else if (row.state == 8) { // 完成
+                            actions.push('<a  class="btn btn-danger btn-xs ' + KyRevoke + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/kyth\')"><i class="fa fa-edit"></i>撤回</a> ');
+                            if (row.userId == row.uid) {
+                                actions.push('<a class="btn btn-success btn-xs ' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan\')"><i class="fa fa-edit"></i>查看</a>');
+                            }
+                        }
                         return actions.join('');
                     }
                 }]
