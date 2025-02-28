@@ -112,7 +112,7 @@
 
                                 <div class="btn-group-sm" id="toolbar1" role="group">
                                     <a class="btn btn-success" onclick="$.operate.addTab()" shiro:hasPermission="system:apply:add">
-                                        <i class="fa fa-plus"></i> 添加
+                                        <i class="fa fa-plus"></i> 添加1
                                     </a>
                                     <!--                <a class="btn btn-primary single disabled" onclick="$.operate.editTab()" shiro:hasPermission="system:apply:edit">-->
                                     <!--                    <i class="fa fa-edit"></i> 修改-->
@@ -204,7 +204,6 @@
     //var datas = [[${@dict.getType('sys_intraschpro_tasks')}]];
     //科研项目的状态，在sys_dict_data,sys_dict_type(横向课题状态)
     var datas = [[${@dict.getType('sys_intraschpro_tasks')}]];
-
     var prefix = ctx + "IntraSchPro";
 
     // 动态生成URL
@@ -313,7 +312,28 @@
                     formatter: function(value, row, index) {
                         return $.table.selectDictLabel(datas, value);
                     }
-                }  ,
+                },
+                {
+                    field: 'responsibilityTier',
+                    title: '责任层级',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                        return row.firstPersonId==row.uid?'第一负责人':row.secondPersonId==row.uid?'第二负责人':row.thirdPersonId==row.uid?"第三负责人":row.fourthPersonId==row.uid?"第四负责人":"不是负责人";
+                    }
+                },
+                {
+                    field: 'responsibilityTier',
+                    title: '得分',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                        console.log("row=",row)
+                        if (row.state==6){
+                            return row.firstPersonId==row.uid?row.firstPoints:row.secondPersonId==row.uid?row.secondPoints:row.thirdPersonId==row.uid?row.thirdPoints:row.fourthPersonId==row.uid?row.forthPoints:0;
+                        }else{
+                            return 0;
+                        }
+                    }
+                },
                 {
                     title: '操作',
                     align: 'center',
@@ -419,7 +439,29 @@
                     title: '申请状态',
                     align: 'center',
                     formatter: function(value, row, index) {
+                        console.log("val=",value)
+                        console.log("row.state=",row.state)
                         return $.table.selectDictLabel(datas, value);
+                    }
+                },
+                {
+                    field: 'responsibilityTier',
+                    title: '责任层级',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                        return row.firstPersonId==row.uid?'第一负责人':row.secondPersonId==row.uid?'第二负责人':row.thirdPersonId==row.uid?"第三负责人":row.fourthPersonId==row.uid?"第四负责人":"不是负责人";
+                    }
+                },
+                {
+                    field: 'responsibilityTier',
+                    title: '得分',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                        if (row.state==4){
+                            return row.firstPersonId==row.uid?row.firstPoints:row.secondPersonId==row.uid?row.secondPoints:row.thirdPersonId==row.uid?row.thirdPoints:row.fourthPersonId==row.uid?row.forthPoints:0;
+                        }else{
+                            return 0;
+                        }
                     }
                 },
                 {
@@ -427,22 +469,21 @@
                     align: 'center',
 
                     formatter: function(value, row, index) {
-                        console.log("roe=",row)
+                        //console.log("row=",row)
                         var actions = [];
-                        //这个role字段是在sql里面写死的
-                        console.log("role.role=",row.role)
-                        console.log("role.deptNamekey=",row.deptNamekey)
+                        //这个role字段是在sql里面写死
                         //教研
                         if (row.role==='research') {
                             if (row.deptNamekey==='1'){
                                 //教研的options1只用处理state=1（待教研室处理）和state=11（待学院处理）的
                                 if (row.state == '1'){
-                                    actions.push('<a  class="btn btn-success btn-xs ' + JYPY + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro' + '\')"><i class="fa fa-edit"></i>批阅</a> ');
+                                    console.log("this is reaearch 1")
+                                    actions.push('<a  class="btn btn-success btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro' + '\')"><i class="fa fa-edit"></i>批阅</a> ');
                                 }else if (row.state == '11'){
-                                    actions.push('<a  class="btn btn-danger btn-xs ' + JYPY + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro' + '\')"><i class="fa fa-edit"></i>撤回</a> ');
+                                    actions.push('<a  class="btn btn-danger btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro' + '\')"><i class="fa fa-edit"></i>撤回</a> ');
                                 }
-                            }
-
+                            }else
+                                //上面的这个else是为了保证批阅的时候没有查看
                             //自己的项目
                             if(row.userId == row.uid){
                                 if(row.state == '1') {
@@ -457,11 +498,11 @@
                                     actions.push('<a   class="btn btn-success btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>更新</a> ');
                                     //actions.push('<a   class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="submitto(\'' + row.id + '\', \'' + row.state + '\')"><i class="fa fa-edit"></i>提交</a> ');
                                 }else{
-                                    actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
+                                    actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看1</a> ');
                                 }
                             }else{
                                 //不是自己项目，审批过的
-                                actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
+                                actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看2</a> ');
                             }
                         }
                         //学院
@@ -485,28 +526,31 @@
                                 actions.push('<a  class="btn btn-success btn-xs ' + KYPY + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/hecha' + '\')"><i class="fa fa-edit"></i>批阅</a> ');
                             }else if (row.state=='4'){
                                 actions.push('<a  class="btn btn-danger btn-xs ' + KYPY + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/hecha' + '\')"><i class="fa fa-edit"></i>撤回</a> ');
-                            }
-                            //自己的项目
-                            if(row.userId == row.uid){
-                                if(row.state == '1') {
-                                    actions.push('<a   class="btn btn-success btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>更新</a> ');
-                                    actions.push('<a class="btn btn-danger btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-remove"></i>删除</a>');
-                                }
-                                //待申请结题
-                                else if (row.state == '4') {
-                                    actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.overTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>申请结项</a> ');
-                                }else if (row.state == '3'||row.state == '12'||row.state == '5'){
-                                    //被三方驳回
-                                    actions.push('<a   class="btn btn-success btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>更新</a> ');
-                                    //actions.push('<a   class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick=""submitto(\'' + row.id + '\', \'' + row.state + '\')"><i class="fa fa-edit"></i>提交</a> ');
+                            }else{
+                                //上面的这个else是为了保证批阅的时候没有查看
+                                //自己的项目
+                                if(row.userId == row.uid){
+                                    if(row.state == '1') {
+                                        actions.push('<a   class="btn btn-success btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>更新</a> ');
+                                        actions.push('<a class="btn btn-danger btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-remove"></i>删除</a>');
+                                    }
+                                    //待申请结题
+                                    else if (row.state == '4') {
+                                        actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.overTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>申请结项</a> ');
+                                    }else if (row.state == '3'||row.state == '12'||row.state == '5'){
+                                        //被三方驳回
+                                        actions.push('<a   class="btn btn-success btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>更新</a> ');
+                                        //actions.push('<a   class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick=""submitto(\'' + row.id + '\', \'' + row.state + '\')"><i class="fa fa-edit"></i>提交</a> ');
+                                    }else{
+                                        actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
+                                    }
                                 }else{
+                                    //不是自己项目，审批过的
                                     actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
                                 }
-                            }else{
-                                //不是自己项目，审批过的
-                                actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
 
                             }
+
                         }
                         //admin
                         else if (row.role==='admin'){
@@ -530,127 +574,6 @@
 
                             }
                         }
-                        //科研
-                        // if (row.role==='sci_tesearch'){
-                        //     if(row.state == '2') {
-                        //         actions.push('<a  class="btn btn-success btn-xs ' +  '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id+'/hecha' + '\')"><i class="fa fa-edit"></i>核查</a> ');
-                        //     }
-                        //     actions.push('<a  class="btn btn-success btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
-                        //     if(row.userId == row.uid){
-                        //         if (row.state == '4'){
-                        //             actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.overTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>申请结项</a> ');
-                        //             actions.push('<a  class="btn btn-success btn-xs ' +  '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id+'/hecha' + '\')"><i class="fa fa-edit"></i>核查</a> ');
-                        //         }else if (row.state=='3'||row.state=='12'||row.state=='5'){
-                        //             actions.push('<a   class="btn btn-success btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>更新</a> ');
-                        //             actions.push('<a   class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="submitto(\'' + row.id + '\')"><i class="fa fa-edit"></i>提交</a> ');
-                        //         }
-                        //
-                        //     }
-                        //     // if(row.state == '1' || row.state == '3'|| row.state == '5'){
-                        //     //     if(row.userId == row.uid){
-                        //     //         actions.push('<a class="btn btn-danger btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-remove"></i>删除</a>');
-                        //     //         actions.push('<a   class="btn btn-success btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>更新</a> ');
-                        //     //         if( row.state == '3'|| row.state == '5') {
-                        //     //             actions.push('<a   class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="submitto(\'' + row.id + '\')"><i class="fa fa-edit"></i>提交</a> ');
-                        //     //         }
-                        //     //     }else {
-                        //     //         //todo:这个查看只能查看，不能进行任何操作
-                        //     //         actions.push('<a  class="btn btn-success btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
-                        //     //     }
-                        //     // } else if(row.state=='4') {
-                        //     //     if (row.userId == row.uid) {
-                        //     //         actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.overTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>申请结项</a> ');
-                        //     //         actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan' + '\')"><i class="fa fa-edit"></i>查看</a> ');
-                        //     //     }else {
-                        //     //         //todo:这个查看只能查看，不能进行任何操作
-                        //     //         actions.push('<a  class="btn btn-success btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
-                        //     //     }
-                        //     // }else if (row.state=='2'){
-                        //     //     actions.push('<a  class="btn btn-success btn-xs ' +  '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id+'/hecha' + '\')"><i class="fa fa-edit"></i>核查</a> ');
-                        //     // }
-                        // }
-                        // else if (row.role==='teacher'){
-                        //     actions.push('<a  class="btn btn-success btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
-                        //     if (row.state == '4'){
-                        //         actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.overTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>申请结项</a> ');
-                        //     }else if (row.state == '3'|| row.state == '12'|| row.state == '5'||row.state == '9'|| row.state == '14'|| row.state == '10'){
-                        //         actions.push('<a   class="btn btn-success btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>更新</a> ');
-                        //         actions.push('<a   class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="submitto(\'' + row.id + '\')"><i class="fa fa-edit"></i>提交</a> ');
-                        //     }else if (row.state == '1'){
-                        //         actions.push('<a   class="btn btn-success btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>更新</a> ');
-                        //         actions.push('<a class="btn btn-danger btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-remove"></i>删除</a>');
-                        //
-                        //     }
-                        //     // if(row.state == '1' || row.state == '3'|| row.state == '5'){
-                        //     //     if(row.userId == row.uid){
-                        //     //         actions.push('<a class="btn btn-danger btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-remove"></i>删除</a>');
-                        //     //         actions.push('<a   class="btn btn-success btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>更新</a> ');
-                        //     //         if( row.state == '3'|| row.state == '5') {
-                        //     //             actions.push('<a   class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="submitto(\'' + row.id + '\')"><i class="fa fa-edit"></i>提交</a> ');
-                        //     //         }
-                        //     //     }else {
-                        //     //         //todo:这个查看只能查看，不能进行任何操作
-                        //     //         actions.push('<a  class="btn btn-success btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
-                        //     //     }
-                        //     // } else if(row.state=='4') {
-                        //     //     if (row.userId == row.uid) {
-                        //     //         actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.overTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>申请结项</a> ');
-                        //     //         actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan' + '\')"><i class="fa fa-edit"></i>查看</a> ');
-                        //     //     }else {
-                        //     //         //todo:这个查看只能查看，不能进行任何操作
-                        //     //         actions.push('<a  class="btn btn-success btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
-                        //     //     }
-                        //     // }else if (row.state=='2'){
-                        //     // }
-                        // }
-                        // //教研
-                        // else if (row.role==='research'){
-                        //     if (row.state=='1'){
-                        //         actions.push('<a  class="btn btn-success btn-xs ' +  '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id+'/pro' + '\')"><i class="fa fa-edit"></i>核查</a> ');
-                        //     }
-                        //     actions.push('<a  class="btn btn-success btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/pro'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
-                        //     if(row.userId == row.uid){
-                        //         if(row.state=='4') {
-                        //             actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.overTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>申请结项</a> ');
-                        //         }else if(row.state=='3'||row.state=='12'||row.state=='15'){
-                        //             actions.push('<a   class="btn btn-success btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>更新</a> ');
-                        //             actions.push('<a   class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="submitto(\'' + row.id + '\')"><i class="fa fa-edit"></i>提交</a> ');
-                        //         }
-                        //     }
-                        //
-                        //     // if(row.state == '2' || row.state == '3'|| row.state == '5'){
-                        //     //     if(row.userId == row.uid){
-                        //     //         actions.push('<a class="btn btn-danger btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-remove"></i>删除</a>');
-                        //     //         actions.push('<a   class="btn btn-success btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>更新</a> ');
-                        //     //         if( row.state == '3'|| row.state == '5') {
-                        //     //             actions.push('<a   class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="submitto(\'' + row.id + '\')"><i class="fa fa-edit"></i>提交</a> ');
-                        //     //         }
-                        //     //     }else {
-                        //     //
-                        //     //         actions.push('<a  class="btn btn-success btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
-                        //     //     }
-                        //     // } else if(row.state=='4') {
-                        //     //     if (row.userId == row.uid) {
-                        //     //         actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.overTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>申请结项</a> ');
-                        //     //         actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan' + '\')"><i class="fa fa-edit"></i>查看</a> ');
-                        //     //     }else {
-                        //     //
-                        //     //         actions.push('<a  class="btn btn-success btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
-                        //     //     }
-                        //     // }else if (row.state=='1'){
-                        //     //     actions.push('<a  class="btn btn-success btn-xs ' +  '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id+'/pro' + '\')"><i class="fa fa-edit"></i>核查</a> ');
-                        //     // }
-                        // }
-                        // else if (row.role==='admin'){
-                        //     actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
-                        // }
-                        // //学院
-                        // else if (row.role==='dept_teacher'){
-                        //     actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id +'/dept_teacher'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
-                        //     if (row.state == '11'){
-                        //         actions.push('<a  class="btn btn-success btn-xs ' +  '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id+'/dept_teacher' + '\')"><i class="fa fa-edit"></i>核查</a> ');
-                        //     }
-                        // }
                         return actions.join('');
                     }
                 }]
@@ -747,7 +670,27 @@
                     formatter: function(value, row, index) {
                         return $.table.selectDictLabel(datas, value);
                     }
-                }  ,
+                },
+                {
+                    field: 'responsibilityTier',
+                    title: '责任层级',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                        return row.firstPersonId==row.uid?'第一负责人':row.secondPersonId==row.uid?'第二负责人':row.thirdPersonId==row.uid?"第三负责人":row.fourthPersonId==row.uid?"第四负责人":"不是负责人";
+                    }
+                },
+                {
+                    field: 'responsibilityTier',
+                    title: '得分',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                        if (row.state==6){
+                            return row.firstPersonId==row.uid?row.firstPoints:row.secondPersonId==row.uid?row.secondPoints:row.thirdPersonId==row.uid?row.thirdPoints:row.fourthPersonId==row.uid?row.forthPoints:0;
+                        }else{
+                            return 0;
+                        }
+                    }
+                },
                 {
                     title: '操作',
                     align: 'center',
@@ -755,12 +698,15 @@
                         var actions = [];
                         //教研
                         if (row.role==='research') {
-                            //教研的options1只用处理state=7（待教研室处理）和state=13（待学院处理）的
-                            if (row.state == '7'){
-                                actions.push('<a  class="btn btn-success btn-xs ' + JYPY + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/JYSOVER' + '\')"><i class="fa fa-edit"></i>批阅</a> ');
-                            }else if (row.state == '13'){
-                                actions.push('<a  class="btn btn-danger btn-xs ' + JYPY + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/JYSOVER' + '\')"><i class="fa fa-edit"></i>撤回</a> ');
-                            }
+                            if (row.deptNamekey==='1'){
+                                //教研的options1只用处理state=7（待教研室处理）和state=13（待学院处理）的
+                                if (row.state == '7'){
+                                    actions.push('<a  class="btn btn-success btn-xs ' + JYPY + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/JYSOVER' + '\')"><i class="fa fa-edit"></i>批阅</a> ');
+                                }else if (row.state == '13'){
+                                    actions.push('<a  class="btn btn-danger btn-xs ' + JYPY + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/JYSOVER' + '\')"><i class="fa fa-edit"></i>撤回</a> ');
+                                }
+                            }else
+                                //上面的这个else是为了保证批阅的时候没有查看
                             //自己的项目
                             if(row.userId == row.uid){
                                 if(row.state == '7') {
@@ -801,25 +747,29 @@
                                 actions.push('<a  class="btn btn-success btn-xs ' + KYPY + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/KYCOVER' + '\')"><i class="fa fa-edit"></i>批阅</a> ');
                             }else if (row.state=='6'){
                                 actions.push('<a  class="btn btn-danger btn-xs ' + KYPY + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/KYCOVER' + '\')"><i class="fa fa-edit"></i>撤回</a> ');
-                            }
-                            //自己的项目
-                            if(row.userId == row.uid){
-                                if(row.state == '1') {
-                                    actions.push('<a   class="btn btn-success btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>更新</a> ');
-                                    actions.push('<a class="btn btn-danger btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-remove"></i>删除</a>');
-                                }
-                                else if (row.state == '9'||row.state == '10'||row.state == '14'){
-                                    //被三方驳回
-                                    actions.push('<a   class="btn btn-success btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>更新</a> ');
-                                    //actions.push('<a   class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="submitto(\'' + row.id + '\', \'' + row.state + '\')"><i class="fa fa-edit"></i>提交</a> ');
-                                }else{
-                                    actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
-                                }
                             }else{
-                                //不是自己项目，审批过的
-                                actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
+                                //上面的这个else是为了保证批阅的时候没有查看
+                                //自己的项目
+                                if(row.userId == row.uid){
+                                    if(row.state == '1') {
+                                        actions.push('<a   class="btn btn-success btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>更新</a> ');
+                                        actions.push('<a class="btn btn-danger btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-remove"></i>删除</a>');
+                                    }
+                                    else if (row.state == '9'||row.state == '10'||row.state == '14'){
+                                        //被三方驳回
+                                        actions.push('<a   class="btn btn-success btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>更新</a> ');
+                                        //actions.push('<a   class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="submitto(\'' + row.id + '\', \'' + row.state + '\')"><i class="fa fa-edit"></i>提交</a> ');
+                                    }else{
+                                        actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
+                                    }
+                                }else{
+                                    //不是自己项目，审批过的
+                                    actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
+
+                                }
 
                             }
+
                         }
                         //admin
                         else if (row.role==='admin'){
@@ -959,6 +909,31 @@
         var data={"id":id,"state":state}
         $.operate.save(prefix + "/change_sc_edit", data);
 
+    }
+
+    /**
+     * @param amount
+     * @param key 0代表开题，1代表结题
+     * @param responsibilityTier 1，2，3，4代表第几负责人,0代表不是负责人
+     */
+    function getscore_evidence(id, responsibilityTier) {
+            if (responsibilityTier === 0) {
+                resolve("未参与");
+            } else {
+                $.ajax({
+                    type: "POST",
+                    url: prefix + "/getscore_byId",
+                    contentType: "application/json",
+                    data: JSON.stringify({ 'id': id }),
+                    async: true,
+                    error: function(request) {
+                        reject("系统错误");
+                    },
+                    success: function(data) {
+                        resolve(data.score);
+                    }
+                });
+            }
     }
 </script>
 </body>

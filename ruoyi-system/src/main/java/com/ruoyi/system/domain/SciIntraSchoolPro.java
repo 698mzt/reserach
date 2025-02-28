@@ -122,6 +122,44 @@ public class SciIntraSchoolPro extends BaseEntity {
     //结项备案表
     private String overFiling;
 
+    //第一负责人获得积分
+    private String firstPoints;
+    private String secondPoints;
+    private String thirdPoints;
+    private String forthPoints;
+
+    public String getFirstPoints() {
+        return firstPoints;
+    }
+
+    public void setFirstPoints(String firstPoints) {
+        this.firstPoints = firstPoints;
+    }
+
+    public String getSecondPoints() {
+        return secondPoints;
+    }
+
+    public void setSecondPoints(String secondPoints) {
+        this.secondPoints = secondPoints;
+    }
+
+    public String getThirdPoints() {
+        return thirdPoints;
+    }
+
+    public void setThirdPoints(String thirdPoints) {
+        this.thirdPoints = thirdPoints;
+    }
+
+    public String getForthPoints() {
+        return forthPoints;
+    }
+
+    public void setForthPoints(String forthPoints) {
+        this.forthPoints = forthPoints;
+    }
+
     public String getOverContract() {
         return overContract;
     }

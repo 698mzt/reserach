@@ -23,14 +23,15 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="actualNumber"    column="actual_number"    />
         <result property="actualTime"    column="actual_time"    />
         <result property="state"    column="state"    />
-        <result property="returnState"    column="return_state"    />
+        <result property="repIntId"    column="rep_int_id"    />
     </resultMap>
 
     <sql id="selectSciLectureReportVo">
-        select #{uid} uid,id,u.user_name userName,d.dept_name dname,u.user_id,p.dept_name, s.report_time, s.report_theme, s.host_unit, s.report_place, s.report_number, s.report_subject, s.report_duration, s.report_classify,s.state,s.createtime,s.actual_number,s.actual_time,s.return_state
+        select #{uid} uid,id,u.user_name userName,d.dept_name dname,u.user_id,p.dept_name, s.report_time, s.report_theme, s.host_unit, s.report_place, s.report_number, s.report_subject, s.report_duration, i.classification report_classify,s.state,s.createtime,s.actual_number,s.actual_time,s.report_keyanfen,i.rep_int_id
         from sci_lecture_report s left join sys_user u on  s.user_id=u.user_id
                                   left join sys_dept d on u.dept_id = d.dept_id
                                   left join sys_dept p on d.parent_id =p.dept_id
+                                  left join sci_lecture_report_integral i on i.rep_int_id = s.report_classify
     </sql>
 
 <!--    讲座报告首页项目申请数据查询       原始SQL -->
@@ -64,6 +65,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </if>
         <!-- 数据范围过滤 -->
     ${params.dataScope}
+        <if test="uid != null and uid != '' ">
+            or s.user_id = #{uid}
+        </if>
     order  by createtime desc
     </select>
 
@@ -161,11 +165,18 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         update sci_lecture_report
         <trim prefix="SET" suffixOverrides=",">
             <if test="state != null">state = #{state},</if>
-            <if test="state != null">return_state = #{state},</if>
         </trim>
         where id = #{id}
     </update>
 
+    <!--    科研室审核通过时修改讲座报告的科研分-->
+    <update id="reportKeyanfen" parameterType="SciLectureReport">
+        update sci_lecture_report
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="keyanfen != null">report_keyanfen = #{keyanfen},</if>
+        </trim>
+        where id = #{id}
+    </update>
 
 <!--    删除一条数据-->
     <delete id="deleteSciLectureReportById" parameterType="Integer">

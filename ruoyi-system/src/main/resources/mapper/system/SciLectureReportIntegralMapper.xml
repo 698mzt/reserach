@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.SciLectureReportIntegralMapper">
+    
+    <resultMap type="SciLectureReportIntegral" id="SciLectureReportIntegralResult">
+        <result property="id"    column="rep_int_id"    />
+        <result property="classification"    column="classification"    />
+        <result property="integral"    column="integral"    />
+        <result property="overCreatetime"    column="over_createtime"    />
+    </resultMap>
+
+    <sql id="selectSciLectureReportIntegralVo">
+        select rep_int_id, classification, integral, over_createtime from sci_lecture_report_integral
+    </sql>
+
+    <select id="selectSciLectureReportIntegralList" parameterType="SciLectureReportIntegral" resultMap="SciLectureReportIntegralResult">
+        <include refid="selectSciLectureReportIntegralVo"/>
+        <where>  
+            <if test="classification != null  and classification != ''"> and classification = #{classification}</if>
+            <if test="integral != null  and integral != ''"> and integral = #{integral}</if>
+            <if test="overCreatetime != null "> and over_createtime = #{overCreatetime}</if>
+        </where>
+    </select>
+    
+    <select id="selectSciLectureReportIntegralById" parameterType="Integer" resultMap="SciLectureReportIntegralResult">
+        <include refid="selectSciLectureReportIntegralVo"/>
+        where rep_int_id = #{id}
+    </select>
+        
+    <insert id="insertSciLectureReportIntegral" parameterType="SciLectureReportIntegral" useGeneratedKeys="true" keyProperty="id">
+        insert into sci_lecture_report_integral
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="classification != null">classification,</if>
+            <if test="integral != null">integral,</if>
+            <if test="overCreatetime != null">over_createtime,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="classification != null">#{classification},</if>
+            <if test="integral != null">#{integral},</if>
+            <if test="overCreatetime != null">#{overCreatetime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSciLectureReportIntegral" parameterType="SciLectureReportIntegral">
+        update sci_lecture_report_integral
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="classification != null">classification = #{classification},</if>
+            <if test="integral != null">integral = #{integral},</if>
+            <if test="overCreatetime != null">over_createtime = #{overCreatetime},</if>
+        </trim>
+        where rep_int_id = #{id}
+    </update>
+
+    <delete id="deleteSciLectureReportIntegralById" parameterType="Integer">
+        delete from sci_lecture_report_integral where rep_int_id = #{id}
+    </delete>
+
+    <delete id="deleteSciLectureReportIntegralByIds" parameterType="String">
+        delete from sci_lecture_report_integral where rep_int_id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

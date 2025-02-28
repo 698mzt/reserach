@@ -9,6 +9,7 @@ import com.ruoyi.system.domain.SciIntraSchoolPro;
 import com.ruoyi.system.mapper.SciHorizontalPiyueMapper;
 import com.ruoyi.system.mapper.SciIntraSchProApplyMapper;
 import com.ruoyi.system.mapper.SciIntraSchProPiyueMapper;
+import com.ruoyi.system.mapper.SciIntraSchProScoreMapper;
 import com.ruoyi.system.service.ISciIntraSchProApplyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,7 +22,10 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
     private SciIntraSchProApplyMapper sciIntraSchProApplyMapper;
     @Autowired
     private SciIntraSchProPiyueMapper sciIntraSchProPiyueMapper;
-
+    @Autowired
+    SciIntraSchProApplyServiceImpl sciIntraSchProApplyService;
+    @Autowired
+    SciIntraSchProScoreMapper sciIntraSchProScoreService;
     @Override
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciIntraSchoolPro> sel_IntraSchPro_isOVER(SciIntraSchoolPro sciIntraSchoolPro) {
