@@ -16,6 +16,7 @@ import com.ruoyi.system.mapper.SciLectureReportMapper;
 import com.ruoyi.system.domain.SciLectureReport;
 import com.ruoyi.system.service.ISciLectureReportService;
 import com.ruoyi.common.core.text.Convert;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * 讲座报告Service业务层处理
@@ -200,8 +201,10 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService
      * @return 结果
      */
     @Override
+    @Transactional
     public int deleteSciLectureReportByIds(String ids)
     {
+        sciLectureReportMapper.deleteSciLectureReportOpinionBy(Convert.toStrArray(ids));
         return sciLectureReportMapper.deleteSciLectureReportByIds(Convert.toStrArray(ids));
     }
 
