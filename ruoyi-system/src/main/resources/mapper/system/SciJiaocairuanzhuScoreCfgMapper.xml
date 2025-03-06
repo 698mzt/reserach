@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
-PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.ruoyi.system.mapper.SciZhuanliruanzhuScoreCfgMapper">
-    
-    <resultMap type="SciZhuanliruanzhuScoreCfg" id="SciZhuanliruanzhuScoreCfgResult">
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.SciJiaocairuanzhuScoreCfgMapper">
+
+    <resultMap type="SciJiaocairuanzhuScoreCfg" id="SciJiaocairuanzhuScoreCfgResult">
         <result property="id"    column="id"    />
         <result property="fenLei"    column="fen_lei"    />
         <result property="paiMing"    column="pai_ming"    />
@@ -12,42 +12,42 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     </resultMap>
 
-    <sql id="selectSciZhuanliruanzhuScoreCfgVo">
+    <sql id="selectSciJiaocairuanzhuScoreCfgVo">
         select id, fen_lei, pai_ming, total_score from sci_zhuanliruanzhu_score_cfg
     </sql>
 
-    <select id="selectSciZhuanliruanzhuScoreCfgList" parameterType="SciZhuanliruanzhuScoreCfg" resultMap="SciZhuanliruanzhuScoreCfgResult">
-        <include refid="selectSciZhuanliruanzhuScoreCfgVo"/>
-        <where>  
+    <select id="selectSciJiaocairuanzhuScoreCfgList" parameterType="SciJiaocairuanzhuScoreCfg" resultMap="SciJiaocairuanzhuScoreCfgResult">
+        <include refid="selectSciJiaocairuanzhuScoreCfgVo"/>
+        <where>
             <if test="fenLei != null  and fenLei != ''"> and fen_lei like concat('%', #{fenLei}, '%')</if>
             <if test="paiMing != null  and paiMing != ''"> and pai_ming = #{paiMing}</if>
             <if test="totalScore != null  and totalScore != ''"> and total_score = #{totalScore}</if>
 
         </where>
     </select>
-    
-    <select id="selectSciZhuanliruanzhuScoreCfgById" parameterType="Long" resultMap="SciZhuanliruanzhuScoreCfgResult">
-        <include refid="selectSciZhuanliruanzhuScoreCfgVo"/>
+
+    <select id="selectSciJiaocairuanzhuScoreCfgById" parameterType="Long" resultMap="SciJiaocairuanzhuScoreCfgResult">
+        <include refid="selectSciJiaocairuanzhuScoreCfgVo"/>
         where id = #{id}
     </select>
-        
-    <insert id="insertSciZhuanliruanzhuScoreCfg" parameterType="SciZhuanliruanzhuScoreCfg" useGeneratedKeys="true" keyProperty="id">
+
+    <insert id="insertSciJiaocairuanzhuScoreCfg" parameterType="SciJiaocairuanzhuScoreCfg" useGeneratedKeys="true" keyProperty="id">
         insert into sci_zhuanliruanzhu_score_cfg
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="fenLei != null and fenLei != ''">fen_lei,</if>
             <if test="paiMing != null and paiMing != ''">pai_ming,</if>
             <if test="totalScore != null and totalScore != ''">total_score,</if>
 
-         </trim>
+        </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="fenLei != null and fenLei != ''">#{fenLei},</if>
             <if test="paiMing != null and paiMing != ''">#{paiMing},</if>
             <if test="totalScore != null and totalScore != ''">#{totalScore},</if>
 
-         </trim>
+        </trim>
     </insert>
 
-    <update id="updateSciZhuanliruanzhuScoreCfg" parameterType="SciZhuanliruanzhuScoreCfg">
+    <update id="updateSciJiaocairuanzhuScoreCfg" parameterType="SciJiaocairuanzhuScoreCfg">
         update sci_zhuanliruanzhu_score_cfg
         <trim prefix="SET" suffixOverrides=",">
             <if test="fenLei != null and fenLei != ''">fen_lei = #{fenLei},</if>
@@ -58,11 +58,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where id = #{id}
     </update>
 
-    <delete id="deleteSciZhuanliruanzhuScoreCfgById" parameterType="Long">
+    <delete id="deleteSciJiaocairuanzhuScoreCfgById" parameterType="Long">
         delete from sci_zhuanliruanzhu_score_cfg where id = #{id}
     </delete>
 
-    <delete id="deleteSciZhuanliruanzhuScoreCfgByIds" parameterType="String">
+    <delete id="deleteSciJiaocairuanzhuScoreCfgByIds" parameterType="String">
         delete from sci_zhuanliruanzhu_score_cfg where id in
         <foreach item="id" collection="array" open="(" separator="," close=")">
             #{id}

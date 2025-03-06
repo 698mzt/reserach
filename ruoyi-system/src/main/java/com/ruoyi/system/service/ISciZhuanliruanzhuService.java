@@ -11,7 +11,7 @@ import com.ruoyi.system.domain.SciZhuanliruanzhu;
  * @author ruoyi
  * @date 2024-11-21
  */
-public interface ISciZhuanliruanzhuService 
+public interface ISciZhuanliruanzhuService
 {
     /**
      * 查询专利软著
@@ -86,10 +86,5 @@ public interface ISciZhuanliruanzhuService
 //    int hxoverBh(String id, Long userId, String remark, String urlFlag);
 
 //    int collegeAudit(String id, Long userId, String urlFlag);
-
-
-
-
-
 
 }
