@@ -25,7 +25,7 @@ public class SciPaperA extends BaseEntity {
     private String roleName;
     private String rolekey;
 
-    private String text_paper;
+
 
     //user表
     private Long uid;
@@ -114,6 +114,8 @@ public class SciPaperA extends BaseEntity {
     @Excel(name = "发表时间")
     private String publicationTime;
 
+    @Excel(name = "论文文件")
+    private String text_paper;
     /**
      * 是否与行业联合发表
      */
@@ -149,6 +151,8 @@ public class SciPaperA extends BaseEntity {
      */
     @Excel(name = "科研分")
     private String researchScore;
+
+
 
     /**
      * 备注

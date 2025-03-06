@@ -184,6 +184,7 @@
             <if test="publishedJournal != null">published_journal,</if>
             <if test="inclusionStatus != null">inclusion_status,</if>
             <if test="publicationTime != null">publication_time,</if>
+            <if test="text_paper != null">text_paper,</if>
             <if test="isIndustryCollaborative != null">is_industry_collaborative,</if>
             <if test="isLocalCollaborative != null">is_local_collaborative,</if>
             <if test="isInternationalCollaborative != null">is_international_collaborative,</if>
@@ -207,6 +208,7 @@
             <if test="publishedJournal != null">#{publishedJournal},</if>
             <if test="inclusionStatus != null">#{inclusionStatus},</if>
             <if test="publicationTime != null">#{publicationTime},</if>
+            <if test="text_paper != null">#{text_paper},</if>
             <if test="isIndustryCollaborative != null">#{isIndustryCollaborative},</if>
             <if test="isLocalCollaborative != null">#{isLocalCollaborative},</if>
             <if test="isInternationalCollaborative != null">#{isInternationalCollaborative},</if>

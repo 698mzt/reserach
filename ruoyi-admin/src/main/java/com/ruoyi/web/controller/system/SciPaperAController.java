@@ -125,6 +125,7 @@ public class SciPaperAController extends BaseController
             }
         }
         mmap.put("user",sysUser);
+        System.out.println("mmap = " + mmap);
         return prefix + "/add";
     }
 
@@ -141,6 +142,7 @@ public class SciPaperAController extends BaseController
         Long userId = getUserId();
         sciPaperA.setUserId(userId);
         System.out.println("userId = " + sciPaperA.getUserId());
+
 
         String user_name = userService.selectUserByLoginName(getLoginName()).getUserName();
         sciPaperA.setTeacherName(user_name);
