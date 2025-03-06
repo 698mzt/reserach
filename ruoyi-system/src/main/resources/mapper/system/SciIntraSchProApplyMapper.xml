@@ -341,10 +341,15 @@
         select
         'sci_tesearch' role,#{uid} uid, s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,
         s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id,
-        concat( s.amount,'万') amount, s.contract, s.filing, s.state ,s.PA ,s.PB
+        concat( s.amount,'万') amount, s.contract, s.filing, s.state ,s.PA ,s.PB,
+        MAX(CASE WHEN s.first_person_id = sc.userid AND s.id = sc.sciIntraSch_Id THEN sc.earnedJT_Points END) AS firstPoints,
+        MAX(CASE WHEN s.second_person_id = sc.userid AND s.id = sc.sciIntraSch_Id THEN sc.earnedJT_Points END) AS secondPoints,
+        MAX(CASE WHEN s.third_person_id = sc.userid AND s.id = sc.sciIntraSch_Id THEN sc.earnedJT_Points END) AS thirdPoints,
+        MAX(CASE WHEN s.fourth_person_id = sc.userid AND s.id = sc.sciIntraSch_Id THEN sc.earnedJT_Points END) AS forthPoints
         from sci_IntraSchPro_apply s left join sys_user u on  s.user_id=u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
+        LEFT JOIN sci_IntraSchPro_score sc ON sc.sciIntraSch_Id = s.id
 <!--         这个6是为了通过之后可以撤回-->
 --         ,7,9,10,14
         where s.state in (6,8)
@@ -369,6 +374,26 @@
 
         <!-- 数据范围过滤 -->
         <!--${params.dataScope}-->
+        GROUP BY
+        s.id,
+        u.user_name,
+        d.dept_name,
+        p.dept_name,
+        s.user_id,
+        s.top_name,
+        s.top_type,
+        s.signing_data,
+        s.validity_Date,
+        s.first_person_id,
+        s.second_person_id,
+        s.third_person_id,
+        s.fourth_person_id,
+        CONCAT(s.amount, '万'),
+        s.contract,
+        s.filing,
+        s.state,
+        s.PA,
+        s.PB
         order  by createtime desc
     </select>
     <select id="sel_IntraSchPro_closure_jy" parameterType="SciIntraSchoolPro" resultMap="SciIntraSchoolProResult">
@@ -376,10 +401,10 @@
         'research' role,#{uid} uid,(SELECT dept_name FROM sys_dept WHERE dept_id=(SELECT dept_id from sys_user WHERE user_id=#{uid}))=d.dept_name deptNamekey, s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,
         s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id,
         concat( s.amount,'万') amount, s.contract, s.filing, s.state ,s.PA ,s.PB,
-        MAX(CASE WHEN s.first_person_id = sc.userid AND s.id = sc.sciIntraSch_Id THEN sc.earned_Points END) AS firstPoints,
-        MAX(CASE WHEN s.second_person_id = sc.userid AND s.id = sc.sciIntraSch_Id THEN sc.earned_Points END) AS secondPoints,
-        MAX(CASE WHEN s.third_person_id = sc.userid AND s.id = sc.sciIntraSch_Id THEN sc.earned_Points END) AS thirdPoints,
-        MAX(CASE WHEN s.fourth_person_id = sc.userid AND s.id = sc.sciIntraSch_Id THEN sc.earned_Points END) AS forthPoints
+        MAX(CASE WHEN s.first_person_id = sc.userid AND s.id = sc.sciIntraSch_Id THEN sc.earnedJT_Points END) AS firstPoints,
+        MAX(CASE WHEN s.second_person_id = sc.userid AND s.id = sc.sciIntraSch_Id THEN sc.earnedJT_Points END) AS secondPoints,
+        MAX(CASE WHEN s.third_person_id = sc.userid AND s.id = sc.sciIntraSch_Id THEN sc.earnedJT_Points END) AS thirdPoints,
+        MAX(CASE WHEN s.fourth_person_id = sc.userid AND s.id = sc.sciIntraSch_Id THEN sc.earnedJT_Points END) AS forthPoints
         from sci_IntraSchPro_apply s left join sys_user u on  s.user_id=u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
@@ -434,10 +459,10 @@
         'teacher' role,#{uid} uid, s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,
         s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id,
         concat( s.amount,'万') amount, s.contract, s.filing, s.state ,s.PA ,s.PB,
-        MAX(CASE WHEN s.first_person_id = sc.userid AND s.id = sc.sciIntraSch_Id THEN sc.earned_Points END) AS firstPoints,
-        MAX(CASE WHEN s.second_person_id = sc.userid AND s.id = sc.sciIntraSch_Id THEN sc.earned_Points END) AS secondPoints,
-        MAX(CASE WHEN s.third_person_id = sc.userid AND s.id = sc.sciIntraSch_Id THEN sc.earned_Points END) AS thirdPoints,
-        MAX(CASE WHEN s.fourth_person_id = sc.userid AND s.id = sc.sciIntraSch_Id THEN sc.earned_Points END) AS forthPoints
+        MAX(CASE WHEN s.first_person_id = sc.userid AND s.id = sc.sciIntraSch_Id THEN sc.earnedJT_Points END) AS firstPoints,
+        MAX(CASE WHEN s.second_person_id = sc.userid AND s.id = sc.sciIntraSch_Id THEN sc.earnedJT_Points END) AS secondPoints,
+        MAX(CASE WHEN s.third_person_id = sc.userid AND s.id = sc.sciIntraSch_Id THEN sc.earnedJT_Points END) AS thirdPoints,
+        MAX(CASE WHEN s.fourth_person_id = sc.userid AND s.id = sc.sciIntraSch_Id THEN sc.earnedJT_Points END) AS forthPoints
         from sci_IntraSchPro_apply s left join sys_user u on  s.user_id=u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
@@ -686,10 +711,15 @@
         select
         'dept_teacher' role,#{uid} uid, s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,
         s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id,
-        concat( s.amount,'万') amount, s.contract, s.filing, s.state ,s.PA ,s.PB
+        concat( s.amount,'万') amount, s.contract, s.filing, s.state ,s.PA ,s.PB,
+        MAX(CASE WHEN s.first_person_id = sc.userid AND s.id = sc.sciIntraSch_Id THEN sc.earnedJT_Points END) AS firstPoints,
+        MAX(CASE WHEN s.second_person_id = sc.userid AND s.id = sc.sciIntraSch_Id THEN sc.earnedJT_Points END) AS secondPoints,
+        MAX(CASE WHEN s.third_person_id = sc.userid AND s.id = sc.sciIntraSch_Id THEN sc.earnedJT_Points END) AS thirdPoints,
+        MAX(CASE WHEN s.fourth_person_id = sc.userid AND s.id = sc.sciIntraSch_Id THEN sc.earnedJT_Points END) AS forthPoints
         from sci_IntraSchPro_apply s left join sys_user u on  s.user_id=u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
+        LEFT JOIN sci_IntraSchPro_score sc ON sc.sciIntraSch_Id = s.id
 --         ,7,9,10,14
         where s.state in (13,8)
         <!-- 数据范围过滤 -->
@@ -708,8 +738,26 @@
         <if test="state != null  and state != ''"> and state = #{state}</if>
         <!--        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>-->
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
-
-
+        GROUP BY
+        s.id,
+        u.user_name,
+        d.dept_name,
+        p.dept_name,
+        s.user_id,
+        s.top_name,
+        s.top_type,
+        s.signing_data,
+        s.validity_Date,
+        s.first_person_id,
+        s.second_person_id,
+        s.third_person_id,
+        s.fourth_person_id,
+        CONCAT(s.amount, '万'),
+        s.contract,
+        s.filing,
+        s.state,
+        s.PA,
+        s.PB
         order  by createtime desc
     </select>
 
