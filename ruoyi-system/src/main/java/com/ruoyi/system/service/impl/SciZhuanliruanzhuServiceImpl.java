@@ -20,12 +20,12 @@ import com.ruoyi.common.core.text.Convert;
 
 /**
  * 专利软著Service业务层处理
- * 
+ *
  * @author ruoyi
  * @date 2024-11-21
  */
 @Service
-public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService 
+public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
 {
     @Autowired
     private SciZhuanliruanzhuMapper sciZhuanliruanzhuMapper;
@@ -41,7 +41,7 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
 
     /**
      * 查询专利软著
-     * 
+     *
      * @param id 专利软著主键
      * @return 专利软著
      */
@@ -53,7 +53,7 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
 
     /**
      * 查询专利软著列表
-     * 
+     *
      * @param sciZhuanliruanzhu 专利软著
      * @return 专利软著
      */
@@ -65,7 +65,7 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
 
     /**
      * 新增专利软著
-     * 
+     *
      * @param sciZhuanliruanzhu 专利软著
      * @return 结果
      */
@@ -77,7 +77,7 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
 
     /**
      * 修改专利软著
-     * 
+     *
      * @param sciZhuanliruanzhu 专利软著
      * @return 结果
      */
@@ -89,7 +89,7 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
 
     /**
      * 批量删除专利软著
-     * 
+     *
      * @param ids 需要删除的专利软著主键
      * @return 结果
      */
@@ -101,7 +101,7 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
 
     /**
      * 删除专利软著信息
-     * 
+     *
      * @param id 专利软著主键
      * @return 结果
      */
