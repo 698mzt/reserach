@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.SciJiaocairuanzhuPiyueMapper">
+
+    <resultMap type="SciJiaocairuanzhuPiyue" id="SciJiaocairuanzhuPiyueResult">
+        <result property="id"    column="id"    />
+        <result property="jiaocai_id"    column="jiaocai_id"    />
+        <result property="concate"    column="concate"    />
+        <result property="uid"    column="uid"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="state"    column="state"    />
+        <result property="uname"    column="uname"    />
+    </resultMap>
+
+    <sql id="selectSciJiaocairuanzhuPiyueVo">
+        select id, jiaocai_id, concate, uid ,u.user_name uname, s.create_time,state from sci_jiaocairuanzhu_piyue s
+                                                                                          left join sys_user u on s.uid = u.user_id
+    </sql>
+
+    <select id="selectSciJiaocairuanzhuPiyueList" parameterType="SciJiaocairuanzhuPiyue" resultMap="SciJiaocairuanzhuPiyueResult">
+        <include refid="selectSciJiaocairuanzhuPiyueVo"/>
+        <where>
+            <if test="jiaocai_id != null "> and jiaocai_id = #{jiaocai_id}</if>
+            <if test="concate != null  and concate != ''"> and concate = #{concate}</if>
+            <if test="uid != null "> and uid = #{uid}</if>
+        </where>
+    </select>
+
+    <select id="selectSciJiaocairuanzhuPiyueById" parameterType="Integer" resultMap="SciJiaocairuanzhuPiyueResult">
+        <include refid="selectSciJiaocairuanzhuPiyueVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertSciJiaocairuanzhuPiyue" parameterType="SciJiaocairuanzhuPiyue" useGeneratedKeys="true" keyProperty="id">
+        insert into sci_jiaocairuanzhu_piyue
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="jiaocai_id != null">jiaocai_id,</if>
+            <if test="concate != null">concate,</if>
+            <if test="uid != null">uid,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="state != null">state,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="jiaocai_id != null">#{jiaocai_id},</if>
+            <if test="concate != null">#{concate},</if>
+            <if test="uid != null">#{uid},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="state != null">#{state},</if>
+        </trim>
+    </insert>
+
+    <update id="updateSciJiaocairuanzhuPiyue" parameterType="SciJiaocairuanzhuPiyue">
+        update sci_jiaocairuanzhu_piyue
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="jiaocai_id != null">jiaocai_id = #{jiaocai_id},</if>
+            <if test="concate != null">concate = #{concate},</if>
+            <if test="uid != null">uid = #{uid},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteSciJiaocairuanzhuPiyueById" parameterType="Integer">
+        delete from sci_jiaocairuanzhu_piyue where id = #{id}
+    </delete>
+
+    <delete id="deleteSciJiaocairuanzhuPiyueByIds" parameterType="String">
+        delete from sci_jiaocairuanzhu_piyue where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>
