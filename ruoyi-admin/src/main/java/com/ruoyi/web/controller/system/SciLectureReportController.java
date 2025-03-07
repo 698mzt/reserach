@@ -105,12 +105,12 @@ public class SciLectureReportController extends BaseController
         }
         // 教研室
         else if(role.equals("research")){
-            sciLectureReport.setStatelist(Arrays.asList(1,6, 3, 4)); // 查询时状态设置
+            sciLectureReport.setStatelist(Arrays.asList(1,6, 3, 4,5,7)); // 查询时状态设置
 //            sciLectureReport.setStatelist(Arrays.asList(1, 2, 3, 5,4,6,7)); // 查询时状态设置
         }
         // 学院
         else if(role.equals("dept_teacher")){
-            sciLectureReport.setStatelist(Arrays.asList(2,4,6,7)); // 查询时状态设置
+            sciLectureReport.setStatelist(Arrays.asList(2,4,6,7,5)); // 查询时状态设置
         }
         // 普通用户以及管理员
         else{
@@ -206,6 +206,7 @@ public class SciLectureReportController extends BaseController
     @ResponseBody
     public AjaxResult export(SciLectureReport sciLectureReport)
     {
+        sciLectureReport.setStatelist(Arrays.asList(1, 2, 3, 5,4,6,7));
         List<SciLectureReport> list = sciLectureReportService.selectSciLectureReportList(sciLectureReport);
         ExcelUtil<SciLectureReport> util = new ExcelUtil<SciLectureReport>(SciLectureReport.class);
         return util.exportExcel(list, "讲座报告数据");

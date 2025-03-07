@@ -59,6 +59,7 @@ public interface SciLectureReportMapper
      * @return 结果
      */
     public int deleteSciLectureReportByIds(String[] ids);
+    public int deleteSciLectureReportOpinionBy(String[] ids);
 
     int criticism(@Param("id") Integer id, @Param("state") String state);
     int reportKeyanfen(@Param("id") Integer id, @Param("keyanfen") String keyanfen);

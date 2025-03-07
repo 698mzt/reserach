@@ -27,7 +27,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectSciLectureReportVo">
-        select #{uid} uid,id,u.user_name userName,d.dept_name dname,u.user_id,p.dept_name, s.report_time, s.report_theme, s.host_unit, s.report_place, s.report_number, s.report_subject, s.report_duration, i.classification report_classify,s.state,s.createtime,s.actual_number,s.actual_time,s.report_keyanfen,i.rep_int_id
+        select #{uid} uid,id,u.user_name userName,u.login_name,d.dept_name dname,u.user_id,p.dept_name, s.report_time, s.report_theme, s.host_unit, s.report_place, s.report_number, s.report_subject, s.report_duration, i.classification report_classify,s.state,s.createtime,s.actual_number,s.actual_time,s.report_keyanfen,i.rep_int_id
         from sci_lecture_report s left join sys_user u on  s.user_id=u.user_id
                                   left join sys_dept d on u.dept_id = d.dept_id
                                   left join sys_dept p on d.parent_id =p.dept_id
@@ -192,4 +192,25 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </foreach>
     </delete>
 
+<!--    删除传入报告id对应的批阅记录
+
+sql示例：
+DELETE FROM sci_lecture_report_opinion
+WHERE id IN (
+    SELECT temp.id FROM (
+        SELECT id FROM sci_lecture_report_opinion
+        WHERE baogao_id IN (#{id1}, #{id2}, #{id3}, ...)
+    ) AS temp
+);
+-->
+    <delete id="deleteSciLectureReportOpinionBy" parameterType="String">
+        delete from sci_lecture_report_opinion where id in (
+            select temp.id from (
+                select id from sci_lecture_report_opinion where baogao_id in
+                <foreach item="id" collection="array" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+            ) as temp
+        )
+    </delete>
 </mapper>
