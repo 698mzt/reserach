@@ -1,5 +1,6 @@
 package com.ruoyi.system.service.impl;
 
+import java.util.Collections;
 import java.util.List;
 import com.ruoyi.common.utils.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +44,11 @@ public class SciHorizontalPiyueServiceImpl implements ISciHorizontalPiyueService
     public List<SciHorizontalPiyue> selectSciHorizontalPiyueList(SciHorizontalPiyue sciHorizontalPiyue)
     {
         return sciHorizontalPiyueMapper.selectSciHorizontalPiyueList(sciHorizontalPiyue);
+    }
+    @Override
+    public List<SciHorizontalPiyue> selectVerticalPiyueList(SciHorizontalPiyue sciHorizontalPiyue)
+    {
+        return sciHorizontalPiyueMapper.selectVerticalPiyueList(sciHorizontalPiyue);
     }
 
     /**
@@ -92,5 +98,15 @@ public class SciHorizontalPiyueServiceImpl implements ISciHorizontalPiyueService
     public int deleteSciHorizontalPiyueById(Integer id)
     {
         return sciHorizontalPiyueMapper.deleteSciHorizontalPiyueById(id);
+    }
+
+    @Override
+    public List<SciHorizontalPiyue> selectVerticalAmountPiyueList(SciHorizontalPiyue ob) {
+        return sciHorizontalPiyueMapper.selectVerticalAmountPiyueList(ob);
+    }
+
+    @Override
+    public List<SciHorizontalPiyue> selectSciHorizontalAmountPiyueList(SciHorizontalPiyue ob) {
+        return sciHorizontalPiyueMapper.selectSciHorizontalAmountPiyueList(ob);
     }
 }

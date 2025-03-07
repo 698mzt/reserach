@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh" xmlns:th="http://www.thymeleaf.org" >
 <head>
-    <th:block th:include="include :: header('课题批阅')" />
+    <th:block th:include="include :: header('审批金额')" />
     <th:block th:include="include :: datetimepicker-css" />
     <th:block th:include="include :: bootstrap-fileinput-css"/>
     <th:block th:include="include :: select2-css" />
@@ -12,6 +12,9 @@
         <input name="urlFlag" id="urlFlag" th:field="*{urlFlag}"  type="hidden">
         <input name="state" id="state" th:field="*{state}" type="hidden">
         <input name="id" id="ktid" th:field="*{id}" type="hidden">
+        <input name="reid" id="reid" th:field="*{reid}" type="hidden">
+        <input name="amount" id="amount" th:field="*{amount}" type="hidden">
+        <input  id="amountType" name="amountType" type="hidden" th:field="*{amountType}"></input>
         <h4 class="form-header h4">基本信息</h4>
         <div class="row">
             <div class="col-xs-6">
@@ -22,7 +25,14 @@
                     </div>
                 </div>
             </div>
-
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">课题编号：</label>
+                    <div class="col-sm-8">
+                        <input  readonly th:field="*{topNumber}" class="form-control" type="text" required>
+                    </div>
+                </div>
+            </div>
             <div class="col-xs-6">
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">课题类型：</label>
@@ -44,43 +54,42 @@
             </div>
             <div class="col-xs-6">
                 <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">课题编号：</label>
-                    <div class="col-sm-8">
-                        <input  readonly th:field="*{topNumber}" class="form-control" type="text" required>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xs-6">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">项目金额(万)：</label>
+                    <label class="col-sm-4 control-label is-required">项目金额：</label>
                     <div class="col-sm-8">
                         <input readonly th:field="*{amount}" class="form-control" type="text" required>
                     </div>
                 </div>
             </div>
-
             <div class="col-xs-6">
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">申请日期：</label>
                     <div class="col-sm-8">
                         <div class="input-group date">
-                            <input  readonly th:field="*{signingData}" th:value="${#dates.format(signingData, 'yyyy-MM-dd')}" class="form-control" placeholder="yyyy-MM-dd" type="text" required>
+                            <input name="signingData" autocomplete="off" th:field="*{signingData}" th:value="${#dates.format(signingData, 'yyyy-MM-dd')}" class="form-control" placeholder="yyyy-MM-dd" type="text" required disabled>
                             <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
                         </div>
                     </div>
                 </div>
             </div>
-            <!--        <div class="col-xs-6">-->
-            <!--            <div class="form-group">-->
-            <!--                <label class="col-sm-4 control-label is-required">合同有效日期：</label>-->
-            <!--                <div class="col-sm-8">-->
-            <!--                    <div class="input-group date">-->
-            <!--                        <input  readonly th:field="*{validityDate}" th:value="${#dates.format(validityDate, 'yyyy-MM-dd - yyyy-MM-dd')}" class="form-control" id="laydate-demo-4" placeholder="yyyy-MM-dd - yyyy-MM-dd" type="text" required>-->
-            <!--                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>-->
-            <!--                    </div>-->
-            <!--                </div>-->
-            <!--            </div>-->
-            <!--        </div>-->
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">到账金额：</label>
+                    <div class="col-sm-8">
+                        <input readonly id="reamount" th:field="*{reAmount}" class="form-control" type="text" required>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">到账日期：</label>
+                    <div class="col-sm-8">
+                        <div class="input-group date">
+                            <input name="accountData" autocomplete="off" th:field="*{accountData}" th:value="${#dates.format(signingData, 'yyyy-MM-dd')}" class="form-control" placeholder="yyyy-MM-dd" type="text" required disabled>
+                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div class="col-xs-6">
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">第一负责人：</label>
@@ -88,6 +97,7 @@
 
                         <!--                        <input name="firstPersonId" th:field="*{firstPersonId}" class="form-control" type="text" required>-->
                         <select name="firstPersonId" class="form-control m-b" disabled>
+                            <option value="">无</option>
                             <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ #strings.toString(user.userId) == sciHorizontalApplyVertical.firstPersonId}"></option>
                         </select>
                     </div>
@@ -100,6 +110,7 @@
                     <div class="col-sm-8">
                         <!--                        <input name="secondPersonTask" th:field="*{secondPersonTask}" class="form-control" type="text" required>-->
                         <select name="secondPersonId" class="form-control m-b" disabled >
+                            <option value="">无</option>
                             <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ #strings.toString(user.userId) == sciHorizontalApplyVertical.secondPersonId}" ></option>
                         </select>
                     </div>
@@ -112,6 +123,7 @@
                     <div class="col-sm-8">
                         <!--                        <input name="thirdPersonId" th:field="*{thirdPersonId}" class="form-control" type="text" required>-->
                         <select  class="form-control m-b" disabled>
+                            <option value="">无</option>
                             <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ #strings.toString(user.userId) == sciHorizontalApplyVertical.thirdPersonId}"  ></option>
                         </select>
                     </div>
@@ -122,41 +134,29 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">第四负责人：</label>
                     <div class="col-sm-8">
-                        <!--                        <input name="fourthPersonId" th:field="*{fourthPersonId}" class="form-control" type="text" required>-->
                         <select  class="form-control m-b" disabled>
+                            <option value="">无</option>
                             <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ #strings.toString(user.userId) == sciHorizontalApplyVertical.fourthPersonId}"  ></option>
                         </select>
                     </div>
                 </div>
             </div>
-
-
             <div class="col-xs-6">
                 <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">文件：</label>
+                    <label class="col-sm-4 control-label is-required">佐证材料：</label>
                     <div class="col-sm-8">
-                        <input th:field="*{overfile}" hidden id="filing" type="text" >
+                        <input th:field="*{reamountUrl}" hidden id="reamountUrl" type="text" >
                         <div style="display: inline-block;">
-                            <div id="filingFileName" style="display: inline; margin-right: 5px;"></div>
-                            <!--                            <button onclick="chakan()" class="btn btn-sm btn-primary color">预览</button>-->
-                            <!--                            <button onclick="downloadFile('filing')" class="btn btn-sm btn-primary color">下载</button>-->
+                            <div id="reamountUrlFileName" style="display: inline; margin-right: 5px;"></div>
                         </div>
                         <div>
                             <button onclick="chakan()" class="btn btn-sm btn-primary color">预览</button>
-                            <button onclick="downloadFile('filing')" class="btn btn-sm btn-primary color">下载</button>
-
+                            <button onclick="downloadFile('reamountUrl')" class="btn btn-sm btn-primary color">下载</button>
                         </div>
-
-
                     </div>
                 </div>
             </div>
-
         </div>
-
-
-
-
         <h4 class="form-header h4 tdiv1" style="display:none;">退回原因</h4>
         <div class="row tdiv1" style="display:none;">
             <div class="col-sm-12">
@@ -169,7 +169,7 @@
 
             </div>
         </div>
-        <h4 class="form-header h4 tdiv2"  style="display:none;">退回记录</h4>
+        <h4 class="form-header h4 tdiv2"  style="display:none;">批阅记录</h4>
         <div class="row tdiv2" style="display:none;">
             <div class="col-sm-12">
 
@@ -178,7 +178,6 @@
                 </div>
             </div>
         </div>
-
     </form>
 </div>
 <div class="row">
@@ -210,11 +209,9 @@
         }
     }
     function chakan(){
-        var c = $("#filing").val();
+        var c = $("#reamountUrl").val();
         $.modal.openTab("查看合同" ,c );
-        //window.location = "http://localhost:8081/profile/upload/2024/08/20/GXSZ086812_20240820090353A001.pdf";
     }
-
     function downloadFile(type){
         var c = $("#"+type).val();
         if(c){
@@ -228,6 +225,7 @@
         }else{
             alert("网址无效");
         }
+
     }
     $(function(){
         var kid = $("#ktid").val();
@@ -264,7 +262,6 @@
                     width: 100
                 } ]
         };
-
         $.table.init(options);
 
         $('#bootstrap-table').on('load-success.bs.table', function (e, name, args) {
@@ -275,7 +272,7 @@
                 $("#btn3").show();
                 $(".tdiv2").show()
             }else {
-                if(a == 22 ||a == 11  || a == 44){
+                if(a == 2 ||a == 1 || a == 11){
                     if(name.rows.length > 0){
                         $(".tdiv2").show();
                     }
@@ -288,6 +285,8 @@
 
 
         });
+
+
 
 
         <!-- laydate示例 -->
@@ -342,26 +341,31 @@
         focusCleanup: true
     });
 
+
+
     function submitHandler() {
-        //获取 URLflag
-        var a = $("#urlFlag").val();
-        console.log(a);
-        $.operate.saveTab(prefix + "/overPass", {"id":$("#ktid").val(),"urlFlag":a});
+        var a = parseFloat($("#amount").val());
+        var b = parseFloat($("#reamount").val());
+        if(a!==0){
+            var c = (b/(a * 0.7)).toFixed(1);
+        }else {
+            $modal.alertError("错误，请联系管理员");
+            $("#btn3").click();
+        }
+        $.operate.saveTab(prefix + "/amountPass", {"id":$("#ktid").val(),"reid":$("#reid").val(),"urlFlag":$("#urlFlag").val(),"amount":$("#amount").val(),"scale":c,"amountType":$("#amountType").val()});
+
     }
     function submitHandlerBH() {
         var a = $("#urlFlag").val();
         if ($.validate.form()) {
-            $.operate.saveTab(prefix + "/overBh",   $('#form-apply-edit').serialize());
+            $.operate.saveTab(prefix + "/amountBh",   $('#form-apply-edit').serialize());
         }
     }
-
-
-
 
     $(".file-upload").each(function (i) {
         var val = $("input[name='" + this.id + "']").val()
         $(this).fileinput({
-            uploadUrl: ctx + 'common/upload',
+            'uploadUrl': ctx + 'common/upload',
             initialPreviewAsData: true,
             initialPreview: [val],
             maxFileCount: 1,
@@ -375,9 +379,16 @@
     });
     // 页面加载时显示文件名
     window.onload = function() {
-        displayFileName('filing', 'filingFileName');
-        showButton();
+        displayFileName('reamountUrl', 'reamountUrlFileName');
     };
 </script>
 </body>
+</html><!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('课题批阅')" />
+    <th:block th:include="include :: datetimepicker-css" />
+    <th:block th:include="include :: bootstrap-fileinput-css"/>
+    <th:block th:include="include :: select2-css" />
+</head>
 </html>

@@ -21,6 +21,7 @@ public class SciHorizontalPiyue extends BaseEntity
     /** 课题id */
     @Excel(name = "课题id")
     private Integer hxktId;
+    private Integer verticalId;
 
     /** 驳回意见 */
     @Excel(name = "驳回意见")
@@ -85,6 +86,14 @@ public class SciHorizontalPiyue extends BaseEntity
     public Long getUid() 
     {
         return uid;
+    }
+
+    public Integer getVerticalId() {
+        return verticalId;
+    }
+
+    public void setVerticalId(Integer verticalId) {
+        this.verticalId = verticalId;
     }
 
     @Override

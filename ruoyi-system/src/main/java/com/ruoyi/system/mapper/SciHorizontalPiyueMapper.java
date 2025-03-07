@@ -27,6 +27,9 @@ public interface SciHorizontalPiyueMapper
      */
     public List<SciHorizontalPiyue> selectSciHorizontalPiyueList(SciHorizontalPiyue sciHorizontalPiyue);
 
+    public List<SciHorizontalPiyue> selectVerticalPiyueList(SciHorizontalPiyue sciHorizontalPiyue);
+
+
     /**
      * 新增横向课题的审核意见; InnoDB free: 11264 kB
      * 
@@ -34,6 +37,7 @@ public interface SciHorizontalPiyueMapper
      * @return 结果
      */
     public int insertSciHorizontalPiyue(SciHorizontalPiyue sciHorizontalPiyue);
+    public int insertVerticalPiyue(SciHorizontalPiyue sciHorizontalPiyue);
 
     /**
      * 修改横向课题的审核意见; InnoDB free: 11264 kB
@@ -58,4 +62,12 @@ public interface SciHorizontalPiyueMapper
      * @return 结果
      */
     public int deleteSciHorizontalPiyueByIds(String[] ids);
+
+    void insertSciHorizontalAmountPiyue(SciHorizontalPiyue sciHorizontalPiyue);
+
+    List<SciHorizontalPiyue> selectVerticalAmountPiyueList(SciHorizontalPiyue ob);
+
+    void insertHorizontalAmountPiyue(SciHorizontalPiyue sciHorizontalPiyue);
+
+    List<SciHorizontalPiyue> selectSciHorizontalAmountPiyueList(SciHorizontalPiyue ob);
 }

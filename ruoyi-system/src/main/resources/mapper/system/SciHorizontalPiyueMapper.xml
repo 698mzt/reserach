@@ -7,6 +7,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <resultMap type="SciHorizontalPiyue" id="SciHorizontalPiyueResult">
         <result property="id"    column="id"    />
         <result property="hxktId"    column="hxkt_id"    />
+        <result property="verticalId"    column="vertical_id"    />
         <result property="concate"    column="concate"    />
         <result property="uid"    column="uid"    />
         <result property="createTime"    column="create_time"    />
@@ -26,13 +27,45 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="concate != null  and concate != ''"> and concate = #{concate}</if>
             <if test="uid != null "> and uid = #{uid}</if>
         </where>
+        order by s.create_time desc
+    </select>
+
+    <select id="selectVerticalPiyueList" parameterType="SciHorizontalPiyue" resultMap="SciHorizontalPiyueResult">
+        select id, vertical_id, concate, uid ,u.user_name uname, s.create_time,state from sci_horizontal_piyue_vertical s
+        left join sys_user u on s.uid = u.user_id
+        <where>
+            <if test="verticalId != null "> and vertical_id = #{verticalId}</if>
+            <if test="concate != null  and concate != ''"> and concate = #{concate}</if>
+            <if test="uid != null "> and uid = #{uid}</if>
+        </where>
+        order by s.create_time desc
     </select>
     
     <select id="selectSciHorizontalPiyueById" parameterType="Integer" resultMap="SciHorizontalPiyueResult">
         <include refid="selectSciHorizontalPiyueVo"/>
         where id = #{id}
     </select>
-        
+    <select id="selectVerticalAmountPiyueList" parameterType="SciHorizontalPiyue" resultMap="SciHorizontalPiyueResult">
+        select id, vertical_id, concate, uid ,u.user_name uname, s.create_time,state from sci_horizontal_piyue_vertical_amount s
+        left join sys_user u on s.uid = u.user_id
+        <where>
+            <if test="verticalId != null "> and vertical_id = #{verticalId}</if>
+            <if test="concate != null  and concate != ''"> and concate = #{concate}</if>
+            <if test="uid != null "> and uid = #{uid}</if>
+        </where>
+        order by s.create_time desc
+    </select>
+    <select id="selectSciHorizontalAmountPiyueList" parameterType="SciHorizontalPiyue" resultMap="SciHorizontalPiyueResult">
+        select id, hxkt_id, concate, uid ,u.user_name uname, s.create_time,state from sci_horizontal_piyue_amount s
+        left join sys_user u on s.uid = u.user_id
+        <where>
+            <if test="hxktId != null "> and hxkt_id = #{hxktId}</if>
+            <if test="concate != null  and concate != ''"> and concate = #{concate}</if>
+            <if test="uid != null "> and uid = #{uid}</if>
+        </where>
+        order by s.create_time desc
+    </select>
+
     <insert id="insertSciHorizontalPiyue" parameterType="SciHorizontalPiyue" useGeneratedKeys="true" keyProperty="id">
         insert into sci_horizontal_piyue
         <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -49,6 +82,60 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="createTime != null">#{createTime},</if>
             <if test="state != null">#{state},</if>
          </trim>
+    </insert>
+
+    <insert id="insertVerticalPiyue" parameterType="SciHorizontalPiyue" useGeneratedKeys="true" keyProperty="id">
+        insert into sci_horizontal_piyue_vertical
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="verticalId != null">vertical_id,</if>
+            <if test="concate != null">concate,</if>
+            <if test="uid != null">uid,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="state != null">state,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="verticalId != null">#{verticalId},</if>
+            <if test="concate != null">#{concate},</if>
+            <if test="uid != null">#{uid},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="state != null">#{state},</if>
+        </trim>
+    </insert>
+
+    <insert id="insertSciHorizontalAmountPiyue" parameterType="SciHorizontalPiyue" useGeneratedKeys="true" keyProperty="id">
+        insert into sci_horizontal_piyue_vertical_amount
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="verticalId != null">vertical_id,</if>
+            <if test="concate != null">concate,</if>
+            <if test="uid != null">uid,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="state != null">state,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="verticalId != null">#{verticalId},</if>
+            <if test="concate != null">#{concate},</if>
+            <if test="uid != null">#{uid},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="state != null">#{state},</if>
+        </trim>
+    </insert>
+
+    <insert id="insertHorizontalAmountPiyue" parameterType="SciHorizontalPiyue" useGeneratedKeys="true" keyProperty="id">
+        insert into sci_horizontal_piyue_amount
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="hxktId != null">hxkt_id,</if>
+            <if test="concate != null">concate,</if>
+            <if test="uid != null">uid,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="state != null">state,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="hxktId != null">#{hxktId},</if>
+            <if test="concate != null">#{concate},</if>
+            <if test="uid != null">#{uid},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="state != null">#{state},</if>
+        </trim>
     </insert>
 
     <update id="updateSciHorizontalPiyue" parameterType="SciHorizontalPiyue">

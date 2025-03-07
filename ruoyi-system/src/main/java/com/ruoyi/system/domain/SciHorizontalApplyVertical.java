@@ -288,4 +288,113 @@ public class SciHorizontalApplyVertical extends BaseEntity {
     public void setTopNumber(String topNumber) {
         this.topNumber = topNumber;
     }
+
+    private String reAmount; //追加金额
+    private String amountType; //类型
+    private String accountData; //到账日期
+    private String  reamountUrl;     //追加金额材料
+    private Integer  dnameId; //登录用户专业id
+    private Integer  userdnameId; //登录用户专业id
+    private String  ynameId;  //学院id
+    private Integer  userynameId; //登录用户专业id
+    private Integer  reid;
+    private String newsql;
+    private String tableId;
+    private String score;
+
+    public String getReAmount() {
+        return reAmount;
+    }
+
+    public void setReAmount(String reAmount) {
+        this.reAmount = reAmount;
+    }
+
+    public String getAmountType() {
+        return amountType;
+    }
+
+    public void setAmountType(String amountType) {
+        this.amountType = amountType;
+    }
+
+    public String getAccountData() {
+        return accountData;
+    }
+
+    public void setAccountData(String accountData) {
+        this.accountData = accountData;
+    }
+
+    public String getReamountUrl() {
+        return reamountUrl;
+    }
+
+    public void setReamountUrl(String reamountUrl) {
+        this.reamountUrl = reamountUrl;
+    }
+
+    public Integer getDnameId() {
+        return dnameId;
+    }
+
+    public void setDnameId(Integer dnameId) {
+        this.dnameId = dnameId;
+    }
+
+    public Integer getUserdnameId() {
+        return userdnameId;
+    }
+
+    public void setUserdnameId(Integer userdnameId) {
+        this.userdnameId = userdnameId;
+    }
+
+    public String getYnameId() {
+        return ynameId;
+    }
+
+    public void setYnameId(String ynameId) {
+        this.ynameId = ynameId;
+    }
+
+    public Integer getUserynameId() {
+        return userynameId;
+    }
+
+    public void setUserynameId(Integer userynameId) {
+        this.userynameId = userynameId;
+    }
+
+    public Integer getReid() {
+        return reid;
+    }
+
+    public void setReid(Integer reid) {
+        this.reid = reid;
+    }
+
+    public String getNewsql() {
+        return newsql;
+    }
+
+    public void setNewsql(String newsql) {
+        this.newsql = newsql;
+    }
+
+    public String getTableId() {
+        return tableId;
+    }
+
+    public void setTableId(String tableId) {
+        this.tableId = tableId;
+    }
+
+    public String getScore() {
+        return score;
+    }
+
+    public void setScore(String score) {
+        this.score = score;
+    }
 }

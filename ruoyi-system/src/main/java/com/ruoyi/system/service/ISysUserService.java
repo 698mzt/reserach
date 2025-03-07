@@ -214,4 +214,5 @@ public interface ISysUserService
 
     List<SysUser> selectAllUser();
 
+    List<SysUser> selectUser(Integer deptId);
 }
