@@ -230,7 +230,7 @@
     $(function(){
         var kid = $("#ktid").val();
         var options = {
-            url: prefix + "/bhyy/"+kid,
+            url: prefix + "/abhyy/"+kid,
             showSearch: false,
             showRefresh: false,
             showToggle: false,
@@ -359,7 +359,7 @@
     function submitHandlerBH() {
         var a = $("#urlFlag").val();
         if ($.validate.form()) {
-            $.operate.saveTab(prefix + "/hxBh",   $('#form-apply-edit').serialize());
+            $.operate.saveTab(prefix + "/amountBh",   $('#form-apply-edit').serialize());
         }
     }
 

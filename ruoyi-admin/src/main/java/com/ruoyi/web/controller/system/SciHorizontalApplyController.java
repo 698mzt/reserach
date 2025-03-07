@@ -74,7 +74,7 @@ public class SciHorizontalApplyController extends BaseController
     @RequiresPermissions("system:apply:list")
     @PostMapping("/list/{tableId}")
     @ResponseBody
-    public TableDataInfo list(@PathVariable("tableId") String tableId,String year, SciHorizontalApply sciHorizontalApply,SciHorizontalReamount sciHorizontalReamount)
+    public TableDataInfo list(@PathVariable("tableId") String tableId,String year, SciHorizontalApply sciHorizontalApply)
     {
         sciHorizontalApply.setYear(year);
         sciHorizontalApply.setUid(getUserId());
@@ -176,15 +176,6 @@ public class SciHorizontalApplyController extends BaseController
         SysUser  sysUser =getSysUser();
 
         // 去重操作
-//        List<SciHorizontalApply> distinctList = list.stream()
-//                .collect(Collectors.collectingAndThen(
-//                        Collectors.toMap(
-//                                SciHorizontalApply::getTopName,
-//                                Function.identity(),
-//                                (existing, replacement) -> existing
-//                        ),
-//                        map -> new ArrayList<>(map.values())
-//                ));
         List<SciHorizontalApply> distinctList = list.stream()
                 .collect(Collectors.collectingAndThen(
                         Collectors.toMap(
@@ -204,7 +195,7 @@ public class SciHorizontalApplyController extends BaseController
                 apply.setUserdnameId(did);
                 apply.setUserynameId(yid);
                 apply.setUid(getUserId());
-                List<SciUserScore> score = sciUserScoreMapper.selectScoreHistoryById(apply.getId());
+                List<SciUserScore> score = sciUserScoreMapper.selectScoreVerticalById(apply.getId());
                 ArrayList<Integer> allscore = new ArrayList<>();
                 for(SciUserScore score1: score){
                     if (apply.getFirstPersonId().equals(score1.getUserId()) && apply.getFirstPersonId().equals(getUserId().toString()))
@@ -224,13 +215,6 @@ public class SciHorizontalApplyController extends BaseController
                 apply.setScore(count.toString());
             }
         }
-
-//        for(SciHorizontalApply apply: Alist){
-//            apply.setUid(getUserId());
-//            apply.setUserdnameId(did);
-//            apply.setUserynameId(yid);
-//        }
-//        distinctList.addAll(Alist);
 
         TableDataInfo data= getDataTable(distinctList);
         return data;
@@ -375,61 +359,6 @@ public class SciHorizontalApplyController extends BaseController
     @ResponseBody
     public AjaxResult hxPass(String id,String urlFlag)
     {
-////        初始化一个新对象，存储最大值和最小值
-//        SciProjectScoreCfg sciProjectScoreCfg1 = new SciProjectScoreCfg();
-//
-////        查询积分的所有范围
-//        List<SciProjectScoreCfg> list= sciProjectScoreCfgMapper.selectSciProjectScoreCfgList(sciProjectScoreCfg);
-//
-//        Integer applyId;
-//        Integer Damount;
-//        try {
-//            Damount = Integer.valueOf(amount);
-//        } catch (NumberFormatException e) {
-//            return AjaxResult.error("金额无效");
-//        }
-//
-////        查询项目金额在积分的哪个范围内，并将范围记录到sciProjectScoreCfg1中
-//        for (SciProjectScoreCfg scoreCfg : list) {
-//            if (Damount >= Integer.valueOf(scoreCfg.getFundsMin()) && Damount < Integer.valueOf(scoreCfg.getFundsMax())) {
-//                sciProjectScoreCfg1.setFundsMin(scoreCfg.getFundsMin());
-//                sciProjectScoreCfg1.setFundsMax(scoreCfg.getFundsMax());
-//                break;
-//            }
-//        }
-//
-////       查询范围为 min-max 的分数
-//        List<SciProjectScoreCfg> score_list = sciProjectScoreCfgMapper.selectSciProjectScoreCfgList(sciProjectScoreCfg1);
-//
-//        //        查询该条数据的负责人id
-//        SciHorizontalApply sciHorizontalApply = sciHorizontalApplyService.selectSciHorizontalApplyById(Integer.valueOf(id));
-//        applyId = sciHorizontalApply.getId();
-//
-////        将负责人和积分顺序存储到列表中传到实现类中
-//        List score = new ArrayList();
-//        List persion = new ArrayList();
-//        for (SciProjectScoreCfg scoreCfg : score_list) {
-//            Double a = Double.valueOf(scoreCfg.getStartScore());
-//            Double b = a * scale;
-//            Long c = Math.round(b);
-//            score.add(c.toString());
-////            score.add(scoreCfg.getStartScore());
-//        }
-//
-//        if (sciHorizontalApply.getFirstPersonId() != null && !sciHorizontalApply.getFirstPersonId().isEmpty()) {
-//            persion.add(sciHorizontalApply.getFirstPersonId());
-//        }
-//        if (sciHorizontalApply.getSecondPersonId() != null && !sciHorizontalApply.getSecondPersonId().isEmpty()) {
-//            persion.add(sciHorizontalApply.getSecondPersonId());
-//        }
-//        if (sciHorizontalApply.getThirdPersonId() != null && !sciHorizontalApply.getThirdPersonId().isEmpty()) {
-//            persion.add(sciHorizontalApply.getThirdPersonId());
-//        }
-//        if (sciHorizontalApply.getFourthPersonId() != null && !sciHorizontalApply.getFourthPersonId().isEmpty()) {
-//            persion.add(sciHorizontalApply.getFourthPersonId());
-//        }
-
-
         return toAjax(sciHorizontalApplyService.hxPass(id,getUserId(),urlFlag));
     }
     @RequiresPermissions(value={"system:apply:hecha","system:apply:process","system:apply:Dept"},logical= Logical.OR)
@@ -438,49 +367,6 @@ public class SciHorizontalApplyController extends BaseController
     @ResponseBody
     public AjaxResult hxover(String id,String urlFlag)
     {
-//        初始化一个新对象，存储最大值和最小值
-//        SciProjectScoreCfg sciProjectScoreCfg1 = new SciProjectScoreCfg();
-//        Integer applyId;
-//        Integer Damount;
-//        try {
-//            Damount = Integer.valueOf(amount);
-//        } catch (NumberFormatException e) {
-//            return AjaxResult.error("金额无效");
-//        }
-////        查询积分的所有范围
-//        List<SciProjectScoreCfg> list= sciProjectScoreCfgMapper.selectSciProjectScoreCfgList(sciProjectScoreCfg);
-////        查询项目金额在积分的哪个范围内，并将范围记录到sciProjectScoreCfg1中
-//        for (SciProjectScoreCfg scoreCfg : list) {
-//            if (Damount >= Integer.valueOf(scoreCfg.getFundsMin()) && Damount < Integer.valueOf(scoreCfg.getFundsMax())) {
-//                sciProjectScoreCfg1.setFundsMin(scoreCfg.getFundsMin());
-//                sciProjectScoreCfg1.setFundsMax(scoreCfg.getFundsMax());
-//                break;
-//            }
-//        }
-////       查询范围为 min-max 的分数
-//        List<SciProjectScoreCfg> score_list = sciProjectScoreCfgMapper.selectSciProjectScoreCfgList(sciProjectScoreCfg1);
-////        查询该条数据的负责人id
-//        SciHorizontalApply sciHorizontalApply = sciHorizontalApplyService.selectSciHorizontalApplyById(Integer.valueOf(id));
-//        applyId = sciHorizontalApply.getId();
-////        将负责人和积分顺序存储到列表中传到实现类中
-//        List score = new ArrayList();
-//        List persion = new ArrayList();
-//        for (SciProjectScoreCfg scoreCfg : score_list) {
-//            score.add(scoreCfg.getEndScore());
-//        }
-//        if (sciHorizontalApply.getFirstPersonId() != null && !sciHorizontalApply.getFirstPersonId().isEmpty()) {
-//            persion.add(sciHorizontalApply.getFirstPersonId());
-//        }
-//        if (sciHorizontalApply.getSecondPersonId() != null && !sciHorizontalApply.getSecondPersonId().isEmpty()) {
-//            persion.add(sciHorizontalApply.getSecondPersonId());
-//        }
-//        if (sciHorizontalApply.getThirdPersonId() != null && !sciHorizontalApply.getThirdPersonId().isEmpty()) {
-//            persion.add(sciHorizontalApply.getThirdPersonId());
-//        }
-//        if (sciHorizontalApply.getFourthPersonId() != null && !sciHorizontalApply.getFourthPersonId().isEmpty()) {
-//            persion.add(sciHorizontalApply.getFourthPersonId());
-//        }
-
         return toAjax(sciHorizontalApplyService.hxover(id,getUserId(),urlFlag));
     }
 
@@ -559,6 +445,16 @@ public class SciHorizontalApplyController extends BaseController
         SciHorizontalPiyue ob = new SciHorizontalPiyue();
         ob.setHxktId(kid);
         List<SciHorizontalPiyue> list = piyueService.selectSciHorizontalPiyueList(ob);
+        return getDataTable(list);
+    }
+    @RequiresPermissions("system:apply:edit")
+    @PostMapping("/abhyy/{kid}")
+    @ResponseBody
+    public TableDataInfo abhyy(@PathVariable("kid")Integer kid)
+    {
+        SciHorizontalPiyue ob = new SciHorizontalPiyue();
+        ob.setHxktId(kid);
+        List<SciHorizontalPiyue> list = piyueService.selectSciHorizontalAmountPiyueList(ob);
         return getDataTable(list);
     }
 
@@ -693,7 +589,16 @@ public class SciHorizontalApplyController extends BaseController
             persion.add(sciHorizontalApply.getFourthPersonId());
         }
 
-        return toAjax(sciHorizontalApplyService.amountPass(id,reid,getUserId(),urlFlag,score,persion,applyId));
+        return toAjax(sciHorizontalApplyService.amountPass(id,reid,getUserId(),urlFlag,score,persion,applyId,amountType));
+    }
+
+    @RequiresPermissions(value={"system:apply:hecha","system:apply:process","system:apply:Dept"},logical= Logical.OR)
+    @Log(title = "金额被驳回", businessType = BusinessType.UPDATE)
+    @PostMapping( "/amountBh")
+    @ResponseBody
+    public AjaxResult amountBh(String id,String reid,String remark,String urlFlag)
+    {
+        return toAjax(sciHorizontalApplyService.amountBh(id,reid,getUserId(),remark,urlFlag));
     }
 
     /**

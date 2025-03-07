@@ -74,7 +74,7 @@ public interface ISciHorizontalApplyService
     public int deleteSciHorizontalOverApplyById(Integer id);
 
     int hxPass(String id,Long uid,String urlFlag);
-    int amountPass(String id,String reid,Long uid,String urlFlag,List score,List persion,Integer applyId);
+    int amountPass(String id,String reid,Long uid,String urlFlag,List score,List persion,Integer applyId,String amountType);
     int hxover(String id,Long uid,String urlFlag);
 
     int hxBh(String id,Long uid, String remark,String urlFlag);
@@ -115,4 +115,6 @@ public interface ISciHorizontalApplyService
 
     int recall(Integer id, String newState,Long uid, String remark, String urlFlag);
 
+
+    int amountBh(String id, String reid, Long userId, String remark, String urlFlag);
 }

@@ -1,5 +1,6 @@
 package com.ruoyi.system.service;
 
+import com.ruoyi.system.domain.SciHorizontalApply;
 import com.ruoyi.system.domain.SciHorizontalApplyVertical;
 
 import java.util.List;
@@ -78,4 +79,15 @@ public interface ISciHorizontalApplyVerticalService {
      * @return 结果
      */
     List<SciHorizontalApplyVertical> selectSciHorizontalApplyVerticalAllList(SciHorizontalApplyVertical sciHorizontalApplyVertical);
+
+    int recall(Integer id, String state, Long userId, String remark, String urlFlag);
+
+
+    List<SciHorizontalApplyVertical> selectOtherListByUid(SciHorizontalApplyVertical sciHorizontalApplyVertical);
+
+    int amountPass(String id, String reid, Long userId, String urlFlag, List score, List persion, Integer applyId,String amountType);
+
+    int recallamount(Integer id, String state, Long userId, String remark, String urlFlag);
+
+    int amountBh(String id,String reid, Long userId, String remark, String urlFlag);
 }

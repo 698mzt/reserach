@@ -31,11 +31,36 @@
         </trim>
     </insert>
 
+    <insert id="insertScoreVertical" parameterType="SciUserScore" useGeneratedKeys="true" keyProperty="id">
+        insert into sci_user_score_vertical
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">user_id,</if>
+            <if test="verticalId != null">vertical_id,</if>
+            <if test="changeStatus != null">change_status,</if>
+            <if test="scoreType != null">score_type,</if>
+            <if test="changeValue != null">change_value,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">#{userId},</if>
+            <if test="verticalId != null">#{verticalId},</if>
+            <if test="changeStatus != null">#{changeStatus},</if>
+            <if test="scoreType != null">#{scoreType},</if>
+            <if test="changeValue != null">#{changeValue},</if>
+        </trim>
+    </insert>
+
     <select id="selectScoreHistoryById" parameterType="Integer" resultMap="SciUserScoreResult">
         select s.user_id,s.apply_id,s.change_value from sci_user_score_history s where s.apply_id = #{id}
+    </select>
+    <select id="selectScoreVerticalById" parameterType="Integer" resultMap="SciUserScoreResult">
+        select s.user_id,s.vertical_id,s.change_value from sci_user_score_vertical s where s.vertical_id = #{id}
     </select>
 
     <delete id="deleteScoreById">
         delete from sci_user_score_history where apply_id = #{id} and change_status = #{status}
+    </delete>
+
+    <delete id="deleteVerticalScoreById">
+        delete from sci_user_score_history where vertical_id = #{id} and change_status = #{status}
     </delete>
 </mapper>

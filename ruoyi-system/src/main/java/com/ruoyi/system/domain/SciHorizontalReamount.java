@@ -5,7 +5,7 @@ import com.ruoyi.common.core.domain.BaseEntity;
 public class SciHorizontalReamount extends BaseEntity {
     private Integer reid;
     private String applyId;
-    private String applyVertivalId;
+    private String verticalId;
     private String reAmount;
     private String accountData;
     private String reamountUrl;
@@ -60,12 +60,12 @@ public class SciHorizontalReamount extends BaseEntity {
         this.amountType = amountType;
     }
 
-    public String getApplyVertivalId() {
-        return applyVertivalId;
+    public String getVerticalId() {
+        return verticalId;
     }
 
-    public void setApplyVertivalId(String applyVertivalId) {
-        this.applyVertivalId = applyVertivalId;
+    public void setVerticalId(String verticalId) {
+        this.verticalId = verticalId;
     }
 
     public String getState() {

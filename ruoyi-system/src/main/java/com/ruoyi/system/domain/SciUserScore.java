@@ -8,6 +8,7 @@ public class SciUserScore extends BaseEntity
     /**负责人*/
     private String userId;
     /**创建数据id*/
+    private String VerticalId;
     private String applyId;
     /**创建时间*/
     private String Createtime;
@@ -18,6 +19,13 @@ public class SciUserScore extends BaseEntity
     /**积分*/
     private String changeValue;
 
+    public String getVerticalId() {
+        return VerticalId;
+    }
+
+    public void setVerticalId(String verticalId) {
+        VerticalId = verticalId;
+    }
 
     public Integer getId() {
         return id;

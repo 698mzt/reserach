@@ -1,6 +1,8 @@
 package com.ruoyi.system.mapper;
 
+import com.ruoyi.system.domain.SciHorizontalApply;
 import com.ruoyi.system.domain.SciHorizontalApplyVertical;
+import com.ruoyi.system.domain.SciHorizontalPersion;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -22,6 +24,8 @@ public interface SciHorizontalApplyVerticalMapper {
     public List<SciHorizontalApplyVertical> selectSciHorizontalApplyVerticalListJYS(SciHorizontalApplyVertical sciHorizontalApplyVertical);
 
     public List<SciHorizontalApplyVertical> selectSciHorizontalApplyVerticalListKYC(SciHorizontalApplyVertical sciHorizontalApplyVertical);
+
+    public List<SciHorizontalApplyVertical> selectSciHorizontalApplyVerticalListDept(SciHorizontalApplyVertical sciHorizontalApplyVertical);
 
     /**
      * 保存立项申请
@@ -70,6 +74,8 @@ public interface SciHorizontalApplyVerticalMapper {
     public List<SciHorizontalApplyVertical> selectSciHorizontalApplyVerticalListKYCJX(SciHorizontalApplyVertical sciHorizontalApplyVertical);
     public List<SciHorizontalApplyVertical> selectSciHorizontalApplyVerticalListJX(SciHorizontalApplyVertical sciHorizontalApplyVertical);
 
+    public List<SciHorizontalApplyVertical> selectSciHorizontalApplyVerticalListDeptJX(SciHorizontalApplyVertical sciHorizontalApplyVertical);
+
     /**
      * 查询已结项列表
      *
@@ -85,4 +91,10 @@ public interface SciHorizontalApplyVerticalMapper {
      * @return 结果
      */
     List<SciHorizontalApplyVertical> selectSciHorizontalApplyVerticalAllList(SciHorizontalApplyVertical sciHorizontalApplyVertical);
+
+
+    int insertPersionVertical(SciHorizontalPersion sciHorizontalPersion);
+
+
+    List<SciHorizontalApplyVertical> selectOtherListByUid(SciHorizontalApplyVertical sciHorizontalApplyVertical);
 }

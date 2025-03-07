@@ -2,13 +2,18 @@ package com.ruoyi.system.service.impl;
 
 import com.ruoyi.common.annotation.DataScope;
 import com.ruoyi.common.core.text.Convert;
-import com.ruoyi.system.domain.SciHorizontalApplyVertical;
+import com.ruoyi.common.utils.StringUtils;
+import com.ruoyi.system.domain.*;
 import com.ruoyi.system.mapper.SciHorizontalApplyVerticalMapper;
+import com.ruoyi.system.mapper.SciHorizontalPiyueMapper;
+import com.ruoyi.system.mapper.SciUserScoreMapper;
 import com.ruoyi.system.service.ISciHorizontalApplyVerticalService;
+import com.ruoyi.system.service.SciHorizontalReamountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -20,6 +25,12 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
 
     @Autowired
     private SciHorizontalApplyVerticalMapper sciHorizontalApplyVerticalMapper;
+    @Autowired
+    private SciHorizontalPiyueMapper sciHorizontalPiyueMapper;
+    @Autowired
+    private SciUserScoreMapper sciUserScoreMapper;
+    @Autowired
+    private SciHorizontalReamountService sciHorizontalReamountService;
 
     /**
      * 查询纵向课题列表
@@ -35,6 +46,8 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
             list = sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalListJYS(sciHorizontalApplyVertical);
         else if (sciHorizontalApplyVertical.getRole().equals("sci_tesearch"))
             list = sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalListKYC(sciHorizontalApplyVertical);
+        else if (sciHorizontalApplyVertical.getRole().equals("dept_teacher"))
+            list = sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalListDept(sciHorizontalApplyVertical);
         else
             list = sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalList(sciHorizontalApplyVertical);
         return list;
@@ -50,6 +63,28 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
     public int insertSciHorizontalApplyVertical(SciHorizontalApplyVertical sciHorizontalApplyVertical) {
         sciHorizontalApplyVerticalMapper.insertSciHorizontalApplyVertical(sciHorizontalApplyVertical);
         Integer id = sciHorizontalApplyVertical.getId() ;
+        SciHorizontalPersion sciHorizontalPersion = new SciHorizontalPersion();
+        sciHorizontalPersion.setVerticalid(id);
+        if (StringUtils.isNotEmpty(sciHorizontalApplyVertical.getFirstPersonId())) {
+            sciHorizontalPersion.setRanking("1");
+            sciHorizontalPersion.setPersionid(sciHorizontalApplyVertical.getFirstPersonId());
+            sciHorizontalApplyVerticalMapper.insertPersionVertical(sciHorizontalPersion);
+        }
+        if (StringUtils.isNotEmpty(sciHorizontalApplyVertical.getSecondPersonId())) {
+            sciHorizontalPersion.setRanking("2");
+            sciHorizontalPersion.setPersionid(sciHorizontalApplyVertical.getSecondPersonId());
+            sciHorizontalApplyVerticalMapper.insertPersionVertical(sciHorizontalPersion);
+        }
+        if (StringUtils.isNotEmpty(sciHorizontalApplyVertical.getThirdPersonId())) {
+            sciHorizontalPersion.setRanking("3");
+            sciHorizontalPersion.setPersionid(sciHorizontalApplyVertical.getThirdPersonId());
+            sciHorizontalApplyVerticalMapper.insertPersionVertical(sciHorizontalPersion);
+        }
+        if (StringUtils.isNotEmpty(sciHorizontalApplyVertical.getFourthPersonId())) {
+            sciHorizontalPersion.setRanking("4");
+            sciHorizontalPersion.setPersionid(sciHorizontalApplyVertical.getFourthPersonId());
+            sciHorizontalApplyVerticalMapper.insertPersionVertical(sciHorizontalPersion);
+        }
         return id;
     }
 
@@ -92,9 +127,17 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
         if(urlFlag.equals("JYS")){
             state ="2";
         }else if(urlFlag.equals("KYC")){
+            state ="6";
+        }else if(urlFlag.equals("Dept")){
             state ="4";
         }
         int a =  sciHorizontalApplyVerticalMapper.applyPass(id,state);
+        SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
+        sciHorizontalPiyue.setUid(userId);
+        sciHorizontalPiyue.setVerticalId(Integer.valueOf(id));
+        sciHorizontalPiyue.setConcate("同意");
+        sciHorizontalPiyue.setState("通过");
+        sciHorizontalPiyueMapper.insertVerticalPiyue(sciHorizontalPiyue);
         return a;
     }
 
@@ -104,9 +147,17 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
         if(urlFlag.equals("JYS")){
             state ="3";
         }else if(urlFlag.equals("KYC")){
+            state ="7";
+        }else if (urlFlag.equals("Dept")){
             state ="5";
         }
         int a =  sciHorizontalApplyVerticalMapper.applyPass(id,state);
+        SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
+        sciHorizontalPiyue.setUid(userId);
+        sciHorizontalPiyue.setVerticalId(Integer.valueOf(id));
+        sciHorizontalPiyue.setConcate(remark);
+        sciHorizontalPiyue.setState("被驳回");
+        sciHorizontalPiyueMapper.insertVerticalPiyue(sciHorizontalPiyue);
         return a;
     }
 
@@ -116,11 +167,19 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
     public int overPass(String id, Long userId, String urlFlag) {
         String state = "0";
         if(urlFlag.equals("JYS")){
-            state ="2222";
+            state ="22";
         }else if(urlFlag.equals("KYC")){
-            state ="4444";
+            state ="66";
+        }else if(urlFlag.equals("Dept")){
+            state ="44";
         }
         int a =  sciHorizontalApplyVerticalMapper.overPass(id,state);
+        SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
+        sciHorizontalPiyue.setUid(userId);
+        sciHorizontalPiyue.setVerticalId(Integer.valueOf(id));
+        sciHorizontalPiyue.setConcate("同意");
+        sciHorizontalPiyue.setState("通过");
+        sciHorizontalPiyueMapper.insertVerticalPiyue(sciHorizontalPiyue);
         return a;
     }
 
@@ -128,13 +187,24 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
     public int overBh(String id, Long userId, String remark, String urlFlag) {
         String state = "0";
         if(urlFlag.equals("JYS")){
-            state ="3333";
+            state ="33";
         }else if(urlFlag.equals("KYC")){
-            state ="5555";
+            state ="77";
+        }else if (urlFlag.equals("Dept")){
+            state ="55";
         }
         int a =  sciHorizontalApplyVerticalMapper.overPass(id,state);
+        SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
+        sciHorizontalPiyue.setUid(userId);
+        sciHorizontalPiyue.setVerticalId(Integer.valueOf(id));
+        sciHorizontalPiyue.setConcate(remark);
+        sciHorizontalPiyue.setState("被驳回");
+        sciHorizontalPiyueMapper.insertVerticalPiyue(sciHorizontalPiyue);
         return a;
     }
+
+
+
 
     @Override
     public List<SciHorizontalApplyVertical> selectSciHorizontalApplyVerticalListJX(SciHorizontalApplyVertical sciHorizontalApplyVertical) {
@@ -143,6 +213,9 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
             list = sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalListJYSJX(sciHorizontalApplyVertical);
         else if (sciHorizontalApplyVertical.getRole().equals("sci_tesearch"))
             list = sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalListKYCJX(sciHorizontalApplyVertical);
+        else if (sciHorizontalApplyVertical.getRole().equals("dept_teacher")){
+            list = sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalListDeptJX(sciHorizontalApplyVertical);
+        }
         else
             list = sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalListJX(sciHorizontalApplyVertical);
         return list;
@@ -163,6 +236,206 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
     @Override
     public List<SciHorizontalApplyVertical> selectSciHorizontalApplyVerticalAllList(SciHorizontalApplyVertical sciHorizontalApplyVertical) {
         return sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalAllList(sciHorizontalApplyVertical);
+    }
+
+    @Override
+    public int recall(Integer id, String state, Long userId, String remark, String urlFlag) {
+        String newState = state;
+        switch (state){
+//            教研室
+            case "2": case "3":
+                newState = "1";
+                break;
+            case "22": case "33":
+                newState = "11";
+                break;
+//                学院
+            case "4":  case "5":
+                newState = "2";
+                break;
+            case "44": case"55":
+                newState = "22";
+                break;
+//                科研处
+            case "6":  case "7":
+                newState = "4";
+                break;
+            case "66": case "77":
+                newState = "44";
+                break;
+        }
+        if(state.equals("6")){
+            String status = "立项";
+//            sciUserScoreMapper.deleteScoreById(id.toString(),status);
+        }else
+        if(state.equals("66")){
+            String status = "结项";
+//            sciUserScoreMapper.deleteScoreById(id.toString(),status);
+        }
+
+//        插入日志
+        SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
+        sciHorizontalPiyue.setUid(userId);
+        sciHorizontalPiyue.setVerticalId(id);
+        sciHorizontalPiyue.setConcate(remark);
+        sciHorizontalPiyue.setState("撤回上一条操作");
+        sciHorizontalPiyueMapper.insertVerticalPiyue(sciHorizontalPiyue);
+//        设置状态
+        int a =sciHorizontalApplyVerticalMapper.applyPass(id.toString(),newState);
+        return a;
+    }
+
+    @Override
+    public int recallamount(Integer id, String state, Long userId, String remark, String urlFlag) {
+        String newState = state;
+        switch (state){
+//            教研室
+            case "2": case "3":
+                newState = "1";
+                break;
+//                学院
+            case "11":  case "22":
+                newState = "2";
+                break;
+//                科研处
+            case "4":  case "5":
+                newState = "22";
+                break;
+        }
+        if(state.equals("4")){
+            String status = "立项";
+//            sciUserScoreMapper.deleteScoreById(id.toString(),status);
+        }else
+        if(state.equals("66")){
+            String status = "结项";
+//            sciUserScoreMapper.deleteScoreById(id.toString(),status);
+        }
+//        插入日志
+        SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
+        sciHorizontalPiyue.setUid(userId);
+        sciHorizontalPiyue.setVerticalId(id);
+        sciHorizontalPiyue.setConcate(remark);
+        sciHorizontalPiyue.setState("撤回上一条操作");
+        sciHorizontalPiyueMapper.insertVerticalPiyue(sciHorizontalPiyue);
+//        设置状态
+        int a =sciHorizontalApplyVerticalMapper.applyPass(id.toString(),newState);
+        return a;
+    }
+
+
+
+    @Override
+    public List<SciHorizontalApplyVertical> selectOtherListByUid(SciHorizontalApplyVertical sciHorizontalApplyVertical) {
+        String role = sciHorizontalApplyVertical.getRole();
+        String tableId = sciHorizontalApplyVertical.getTableId();
+        List<SciHorizontalApplyVertical> list = new ArrayList<>();
+//        科研处
+        if(role.equals("sci_tesearch")){
+            switch (tableId){
+                case "bootstrap-table0":
+                    sciHorizontalApplyVertical.setNewsql("00");
+                    list  = sciHorizontalApplyVerticalMapper.selectOtherListByUid(sciHorizontalApplyVertical);
+                    break;
+                case "bootstrap-table1":
+                    sciHorizontalApplyVertical.setNewsql("01");
+                    list = sciHorizontalApplyVerticalMapper.selectOtherListByUid(sciHorizontalApplyVertical);
+                    break;
+                case "bootstrap-table2":
+                    sciHorizontalApplyVertical.setNewsql("02");
+                    list = sciHorizontalApplyVerticalMapper.selectOtherListByUid(sciHorizontalApplyVertical);
+                    break;
+            }
+        }
+//        教研室
+        else if(role.equals("research")){
+            switch (tableId){
+                case "bootstrap-table0":
+                    sciHorizontalApplyVertical.setNewsql("00");
+                    list = sciHorizontalApplyVerticalMapper.selectOtherListByUid(sciHorizontalApplyVertical);
+                    break;
+                case "bootstrap-table1":
+                    sciHorizontalApplyVertical.setNewsql("01");
+                    list = sciHorizontalApplyVerticalMapper.selectOtherListByUid(sciHorizontalApplyVertical);
+                    break;
+                case "bootstrap-table2":
+                    sciHorizontalApplyVertical.setNewsql("02");
+                    list = sciHorizontalApplyVerticalMapper.selectOtherListByUid(sciHorizontalApplyVertical);
+                    break;
+            }
+        }
+//        教师
+        else {
+            switch (tableId){
+                case "bootstrap-table0":
+                    sciHorizontalApplyVertical.setNewsql("00");
+                    list = sciHorizontalApplyVerticalMapper.selectOtherListByUid(sciHorizontalApplyVertical);
+                    break;
+                case "bootstrap-table1":
+                    sciHorizontalApplyVertical.setNewsql("01");
+                    list = sciHorizontalApplyVerticalMapper.selectOtherListByUid(sciHorizontalApplyVertical);
+                    break;
+                case "bootstrap-table2":
+                    sciHorizontalApplyVertical.setNewsql("02");
+                    list = sciHorizontalApplyVerticalMapper.selectOtherListByUid(sciHorizontalApplyVertical);
+                    break;
+            }
+        }
+        return list;
+    }
+
+    @Override
+    public int amountPass(String id, String reid, Long userId, String urlFlag, List score, List persion, Integer applyId,String amountType) {
+        String state = "0";
+        SciUserScore sciUserScore = new SciUserScore();
+        sciUserScore.setVerticalId(applyId.toString());
+        if(urlFlag.equals("KYC")){
+            state ="4";
+//            以负责人列表大小为准，顺序匹配每个负责人所对应的分数，记录到sciUserScore中。
+//            科研处
+            for (int i = 0; i < persion.size(); i++) {
+                sciUserScore.setUserId(persion.get(i).toString());
+                sciUserScore.setChangeValue(score.get(i).toString());
+                if (amountType.equals("1"))
+                    sciUserScore.setChangeStatus("立项");
+                if (amountType.equals("2"))
+                    sciUserScore.setChangeStatus("结项");
+                sciUserScoreMapper.insertScoreVertical(sciUserScore);
+            }
+//            教研室
+        }else if(urlFlag.equals("JYS")){
+            state ="2";
+//            学院通过
+        }else if (urlFlag.equals("Dept")){
+            state ="11";
+        }
+        int a =  sciHorizontalReamountService.verticalamountpass(reid,state);
+        SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
+        sciHorizontalPiyue.setUid(userId);
+        sciHorizontalPiyue.setVerticalId(Integer.valueOf(id));
+        sciHorizontalPiyue.setConcate("同意");
+        sciHorizontalPiyue.setState("通过");
+        sciHorizontalPiyueMapper.insertSciHorizontalAmountPiyue(sciHorizontalPiyue);
+        return a;
+    }
+
+    @Override
+    public int amountBh(String id,String reid, Long userId, String remark, String urlFlag) {
+        String state = "0";
+        if(urlFlag.equals("JYS")){
+            state ="3";
+        }else if(urlFlag.equals("KYC")){
+            state ="5";
+        }else if (urlFlag.equals("Dept")){
+            state ="22";
+        }
+        int a =  sciHorizontalReamountService.verticalamountpass(reid,state);
+        SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
+        sciHorizontalPiyue.setUid(userId);
+        sciHorizontalPiyue.setVerticalId(Integer.valueOf(id));
+        sciHorizontalPiyue.setConcate(remark);
+        sciHorizontalPiyue.setState("被驳回");
+        sciHorizontalPiyueMapper.insertSciHorizontalAmountPiyue(sciHorizontalPiyue);
+        return a;
     }
 
 
