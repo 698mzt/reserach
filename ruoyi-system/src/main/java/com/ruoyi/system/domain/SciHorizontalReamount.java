@@ -3,18 +3,21 @@ package com.ruoyi.system.domain;
 import com.ruoyi.common.core.domain.BaseEntity;
 
 public class SciHorizontalReamount extends BaseEntity {
-    private Integer id;
+    private Integer reid;
     private String applyId;
+    private String verticalId;
     private String reAmount;
     private String accountData;
     private String reamountUrl;
+    private String amountType;
+    private String state;
 
-    public Integer getId() {
-        return id;
+    public Integer getReid() {
+        return reid;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    public void setReid(Integer reid) {
+        this.reid = reid;
     }
 
     public String getApplyId() {
@@ -47,5 +50,29 @@ public class SciHorizontalReamount extends BaseEntity {
 
     public void setReamountUrl(String reamountUrl) {
         this.reamountUrl = reamountUrl;
+    }
+
+    public String getAmountType() {
+        return amountType;
+    }
+
+    public void setAmountType(String amountType) {
+        this.amountType = amountType;
+    }
+
+    public String getVerticalId() {
+        return verticalId;
+    }
+
+    public void setVerticalId(String verticalId) {
+        this.verticalId = verticalId;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
     }
 }

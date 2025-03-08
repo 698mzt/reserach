@@ -243,6 +243,7 @@ public class ShiroConfig
     {
         DefaultWebSecurityManager securityManager = new DefaultWebSecurityManager();
         // 设置realm.
+
         securityManager.setRealm(userRealm);
         // 记住我
         securityManager.setRememberMeManager(rememberMe ? rememberMeManager() : null);

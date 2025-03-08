@@ -556,4 +556,9 @@ public class SysUserServiceImpl implements ISysUserService
     public List<SysUser> selectAllUser() {
         return userMapper.selectAllUser();
     }
+
+    @Override
+    public List<SysUser> selectUser(Integer deptId) {
+        return userMapper.selectUser(deptId);
+    }
 }

@@ -27,6 +27,8 @@ public interface ISciHorizontalPiyueService
      */
     public List<SciHorizontalPiyue> selectSciHorizontalPiyueList(SciHorizontalPiyue sciHorizontalPiyue);
 
+    public List<SciHorizontalPiyue> selectVerticalPiyueList(SciHorizontalPiyue sciHorizontalPiyue);
+
     /**
      * 新增横向课题的审核意见; InnoDB free: 11264 kB
      * 
@@ -58,4 +60,8 @@ public interface ISciHorizontalPiyueService
      * @return 结果
      */
     public int deleteSciHorizontalPiyueById(Integer id);
+
+    List<SciHorizontalPiyue> selectVerticalAmountPiyueList(SciHorizontalPiyue ob);
+
+    List<SciHorizontalPiyue> selectSciHorizontalAmountPiyueList(SciHorizontalPiyue ob);
 }

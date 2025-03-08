@@ -16,7 +16,7 @@ import com.ruoyi.common.core.text.Convert;
  * @date 2025-02-15
  */
 @Service
-public class SciZhuanliruanzhuScoreCfgServiceImpl implements ISciZhuanliruanzhuScoreCfgService 
+public class SciZhuanliruanzhuScoreCfgServiceImpl implements ISciZhuanliruanzhuScoreCfgService
 {
     @Autowired
     private SciZhuanliruanzhuScoreCfgMapper sciZhuanliruanzhuScoreCfgMapper;

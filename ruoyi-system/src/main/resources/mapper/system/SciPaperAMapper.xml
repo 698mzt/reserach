@@ -7,15 +7,20 @@
     <resultMap type="SciPaperA" id="SciPaperAResult">
 
         <result property="id"    column="id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="roleId"    column="role_id"    />
+        <result property="roleName"    column="role_name"    />
+        <result property="rolekey"    column="role_key"    />
         <result property="college"    column="college"    />
         <result property="researchRoom"    column="research_room"    />
         <result property="employeeId"    column="employee_id"    />
         <result property="teacherName"    column="teacher_name"    />
+        <result property="text_paper"    column="text_paper"    />
         <result property="administrativePosition"    column="administrative_position"    />
         <result property="socialTitle"    column="social_title"    />
         <result property="onCampusTitle"    column="on_campus_title"    />
         <result property="authorType"    column="author_type"    />
-
+        <result property="state"    column="state"    />
         <result property="signingData"    column="signing_data"    />
         <result property="paperTitle"    column="paper_title"    />
         <result property="paperCategory"    column="paper_category"    />
@@ -29,21 +34,76 @@
         <result property="paperRanking"    column="paper_ranking"    />
         <result property="researchScore"    column="research_score"    />
         <result property="remarks"    column="remarks"    />
-
+        <result property="rolename"    column="rolename"    />
+        <result property="rolekey"    column="rolekey"    />
         <result property="year"    column="year"    />
     </resultMap>
 
     <sql id="selectSciPaperAVo">
-        select id, college, research_room, employee_id, teacher_name, administrative_position, social_title, on_campus_title, author_type, paper_title, paper_category, published_journal, inclusion_status, publication_time, is_industry_collaborative, is_local_collaborative, is_international_collaborative, is_cross_discipline, paper_ranking, research_score, remarks
-        from sci_paper_a
+        select  #{uid} uid,p.id ,r.role_id,r.role_name,r.role_key,u.login_name employee_id,p.text_paper,p.user_id,d.dept_name dname,pt.dept_name college, p.teacher_name,u.tea_zhicheng on_campus_title, p.paper_title, p.paper_category, p.published_journal,p.publication_time, p.is_industry_collaborative, p.is_local_collaborative, p.is_international_collaborative, p.is_cross_discipline, p.paper_ranking, p.research_score, p.remarks,p.state,r.data_scope
+        from sci_paper_a p
+                 left join sys_user u on  p.user_id=u.user_id
+                 left join sys_dept d on u.dept_id = d.dept_id
+                 left join sys_dept pt on d.parent_id =pt.dept_id
+                 left join sys_user_role ur on u.user_id = ur.user_id
+                 left join sys_role r on r.role_id = ur.role_id
     </sql>
 
     <select id="selectSciPaperAList" parameterType="SciPaperA" resultMap="SciPaperAResult">
         <include refid="selectSciPaperAVo"/>
         <where>
-           <!-- <if test="college != null  and college != ''"> and college = #{college}</if>
-            <if test="researchRoom != null  and researchRoom != ''"> and research_room = #{researchRoom}</if>
-            <if test="employeeId != null  and employeeId != ''"> and employee_id = #{employeeId}</if>-->
+            p.state in (1,8)
+            ${params.dataScope}
+            <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
+            <if test="teacherName != null  and teacherName != ''"> and teacher_name like concat('%', #{teacherName}, '%')</if>
+            <if test="paperTitle != null  and paperTitle != ''"> and paper_title = #{paperTitle}</if>
+            <if test="paperCategory != null  and paperCategory != ''"> and paper_category = #{paperCategory}</if>
+            <if test="publishedJournal != null  and publishedJournal != ''"> and published_journal = #{publishedJournal}</if>
+            <if test="inclusionStatus != null  and inclusionStatus != ''"> and inclusion_status = #{inclusionStatus}</if>
+            <if test="publicationTime != null "> and publication_time = #{publicationTime}</if>
+            <if test="isIndustryCollaborative != null  and isIndustryCollaborative != ''"> and is_industry_collaborative = #{isIndustryCollaborative}</if>
+            <if test="isLocalCollaborative != null  and isLocalCollaborative != ''"> and is_local_collaborative = #{isLocalCollaborative}</if>
+            <if test="isInternationalCollaborative != null  and isInternationalCollaborative != ''"> and is_international_collaborative = #{isInternationalCollaborative}</if>
+            <if test="isCrossDiscipline != null  and isCrossDiscipline != ''"> and is_cross_discipline = #{isCrossDiscipline}</if>
+            <if test="paperRanking != null  and paperRanking != ''"> and paper_ranking = #{paperRanking}</if>
+            <if test="researchScore != null  and researchScore != ''"> and research_score = #{researchScore}</if>
+            <if test="remarks != null  and remarks != ''"> and remarks = #{remarks}</if>
+            <if test="year != null  and year != ''"> and YEAR(publication_time) = #{year}</if>
+        </where>
+        order  by publication_time desc
+    </select>
+
+    <select id="selectSciPaperAListKY" parameterType="SciPaperA" resultMap="SciPaperAResult">
+        <include refid="selectSciPaperAVo"/>
+        <where>
+            p.state in (4,8)
+            ${params.dataScope}
+            <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
+            <if test="teacherName != null  and teacherName != ''"> and teacher_name like concat('%', #{teacherName}, '%')</if>
+            <if test="paperTitle != null  and paperTitle != ''"> and paper_title = #{paperTitle}</if>
+            <if test="paperCategory != null  and paperCategory != ''"> and paper_category = #{paperCategory}</if>
+            <if test="publishedJournal != null  and publishedJournal != ''"> and published_journal = #{publishedJournal}</if>
+            <if test="inclusionStatus != null  and inclusionStatus != ''"> and inclusion_status = #{inclusionStatus}</if>
+            <if test="publicationTime != null "> and publication_time = #{publicationTime}</if>
+            <if test="isIndustryCollaborative != null  and isIndustryCollaborative != ''"> and is_industry_collaborative = #{isIndustryCollaborative}</if>
+            <if test="isLocalCollaborative != null  and isLocalCollaborative != ''"> and is_local_collaborative = #{isLocalCollaborative}</if>
+            <if test="isInternationalCollaborative != null  and isInternationalCollaborative != ''"> and is_international_collaborative = #{isInternationalCollaborative}</if>
+            <if test="isCrossDiscipline != null  and isCrossDiscipline != ''"> and is_cross_discipline = #{isCrossDiscipline}</if>
+            <if test="paperRanking != null  and paperRanking != ''"> and paper_ranking = #{paperRanking}</if>
+            <if test="researchScore != null  and researchScore != ''"> and research_score = #{researchScore}</if>
+            <if test="remarks != null  and remarks != ''"> and remarks = #{remarks}</if>
+            <if test="year != null  and year != ''"> and YEAR(publication_time) = #{year}</if>
+
+        </where>
+        order  by publication_time desc
+    </select>
+
+    <select id="selectSciPaperAListXY" parameterType="SciPaperA" resultMap="SciPaperAResult">
+        <include refid="selectSciPaperAVo"/>
+        <where>
+            p.state in (2,8)
+            ${params.dataScope}
+            <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
             <if test="teacherName != null  and teacherName != ''"> and teacher_name like concat('%', #{teacherName}, '%')</if>
             <!--<if test="administrativePosition != null  and administrativePosition != ''"> and administrative_position = #{administrativePosition}</if>
             <if test="socialTitle != null  and socialTitle != ''"> and social_title = #{socialTitle}</if>
@@ -63,15 +123,48 @@
             <if test="researchScore != null  and researchScore != ''"> and research_score = #{researchScore}</if>
             <if test="remarks != null  and remarks != ''"> and remarks = #{remarks}</if>
             <if test="year != null  and year != ''"> and YEAR(publication_time) = #{year}</if>
-<!--            <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>-->
-
-
+            <!--            <if test="userId != null  and userId != ''"> and p.userId=#{uid}</if>-->
+            <!--            <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>-->
         </where>
+        order  by publication_time desc
+    </select>
+
+    <select id="selectSciPaperArole" parameterType="SciPaperA" resultMap="SciPaperAResult">
+        select r.role_id role_id,r.role_name role_name,r.role_key role_key,s.user_name from sys_user s
+            left join sys_user_role ur on s.user_id = ur.user_id
+            left join sys_role r on r.role_id = ur.role_id
+        where s.user_id =#{user_id}
+    </select>
+
+    <select id="selectSciPaperAListCx" parameterType="SciPaperA" resultMap="SciPaperAResult">
+        select #{uid} uid,p.id,p.user_id,  u.login_name employee_id, p.teacher_name,p.text_paper,p.paper_title, p.paper_category, p.published_journal,p.publication_time, p.is_industry_collaborative, p.is_local_collaborative, p.is_international_collaborative, p.is_cross_discipline, p.paper_ranking, p.research_score, p.remarks,p.state
+        from sci_paper_a p
+                 left join sys_user u on  p.user_id=u.user_id
+                 left join sys_dept d on u.dept_id = d.dept_id
+                 left join sys_dept pt on d.parent_id =pt.dept_id
+                 left join sys_user_role ur on u.user_id = ur.user_id
+                 left join sys_role r on r.role_id = ur.role_id
+        where p.user_id = #{uid}
+        order  by publication_time desc
+    </select>
+
+    <select id="selectSciPaperAByroleId" >
+        select ur.role_id,r.role_name,r.role_key from sys_user_role ur
+                                left join sys_user u on  ur.user_id=u.user_id
+                                left join sys_role r on r.role_id = ur.role_id
+        where ur.user_id = #{user_id}
+
+    </select>
+    <select id="selectUser"  parameterType="SciPaperA">
+        <include refid="selectSciPaperAVo"/>
+            where p.user_id = {#uid}
+
     </select>
 
     <select id="selectSciPaperAById" parameterType="Long" resultMap="SciPaperAResult">
         <include refid="selectSciPaperAVo"/>
         where id = #{id}
+
     </select>
 
     <insert id="insertSciPaperA" parameterType="SciPaperA" useGeneratedKeys="true" keyProperty="id">
@@ -80,6 +173,7 @@
           <!--  &lt;!&ndash;<if test="college != null">college,</if>
             <if test="researchRoom != null">research_room,</if>
             <if test="employeeId != null">employee_id,</if>-->
+            <if test="userId != null">user_id,</if>
             <if test="teacherName != null">teacher_name,</if>
         <!--<if test="administrativePosition != null">administrative_position,</if>
             <if test="socialTitle != null">social_title,</if>
@@ -90,6 +184,7 @@
             <if test="publishedJournal != null">published_journal,</if>
             <if test="inclusionStatus != null">inclusion_status,</if>
             <if test="publicationTime != null">publication_time,</if>
+            <if test="text_paper != null">text_paper,</if>
             <if test="isIndustryCollaborative != null">is_industry_collaborative,</if>
             <if test="isLocalCollaborative != null">is_local_collaborative,</if>
             <if test="isInternationalCollaborative != null">is_international_collaborative,</if>
@@ -102,6 +197,7 @@
           <!--  <if test="college != null">#{college},</if>
             <if test="researchRoom != null">#{researchRoom},</if>
             <if test="employeeId != null">#{employeeId},</if>-->
+            <if test="userId != null">#{userId},</if>
             <if test="teacherName != null">#{teacherName},</if>
             <!--<if test="administrativePosition != null">#{administrativePosition},</if>
             <if test="socialTitle != null">#{socialTitle},</if>
@@ -112,6 +208,7 @@
             <if test="publishedJournal != null">#{publishedJournal},</if>
             <if test="inclusionStatus != null">#{inclusionStatus},</if>
             <if test="publicationTime != null">#{publicationTime},</if>
+            <if test="text_paper != null">#{text_paper},</if>
             <if test="isIndustryCollaborative != null">#{isIndustryCollaborative},</if>
             <if test="isLocalCollaborative != null">#{isLocalCollaborative},</if>
             <if test="isInternationalCollaborative != null">#{isInternationalCollaborative},</if>
@@ -121,6 +218,54 @@
             <if test="remarks != null">#{remarks},</if>
         </trim>
     </insert>
+
+    <insert id="insertSciPaperAr" parameterType="SciPaperAr" useGeneratedKeys="true" keyProperty="id">
+        insert into sci_paper_ar
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="ar_id != null">ar_id,</if>
+            <if test="concate != null">concate,</if>
+            <if test="uid != null">uid,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="state != null">state,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="ar_id != null">#{ar_id},</if>
+            <if test="concate != null">#{concate},</if>
+            <if test="uid != null">#{uid},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="state != null">#{state},</if>
+        </trim>
+    </insert>
+
+    <insert id="insertSciPaperArbh" parameterType="SciPaperA" useGeneratedKeys="true" keyProperty="id">
+        insert into sci_paper_ar
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="ar_id != null">ar_id,</if>
+            <if test="concate != null">concate,</if>
+            <if test="uid != null">uid,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="state != null">state,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="ar_id != null">#{ar_id},</if>
+            <if test="concate != null">#{concate},</if>
+            <if test="uid != null">#{uid},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="state != null">#{state},</if>
+        </trim>
+    </insert>
+
+    <select id="selectSciPaperArList" resultType="SciPaperAr">
+        select id, ar_id, concate, uid ,u.user_name uname, p.create_time,state from sci_paper_ar p
+                    left join sys_user u on p.uid = u.user_id
+        <where>
+            <if test="ar_id != null "> and ar_id = #{ar_id}</if>
+            <if test="concate != null  and concate != ''"> and concate = #{concate}</if>
+            <if test="uid != null "> and uid = #{uid}</if>
+        </where>
+        order  by create_time desc
+    </select>
+
 
     <update id="updateSciPaperA" parameterType="SciPaperA">
         update sci_paper_a
@@ -145,10 +290,17 @@
             <if test="paperRanking != null">paper_ranking = #{paperRanking},</if>
             <if test="researchScore != null">research_score = #{researchScore},</if>
             <if test="remarks != null">remarks = #{remarks},</if>
+            <if test="state != null">state = #{state},</if>
         </trim>
         where id = #{id}
     </update>
 
+    <update id="pytg" >
+        update sci_paper_a set state = #{state} where id = #{id}
+    </update>
+    <update id="updateSciPaperArs" >
+        update sci_paper_a set research_score = #{points} where id = #{id}
+    </update>
     <delete id="deleteSciPaperAById" parameterType="Long">
         delete from sci_paper_a where id = #{id}
     </delete>

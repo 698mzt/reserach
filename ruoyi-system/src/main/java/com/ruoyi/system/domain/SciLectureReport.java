@@ -44,6 +44,7 @@ public class SciLectureReport extends BaseEntity
     private String xueyuan;
 
     /** 科研室 --- 专业*/
+    @Excel(name = "专业")
     private String keyanshi;
 
     /** 工号 */
@@ -51,7 +52,7 @@ public class SciLectureReport extends BaseEntity
     private String jobId;
 
     /** 姓名 */
-    @Excel(name = "教师姓名")
+    @Excel(name = "申请人")
     private String teacherName;
 
 //    /** 行政职务 */
@@ -92,17 +93,19 @@ public class SciLectureReport extends BaseEntity
     private String reportDuration;
 
     /** 实际参与人数 */
-    @Excel(name = "实际参与人数")
+//    @Excel(name = "实际参与人数")
     private Integer actualNumber;
 
     /** 实际报告时长 */
-    @Excel(name = "实际报告时长")
+//    @Excel(name = "实际报告时长")
     private String actualTime;
 
     /** 分类 */
+    @Excel(name = "分类")
     private String reportClassify;
 
     /** 科研分 */
+    @Excel(name = "科研分")
     private String reportKeyanfen;
 
     /** 该条记录的报告对应的积分id */

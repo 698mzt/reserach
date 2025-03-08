@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('批阅论文')"/>
+    <th:block th:include="include :: datetimepicker-css"/>
+    <th:block th:include="include :: bootstrap-fileinput-css"/>
+    <th:block th:include="include :: select2-css"/>
+</head>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <form class="form-horizontal m" id="form-paper-process" th:object="${sciPaperA}">
+        <!--批阅或核查的标识-->
+        <input name="urlFlag" id="urlFlag" th:field="*{urlFlag}" type="hidden">
+        <input name="id" id="pid" th:field="*{id}" type="hidden">
+        <input id="state" th:field="*{state}" type="hidden">
+        <!--        <input name="id" th:field="*{id}" type="hidden">-->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label" >论文名称：</label>
+                    <div class="col-sm-8">
+                        <input disabled name="paperTitle" th:field="*{paperTitle}" class="form-control" type="text">
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">论文类别：</label>
+                    <div class="col-sm-8">
+                        <select disabled name="topType" id="paperCategory" class="form-control" th:with="type=${@dict.getType('sci_paper_k')}" required>
+                            <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"
+                                    th:field="*{paperCategory}"></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">发表期刊：</label>
+                    <div class="col-sm-8">
+                        <input disabled name="publishedJournal" th:field="*{publishedJournal}" class="form-control" type="text">
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">发表时间：</label>
+                    <div class="input-group date">
+                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                        <input disabled name="publicationTime" th:field="*{publicationTime}"
+                               th:value="${#dates.format(publicationTime, 'yyyy-MM-dd')}"  class="form-control"
+                               placeholder="yyyy-MM-dd" type="text">
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">是否与行业联合发表：</label>
+
+                    <div class="col-sm-9">
+                        <label class="radio-box">
+                            <input disabled name="isIndustryCollaborative" th:field="*{isIndustryCollaborative}" class="form-control"
+                                   type="radio" value="是">是</label>
+                        <label class="radio-box">
+                            <input disabled name="isIndustryCollaborative" th:field="*{isIndustryCollaborative}" class="form-control"
+                                   type="radio" value="否">否</label>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">是否与地方联合发表：</label>
+                    <div class="col-sm-9">
+                        <label class="radio-box">
+                            <input disabled name="isLocalCollaborative" th:field="*{isLocalCollaborative}" class="form-control"
+                                   type="radio" value="是">是</label>
+                        <label class="radio-box">
+                            <input disabled name="isLocalCollaborative" th:field="*{isLocalCollaborative}" class="form-control"
+                                   type="radio" value="否">否</label>
+                    </div>
+                    <!--                <div class="col-sm-8">-->
+                    <!--                    <input name="isLocalCollaborative" th:field="*{isLocalCollaborative}" class="form-control" type="text">-->
+                    <!--                </div>-->
+
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">是否与国际联合发表：</label>
+                    <div class="col-sm-9">
+                        <label class="radio-box">
+                            <input disabled name="isInternationalCollaborative" th:field="*{isInternationalCollaborative}"
+                                   class="form-control" type="radio" value="是">是</label>
+                        <label class="radio-box">
+                            <input disabled name="isInternationalCollaborative" th:field="*{isInternationalCollaborative}"
+                                   class="form-control" type="radio" value="否">否</label>
+                    </div>
+                    <!--                <div class="col-sm-8">-->
+                    <!--                    <input name="isInternationalCollaborative" th:field="*{isInternationalCollaborative}" class="form-control" type="text">-->
+                    <!--                </div>-->
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">是否是跨学科论文：</label>
+                    <div class="col-sm-9">
+                        <label class="radio-box">
+                            <input disabled name="isCrossDiscipline" th:field="*{isCrossDiscipline}" class="form-control"
+                                   type="radio" value="是">是</label>
+                        <label class="radio-box">
+                            <input disabled name="isCrossDiscipline" th:field="*{isCrossDiscipline}" class="form-control"
+                                   type="radio" value="否">否</label>
+                    </div>
+
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">排名：</label>
+                    <div class="col-sm-8">
+                        <select  disabled name="paperRanking" id="paperRanking" class="form-control" th:with="type=${@dict.getType('sci_paper_qwer')}" required>
+                            <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">科研分：</label>
+                    <div class="col-sm-8">
+                        <input disabled name="researchScore" th:field="*{researchScore}" class="form-control" type="text">
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">论文文件：</label>
+                    <div class="col-sm-8">
+                        <input th:field="*{text_paper}" hidden id="text_paper" type="text" >
+<!--                        <div style="display: inline-block;">-->
+<!--                            <div id="filingFileName" style="display: inline; margin-right: 5px;"></div>-->
+<!--                        </div>-->
+                        <div>
+                            <button onclick="chakan()" class="btn btn-sm btn-primary color">预览</button>
+                            <button onclick="downloadFile('text_paper')" class="btn btn-sm btn-primary color">下载</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">备注：</label>
+                    <div class="col-sm-8">
+                        <input disabled name="remarks" th:field="*{remarks}" class="form-control" type="text">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h4 class="form-header h4 tdiv1" style="display:none;">退回原因</h4>
+        <div class="row tdiv1" style="display:none;">
+            <div class="col-sm-12">
+                <div class="form-group"  >
+                    <label class="col-xs-2 control-label">批注：</label>
+                    <div class="col-xs-10">
+                        <textarea name="remark" id="remark" required maxlength="500" class="form-control" rows="3"></textarea>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <h4 class="form-header h4 tdiv2"  style="display:none;">批阅记录</h4>
+        <div class="row tdiv2" style="display:none;">
+            <div class="col-sm-12">
+
+                <div class="form-group"  >
+                    <table id='bootstrap-table'></table>
+                </div>
+            </div>
+        </div>
+
+    </form>
+</div>
+
+<div class="row">
+    <div class="col-sm-offset-5 col-sm-10">
+        <button type="button" id="btn1" class="btn btn-sm btn-primary" onclick="submitHandler()"><i class="fa fa-check"></i>通 过</button>&nbsp;
+        <button type="button" id="btn2" class="btn btn-sm btn-danger" onclick="submitHandlerBH()"><i class="fa fa-reply-all"></i>驳 回</button>
+        <button type="button" id="btn3" class="btn btn-sm btn-warning" onclick="closeItem()"><i class="fa fa-reply-all"></i>关 闭 </button>
+    </div>
+</div>
+
+<th:block th:include="include :: footer" />
+<th:block th:include="include :: datetimepicker-js" />
+<script th:inline="javascript">
+    var prefix = ctx + "system/paper";
+
+    function displayFileName(inputId, fileNameId) {
+        const input = document.getElementById(inputId);
+        const fileNameSpan = document.getElementById(fileNameId);
+        if (input.value) {
+            const fileName = input.value.split('/').pop(); // 获取文件名
+            const parts = fileName.split('_'); // 按下划线分割
+            const firstPart = parts[0]; // 下划线前的部分
+
+            const dotParts = fileName.split('.'); // 按点分割
+            const lastPart = dotParts[dotParts.length - 1]; // 点后的部分
+
+            fileNameSpan.textContent = `${firstPart}.${lastPart}`; // 组合并显示
+        } else {
+            fileNameSpan.textContent = '';
+        }
+    }
+    function chakan(){
+        var c = $("#text_paper").val();
+        $.modal.openTab("查看论文" ,c );
+    }
+    function downloadFile(type){
+        var c = $("#"+type).val();
+        if(c){
+            var a = document.createElement("a");
+            a.href=c;
+            a.download="";
+            a.style.display = "none";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }else{
+            alert("网址无效");
+        }
+    }
+    $(function() {
+        var pid = $("#pid").val();
+        console.log("pid:",pid);
+        var options = {
+            url: prefix + "/bhxs/" + pid,
+            showSearch: false,
+            showRefresh: false,
+            showToggle: false,
+            showColumns: false,
+            pagination: false,
+            columns: [
+                {
+                    field: 'create_time',
+                    title: '批阅时间',
+                    width: 200
+
+                },
+                {
+                    field: 'uname',
+                    title: '批阅人',
+                    width: 100
+                },
+                {
+                    field: 'concate',
+                    title: '内容',
+                    width: 500
+                },
+                {
+                    field: 'state',
+                    title: '审核状态',
+                    width: 100
+                }]
+        };
+        $.table.init(options);
+
+        $('#bootstrap-table').on('load-success.bs.table', function (e, data) {
+            // 确定rows数组
+            const rows = data && data.rows ? data.rows : [];
+
+            // 获取状态值和urlFlag值
+            const state = $("#state").val();
+            const urlFlag = $("#urlFlag").val();
+
+            console.log("State:", state);
+
+            if (urlFlag === 'chakan') {
+                handleChakanView();
+            } else {
+                if ([1, 2, 4].includes(parseInt(state))) {
+                    handleStandardView(rows);
+                }
+            }
+
+            if ([8, 3].includes(parseInt(state))) {
+                $("#btn1").hide();
+                $("#btn2").hide();
+            }
+
+            if (['kyth', 'xyth', 'proth'].includes(urlFlag)) {
+                handleSpecialView();
+            }
+        });
+
+        // 处理'chakan'视图
+        function handleChakanView() {
+            $("#btn1").hide();
+            $("#btn2").hide();
+            $(".tdiv2").show();
+            $("#btn3").show();
+        }
+
+        // 处理标准视图（state为1, 2, 或4）
+        function handleStandardView(rows) {
+            if (rows.length > 0) {
+                $(".tdiv2").show();
+            }
+            $(".tdiv1").show();
+            $("#btn1").show();
+            $("#btn2").show();
+            $("#btn3").show();
+        }
+
+        // 处理特殊视图（urlFlag为'kyth', 'xyth', 或'proth'）
+        function handleSpecialView() {
+            $(".tdiv1").show();
+            $(".tdiv2").show();
+            $("#btn1").hide();
+            $("#btn2").show();
+            $("#btn3").show();
+        }
+    })
+
+    function submitHandler() {
+        var urlFlag = $("#urlFlag").val();
+        var paperCategory = $("#paperCategory").val();
+        var paperRanking = $("#paperRanking").val();
+        console.log("Submitting with urlFlag:", urlFlag);
+        console.log("paperCategory:!!!!",paperCategory)
+        console.log("paperRanking:!!!!",paperRanking)
+
+        // 构建完整的URL
+        var Url = prefix + "/pytg/" + encodeURIComponent($("#pid").val());
+
+        $.operate.saveTab(Url, {"urlFlag": urlFlag,"paperCategory":paperCategory,"paperRanking":paperRanking}, function(response){
+            console.log("Server response:", response);
+        });
+    }
+
+    function submitHandlerBH() {
+        if ($.validate.form()) {
+            var urlFlag = $("#urlFlag").val();
+            var remark = $('#remark').val();  // 直接获取textarea的值
+
+            var url = prefix + "/pybh/" + encodeURIComponent($("#pid").val());;
+            $.operate.saveTab(url, {"urlFlag": urlFlag, "remark": remark})
+
+        } else {
+            console.error("Form validation failed");
+        }
+    }
+
+
+    $("input[name='publicationTime']").datetimepicker({
+        format: "yyyy-mm-dd",
+        minView: "month",
+        autoclose: true
+    });
+
+    window.onload = function() {
+        displayFileName('contract', 'contractFileName');
+        displayFileName('text_paper', 'text_paperName');
+    };
+</script>
+</body>
+</html>

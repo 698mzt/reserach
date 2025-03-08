@@ -15,4 +15,8 @@ public interface SciUserScoreMapper {
 
     /** 删除指定id的积分*/
     public int deleteScoreById(@Param("id")String id, @Param("status")String status);
+
+    List<SciUserScore> selectScoreVerticalById(Integer id);
+
+    void insertScoreVertical(SciUserScore sciUserScore);
 }

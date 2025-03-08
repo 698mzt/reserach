@@ -229,21 +229,65 @@
             alert("网址无效");
         }
     }
-
-    function showButton(){
-        var a =$("#state").val();
-        if(a == 1111 || a == 2222){
-            $("#btn1").fadeIn(500);
-            $("#btn2").fadeIn(500);
-            $("#btn3").fadeIn(500);
-        }else{
-            $("#btn3").fadeIn(500);
-        }
-    }
     $(function(){
+        var kid = $("#ktid").val();
+        var options = {
+            url: prefix + "/bhyy/"+kid,
+            showSearch: false,
+            showRefresh: false,
+            showToggle: false,
+            showColumns: false,
+            pagination:false,
+            sortName: "createTime",
+            sortOrder: "desc",
+            columns: [
+
+                {
+                    field : 'createTime',
+                    title : '批阅时间',
+                    width: 200
+
+                } ,
+                {
+                    field : 'uname',
+                    title : '批阅人',
+                    width: 100
+                },
+                {
+                    field : 'concate',
+                    title : '内容',
+                    width: 500
+                },
+                {
+                    field : 'state',
+                    title : '审核状态',
+                    width: 100
+                } ]
+        };
+
+        $.table.init(options);
+
+        $('#bootstrap-table').on('load-success.bs.table', function (e, name, args) {
+            console.log('Event Name:', name.rows);
+
+            var a =$("#state").val();
+            if ($("#urlFlag").val() == 'chakan'){
+                $("#btn3").show();
+                $(".tdiv2").show()
+            }else {
+                if(a == 22 ||a == 11  || a == 44){
+                    if(name.rows.length > 0){
+                        $(".tdiv2").show();
+                    }
+                    $(".tdiv1").show();
+                    $("#btn1").show();
+                    $("#btn2").show();
+                    $("#btn3").show();
+                }
+            }
 
 
-
+        });
 
 
         <!-- laydate示例 -->

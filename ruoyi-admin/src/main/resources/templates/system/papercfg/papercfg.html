@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('论文积分列表')" />
+</head>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 search-collapse">
+            <form id="formId">
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            <label>学院：</label>
+                            <input type="text" name="college"/>
+                        </li>
+<!--                        <li>-->
+<!--                            <label>工号：</label>-->
+<!--                            <input type="text" name="employeeId"/>-->
+<!--                        </li>-->
+<!--                        <li>-->
+<!--                            <label>教师姓名：</label>-->
+<!--                            <input type="text" name="teacherName"/>-->
+<!--                        </li>-->
+                    </ul>
+                </div>
+            </form>
+        </div>
+
+        <div class="btn-group-sm" id="toolbar" role="group">
+            <a class="btn btn-success" onclick="$.operate.addTab()" shiro:hasPermission="system:papercfg:add">
+                <i class="fa fa-plus"></i> 添加
+            </a>
+<!--            <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:paper:export">-->
+<!--                <i class="fa fa-download"></i> 导出-->
+<!--            </a>-->
+        </div>
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table"></table>
+        </div>
+    </div>
+</div>
+<th:block th:include="include :: footer" />
+<script th:inline="javascript">
+    var prefix = ctx + "system/papercfg";
+    var KDates = [[${@dict.getType('sci_paper_k')}]];
+    var QWERDates = [[${@dict.getType('sci_paper_qwer')}]];
+    console.log("DAMN:")
+    function getUrl() {
+        return prefix+"/list";
+    }
+    function initTable(options) {
+
+        options.url = getUrl();
+        $.table.init(options);
+    }
+    $(function() {
+        var options = {
+            // url:getUrl($('table').attr('id')),
+            createUrl: prefix + "/add",
+            // detailUrl: prefix + "/detail/{id}",
+            // updateUrl: prefix + "/edit/{id}",
+            // removeUrl: prefix + "/remove",
+            // exportUrl: prefix + "/export",
+            modalName: "论文积分",
+            columns: [{
+                checkbox: true
+            },
+                {
+                    field: 'id',
+                    title: '序号',
+                    visible: false
+                },
+                {
+                    field: 'order',
+                    title: '论文分类',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                        console.log( $.table.selectDictLabels(KDates, value))
+                        return $.table.selectDictLabel(KDates, value);
+                    }
+                },
+                {
+                    field: 'user_order',
+                    title: '项目负责人',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                        console.log( $.table.selectDictLabels(QWERDates, value))
+                        return $.table.selectDictLabel(QWERDates, value);
+                    }
+                },
+                {
+                    field: 'points',
+                    title: '积分',
+                    align: 'center',
+                },
+            ]
+        };
+        initTable(options);
+    })
+
+</script>
+</body>
+</html>

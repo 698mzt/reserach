@@ -9,7 +9,7 @@ import com.ruoyi.system.domain.SciZhuanliruanzhuScoreCfg;
  * @author ruoyi
  * @date 2025-02-15
  */
-public interface ISciZhuanliruanzhuScoreCfgService 
+public interface ISciZhuanliruanzhuScoreCfgService
 {
     /**
      * 查询专利软著积分管理

@@ -13,7 +13,7 @@ import org.apache.ibatis.annotations.Param;
  * @author ruoyi
  * @date 2024-11-21
  */
-public interface SciZhuanliruanzhuMapper 
+public interface SciZhuanliruanzhuMapper
 {
 
 

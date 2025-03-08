@@ -1,6 +1,10 @@
 package com.ruoyi.system.service.impl;
 
 import java.util.List;
+
+import com.ruoyi.common.annotation.DataScope;
+import com.ruoyi.system.domain.SciPaperAr;
+import com.ruoyi.system.mapper.SciPaperACfgMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.ruoyi.system.mapper.SciPaperAMapper;
@@ -19,6 +23,8 @@ public class SciPaperAServiceImpl implements ISciPaperAService
 {
     @Autowired
     private SciPaperAMapper sciPaperAMapper;
+    @Autowired
+    private SciPaperACfgMapper sciPaperACfgMapper;
 
     /**
      * 查询论文
@@ -27,6 +33,7 @@ public class SciPaperAServiceImpl implements ISciPaperAService
      * @return 论文
      */
     @Override
+    @DataScope(deptAlias = "d",userAlias = "u")
     public SciPaperA selectSciPaperAById(Long id)
     {
         return sciPaperAMapper.selectSciPaperAById(id);
@@ -39,9 +46,21 @@ public class SciPaperAServiceImpl implements ISciPaperAService
      * @return 论文
      */
     @Override
-    public List<SciPaperA> selectSciPaperAList(SciPaperA sciPaperA)
-    {
+    @DataScope(deptAlias = "d",userAlias = "u")
+    public List<SciPaperA> selectSciPaperAList(SciPaperA sciPaperA) {
         return sciPaperAMapper.selectSciPaperAList(sciPaperA);
+    }
+
+    @Override
+    @DataScope(deptAlias = "d",userAlias = "u")
+    public List<SciPaperA> selectSciPaperAListKY(SciPaperA sciPaperA) {
+        return sciPaperAMapper.selectSciPaperAListKY(sciPaperA);
+    }
+
+    @Override
+    @DataScope(deptAlias = "d",userAlias = "u")
+    public List<SciPaperA> selectSciPaperAListXY(SciPaperA sciPaperA) {
+        return sciPaperAMapper.selectSciPaperAListXY(sciPaperA);
     }
 
     /**
@@ -53,8 +72,11 @@ public class SciPaperAServiceImpl implements ISciPaperAService
     @Override
     public int insertSciPaperA(SciPaperA sciPaperA)
     {
+
         return sciPaperAMapper.insertSciPaperA(sciPaperA);
     }
+
+
 
     /**
      * 修改论文
@@ -91,4 +113,80 @@ public class SciPaperAServiceImpl implements ISciPaperAService
     {
         return sciPaperAMapper.deleteSciPaperAById(id);
     }
+
+
+    @Override
+    public List<SciPaperA> selectSciPaperArole(Long userId) {
+        return sciPaperAMapper.selectSciPaperArole(userId);
+    }
+
+    /*通过uderId查*/
+    @Override
+  //  @DataScope(deptAlias = "d",userAlias = "u")
+    public List<SciPaperA> selectSciPaperAListCx(SciPaperA sciPaperA) {
+        return sciPaperAMapper.selectSciPaperAListCx(sciPaperA);
+    }
+
+    @Override
+   // @DataScope(deptAlias = "d",userAlias = "u")
+    public List<String>  selectSciPaperAByroleId(Long userId) {
+            //数据权限
+        List<String> a = sciPaperAMapper.selectSciPaperAByroleId(userId);
+        return a;
+    }
+
+    @Override
+    public int pytg(String id,Long uid, String urlFlag,String order,String user_order) {
+        String state = "0";
+        if(urlFlag.equals("pro")){
+            state ="2"; //教研室通过
+        }else if(urlFlag.equals("xytg")){
+            state ="4"; //学院通过
+        }else if(urlFlag.equals("kytg")){
+            state ="8"; //科研处通过
+            int points= sciPaperACfgMapper.selectSciPaperACfgPoints(order,user_order);
+            System.out.println("points = " + points);
+            int b = sciPaperAMapper.updateSciPaperArs(id,points);
+            System.out.println("b = " + b);
+        }
+        int a =  sciPaperAMapper.pytg(id,state);
+        SciPaperAr sciPaperAr = new SciPaperAr();
+        sciPaperAr.setUid(uid);
+        sciPaperAr.setAr_id(Integer.valueOf(id));
+        sciPaperAr.setConcate("同意");
+        sciPaperAr.setState("通过");
+        sciPaperAMapper.insertSciPaperAr(sciPaperAr);
+        return a;
+    }
+
+    @Override
+    public int pybh(String id, Long userId, String remark, String urlFlag) {
+        String state = "0";
+        if(urlFlag.equals("xyth")){
+            state ="5";
+        }else if(urlFlag.equals("proth")){
+            state ="3";
+        }else if(urlFlag.equals("kyth")){
+            state ="7";
+            int points= 0;
+            int b = sciPaperAMapper.updateSciPaperArs(id,points);
+        }
+        int a = sciPaperAMapper.pytg(id,state);
+        SciPaperAr sciPaperAr = new SciPaperAr();
+        sciPaperAr.setUid(userId);
+        sciPaperAr.setAr_id(Integer.valueOf(id));
+        System.out.println("remark132131 = " + remark);
+
+        sciPaperAr.setConcate(remark);
+        sciPaperAr.setState("被驳回");
+
+        sciPaperAMapper.insertSciPaperAr(sciPaperAr);
+        return a;
+    }
+
+    @Override
+    public List<SciPaperAr> selectSciPaperArList(SciPaperAr sciPaperAr) {
+        return sciPaperAMapper.selectSciPaperArList(sciPaperAr);
+    }
+
 }

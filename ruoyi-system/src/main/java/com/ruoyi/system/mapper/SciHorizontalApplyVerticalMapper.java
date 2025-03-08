@@ -1,6 +1,8 @@
 package com.ruoyi.system.mapper;
 
+import com.ruoyi.system.domain.SciHorizontalApply;
 import com.ruoyi.system.domain.SciHorizontalApplyVertical;
+import com.ruoyi.system.domain.SciHorizontalPersion;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -22,6 +24,8 @@ public interface SciHorizontalApplyVerticalMapper {
     public List<SciHorizontalApplyVertical> selectSciHorizontalApplyVerticalListJYS(SciHorizontalApplyVertical sciHorizontalApplyVertical);
 
     public List<SciHorizontalApplyVertical> selectSciHorizontalApplyVerticalListKYC(SciHorizontalApplyVertical sciHorizontalApplyVertical);
+
+    public List<SciHorizontalApplyVertical> selectSciHorizontalApplyVerticalListDept(SciHorizontalApplyVertical sciHorizontalApplyVertical);
 
     /**
      * 保存立项申请
@@ -57,31 +61,8 @@ public interface SciHorizontalApplyVerticalMapper {
 
     int applyPass(@Param("id") String id, @Param("state") String state);
 
-    int openPass(@Param("id") String id, @Param("state") String state);
-
-    int midPass(@Param("id") String id, @Param("state") String state);
-
     int overPass(@Param("id") String id, @Param("state") String state);
 
-    /**
-     * 查询开题申请列表
-     *
-     * @param sciHorizontalApplyVertical 纵向课题
-     * @return 结果
-     */
-    public List<SciHorizontalApplyVertical> selectSciHorizontalApplyVerticalListJYSKT(SciHorizontalApplyVertical sciHorizontalApplyVertical);
-    public List<SciHorizontalApplyVertical> selectSciHorizontalApplyVerticalListKYCKT(SciHorizontalApplyVertical sciHorizontalApplyVertical);
-    public List<SciHorizontalApplyVertical> selectSciHorizontalApplyVerticalListKT(SciHorizontalApplyVertical sciHorizontalApplyVertical);
-
-    /**
-     * 查询中期申请列表
-     *
-     * @param sciHorizontalApplyVertical 纵向课题
-     * @return 结果
-     */
-    public List<SciHorizontalApplyVertical> selectSciHorizontalApplyVerticalListJYSZQ(SciHorizontalApplyVertical sciHorizontalApplyVertical);
-    public List<SciHorizontalApplyVertical> selectSciHorizontalApplyVerticalListKYCZQ(SciHorizontalApplyVertical sciHorizontalApplyVertical);
-    public List<SciHorizontalApplyVertical> selectSciHorizontalApplyVerticalListZQ(SciHorizontalApplyVertical sciHorizontalApplyVertical);
 
     /**
      * 查询结项申请列表
@@ -92,6 +73,8 @@ public interface SciHorizontalApplyVerticalMapper {
     public List<SciHorizontalApplyVertical> selectSciHorizontalApplyVerticalListJYSJX(SciHorizontalApplyVertical sciHorizontalApplyVertical);
     public List<SciHorizontalApplyVertical> selectSciHorizontalApplyVerticalListKYCJX(SciHorizontalApplyVertical sciHorizontalApplyVertical);
     public List<SciHorizontalApplyVertical> selectSciHorizontalApplyVerticalListJX(SciHorizontalApplyVertical sciHorizontalApplyVertical);
+
+    public List<SciHorizontalApplyVertical> selectSciHorizontalApplyVerticalListDeptJX(SciHorizontalApplyVertical sciHorizontalApplyVertical);
 
     /**
      * 查询已结项列表
@@ -108,4 +91,10 @@ public interface SciHorizontalApplyVerticalMapper {
      * @return 结果
      */
     List<SciHorizontalApplyVertical> selectSciHorizontalApplyVerticalAllList(SciHorizontalApplyVertical sciHorizontalApplyVertical);
+
+
+    int insertPersionVertical(SciHorizontalPersion sciHorizontalPersion);
+
+
+    List<SciHorizontalApplyVertical> selectOtherListByUid(SciHorizontalApplyVertical sciHorizontalApplyVertical);
 }

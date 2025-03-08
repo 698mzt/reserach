@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.SciJiaocairuanzhuMapper">
+
+    <resultMap type="SciJiaocairuanzhu" id="SciJiaocairuanzhuResult">
+        <result property="id"    column="id"    />
+        <result property="userId"    column="user_id"    />
+
+
+        <result property="mingcheng"    column="mingcheng"    />
+        <result property="leixing"    column="leixing"    />
+        <result property="isbn"    column="isbn"    />
+        <result property="chubanshijian"    column="chubanshijian"    />
+        <result property="chubanshe"    column="chubanshe"    />
+        <result property="benxiaoshifoyongshu"    column="benxiaoshifoyongshu"    />
+        <result property="fenlei"    column="fenlei"    />
+        <result property="jifen"    column="jifen"    />
+        <result property="wenjian"    column="wenjian"    />
+        <result property="createtime" column="createtime" />
+
+
+
+    </resultMap>
+
+    <sql id="selectSciJiaocairuanzhuVo">
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.mingcheng, s.leixing, s.isbn, s.chubanshijian, s.chubanshe, s.benxiaoshifoyongshu, s.fenlei, s.state,s.jifen,s.paiming,s.wenjian
+        from sci_jiaocairuanzhu s left join sys_user u on  s.user_id=u.user_id
+                                  left join sys_dept d on u.dept_id = d.dept_id
+                                  left join sys_dept p on d.parent_id =p.dept_id
+    </sql>
+
+    <select id="selectSciJiaocairuanzhuList" parameterType="SciJiaocairuanzhu" resultMap="SciJiaocairuanzhuResult">
+        <include refid="selectSciJiaocairuanzhuVo"/>
+        where state in (1,2,3,4,5,6)and s.user_id = #{uid}
+
+        <if test="xueyuan != null  and xueyuan != ''"> and xueyuan = #{xueyuan}</if>
+
+
+        <if test="mingcheng != null  and mingcheng != ''"> and mingcheng like concat('%', #{mingcheng}, '%')</if>
+        <if test="chubanshijian != null "> and chubanshijian = #{chubanshijian}</if>
+        <if test="fenlei != null  and fenlei != ''"> and fenlei = #{fenlei}</if>
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
+        <if test="userId != null  and userId != ''">and s.user_id = #{uid}</if>
+
+
+
+    </select>
+
+    <select id="selectSciJiaocairuanzhuList1" parameterType="SciJiaocairuanzhu" resultMap="SciJiaocairuanzhuResult">
+        <include refid="selectSciJiaocairuanzhuVo"/>
+        where state in (1,2,3,4,5,6,7) and s.user_id = #{uid}
+        <if test="userId != null  and userId != ''">and s.user_id = #{uid}</if>
+
+
+
+
+        <if test="mingcheng != null  and mingcheng != ''"> and mingcheng like concat('%', #{mingcheng}, '%')</if>
+        <if test="chubanshijian != null "> and chubanshijian = #{chubanshijian}</if>
+        <if test="fenlei != null  and fenlei != ''"> and fenlei = #{fenlei}</if>
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
+
+
+
+    </select>
+
+
+
+    <select id="selectSciJiaocairuanzhuList2" parameterType="SciJiaocairuanzhu" resultMap="SciJiaocairuanzhuResult">
+        <include refid="selectSciJiaocairuanzhuVo"/>
+        where (state in (1,2,3,4,5,6) and d.dept_id = #{deptId}) or s.user_id = #{uid}
+
+        <if test="xueyuan != null  and xueyuan != ''"> and xueyuan = #{xueyuan}</if>
+
+
+        <if test="mingcheng != null  and mingcheng != ''"> and mingcheng like concat('%', #{mingcheng}, '%')</if>
+        <if test="chubanshijian != null "> and chubanshijian = #{chubanshijian}</if>
+        <if test="fenlei != null  and fenlei != ''"> and fenlei = #{fenlei}</if>
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
+
+
+    </select>
+
+
+
+    <select id="selectSciJiaocairuanzhuList3" parameterType="SciJiaocairuanzhu" resultMap="SciJiaocairuanzhuResult">
+        <include refid="selectSciJiaocairuanzhuVo"/>
+        where (state in (2,4,5,6) and d.parent_id = #{deptId}) or s.user_id = #{uid}
+
+        <if test="xueyuan != null  and xueyuan != ''"> and xueyuan = #{xueyuan}</if>
+
+
+        <if test="mingcheng != null  and mingcheng != ''"> and mingcheng like concat('%', #{mingcheng}, '%')</if>
+        <if test="chubanshijian != null "> and chubanshijian = #{chubanshijian}</if>
+        <if test="fenlei != null  and fenlei != ''"> and fenlei = #{fenlei}</if>
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
+
+
+    </select>
+
+
+
+    <select id="selectSciJiaocairuanzhuList4" parameterType="SciJiaocairuanzhu" resultMap="SciJiaocairuanzhuResult">
+        <include refid="selectSciJiaocairuanzhuVo"/>
+        where state in (4,6) or s.user_id = #{uid}
+
+        <if test="xueyuan != null  and xueyuan != ''"> and xueyuan = #{xueyuan}</if>
+
+
+        <if test="mingcheng != null  and mingcheng != ''"> and mingcheng like concat('%', #{mingcheng}, '%')</if>
+        <if test="chubanshijian != null "> and chubanshijian = #{chubanshijian}</if>
+        <if test="fenlei != null  and fenlei != ''"> and fenlei = #{fenlei}</if>
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
+        <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+        <if test="state != null  and state != ''"> and state = #{state}</if>
+
+
+    </select>
+
+    <select id="selectSciJiaocairuanzhuById" parameterType="Integer" resultMap="SciJiaocairuanzhuResult">
+        <include refid="selectSciJiaocairuanzhuVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertSciJiaocairuanzhu" parameterType="SciJiaocairuanzhu" useGeneratedKeys="true" keyProperty="id">
+        insert into sci_jiaocairuanzhu
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">user_id,</if>
+            <if test="mingcheng != null and mingcheng != ''">mingcheng,</if>
+            <if test="leixing != null and leixing != ''">leixing,</if>
+            <if test="isbn != null">isbn,</if>
+            <if test="chubanshijian != null">chubanshijian,</if>
+            <if test="chubanshe != null">chubanshe,</if>
+            <if test="benxiaoshifoyongshu != null">benxiaoshifoyongshu,</if>
+            <if test="fenlei != null and fenlei != ''">fenlei,</if>
+            <if test="paiming != null and paiming != ''">paiming,</if>
+            <if test="jifen != null and jifen != ''">jifen,</if>
+            <if test="wenjian != null and wenjian != ''">wenjian,</if>
+
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">#{userId},</if>
+            <if test="mingcheng != null and mingcheng != ''">#{mingcheng},</if>
+            <if test="leixing != null and leixing != ''">#{leixing},</if>
+            <if test="isbn != null">#{isbn},</if>
+            <if test="chubanshijian != null">#{chubanshijian},</if>
+            <if test="chubanshe != null">#{chubanshe},</if>
+            <if test="benxiaoshifoyongshu != null">#{benxiaoshifoyongshu},</if>
+            <if test="fenlei != null and fenlei != ''">#{fenlei},</if>
+            <if test="paiming != null and paiming != ''">#{paiming},</if>
+            <if test="jifen != null and jifen != ''">#{jifen},</if>
+            <if test="wenjian != null and wenjian != ''">#{wenjian},</if>
+
+
+        </trim>
+    </insert>
+
+    <update id="updateSciJiaocairuanzhu" parameterType="SciJiaocairuanzhu">
+        update sci_jiaocairuanzhu
+        <trim prefix="SET" suffixOverrides=",">
+
+
+            <if test="userId != null">user_id = #{userId},</if>
+
+            <if test="mingcheng != null and mingcheng != ''">mingcheng = #{mingcheng},</if>
+            <if test="leixing != null and leixing != ''">leixing = #{leixing},</if>
+            <if test="isbn != null">isbn = #{isbn},</if>
+            <if test="chubanshijian != null">chubanshijian = #{chubanshijian},</if>
+            <if test="chubanshe != null">chubanshe = #{chubanshe},</if>
+            <if test="benxiaoshifoyongshu != null">benxiaoshifoyongshu = #{benxiaoshifoyongshu},</if>
+            <if test="fenlei != null and fenlei != ''">fenlei = #{fenlei},</if>
+            <if test="paiming != null and paiming != ''">paiming = #{paiming},</if>
+            <if test="wenjian != null and wenjian != ''">wenjian = #{wenjian},</if>
+            state = "1"
+
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteSciJiaocairuanzhuById" parameterType="Integer">
+        delete from sci_jiaocairuanzhu where id = #{id}
+    </delete>
+
+    <delete id="deleteSciJiaocairuanzhuByIds" parameterType="String">
+        delete from sci_jiaocairuanzhu where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+
+    <update id="hxPass" >
+        update sci_jiaocairuanzhu set state = #{state} where id = #{id}
+    </update>
+
+
+
+
+    <update id="updateJifen">
+        UPDATE sci_jiaocairuanzhu
+        SET jifen = #{jifen}
+        WHERE id = #{id}
+    </update>
+</mapper>

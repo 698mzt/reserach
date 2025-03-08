@@ -63,7 +63,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </delete>
 
     <delete id="deleteSciZhuanliruanzhuScoreCfgByIds" parameterType="String">
-        delete from sci_zhuanliruanzhu_score_cfg where id in 
+        delete from sci_zhuanliruanzhu_score_cfg where id in
         <foreach item="id" collection="array" open="(" separator="," close=")">
             #{id}
         </foreach>

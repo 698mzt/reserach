@@ -4,25 +4,335 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.system.mapper.SciHorizontalReamountMapper">
     <resultMap type="SciHorizontalReamount" id="SciHorizontalReamountResult">
-        <result property="id" column="id"/>
+        <result property="reid" column="id"/>
         <result property="applyId" column="apply_id"/>
+        <result property="verticalId" column="vertical_id"/>
         <result property="reAmount" column="re_amount"/>
+        <result property="amountType" column="amount_type"/>
         <result property="accountData" column="account_data"/>
         <result property="reamountUrl" column="reamount_url"/>
+        <result property="accountData" column="account_data"/>
+        <result property="state"    column="state"    />
     </resultMap>
-    <insert id="insertAmount" parameterType="SciHorizontalReamount" useGeneratedKeys="true" keyProperty="id">
+
+    <resultMap type="SciHorizontalApply" id="SciHorizontalApplyResult">
+        <result property="id"    column="id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="topName"    column="top_name"    />
+        <result property="topNumber"    column="top_number"    />
+        <result property="topType"    column="top_type"    />
+        <result property="partyA"    column="party_A"    />
+        <result property="partyB"    column="party_B"    />
+        <result property="persionId"    column="persion_id"    />
+        <result property="ranking"    column="ranking"    />
+        <result property="signingData"    column="signing_data"    />
+        <result property="validityDate"    column="validity_Date"    />
+        <result property="firstPersonId"    column="first_person_id"    />
+        <result property="secondPersonId"    column="second_person_id"    />
+        <result property="thirdPersonId"    column="third_person_id"    />
+        <result property="fourthPersonId"    column="fourth_person_id"    />
+        <result property="amount"    column="amount"    />
+        <result property="reAmount"    column="re_amount"    />
+        <result property="reamountUrl"    column="reamount_url"    />
+        <result property="amountType"    column="amount_type"    />
+        <result property="accountData"    column="account_data"    />
+        <result property="state"    column="state"    />
+        <result property="userName"    column="userName"    />
+        <result property="createtime"    column="createtime"    />
+        <result property="year"    column="year"    />
+        <result property="newsql"    column="newsql"    />
+        <result property="dnameId"    column="dept_id"    />
+    </resultMap>
+
+    <resultMap type="SciHorizontalApplyVertical" id="SciHorizontalApplyVerticalResult">
+        <result property="id"    column="id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="topName"    column="top_name"    />
+        <result property="topNumber"    column="top_number"    />
+        <result property="topType"    column="top_type"    />
+        <result property="signingData"    column="signing_data"    />
+        <result property="firstPersonId"    column="first_person_id"    />
+        <result property="secondPersonId"    column="second_person_id"    />
+        <result property="thirdPersonId"    column="third_person_id"    />
+        <result property="fourthPersonId"    column="fourth_person_id"    />
+        <result property="filing"    column="file"    />
+        <result property="openfile"    column="open_file"    />
+        <result property="midfile"    column="mid_file"    />
+        <result property="overfile"    column="over_file"    />
+        <result property="amount"    column="amount"    />
+        <result property="reAmount"    column="re_amount"    />
+        <result property="amountType"    column="amount_type"    />
+        <result property="state"    column="state"    />
+        <result property="userName"    column="userName"    />
+        <result property="createtime"    column="createtime"    />
+        <result property="newsql"    column="newsql"    />
+        <result property="dnameId"    column="dept_id"    />
+        <result property="reamountUrl"    column="reamount_url"    />
+    </resultMap>
+
+
+    <insert id="insertAmount" parameterType="SciHorizontalReamount" useGeneratedKeys="true" keyProperty="reid">
         insert into sci_horizontal_reamount
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="applyId != null">apply_id,</if>
             <if test="reAmount != null">re_amount,</if>
             <if test="accountData != null">account_data,</if>
             <if test="reamountUrl != null">reamount_url,</if>
+            <if test="amountType != null">amount_type,</if>
+            <if test="state != null">state,</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="applyId != null">#{applyId},</if>
             <if test="reAmount != null">#{reAmount},</if>
             <if test="accountData != null">#{accountData},</if>
             <if test="reamountUrl != null">#{reamountUrl},</if>
+            <if test="amountType != null">#{amountType},</if>
+            <if test="state != null">#{state},</if>
         </trim>
     </insert>
+
+    <insert id="insertVerticalAmount" parameterType="SciHorizontalReamount" useGeneratedKeys="true" keyProperty="reid">
+        insert into sci_vertical_reamount
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="verticalId != null">vertical_id,</if>
+            <if test="reAmount != null">re_amount,</if>
+            <if test="accountData != null">account_data,</if>
+            <if test="reamountUrl != null">reamount_url,</if>
+            <if test="amountType != null">amount_type,</if>
+            <if test="state != null">state,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="verticalId != null">#{verticalId},</if>
+            <if test="reAmount != null">#{reAmount},</if>
+            <if test="accountData != null">#{accountData},</if>
+            <if test="reamountUrl != null">#{reamountUrl},</if>
+            <if test="amountType != null">#{amountType},</if>
+            <if test="state != null">#{state},</if>
+        </trim>
+    </insert>
+
+    <select id="selectAmountList" resultMap="SciHorizontalApplyResult" parameterType="SciHorizontalApply">
+        select s.id,re.reid reid,u.user_name userName,s.top_number ,d.dept_id,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,s.party_A,s.party_B, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, s.signing_data, s.validity_Date,re.re_amount ,re.reamount_url,re.account_data,s.contract, s.filing, re.state,re.createtime,re.amount_type
+        from sci_horizontal_apply s
+                 left join sys_user u on  s.user_id=u.user_id
+                 left join sys_dept d on u.dept_id = d.dept_id
+                 left join sys_dept p on d.parent_id =p.dept_id
+                 left join sci_horizontal_reamount re on re.apply_id =s.id
+        where 1=1
+        <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
+        <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+        <if test="state != null  and state != ''"> and state = #{state}</if>
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
+        <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
+        <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+        <if test="state != null  and state != ''"> and state = #{state}</if>
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
+        ${params.dataScope}
+        order  by
+        case
+        when re.state in (3,5,22) then 1
+        when re.state = 1 then 2
+        when re.state in (2,11) then 3
+        when re.state = 4 then 4
+        end,
+        createtime desc
+    </select>
+
+    <select id="selectAmountListJYS" resultMap="SciHorizontalApplyResult" parameterType="SciHorizontalApply">
+        select s.id,re.reid reid,u.user_name userName,s.top_number ,d.dept_id,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,s.party_A,s.party_B, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, s.signing_data, s.validity_Date,re.re_amount, re.reamount_url,re.account_data,s.contract, s.filing, re.state,re.createtime,re.amount_type
+        from sci_horizontal_apply s
+        left join sys_user u on  s.user_id=u.user_id
+        left join sys_dept d on u.dept_id = d.dept_id
+        left join sys_dept p on d.parent_id =p.dept_id
+        left join sci_horizontal_reamount re on re.apply_id =s.id
+        where re.state  in (1,2,3,11,22,4,5)
+        <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
+        <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+        <if test="state != null  and state != ''"> and state = #{state}</if>
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
+            ${params.dataScope}
+        order  by
+        case
+        when re.state = 2 then 1
+        when re.state = 1 then 2
+        when re.state in (4,11) then 3
+        end,
+        createtime
+    </select>
+
+    <select id="selectAmountListDept" resultMap="SciHorizontalApplyResult" parameterType="SciHorizontalApply">
+        select s.id,re.reid reid,u.user_name userName,s.top_number ,d.dept_id,d.dept_name dname,p.dept_id ynameId,p.dept_name yname, s.user_id, s.top_name, s.top_type,s.party_A,s.party_B, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, s.signing_data, s.validity_Date,re.re_amount, re.reamount_url,re.account_data,s.contract, s.filing, re.state,re.createtime,re.amount_type
+        from sci_horizontal_apply s
+        left join sys_user u on  s.user_id=u.user_id
+        left join sys_dept d on u.dept_id = d.dept_id
+        left join sys_dept p on d.parent_id =p.dept_id
+        left join sci_horizontal_reamount re on re.apply_id =s.id
+        where re.state  in (2,11,22,4,5)
+        <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
+        <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+        <if test="state != null  and state != ''"> and state = #{state}</if>
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
+        ${params.dataScope}
+        order  by
+        case
+        when re.state in (2,11) then 1
+        when re.state = 4 then 2
+        end,
+        createtime
+    </select>
+
+    <select id="selectAmountListKYC" resultMap="SciHorizontalApplyResult" parameterType="SciHorizontalApply">
+        select s.id,re.reid reid,u.user_name userName,s.top_number ,d.dept_id,d.dept_name dname,p.dept_id ynameId,p.dept_name yname, s.user_id, s.top_name, s.top_type,s.party_A,s.party_B, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, s.signing_data, s.validity_Date,re.re_amount, re.reamount_url,re.account_data,s.contract, s.filing, re.state,re.createtime,re.amount_type
+        from sci_horizontal_apply s
+        left join sys_user u on  s.user_id=u.user_id
+        left join sys_dept d on u.dept_id = d.dept_id
+        left join sys_dept p on d.parent_id =p.dept_id
+        left join sci_horizontal_reamount re on re.apply_id =s.id
+        where re.state  in (11,4,5)
+        <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
+        <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+        <if test="state != null  and state != ''"> and state = #{state}</if>
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
+        ${params.dataScope}
+        order  by
+        case
+        when re.state = 11 then 1
+        when re.state = 4 then 2
+        end,
+        createtime desc
+    </select>
+
+    <select id="selectAmountById" parameterType="Integer" resultMap="SciHorizontalApplyResult">
+        select s.id,re.reid reid,u.user_name userName, s.user_id, s.top_name,s.top_number , s.top_type,s.party_A,s.party_B,  s.signing_data, s.validity_Date,s.first_person_id,  s.second_person_id, s.third_person_id, s.fourth_person_id,  s.amount, s.contract, s.filing,s.filingurl,s.agreeurl ,re.reamount_url,re.re_amount,re.account_data,re.state,re.createtime,re.amount_type
+        from sci_horizontal_apply s
+        left join sys_user u on  s.user_id=u.user_id
+        left join sci_horizontal_reamount re on re.apply_id =s.id
+        where re.reid = #{id}
+    </select>
+
+    <select id="selectAmountListById" parameterType="Integer" resultMap="SciHorizontalApplyResult">
+        select s.id,re.reid reid,u.user_name userName, s.user_id, s.top_name,s.top_number , s.top_type,s.party_A,s.party_B,  s.signing_data, s.validity_Date,s.first_person_id,  s.second_person_id, s.third_person_id, s.fourth_person_id,  s.amount, s.contract, s.filing,s.filingurl,s.agreeurl ,re.reamount_url,re.re_amount,re.account_data,re.state,re.createtime,re.amount_type
+        from sci_horizontal_apply s
+                 left join sys_user u on  s.user_id=u.user_id
+                 left join sci_horizontal_reamount re on re.apply_id =s.id
+        where re.reid = #{id}
+    </select>
+
+    <select id="selectVerticalAmountById" parameterType="Integer" resultMap="SciHorizontalApplyVerticalResult">
+        select s.id,re.reid reid,u.user_name userName,s.top_number , s.user_id, s.top_name, s.top_type, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, s.signing_data,s.amount,re.re_amount ,re.reamount_url,re.account_data,s.file, s.over_file, re.state,re.createtime,re.amount_type
+        from sci_horizontal_apply_vertical s
+                 left join sys_user u on  s.user_id=u.user_id
+                 left join sci_vertical_reamount re on re.vertical_id =s.id
+        where re.reid = #{id}
+    </select>
+
+
+    <update id="amountpass">
+        update sci_horizontal_reamount set state = #{state} where reid = #{id}
+    </update>
+
+    <update id="verticalamountpass">
+        update sci_vertical_reamount set state = #{state} where reid = #{id}
+    </update>
+
+    <update id="amountedit" parameterType="SciHorizontalReamount">
+        update sci_horizontal_reamount
+        <trim prefix="set" suffixOverrides=",">
+            <if test="reAmount != null and reAmount != ''">re_amount = #{reAmount},</if>
+            <if test="reamountUrl != null and reamountUrl != ''">reamount_url = #{reamountUrl},</if>
+            <if test="state != null and state != ''">state = #{state},</if>
+        </trim>
+        where reid = #{reid}
+    </update>
+
+    <select id="selectVerticalAmountList" resultMap="SciHorizontalApplyVerticalResult" parameterType="SciHorizontalApplyVertical">
+        select s.id,re.reid reid,u.user_name userName,s.top_number ,d.dept_id,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, s.signing_data,s.amount,re.re_amount ,re.reamount_url,re.account_data,s.file, s.over_file, re.state,re.createtime,re.amount_type
+        from sci_horizontal_apply_vertical s
+        left join sys_user u on  s.user_id=u.user_id
+        left join sys_dept d on u.dept_id = d.dept_id
+        left join sys_dept p on d.parent_id =p.dept_id
+        left join sci_vertical_reamount re on re.vertical_id =s.id
+        where 1=1
+        <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
+        <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+        <if test="state != null  and state != ''"> and state = #{state}</if>
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
+        <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
+        <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+        <if test="state != null  and state != ''"> and state = #{state}</if>
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
+        ${params.dataScope}
+        order  by
+        case
+        when re.state in (3,5,22) then 1
+        when re.state = 1 then 2
+        when re.state in (2,11) then 3
+        when re.state = 4 then 4
+        end,
+        createtime desc
+    </select>
+
+    <select id="selectVerticalAmountListJYS" resultMap="SciHorizontalApplyVerticalResult" parameterType="SciHorizontalApplyVertical">
+        select s.id,re.reid reid,u.user_name userName,s.top_number ,d.dept_id,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, s.signing_data,s.amount,re.re_amount ,re.reamount_url,re.account_data,s.file, s.over_file, re.state,re.createtime,re.amount_type
+        from sci_horizontal_apply_vertical s
+        left join sys_user u on  s.user_id=u.user_id
+        left join sys_dept d on u.dept_id = d.dept_id
+        left join sys_dept p on d.parent_id =p.dept_id
+        left join sci_vertical_reamount re on re.vertical_id =s.id
+        where re.state  in (1,2,3,11,22,4,5)
+        <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
+        <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+        <if test="state != null  and state != ''"> and state = #{state}</if>
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
+        ${params.dataScope}
+        order  by
+        case
+        when re.state = 2 then 1
+        when re.state = 1 then 2
+        when re.state in (4,11) then 3
+        end,
+        createtime
+    </select>
+
+    <select id="selectVerticalAmountListDept" resultMap="SciHorizontalApplyVerticalResult" parameterType="SciHorizontalApplyVertical">
+        select s.id,re.reid reid,u.user_name userName,s.top_number ,d.dept_id,d.dept_name dname,p.dept_id ynameId,p.dept_name yname, s.user_id, s.top_name, s.top_type, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, s.signing_data,s.amount,re.re_amount ,re.reamount_url,re.account_data,s.file, s.over_file, re.state,re.createtime,re.amount_type
+        from sci_horizontal_apply_vertical s
+        left join sys_user u on  s.user_id=u.user_id
+        left join sys_dept d on u.dept_id = d.dept_id
+        left join sys_dept p on d.parent_id =p.dept_id
+        left join sci_vertical_reamount re on re.vertical_id =s.id
+        where re.state  in (2,11,22,4,5)
+        <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
+        <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+        <if test="state != null  and state != ''"> and state = #{state}</if>
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
+        ${params.dataScope}
+        order  by
+        case
+        when re.state in (2,11) then 1
+        when re.state = 4 then 2
+        end,
+        createtime
+    </select>
+
+    <select id="selectVerticalAmountListKYC" resultMap="SciHorizontalApplyVerticalResult" parameterType="SciHorizontalApplyVertical">
+        select s.id,re.reid reid,u.user_name userName,s.top_number ,d.dept_id,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, s.signing_data,s.amount,re.re_amount ,re.reamount_url,re.account_data,s.file, s.over_file, re.state,re.createtime,re.amount_type
+        from sci_horizontal_apply_vertical s
+        left join sys_user u on  s.user_id=u.user_id
+        left join sys_dept d on u.dept_id = d.dept_id
+        left join sys_dept p on d.parent_id =p.dept_id
+        left join sci_vertical_reamount re on re.vertical_id =s.id
+        where re.state  in (11,4,5)
+        <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
+        <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+        <if test="state != null  and state != ''"> and state = #{state}</if>
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
+        ${params.dataScope}
+        order  by
+        case
+        when re.state = 11 then 1
+        when re.state = 4 then 2
+        end,
+        createtime desc
+    </select>
 </mapper>
