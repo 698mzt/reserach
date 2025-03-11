@@ -59,21 +59,21 @@
                 </div>
             </div>
 
-                <div class="col-xs-6">
-                    <div class="form-group">
-                        <label class="col-sm-4 control-label is-required">申请日期：</label>
-                        <div class="col-sm-8">
-                            <div class="input-group date">
-                                <input name="signingData" autocomplete="off" th:field="*{signingData}" th:value="${#dates.format(signingData, 'yyyy-MM-dd')}" class="form-control" placeholder="yyyy-MM-dd" type="text" required>
-                                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+<!--                <div class="col-xs-6">-->
+<!--                    <div class="form-group">-->
+<!--                        <label class="col-sm-4 control-label is-required">申请日期：</label>-->
+<!--                        <div class="col-sm-8">-->
+<!--                            <div class="input-group date">-->
+<!--                                <input name="signingData" autocomplete="off" th:field="*{signingData}" th:value="${#dates.format(signingData, 'yyyy-MM-dd')}" class="form-control" placeholder="yyyy-MM-dd" type="text" required>-->
+<!--                                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
 
             <div class="col-xs-6">
                 <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">结束日期：</label>
+                    <label class="col-sm-4 control-label is-required">结项日期：</label>
                     <div class="col-sm-8">
                         <div class="input-group date">
                             <input  autocomplete="off" name="validityDate" th:field="*{validityDate}" th:value="${#dates.format(validityDate, 'yyyy-MM-dd - yyyy-MM-dd')}" class="form-control" id="laydate-demo-4" placeholder="yyyy-MM-dd - yyyy-MM-dd" type="text" required>
@@ -141,7 +141,7 @@
                     <div class="col-sm-8">
                         <input type="hidden" name="filingurl" th:field="*{filingurl}">
                         <div class="file-loading">
-                            <input class="form-control file-upload" id="filingurl" name="file" type="file">
+                            <input class="form-control file-uploada" id="filingurl" name="file" type="file">
                         </div>
                     </div>
                 </div>
@@ -152,7 +152,7 @@
                     <div class="col-sm-8">
                         <input type="hidden" name="agreeurl" th:field="*{agreeurl}">
                         <div class="file-loading">
-                            <input class="form-control file-upload" id="agreeurl" name="file" type="file">
+                            <input class="form-control file-uploadb" id="agreeurl" name="file" type="file">
                         </div>
                     </div>
                 </div>
@@ -292,15 +292,55 @@
 
 
 
-    $(".file-upload").each(function (i) {
+    $(".file-uploada").each(function (i) {
         var val = $("input[name='" + this.id + "']").val()
         $(this).fileinput({
-            'uploadUrl': ctx + 'common/upload',
+            'uploadUrl': ctx + 'common/upload/hxkt',
             initialPreviewAsData: true,
             initialPreview: [val],
             maxFileCount: 1,
             autoReplace: true,
-            allowedFileExtensions: ["pdf"]
+            allowedFileExtensions: ["pdf"],
+            slugCallback: function(filename) {
+                if ($("input[name='topName']").val()===""){
+                    $(".file-uploada").fileinput('clear');
+                    $.modal.alertError("请先输入课题名称");
+                    return false;
+                }
+                // 自定义文件名生成规则
+                fileExtension = filename.split('.').pop();
+                const year = new Date().getFullYear();
+                const newName = year +"-"+ $("input[name='topName']").val() +"-"+ "合同"+ "." + fileExtension;
+                return newName;
+            },
+        }).on('fileuploaded', function (event, data, previewId, index) {
+            $("input[name='" + event.currentTarget.id + "']").val(data.response.url)
+        }).on('fileremoved', function (event, id, index) {
+            $("input[name='" + event.currentTarget.id + "']").val('')
+        })
+        $(this).fileinput('_initFileActions');
+    });
+    $(".file-uploadb").each(function (i) {
+        var val = $("input[name='" + this.id + "']").val()
+        $(this).fileinput({
+            'uploadUrl': ctx + 'common/upload/hxkt',
+            initialPreviewAsData: true,
+            initialPreview: [val],
+            maxFileCount: 1,
+            autoReplace: true,
+            allowedFileExtensions: ["pdf"],
+            slugCallback: function(filename) {
+                if ($("input[name='topName']").val()===""){
+                    $(".file-uploadb").fileinput('clear');
+                    $.modal.alertError("请先输入课题名称");
+                    return false;
+                }
+                // 自定义文件名生成规则
+                fileExtension = filename.split('.').pop();
+                const year = new Date().getFullYear();
+                const newName = year +"-"+ $("input[name='topName']").val() +"-"+ "备案表"+ "." + fileExtension;
+                return newName;
+            },
         }).on('fileuploaded', function (event, data, previewId, index) {
             $("input[name='" + event.currentTarget.id + "']").val(data.response.url)
         }).on('fileremoved', function (event, id, index) {
