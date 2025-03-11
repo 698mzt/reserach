@@ -59,7 +59,7 @@
         SELECT
         *
         FROM
-        sci_project_score_cfg
+        sci_technology_transfer_cfg
         WHERE
         ( #{amount} >= funds_min AND #{amount} &lt; funds_max )
         OR (
