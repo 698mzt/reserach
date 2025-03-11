@@ -289,7 +289,9 @@ public class SciHorizontalApplyVerticalController extends BaseController {
     public AjaxResult overaddSave(SciHorizontalApplyVertical sciHorizontalApplyVertical,SciHorizontalReamount sciHorizontalReamount)
     {
         sciHorizontalApplyVerticalService.updateSciHorizontalApplyVertical(sciHorizontalApplyVertical);
-        return toAjax(sciHorizontalReamountService.insertAmount(sciHorizontalReamount));
+        sciHorizontalReamount.setVerticalId(sciHorizontalApplyVertical.getId().toString());
+        sciHorizontalReamount.setState("1");
+        return toAjax(sciHorizontalReamountService.insertVerticalAmount(sciHorizontalReamount));
     }
 
     /**
@@ -459,6 +461,15 @@ public class SciHorizontalApplyVerticalController extends BaseController {
         SciHorizontalPiyue ob = new SciHorizontalPiyue();
         ob.setVerticalId(kid);
         List<SciHorizontalPiyue> list = piyueService.selectVerticalAmountPiyueList(ob);
+        return getDataTable(list);
+    }
+    @PostMapping("/abhyy/{kid}")
+    @ResponseBody
+    public TableDataInfo abhyy(@PathVariable("kid")Integer kid)
+    {
+        SciHorizontalPiyue ob = new SciHorizontalPiyue();
+        ob.setVerticalId(kid);
+        List<SciHorizontalPiyue> list = piyueService.selectVerticalPiyueList(ob);
         return getDataTable(list);
     }
 

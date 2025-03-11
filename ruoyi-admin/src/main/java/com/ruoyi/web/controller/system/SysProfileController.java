@@ -160,6 +160,7 @@ public class SysProfileController extends BaseController
     @ResponseBody
     public AjaxResult updateAvatar(@RequestParam("avatarfile") MultipartFile file)
     {
+        String model = "";
         SysUser currentUser = getSysUser();
         try
         {

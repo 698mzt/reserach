@@ -195,7 +195,7 @@ public class SciHorizontalApplyController extends BaseController
                 apply.setUserdnameId(did);
                 apply.setUserynameId(yid);
                 apply.setUid(getUserId());
-                List<SciUserScore> score = sciUserScoreMapper.selectScoreVerticalById(apply.getId());
+                List<SciUserScore> score = sciUserScoreMapper.selectScoreHistoryById(apply.getId());
                 ArrayList<Integer> allscore = new ArrayList<>();
                 for(SciUserScore score1: score){
                     if (apply.getFirstPersonId().equals(score1.getUserId()) && apply.getFirstPersonId().equals(getUserId().toString()))

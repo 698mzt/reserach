@@ -151,7 +151,7 @@
                     <div class="col-sm-8">
                         <input type="hidden" name="contract" th:field="*{contract}">
                        <div class="file-loading">
-                            <input class="form-control file-upload" id="contract" name="file" type="file">
+                            <input class="form-control file-uploada" id="contract" name="file" type="file">
                         </div>
                     </div>
                 </div>
@@ -162,7 +162,7 @@
                     <div class="col-sm-8">
                         <input type="hidden" name="filing" th:field="*{filing}">
                        <div class="file-loading">
-                            <input class="form-control file-upload" id="filing" name="file" type="file">
+                            <input class="form-control file-uploadb" id="filing" name="file" type="file">
                         </div>
                     </div>
                 </div>
@@ -305,15 +305,55 @@
 
 
 
-        $(".file-upload").each(function (i) {
+        $(".file-uploada").each(function (i) {
             var val = $("input[name='" + this.id + "']").val()
             $(this).fileinput({
-                'uploadUrl': ctx + 'common/upload',
+                'uploadUrl': ctx + 'common/upload/hxkt',
                 initialPreviewAsData: true,
                 initialPreview: [val],
                 maxFileCount: 1,
                 autoReplace: true,
-                allowedFileExtensions: ["pdf"]
+                allowedFileExtensions: ["pdf"],
+                slugCallback: function(filename) {
+                    if ($("input[name='topName']").val()===""){
+                        $(".file-uploada").fileinput('clear');
+                        $.modal.alertError("请先输入课题名称");
+                        return false;
+                    }
+                    // 自定义文件名生成规则
+                    fileExtension = filename.split('.').pop();
+                    const year = new Date().getFullYear();
+                    const newName = year +"-"+ $("input[name='topName']").val() +"-"+ "合同"+ "." + fileExtension;
+                    return newName;
+                },
+            }).on('fileuploaded', function (event, data, previewId, index) {
+                $("input[name='" + event.currentTarget.id + "']").val(data.response.url)
+            }).on('fileremoved', function (event, id, index) {
+                $("input[name='" + event.currentTarget.id + "']").val('')
+            })
+            $(this).fileinput('_initFileActions');
+        });
+        $(".file-uploadb").each(function (i) {
+            var val = $("input[name='" + this.id + "']").val()
+            $(this).fileinput({
+                'uploadUrl': ctx + 'common/upload/hxkt',
+                initialPreviewAsData: true,
+                initialPreview: [val],
+                maxFileCount: 1,
+                autoReplace: true,
+                allowedFileExtensions: ["pdf"],
+                slugCallback: function(filename) {
+                    if ($("input[name='topName']").val()===""){
+                        $(".file-uploadb").fileinput('clear');
+                        $.modal.alertError("请先输入课题名称");
+                        return false;
+                    }
+                    // 自定义文件名生成规则
+                    fileExtension = filename.split('.').pop();
+                    const year = new Date().getFullYear();
+                    const newName = year +"-"+ $("input[name='topName']").val() +"-"+ "备案表"+ "." + fileExtension;
+                    return newName;
+                },
             }).on('fileuploaded', function (event, data, previewId, index) {
                 $("input[name='" + event.currentTarget.id + "']").val(data.response.url)
             }).on('fileremoved', function (event, id, index) {
@@ -429,10 +469,22 @@
         autoclose: true
     });
     $(".amountfile-upload").fileinput({
-        uploadUrl: ctx + 'common/upload',
+        uploadUrl: ctx + 'common/upload/hxkt',
         maxFileCount: 1,
         autoReplace: true,
-        allowedFileExtensions: ["pdf"]
+        allowedFileExtensions: ["pdf"],
+        slugCallback: function(filename) {
+            if ($("input[name='topName']").val()===""){
+                $(".amountfile-upload").fileinput('clear');
+                $.modal.alertError("请先输入课题名称");
+                return false;
+            }
+            // 自定义文件名生成规则
+            fileExtension = filename.split('.').pop();
+            const year = new Date().getFullYear();
+            const newName = year +"-"+ $("input[name='topName']").val() +"-"+ "金额佐证材料"+ "." + fileExtension;
+            return newName;
+        },
     }).on('fileuploaded', function (event, data, previewId, index) {
         $("input[name='" + event.currentTarget.id + "']").val(data.response.url)
     }).on('fileremoved', function (event, id, index) {
