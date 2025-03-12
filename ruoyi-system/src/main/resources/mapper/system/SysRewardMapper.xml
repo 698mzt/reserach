@@ -16,25 +16,39 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="rewardDengji"    column="reward_dengji"    />
         <result property="rewardPaiming"    column="reward_paiming"    />
         <result property="rewardJibie"    column="reward_jibie"    />
+        <result property="userName"    column="userName"    />
+        <result property="jifen"    column="jifen"    />
+        <result property="state"    column="state"    />
     </resultMap>
 
     <sql id="selectSysRewardVo">
-        select id, user_id, reward_name, reward_danwei, reward_leixing, reward_wenjian, reward_time, reward_fenlei, reward_dengji, reward_paiming, reward_jibie from sys_reward
+        select #{uid} uid,s.id, u.user_name username, d.dept_name dname,p.dept_name yname,s.jifen,s.user_id,s.reward_name, s.reward_danwei, s.reward_leixing, s.reward_wenjian, s.reward_time, s.reward_fenlei, s.reward_dengji, s.reward_paiming, s.reward_jibie,s.state
+        from sys_reward s left join sys_user u on  s.user_id= u.user_id
+                          left join sys_dept d on u.dept_id = d.dept_id
+                          left join sys_dept p on d.parent_id =p.dept_id
     </sql>
 
     <select id="selectSysRewardList" parameterType="SysReward" resultMap="SysRewardResult">
         <include refid="selectSysRewardVo"/>
-        <where>  
-            <if test="userId != null "> and user_id = #{userId}</if>
+        <where>
+            state in (1,2,3,4,5,6,7)
+            <if test="userId != null "> and user_id like concat('%', #{userId}, '%')</if>
             <if test="rewardName != null  and rewardName != ''"> and reward_name like concat('%', #{rewardName}, '%')</if>
-            <if test="rewardDanwei != null  and rewardDanwei != ''"> and reward_danwei = #{rewardDanwei}</if>
-            <if test="rewardLeixing != null  and rewardLeixing != ''"> and reward_leixing = #{rewardLeixing}</if>
-            <if test="rewardWenjian != null  and rewardWenjian != ''"> and reward_wenjian = #{rewardWenjian}</if>
-            <if test="rewardTime != null "> and reward_time = #{rewardTime}</if>
-            <if test="rewardFenlei != null  and rewardFenlei != ''"> and reward_fenlei = #{rewardFenlei}</if>
-            <if test="rewardDengji != null  and rewardDengji != ''"> and reward_dengji = #{rewardDengji}</if>
-            <if test="rewardPaiming != null  and rewardPaiming != ''"> and reward_paiming = #{rewardPaiming}</if>
-            <if test="rewardJibie != null  and rewardJibie != ''"> and reward_jibie = #{rewardJibie}</if>
+            <if test="yname != null  and yname != ''"> and yname = #{yname}</if>
+--             <if test="rewardDanwei != null  and rewardDanwei != ''"> and reward_danwei = #{rewardDanwei}</if>
+--             <if test="rewardLeixing != null  and rewardLeixing != ''"> and reward_leixing = #{rewardLeixing}</if>
+--             <if test="rewardWenjian != null  and rewardWenjian != ''"> and reward_wenjian = #{rewardWenjian}</if>
+--             <if test="rewardTime != null "> and reward_time = #{rewardTime}</if>
+--             <if test="rewardFenlei != null  and rewardFenlei != ''"> and reward_fenlei = #{rewardFenlei}</if>
+            <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+--             <if test="rewardDengji != null  and rewardDengji != ''"> and reward_dengji like concat('%', #{rewardDengji}, '%')</if>
+--             <if test="rewardPaiming != null  and rewardPaiming != ''"> and reward_paiming = #{rewardPaiming}</if>
+            <if test="rewardJibie != null  and rewardJibie != ''"> and like concat('%', #{rewardJibie}, '%')</if>
+            <if test="state != null  and state != ''"> and state = #{state}</if>
+
+            ${params.dataScope}
+
+            order  by reward_time desc
         </where>
     </select>
     
@@ -56,6 +70,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="rewardDengji != null and rewardDengji != ''">reward_dengji,</if>
             <if test="rewardPaiming != null and rewardPaiming != ''">reward_paiming,</if>
             <if test="rewardJibie != null and rewardJibie != ''">reward_jibie,</if>
+            <if test="state != null and state != ''">state,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="userId != null">#{userId},</if>
@@ -68,6 +83,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="rewardDengji != null and rewardDengji != ''">#{rewardDengji},</if>
             <if test="rewardPaiming != null and rewardPaiming != ''">#{rewardPaiming},</if>
             <if test="rewardJibie != null and rewardJibie != ''">#{rewardJibie},</if>
+            <if test="state != null and state != ''">#{state},</if>
          </trim>
     </insert>
 
@@ -84,6 +100,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="rewardDengji != null and rewardDengji != ''">reward_dengji = #{rewardDengji},</if>
             <if test="rewardPaiming != null and rewardPaiming != ''">reward_paiming = #{rewardPaiming},</if>
             <if test="rewardJibie != null and rewardJibie != ''">reward_jibie = #{rewardJibie},</if>
+            <if test="state != null and state != ''">state=#{state},</if>
         </trim>
         where id = #{id}
     </update>
@@ -98,5 +115,120 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             #{id}
         </foreach>
     </delete>
+
+
+    <select id="selectSysRewardListByJYS" parameterType="SysReward" resultMap="SysRewardResult">
+        select #{uid} uid,s.id, u.user_name username, d.dept_name dname,p.dept_name yname,s.user_id,s.jifen,s.reward_name, s.reward_danwei, s.reward_leixing, s.reward_wenjian, s.reward_time, s.reward_fenlei, s.reward_dengji, s.reward_paiming, s.reward_jibie,s.state
+        from sys_reward s left join sys_user u on  s.user_id= u.user_id
+        left join sys_dept d on u.dept_id = d.dept_id
+        left join sys_dept p on d.parent_id =p.dept_id
+        where s.state in (1,2,3,4,5,6)
+        <!--            <if test="userId != null "> and user_id = #{userId}</if>-->
+        <if test="yname != null  and yname != ''"> and yname = #{yname}</if>
+        <if test="rewardName != null  and rewardName != ''"> and reward_name like concat('%', #{rewardName}, '%')</if>
+
+        <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+        <if test="state != null  and state != ''"> and state = #{state}</if>
+        ${params.dataScope}
+        order  by reward_time desc
+    </select>
+
+
+    <select id="selectSysRewardListByXUE" parameterType="SysReward" resultMap="SysRewardResult">
+        select #{uid} uid,s.id, u.user_name username, d.dept_name dname,p.dept_name yname,s.user_id,s.jifen,s.reward_name, s.reward_danwei, s.reward_leixing, s.reward_wenjian, s.reward_time, s.reward_fenlei, s.reward_dengji, s.reward_paiming, s.reward_jibie,s.state
+        from sys_reward s left join sys_user u on  s.user_id= u.user_id
+        left join sys_dept d on u.dept_id = d.dept_id
+        left join sys_dept p on d.parent_id =p.dept_id
+        where s.state in (2,4,5,6)
+        <!--            <if test="userId != null "> and user_id = #{userId}</if>-->
+        <if test="yname != null  and yname != ''"> and yname = #{yname}</if>
+        <if test="rewardName != null  and rewardName != ''"> and reward_name like concat('%', #{rewardName}, '%')</if>
+
+        <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+        <if test="state != null  and state != ''"> and state = #{state}</if>
+        ${params.dataScope}
+        order  by reward_time desc
+    </select>
+
+
+    <select id="selectSysRewardListByKYC" parameterType="SysReward" resultMap="SysRewardResult">
+        select #{uid} uid,s.id, u.user_name username, d.dept_name dname,p.dept_name yname,s.user_id,s.jifen,s.reward_name, s.reward_danwei, s.reward_leixing, s.reward_wenjian, s.reward_time, s.reward_fenlei, s.reward_dengji, s.reward_paiming, s.reward_jibie,s.state
+        from sys_reward s left join sys_user u on  s.user_id= u.user_id
+        left join sys_dept d on u.dept_id = d.dept_id
+        left join sys_dept p on d.parent_id =p.dept_id
+        where s.state in (4,6,7)
+        <!--            <if test="userId != null "> and user_id = #{userId}</if>-->
+        <if test="yname != null  and yname != ''"> and yname = #{yname}</if>
+        <if test="rewardName != null  and rewardName != ''"> and reward_name like concat('%', #{rewardName}, '%')</if>
+
+        <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+        <if test="state != null  and state != ''"> and state = #{state}</if>
+        order  by reward_time desc
+    </select>
+
+
+<!--    <select id="selectSciHorizontalApplyListByOverApply" parameterType="SciHorizontalApply" resultMap="SciHorizontalApplyResult">-->
+<!--        select  #{uid} uid, s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,  s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.contract, s.filing, s.state-->
+<!--        from sci_horizontal_apply s left join sys_user u on  s.user_id=u.user_id-->
+<!--        left join sys_dept d on u.dept_id = d.dept_id-->
+<!--        left join sys_dept p on d.parent_id =p.dept_id-->
+<!--        where s.state in(7,8,9,10)-->
+<!--        &lt;!&ndash;            <if test="userId != null "> and user_id = #{userId}</if>&ndash;&gt;-->
+<!--        <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>-->
+
+<!--        <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>-->
+<!--        <if test="state != null  and state != ''"> and state = #{state}</if>-->
+<!--        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>-->
+<!--        ${params.dataScope}-->
+<!--        order  by s.createtime desc-->
+<!--    </select>-->
+
+
+<!--    <select id="selectSciHorizontalApplyListByOverApplyJYS" parameterType="SciHorizontalApply" resultMap="SciHorizontalApplyResult">-->
+<!--        select  #{uid} uid, s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,  s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.contract, s.filing, s.state-->
+<!--        from sci_horizontal_apply s left join sys_user u on  s.user_id=u.user_id-->
+<!--        left join sys_dept d on u.dept_id = d.dept_id-->
+<!--        left join sys_dept p on d.parent_id =p.dept_id-->
+<!--        where s.state in(7,9)-->
+<!--        &lt;!&ndash;            <if test="userId != null "> and user_id = #{userId}</if>&ndash;&gt;-->
+<!--        <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>-->
+
+<!--        <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>-->
+<!--        <if test="state != null  and state != ''"> and state = #{state}</if>-->
+<!--        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>-->
+<!--        ${params.dataScope}-->
+<!--        order  by s.createtime desc-->
+<!--    </select>-->
+
+<!--    <select id="selectSciHorizontalApplyListByOverApplyKYC" parameterType="SciHorizontalApply" resultMap="SciHorizontalApplyResult">-->
+<!--        select  #{uid} uid, s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,  s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.contract, s.filing, s.state-->
+<!--        from sci_horizontal_apply s left join sys_user u on  s.user_id=u.user_id-->
+<!--        left join sys_dept d on u.dept_id = d.dept_id-->
+<!--        left join sys_dept p on d.parent_id =p.dept_id-->
+<!--        where s.state in(8,10)-->
+<!--        &lt;!&ndash;            <if test="userId != null "> and user_id = #{userId}</if>&ndash;&gt;-->
+<!--        <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>-->
+
+<!--        <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>-->
+<!--        <if test="state != null  and state != ''"> and state = #{state}</if>-->
+<!--        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>-->
+<!--        ${params.dataScope}-->
+<!--        order  by s.createtime desc-->
+<!--    </select>-->
+
+
+    <update id="updateJifen">
+        update sys_reward set jifen = #{jifen} where id = #{id}
+    </update>
+
+    <update id="hxPass" >
+        update sys_reward set state = #{state} where id = #{id}
+    </update>
+
+
+    <update id="overApply" >
+        update sys_reward set state = #{state} where id = #{id}
+    </update>
+
 
 </mapper>

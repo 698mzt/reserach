@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.SciRewardScoreCfgMapper">
+    
+    <resultMap type="SciRewardScoreCfg" id="SciRewardScoreCfgResult">
+        <result property="id"    column="id"    />
+        <result property="fenLei"    column="fen_lei"    />
+        <result property="paiMing"    column="pai_ming"    />
+        <result property="dengJi"    column="deng_ji"    />
+        <result property="totalScore"    column="total_score"    />
+    </resultMap>
+
+    <sql id="selectSciRewardScoreCfgVo">
+        select id, fen_lei, pai_ming, deng_ji, total_score from sci_reward_score_cfg
+    </sql>
+
+    <select id="selectSciRewardScoreCfgList" parameterType="SciRewardScoreCfg" resultMap="SciRewardScoreCfgResult">
+        <include refid="selectSciRewardScoreCfgVo"/>
+        <where>  
+            <if test="fenLei != null  and fenLei != ''"> and fen_lei = #{fenLei}</if>
+            <if test="paiMing != null  and paiMing != ''"> and pai_ming = #{paiMing}</if>
+            <if test="dengJi != null  and dengJi != ''"> and deng_ji = #{dengJi}</if>
+            <if test="totalScore != null  and totalScore != ''"> and total_score = #{totalScore}</if>
+        </where>
+    </select>
+    
+    <select id="selectSciRewardScoreCfgById" parameterType="Long" resultMap="SciRewardScoreCfgResult">
+        <include refid="selectSciRewardScoreCfgVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertSciRewardScoreCfg" parameterType="SciRewardScoreCfg" useGeneratedKeys="true" keyProperty="id">
+        insert into sci_reward_score_cfg
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="fenLei != null and fenLei != ''">fen_lei,</if>
+            <if test="paiMing != null and paiMing != ''">pai_ming,</if>
+            <if test="dengJi != null and dengJi != ''">deng_ji,</if>
+            <if test="totalScore != null and totalScore != ''">total_score,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="fenLei != null and fenLei != ''">#{fenLei},</if>
+            <if test="paiMing != null and paiMing != ''">#{paiMing},</if>
+            <if test="dengJi != null and dengJi != ''">#{dengJi},</if>
+            <if test="totalScore != null and totalScore != ''">#{totalScore},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSciRewardScoreCfg" parameterType="SciRewardScoreCfg">
+        update sci_reward_score_cfg
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="fenLei != null and fenLei != ''">fen_lei = #{fenLei},</if>
+            <if test="paiMing != null and paiMing != ''">pai_ming = #{paiMing},</if>
+            <if test="dengJi != null and dengJi != ''">deng_ji = #{dengJi},</if>
+            <if test="totalScore != null and totalScore != ''">total_score = #{totalScore},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteSciRewardScoreCfgById" parameterType="Long">
+        delete from sci_reward_score_cfg where id = #{id}
+    </delete>
+
+    <delete id="deleteSciRewardScoreCfgByIds" parameterType="String">
+        delete from sci_reward_score_cfg where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

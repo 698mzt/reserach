@@ -1,7 +1,8 @@
 package com.ruoyi.system.service;
 
-import java.util.List;
 import com.ruoyi.system.domain.SysReward;
+
+import java.util.List;
 
 /**
  * 奖励Service接口
@@ -58,4 +59,45 @@ public interface ISysRewardService
      * @return 结果
      */
     public int deleteSysRewardById(Long id);
+
+
+    int hxPass(String id,Long uid,String urlFlag);
+    public int hxBh(String id, Long uid, String remark, String urlFlag);
+
+//    int hxBh(String id,Long uid,String urlFlag);
+//    int hxBh(String id,Long uid, String remark,String urlFlag);
+//    int hxoverBh(String id, Long userId, String remark, String urlFlag);
+
+    List<SysReward> selectSysRewardListByKYC(SysReward sysReward);
+
+    List<SysReward> selectSysRewardListByJYS(SysReward sysReward);
+    List<SysReward> selectSysRewardListByXUE(SysReward sysReward);
+//
+//    List<SysReward> selectSysRewardListByOverReward(SysReward sysReward);
+//    List<SysReward> selectSysRewardListByOverRewardJYS(SysReward sysReward);
+//    List<SysReward> selectSysRewardListByOverRewardKYC(SysReward sysReward);
+//
+//    List<SysReward> selectSysRewardListByOVER(SysReward sysReward);
+
+    int overReward(String id, String state);
+
+    int recall(Integer id, String state, Long userId, String remark, String urlFlag);
+
+
+
+    //
+    //    @Override
+    //    public int hxover(String id, Long uid, String urlFlag) {
+    //        String state = "0";
+    //        if(urlFlag.equals("JYSOVER")){
+    //            state ="8";
+    //        }else if(urlFlag.equals("KYCOVER")){
+    //            state ="6";
+    //        }
+    //        int a =  sysRewardMapper.hxPass(id,state);
+    //        System.out.println(a);
+    //        return a;
+    //    }
+    //
+
 }
