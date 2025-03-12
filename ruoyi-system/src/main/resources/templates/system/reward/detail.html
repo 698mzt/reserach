@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('奖励批阅')" />
+    <th:block th:include="include :: datetimepicker-css" />
+    <th:block th:include="include :: bootstrap-fileinput-css"/>
+</head>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <form class="form-horizontal m" id="form-reward-edit" th:object="${sysReward}">
+        <input name="urlFlag" id="urlFlag" th:field="*{urlFlag}"  type="hidden">
+        <input name="state" id="state" th:field="*{state}" type="hidden">
+        <input name="id" id="ktid" th:field="*{id}" type="hidden">
+        <h4 class="form-header h4">基本信息</h4>
+
+<div CLASS="row">
+            <div class="col-xs-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label is-required">申请人：</label>
+                <div class="col-sm-8">
+               <input  disabled th:field="*{userName}" class="form-control" type="text" >
+                <input name="userId" th:field="*{userId}" class="form-control" type="hidden" required>
+<!--                    <select name="userId" class="form-control m-b" readonly >-->
+<!--                        <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ user.userId == sciHorizontalApply.userId}"></option>-->
+<!--                    </select>-->
+                </div>
+            </div>
+            </div>
+
+
+
+<!--            readonly input框 只能阅读      -->
+<!--            disabled 下拉框 只能阅读        -->
+
+            <div class="col-xs-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label is-required">荣誉名称：</label>
+                <div class="col-sm-8">
+                    <input name="rewardName" th:field="*{rewardName}" class="form-control" type="text" required disabled>
+                </div>
+            </div>
+            </div>
+
+            <div class="col-xs-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label is-required">颁发单位：</label>
+                <div class="col-sm-8">
+                    <input name="rewardDanwei" th:field="*{rewardDanwei}" class="form-control" type="text" required disabled>
+                </div>
+            </div>
+            </div>
+
+<!--            <div class="row">-->
+            <div class="col-xs-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label is-required">奖励类型：</label>
+                <div class="col-sm-8">
+                    <input name="rewardLeixing" th:field="*{rewardLeixing}" class="form-control" type="text" required disabled>
+                </div>
+            </div>
+            </div>
+
+            <div class="col-xs-6">
+                <div class="form-group">
+                <label class="col-sm-4 control-label is-required">颁发时间：</label>
+                <div class="col-sm-8">
+                    <div class="input-group date">
+                        <input name="rewardTime" th:value="${#dates.format(sysReward.rewardTime, 'yyyy-MM-dd')}" class="form-control" placeholder="yyyy-MM-dd" type="text" required disabled>
+                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                    </div>
+                </div>
+            </div>
+            </div>
+
+
+            <div class="col-xs-6">
+                <div class="form-group">
+                <label class="col-sm-4 control-label is-required">分类：</label>
+                <div class="col-sm-8">
+                    <select name="rewardFenlei" th:field="*{rewardFenlei}" class="form-control" type="text" th:with="type=${@dict.getType('sys_reward_fenlei')}" required disabled>
+<!--                        <option value="省级教学成果奖">省级教学成果奖</option>-->
+<!--                        <option value="省级科学技术奖">省级科学技术奖</option>-->
+<!--                        <option value="省级一流精品课评比">省级一流精品课评比</option>-->
+<!--                        <option value="市、厅局级自然科学类评奖">市、厅局级自然科学类评奖</option>-->
+<!--                        <option value="市、厅局级社科类评奖">市、厅局级社科类评奖</option>-->
+<!--                        <option value="校级教学成果奖">校级教学成果奖</option>-->
+<!--                        <option value="应用型科研校级成果奖">应用型科研校级成果奖</option>-->
+<!--                        <option value="校级精品课评比">校级精品课评比</option>-->
+<!--                        <option value="指导学生参加国家科创大赛且获得名次">指导学生参加国家科创大赛且获得名次</option>-->
+                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
+                    </select>
+                </div>
+            </div>
+            </div>
+
+            <div class="col-xs-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label is-required">排名：</label>
+                <div class="col-sm-8">
+                    <select name="rewardPaiming" th:field="*{rewardPaiming}" class="form-control" type="text" th:with="type=${@dict.getType('sys_reward_paiming')}" required disabled>
+<!--                        <option value="一">一</option>-->
+<!--                        <option value="二">二</option>-->
+<!--                        <option value="三">三</option>-->
+<!--                        <option value="四">四</option>-->
+<!--                        <option value="五">五</option>-->
+                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-xs-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label is-required" for="rewardJibie">级别：</label>
+                <div class="col-sm-8">
+                    <select id="rewardJibie" th:field="*{rewardJibie}" class="form-control" required disabled>
+                        <option value="校级">校级</option>
+                        <option value="省级">省级</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xs-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label is-required">证书文件：</label>
+                <div class="col-sm-8">
+                    <input th:field="*{rewardWenjian}" hidden id="rewardWenjian" type="text" >
+                    <div style="display: inline-block;">
+                        <div id="filingFileName" style="display: inline; margin-right: 5px;"></div>
+                    </div>
+                    <div>
+                        <button onclick="chakan()" class="btn btn-sm btn-primary color">预览</button>
+                        <button onclick="downloadFile('rewardWenjian')" class="btn btn-sm btn-primary color">下载</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-xs-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label is-required">等级：</label>
+                <div class="col-sm-8">
+                    <select id="rewardDengji"  th:field="*{rewardDengji}" class="form-control" type="text" th:with="type=${@dict.getType('sys_reward_dengji')}" required disabled>
+<!--                        <option value="一等奖">一等奖</option>-->
+<!--                        <option value="二等奖">二等奖</option>-->
+<!--                        <option value="三等奖">三等奖</option>-->
+<!--                        <option value="四等奖">四等奖</option>-->
+                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+</div>
+
+
+
+
+        <h4 class="form-header h4 tdiv1" style="display:none;">退回原因</h4>
+        <div class="row tdiv1" style="display:none;">
+            <div class="col-sm-12">
+                <div class="form-group"  >
+                    <label class="col-xs-2 control-label">批注：</label>
+                    <div class="col-xs-10">
+                        <textarea name="remark" required maxlength="500" class="form-control" rows="3"></textarea>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <h4 class="form-header h4 tdiv2"  style="display:none;">批阅记录</h4>
+        <div class="row tdiv2" style="display:none;">
+            <div class="col-sm-12">
+
+                <div class="form-group"  >
+                    <table id='bootstrap-table'></table>
+                </div>
+            </div>
+        </div>
+
+    </form>
+</div>
+<div class="row">
+    <div class="col-sm-offset-5 col-sm-10">
+        <button type="button" id="btn1" style="display:none;" class="btn btn-sm btn-primary" onclick="submitHandler()"><i class="fa fa-check"></i>通 过</button>&nbsp;
+        <button type="button" id="btn2" style="display:none;" class="btn btn-sm btn-danger" onclick="submitHandlerBH()"><i class="fa fa-reply-all"></i>驳 回</button>
+        <button type="button" id="btn3" style="display:none;" class="btn btn-sm btn-warning" onclick="closeItem()"><i class="fa fa-reply-all"></i>关 闭 </button>
+    </div>
+</div>
+<th:block th:include="include :: footer" />
+<th:block th:include="include :: datetimepicker-js" />
+<th:block th:include="include :: bootstrap-fileinput-js"/>
+<!--<th:block th:include="include :: select2-js" />-->
+<script type="text/javascript">
+    function displayFileName(inputId, fileNameId) {
+        const input = document.getElementById(inputId);
+        const fileNameSpan = document.getElementById(fileNameId);
+        if (input.value) {
+            const fileName = input.value.split('/').pop(); // 获取文件名
+            const parts = fileName.split('_'); // 按下划线分割
+            const firstPart = parts[0]; // 下划线前的部分
+
+            const dotParts = fileName.split('.'); // 按点分割
+            const lastPart = dotParts[dotParts.length - 1]; // 点后的部分
+
+            fileNameSpan.textContent = `${firstPart}.${lastPart}`; // 组合并显示
+        } else {
+            fileNameSpan.textContent = '';
+        }
+    }
+    function chakan(){
+        var c = $("#rewardWenjian").val();
+        $.modal.openTab("查看证书文件" ,c );
+    }
+    // function beian(){
+    //     var c = $("#contract").val();
+    //     $.modal.openTab("查看备案表" ,c );
+    // }
+    function downloadFile(type){
+        var c = $("#"+type).val();
+        if(c){
+            var a = document.createElement("a");
+            a.href=c;
+            a.download="";
+            a.style.display = "none";
+            document.body.appendChild(a);
+            a.click();
+            document.Element.removeChild(a);
+        }else{
+            alert("网址无效");
+        }
+
+    }
+    $(function(){
+        var kid = $("#ktid").val();
+        var options = {
+            url: prefix + "/bhyy/"+kid,
+            showSearch: false,
+            showRefresh: false,
+            showToggle: false,
+            showColumns: false,
+            pagination:false,
+            columns: [
+
+                {
+                    field : 'createTime',
+                    title : '批阅时间',
+                    width: 200
+
+                } ,
+                {
+                    field : 'uname',
+                    title : '批阅人',
+                    width: 100
+                },
+                {
+                    field : 'concate',
+                    title : '内容',
+                    width: 500
+                },
+                {
+                    field : 'state',
+                    title : '审核状态',
+                    width: 100
+                } ]
+        };
+
+        $.table.init(options);
+
+        $('#bootstrap-table').on('load-success.bs.table', function (e, name, args) {
+            console.log('Event Name:', name.rows);
+
+            var a =$("#state").val();
+            console.log('Value of a:', a);
+            if ($("#urlFlag").val() == 'chakan'){
+                $("#btn3").show();
+                $(".tdiv2").show()
+            }else {
+                if(a == 2 ||a == 1 || a == 4){
+                    if(name.rows.length > 0){
+                        $(".tdiv2").show();
+                    }
+                    $(".tdiv1").show();
+                    $("#btn1").show();
+                    $("#btn2").show();
+                    $("#btn3").show();
+                }
+
+            }
+        });
+
+
+
+
+        <!-- laydate示例 -->
+        layui.use('laydate', function(){
+            var laydate = layui.laydate;
+            laydate.render({
+                elem: '#laydate-demo-4',
+                range: true
+            });
+            var startDate = laydate.render({
+                elem: '#laydate-startTime',
+                max: $('#laydate-endTime').val(),
+                theme: 'molv',
+                trigger: 'click',
+                done: function(value, date) {
+                    // 结束时间大于开始时间
+                    if (value !== '') {
+                        endDate.config.min.year = date.year;
+                        endDate.config.min.month = date.month - 1;
+                        endDate.config.min.date = date.date;
+                    } else {
+                        endDate.config.min.year = '';
+                        endDate.config.min.month = '';
+                        endDate.config.min.date = '';
+                    }
+                }
+            });
+            var endDate = laydate.render({
+                elem: '#laydate-endTime',
+                min: $('#laydate-startTime').val(),
+                theme: 'molv',
+                trigger: 'click',
+                done: function(value, date) {
+                    // 开始时间小于结束时间
+                    if (value !== '') {
+                        startDate.config.max.year = date.year;
+                        startDate.config.max.month = date.month - 1;
+                        startDate.config.max.date = date.date;
+                    } else {
+                        startDate.config.max.year = '';
+                        startDate.config.max.month = '';
+                        startDate.config.max.date = '';
+                    }
+                }
+            });
+        });
+    });
+</script>
+<script th:inline="javascript">
+    var prefix = ctx + "system/reward";
+    $("#form-reward-edit").validate({
+        focusCleanup: true
+    });
+
+    function submitHandler() {
+          //获取 URLflag
+          var a = $("#urlFlag").val();
+
+        //if ($.validate.form()) {
+            $.operate.saveTab(prefix + "/hxPass", {"id":$("#ktid").val(),"urlFlag":a});
+       // }
+    }
+    function submitHandlerBH() {
+        var a = $("#urlFlag").val();
+        if ($.validate.form()) {
+        $.operate.saveTab(prefix + "/hxBh",   $('#form-reward-edit').serialize());
+
+         }
+    }
+
+
+
+
+    $(".file-upload").each(function (i) {
+        var val = $("input[name='" + this.id + "']").val()
+        $(this).fileinput({
+            'uploadUrl': ctx + 'common/upload',
+            initialPreviewAsData: true,
+            initialPreview: [val],
+            maxFileCount: 1,
+            autoReplace: true
+        }).on('fileuploaded', function (event, data, previewId, index) {
+            $("input[name='" + event.currentTarget.id + "']").val(data.response.url)
+        }).on('fileremoved', function (event, id, index) {
+            $("input[name='" + event.currentTarget.id + "']").val('')
+        })
+        $(this).fileinput('_initFileActions');
+    });
+    // 页面加载时显示文件名
+    window.onload = function() {
+        // displayFileName('contract', 'contractFileName');
+        // displayFileName('rewardWenjian', 'filingFileName');
+    };
+</script>
+</body>
+</html>
