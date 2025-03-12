@@ -78,6 +78,11 @@ public class SciIntraSchProScoreServiceImpl implements SciIntraSchProScoreServic
         return re;
     }
 
+    /**
+     * 申请开题的时候就就设置积分为0
+     * @param sciIntraSchoolPro
+     * @return
+     */
     @Override
     public int set_SchPro_score_noScore(SciIntraSchoolPro sciIntraSchoolPro) {
         int re=0;

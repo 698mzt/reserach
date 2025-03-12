@@ -68,6 +68,7 @@
         <result property="newsql"    column="newsql"    />
         <result property="dnameId"    column="dept_id"    />
         <result property="reamountUrl"    column="reamount_url"    />
+        <result property="accountData"    column="account_data"    />
     </resultMap>
 
 
@@ -219,7 +220,7 @@
     </select>
 
     <select id="selectVerticalAmountById" parameterType="Integer" resultMap="SciHorizontalApplyVerticalResult">
-        select s.id,re.reid reid,u.user_name userName,s.top_number , s.user_id, s.top_name, s.top_type, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, s.signing_data,s.amount,re.re_amount ,re.reamount_url,re.account_data,s.file, s.over_file, re.state,re.createtime,re.amount_type
+        select s.id,re.reid reid,u.user_name userName,s.top_number , s.user_id, s.top_name, s.top_type, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, s.signing_data,s.amount,re.re_amount ,re.reamount_url,re.account_data,s.file, s.over_file, re.state,re.createtime,re.amount_type,re.account_data
         from sci_horizontal_apply_vertical s
                  left join sys_user u on  s.user_id=u.user_id
                  left join sci_vertical_reamount re on re.vertical_id =s.id

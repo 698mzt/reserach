@@ -1,134 +1,109 @@
 <!DOCTYPE html>
 <html lang="zh" xmlns:th="http://www.thymeleaf.org" >
 <head>
-    <th:block th:include="include :: header('课题批阅')" />
+    <th:block th:include="include :: header('奖励批阅')" />
     <th:block th:include="include :: datetimepicker-css" />
     <th:block th:include="include :: bootstrap-fileinput-css"/>
-    <th:block th:include="include :: select2-css" />
 </head>
 <body class="white-bg">
 <div class="wrapper wrapper-content animated fadeInRight ibox-content">
-    <form class="form-horizontal m" id="form-apply-edit" th:object="${sciHorizontalApply}">
+    <form class="form-horizontal m" id="form-reward-edit" th:object="${sysReward}">
         <input name="urlFlag" id="urlFlag" th:field="*{urlFlag}"  type="hidden">
         <input name="state" id="state" th:field="*{state}" type="hidden">
         <input name="id" id="ktid" th:field="*{id}" type="hidden">
-        <input name="amount" id="amount" th:field="*{amount}" type="hidden">
         <h4 class="form-header h4">基本信息</h4>
-        <div class="row">
-        <div class="col-xs-6">
+
+<div CLASS="row">
+            <div class="col-xs-6">
             <div class="form-group">
                 <label class="col-sm-4 control-label is-required">申请人：</label>
                 <div class="col-sm-8">
-               <input  readonly th:field="*{userName}" class="form-control" type="text" >
+               <input  disabled th:field="*{userName}" class="form-control" type="text" >
+                <input name="userId" th:field="*{userId}" class="form-control" type="hidden" required>
 <!--                    <select name="userId" class="form-control m-b" readonly >-->
 <!--                        <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ user.userId == sciHorizontalApply.userId}"></option>-->
 <!--                    </select>-->
                 </div>
             </div>
-        </div>
-        <div class="col-xs-6">
-            <div class="form-group">
-                <label class="col-sm-4 control-label is-required">课题编号：</label>
-                <div class="col-sm-8">
-                    <input  readonly th:field="*{topNumber}" class="form-control" type="text" required>
-                </div>
             </div>
-        </div>
-        <div class="col-xs-6">
-            <div class="form-group">
-                <label class="col-sm-4 control-label is-required">课题类型：</label>
-                <div class="col-sm-8">
 
-                    <select  readonly class="form-control" th:with="type=${@dict.getType('sci_top_type')}" required disabled>
-                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}" th:field="*{topType}"></option>
-                    </select>
-                </div>
-            </div>
-        </div>
-        <div class="col-xs-6">
-            <div class="form-group">
-                <label class="col-sm-4 control-label is-required">课题名称：</label>
-                <div class="col-sm-8">
-                    <input  readonly th:field="*{topName}" class="form-control" type="text" required>
-                </div>
-            </div>
-        </div>
-        <div class="col-xs-6">
-            <div class="form-group">
-                <label class="col-sm-4 control-label is-required">项目金额：</label>
-                <div class="col-sm-8">
-                    <input readonly th:field="*{amount}" class="form-control" type="text" required>
-                </div>
-            </div>
-        </div>
 
-<!--        <div class="col-xs-6">-->
-<!--            <div class="form-group">-->
-<!--                <label class="col-sm-4 control-label is-required">申请日期：</label>-->
-<!--                <div class="col-sm-8">-->
-<!--                    <div class="input-group date">-->
-<!--                        <input  readonly th:field="*{signingData}" th:value="${#dates.format(signingData, 'yyyy-MM-dd')}" class="form-control" placeholder="yyyy-MM-dd" type="text" required>-->
-<!--                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--            </div>-->
-<!--        </div>-->
-        <div class="col-xs-6">
+
+<!--            readonly input框 只能阅读      -->
+<!--            disabled 下拉框 只能阅读        -->
+
+            <div class="col-xs-6">
             <div class="form-group">
-                <label class="col-sm-4 control-label is-required">结项日期：</label>
+                <label class="col-sm-4 control-label is-required">荣誉名称：</label>
+                <div class="col-sm-8">
+                    <input name="rewardName" th:field="*{rewardName}" class="form-control" type="text" required disabled>
+                </div>
+            </div>
+            </div>
+
+            <div class="col-xs-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label is-required">颁发单位：</label>
+                <div class="col-sm-8">
+                    <input name="rewardDanwei" th:field="*{rewardDanwei}" class="form-control" type="text" required disabled>
+                </div>
+            </div>
+            </div>
+
+<!--            <div class="row">-->
+            <div class="col-xs-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label is-required">奖励类型：</label>
+                <div class="col-sm-8">
+                    <input name="rewardLeixing" th:field="*{rewardLeixing}" class="form-control" type="text" required disabled>
+                </div>
+            </div>
+            </div>
+
+            <div class="col-xs-6">
+                <div class="form-group">
+                <label class="col-sm-4 control-label is-required">颁发时间：</label>
                 <div class="col-sm-8">
                     <div class="input-group date">
-                        <input  readonly th:field="*{validityDate}" th:value="${#dates.format(createtime, 'yyyy-MM-dd ')}" class="form-control"  placeholder="yyyy-MM-dd " type="text" required>
+                        <input name="rewardTime" th:value="${#dates.format(sysReward.rewardTime, 'yyyy-MM-dd')}" class="form-control" placeholder="yyyy-MM-dd" type="text" required disabled>
                         <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="col-xs-6">
-            <div class="form-group">
-                <label class="col-sm-4 control-label is-required">第一负责人：</label>
-                <div class="col-sm-8">
+            </div>
 
-                    <!--                        <input name="firstPersonId" th:field="*{firstPersonId}" class="form-control" type="text" required>-->
-                    <select name="firstPersonId" class="form-control m-b" disabled>
-                        <option value="">无</option>
-                        <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ #strings.toString(user.userId) == sciHorizontalApply.firstPersonId}"></option>
+
+            <div class="col-xs-6">
+                <div class="form-group">
+                <label class="col-sm-4 control-label is-required">分类：</label>
+                <div class="col-sm-8">
+                    <select name="rewardFenlei" th:field="*{rewardFenlei}" class="form-control" type="text" th:with="type=${@dict.getType('sys_reward_fenlei')}" required disabled>
+<!--                        <option value="省级教学成果奖">省级教学成果奖</option>-->
+<!--                        <option value="省级科学技术奖">省级科学技术奖</option>-->
+<!--                        <option value="省级一流精品课评比">省级一流精品课评比</option>-->
+<!--                        <option value="市、厅局级自然科学类评奖">市、厅局级自然科学类评奖</option>-->
+<!--                        <option value="市、厅局级社科类评奖">市、厅局级社科类评奖</option>-->
+<!--                        <option value="校级教学成果奖">校级教学成果奖</option>-->
+<!--                        <option value="应用型科研校级成果奖">应用型科研校级成果奖</option>-->
+<!--                        <option value="校级精品课评比">校级精品课评比</option>-->
+<!--                        <option value="指导学生参加国家科创大赛且获得名次">指导学生参加国家科创大赛且获得名次</option>-->
+                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
                     </select>
                 </div>
             </div>
-        </div>
-
-        <div class="col-xs-6">
-            <div class="form-group">
-                <label class="col-sm-4 control-label is-required">第二负责人：</label>
-                <div class="col-sm-8">
-                    <select name="secondPersonId" class="form-control m-b" disabled >
-                        <option value="">无</option>
-                        <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ #strings.toString(user.userId) == sciHorizontalApply.secondPersonId}" ></option>
-                    </select>
-                </div>
             </div>
-        </div>
 
-        <div class="col-xs-6">
+            <div class="col-xs-6">
             <div class="form-group">
-                <label class="col-sm-4 control-label is-required">第三负责人：</label>
+                <label class="col-sm-4 control-label is-required">排名：</label>
                 <div class="col-sm-8">
-                    <select  class="form-control m-b" disabled>
-                        <option value="">无</option>
-                        <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ #strings.toString(user.userId) == sciHorizontalApply.thirdPersonId}"  ></option>
-                    </select>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xs-6">
-            <div class="form-group">
-                <label class="col-sm-4 control-label is-required">第四负责人：</label>
-                <div class="col-sm-8">
-                    <select  class="form-control m-b" disabled>
-                        <option value="">无</option>
-                        <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ #strings.toString(user.userId) == sciHorizontalApply.fourthPersonId}"  ></option>
+                    <select name="rewardPaiming" th:field="*{rewardPaiming}" class="form-control" type="text" th:with="type=${@dict.getType('sys_reward_paiming')}" required disabled>
+<!--                        <option value="一">一</option>-->
+<!--                        <option value="二">二</option>-->
+<!--                        <option value="三">三</option>-->
+<!--                        <option value="四">四</option>-->
+<!--                        <option value="五">五</option>-->
+                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
                     </select>
                 </div>
             </div>
@@ -137,38 +112,48 @@
 
         <div class="col-xs-6">
             <div class="form-group">
-                <label class="col-sm-4 control-label is-required">合同：</label>
+                <label class="col-sm-4 control-label is-required" for="rewardJibie">级别：</label>
                 <div class="col-sm-8">
-                    <input th:field="*{filingurl}" hidden id="filingurl" type="text" >
+                    <select id="rewardJibie" th:field="*{rewardJibie}" class="form-control" required disabled>
+                        <option value="校级">校级</option>
+                        <option value="省级">省级</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xs-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label is-required">证书文件：</label>
+                <div class="col-sm-8">
+                    <input th:field="*{rewardWenjian}" hidden id="rewardWenjian" type="text" >
                     <div style="display: inline-block;">
-                        <div id="filingurlFileName" style="display: inline; margin-right: 5px;"></div>
+                        <div id="filingFileName" style="display: inline; margin-right: 5px;"></div>
                     </div>
                     <div>
                         <button onclick="chakan()" class="btn btn-sm btn-primary color">预览</button>
-                        <button onclick="downloadFile('filingurl')" class="btn btn-sm btn-primary color">下载</button>
+                        <button onclick="downloadFile('rewardWenjian')" class="btn btn-sm btn-primary color">下载</button>
                     </div>
-
-
                 </div>
             </div>
         </div>
+
+
         <div class="col-xs-6">
             <div class="form-group">
-                <label class="col-sm-4 control-label is-required">备案表：</label>
+                <label class="col-sm-4 control-label is-required">等级：</label>
                 <div class="col-sm-8">
-                    <input th:field="*{agreeurl}" hidden id="agreeurl" type="text" >
-                    <div style="display: inline-block;">
-                        <div id="agreeurlFileName" style="display: inline; margin-right: 5px;"></div>
-                    </div>
-                    <div>
-                        <button onclick="beian()" class="btn btn-sm btn-primary color">预览</button>
-                        <button onclick="downloadFile('agreeurl')" class="btn btn-sm btn-primary color">下载</button>
-
-                    </div>
+                    <select id="rewardDengji"  th:field="*{rewardDengji}" class="form-control" type="text" th:with="type=${@dict.getType('sys_reward_dengji')}" required disabled>
+<!--                        <option value="一等奖">一等奖</option>-->
+<!--                        <option value="二等奖">二等奖</option>-->
+<!--                        <option value="三等奖">三等奖</option>-->
+<!--                        <option value="四等奖">四等奖</option>-->
+                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
+                    </select>
                 </div>
             </div>
         </div>
-    </div>
+</div>
 
 
 
@@ -185,7 +170,7 @@
 
             </div>
         </div>
-        <h4 class="form-header h4 tdiv2"  style="display:none;">审批记录</h4>
+        <h4 class="form-header h4 tdiv2"  style="display:none;">批阅记录</h4>
         <div class="row tdiv2" style="display:none;">
             <div class="col-sm-12">
 
@@ -207,7 +192,7 @@
 <th:block th:include="include :: footer" />
 <th:block th:include="include :: datetimepicker-js" />
 <th:block th:include="include :: bootstrap-fileinput-js"/>
-<th:block th:include="include :: select2-js" />
+<!--<th:block th:include="include :: select2-js" />-->
 <script type="text/javascript">
     function displayFileName(inputId, fileNameId) {
         const input = document.getElementById(inputId);
@@ -226,14 +211,13 @@
         }
     }
     function chakan(){
-        var c = $("#filing").val();
-        $.modal.openTab("查看合同" ,c );
-        //window.location = "http://localhost:8081/profile/upload/2024/08/20/GXSZ086812_20240820090353A001.pdf";
+        var c = $("#rewardWenjian").val();
+        $.modal.openTab("查看证书文件" ,c );
     }
-    function beian(){
-        var c = $("#contract").val();
-        $.modal.openTab("查看备案表" ,c );
-    }
+    // function beian(){
+    //     var c = $("#contract").val();
+    //     $.modal.openTab("查看备案表" ,c );
+    // }
     function downloadFile(type){
         var c = $("#"+type).val();
         if(c){
@@ -243,7 +227,7 @@
             a.style.display = "none";
             document.body.appendChild(a);
             a.click();
-            document.body.removeChild(a);
+            document.Element.removeChild(a);
         }else{
             alert("网址无效");
         }
@@ -289,11 +273,12 @@
             console.log('Event Name:', name.rows);
 
             var a =$("#state").val();
+            console.log('Value of a:', a);
             if ($("#urlFlag").val() == 'chakan'){
-                $(".tdiv2").show();
                 $("#btn3").show();
-            }else{
-                if(a == 7 ||a == 8 || a == 33){
+                $(".tdiv2").show()
+            }else {
+                if(a == 2 ||a == 1 || a == 4){
                     if(name.rows.length > 0){
                         $(".tdiv2").show();
                     }
@@ -302,9 +287,8 @@
                     $("#btn2").show();
                     $("#btn3").show();
                 }
+
             }
-
-
         });
 
 
@@ -357,39 +341,49 @@
     });
 </script>
 <script th:inline="javascript">
-    var prefix = ctx + "system/apply";
-    $("#form-apply-edit").validate({
+    var prefix = ctx + "system/reward";
+    $("#form-reward-edit").validate({
         focusCleanup: true
     });
 
     function submitHandler() {
           //获取 URLflag
           var a = $("#urlFlag").val();
-            $.operate.saveTab(prefix + "/hxover", {"id":$("#ktid").val(),"urlFlag":a,"amount":$("#amount").val()});
+
+        //if ($.validate.form()) {
+            $.operate.saveTab(prefix + "/hxPass", {"id":$("#ktid").val(),"urlFlag":a});
+       // }
     }
     function submitHandlerBH() {
         var a = $("#urlFlag").val();
         if ($.validate.form()) {
-            $.operate.saveTab(prefix + "/hxoverBh",   $('#form-apply-edit').serialize());
+        $.operate.saveTab(prefix + "/hxBh",   $('#form-reward-edit').serialize());
+
          }
     }
 
 
 
-    $(".file-download").fileinput({
-        uploadUrl: ctx + 'common/upload',
-        maxFileCount: 1,
-        autoReplace: true,
-        allowedFileExtensions: ["pdf"]
-    }).on('fileuploaded', function (event, data, previewId, index) {
-        $("input[name='" + event.currentTarget.id + "']").val(data.response.url)
-    }).on('fileremoved', function (event, id, index) {
-        $("input[name='" + event.currentTarget.id + "']").val('')
-    })
+
+    $(".file-upload").each(function (i) {
+        var val = $("input[name='" + this.id + "']").val()
+        $(this).fileinput({
+            'uploadUrl': ctx + 'common/upload',
+            initialPreviewAsData: true,
+            initialPreview: [val],
+            maxFileCount: 1,
+            autoReplace: true
+        }).on('fileuploaded', function (event, data, previewId, index) {
+            $("input[name='" + event.currentTarget.id + "']").val(data.response.url)
+        }).on('fileremoved', function (event, id, index) {
+            $("input[name='" + event.currentTarget.id + "']").val('')
+        })
+        $(this).fileinput('_initFileActions');
+    });
     // 页面加载时显示文件名
     window.onload = function() {
-        displayFileName('agreeurl', 'agreeurlFileName');
-        displayFileName('filingurl', 'filingurlFileName');
+        // displayFileName('contract', 'contractFileName');
+        // displayFileName('rewardWenjian', 'filingFileName');
     };
 </script>
 </body>

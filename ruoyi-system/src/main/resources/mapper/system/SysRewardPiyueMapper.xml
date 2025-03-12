@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.SysRewardPiyueMapper">
+    
+    <resultMap type="SysRewardPiyue" id="SysRewardPiyueResult">
+        <result property="id"    column="id"    />
+        <result property="rewardId"    column="reward_id"    />
+        <result property="concate"    column="concate"    />
+        <result property="uid"    column="uid"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="state"    column="state"    />
+        <result property="uname"    column="uname"    />
+    </resultMap>
+
+    <sql id="selectSysRewardPiyueVo">
+        select id, reward_id, concate, uid ,u.user_name uname, s.create_time,state from sci_reward_piyue s
+        left join sys_user u on s.uid = u.user_id
+    </sql>
+
+    <select id="selectSysRewardPiyueList" parameterType="SysRewardPiyue" resultMap="SysRewardPiyueResult">
+        <include refid="selectSysRewardPiyueVo"/>
+        <where>  
+            <if test="rewardId != null "> and reward_id = #{rewardId}</if>
+            <if test="concate != null  and concate != ''"> and concate = #{concate}</if>
+            <if test="uid != null "> and uid = #{uid}</if>
+        </where>
+    </select>
+    
+    <select id="selectSysRewardPiyueById" parameterType="Integer" resultMap="SysRewardPiyueResult">
+        <include refid="selectSysRewardPiyueVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertSysRewardPiyue" parameterType="SysRewardPiyue" useGeneratedKeys="true" keyProperty="id">
+        insert into sci_reward_piyue
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="rewardId != null">reward_id,</if>
+            <if test="concate != null">concate,</if>
+            <if test="uid != null">uid,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="state != null">state,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="rewardId != null">#{rewardId},</if>
+            <if test="concate != null">#{concate},</if>
+            <if test="uid != null">#{uid},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="state != null">#{state},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSysRewardPiyue" parameterType="SysRewardPiyue">
+        update sci_reward_piyue
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="rewardId != null">reward_id = #{rewardId},</if>
+            <if test="concate != null">concate = #{concate},</if>
+            <if test="uid != null">uid = #{uid},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteSysRewardPiyueById" parameterType="Integer">
+        delete from sci_reward_piyue where id = #{id}
+    </delete>
+
+    <delete id="deleteSysRewardPiyueByIdByIds" parameterType="String">
+        delete from sci_reward_piyue where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

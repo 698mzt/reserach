@@ -3,6 +3,7 @@ package com.ruoyi.common.utils.file;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.util.Objects;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -14,6 +15,8 @@ import com.ruoyi.common.exception.file.InvalidExtensionException;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.uuid.Seq;
+
+import static com.ruoyi.common.utils.ShiroUtils.getSysUser;
 
 /**
  * 文件上传工具类
@@ -116,6 +119,20 @@ public class FileUploadUtils
         file.transferTo(Paths.get(absPath));
         return getPathFileName(baseDir, fileName);
     }
+    public static final String newupload(String baseDir, MultipartFile file,String model)
+            throws FileSizeLimitExceededException, IOException, FileNameLengthLimitExceededException,
+            InvalidExtensionException
+    {
+        int fileNameLength = Objects.requireNonNull(file.getOriginalFilename()).length();
+        if (fileNameLength > FileUploadUtils.DEFAULT_FILE_NAME_LENGTH)
+        {
+            throw new FileNameLengthLimitExceededException(FileUploadUtils.DEFAULT_FILE_NAME_LENGTH);
+        }
+        String fileName = newFilename(file,model);
+        String absPath = getAbsoluteFile(baseDir, fileName).getAbsolutePath();
+        file.transferTo(Paths.get(absPath));
+        return getPathFileName(baseDir, fileName);
+    }
 
     /**
      * 编码文件名
@@ -124,6 +141,59 @@ public class FileUploadUtils
     {
         return StringUtils.format("{}/{}_{}.{}", DateUtils.datePath(),
                 FilenameUtils.getBaseName(file.getOriginalFilename()), Seq.getId(Seq.uploadSeqType), getExtension(file));
+    }
+    /**
+     * 编码文件名
+     */
+    public static final String newFilename(MultipartFile file,String model)
+    {
+//        获取学院name
+        String parentName = "admin";
+        if (getSysUser().getParentId() == 101){
+            parentName = "软件学院";
+        }else
+        if (getSysUser().getParentId() == 102){
+            parentName = "商学院";
+        }
+//        获取当前年份
+        LocalDate nowDate = LocalDate.now();
+        String year = String.valueOf(nowDate.getYear());
+//        获得模块名
+        String modelName = "admin";
+        switch (model){
+            case "hxkt":
+                modelName="横向课题";
+                break;
+            case "zxkt":
+                modelName="纵向课题";
+                break;
+            case "cgzh":
+                modelName="成果转化";
+                break;
+            case "lw":
+                modelName="论文";
+                break;
+            case "jczz":
+                modelName="教材专著";
+                break;
+            case "zlrz":
+                modelName="专利软著";
+                break;
+            case "jzbg":
+                modelName="讲座报告";
+                break;
+            case "jl":
+                modelName="奖励";
+                break;
+        }
+        return StringUtils.format("{}/{}/{}/{}/{}.{}",
+                parentName,
+                getSysUser().getDept().getDeptName(),
+                getSysUser().getUserName(),
+                modelName,
+                FilenameUtils.getBaseName(file.getOriginalFilename())+"-"+getSysUser().getUserName(),
+//                Seq.getId(Seq.uploadSeqType),
+                getExtension(file));
     }
 
     public static final File getAbsoluteFile(String uploadDir, String fileName) throws IOException

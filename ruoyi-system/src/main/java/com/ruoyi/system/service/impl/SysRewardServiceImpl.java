@@ -1,12 +1,18 @@
 package com.ruoyi.system.service.impl;
 
-import java.util.List;
+import com.ruoyi.common.annotation.DataScope;
+import com.ruoyi.common.core.text.Convert;
+import com.ruoyi.system.domain.SciRewardScoreCfg;
+import com.ruoyi.system.domain.SysReward;
+import com.ruoyi.system.domain.SysRewardPiyue;
+import com.ruoyi.system.mapper.SciRewardScoreCfgMapper;
+import com.ruoyi.system.mapper.SysRewardMapper;
+import com.ruoyi.system.mapper.SysRewardPiyueMapper;
+import com.ruoyi.system.service.ISysRewardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.ruoyi.system.mapper.SysRewardMapper;
-import com.ruoyi.system.domain.SysReward;
-import com.ruoyi.system.service.ISysRewardService;
-import com.ruoyi.common.core.text.Convert;
+
+import java.util.List;
 
 /**
  * 奖励Service业务层处理
@@ -19,6 +25,10 @@ public class SysRewardServiceImpl implements ISysRewardService
 {
     @Autowired
     private SysRewardMapper sysRewardMapper;
+    @Autowired
+    private SysRewardPiyueMapper sysRewardPiyueMapper;
+    @Autowired
+    private SciRewardScoreCfgMapper sciRewardScoreCfgMapper;
 
     /**
      * 查询奖励
@@ -29,6 +39,7 @@ public class SysRewardServiceImpl implements ISysRewardService
     @Override
     public SysReward selectSysRewardById(Long id)
     {
+
         return sysRewardMapper.selectSysRewardById(id);
     }
 
@@ -39,10 +50,58 @@ public class SysRewardServiceImpl implements ISysRewardService
      * @return 奖励
      */
     @Override
+    @DataScope(deptAlias = "d", userAlias = "u")
     public List<SysReward> selectSysRewardList(SysReward sysReward)
     {
         return sysRewardMapper.selectSysRewardList(sysReward);
     }
+
+    @Override
+    public List<SysReward> selectSysRewardListByKYC(SysReward sysReward) {
+        return sysRewardMapper.selectSysRewardListByKYC(sysReward);
+    }
+
+    @Override
+    @DataScope(deptAlias = "d", userAlias = "u")
+    public List<SysReward> selectSysRewardListByJYS(SysReward sysReward) {
+        return sysRewardMapper.selectSysRewardListByJYS(sysReward);
+    }
+
+    @Override
+    public List<SysReward> selectSysRewardListByXUE(SysReward sysReward) {
+        return sysRewardMapper.selectSysRewardListByXUE(sysReward);
+    }
+
+//    @Override
+//    @DataScope(deptAlias = "d", userAlias = "u")
+//    public List<SysReward> selectSysRewardListByOverReward(SysReward sysReward) {
+//        return sysRewardMapper.selectSysRewardList(sysReward);
+//    }
+//
+//    @Override
+//    @DataScope(deptAlias = "d", userAlias = "u")
+//    public List<SysReward> selectSysRewardListByOverRewardJYS(SysReward sysReward) {
+//        return sysRewardMapper.selectSysRewardList(sysReward);
+//    }
+//
+//    @Override
+//    @DataScope(deptAlias = "d", userAlias = "u")
+//    public List<SysReward> selectSysRewardListByOverRewardKYC(SysReward sysReward) {
+//        return sysRewardMapper.selectSysRewardList(sysReward);
+//    }
+//
+//    @Override
+//    @DataScope(deptAlias = "d", userAlias = "u")
+//    public List<SysReward> selectSysRewardListByOVER(SysReward sysReward) {
+//        return sysRewardMapper.selectSysRewardList(sysReward);
+//    }
+
+    @Override
+    public int overReward(String id, String state) {
+        return sysRewardMapper.overReward(id,state);
+    }
+
+
 
     /**
      * 新增奖励
@@ -90,5 +149,125 @@ public class SysRewardServiceImpl implements ISysRewardService
     public int deleteSysRewardById(Long id)
     {
         return sysRewardMapper.deleteSysRewardById(id);
+    }
+//
+    @Override
+    public int hxPass(String id, Long uid, String urlFlag) {
+        String state = "0";
+        if(urlFlag.equals("hecha")){
+            state ="4";
+        }else if(urlFlag.equals("pro")) {
+            state = "2";
+        }
+        else if(urlFlag.equals("chayue")) {
+            state = "6";
+            SysReward sysReward = sysRewardMapper.selectSysRewardById(Long.valueOf(id));
+            String a = sysReward.getRewardFenlei();
+            String b = sysReward.getRewardDengji();
+            String c = sysReward.getRewardPaiming();
+            SciRewardScoreCfg sciRewardScoreCfg = new SciRewardScoreCfg();
+            sciRewardScoreCfg.setFenLei(a);
+            sciRewardScoreCfg.setDengJi(b);
+            sciRewardScoreCfg.setPaiMing(c);
+            List<SciRewardScoreCfg> d = sciRewardScoreCfgMapper.selectSciRewardScoreCfgList(sciRewardScoreCfg);
+
+            int jifen = 0;
+            for (SciRewardScoreCfg cfg : d) {
+                jifen = Integer.parseInt(cfg.getTotalScore());
+                System.out.println("Jifen: " + jifen);
+            }
+           sysRewardMapper.updateJifen(Long.valueOf(id), jifen);
+
+        }
+        int a =  sysRewardMapper.hxPass(id,state);
+        SysRewardPiyue sysRewardPiyue = new SysRewardPiyue();
+        sysRewardPiyue.setUid(uid);
+        sysRewardPiyue.setRewardId(Integer.valueOf(id));
+        sysRewardPiyue.setConcate("同意");
+        sysRewardPiyue.setState("通过");
+        sysRewardPiyueMapper.insertSysRewardPiyue(sysRewardPiyue);
+        return a;
+    }
+
+
+//    @Override
+//    public int hxover(String id, Long uid, String urlFlag) {
+//        String state = "0";
+//        if(urlFlag.equals("JYSOVER")){
+//            state ="8";
+//        }else if(urlFlag.equals("KYCOVER")){
+//            state ="6";
+//        }
+//        int a =  sysRewardMapper.hxPass(id,state);
+//        System.out.println(a);
+//        return a;
+//    }
+//
+    @Override
+    public int hxBh(String id, Long uid, String remark, String urlFlag) {
+        String state = "0";
+        if(urlFlag.equals("hecha")){
+            state ="5";
+        }else if(urlFlag.equals("pro")){
+            state ="3";
+        }else if(urlFlag.equals("chayue")){
+            state ="7";
+        }
+        int a = sysRewardMapper.hxPass(id,state);
+        SysRewardPiyue sysRewardPiyue = new SysRewardPiyue();
+        sysRewardPiyue.setUid(uid);
+        sysRewardPiyue.setRewardId(Integer.valueOf(id));
+        sysRewardPiyue.setConcate(remark);
+        sysRewardPiyue.setState("被驳回");
+        sysRewardPiyueMapper.insertSysRewardPiyue(sysRewardPiyue);
+        return a;
+    }
+//撤销
+    @Override
+    public int recall(Integer id, String state,Long uid, String remark, String urlFlag) {
+        String newState = state;
+        switch (state){
+//            教研室
+            case "2": case "3":
+                newState = "1";
+                break;
+            //            学院
+            case "4": case "5":
+                newState = "2";
+                break;
+            //            科研处
+            case "6": case "7":
+                newState = "4";
+                break;
+        }
+
+//        设置状态
+int a =sysRewardMapper.hxPass(id.toString(),newState);
+    //        插入日志
+    SysRewardPiyue sysRewardPiyue = new SysRewardPiyue();
+        sysRewardPiyue.setUid(uid);
+        sysRewardPiyue.setRewardId(Integer.valueOf(id));
+        sysRewardPiyue.setConcate(remark);
+        sysRewardPiyue.setState("撤回上一条操作");
+        sysRewardPiyueMapper.insertSysRewardPiyue(sysRewardPiyue);
+        return a;
+
+//    @Override
+//    public int hxoverBh(String id, Long userId, String remark, String urlFlag) {
+//        String state = "0";
+//        if(urlFlag.equals("JYSOVER")){
+//            state ="9";
+//        }else if(urlFlag.equals("KYCOVER")){
+//            state ="10";
+//        }
+//
+//        int a =  sysRewardMapper.hxPass(id,state);
+//        SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
+//        sciHorizontalPiyue.setUid(uid);
+//        sciHorizontalPiyue.setHxktId(Integer.valueOf(id));
+//        sciHorizontalPiyue.setConcate(remark);
+//        sciHorizontalPiyue.setState("被驳回");
+//        sciHorizontalPiyueMapper.insertSciHorizontalPiyue(sciHorizontalPiyue);
+//        return a;
     }
 }

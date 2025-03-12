@@ -1,11 +1,12 @@
 package com.ruoyi.system.domain;
 
-import java.util.Date;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
 import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+
+import java.util.Date;
 
 /**
  * 奖励对象 sys_reward
@@ -17,12 +18,37 @@ public class SysReward extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
 
+    private Long uid;
+
     /** id */
     private Long id;
 
     /** 用户id */
-    @Excel(name = "申请人")
+    @Excel(name = "申请人id")
     private Long userId;
+
+    /** 申请人 */
+    @Excel(name = "申请人")
+    private String  userName;
+
+    /** 判断教研室还是科研处 */
+    private String urlFlag;
+
+    @Excel(name = "学院")
+    private String  yname;
+    @Excel(name = "专业")
+    private String  dname;
+
+    @Excel(name = "积分")
+    private String  jifen;
+
+    public String getJifen() {
+        return jifen;
+    }
+
+    public void setJifen(String jifen) {
+        this.jifen = jifen;
+    }
 
     /** 荣誉名称 */
     @Excel(name = "荣誉名称")
@@ -61,6 +87,48 @@ public class SysReward extends BaseEntity
     @Excel(name = "级别")
     private String rewardJibie;
 
+
+    /** 状态 */
+    @Excel(name = "状态")
+    private String state;
+
+    /** 用户角色字段 */
+    private String role;
+
+    public String getYname() {
+        return yname;
+    }
+
+    public void setYname(String yname) {
+        this.yname = yname;
+    }
+
+    public String getDname() {
+        return dname;
+    }
+
+    public void setDname(String dname) {
+        this.dname = dname;
+    }
+
+    public Long getUid() {
+        return uid;
+    }
+
+    public void setUid(Long uid) {
+        this.uid = uid;
+    }
+    public String getState() {return state;}
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public void setState(String state) {this.state = state;}
     public void setId(Long id) 
     {
         this.id = id;
@@ -159,6 +227,23 @@ public class SysReward extends BaseEntity
     public String getRewardJibie() 
     {
         return rewardJibie;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+
+    public String getUrlFlag() {
+        return urlFlag;
+    }
+
+    public void setUrlFlag(String urlFlag) {
+        this.urlFlag = urlFlag;
     }
 
     @Override

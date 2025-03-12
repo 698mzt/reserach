@@ -255,7 +255,7 @@
     }
     function chakan(){
         var c = $("#filing").val();
-        $.modal.openTab("查看合同" ,c );
+        window.open(c)
     }
     function beian(){
         var c = $("#contract").val();
@@ -279,7 +279,7 @@
     $(function(){
         var kid = $("#ktid").val();
         var options = {
-            url: prefix + "/bhyy/"+kid,
+            url: prefix + "/abhyy/"+kid,
             showSearch: false,
             showRefresh: false,
             showToggle: false,
