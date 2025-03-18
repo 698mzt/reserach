@@ -92,13 +92,10 @@ public class SciLectureReport extends BaseEntity
     @Excel(name = "报告时长")
     private String reportDuration;
 
-    /** 实际参与人数 */
-//    @Excel(name = "实际参与人数")
-    private Integer actualNumber;
 
-    /** 实际报告时长 */
-//    @Excel(name = "实际报告时长")
-    private String actualTime;
+    /** 文件路径 */
+//    @Excel(name = "文件路径")
+    private String reportUrl;
 
     /** 分类 */
     @Excel(name = "分类")
@@ -123,20 +120,12 @@ public class SciLectureReport extends BaseEntity
         this.repIntId = repIntId;
     }
 
-    public Integer getActualNumber() {
-        return actualNumber;
+    public String getReportUrl() {
+        return reportUrl;
     }
 
-    public void setActualNumber(Integer actualNumber) {
-        this.actualNumber = actualNumber;
-    }
-
-    public String getActualTime() {
-        return actualTime;
-    }
-
-    public void setActualTime(String actualTime) {
-        this.actualTime = actualTime;
+    public void setReportUrl(String reportUrl) {
+        this.reportUrl = reportUrl;
     }
 
     public String getTab() {
