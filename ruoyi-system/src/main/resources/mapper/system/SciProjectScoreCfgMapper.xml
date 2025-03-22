@@ -34,6 +34,19 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="projectType != null  and projectType != ''"> and project_type = #{projectType}</if>
         </where>
     </select>
+
+    <select id="selectVerticalScoreCfgList" parameterType="SciProjectScoreCfg" resultMap="SciProjectScoreCfgResult">
+        select id, funds_type,  user_order, total_score, start_score, end_score, update_user, update_time, project_type from sci_Vertical_score_cfg
+        <where>
+            <if test="fundsType != null  and fundsType != ''"> and funds_type = #{fundsType}</if>
+            <if test="userOrder != null  and userOrder != ''"> and user_order = #{userOrder}</if>
+            <if test="totalScore != null  and totalScore != ''"> and total_score = #{totalScore}</if>
+            <if test="startScore != null  and startScore != ''"> and start_score = #{startScore}</if>
+            <if test="endScore != null  and endScore != ''"> and end_score = #{endScore}</if>
+            <if test="updateUser != null  and updateUser != ''"> and update_user = #{updateUser}</if>
+            <if test="projectType != null  and projectType != ''"> and project_type = #{projectType}</if>
+        </where>
+    </select>
     
     <select id="selectSciProjectScoreCfgById" parameterType="Long" resultMap="SciProjectScoreCfgResult">
         <include refid="selectSciProjectScoreCfgVo"/>
@@ -64,6 +77,29 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="updateTime != null">now(),</if>
             <if test="projectType != null">#{projectType},</if>
          </trim>
+    </insert>
+    <insert id="insertVerticalScoreCfg" parameterType="SciProjectScoreCfg" useGeneratedKeys="true" keyProperty="id">
+        insert into sci_Vertical_score_cfg
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="fundsType != null">funds_type,</if>
+            <if test="userOrder != null">user_order,</if>
+            <if test="totalScore != null">total_score,</if>
+            <if test="startScore != null">start_score,</if>
+            <if test="endScore != null">end_score,</if>
+            <if test="updateUser != null">update_user,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="projectType != null">project_type,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="fundsType != null">#{fundsType},</if>
+            <if test="userOrder != null">#{userOrder},</if>
+            <if test="totalScore != null">#{totalScore},</if>
+            <if test="startScore != null">#{startScore},</if>
+            <if test="endScore != null">#{endScore},</if>
+            <if test="updateUser != null">#{updateUser},</if>
+            <if test="updateTime != null">now(),</if>
+            <if test="projectType != null">#{projectType},</if>
+        </trim>
     </insert>
 
     <update id="updateSciProjectScoreCfg" parameterType="SciProjectScoreCfg">

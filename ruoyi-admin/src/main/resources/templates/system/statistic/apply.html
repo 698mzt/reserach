@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+	<th:block th:include="include :: header('表格虚拟滚动')" />
+</head>
+<body class="gray-bg">
+     <div class="container-div">
+        <div class="btn-group-sm" id="toolbar" role="group">
+<!--	        <a class="btn btn-success" onclick="loadRows()">-->
+<!--	            <i class="fa fa-plus"></i> 加载10000行数据-->
+<!--	        </a>-->
+<!--	        <a class="btn btn-info" onclick="appendRows()">-->
+<!--	            <i class="fa fa-edit"></i> 追加10000行数据-->
+<!--	        </a>-->
+	        &nbsp;&nbsp;<span id="total" class="badge badge-success"></span>
+        </div>
+        <div class="row">
+			<div class="col-sm-12 select-table table-bordered">
+				<table id="bootstrap-table"></table>
+			</div>
+		</div>
+	</div>
+    <div th:include="include :: footer"></div>
+    <script>
+        var total = 0
+		var prefix = ctx + 'statistic'
+        $(function() {
+		    var options = {
+				url: prefix + "/list",
+				modalName: '教研室科研工作任务计划表',
+				height: 600,
+				sidePagination: "server",
+				pagination: true,
+				showSearch: false,
+				virtualScroll: true,
+				columns:[
+					[{
+						title: '基本信息',
+						align: 'center',
+						colspan: 2
+					},
+					{
+						title: '纵向科研项目',
+						align: 'center',
+						colspan: 7
+					},
+					{
+						title: '横向课题科研项目-校外',
+						align: 'center',
+						colspan: 8
+					},
+					{
+						title: '成果转化',
+						align: 'center',
+						colspan: 7
+					},
+					{
+						title: '学术论文',
+						align: 'center',
+						colspan: 6
+					},
+					{
+						title: '教材著作',
+						align: 'center',
+						colspan: 2
+					},
+					{
+						title: '专利、软著',
+						align: 'center',
+						colspan: 4
+					},
+					{
+						title: '奖励类',
+						align: 'center',
+						colspan: 9
+					},
+					{
+						title: '学术报告(讲座类)',
+						align: 'center',
+						colspan: 5
+					}
+					],
+					[{
+						field: 'deptName',
+						title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;专业&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
+						align: 'center'
+					},
+					{
+						field: 'userName',
+						title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;教师&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
+						align: 'center'
+					},
+					{
+						field: '主持国家基金科研项目',
+						title: '主持国家基金科研项目',
+						align: 'center'
+					},
+					{
+						field: '主持省部级基金科研项目',
+						title: '主持省部级基金科研项目',
+						align: 'center'
+					},
+					{
+						field: '主持省部级教改项目',
+						title: '主持省部级教改项目',
+						align: 'center'
+					},
+					{
+						field: '主持省部级纵向科研项目',
+						title: '主持省部级纵向科研项目',
+						align: 'center'
+					},
+					{
+						field: '主持厅局级、学会级科研项目',
+						title: '主持厅局级、学会级科研项目',
+						align: 'center'
+					},
+					{
+						field: '主持校级教学管理项目（1万元以上）',
+						title: '主持校级教学管理项目（1万元以上）',
+						align: 'center'
+					},
+					{
+						field: '主持校级教学管理项目（1万元以下）',
+						title: '主持校级教学管理项目（1万元以下）',
+						align: 'center'
+					},
+					{
+						field: '2万元以下',
+						title: '2万元以下',
+						align: 'center'
+					},
+					{
+						field: '2-5万元（含2）',
+						title: '2-5万元（含2）',
+						align: 'center'
+					},
+					{
+						field: '5-10万元（含5）',
+						title: '5-10万元（含5）',
+						align: 'center'
+					},
+					{
+						field: '10-20万元（含10）',
+						title: '10-20万元（含10）',
+						align: 'center'
+					},
+					{
+						field: '20-35万元（含20）',
+						title: '20-35万元（含20）',
+						align: 'center'
+					},
+					{
+						field: '35-50万元（含35）',
+						title: '35-50万元（含35）',
+						align: 'center'
+					},
+					{
+						field: '50-75万元（含50）',
+						title: '50-75万元（含50）',
+						align: 'center'
+					},
+					{
+						field: '75-100万元（含75）',
+						title: '75-100万元（含75）',
+						align: 'center'
+					},
+					{
+						field: '2以下信息',
+						title: '2以下信息',
+						align: 'center'
+					},
+					{
+						field: '2-5信息',
+						title: '2-5信息',
+						align: 'center'
+					},
+					{
+						field: '5-10信息',
+						title: '5-10信息',
+						align: 'center'
+					},
+					{
+						field: '10-20信息',
+						title: '10-20信息',
+						align: 'center'
+					},
+					{
+						field: '20-35信息',
+						title: '20-35信息',
+						align: 'center'
+					},
+					{
+						field: '35-50信息',
+						title: '35-50信息',
+						align: 'center'
+					},
+					{
+						field: '大于50信息',
+						title: '大于50信息',
+						align: 'center'
+					},
+					{
+						field: 'SCI',
+						title: 'SCI',
+						align: 'center'
+					},
+					{
+						field: 'EI',
+						title: 'EI',
+						align: 'center'
+					},
+					{
+						field: '核心',
+						title: '核心',
+						align: 'center'
+					},
+					{
+						field: '三网',
+						title: '三网',
+						align: 'center'
+					},
+					{
+						field: '普通',
+						title: '普通',
+						align: 'center'
+					},
+					{
+						field: '校办',
+						title: '校办',
+						align: 'center'
+					},
+					{
+						field: '专著',
+						title: '专著',
+						align: 'center'
+					},
+					{
+						field: '教材',
+						title: '教材',
+						align: 'center'
+					},
+					{
+						field: '授权发明专利',
+						title: '授权发明专利',
+						align: 'center'
+					},
+					{
+						field: '实用新型专利',
+						title: '实用新型专利',
+						align: 'center'
+					},
+					{
+						field: '外型设计专利',
+						title: '外型设计专利',
+						align: 'center'
+					},
+					{
+						field: '计算机软件著作权',
+						title: '计算机软件著作权',
+						align: 'center'
+					},
+					{
+						field: '省级教学成果奖',
+						title: '省级教学成果奖',
+						align: 'center'
+					},
+					{
+						field: '省级科学技术奖',
+						title: '省级科学技术奖',
+						align: 'center'
+					},
+					{
+						field: '省级一流精品课评比',
+						title: '省级一流精品课评比',
+						align: 'center'
+					},
+					{
+						field: '市、厅局级自然科学类评奖',
+						title: '市、厅局级自然科学类评奖',
+						align: 'center'
+					},
+					{
+						field: '市、厅局级社科类评奖',
+						title: '市、厅局级社科类评奖',
+						align: 'center'
+					},
+					{
+						field: '校级教学成果奖',
+						title: '校级教学成果奖',
+						align: 'center'
+					},
+					{
+						field: '应用型科研校级成果奖',
+						title: '应用型科研校级成果奖',
+						align: 'center'
+					},
+					{
+						field: '校级精品课评比',
+						title: '校级精品课评比',
+						align: 'center'
+					},
+					{
+						field: '教师参加省级大赛获奖',
+						title: '教师参加省级大赛获奖',
+						align: 'center'
+					},
+					{
+						field: '举办国际',
+						title: '举办国际',
+						align: 'center'
+					},
+					{
+						field: '举办国内',
+						title: '举办国内',
+						align: 'center'
+					},
+					{
+						field: '参加国际',
+						title: '参加国际',
+						align: 'center'
+					},
+					{
+						field: '参加国内',
+						title: '参加国内',
+						align: 'center'
+					},
+					{
+						field: '校级学术',
+						title: '校级学术',
+						align: 'center'
+					}]
+			]
+		    };
+		    $.table.init(options);
+
+            // 添加表格加载完成后的回调函数
+            $('#bootstrap-table').on('load-success.bs.table', function (data) {
+                var $table = $(this);
+                var $lastRow = $table.find('tbody tr:last');
+                
+                if ($lastRow.length > 0) {
+                    // 合并前两个单元格
+                    $lastRow.find('td:eq(0), td:eq(1)').attr('colspan', '2').addClass('text-center').html('合计');
+                    
+                    // 删除多余的单元格
+                    $lastRow.find('td:eq(1)').remove();
+                }
+            });
+
+
+
+		});
+
+</script>
+
+</body>
+</html>
