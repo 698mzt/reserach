@@ -47,11 +47,11 @@ public interface ISciHorizontalApplyVerticalService {
     int deleteSciHorizontalApplyVerticalByIds(String ids);
 
 
-    int applyPass(String id, Long userId, String urlFlag);
+    int applyPass(String id, Long userId, String urlFlag,List score,List persion,String verticalId);
 
     int applyBh(String id, Long userId, String remark, String urlFlag);
 
-    int overPass(String id, Long userId, String urlFlag);
+    int overPass(String id, Long userId, String urlFlag,List score,List persion,String verticalId);
 
     int overBh(String id, Long userId, String remark, String urlFlag);
 
@@ -85,9 +85,4 @@ public interface ISciHorizontalApplyVerticalService {
 
     List<SciHorizontalApplyVertical> selectOtherListByUid(SciHorizontalApplyVertical sciHorizontalApplyVertical);
 
-    int amountPass(String id, String reid, Long userId, String urlFlag, List score, List persion, Integer applyId,String amountType);
-
-    int recallamount(Integer id, String state, Long userId, String remark, String urlFlag);
-
-    int amountBh(String id,String reid, Long userId, String remark, String urlFlag);
 }

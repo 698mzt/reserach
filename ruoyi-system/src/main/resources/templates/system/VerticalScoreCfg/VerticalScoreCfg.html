@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('纵向课题得分配置列表')"/>
+</head>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="btn-group-sm " id="toolbar" role="group">
+        <a class="btn btn-success" onclick="$.operate.add()" shiro:hasPermission="system:VerticalScoreCfg:add">
+            <i class="fa fa-plus"></i> 添加配置
+        </a>
+    </div>
+    <div class="row" id="rowDiv">
+        <div class="col-sm-4 tabs-container">
+            <h4 class="form-header h4">主持国家</h4>
+            <div class="panel-body">
+                <p>第1负责人共计5500分，其中开题47501分，结题7501分。</p>
+                <p>第2负责人共计4500分，其中开题47502分，结题7502分。</p>
+                <p>第3负责人共计3500分，其中开题47503分，结题7503分。</p>
+                <p>第4负责人共计2500分，其中开题47504分，结题7504分。</p>
+                <button class="btn btn-sm btn-primary" onclick="del_cfg('1','2')">删除</button>
+            </div>
+        </div>
+
+        <div class='col-sm-4 tabs-container'><h4 class='form-header h4'>经费大于100万（含100万）</h4>
+            <div class='panel-body'><p>第1负责人共计2500分，其中开题1750
+                <p>第2负责人共计1000分，其中开题700
+                <p>第3负责人共计500分，其中开题350
+                <p>第4负责人共计250分，其中开题175
+                    <button class='btn btn-sm btn-primary'>删除</button>
+            </div>
+        </div>
+    </div>
+</div>
+<th:block th:include="include :: footer"/>
+<script th:inline="javascript">
+    // var editFlag = [[${@permission.hasPermi('system:projectScoreCfg:edit')}]];
+    var fundsType = [[${@dict.getType('sci_funds_type')}]];
+    var removeFlag = [[${@permission.hasPermi('system:VerticalScoreCfg:remove')}]];
+    var prefix = ctx + "system/VerticalScoreCfg";
+
+    $(function () {
+        get_cfg_card();
+        var options = {
+            url: prefix + "/list",
+            createUrl: prefix + "/add",
+            updateUrl: prefix + "/edit/{id}",
+            removeUrl: prefix + "/remove",
+            exportUrl: prefix + "/export",
+        }
+        $.table.init(options);
+    });
+
+    function get_cfg_card() {
+
+        var url = prefix + "/getCfgCard";
+        var dataParam = {}
+
+        $.post(url, dataParam, function (result) {
+            var divStr = "";
+            var funsList = result.data.fundsList;
+
+            for (let i = 0; i < funsList.length; i++) {
+                var funsInfo = funsList[i];
+                var Type = funsInfo.funds_type;
+                var name = $.table.selectDictLabel(fundsType, Type);
+
+                divStr = divStr + "               <div class='col-sm-4 panel blank-panel'> "
+                    + "    <div class='panel-body'> "
+                    + "    <h4 class='form-header h4'>" + name + "</h4> ";
+
+                var userScoreList = funsInfo.userScoreList;
+                for (let j = 0; j < userScoreList.length; j++) {
+                    divStr = divStr + " <p >第" + userScoreList[j].user_order + "负责人" +
+                        "共计" + userScoreList[j].total_score + "分，" +
+                        "其中开题" + userScoreList[j].start_score + "分，" +
+                        "结题" + userScoreList[j].end_score + "分。</p> "
+                }
+
+                divStr = divStr + " <button class='btn btn-sm btn-primary' " +
+                    " onclick=\"del_cfg('" + funsInfo.funds_max + "','" + funsInfo.funds_min +"','"+funsInfo.funds_type+ "')\">删除</button> " +
+                    "            </div> " +
+                    "        </div>";
+
+
+            }
+            console.log("divStr", divStr)
+            $("#rowDiv").empty();
+            $("#rowDiv").html(divStr);
+        });
+    }
+
+    function del_cfg(funds_max, funds_min,funds_type) {
+        var url = prefix + "/delCfg";
+        var dataParam = {funds_max, funds_min,funds_type}
+        console.log(dataParam)
+        $.modal.confirm("确认要删除吗?", function () {
+            $.ajax({
+                url: url,
+                data: JSON.stringify(dataParam),
+                type: "post",
+                processData: false,
+                contentType: "application/json",
+                success: function (result) {
+                    $.modal.alert(result.msg);
+                    get_cfg_card();
+                }
+            })
+        });
+    }
+
+    function edit_cfg(funds_max, funds_min) {
+        var url = prefix + "/editCfg";
+        var dataParam = {funds_max, funds_min}
+        console.log(dataParam)
+        $.ajax({
+            url: url,
+            data: JSON.stringify(dataParam),
+            type: "post",
+            processData: false,
+            contentType: "application/json",
+            success: function (result) {
+                $.modal.alert(result.msg);
+                get_cfg_card();
+            }
+        })
+    }
+</script>
+</body>
+</html>

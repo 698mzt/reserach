@@ -1,6 +1,7 @@
 package com.ruoyi.system.service.impl;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,8 @@ public class SysDeptServiceImpl implements ISysDeptService
 {
     @Autowired
     private SysDeptMapper deptMapper;
+    @Autowired
+    private SysDeptMapper sysDeptMapper;
 
     /**
      * 查询部门管理数据
@@ -325,4 +328,6 @@ public class SysDeptServiceImpl implements ISysDeptService
             }
         }
     }
+
+
 }

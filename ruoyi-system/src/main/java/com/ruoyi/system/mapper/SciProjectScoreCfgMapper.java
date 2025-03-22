@@ -29,6 +29,7 @@ public interface SciProjectScoreCfgMapper {
      * @return 横向课题得分配置集合
      */
     public List<SciProjectScoreCfg> selectSciProjectScoreCfgList(SciProjectScoreCfg sciProjectScoreCfg);
+    public List<SciProjectScoreCfg> selectVerticalScoreCfgList(SciProjectScoreCfg sciProjectScoreCfg);
 
     /**
      * 新增横向课题得分配置
@@ -37,6 +38,8 @@ public interface SciProjectScoreCfgMapper {
      * @return 结果
      */
     public int insertSciProjectScoreCfg(SciProjectScoreCfg sciProjectScoreCfg);
+
+    public int insertVerticalScoreCfg(SciProjectScoreCfg sciProjectScoreCfg);
 
     /**
      * 修改横向课题得分配置
@@ -72,6 +75,12 @@ public interface SciProjectScoreCfgMapper {
             " FUNDS_MIN + 0 DESC ")
     List<Map<String, Object>> getCfgFunds();
 
+    @Select(" SELECT DISTINCT " +
+            " funds_type " +
+            "FROM " +
+            " sci_Vertical_score_cfg t  ")
+    List<Map<String, Object>> getVerticalCfgFunds();
+
     @Select(" SELECT " +
             " t.user_order, " +
             " t.total_score, " +
@@ -86,8 +95,26 @@ public interface SciProjectScoreCfgMapper {
             "ORDER BY " +
             " t.total_score + 0 DESC ")
     List<Map<String, Object>> getUserScoreList(Map<String, Object> fundsMap);
+    @Select(" SELECT " +
+            " t.user_order, " +
+            " t.total_score, " +
+            " t.start_score, " +
+            " t.end_score  " +
+            "FROM " +
+            " sci_Vertical_score_cfg t  " +
+            "WHERE " +
+            " t.funds_type = #{funds_type}  " +
+            "ORDER BY " +
+            " t.total_score + 0 DESC ")
+    List<Map<String, Object>> getVerticalUserScoreList(Map<String, Object> fundsMap);
 
     @Delete("  delete from sci_project_score_cfg   " +
             "where funds_max = #{funds_max} and funds_min = #{funds_min}")
     int deleteSciProjectScoreCfgByFunds(Map map);
+
+    @Delete("  delete from sci_Vertical_score_cfg   " +
+            "where funds_type = #{funds_type}")
+    int deleteVerticalScoreCfgByFunds(Map map);
+
+
 }
