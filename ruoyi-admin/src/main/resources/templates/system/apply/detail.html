@@ -38,7 +38,6 @@
             <div class="form-group">
                 <label class="col-sm-4 control-label is-required">课题类型：</label>
                 <div class="col-sm-8">
-
                     <select  readonly class="form-control" th:with="type=${@dict.getType('sci_top_type')}" required disabled>
                         <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}" th:field="*{topType}"></option>
                     </select>
@@ -231,7 +230,6 @@
     function beian(){
         var c = $("#contract").val();
         window.open(c);
-        // $.modal.openTab("查看备案表" ,c );
     }
     function downloadFile(type){
         var c = $("#"+type).val();

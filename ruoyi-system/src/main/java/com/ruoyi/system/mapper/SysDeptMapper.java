@@ -114,4 +114,5 @@ public interface SysDeptMapper
      * @return 子部门数
      */
     public int selectNormalChildrenDeptById(Long deptId);
+
 }

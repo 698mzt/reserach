@@ -37,6 +37,8 @@ public interface ISciProjectScoreCfgService
      */
     public int insertSciProjectScoreCfg(SciProjectScoreCfg sciProjectScoreCfg);
 
+    public int insertVerticalScoreCfg(SciProjectScoreCfg sciProjectScoreCfg);
+
     /**
      * 修改横向课题得分配置
      * 
@@ -53,6 +55,7 @@ public interface ISciProjectScoreCfgService
      */
     public int deleteSciProjectScoreCfgByIds(String ids);
 
+
     /**
      * 删除横向课题得分配置信息
      * 
@@ -62,6 +65,12 @@ public interface ISciProjectScoreCfgService
     public int deleteSciProjectScoreCfgById(Long id);
 
     Map<String, Object> getProjectScoreCfg();
+    Map<String, Object> getVerticalScoreCfg();
 
     int deleteSciProjectScoreCfgByFunds(Map map);
+
+    int deleteVerticalScoreCfgByFunds(Map map);
+
+
+
 }

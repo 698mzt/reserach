@@ -19,4 +19,5 @@ public interface SciUserScoreMapper {
     List<SciUserScore> selectScoreVerticalById(Integer id);
 
     void insertScoreVertical(SciUserScore sciUserScore);
+
 }

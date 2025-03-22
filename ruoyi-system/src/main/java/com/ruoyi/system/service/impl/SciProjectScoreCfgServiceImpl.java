@@ -1,5 +1,6 @@
 package com.ruoyi.system.service.impl;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,6 +61,11 @@ public class SciProjectScoreCfgServiceImpl implements ISciProjectScoreCfgService
         return sciProjectScoreCfgMapper.insertSciProjectScoreCfg(sciProjectScoreCfg);
     }
 
+    @Override
+    public int insertVerticalScoreCfg(SciProjectScoreCfg sciProjectScoreCfg) {
+        return sciProjectScoreCfgMapper.insertVerticalScoreCfg(sciProjectScoreCfg);
+    }
+
     /**
      * 修改横向课题得分配置
      * 
@@ -84,6 +90,7 @@ public class SciProjectScoreCfgServiceImpl implements ISciProjectScoreCfgService
     {
         return sciProjectScoreCfgMapper.deleteSciProjectScoreCfgByIds(Convert.toStrArray(ids));
     }
+
 
     /**
      * 删除横向课题得分配置信息
@@ -112,9 +119,27 @@ public class SciProjectScoreCfgServiceImpl implements ISciProjectScoreCfgService
         System.out.println("returnMap = " + returnMap);
         return returnMap;
     }
+    @Override
+    public Map<String, Object> getVerticalScoreCfg() {
+        Map<String, Object> returnMap = new HashMap<>();
+
+        List<Map<String,Object>> fundsList = sciProjectScoreCfgMapper.getVerticalCfgFunds();
+        for (int i = 0; i < fundsList.size(); i++) {
+            Map<String,Object> fundsMap = fundsList.get(i);
+            List<Map<String,Object>> userScoreList = sciProjectScoreCfgMapper.getVerticalUserScoreList(fundsMap);
+            fundsMap.put("userScoreList",userScoreList);
+        }
+        returnMap.put("fundsList",fundsList);
+        System.out.println("returnMap = " + returnMap);
+        return returnMap;
+    }
 
     @Override
     public int deleteSciProjectScoreCfgByFunds(Map map) {
         return sciProjectScoreCfgMapper.deleteSciProjectScoreCfgByFunds(map);
+    }
+    @Override
+    public int deleteVerticalScoreCfgByFunds(Map map) {
+        return sciProjectScoreCfgMapper.deleteVerticalScoreCfgByFunds(map);
     }
 }
