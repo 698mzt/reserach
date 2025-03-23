@@ -246,7 +246,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	</insert>
 
 	<select id="selectAllUser" resultMap="SysUserResult">
-	select user_id,  user_name from sys_user
+	select user_id,  user_name, dept_id from sys_user
 </select>
 
 	<select id="selectUser"	parameterType="Integer" resultMap="SysUserResult">

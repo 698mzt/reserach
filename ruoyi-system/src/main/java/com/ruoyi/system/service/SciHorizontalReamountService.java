@@ -28,16 +28,7 @@ public interface SciHorizontalReamountService {
 
     List<SciHorizontalReamount> selectAmountListById(Integer id);
 
-    List<SciHorizontalApplyVertical> selectVerticalAmountListKYC(SciHorizontalApplyVertical sciHorizontalApplyVertical);
-
-    List<SciHorizontalApplyVertical> selectVerticalAmountListJYS(SciHorizontalApplyVertical sciHorizontalApplyVertical);
-
-    List<SciHorizontalApplyVertical> selectVerticalAmountListDept(SciHorizontalApplyVertical sciHorizontalApplyVertical);
-
-    List<SciHorizontalApplyVertical> selectVerticalAmountList(SciHorizontalApplyVertical sciHorizontalApplyVertical);
-
-    SciHorizontalApplyVertical selectVerticalAmountById(Integer id);
 
 
-    int verticalamountpass(String reid, String state);
+
 }

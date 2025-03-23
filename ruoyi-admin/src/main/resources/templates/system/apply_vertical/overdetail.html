@@ -28,7 +28,7 @@
                     <label class="col-sm-4 control-label is-required">课题类型：</label>
                     <div class="col-sm-8">
 
-                        <select  readonly class="form-control" th:with="type=${@dict.getType('sci_top_type')}" required disabled>
+                        <select  readonly id="topType" class="form-control" th:with="type=${@dict.getType('sci_vertical_type')}" required disabled>
                             <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}" th:field="*{topType}"></option>
                         </select>
                     </div>
@@ -135,19 +135,44 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">文件：</label>
                     <div class="col-sm-8">
-                        <input th:field="*{overfile}" hidden id="filing" type="text" >
+                        <input th:field="*{openfile}" hidden id="filing1" type="text" >
                         <div style="display: inline-block;">
-                            <div id="filingFileName" style="display: inline; margin-right: 5px;"></div>
-                            <!--                            <button onclick="chakan()" class="btn btn-sm btn-primary color">预览</button>-->
-                            <!--                            <button onclick="downloadFile('filing')" class="btn btn-sm btn-primary color">下载</button>-->
+                            <div id="filingFileName1" style="display: inline; margin-right: 5px;"></div>
                         </div>
                         <div>
-                            <button onclick="chakan()" class="btn btn-sm btn-primary color">预览</button>
-                            <button onclick="downloadFile('filing')" class="btn btn-sm btn-primary color">下载</button>
-
+                            <button onclick="chakan('filing1')" class="btn btn-sm btn-primary color">预览</button>
+                            <button onclick="downloadFile('filing1')" class="btn btn-sm btn-primary color">下载</button>
                         </div>
-
-
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">文件：</label>
+                    <div class="col-sm-8">
+                        <input th:field="*{midfile}" hidden id="filing2" type="text" >
+                        <div style="display: inline-block;">
+                            <div id="filingFileName2" style="display: inline; margin-right: 5px;"></div>
+                        </div>
+                        <div>
+                            <button onclick="chakan('filing2')" class="btn btn-sm btn-primary color">预览</button>
+                            <button onclick="downloadFile('filing2')" class="btn btn-sm btn-primary color">下载</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">文件：</label>
+                    <div class="col-sm-8">
+                        <input th:field="*{overfile}" hidden id="filing3" type="text" >
+                        <div style="display: inline-block;">
+                            <div id="filingFileName3" style="display: inline; margin-right: 5px;"></div>
+                        </div>
+                        <div>
+                            <button onclick="chakan('filing3')" class="btn btn-sm btn-primary color">预览</button>
+                            <button onclick="downloadFile('filing3')" class="btn btn-sm btn-primary color">下载</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -198,19 +223,23 @@
         const fileNameSpan = document.getElementById(fileNameId);
         if (input.value) {
             const fileName = input.value.split('/').pop(); // 获取文件名
-            const parts = fileName.split('_'); // 按下划线分割
-            const firstPart = parts[0]; // 下划线前的部分
-
-            const dotParts = fileName.split('.'); // 按点分割
-            const lastPart = dotParts[dotParts.length - 1]; // 点后的部分
-
-            fileNameSpan.textContent = `${firstPart}.${lastPart}`; // 组合并显示
+            fileNameSpan.textContent = fileName; // 组合并显示
         } else {
             fileNameSpan.textContent = '';
         }
     }
-    function chakan(){
-        var c = $("#filing").val();
+
+
+    function getSelectValue(selectId){
+        var select = document.getElementById(selectId);
+        if (select){
+            return select.value;
+        }
+        return null;
+    }
+
+    function chakan(a){
+        var c = $("#"+a).val();
         window.open(c);
     }
 
@@ -231,7 +260,7 @@
     $(function(){
         var kid = $("#ktid").val();
         var options = {
-            url: prefix + "/bhyy/"+kid,
+            url: prefix + "/abhyy/"+kid,
             showSearch: false,
             showRefresh: false,
             showToggle: false,
@@ -344,8 +373,9 @@
     function submitHandler() {
         //获取 URLflag
         var a = $("#urlFlag").val();
+        var type = getSelectValue("topType")
         console.log(a);
-        $.operate.saveTab(prefix + "/overPass", {"id":$("#ktid").val(),"urlFlag":a});
+        $.operate.saveTab(prefix + "/overPass", {"id":$("#ktid").val(),"urlFlag":a,"type":type});
     }
     function submitHandlerBH() {
         var a = $("#urlFlag").val();
@@ -374,8 +404,9 @@
     });
     // 页面加载时显示文件名
     window.onload = function() {
-        displayFileName('filing', 'filingFileName');
-        showButton();
+        displayFileName('filing1', 'filingFileName1');
+        displayFileName('filing2', 'filingFileName2');
+        displayFileName('filing3', 'filingFileName3');
     };
 </script>
 </body>

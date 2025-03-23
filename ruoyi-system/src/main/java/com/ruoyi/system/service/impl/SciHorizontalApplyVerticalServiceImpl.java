@@ -122,12 +122,19 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
     }
 
     @Override
-    public int applyPass(String id, Long userId, String urlFlag) {
+    public int applyPass(String id, Long userId, String urlFlag,List score,List persion,String verticalId) {
         String state = "0";
+        SciUserScore sciUserScore = new SciUserScore();
+        sciUserScore.setVerticalId(verticalId);
         if(urlFlag.equals("JYS")){
             state ="2";
         }else if(urlFlag.equals("KYC")){
             state ="6";
+            for (int i = 0; i < persion.size(); i++) {
+                sciUserScore.setUserId(persion.get(i).toString());
+                sciUserScore.setChangeValue(score.get(i).toString());
+                sciUserScoreMapper.insertScoreVertical(sciUserScore);
+            }
         }else if(urlFlag.equals("Dept")){
             state ="4";
         }
@@ -164,12 +171,19 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
 
 
     @Override
-    public int overPass(String id, Long userId, String urlFlag) {
+    public int overPass(String id, Long userId, String urlFlag,List score,List persion,String verticalId) {
         String state = "0";
+        SciUserScore sciUserScore = new SciUserScore();
+        sciUserScore.setVerticalId(verticalId);
         if(urlFlag.equals("JYS")){
             state ="22";
         }else if(urlFlag.equals("KYC")){
             state ="66";
+            for (int i = 0; i < persion.size(); i++) {
+                sciUserScore.setUserId(persion.get(i).toString());
+                sciUserScore.setChangeValue(score.get(i).toString());
+                sciUserScoreMapper.insertScoreVertical(sciUserScore);
+            }
         }else if(urlFlag.equals("Dept")){
             state ="44";
         }
@@ -285,43 +299,6 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
         return a;
     }
 
-    @Override
-    public int recallamount(Integer id, String state, Long userId, String remark, String urlFlag) {
-        String newState = state;
-        switch (state){
-//            教研室
-            case "2": case "3":
-                newState = "1";
-                break;
-//                学院
-            case "11":  case "22":
-                newState = "2";
-                break;
-//                科研处
-            case "4":  case "5":
-                newState = "22";
-                break;
-        }
-        if(state.equals("4")){
-            String status = "立项";
-//            sciUserScoreMapper.deleteScoreById(id.toString(),status);
-        }else
-        if(state.equals("66")){
-            String status = "结项";
-//            sciUserScoreMapper.deleteScoreById(id.toString(),status);
-        }
-//        插入日志
-        SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
-        sciHorizontalPiyue.setUid(userId);
-        sciHorizontalPiyue.setVerticalId(id);
-        sciHorizontalPiyue.setConcate(remark);
-        sciHorizontalPiyue.setState("撤回上一条操作");
-        sciHorizontalPiyueMapper.insertVerticalPiyue(sciHorizontalPiyue);
-//        设置状态
-        int a =sciHorizontalApplyVerticalMapper.applyPass(id.toString(),newState);
-        return a;
-    }
-
 
 
     @Override
@@ -383,60 +360,6 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
         return list;
     }
 
-    @Override
-    public int amountPass(String id, String reid, Long userId, String urlFlag, List score, List persion, Integer applyId,String amountType) {
-        String state = "0";
-        SciUserScore sciUserScore = new SciUserScore();
-        sciUserScore.setVerticalId(applyId.toString());
-        if(urlFlag.equals("KYC")){
-            state ="4";
-//            以负责人列表大小为准，顺序匹配每个负责人所对应的分数，记录到sciUserScore中。
-//            科研处
-            for (int i = 0; i < persion.size(); i++) {
-                sciUserScore.setUserId(persion.get(i).toString());
-                sciUserScore.setChangeValue(score.get(i).toString());
-                if (amountType.equals("1"))
-                    sciUserScore.setChangeStatus("立项");
-                if (amountType.equals("2"))
-                    sciUserScore.setChangeStatus("结项");
-                sciUserScoreMapper.insertScoreVertical(sciUserScore);
-            }
-//            教研室
-        }else if(urlFlag.equals("JYS")){
-            state ="2";
-//            学院通过
-        }else if (urlFlag.equals("Dept")){
-            state ="11";
-        }
-        int a =  sciHorizontalReamountService.verticalamountpass(reid,state);
-        SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
-        sciHorizontalPiyue.setUid(userId);
-        sciHorizontalPiyue.setVerticalId(Integer.valueOf(id));
-        sciHorizontalPiyue.setConcate("同意");
-        sciHorizontalPiyue.setState("通过");
-        sciHorizontalPiyueMapper.insertSciHorizontalAmountPiyue(sciHorizontalPiyue);
-        return a;
-    }
-
-    @Override
-    public int amountBh(String id,String reid, Long userId, String remark, String urlFlag) {
-        String state = "0";
-        if(urlFlag.equals("JYS")){
-            state ="3";
-        }else if(urlFlag.equals("KYC")){
-            state ="5";
-        }else if (urlFlag.equals("Dept")){
-            state ="22";
-        }
-        int a =  sciHorizontalReamountService.verticalamountpass(reid,state);
-        SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
-        sciHorizontalPiyue.setUid(userId);
-        sciHorizontalPiyue.setVerticalId(Integer.valueOf(id));
-        sciHorizontalPiyue.setConcate(remark);
-        sciHorizontalPiyue.setState("被驳回");
-        sciHorizontalPiyueMapper.insertSciHorizontalAmountPiyue(sciHorizontalPiyue);
-        return a;
-    }
 
 
 }

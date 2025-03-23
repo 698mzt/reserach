@@ -26,6 +26,8 @@ public class SciProjectScoreCfg extends BaseEntity
     @Excel(name = "经费大于")
     private String fundsMin;
 
+    private String fundsType;
+
     /** 负责人排名 */
     @Excel(name = "负责人排名")
     private String userOrder;
@@ -132,12 +134,21 @@ public class SciProjectScoreCfg extends BaseEntity
         return projectType;
     }
 
+    public String getFundsType() {
+        return fundsType;
+    }
+
+    public void setFundsType(String fundsType) {
+        this.fundsType = fundsType;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
             .append("id", getId())
             .append("fundsMax", getFundsMax())
             .append("fundsMin", getFundsMin())
+            .append("fundsType", getFundsType())
             .append("userOrder", getUserOrder())
             .append("totalScore", getTotalScore())
             .append("startScore", getStartScore())

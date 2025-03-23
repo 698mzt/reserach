@@ -42,8 +42,6 @@ public class SciHorizontalApplyVerticalController extends BaseController {
     @Autowired
     private ISciHorizontalApplyVerticalService sciHorizontalApplyVerticalService;
 
-    @Autowired
-    private SciHorizontalReamountService sciHorizontalReamountService;
 
     @Autowired
     private ISciHorizontalPiyueService piyueService;
@@ -91,7 +89,6 @@ public class SciHorizontalApplyVerticalController extends BaseController {
         }
         sciHorizontalApplyVertical.setRole(role);
         List<SciHorizontalApplyVertical> list = new ArrayList<>();
-        List<SciHorizontalApplyVertical> Alist = new ArrayList<>();
 //        科研处
         switch (role) {
             case "sci_tesearch":
@@ -104,9 +101,6 @@ public class SciHorizontalApplyVerticalController extends BaseController {
                         break;
                     case "bootstrap-table2":
                         list = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalListJX(sciHorizontalApplyVertical);
-                        break;
-                    case "bootstrap-table3":
-                        Alist = sciHorizontalReamountService.selectVerticalAmountListKYC(sciHorizontalApplyVertical);
                         break;
                 }
                 break;
@@ -122,9 +116,6 @@ public class SciHorizontalApplyVerticalController extends BaseController {
                     case "bootstrap-table2":
                         list = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalListJX(sciHorizontalApplyVertical);
                         break;
-                    case "bootstrap-table3":
-                        Alist = sciHorizontalReamountService.selectVerticalAmountListJYS(sciHorizontalApplyVertical);
-                        break;
                 }
                 break;
 //      学院负责人
@@ -139,9 +130,6 @@ public class SciHorizontalApplyVerticalController extends BaseController {
                     case "bootstrap-table2":
                         list = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalListJX(sciHorizontalApplyVertical);
                         break;
-                    case "bootstrap-table3":
-                        Alist = sciHorizontalReamountService.selectVerticalAmountListDept(sciHorizontalApplyVertical);
-                        break;
                 }
                 break;
 //        教师
@@ -155,9 +143,6 @@ public class SciHorizontalApplyVerticalController extends BaseController {
                         break;
                     case "bootstrap-table2":
                         list = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalListJX(sciHorizontalApplyVertical);
-                        break;
-                    case "bootstrap-table3":
-                        Alist = sciHorizontalReamountService.selectVerticalAmountList(sciHorizontalApplyVertical);
                         break;
                 }
                 break;
@@ -181,7 +166,6 @@ public class SciHorizontalApplyVerticalController extends BaseController {
 
         Integer did = sysUser.getDeptId().intValue();
         Integer yid = sysUser.getDeptId().intValue();
-        distinctList.addAll(Alist);
         if(!distinctList.isEmpty()){
             for (SciHorizontalApplyVertical apply: distinctList){
                 apply.setUserdnameId(did);
@@ -261,12 +245,9 @@ public class SciHorizontalApplyVerticalController extends BaseController {
     @Log(title = "立项申请", businessType = BusinessType.INSERT)
     @PostMapping("/add")
     @ResponseBody
-    public AjaxResult addSave(SciHorizontalApplyVertical sciHorizontalApplyVertical,SciHorizontalReamount sciHorizontalReamount)
+    public AjaxResult addSave(SciHorizontalApplyVertical sciHorizontalApplyVertical)
     {
-        Integer id = sciHorizontalApplyVerticalService.insertSciHorizontalApplyVertical(sciHorizontalApplyVertical);
-        sciHorizontalReamount.setVerticalId(id.toString());
-        sciHorizontalReamount.setState("1");
-        return toAjax(sciHorizontalReamountService.insertVerticalAmount(sciHorizontalReamount));
+        return toAjax(sciHorizontalApplyVerticalService.insertSciHorizontalApplyVertical(sciHorizontalApplyVertical));
     }
 
     /**
@@ -286,12 +267,10 @@ public class SciHorizontalApplyVerticalController extends BaseController {
     @Log(title = "结项", businessType = BusinessType.INSERT)
     @PostMapping("/overadd")
     @ResponseBody
-    public AjaxResult overaddSave(SciHorizontalApplyVertical sciHorizontalApplyVertical,SciHorizontalReamount sciHorizontalReamount)
+    public AjaxResult overaddSave(SciHorizontalApplyVertical sciHorizontalApplyVertical)
     {
-        sciHorizontalApplyVerticalService.updateSciHorizontalApplyVertical(sciHorizontalApplyVertical);
-        sciHorizontalReamount.setVerticalId(sciHorizontalApplyVertical.getId().toString());
-        sciHorizontalReamount.setState("1");
-        return toAjax(sciHorizontalReamountService.insertVerticalAmount(sciHorizontalReamount));
+        sciHorizontalApplyVertical.setState("11");
+        return toAjax(sciHorizontalApplyVerticalService.updateSciHorizontalApplyVertical(sciHorizontalApplyVertical));
     }
 
     /**
@@ -375,9 +354,31 @@ public class SciHorizontalApplyVerticalController extends BaseController {
     @Log(title = "纵向课题申请通过", businessType = BusinessType.UPDATE)
     @PostMapping( "/applyPass")
     @ResponseBody
-    public AjaxResult applyPass(String id,String urlFlag)
+    public AjaxResult applyPass(String id,String urlFlag,String type,SciProjectScoreCfg sciProjectScoreCfg)
     {
-        return toAjax(sciHorizontalApplyVerticalService.applyPass(id,getUserId(),urlFlag));
+        sciProjectScoreCfg.setFundsType(type);
+        List<SciProjectScoreCfg> list = sciProjectScoreCfgMapper.selectVerticalScoreCfgList(sciProjectScoreCfg);
+        SciHorizontalApplyVertical sciHorizontalApplyVertical = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalById(Integer.valueOf(id));
+        String verticalId = String.valueOf(sciHorizontalApplyVertical.getId());
+        List score = new ArrayList();
+        List persion = new ArrayList();
+        for (SciProjectScoreCfg scoreCfg : list) {
+            score.add(scoreCfg.getStartScore());
+        }
+        if (sciHorizontalApplyVertical.getFirstPersonId() != null && !sciHorizontalApplyVertical.getFirstPersonId().isEmpty()) {
+            persion.add(sciHorizontalApplyVertical.getFirstPersonId());
+        }
+        if (sciHorizontalApplyVertical.getSecondPersonId() != null && !sciHorizontalApplyVertical.getSecondPersonId().isEmpty()) {
+            persion.add(sciHorizontalApplyVertical.getSecondPersonId());
+        }
+        if (sciHorizontalApplyVertical.getThirdPersonId() != null && !sciHorizontalApplyVertical.getThirdPersonId().isEmpty()) {
+            persion.add(sciHorizontalApplyVertical.getThirdPersonId());
+        }
+        if (sciHorizontalApplyVertical.getFourthPersonId() != null && !sciHorizontalApplyVertical.getFourthPersonId().isEmpty()) {
+            persion.add(sciHorizontalApplyVertical.getFourthPersonId());
+        }
+
+        return toAjax(sciHorizontalApplyVerticalService.applyPass(id,getUserId(),urlFlag,score,persion,verticalId));
     }
     @RequiresPermissions(value={"system:apply_vertical:JYS","system:apply_vertical:KYC","system:apply_vertical:Dept"},logical= Logical.OR)
     @Log(title = "纵向课题申请通过驳回", businessType = BusinessType.UPDATE)
@@ -405,9 +406,30 @@ public class SciHorizontalApplyVerticalController extends BaseController {
     @Log(title = "纵向课题申请通过", businessType = BusinessType.UPDATE)
     @PostMapping( "/overPass")
     @ResponseBody
-    public AjaxResult overPass(String id,String urlFlag)
+    public AjaxResult overPass(String id,String urlFlag,String type,SciProjectScoreCfg sciProjectScoreCfg)
     {
-        return toAjax(sciHorizontalApplyVerticalService.overPass(id,getUserId(),urlFlag));
+        sciProjectScoreCfg.setFundsType(type);
+        List<SciProjectScoreCfg> list = sciProjectScoreCfgMapper.selectVerticalScoreCfgList(sciProjectScoreCfg);
+        SciHorizontalApplyVertical sciHorizontalApplyVertical = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalById(Integer.valueOf(id));
+        String verticalId = String.valueOf(sciHorizontalApplyVertical.getId());
+        List score = new ArrayList();
+        List persion = new ArrayList();
+        for (SciProjectScoreCfg scoreCfg : list) {
+            score.add(scoreCfg.getEndScore());
+        }
+        if (sciHorizontalApplyVertical.getFirstPersonId() != null && !sciHorizontalApplyVertical.getFirstPersonId().isEmpty()) {
+            persion.add(sciHorizontalApplyVertical.getFirstPersonId());
+        }
+        if (sciHorizontalApplyVertical.getSecondPersonId() != null && !sciHorizontalApplyVertical.getSecondPersonId().isEmpty()) {
+            persion.add(sciHorizontalApplyVertical.getSecondPersonId());
+        }
+        if (sciHorizontalApplyVertical.getThirdPersonId() != null && !sciHorizontalApplyVertical.getThirdPersonId().isEmpty()) {
+            persion.add(sciHorizontalApplyVertical.getThirdPersonId());
+        }
+        if (sciHorizontalApplyVertical.getFourthPersonId() != null && !sciHorizontalApplyVertical.getFourthPersonId().isEmpty()) {
+            persion.add(sciHorizontalApplyVertical.getFourthPersonId());
+        }
+        return toAjax(sciHorizontalApplyVerticalService.overPass(id,getUserId(),urlFlag,score,persion,verticalId));
     }
 
     @RequiresPermissions(value={"system:apply_vertical:JYS","system:apply_vertical:KYC","system:apply_vertical:Dept"},logical= Logical.OR)
@@ -431,38 +453,8 @@ public class SciHorizontalApplyVerticalController extends BaseController {
         return prefix + "/overView";
     }
 
-    /**
-     * 添加到账金额
-     */
-    @RequiresPermissions("system:apply_vertical:edit")
-    @GetMapping("/Reamount/{id}")
-    public String Reamount(@PathVariable("id") Integer id, ModelMap mmap)
-    {
-        SciHorizontalApplyVertical sciHorizontalApplyVertical = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalById(id);
-        List<SysUser> userList1 =  userService.selectAllUser();
-        mmap.put("sysUsers1",userList1);
-        mmap.put("sciHorizontalApplyVertical", sciHorizontalApplyVertical);
-        return prefix + "/reamount";
-    }
-    @RequiresPermissions("system:apply_vertical:edit")
-    @Log(title = "添加到账金额", businessType = BusinessType.INSERT)
-    @PostMapping("/Reamount")
-    @ResponseBody
-    public AjaxResult Reamount(SciHorizontalReamount sciHorizontalReamount)
-    {
-        return toAjax(sciHorizontalReamountService.insertAmount(sciHorizontalReamount));
-    }
 
-    @RequiresPermissions("system:apply:edit")
-    @PostMapping("/bhyy/{kid}")
-    @ResponseBody
-    public TableDataInfo bhyy(@PathVariable("kid")Integer kid)
-    {
-        SciHorizontalPiyue ob = new SciHorizontalPiyue();
-        ob.setVerticalId(kid);
-        List<SciHorizontalPiyue> list = piyueService.selectVerticalAmountPiyueList(ob);
-        return getDataTable(list);
-    }
+
     @PostMapping("/abhyy/{kid}")
     @ResponseBody
     public TableDataInfo abhyy(@PathVariable("kid")Integer kid)
@@ -474,7 +466,7 @@ public class SciHorizontalApplyVerticalController extends BaseController {
     }
 
     /**
-     * 删除审批 横向课题操作
+     * 撤回操作
      */
     @RequiresPermissions(value={"system:apply_vertical:JYS","system:apply_vertical:KYC","system:apply_vertical:Dept"},logical= Logical.OR)
     @GetMapping("/recall/{id}")
@@ -487,10 +479,10 @@ public class SciHorizontalApplyVerticalController extends BaseController {
         return prefix + "/recall";
     }
     /**
-     * 删除审批 横向课题操作
+     *  撤回操作
      */
     @RequiresPermissions(value={"system:apply_vertical:JYS","system:apply_vertical:KYC","system:apply_vertical:Dept"},logical= Logical.OR)
-    @Log(title = "横向课题审核通过", businessType = BusinessType.UPDATE)
+    @Log(title = "撤回操作", businessType = BusinessType.UPDATE)
     @PostMapping( "/recallsave")
     @ResponseBody
     public AjaxResult recallSave(Integer id,String state,String remark,String urlFlag)
@@ -498,133 +490,7 @@ public class SciHorizontalApplyVerticalController extends BaseController {
         return toAjax(sciHorizontalApplyVerticalService.recall(id,state,getUserId(),remark,urlFlag));
     }
 
-    /**
-     * 撤回审批金额操作
-     */
-    @RequiresPermissions(value={"system:apply_vertical:JYS","system:apply_vertical:KYC","system:apply_vertical:Dept"},logical= Logical.OR)
-    @GetMapping("/recallamount/{id}")
-    public String recallamount(@PathVariable("id") Integer id, ModelMap mmap)
-    {
-        SciHorizontalApplyVertical sciHorizontalApplyVertical = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalById(id);
-        SciHorizontalApplyVertical sciHorizontalApplyVertical1 = sciHorizontalReamountService.selectVerticalAmountById(id);
-        sciHorizontalApplyVertical.setReAmount(sciHorizontalApplyVertical1.getReAmount());
-        sciHorizontalApplyVertical.setReamountUrl(sciHorizontalApplyVertical1.getReamountUrl());
-        List<SysUser> userList1 =  userService.selectAllUser();
-        mmap.put("sysUsers1",userList1);
-        mmap.put("sciHorizontalApplyVertical", sciHorizontalApplyVertical);
-        return prefix + "/recallamount";
-    }
-    @RequiresPermissions(value={"system:apply_vertical:JYS","system:apply_vertical:KYC","system:apply_vertical:Dept"},logical= Logical.OR)
-    @Log(title = "撤回金额", businessType = BusinessType.UPDATE)
-    @PostMapping( "/recallamountsave")
-    @ResponseBody
-    public AjaxResult recallamountSave(Integer id,String state,String remark,String urlFlag)
-    {
-        return toAjax(sciHorizontalApplyVerticalService.recallamount(id,state,getUserId(),remark,urlFlag));
-    }
 
-    /**
-     * 修改追加金额
-     */
-    @RequiresPermissions("system:apply_vertical:edit")
-    @GetMapping("/reamountedit/{id}")
-    public String reamountedit(@PathVariable("id") Integer id, ModelMap mmap)
-    {
-        SciHorizontalApplyVertical sciHorizontalApplyVertical = sciHorizontalReamountService.selectVerticalAmountById(id);
-        List<SysUser> userList1 =  userService.selectAllUser();
-        mmap.put("sysUsers1",userList1);
-        mmap.put("sciHorizontalApplyVertical", sciHorizontalApplyVertical);
-        return prefix + "/reamountedit";
-    }
-    @RequiresPermissions("system:apply_vertical:edit")
-    @Log(title = "更新横向课题", businessType = BusinessType.UPDATE)
-    @PostMapping("/reamountedit")
-    @ResponseBody
-    public AjaxResult reamounteditSave(SciHorizontalReamount sciHorizontalReamount)
-    {
-        sciHorizontalReamount.setState("1");
-        return toAjax(sciHorizontalReamountService.amountedit(sciHorizontalReamount));
-    }
 
-    /**
-     * 审批到账金额
-     */
-    @RequiresPermissions("system:apply_vertical:info")
-    @GetMapping("/reamountdetail/{id}/{urlFlag}")
-    public String reamountdetail(@PathVariable("id") Integer id,@PathVariable("urlFlag") String urlFlag, ModelMap mmap)
-    {
-        SciHorizontalApplyVertical sciHorizontalApplyVertical = sciHorizontalReamountService.selectVerticalAmountById(id);
-        List<SysUser> userList1 =  userService.selectAllUser();
-        sciHorizontalApplyVertical.setUrlFlag(urlFlag);
-        mmap.put("sysUsers1",userList1);
-        mmap.put("sciHorizontalApplyVertical", sciHorizontalApplyVertical);
-        return prefix + "/reamountdetail";
-    }
-    @RequiresPermissions(value={"system:apply_vertical:JYS","system:apply_vertical:KYC","system:apply_vertical:Dept"},logical= Logical.OR)
-    @Log(title = "纵向课题审核金额", businessType = BusinessType.UPDATE)
-    @PostMapping( "/amountPass")
-    @ResponseBody
-    public AjaxResult amountPass(String id,String reid,String urlFlag,String amount,Double scale,String amountType,SciProjectScoreCfg sciProjectScoreCfg)
-    {
-//        初始化一个新对象，存储最大值和最小值
-        SciProjectScoreCfg sciProjectScoreCfg1 = new SciProjectScoreCfg();
-//        查询积分的所有范围
-        List<SciProjectScoreCfg> list= sciProjectScoreCfgMapper.selectSciProjectScoreCfgList(sciProjectScoreCfg);
-        Integer applyId;
-        Integer Damount;
-        try {
-            Damount = Integer.valueOf(amount);
-        } catch (NumberFormatException e) {
-            return AjaxResult.error("金额无效");
-        }
-//        查询项目金额在积分的哪个范围内，并将范围记录到sciProjectScoreCfg1中
-        for (SciProjectScoreCfg scoreCfg : list) {
-            if (Damount >= Integer.valueOf(scoreCfg.getFundsMin()) && Damount < Integer.valueOf(scoreCfg.getFundsMax())) {
-                sciProjectScoreCfg1.setFundsMin(scoreCfg.getFundsMin());
-                sciProjectScoreCfg1.setFundsMax(scoreCfg.getFundsMax());
-                break;
-            }
-        }
-//       查询范围为 min-max 的分数
-        List<SciProjectScoreCfg> score_list = sciProjectScoreCfgMapper.selectSciProjectScoreCfgList(sciProjectScoreCfg1);
-//        查询该条数据的负责人id
-        SciHorizontalApplyVertical sciHorizontalApplyVertical = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalById(Integer.valueOf(id));
-        applyId = sciHorizontalApplyVertical.getId();
-//        将负责人和积分顺序存储到列表中传到实现类中
-        List score = new ArrayList();
-        List persion = new ArrayList();
-        for (SciProjectScoreCfg scoreCfg : score_list) {
-            if (amountType.equals("1")){
-                Double  a = Double.valueOf(scoreCfg.getStartScore());
-                Double b = a * scale;
-                Long c = Math.round(b);
-                score.add(c.toString());
-            }else if (amountType.equals("2")){
-                score.add(scoreCfg.getEndScore());
-            }
-        }
-        if (sciHorizontalApplyVertical.getFirstPersonId() != null && !sciHorizontalApplyVertical.getFirstPersonId().isEmpty()) {
-            persion.add(sciHorizontalApplyVertical.getFirstPersonId());
-        }
-        if (sciHorizontalApplyVertical.getSecondPersonId() != null && !sciHorizontalApplyVertical.getSecondPersonId().isEmpty()) {
-            persion.add(sciHorizontalApplyVertical.getSecondPersonId());
-        }
-        if (sciHorizontalApplyVertical.getThirdPersonId() != null && !sciHorizontalApplyVertical.getThirdPersonId().isEmpty()) {
-            persion.add(sciHorizontalApplyVertical.getThirdPersonId());
-        }
-        if (sciHorizontalApplyVertical.getFourthPersonId() != null && !sciHorizontalApplyVertical.getFourthPersonId().isEmpty()) {
-            persion.add(sciHorizontalApplyVertical.getFourthPersonId());
-        }
 
-        return toAjax(sciHorizontalApplyVerticalService.amountPass(id,reid,getUserId(),urlFlag,score,persion,applyId,amountType));
-    }
-
-    @RequiresPermissions(value={"system:apply:hecha","system:apply:process","system:apply:Dept"},logical= Logical.OR)
-    @Log(title = "金额被驳回", businessType = BusinessType.UPDATE)
-    @PostMapping( "/amountBh")
-    @ResponseBody
-    public AjaxResult amountBh(String id,String reid,String remark,String urlFlag)
-    {
-        return toAjax(sciHorizontalApplyVerticalService.amountBh(id,reid,getUserId(),remark,urlFlag));
-    }
 }
