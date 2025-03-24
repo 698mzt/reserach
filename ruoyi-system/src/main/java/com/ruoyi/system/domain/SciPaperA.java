@@ -114,8 +114,15 @@ public class SciPaperA extends BaseEntity {
     @Excel(name = "发表时间")
     private String publicationTime;
 
-    @Excel(name = "论文文件")
+    @Excel(name = "论文收录通知")
     private String text_paper;
+    //论文pdf文件
+    @Excel(name = "论文原文")
+    private String word_paper;
+    //论文word文件
+
+    @Excel(name = "搜索网址")
+    private String  search_web;
     /**
      * 是否与行业联合发表
      */
@@ -402,6 +409,21 @@ public class SciPaperA extends BaseEntity {
         this.text_paper = text_paper;
     }
 
+    public String getWord_paper() {
+        return word_paper;
+    }
+
+    public void setWord_paper(String word_paper) {
+        this.word_paper = word_paper;
+    }
+
+    public String getSearch_web() {
+        return search_web;
+    }
+
+    public void setSearch_web(String search_web) {
+        this.search_web = search_web;
+    }
     //    public String getDataScope() {
 //        return dataScope;
 //    }
@@ -410,30 +432,41 @@ public class SciPaperA extends BaseEntity {
 //        this.dataScope = dataScope;
 //    }
 
+
     @Override
     public String toString() {
-        return new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE)
-                .append("id", getId())
-                .append("college", getCollege())
-                .append("researchRoom", getResearchRoom())
-                .append("employeeId", getEmployeeId())
-                .append("teacherName", getTeacherName())
-                .append("administrativePosition", getAdministrativePosition())
-                .append("socialTitle", getSocialTitle())
-                .append("onCampusTitle", getOnCampusTitle())
-                .append("authorType", getAuthorType())
-                .append("paperTitle", getPaperTitle())
-                .append("paperCategory", getPaperCategory())
-                .append("publishedJournal", getPublishedJournal())
-                .append("inclusionStatus", getInclusionStatus())
-                .append("publicationTime", getPublicationTime())
-                .append("isIndustryCollaborative", getIsIndustryCollaborative())
-                .append("isLocalCollaborative", getIsLocalCollaborative())
-                .append("isInternationalCollaborative", getIsInternationalCollaborative())
-                .append("isCrossDiscipline", getIsCrossDiscipline())
-                .append("paperRanking", getPaperRanking())
-                .append("researchScore", getResearchScore())
-                .append("remarks", getRemarks())
-                .toString();
+        return "SciPaperA{" +
+                "id=" + id +
+                ", urlFlag='" + urlFlag + '\'' +
+                ", userId=" + userId +
+                ", roleId='" + roleId + '\'' +
+                ", roleName='" + roleName + '\'' +
+                ", rolekey='" + rolekey + '\'' +
+                ", uid=" + uid +
+                ", state='" + state + '\'' +
+                ", year='" + year + '\'' +
+                ", college='" + college + '\'' +
+                ", researchRoom='" + researchRoom + '\'' +
+                ", employeeId='" + employeeId + '\'' +
+                ", teacherName='" + teacherName + '\'' +
+                ", administrativePosition='" + administrativePosition + '\'' +
+                ", socialTitle='" + socialTitle + '\'' +
+                ", onCampusTitle='" + onCampusTitle + '\'' +
+                ", authorType='" + authorType + '\'' +
+                ", paperTitle='" + paperTitle + '\'' +
+                ", paperCategory='" + paperCategory + '\'' +
+                ", publishedJournal='" + publishedJournal + '\'' +
+                ", inclusionStatus='" + inclusionStatus + '\'' +
+                ", publicationTime='" + publicationTime + '\'' +
+                ", text_paper='" + text_paper + '\'' +
+                ", word_paper='" + word_paper + '\'' +
+                ", isIndustryCollaborative='" + isIndustryCollaborative + '\'' +
+                ", isLocalCollaborative='" + isLocalCollaborative + '\'' +
+                ", isInternationalCollaborative='" + isInternationalCollaborative + '\'' +
+                ", isCrossDiscipline='" + isCrossDiscipline + '\'' +
+                ", paperRanking='" + paperRanking + '\'' +
+                ", researchScore='" + researchScore + '\'' +
+                ", remarks='" + remarks + '\'' +
+                '}';
     }
 }
