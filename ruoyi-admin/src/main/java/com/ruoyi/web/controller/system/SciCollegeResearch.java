@@ -27,7 +27,9 @@ public class SciCollegeResearch extends BaseController {
     @PostMapping("/list")
     @ResponseBody
     public TableDataInfo list() {
-        List<Map<String, Object>> list = sciCollegeResearchMapper.selectCollegeResearch();
+        Long deptId =getSysUser().getDeptId();
+        System.out.println("deptId = " + deptId);
+        List<Map<String, Object>> list = sciCollegeResearchMapper.selectCollegeResearch(deptId);
         System.out.println("list = " + list);
         TableDataInfo data = getDataTable(list);
 
