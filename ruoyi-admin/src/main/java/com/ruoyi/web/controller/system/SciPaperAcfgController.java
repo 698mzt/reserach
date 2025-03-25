@@ -85,7 +85,7 @@ import java.util.List;
    {
 
       String user_name = userService.selectUserByLoginName(getLoginName()).getUserName();
-       System.out.println("sciPaperAcfg = " + sciPaperAcfg);
+      System.out.println("sciPaperAcfg = " + sciPaperAcfg);
 
       return toAjax(isciPaperACfgService.insertSciPaperCfg(sciPaperAcfg));
    }
