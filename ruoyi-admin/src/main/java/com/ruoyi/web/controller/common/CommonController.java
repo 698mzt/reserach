@@ -45,11 +45,11 @@ public class CommonController extends BaseController
 {
     private static final Logger log = LoggerFactory.getLogger(CommonController.class);
 
-    @Autowired
-    private ServerConfig serverConfig;
+    @Autowired private ServerConfig serverConfig;
 
     @Autowired
-    private ISciHorizontalApplyVerticalService sciHorizontalApplyVerticalService;
+    private
+    ISciHorizontalApplyVerticalService sciHorizontalApplyVerticalService;
 
     @Autowired
     private ISciHorizontalApplyService sciHorizontalApplyService;

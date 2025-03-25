@@ -47,7 +47,7 @@
                                                     </select>
                                                 </li>
                                                 <li>
-                                                    <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                                                    <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search('formId0','bootstrap-table0')"><i class="fa fa-search"></i>&nbsp;搜索</a>
                                                     <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
                                                 </li>
                                             </ul>
@@ -102,7 +102,7 @@
                                                     </select>
                                                 </li>
                                                 <li>
-                                                    <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                                                    <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search('formId1','bootstrap-table1')"><i class="fa fa-search"></i>&nbsp;搜索</a>
                                                     <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
                                                 </li>
                                             </ul>
@@ -326,7 +326,7 @@
                     title: '得分',
                     align: 'center',
                     formatter: function(value, row, index) {
-                        console.log("row=",row)
+                        //console.log("row=",row)
                         if (row.state==6){
                             return row.firstPersonId==row.uid?row.firstPoints:row.secondPersonId==row.uid?row.secondPoints:row.thirdPersonId==row.uid?row.thirdPoints:row.fourthPersonId==row.uid?row.forthPoints:0;
                         }else{
@@ -439,8 +439,8 @@
                     title: '申请状态',
                     align: 'center',
                     formatter: function(value, row, index) {
-                        console.log("val=",value)
-                        console.log("row.state=",row.state)
+                        //console.log("val=",value)
+                        //console.log("row.state=",row.state)
                         return $.table.selectDictLabel(datas, value);
                     }
                 },
@@ -469,7 +469,7 @@
                     align: 'center',
 
                     formatter: function(value, row, index) {
-                        //console.log("row=",row)
+                        console.log("row=",row)
                         var actions = [];
                         //这个role字段是在sql里面写死
                         //教研
@@ -485,12 +485,18 @@
                             }else
                                 //上面的这个else是为了保证批阅的时候没有查看
                             //自己的项目
+                                //todo：这个不能注释，注释之后没有申请结项的按钮
+                             console.log("row.userId == row.uid:",row.userId == row.uid)
+                             // console.log("row.userId:",row.userId )
+                             // console.log("row.uid:",row.uid )
+
                             if(row.userId == row.uid){
+                                console.log("row.userId = row.uid:")
                                 if(row.state == '1') {
                                     actions.push('<a   class="btn btn-success btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>更新</a> ');
                                     actions.push('<a class="btn btn-danger btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-remove"></i>删除</a>');
                                 }
-                                //带申请结题
+                                //待申请结题
                                 else if (row.state == '4') {
                                     actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.overTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>申请结项</a> ');
                                 }else if (row.state == '3'||row.state == '12'||row.state == '5'){
