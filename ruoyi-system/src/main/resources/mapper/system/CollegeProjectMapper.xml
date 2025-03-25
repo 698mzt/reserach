@@ -1,0 +1,462 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.CollegeProjectMapper">
+    <select id="getDeptName"  >
+           SELECT
+            dept_name
+            FROM
+            sys_dept
+            WHERE
+            dept_id = #{deptId}
+    </select>
+
+    <select id="selAll">
+        SELECT
+        *
+        FROM
+        -- 成果转化
+        (
+        SELECT
+        cgzh.cgzhdeptId,
+        CONCAT(
+        SUM( CASE WHEN cgzh.cgzhAmount &lt; 2 THEN 1 ELSE 0 END ),
+        ' 个 ( ',
+        SUM( CASE WHEN cgzh.cgzhAmount &lt; 2 THEN cgzh.cgzhAmount ELSE 0 END ),
+        ' 万 )'
+        ) AS '成果转化2以下信息',
+        CONCAT(
+        SUM( CASE WHEN cgzh.cgzhAmount >= 2 AND cgzh.cgzhAmount &lt; 5 THEN 1 ELSE 0 END ),
+        ' 个 ( ',
+        SUM( CASE WHEN cgzh.cgzhAmount >= 2 AND cgzh.cgzhAmount &lt; 5 THEN cgzh.cgzhAmount ELSE 0 END ),
+        ' 万 )'
+        ) AS '成果转化2-5信息',
+        CONCAT(
+        SUM( CASE WHEN cgzh.cgzhAmount >= 5 AND cgzh.cgzhAmount &lt; 10 THEN 1 ELSE 0 END ),
+        ' 个 ( ',
+        SUM( CASE WHEN cgzh.cgzhAmount >= 5 AND cgzh.cgzhAmount &lt; 10 THEN cgzh.cgzhAmount ELSE 0 END ),
+        ' 万 )'
+        ) AS '成果转化5-10信息',
+        CONCAT(
+        SUM( CASE WHEN cgzh.cgzhAmount >= 10 AND cgzh.cgzhAmount &lt; 20 THEN 1 ELSE 0 END ),
+        ' 个 ( ',
+        SUM( CASE WHEN cgzh.cgzhAmount >= 10 AND cgzh.cgzhAmount &lt; 20 THEN cgzh.cgzhAmount ELSE 0 END ),
+        ' 万 )'
+        ) AS '成果转化10-20信息',
+        CONCAT(
+        SUM( CASE WHEN cgzh.cgzhAmount >= 20 AND cgzh.cgzhAmount &lt; 35 THEN 1 ELSE 0 END ),
+        ' 个 ( ',
+        SUM( CASE WHEN cgzh.cgzhAmount >= 20 AND cgzh.cgzhAmount &lt; 35 THEN cgzh.cgzhAmount ELSE 0 END ),
+        ' 万 )'
+        ) AS '成果转化20-35信息',
+        CONCAT(
+        SUM( CASE WHEN cgzh.cgzhAmount >= 35 AND cgzh.cgzhAmount &lt; 50 THEN 1 ELSE 0 END ),
+        ' 个 ( ',
+        SUM( CASE WHEN cgzh.cgzhAmount >= 35 AND cgzh.cgzhAmount &lt; 50 THEN cgzh.cgzhAmount ELSE 0 END ),
+        ' 万 )'
+        ) AS '成果转化35-50信息'
+        FROM
+        (
+        SELECT
+        cgzh.parten,
+        cgzh.deptId AS cgzhdeptId,
+        cgzh.dept_name,
+        cgzh.userId,
+        cgzh.CGZHamount AS cgzhAmount
+        FROM
+        (
+        SELECT
+        p.dept_id parten,
+        s.dept_id deptId,
+        p.dept_name dept_name,
+        s.user_id userId,
+        a.amount CGZHamount
+        FROM
+        sys_user s
+        JOIN sci_IntraSchPro_apply a ON s.user_id = a.user_id
+        LEFT JOIN sys_dept d ON s.dept_id = d.dept_id
+        LEFT JOIN sys_dept p ON d.parent_id = p.dept_id
+        WHERE
+        a.state = 6
+        ) cgzh
+        LEFT JOIN sys_dept de ON de.dept_id = cgzh.deptId UNION
+        SELECT
+        cgzh.parten,
+        de.dept_id AS deptId,
+        de.dept_name,
+        cgzh.userId,
+        cgzh.CGZHamount AS cgzhAmount -- 这里也添加别名
+
+        FROM
+        sys_dept de
+        LEFT JOIN (
+        SELECT
+        p.dept_id parten,
+        s.dept_id deptId,
+        p.dept_name dept_name,
+        s.user_id userId,
+        a.amount CGZHamount
+        FROM
+        sys_user s
+        JOIN sci_IntraSchPro_apply a ON s.user_id = a.user_id
+        LEFT JOIN sys_dept d ON s.dept_id = d.dept_id
+        LEFT JOIN sys_dept p ON d.parent_id = p.dept_id
+        WHERE
+        a.state = 6
+        ) cgzh ON de.dept_id = cgzh.deptId
+        WHERE
+        cgzh.deptId IS NULL
+        ) cgzh
+        GROUP BY
+        cgzh.cgzhdeptId
+        ) cgzh
+
+        LEFT JOIN
+        -- 横向课题
+        (
+        SELECT
+        subquery.parten hxktparten,
+        subquery.deptId hxktdeptId,
+        CONCAT(
+        SUM( CASE WHEN subquery.hxktamount > 0 AND subquery.hxktamount &lt; 2 THEN 1 ELSE 0 END ),
+        ' 个 ( ',
+        SUM( CASE WHEN subquery.hxktamount > 0 AND subquery.hxktamount &lt; 2 THEN subquery.hxktamount ELSE 0 END ),
+        ' 万 )'
+        ) AS "2万元以下",
+        CONCAT(
+        SUM( CASE WHEN subquery.hxktamount >= 2 AND subquery.hxktamount &lt; 5 THEN 1 ELSE 0 END ),
+        ' 个 ( ',
+        SUM( CASE WHEN subquery.hxktamount >= 2 AND subquery.hxktamount &lt; 5 THEN subquery.hxktamount ELSE 0 END ),
+        ' 万 )'
+        ) AS "2-5万元（含2）",
+        CONCAT(
+        SUM( CASE WHEN subquery.hxktamount >= 5 AND subquery.hxktamount &lt; 10 THEN 1 ELSE 0 END ),
+        ' 个 ( ',
+        SUM( CASE WHEN subquery.hxktamount >= 5 AND subquery.hxktamount &lt; 10 THEN subquery.hxktamount ELSE 0 END ),
+        ' 万 )'
+        ) AS "5-10万元（含5）",
+        CONCAT(
+        SUM( CASE WHEN subquery.hxktamount >= 10 AND subquery.hxktamount &lt; 20 THEN 1 ELSE 0 END ),
+        ' 个 ( ',
+        SUM( CASE WHEN subquery.hxktamount >= 10 AND subquery.hxktamount &lt; 20 THEN subquery.hxktamount ELSE 0 END ),
+        ' 万 )'
+        ) AS "10-20万元（含10）",
+        CONCAT(
+        SUM( CASE WHEN subquery.hxktamount >= 20 AND subquery.hxktamount &lt; 35 THEN 1 ELSE 0 END ),
+        ' 个 ( ',
+        SUM( CASE WHEN subquery.hxktamount >= 20 AND subquery.hxktamount &lt; 35 THEN subquery.hxktamount ELSE 0 END ),
+        ' 万 )'
+        ) AS "20-35万元（含20）",
+        CONCAT(
+        SUM( CASE WHEN subquery.hxktamount >= 35 AND subquery.hxktamount &lt; 50 THEN 1 ELSE 0 END ),
+        ' 个 ( ',
+        SUM( CASE WHEN subquery.hxktamount >= 35 AND subquery.hxktamount &lt; 50 THEN subquery.hxktamount ELSE 0 END ),
+        ' 万 )'
+        ) AS "35-50万元（含35）",
+        CONCAT(
+        SUM( CASE WHEN subquery.hxktamount >= 50 AND subquery.hxktamount &lt; 75 THEN 1 ELSE 0 END ),
+        ' 个 ( ',
+        SUM( CASE WHEN subquery.hxktamount >= 50 AND subquery.hxktamount &lt; 75 THEN subquery.hxktamount ELSE 0 END ),
+        ' 万 )'
+        ) AS "50-75万元（含50）",
+        CONCAT(
+        SUM( CASE WHEN subquery.hxktamount >= 75 AND subquery.hxktamount &lt; 100 THEN 1 ELSE 0 END ),
+        ' 个 ( ',
+        SUM( CASE WHEN subquery.hxktamount >= 75 AND subquery.hxktamount &lt; 100 THEN subquery.hxktamount ELSE 0 END ),
+        ' 万 )'
+        ) AS "75-100万元（含75）"
+        FROM
+        (
+        SELECT
+        p.dept_id parten,
+        s.dept_id deptId,
+        s.user_id userId,
+        a.amount hxktamount
+        FROM
+        sys_user s
+        JOIN sci_horizontal_apply a ON s.user_id = a.user_id
+        JOIN sys_dept d ON s.dept_id = d.dept_id
+        JOIN sys_dept p ON d.parent_id = p.dept_id
+        WHERE
+        a.state = 6
+        ) subquery
+        GROUP BY
+        hxktdeptId
+        )
+        hxkt ON cgzh.cgzhdeptId = hxkt.hxktdeptId
+
+        LEFT JOIN
+        -- 纵向课题
+        (
+        SELECT
+    deptId as zxktdeptId,
+    CONCAT(
+        SUM(CASE WHEN Type = 1 THEN 1 ELSE 0 END),
+        '个 (',
+        SUM(CASE WHEN Type = 1 THEN amount ELSE 0 END),
+        '万)'
+    ) AS "主持国家基金科研项目",
+    CONCAT(
+        SUM(CASE WHEN Type = 2 THEN 1 ELSE 0 END),
+        '个 (',
+        SUM(CASE WHEN Type = 2 THEN amount ELSE 0 END),
+        '万)'
+    ) AS "主持省部级基金科研项目",
+    CONCAT(
+        SUM(CASE WHEN Type = 3 THEN 1 ELSE 0 END),
+        '个 (',
+        SUM(CASE WHEN Type = 3 THEN amount ELSE 0 END),
+        '万)'
+    ) AS "主持省部级教改项目",
+    CONCAT(
+        SUM(CASE WHEN Type = 4 THEN 1 ELSE 0 END),
+        '个 (',
+        SUM(CASE WHEN Type = 4 THEN amount ELSE 0 END),
+        '万)'
+    ) AS "主持省部级纵向科研项目",
+    CONCAT(
+        SUM(CASE WHEN Type = 5 THEN 1 ELSE 0 END),
+        '个 (',
+        SUM(CASE WHEN Type = 5 THEN amount ELSE 0 END),
+        '万)'
+    ) AS "主持厅局级、学会级科研项目",
+    CONCAT(
+        SUM(CASE WHEN Type = 6 THEN 1 ELSE 0 END),
+        '个 (',
+        SUM(CASE WHEN Type = 6 THEN amount ELSE 0 END),
+        '万)'
+    ) AS "主持校级教学管理项目（1万元以上）",
+    CONCAT(
+        SUM(CASE WHEN Type = 7 THEN 1 ELSE 0 END),
+        '个 (',
+        SUM(CASE WHEN Type = 7 THEN amount ELSE 0 END),
+        '万)'
+    ) AS "主持校级教学管理项目（1 万元以下）"
+FROM (
+    SELECT
+				p.dept_id as parten,
+				s.dept_id deptId,
+        s.user_id userId,
+				a.amount amount,
+        a.top_type Type
+    FROM
+        sys_user s
+    JOIN
+        sci_horizontal_apply_vertical a ON s.user_id = a.user_id
+		JOIN
+				sys_dept d on s.dept_id = d.dept_id
+		JOIN
+				sys_dept p on d.parent_id = p.dept_id
+    WHERE
+        a.state = 66
+) subquery
+GROUP BY
+    deptId
+        )zxkt ON cgzh.cgzhdeptId = zxkt.zxktdeptId
+
+        LEFT JOIN
+        -- 奖励
+        (
+        SELECT
+        p.dept_id AS jlparent,
+        d.dept_id AS jldeptId,
+        COALESCE(COUNT(DISTINCT CASE
+        WHEN s.reward_fenlei = 1 AND s.reward_dengji IN (1, 2, 3) THEN s.reward_dengji
+        ELSE NULL
+        END), 0) AS 省级教学成果奖数量,
+        COALESCE(COUNT(DISTINCT CASE
+        WHEN s.reward_fenlei = 2 AND s.reward_dengji IN (1, 2, 3) THEN s.reward_dengji
+        ELSE NULL
+        END), 0) AS 省级科学技术奖数量,
+        COALESCE(COUNT(DISTINCT CASE
+        WHEN s.reward_fenlei = 3 AND s.reward_dengji IN (1, 2, 3) THEN s.reward_dengji
+        ELSE NULL
+        END), 0) AS 省级一流精品课评比,
+        COALESCE(COUNT(DISTINCT CASE
+        WHEN s.reward_fenlei = 4 AND s.reward_dengji IN (1, 2, 3) THEN s.reward_dengji
+        ELSE NULL
+        END), 0) AS 市、厅局级自然科学类评奖,
+        COALESCE(COUNT(DISTINCT CASE
+        WHEN s.reward_fenlei = 5 AND s.reward_dengji IN (1, 2, 3) THEN s.reward_dengji
+        ELSE NULL
+        END), 0) AS 市、厅局级社科类评奖,
+        COALESCE(COUNT(DISTINCT CASE
+        WHEN s.reward_fenlei = 6 AND s.reward_dengji IN (1, 2, 3) THEN s.reward_dengji
+        ELSE NULL
+        END), 0) AS 校级教学成果奖,
+        COALESCE(COUNT(DISTINCT CASE
+        WHEN s.reward_fenlei = 7 AND s.reward_dengji IN (1, 2, 3) THEN s.reward_dengji
+        ELSE NULL
+        END), 0) AS 应用型科研校级成果奖,
+        COALESCE(COUNT(DISTINCT CASE
+        WHEN s.reward_fenlei = 8 AND s.reward_dengji IN (1, 2, 3) THEN s.reward_dengji
+        ELSE NULL
+        END), 0) AS 校级精品课评比,
+        COALESCE(COUNT(DISTINCT CASE
+        WHEN s.reward_fenlei = 9 AND s.reward_dengji IN (1, 2, 3) THEN s.reward_dengji
+        ELSE NULL
+        END), 0) AS 教师参加省级大赛获奖
+        FROM
+        sys_reward s
+        LEFT JOIN
+        sys_user u ON s.user_id = u.user_id
+        LEFT JOIN
+        sys_dept d ON u.dept_id = d.dept_id
+        LEFT JOIN
+        sys_dept p ON d.parent_id = p.dept_id
+        WHERE
+        s.state = 6
+        GROUP BY
+        p.dept_id, d.dept_id
+        )
+        jl ON cgzh.cgzhdeptId = jl.jldeptId
+
+        LEFT JOIN
+        -- 专利
+        (
+        SELECT
+        dept_id zldeptId,
+        SUM(CASE WHEN l = 1 THEN count_per_group ELSE 0 END) AS "授权发明专利",
+        SUM(CASE WHEN l = 2 THEN count_per_group ELSE 0 END) AS "实用新型专利",
+        SUM(CASE WHEN l = 3 THEN count_per_group ELSE 0 END) AS "外型设计专利",
+        SUM(CASE WHEN l = 4 THEN count_per_group ELSE 0 END) AS "计算机软件著作权"
+        FROM (
+        -- 子查询：按 mingcheng 取最小 paiming 的记录
+        SELECT
+        s.dept_id,
+        a.fenlei AS l,
+        COUNT(DISTINCT a.mingcheng) AS count_per_group
+        FROM (
+        -- 步骤1：筛选每个 mingcheng 的最小 paiming 记录
+        SELECT
+        a1.*
+        FROM
+        sci_zhuanliruanzhu a1
+        INNER JOIN (
+        SELECT
+        mingcheng,
+        MIN(paiming) AS min_paiming  -- 取优先级最高的 paiming（1→2→3→4）
+        FROM
+        sci_zhuanliruanzhu
+        where
+        state = 6
+        GROUP BY
+        mingcheng
+        ) a2 ON a1.mingcheng = a2.mingcheng AND a1.paiming = a2.min_paiming
+        ) a
+        JOIN sys_user s ON s.user_id = a.user_id
+        GROUP BY
+        s.dept_id, a.fenlei
+        ) AS subquery
+        GROUP BY
+        dept_id
+        )
+        zl ON cgzh.cgzhdeptId = zl.zldeptId
+
+        LEFT JOIN
+        -- 论文
+        (
+        SELECT
+        d.dept_id AS lwdeptId,
+        -- d.dept_name,
+        SUM(CASE WHEN p.paper_category BETWEEN 1 AND 4 THEN 1 ELSE 0 END) AS SCI,
+        SUM(CASE WHEN p.paper_category = 5 THEN 1 ELSE 0 END) AS EI,
+        SUM(CASE WHEN p.paper_category = 6 THEN 1 ELSE 0 END) AS 核心,
+        SUM(CASE WHEN p.paper_category = 7 THEN 1 ELSE 0 END) AS 三网,
+        SUM(CASE WHEN p.paper_category = 8 THEN 1 ELSE 0 END) AS 普通,
+        SUM(CASE WHEN p.paper_category = 9 THEN 1 ELSE 0 END) AS 校办
+        FROM (
+        SELECT
+        p1.paper_title,
+        p1.paper_category,
+        u.dept_id,
+        p1.paper_ranking,
+        p1.state,
+        title_counts.title_count
+        FROM sci_paper_a p1
+        LEFT JOIN sys_user u ON p1.user_id = u.user_id
+        JOIN (
+        SELECT paper_title, COUNT(*) as title_count
+        FROM sci_paper_a
+        GROUP BY paper_title
+        ) title_counts ON p1.paper_title = title_counts.paper_title
+        WHERE p1.state = 8
+        ) p
+        LEFT JOIN sys_dept d ON p.dept_id = d.dept_id
+        LEFT JOIN sys_dept pt ON d.parent_id = pt.dept_id
+        WHERE
+        (p.title_count = 1)
+        OR (p.title_count > 1 AND p.paper_ranking = 1)
+        GROUP BY
+        d.dept_id,
+        d.dept_name
+        )
+        lw ON cgzh.cgzhdeptId = lw.lwdeptId
+
+        LEFT JOIN
+        -- 讲座报告
+        (
+        SELECT
+        p.dept_id jzdeptId,
+        -- p.dept_name as 学院,
+        -- d.dept_name AS 专业,
+        COUNT(CASE WHEN s.report_classify = 5 THEN 1 ELSE NULL END) AS 举办国际,
+        COUNT(CASE WHEN s.report_classify = 6 THEN 1 ELSE NULL END) AS 举办国内,
+        COUNT(CASE WHEN s.report_classify = 1 THEN 1 ELSE NULL END) AS 参加国际,
+        COUNT(CASE WHEN s.report_classify = 7 THEN 1 ELSE NULL END) AS 参加国内,
+        COUNT(CASE WHEN s.report_classify = 4 THEN 1 ELSE NULL END) AS 校级学术
+        FROM
+        sci_lecture_report s
+        LEFT JOIN
+        sys_user u ON s.user_id = u.user_id
+        LEFT JOIN
+        sys_dept d ON u.dept_id = d.dept_id
+        LEFT JOIN
+        sys_dept p ON d.parent_id = p.dept_id
+        GROUP BY
+        p.dept_id
+
+        )
+        jz ON cgzh.cgzhdeptId = jz.jzdeptId
+
+        LEFT JOIN
+        -- 教材
+        (
+        SELECT
+        -- p.dept_id AS 学院,
+        d.dept_id AS jzdeptId,
+        COALESCE(COUNT(CASE
+        WHEN j.fenlei IN (1, 2, 3, 4) THEN 1
+        ELSE NULL
+        END), 0) AS 专著数量,
+        COALESCE(COUNT(CASE
+        WHEN j.fenlei IN (5, 6, 7) THEN 1
+        ELSE NULL
+        END), 0) AS 教材数量
+        FROM
+        (
+        SELECT DISTINCT mingcheng, user_id, fenlei
+        FROM sci_jiaocairuanzhu
+        ) j
+        LEFT JOIN
+        sys_user u ON j.user_id = u.user_id
+        LEFT JOIN
+        sys_dept d ON u.dept_id = d.dept_id
+        LEFT JOIN
+        sys_dept p ON d.parent_id = p.dept_id
+        GROUP BY
+        d.dept_id
+        )
+        jc ON cgzh.cgzhdeptId = jc.jzdeptId
+
+        WHERE cgzhdeptId IN ( SELECT dept_id FROM sys_dept WHERE dept_id = #{deptId} OR find_in_set( #{deptId}, ancestors ) )
+        order by cgzhdeptId
+
+
+
+    </select>
+
+
+
+</mapper>

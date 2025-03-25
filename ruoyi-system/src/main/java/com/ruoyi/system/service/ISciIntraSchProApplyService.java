@@ -5,6 +5,7 @@ import com.ruoyi.system.domain.SciHorizontalReamount;
 import com.ruoyi.system.domain.SciIntraSchoolPro;
 
 import java.util.List;
+import java.util.Map;
 
 public interface ISciIntraSchProApplyService {
     List<SciIntraSchoolPro> sel_IntraSchPro_isOVER(SciIntraSchoolPro sciIntraSchoolPro);
@@ -61,4 +62,6 @@ public interface ISciIntraSchProApplyService {
 
 
     String getuser_dnameById(Long userId);
+
+    List<Map<String, Object>> getfilekey(Long userId);
 }

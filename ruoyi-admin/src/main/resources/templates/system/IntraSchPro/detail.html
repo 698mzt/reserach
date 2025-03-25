@@ -1,15 +1,15 @@
 <!DOCTYPE html>
-<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <th:block th:include="include :: header('x课题批阅')" />
-    <th:block th:include="include :: datetimepicker-css" />
+    <th:block th:include="include :: header('x课题批阅')"/>
+    <th:block th:include="include :: datetimepicker-css"/>
     <th:block th:include="include :: bootstrap-fileinput-css"/>
-    <th:block th:include="include :: select2-css" />
+    <th:block th:include="include :: select2-css"/>
 </head>
 <body class="white-bg">
 <div class="wrapper wrapper-content animated fadeInRight ibox-content">
     <form class="form-horizontal m" id="form-apply-edit" th:object="${sciIntraSchoolPro}">
-        <input name="urlFlag" id="urlFlag" th:field="*{urlFlag}"  type="hidden">
+        <input name="urlFlag" id="urlFlag" th:field="*{urlFlag}" type="hidden">
         <input name="state" id="state" th:field="*{state}" type="hidden">
         <input name="id" id="ktid" th:field="*{id}" type="hidden">
         <input name="role" id="role" th:field="*{role}" type="hidden">
@@ -20,7 +20,7 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">申请人：</label>
                     <div class="col-sm-8">
-                        <input  readonly th:field="*{userName}" class="form-control" type="text" >
+                        <input readonly th:field="*{userName}" class="form-control" type="text">
                         <!--                    <select name="userId" class="form-control m-b" readonly >-->
                         <!--                        <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ user.userId == sciIntraSchoolPro.userId}"></option>-->
                         <!--                    </select>-->
@@ -32,10 +32,12 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">课题类型：</label>
                     <div class="col-sm-8">
-
                         <select  readonly class="form-control" th:with="type=${@dict.getType('sci_top_type')}" required disabled>
                             <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}" th:field="*{topType}"></option>
                         </select>
+
+
+<!--                        <input readonly th:field="*{topType}" class="form-control" type="text" required>-->
                     </div>
                 </div>
             </div>
@@ -43,7 +45,7 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">课题名称：</label>
                     <div class="col-sm-8">
-                        <input  readonly th:field="*{topName}" class="form-control" type="text" required>
+                        <input readonly th:field="*{topName}" class="form-control" type="text" required>
                     </div>
                 </div>
             </div>
@@ -79,7 +81,9 @@
                     <label class="col-sm-4 control-label is-required">签订日期：</label>
                     <div class="col-sm-8">
                         <div class="input-group date">
-                            <input  readonly th:field="*{signingData}" th:value="${#dates.format(signingData, 'yyyy-MM-dd')}" class="form-control" placeholder="yyyy-MM-dd" type="text" required>
+                            <input readonly th:field="*{signingData}"
+                                   th:value="${#dates.format(signingData, 'yyyy-MM-dd')}" class="form-control"
+                                   placeholder="yyyy-MM-dd" type="text" required>
                             <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
                         </div>
                     </div>
@@ -90,8 +94,11 @@
                     <label class="col-sm-4 control-label is-required">合同有效日期：</label>
                     <div class="col-sm-8">
                         <div class="input-group date">
-                            <input  readonly th:field="*{validityDate}" th:value="${#dates.format(validityDate, 'yyyy-MM-dd - yyyy-MM-dd')}" class="form-control" id="laydate-demo-4" placeholder="yyyy-MM-dd - yyyy-MM-dd" type="text" required>
-<!--                            <input  autocomplete="off" name="validityDatee" class="form-control" placeholder="待申请结项时填写" type="text" readonly>-->
+                            <input readonly th:field="*{validityDate}"
+                                   th:value="${#dates.format(validityDate, 'yyyy-MM-dd - yyyy-MM-dd')}"
+                                   class="form-control" id="laydate-demo-4" placeholder="yyyy-MM-dd - yyyy-MM-dd"
+                                   type="text" required>
+                            <!--                            <input  autocomplete="off" name="validityDatee" class="form-control" placeholder="待申请结项时填写" type="text" readonly>-->
 
                             <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
                         </div>
@@ -105,7 +112,8 @@
 
                         <!--                        <input name="firstPersonId" th:field="*{firstPersonId}" class="form-control" type="text" required>-->
                         <select name="firstPersonId" class="form-control m-b" disabled>
-                            <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ #strings.toString(user.userId) == sciIntraSchoolPro.firstPersonId}"></option>
+                            <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}"
+                                    th:selected="${ #strings.toString(user.userId) == sciIntraSchoolPro.firstPersonId}"></option>
                         </select>
                     </div>
                 </div>
@@ -116,8 +124,9 @@
                     <label class="col-sm-4 control-label is-required">第二负责人：</label>
                     <div class="col-sm-8">
                         <!--                        <input name="secondPersonTask" th:field="*{secondPersonTask}" class="form-control" type="text" required>-->
-                        <select name="secondPersonId" class="form-control m-b" disabled >
-                            <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ #strings.toString(user.userId) == sciIntraSchoolPro.secondPersonId}" ></option>
+                        <select name="secondPersonId" class="form-control m-b" disabled>
+                            <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}"
+                                    th:selected="${ #strings.toString(user.userId) == sciIntraSchoolPro.secondPersonId}"></option>
                         </select>
                     </div>
                 </div>
@@ -128,8 +137,9 @@
                     <label class="col-sm-4 control-label is-required">第三负责人：</label>
                     <div class="col-sm-8">
                         <!--                        <input name="thirdPersonId" th:field="*{thirdPersonId}" class="form-control" type="text" required>-->
-                        <select  class="form-control m-b" disabled>
-                            <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ #strings.toString(user.userId) == sciIntraSchoolPro.thirdPersonId}"  ></option>
+                        <select class="form-control m-b" disabled>
+                            <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}"
+                                    th:selected="${ #strings.toString(user.userId) == sciIntraSchoolPro.thirdPersonId}"></option>
                         </select>
                     </div>
                 </div>
@@ -140,8 +150,9 @@
                     <label class="col-sm-4 control-label is-required">第四负责人：</label>
                     <div class="col-sm-8">
                         <!--                        <input name="fourthPersonId" th:field="*{fourthPersonId}" class="form-control" type="text" required>-->
-                        <select  class="form-control m-b" disabled>
-                            <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ #strings.toString(user.userId) == sciIntraSchoolPro.fourthPersonId}"  ></option>
+                        <select class="form-control m-b" disabled>
+                            <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}"
+                                    th:selected="${ #strings.toString(user.userId) == sciIntraSchoolPro.fourthPersonId}"></option>
                         </select>
                     </div>
                 </div>
@@ -152,7 +163,7 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">合同：</label>
                     <div class="col-sm-8">
-                        <input th:field="*{filing}" hidden id="filing" type="text" >
+                        <input th:field="*{filing}" hidden id="filing" type="text">
                         <div style="display: inline-block;">
                             <div id="filingFileName" style="display: inline; margin-right: 5px;"></div>
                             <button onclick="chakan()" class="btn btn-primary">预览</button>
@@ -167,7 +178,7 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">备案表：</label>
                     <div class="col-sm-8">
-                        <input th:field="*{contract}" hidden id="contract" type="text" >
+                        <input th:field="*{contract}" hidden id="contract" type="text">
                         <div style="display: inline-block;">
                             <div id="contractFileName" style="display: inline; margin-right: 5px;"></div>
                             <button onclick="beian()" class="btn btn-primary">预览</button>
@@ -179,12 +190,10 @@
         </div>
 
 
-
-
         <h4 class="form-header h4 tdiv1" style="display:none;">退回原因</h4>
         <div class="row tdiv1" style="display:none;">
             <div class="col-sm-12">
-                <div class="form-group"  >
+                <div class="form-group">
                     <label class="col-xs-2 control-label">批注：</label>
                     <div class="col-xs-10">
                         <textarea name="remark" required maxlength="500" class="form-control" rows="3"></textarea>
@@ -193,11 +202,11 @@
 
             </div>
         </div>
-        <h4 class="form-header h4 tdiv2"  style="display:none;">退回记录</h4>
+        <h4 class="form-header h4 tdiv2" style="display:none;">退回记录</h4>
         <div class="row tdiv2" style="display:none;">
             <div class="col-sm-12">
 
-                <div class="form-group"  >
+                <div class="form-group">
                     <table id='bootstrap-table'></table>
                 </div>
             </div>
@@ -207,18 +216,28 @@
 </div>
 <div class="row">
     <div class="col-sm-offset-5 col-sm-10">
-        <button type="button" id="btn1" style="display:none;" class="btn btn-sm btn-primary" onclick="submitHandler()"><i class="fa fa-check"></i>通 过</button>&nbsp;
-        <button type="button" id="btn2" style="display:none;" class="btn btn-sm btn-danger" onclick="submitHandlerBH()"><i class="fa fa-reply-all"></i>驳 回</button>
-        <button type="button" id="btn3" style="display:none;" class="btn btn-sm btn-warning" onclick="closeItem()"><i class="fa fa-reply-all"></i>关 闭 </button>
-        <button type="button" id="btn4" style="display:none;" class="btn btn-sm btn-warning" onclick="retract()"><i class="fa fa-reply-all"></i>撤 回 </button>
+        <button type="button" id="btn1" style="display:none;" class="btn btn-sm btn-primary" onclick="submitHandler()">
+            <i class="fa fa-check"></i>通 过
+        </button>&nbsp;
+        <button type="button" id="btn2" style="display:none;" class="btn btn-sm btn-danger" onclick="submitHandlerBH()">
+            <i class="fa fa-reply-all"></i>驳 回
+        </button>
+        <button type="button" id="btn3" style="display:none;" class="btn btn-sm btn-warning" onclick="closeItem()"><i
+                class="fa fa-reply-all"></i>关 闭
+        </button>
+        <button type="button" id="btn4" style="display:none;" class="btn btn-sm btn-warning" onclick="retract()"><i
+                class="fa fa-reply-all"></i>撤 回
+        </button>
 
     </div>
 </div>
-<th:block th:include="include :: footer" />
-<th:block th:include="include :: datetimepicker-js" />
+<th:block th:include="include :: footer"/>
+<th:block th:include="include :: datetimepicker-js"/>
 <th:block th:include="include :: bootstrap-fileinput-js"/>
-<th:block th:include="include :: select2-js" />
+<th:block th:include="include :: select2-js"/>
 <script type="text/javascript">
+    console.log("role:", $("#role").val());
+
     function displayFileName(inputId, fileNameId) {
         const input = document.getElementById(inputId);
         const fileNameSpan = document.getElementById(fileNameId);
@@ -235,62 +254,66 @@
             fileNameSpan.textContent = '';
         }
     }
-    function chakan(){
+
+    function chakan() {
         var c = $("#filing").val();
-        $.modal.openTab("查看合同" ,c );
+        $.modal.popupRight("查看合同", c, false);
         //window.location = "http://localhost:8081/profile/upload/2024/08/20/GXSZ086812_20240820090353A001.pdf";
     }
-    function beian(){
+
+    function beian() {
         var c = $("#contract").val();
-        $.modal.openTab("查看备案表" ,c );
+        $.modal.popupRight("查看备案表", c, false);
     }
-    function downloadFile(type){
-        var c = $("#"+type).val();
-        if(c){
+
+    function downloadFile(type) {
+        var c = $("#" + type).val();
+        if (c) {
             var a = document.createElement("a");
-            a.href=c;
-            a.download="";
+            a.href = c;
+            a.download = "";
             a.style.display = "none";
             document.body.appendChild(a);
             a.click();
             doucmentEment.removeChild(a);
-        }else{
+        } else {
             alert("网址无效");
         }
 
     }
-    $(function(){
+
+    $(function () {
         var kid = $("#ktid").val();
         var options = {
-            url: prefix + "/bhyy/"+kid,
+            url: prefix + "/bhyy/" + kid,
             showSearch: false,
             showRefresh: false,
             showToggle: false,
             showColumns: false,
-            pagination:false,
+            pagination: false,
             columns: [
 
                 {
-                    field : 'createTime',
-                    title : '批阅时间',
+                    field: 'createTime',
+                    title: '批阅时间',
                     width: 200
 
-                } ,
+                },
                 {
-                    field : 'uname',
-                    title : '批阅人',
+                    field: 'uname',
+                    title: '批阅人',
                     width: 100
                 },
                 {
-                    field : 'concate',
-                    title : '内容',
+                    field: 'concate',
+                    title: '内容',
                     width: 500
                 },
                 {
-                    field : 'state',
-                    title : '审核状态',
+                    field: 'state',
+                    title: '审核状态',
                     width: 100
-                } ]
+                }]
         };
 
         $.table.init(options);
@@ -298,56 +321,55 @@
         $('#bootstrap-table').on('load-success.bs.table', function (e, name, args) {
             console.log('Event Name:', name.rows);
 
-            var a =$("#state").val();
-            var role_str =$("#role").val();
-            var deptNamekey =$("#deptNamekey").val();
-            console.log("deptNamekey=",deptNamekey)
+            var a = $("#state").val();
+            var role_str = $("#role").val();
+            var deptNamekey = $("#deptNamekey").val();
+            console.log("deptNamekey=", deptNamekey)
             //如果是科研
-            if (role_str=="sci_tesearch"){
+            if (role_str == "sci_tesearch") {
                 //批阅记录
-                if(name.rows.length > 0){
+                if (name.rows.length > 0) {
                     $(".tdiv2").show();
                 }
-                if (a==2){
+                if (a == 2) {
                     $(".tdiv1").show();
                     $("#btn1").show();
                     $("#btn2").show();
                     $("#btn3").show();
-                }else if (a == 4){
+                } else if (a == 4) {
                     $(".tdiv1").show();
                     $("#btn4").show();
                     $("#btn3").show();
-                }else {
+                } else {
                     $("#btn3").show();
                 }
             }
             //如果是教研
-            else if (role_str=="research"){
+            else if (role_str == "research") {
                 //批阅记录
-                if(name.rows.length > 0){
+                if (name.rows.length > 0) {
                     $(".tdiv2").show();
                 }
-                if (deptNamekey=="0"){
+                if (deptNamekey == "0") {
                     $("#btn3").show();
-                }else{
-                    if (a==1){
+                } else {
+                    if (a == 1) {
                         $(".tdiv1").show();
                         $("#btn1").show();
                         $("#btn2").show();
                         $("#btn3").show();
-                    } else if (a == 11){
+                    } else if (a == 11) {
                         $(".tdiv1").show();
                         $("#btn4").show();
                         $("#btn3").show();
-                    } else{
+                    } else {
                         $("#btn3").show();
                     }
                 }
 
-            }
-            else if (role_str=="teacher"){
+            } else if (role_str == "teacher") {
                 //批阅记录
-                if(name.rows.length > 0){
+                if (name.rows.length > 0) {
                     $(".tdiv2").show();
                 }
                 // if(a == 4 ||a == 3||a == 5){
@@ -361,21 +383,20 @@
                 //     $("#btn4").show();
                 //     $("#btn3").show();
                 // }
-            }
-            else if (role_str=="dept_teacher"){
-                if(name.rows.length > 0){
+            } else if (role_str == "dept_teacher") {
+                if (name.rows.length > 0) {
                     $(".tdiv2").show();
                 }
-                if (a==11){
+                if (a == 11) {
                     $(".tdiv1").show();
                     $("#btn1").show();
                     $("#btn2").show();
                     $("#btn3").show();
-                }else if (a==2){
+                } else if (a == 2) {
                     $(".tdiv1").show();
                     $("#btn4").show();
                     $("#btn3").show();
-                }else{
+                } else {
                     $("#btn3").show();
                 }
             }
@@ -391,7 +412,7 @@
             // }
         });
         <!-- laydate示例 -->
-        layui.use('laydate', function(){
+        layui.use('laydate', function () {
             var laydate = layui.laydate;
             laydate.render({
                 elem: '#laydate-demo-4',
@@ -402,7 +423,7 @@
                 max: $('#laydate-endTime').val(),
                 theme: 'molv',
                 trigger: 'click',
-                done: function(value, date) {
+                done: function (value, date) {
                     // 结束时间大于开始时间
                     if (value !== '') {
                         endDate.config.min.year = date.year;
@@ -420,7 +441,7 @@
                 min: $('#laydate-startTime').val(),
                 theme: 'molv',
                 trigger: 'click',
-                done: function(value, date) {
+                done: function (value, date) {
                     // 开始时间小于结束时间
                     if (value !== '') {
                         startDate.config.max.year = date.year;
@@ -447,24 +468,23 @@
         var a = $("#urlFlag").val();
 
         //if ($.validate.form()) {
-        $.operate.saveTab(prefix + "/sch_hxPass", {"id":$("#ktid").val(),"urlFlag":a});
+        $.operate.saveTab(prefix + "/sch_hxPass", {"id": $("#ktid").val(), "urlFlag": a});
         // }
     }
+
     function submitHandlerBH() {
         var a = $("#urlFlag").val();
         if ($.validate.form()) {
-            $.operate.saveTab(prefix + "/sch_hxBh",   $('#form-apply-edit').serialize());
+            $.operate.saveTab(prefix + "/sch_hxBh", $('#form-apply-edit').serialize());
         }
     }
+
     //撤回
     function retract() {
         if ($.validate.form()) {
             $.operate.saveTab(prefix + "/retract", $('#form-apply-edit').serialize());
         }
     }
-
-
-
 
     $(".file-upload").each(function (i) {
         var val = $("input[name='" + this.id + "']").val()
@@ -482,7 +502,7 @@
         $(this).fileinput('_initFileActions');
     });
     // 页面加载时显示文件名
-    window.onload = function() {
+    window.onload = function () {
         displayFileName('contract', 'contractFileName');
         displayFileName('filing', 'filingFileName');
     };
