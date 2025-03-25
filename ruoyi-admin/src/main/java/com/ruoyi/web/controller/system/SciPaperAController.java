@@ -5,6 +5,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+
+import com.ruoyi.common.config.RuoYiConfig;
+import com.ruoyi.common.config.ServerConfig;
+import com.ruoyi.common.utils.file.FileUploadUtils;
+import com.ruoyi.common.utils.file.FileUtils;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
 import com.ruoyi.common.core.domain.entity.SysRole;
 import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.common.utils.ShiroUtils;
@@ -15,13 +26,11 @@ import com.ruoyi.system.service.*;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.system.domain.SciPaperA;
@@ -29,6 +38,7 @@ import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.common.core.page.TableDataInfo;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * 论文Controller
@@ -46,6 +56,9 @@ public class SciPaperAController extends BaseController
     private ISciPaperAService sciPaperAService;
 
     @Autowired
+    private ServerConfig serverConfig;
+
+    @Autowired
     private ISysUserService userService;
 
     @RequiresPermissions("system:paper:view")
@@ -54,6 +67,30 @@ public class SciPaperAController extends BaseController
     {
         return prefix + "/paper";
     }
+
+@PostMapping("/upload/{model}")
+@ResponseBody
+public AjaxResult uploadFile(MultipartFile file, @PathVariable("model") String model) throws Exception{
+    try
+    {
+        // 上传文件路径
+        String filePath = RuoYiConfig.getUploadPath() ;
+        // 上传并返回新文件名称
+//            String fileName = FileUploadUtils.upload(filePath, file);
+        String fileName = FileUploadUtils.newupload(filePath, file,model);
+        String url = serverConfig.getUrl() + fileName;
+        AjaxResult ajax = AjaxResult.success();
+        ajax.put("url", url);
+        ajax.put("fileName", fileName);
+        ajax.put("newFileName", FileUtils.getName(fileName));
+        ajax.put("originalFilename", file.getOriginalFilename());
+        return ajax;
+    }
+    catch (Exception e)
+    {
+        return AjaxResult.error(e.getMessage());
+    }
+}
 
     /**
      * 查询论文列表
@@ -70,6 +107,7 @@ public class SciPaperAController extends BaseController
         System.out.println("roleId = " + roleId);
 
         sciPaperA.setUid(userId);
+        sciPaperA.setYear(year);
 
         List<SciPaperA> list= new ArrayList<>();
             //教研室
@@ -77,7 +115,8 @@ public class SciPaperAController extends BaseController
                 list.addAll(sciPaperAService.selectSciPaperAList(sciPaperA));
             }
             //科研处
-            if (roleId.contains("102")) {
+            if (roleId.contains("101")) {
+                System.out.println("roleId = " + roleId);
                 list.addAll(sciPaperAService.selectSciPaperAListKY(sciPaperA));
             }
             //学院
@@ -89,7 +128,8 @@ public class SciPaperAController extends BaseController
             }
 
 
-        sciPaperA.setYear(year);
+
+        System.out.println("year = " + year);
         startPage();
 
         return getDataTable(list);
@@ -125,7 +165,6 @@ public class SciPaperAController extends BaseController
             }
         }
         mmap.put("user",sysUser);
-        System.out.println("mmap = " + mmap);
         return prefix + "/add";
     }
 
@@ -147,6 +186,7 @@ public class SciPaperAController extends BaseController
         String user_name = userService.selectUserByLoginName(getLoginName()).getUserName();
         sciPaperA.setTeacherName(user_name);
 
+        System.out.println("sciPaperA = " + sciPaperA);
         return toAjax(sciPaperAService.insertSciPaperA(sciPaperA));
     }
 
@@ -172,6 +212,9 @@ public class SciPaperAController extends BaseController
     {
         SciPaperA sciPaperA = sciPaperAService.selectSciPaperAById(id);
         sciPaperA.setUrlFlag(urlFlag);
+
+        System.out.println("mmap = " + mmap);
+
         System.out.println("sciPaperA = " + sciPaperA);
 
 //        List<SysUser> userList =  userService.selectAllUser();
@@ -215,7 +258,9 @@ public class SciPaperAController extends BaseController
     @ResponseBody
     public AjaxResult pytg(@PathVariable("id") String id,String urlFlag,String paperCategory,String paperRanking) {
         String order = paperCategory;
+        System.out.println("paperCategory = " + paperCategory);
         String user_order = paperRanking;
+        System.out.println("paperRanking = " + paperRanking);
         return toAjax(sciPaperAService.pytg(id, getUserId(), urlFlag,order,user_order));
     }
     @RequiresPermissions(value={"system:paper:xypy","system:paper:process","system:paper:kypy","system:paper:xyrevoke","system:paper:kyrevoke"},logical= Logical.OR)

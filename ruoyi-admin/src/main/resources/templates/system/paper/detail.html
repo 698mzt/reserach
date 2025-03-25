@@ -114,12 +114,29 @@
 
                 </div>
             </div>
+<!--            <div class="col-md-6">-->
+<!--                <div class="form-group">-->
+<!--                    <label class="col-sm-3 control-label">排名：</label>-->
+<!--                    <div class="col-sm-8">-->
+<!--                        <select  disabled name="paperRanking" id="paperRanking" class="form-control" th:with="type=${@dict.getType('sci_paper_qwer')}" required>-->
+<!--                            <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>-->
+<!--                        </select>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
             <div class="col-md-6">
                 <div class="form-group">
                     <label class="col-sm-3 control-label">排名：</label>
-                    <div class="col-sm-8">
-                        <select  disabled name="paperRanking" id="paperRanking" class="form-control" th:with="type=${@dict.getType('sci_paper_qwer')}" required>
-                            <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
+                    <div class="col-sm-8" th:with="type=${@dict.getType('sci_paper_qwer')}">
+                        <select th:field="*{paperRanking}" disabled class="form-control m-b">
+                            <!-- 默认选项 -->
+                            <option value="" th:if="${#lists.isEmpty(type)}">无可用选项</option>
+                            <!-- 动态生成选项 -->
+                            <option th:each="dict : ${type}"
+                                    th:text="${dict.dictLabel}"
+                                    th:value="${dict.dictValue}"
+                                    th:selected="${sciPaperA.paperRanking == dict.dictValue}">
+                            </option>
                         </select>
                     </div>
                 </div>
@@ -132,17 +149,40 @@
                     </div>
                 </div>
             </div>
-            <div class="col-xs-6">
+            <div class="col-md-6">
                 <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">论文文件：</label>
+                    <label class="col-sm-4 control-label" >论文网址：</label>
                     <div class="col-sm-8">
-                        <input th:field="*{text_paper}" hidden id="text_paper" type="text" >
-<!--                        <div style="display: inline-block;">-->
-<!--                            <div id="filingFileName" style="display: inline; margin-right: 5px;"></div>-->
-<!--                        </div>-->
+                        <input name="search_web" th:field="*{search_web}"class="form-control" type="text">
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label ">论文收录通知：</label>
+                    <div class="col-sm-8">
+                        <input th:field="*{text_paper}" hidden id="text_paper" type="text">
+                        <div style="display: inline-block;">
+                            <div id="contractFileName" style="display: inline; margin-right: 5px;"></div>
+                        </div>
                         <div>
-                            <button onclick="chakan()" class="btn btn-sm btn-primary color">预览</button>
+                            <button onclick="chakanpaper()" class="btn btn-sm btn-primary color">预览</button>
                             <button onclick="downloadFile('text_paper')" class="btn btn-sm btn-primary color">下载</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label ">论文原文：</label>
+                    <div class="col-sm-8">
+                        <input th:field="*{word_paper}" hidden id="word_paper" type="text">
+                        <div style="display: inline-block;">
+                            <div id="wordFileName" style="display: inline; margin-right: 5px;"></div>
+                        </div>
+                        <div>
+                            <button onclick="downloadFile('word_paper')" class="btn btn-sm btn-primary color">下载</button>
                         </div>
                     </div>
                 </div>
@@ -178,7 +218,12 @@
                 </div>
             </div>
         </div>
-
+        <input type="hidden" th:field="*{college}" name="college">
+        <input type="hidden" th:field="*{researchRoom}" name="researchRoom">
+        <input type="hidden" th:field="*{teacherName}" name="teacherName">
+        <input type="hidden" th:field="*{text_paper}" name="text_paper">
+        <input type="hidden" th:field="*{publicationTime}" name="publicationTime">
+        <input type="hidden" value="论文" name="paper">
     </form>
 </div>
 
@@ -194,6 +239,7 @@
 <th:block th:include="include :: datetimepicker-js" />
 <script th:inline="javascript">
     var prefix = ctx + "system/paper";
+    var QWERDates = [[${@dict.getType('sci_paper_qwer')}]];
 
     function displayFileName(inputId, fileNameId) {
         const input = document.getElementById(inputId);
@@ -205,16 +251,16 @@
 
             const dotParts = fileName.split('.'); // 按点分割
             const lastPart = dotParts[dotParts.length - 1]; // 点后的部分
-
             fileNameSpan.textContent = `${firstPart}.${lastPart}`; // 组合并显示
         } else {
             fileNameSpan.textContent = '';
         }
     }
-    function chakan(){
+    function chakanpaper(){
         var c = $("#text_paper").val();
-        $.modal.openTab("查看论文" ,c );
+        $.modal.openTab("查看论文文件" ,c);
     }
+
     function downloadFile(type){
         var c = $("#"+type).val();
         if(c){
@@ -229,6 +275,35 @@
             alert("网址无效");
         }
     }
+
+    // function createFoldersAndDownload() {
+    //     //学院
+    //     const coll = document.getElementById('college').value;
+    //     //专业
+    //     const researchRoom = document.getElementById('researchRoom').value;
+    //     //教师
+    //     const teacherName = document.getElementById('teacherName').value;
+    //     const params = new URLSearchParams({
+    //         college: coll,
+    //         researchRoom: researchRoom,
+    //         teacherName: teacherName
+    //     });
+    //     fetch('/system/paper/create?' + params.toString(), {
+    //         method: 'GET'
+    //     })
+    //         .then(response => response.json())
+    //         .then(data => {
+    //             if (data.success) {
+    //                 // alert('文件夹检查/创建完成');
+    //                 const pdfUrl = document.getElementById('text_paper').value;
+    //                 triggerBackendDownload(pdfUrl);
+    //             } else {
+    //                 alert('文件夹创建失败: ' + data.message);
+    //             }
+    //         })
+    //         .catch(error => console.error('Error:', error));
+    // }
+
     $(function() {
         var pid = $("#pid").val();
         console.log("pid:",pid);
@@ -358,8 +433,8 @@
     });
 
     window.onload = function() {
-        displayFileName('contract', 'contractFileName');
-        displayFileName('text_paper', 'text_paperName');
+        displayFileName('text_paper', 'contractFileName');
+        displayFileName('word_paper', 'wordFileName');
     };
 </script>
 </body>
