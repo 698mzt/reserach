@@ -152,6 +152,12 @@
         LEFT JOIN sci_IntraSchPro_score sc ON sc.sciIntraSch_Id = s.id
         <!--这里加上4是为了同意之后可以取消-->
        where s.state in (2,4)
+        <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
+
+        <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+        <if test="state != null  and state != ''"> and state = #{state}</if>
+        <!--        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>-->
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
         <!--where s.state in (2,4,1,3,12)-->
         OR (
         s.state in (2,4,1,3,12)
@@ -166,12 +172,7 @@
         )
 
         <!--            <if test="userId != null "> and user_id = #{userId}</if>-->
-        <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
 
-        <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
-        <if test="state != null  and state != ''"> and state = #{state}</if>
-<!--        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>-->
-        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
 
         <!-- 数据范围过滤 -->
         <!--${params.dataScope}-->
@@ -214,6 +215,12 @@
         LEFT JOIN sci_IntraSchPro_score sc ON sc.sciIntraSch_Id = s.id
         /*todo:这里之前只是1，3为了查到负责人包含自己的，该成了1,2,3,4,5,之后在前端判断一下这个项目的状态，然后加一个按钮可以查看详情*/
         where s.state in (1,11)
+        <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
+
+        <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+        <if test="state != null  and state != ''"> and state = #{state}</if>
+        <!--        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>-->
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
         <!--where s.state in (1,11,2,3,4,12)-->
         <!-- 数据范围过滤 -->
         ${params.dataScope}
@@ -227,14 +234,15 @@
         OR s.third_person_id = #{uid}
         OR s.fourth_person_id = #{uid}
         )
-        )
-        <!--            <if test="userId != null "> and user_id = #{userId}</if>-->
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
 
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
-<!--        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>-->
+        <!--        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>-->
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
+        )
+        <!--            <if test="userId != null "> and user_id = #{userId}</if>-->
+
         GROUP BY
         s.id,
         u.user_name,
@@ -295,6 +303,11 @@
         LEFT JOIN sci_IntraSchPro_score sc ON sc.sciIntraSch_Id = s.id
         WHERE
         s.state IN (1, 2,3,4,5,11,12)
+        <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
+
+        <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+        <if test="state != null  and state != ''"> and state = #{state}</if>
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
         OR (
         s.state IN (1, 11, 2, 3, 4, 12,5)
         AND (
@@ -304,12 +317,13 @@
         OR s.third_person_id = #{uid}
         OR s.fourth_person_id = #{uid}
         )
-        )
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
 
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
+        )
+
         GROUP BY
         s.id,
         u.user_name,
@@ -353,6 +367,12 @@
 <!--         这个6是为了通过之后可以撤回-->
 --         ,7,9,10,14
         where s.state in (6,8)
+        <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
+
+        <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+        <if test="state != null  and state != ''"> and state = #{state}</if>
+        <!--        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>-->
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
         OR (
         s.state in (6,8,7,9,10,14)
         and
@@ -363,14 +383,15 @@
         OR s.third_person_id = #{uid}
         OR s.fourth_person_id = #{uid}
         )
-        )
-        <!--            <if test="userId != null "> and user_id = #{userId}</if>-->
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
 
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
-<!--        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>-->
+        <!--        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>-->
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
+        )
+        <!--            <if test="userId != null "> and user_id = #{userId}</if>-->
+
 
         <!-- 数据范围过滤 -->
         <!--${params.dataScope}-->
@@ -411,6 +432,12 @@
         LEFT JOIN sci_IntraSchPro_score sc ON sc.sciIntraSch_Id = s.id
 --         ,8,9,10,14
         where s.state in (7,13)
+        <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
+
+        <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+        <if test="state != null  and state != ''"> and state = #{state}</if>
+        <!--        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>-->
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
         <!-- 数据范围过滤 -->
         ${params.dataScope}
         OR (
@@ -423,14 +450,15 @@
         OR s.third_person_id = #{uid}
         OR s.fourth_person_id = #{uid}
         )
-        )
-        <!--            <if test="userId != null "> and user_id = #{userId}</if>-->
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
 
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
-<!--        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>-->
+        <!--        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>-->
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
+        )
+        <!--            <if test="userId != null "> and user_id = #{userId}</if>-->
+
         GROUP BY
         s.id,
         u.user_name,
@@ -468,6 +496,12 @@
         left join sys_dept p on d.parent_id =p.dept_id
         LEFT JOIN sci_IntraSchPro_score sc ON sc.sciIntraSch_Id = s.id
         where s.state in (8,10,7,9,13,14,6)
+        <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
+
+        <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+        <if test="state != null  and state != ''"> and state = #{state}</if>
+        <!--        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>-->
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
         AND (
         s.user_id = #{uid}
         OR s.first_person_id = #{uid}
@@ -476,12 +510,7 @@
         OR s.fourth_person_id = #{uid}
         )
         <!--            <if test="userId != null "> and user_id = #{userId}</if>-->
-        <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
 
-        <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
-        <if test="state != null  and state != ''"> and state = #{state}</if>
-<!--        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>-->
-        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
 
         <!-- 数据范围过滤 -->
         /*${params.dataScope}*/
@@ -685,6 +714,12 @@
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
         where s.state in (11,2)
+        <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
+
+        <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+        <if test="state != null  and state != ''"> and state = #{state}</if>
+        <!--        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>-->
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
         <!--where s.state in (11,2,1,3,4,12)-->
         <!-- 数据范围过滤 -->
         ${params.dataScope}
@@ -696,12 +731,7 @@
         OR s.fourth_person_id = #{uid}
         )
         <!--            <if test="userId != null "> and user_id = #{userId}</if>-->
-        <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
 
-        <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
-        <if test="state != null  and state != ''"> and state = #{state}</if>
-        <!--        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>-->
-        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
 
 
         order  by createtime desc
@@ -722,6 +752,12 @@
         LEFT JOIN sci_IntraSchPro_score sc ON sc.sciIntraSch_Id = s.id
 --         ,7,9,10,14
         where s.state in (13,8)
+        <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
+
+        <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+        <if test="state != null  and state != ''"> and state = #{state}</if>
+        <!--        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>-->
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
         <!-- 数据范围过滤 -->
         ${params.dataScope}
         OR (
@@ -732,12 +768,7 @@
         OR s.fourth_person_id = #{uid}
         )
         <!--            <if test="userId != null "> and user_id = #{userId}</if>-->
-        <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
 
-        <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
-        <if test="state != null  and state != ''"> and state = #{state}</if>
-        <!--        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>-->
-        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
         GROUP BY
         s.id,
         u.user_name,
@@ -790,6 +821,21 @@
 
     <select id="geStaticById" parameterType="SciIntraSchoolPro" >
         SELECT state from sci_IntraSchPro_apply WHERE id=#{id}
+
+    </select>
+
+
+    <select id="getfilekey" parameterType="java.util.HashMap" >
+        SELECT
+            d2.dept_name 'parent',
+            d.dept_name 'BePartOf',
+            u.user_name 'name'
+        FROM
+            sys_user u,
+            sys_dept d
+                LEFT JOIN sys_dept d2 ON d.parent_id = d2.dept_id
+        WHERE
+            u.dept_id = d.dept_id AND u.user_id = #{userId}
 
     </select>
 </mapper>

@@ -1,13 +1,20 @@
 package com.ruoyi.web.controller.IntraSchoolProject;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import com.ruoyi.common.annotation.Log;
+import com.ruoyi.common.config.RuoYiConfig;
+import com.ruoyi.common.config.ServerConfig;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.domain.entity.SysRole;
 import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.common.enums.BusinessType;
+import com.ruoyi.common.utils.file.FileUploadUtils;
+import com.ruoyi.common.utils.file.FileUtils;
 import com.ruoyi.system.domain.*;
 import com.ruoyi.system.service.*;
 import io.swagger.models.auth.In;
@@ -18,6 +25,9 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.page.TableDataInfo;
+import org.springframework.web.multipart.MultipartFile;
+
+import static com.ruoyi.common.utils.file.FileUploadUtils.getAbsoluteFile;
 
 //http://localhost:8081/IntraSchPro
 @Controller
@@ -37,10 +47,7 @@ public class SciIntraSchoolProController extends BaseController {
 
     @Autowired
     private SciIntraSchProScoreService sciIntraSchProScoreService;
-    private String role_str="";
-    private String deptNamekey="";
-
-
+    //private String role_str="";
     @GetMapping("")
     String view() {
         return prefix + "/view";
@@ -76,6 +83,114 @@ public class SciIntraSchoolProController extends BaseController {
 
         startPage();
         //当前登陆角色列表，如果一个人有多个角色，列表就多一项
+        String role_str=panRole_str();
+        System.out.println("role_str = " + role_str);
+        List<SciIntraSchoolPro> list = new ArrayList<>();
+        //学院
+        if (role_str.equals("dept_teacher")){
+
+            System.out.println("this is 学院负责人");
+            switch (tableId) {
+                case "bootstrap-table0":
+                    list = sciIntraSchProApplyService.sel_IntraSchPro_isOVER_dept_teacher(sciIntraSchoolPro);
+                    System.out.println("list = " + list);
+                    break;
+                case "bootstrap-table1":
+                    list = sciIntraSchProApplyService.sel_IntraSchPro_approval_dept_teacher(sciIntraSchoolPro);
+                    break;
+                case "bootstrap-table2":
+                    list = sciIntraSchProApplyService.sel_IntraSchPro_closure_dept_teacher(sciIntraSchoolPro);
+                    break;
+            }
+        }
+//        科研处
+        else if (role_str.equals("sci_tesearch")){
+
+            System.out.println("this is 科研");
+            switch (tableId) {
+                case "bootstrap-table0":
+                    list = sciIntraSchProApplyService.sel_IntraSchPro_isOVER(sciIntraSchoolPro);
+                    System.out.println("list = " + list);
+                    break;
+                case "bootstrap-table1":
+                    list = sciIntraSchProApplyService.sel_IntraSchPro_approval_ky(sciIntraSchoolPro);
+                    break;
+                case "bootstrap-table2":
+                    list = sciIntraSchProApplyService.sel_IntraSchPro_closure_ky(sciIntraSchoolPro);
+                    break;
+            }
+        }
+//        教研室
+        else if (role_str.equals("research")) {
+            System.out.println("this is 教研");
+
+            switch (tableId) {
+                case "bootstrap-table0":
+                    list = sciIntraSchProApplyService.sel_IntraSchPro_isOVER(sciIntraSchoolPro);
+                    //System.out.println("this is table0 list = " + list);
+                    System.out.println("this is table0 list = "+ list);
+                    break;
+                case "bootstrap-table1":
+                    list = sciIntraSchProApplyService.sel_IntraSchPro_approval_jy(sciIntraSchoolPro);
+                   // System.out.println("this is table1 list = " + list);
+                    System.out.println("this is table1 list = " );
+                    break;
+                case "bootstrap-table2":
+                    list = sciIntraSchProApplyService.sel_IntraSchPro_closure_jy(sciIntraSchoolPro);
+                    //System.out.println("this is table2 list = " + list);
+                    System.out.println("this is table2 list = "+ list);
+                    System.out.println(" = " );
+                    break;
+            }
+        }
+        //admin
+        else if (role_str.equals("admin")) {
+            System.out.println("this is admin");
+
+            switch (tableId) {
+                case "bootstrap-table0":
+                    list = sciIntraSchProApplyService.sel_IntraSchPro_isOVER_admin(sciIntraSchoolPro);
+                    System.out.println("list = " + list);
+                    break;
+                case "bootstrap-table1":
+                    list = sciIntraSchProApplyService.sel_IntraSchPro_approval_admin(sciIntraSchoolPro);
+                    break;
+                case "bootstrap-table2":
+                    list = sciIntraSchProApplyService.sel_IntraSchPro_closure_admin(sciIntraSchoolPro);
+                    break;
+            }
+        }
+
+        if (role_str.equals("teacher")) {
+
+            System.out.println("this is 普通教师");
+            switch (tableId) {
+                case "bootstrap-table0":
+                    list = sciIntraSchProApplyService.sel_my_IntraSchPro_isOVER(sciIntraSchoolPro);
+                    System.out.println("list = " + list);
+                    break;
+               case "bootstrap-table1":
+                    list = sciIntraSchProApplyService.sel_IntraSchPro_approval_my(sciIntraSchoolPro);
+                    break;
+                case "bootstrap-table2":
+                    list = sciIntraSchProApplyService.sel_IntraSchPro_closure_my(sciIntraSchoolPro);
+                    break;
+            }
+        }
+        TableDataInfo data = getDataTable(list);
+
+        //System.out.println("data = " + data);
+        return data;
+    }
+
+    /**
+     * 判断当前登陆用户的身份
+     * dept_teacher，sci_tesearch，research，admin，teacher
+     * @return
+     */
+    private String panRole_str(){
+        String role_str="";
+        //当前登陆角色列表，如果一个人有多个角色，列表就多一项
         List<SysRole> roles = getSysUser().getRoles();
         //代表六个身份
         List<Integer> roles_list = new ArrayList<>(Arrays.asList(0, 0, 0, 0, 0, 0));
@@ -103,82 +218,25 @@ public class SciIntraSchoolProController extends BaseController {
                 roles_list.set(1, 1);
             }
         }
-
-        List<SciIntraSchoolPro> list = new ArrayList<>();
-        System.out.println("sciIntraSchoolPro="+sciIntraSchoolPro.toString());
-//学院
+        //学院
         if (roles_list.get(5) ==1){
             role_str="dept_teacher";
-            System.out.println("this is 学院负责人");
-            switch (tableId) {
-                case "bootstrap-table0":
-                    list = sciIntraSchProApplyService.sel_IntraSchPro_isOVER_dept_teacher(sciIntraSchoolPro);
-                    System.out.println("list = " + list);
-                    break;
-                case "bootstrap-table1":
-                    list = sciIntraSchProApplyService.sel_IntraSchPro_approval_dept_teacher(sciIntraSchoolPro);
-                    break;
-                case "bootstrap-table2":
-                    list = sciIntraSchProApplyService.sel_IntraSchPro_closure_dept_teacher(sciIntraSchoolPro);
-                    break;
-            }
         }
 //        科研处
         else if (roles_list.get(3) ==1) {
             role_str="sci_tesearch";
-            System.out.println("this is 科研");
-            switch (tableId) {
-                case "bootstrap-table0":
-                    list = sciIntraSchProApplyService.sel_IntraSchPro_isOVER(sciIntraSchoolPro);
-                    System.out.println("list = " + list);
-                    break;
-                case "bootstrap-table1":
-                    list = sciIntraSchProApplyService.sel_IntraSchPro_approval_ky(sciIntraSchoolPro);
-                    break;
-                case "bootstrap-table2":
-                    list = sciIntraSchProApplyService.sel_IntraSchPro_closure_ky(sciIntraSchoolPro);
-                    break;
-            }
+
         }
 //        教研室
         else if (roles_list.get(4) ==1) {
             System.out.println("this is 教研");
             role_str="research";
-            switch (tableId) {
-                case "bootstrap-table0":
-                    list = sciIntraSchProApplyService.sel_IntraSchPro_isOVER(sciIntraSchoolPro);
-                    //System.out.println("this is table0 list = " + list);
-                    System.out.println("this is table0 list = "+ list);
-                    break;
-                case "bootstrap-table1":
-                    list = sciIntraSchProApplyService.sel_IntraSchPro_approval_jy(sciIntraSchoolPro);
-                   // System.out.println("this is table1 list = " + list);
-                    System.out.println("this is table1 list = " );
-                    break;
-                case "bootstrap-table2":
-                    list = sciIntraSchProApplyService.sel_IntraSchPro_closure_jy(sciIntraSchoolPro);
-                    //System.out.println("this is table2 list = " + list);
-                    System.out.println("this is table2 list = "+ list);
-                    System.out.println(" = " );
-                    break;
-            }
+
         }
         //admin
         else if (roles_list.get(1) ==1) {
-            System.out.println("this is admin");
             role_str="admin";
-            switch (tableId) {
-                case "bootstrap-table0":
-                    list = sciIntraSchProApplyService.sel_IntraSchPro_isOVER_admin(sciIntraSchoolPro);
-                    System.out.println("list = " + list);
-                    break;
-                case "bootstrap-table1":
-                    list = sciIntraSchProApplyService.sel_IntraSchPro_approval_admin(sciIntraSchoolPro);
-                    break;
-                case "bootstrap-table2":
-                    list = sciIntraSchProApplyService.sel_IntraSchPro_closure_admin(sciIntraSchoolPro);
-                    break;
-            }
+
         }
 
         String rolesString = roles_list.stream()
@@ -187,30 +245,16 @@ public class SciIntraSchoolProController extends BaseController {
         //只是普通教师
         if (rolesString.equals("001000")) {
             role_str="teacher";
-            System.out.println("this is 普通教师");
-            switch (tableId) {
-                case "bootstrap-table0":
-                    list = sciIntraSchProApplyService.sel_my_IntraSchPro_isOVER(sciIntraSchoolPro);
-                    System.out.println("list = " + list);
-                    break;
-               case "bootstrap-table1":
-                    list = sciIntraSchProApplyService.sel_IntraSchPro_approval_my(sciIntraSchoolPro);
-                    break;
-                case "bootstrap-table2":
-                    list = sciIntraSchProApplyService.sel_IntraSchPro_closure_my(sciIntraSchoolPro);
-                    break;
-            }
         }
-        TableDataInfo data = getDataTable(list);
+        return role_str;
 
-        //System.out.println("data = " + data);
-        return data;
+
     }
-
     @GetMapping("/add")
     public String add( ModelMap mmap)
     {
         // SysUser user=getSysUser();
+        //获取角色列表给添加页面的负责人下拉框
         List<SysUser> userList =  userService.selectAllUser();
         for (int a = 0; a<userList.size();a++) {
             if(userList.get(a).getUserId() == getUserId()){
@@ -231,12 +275,20 @@ public class SciIntraSchoolProController extends BaseController {
     @Log(title = "申请校内横向课题", businessType = BusinessType.INSERT)
     @PostMapping("/add")
     @ResponseBody
-    public AjaxResult addSave(SciIntraSchoolPro sciIntraSchoolPro)
-    {
+    public AjaxResult addSave(SciIntraSchoolPro sciIntraSchoolPro) throws IOException {
         //sciIntraSchProScoreService.set_SchPro_score_noScore(sciIntraSchoolPro);
 //        return toAjax(sciIntraSchProApplyService.insert_SchPro_Apply(sciIntraSchoolPro));
+
+
+        //插入这个课题
         int id =sciIntraSchProApplyService.insert_SchPro_Apply(sciIntraSchoolPro);
+
+
         System.out.println("id = " + id);
+        if (id==1){
+
+        }
+        //插入这个课题的积分明细
         return toAjax(sciIntraSchProScoreService.set_SchPro_score_noScore(sciIntraSchoolPro));
     }
 
@@ -247,7 +299,7 @@ public class SciIntraSchoolProController extends BaseController {
         SciIntraSchoolPro sciIntraSchoolPro = sciIntraSchProApplyService.sel_IntraSchPro_by_id(id);
 
         List<SysUser> userList1 =  userService.selectAllUser();
-       
+
         mmap.put("sysUsers1",userList1);
         mmap.put("sciIntraSchoolPro", sciIntraSchoolPro);
         System.out.println("SciIntraSchoolProController.edit");
@@ -280,17 +332,22 @@ public class SciIntraSchoolProController extends BaseController {
     @GetMapping("/detail/{id}/{urlFlag}")
     public String detail(@PathVariable("id") Integer id,@PathVariable("urlFlag") String urlFlag, ModelMap mmap)
     {
+        //批阅的数据的user_id
         SciIntraSchoolPro sciIntraSchoolPro = sciIntraSchProApplyService.sel_IntraSchPro_by_id(id);
+        //获取当前用户的部门名字
         String user_dname=sciIntraSchProApplyService.getuser_dnameById(getUserId());
         System.out.println("user_dname = " + user_dname);
         //这里把全局变量role_str放进去用于对detail.html处理的判定
-        sciIntraSchoolPro.setRole(role_str);
+        sciIntraSchoolPro.setRole(panRole_str());
         System.out.println("sciIntraSchoolPro = " + sciIntraSchoolPro);
         List<SysUser> userList1 =  userService.selectAllUser();
         sciIntraSchoolPro.setUrlFlag(urlFlag);
 
         mmap.put("sysUsers1",userList1);
-        if (user_dname.equals(sciIntraSchoolPro.getDname())){
+        //判断自己的部门是不是和这个项目的部门相同，如果是就设置为1，不是就设置为0
+
+        String role_str=panRole_str();
+        if (user_dname.equals(sciIntraSchoolPro.getDname()) || role_str.equals("sci_tesearch")){
             sciIntraSchoolPro.setDeptNamekey("1");
         }else {
             sciIntraSchoolPro.setDeptNamekey("0");
@@ -307,7 +364,7 @@ public class SciIntraSchoolProController extends BaseController {
         SciIntraSchoolPro sciIntraSchoolPro = sciIntraSchProApplyService.sel_IntraSchPro_by_id(id);
 
         //这里把全局变量role_str放进去用于对overdetail.html处理的判定
-        sciIntraSchoolPro.setRole(role_str);
+        sciIntraSchoolPro.setRole(panRole_str());
         System.out.println("sciIntraSchoolPro = " + sciIntraSchoolPro);
         List<SysUser> userList1 =  userService.selectAllUser();
         sciIntraSchoolPro.setUrlFlag(urlFlag);

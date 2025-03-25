@@ -301,13 +301,13 @@ function createMenuItem(dataUrl, menuName, isRefresh) {
 }
 
 // 刷新iframe
-function refreshTab() {
-	var topWindow = $(window.parent.document);
-	var currentId = $('.page-tabs-content', topWindow).find('.active').attr('data-id');
-	var target = $('.RuoYi_iframe[data-id="' + currentId + '"]', topWindow);
-    var url = target.attr('src');
-	target.attr('src', url).ready();
-}
+    function refreshTab() {
+        var topWindow = $(window.parent.document);
+        var currentId = $('.page-tabs-content', topWindow).find('.active').attr('data-id');
+        var target = $('.RuoYi_iframe[data-id="' + currentId + '"]', topWindow);
+        var url = target.attr('src');
+        target.attr('src', url).ready();
+    }
 
 // 滚动到指定选项卡
 function scrollToTab(element) {
@@ -357,11 +357,13 @@ function activeWindow() {
 }
 
 function openToCurrentTab(obj) {
+
     if (isScrollToTop) {
         $(obj).show().siblings('.RuoYi_iframe').hide();
     } else {
         $(obj).css({"visibility": "visible", "position": "static"}).siblings('.RuoYi_iframe').css({"visibility": "hidden", "position": "absolute"});
     }
+
 }
 
 /** 密码规则范围验证 */
