@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 @Controller
-@RequestMapping("/aaaaaa")
+@RequestMapping("/rewardxueyuan")
 public class SysRewardxueyuanController extends BaseController {
 
     @Autowired
