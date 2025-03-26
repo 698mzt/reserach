@@ -19,6 +19,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="jifen"    column="jifen"    />
         <result property="wenjian"    column="wenjian"    />
         <result property="createtime" column="createtime" /> <!-- 确保映射正确 -->
+        <result property="year" column="year" /> <!-- 确保映射正确 -->
 
 
 
@@ -41,7 +42,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <if test="mingcheng != null  and mingcheng != ''"> and mingcheng like concat('%', #{mingcheng}, '%')</if>
         <if test="huopishijain != null "> and huopishijain = #{huopishijain}</if>
         <if test="fenlei != null  and fenlei != ''"> and fenlei = #{fenlei}</if>
-        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(createtime,INTERVAL 1 MONTH)) = #{year}</if>
         <if test="userId != null  and userId != ''">and s.user_id = #{uid}</if>
 
 
@@ -50,7 +51,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="selectSciZhuanliruanzhuList1" parameterType="SciZhuanliruanzhu" resultMap="SciZhuanliruanzhuResult">
         <include refid="selectSciZhuanliruanzhuVo"/>
-        where state in (1,2,3,4,5,6,7) and s.user_id = #{uid}
+        where (state in (1,2,3,4,5,6,7) and s.user_id = #{uid})
         <if test="userId != null  and userId != ''">and s.user_id = #{uid}</if>
 
 
@@ -59,7 +60,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="mingcheng != null  and mingcheng != ''"> and mingcheng like concat('%', #{mingcheng}, '%')</if>
             <if test="huopishijain != null "> and huopishijain = #{huopishijain}</if>
             <if test="fenlei != null  and fenlei != ''"> and fenlei = #{fenlei}</if>
-        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(createtime,INTERVAL 1 MONTH)) = #{year}</if>
 
 
         order by state, createtime desc
@@ -69,7 +70,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="selectSciZhuanliruanzhuList2" parameterType="SciZhuanliruanzhu" resultMap="SciZhuanliruanzhuResult">
         <include refid="selectSciZhuanliruanzhuVo"/>
-        where (state in (1,2,3,4,5,6) and d.dept_id = #{deptId}) or s.user_id = #{uid}
+        where ((state in (1,2,3,4,5,6) and d.dept_id = #{deptId}) or s.user_id = #{uid})
 
         <if test="xueyuan != null  and xueyuan != ''"> and xueyuan = #{xueyuan}</if>
 
@@ -77,7 +78,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <if test="mingcheng != null  and mingcheng != ''"> and mingcheng like concat('%', #{mingcheng}, '%')</if>
         <if test="huopishijain != null "> and huopishijain = #{huopishijain}</if>
         <if test="fenlei != null  and fenlei != ''"> and fenlei = #{fenlei}</if>
-        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(createtime,INTERVAL 1 MONTH)) = #{year}</if>
 
         order by state, createtime desc
     </select>
@@ -86,7 +87,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="selectSciZhuanliruanzhuList3" parameterType="SciZhuanliruanzhu" resultMap="SciZhuanliruanzhuResult">
         <include refid="selectSciZhuanliruanzhuVo"/>
-        where (state in (2,4,5,6) and d.parent_id = #{deptId}) or s.user_id = #{uid}
+        where ((state in (2,4,5,6) and d.parent_id = #{deptId}) or s.user_id = #{uid})
 
         <if test="xueyuan != null  and xueyuan != ''"> and xueyuan = #{xueyuan}</if>
 
@@ -94,7 +95,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <if test="mingcheng != null  and mingcheng != ''"> and mingcheng like concat('%', #{mingcheng}, '%')</if>
         <if test="huopishijain != null "> and huopishijain = #{huopishijain}</if>
         <if test="fenlei != null  and fenlei != ''"> and fenlei = #{fenlei}</if>
-        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(createtime,INTERVAL 1 MONTH)) = #{year}</if>
 
         order by state, createtime desc
     </select>
@@ -111,9 +112,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <if test="mingcheng != null  and mingcheng != ''"> and mingcheng like concat('%', #{mingcheng}, '%')</if>
         <if test="huopishijain != null "> and huopishijain = #{huopishijain}</if>
         <if test="fenlei != null  and fenlei != ''"> and fenlei = #{fenlei}</if>
-        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(createtime,INTERVAL 1 MONTH)) = #{year}</if>
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
-        <if test="state != null  and state != ''"> and state = #{state}</if>
+
 
         order by state, createtime desc
     </select>
