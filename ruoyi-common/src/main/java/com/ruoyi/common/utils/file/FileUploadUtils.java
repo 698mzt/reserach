@@ -160,8 +160,8 @@ public class FileUploadUtils {
             case "lw":
                 modelName="论文";
                 break;
-            case "jczz":
-                modelName="教材专著";
+            case "jcrz":
+                modelName="教材软著";
                 break;
             case "zlrz":
                 modelName="专利软著";
