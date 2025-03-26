@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+
+<head>
+    <th:block th:include="include :: header('教研室科研工作量表格')" />
+    <style>
+        /* 可以添加自定义样式 */
+    </style>
+</head>
+
+<body class="gray-bg">
+<div class="container-div">
+    <div class="btn-group-sm" id="toolbar" role="group">
+        <!-- 加载和追加数据按钮，先保留注释，后续可按需实现 -->
+        <!--
+        <a class="btn btn-success" onclick="loadRows()">
+            <i class="fa fa-plus"></i> 加载 10000 行数据
+        </a>
+        <a class="btn btn-info" onclick="appendRows()">
+            <i class="fa fa-edit"></i> 追加 10000 行数据
+        </a>
+        -->
+        &nbsp;&nbsp;<span id="total" class="badge badge-success"></span>
+    </div>
+    <div class="row">
+        <div class="col-sm-12 select-table table-bordered">
+            <table id="bootstrap-table"></table>
+        </div>
+    </div>
+</div>
+<div th:include="include :: footer"></div>
+<script>
+    var total = 0;
+    var prefix = ctx + '科研工作量';
+
+    $(function () {
+        var options = {
+            url: prefix + "/list",
+            modalName: '教研室科研工作量',
+            height: 400,
+            sidePagination: "server",
+            pagination: true,
+            showSearch: false,
+            virtualScroll: true,
+            columns: [
+                [
+                    {
+                        title: '基本信息',
+                        align: 'center',
+                        colspan: 2
+                    },
+                    {
+                        title: '科研项目工作量',
+                        align: 'center',
+                        colspan: 8
+                    },
+                    {
+                        title: '汇总',
+                        align: 'center',
+                        colspan: 1
+                    }
+                ],
+                [
+                    {
+                        field: '教研室',
+                        title: '教研室',
+                        align: 'center'
+                    },
+                    {
+                        field: '教研室主任',
+                        title: '教研室主任',
+                        align: 'center'
+                    },
+                    {
+                        field: '纵向科研项目_校级以上',
+                        title: '1.1 纵向科研项目 - 校级以上',
+                        align: 'center'
+                    },
+                    {
+                        field: '纵向科研项目_校级',
+                        title: '1.2 纵向科研项目 - 校级',
+                        align: 'center'
+                    },
+                    {
+                        field: '横向课题科研项目',
+                        title: '2. 横向课题科研项目',
+                        align: 'center'
+                    },
+                    {
+                        field: '成果转化',
+                        title: '3. 成果转化',
+                        align: 'center'
+                    },
+                    {
+                        field: '学术论文',
+                        title: '4. 学术论文',
+                        align: 'center'
+                    },
+                    {
+                        field: '教材著作',
+                        title: '5. 教材著作',
+                        align: 'center'
+                    },
+                    {
+                        field: '专利',
+                        title: '6.1 专利',
+                        align: 'center'
+                    },
+                    {
+                        field: '软著',
+                        title: '6.2 软著',
+                        align: 'center'
+                    },
+                    {
+                        field: '奖励类',
+                        title: '7. 奖励类',
+                        align: 'center'
+                    },
+                    {
+                        field: '学术报告讲座类',
+                        title: '8. 学术报告(讲座类)',
+                        align: 'center'
+                    },
+                    {
+                        field: '教研室科研任务书计划科研分汇总',
+                        title: '教研室科研任务书计划科研分汇总',
+                        align: 'center'
+                    }
+                ]
+            ]
+        };
+        $.table.init(options);
+
+        $('#bootstrap-table').on('load-success.bs.table', function (data) {
+            var $table = $(this);
+            var $lastRow = $table.find('tbody tr:last');
+
+            if ($lastRow.length > 0) {
+                // 合并基本信息列的前四个单元格
+                $lastRow.find('td:eq(0), td:eq(1), td:eq(2), td:eq(3)').attr('colspan', '4').addClass('text-center').html('合计');
+
+                // 删除多余的单元格
+                $lastRow.find('td:eq(1), td:eq(2), td:eq(3)').remove();
+            }
+        });
+    });
+</script>
+</body>

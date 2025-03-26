@@ -20,14 +20,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="reportDuration"    column="report_duration"    />
         <result property="reportClassify"    column="report_classify"    />
         <result property="reportKeyanfen"    column="report_keyanfen"    />
-        <result property="actualNumber"    column="actual_number"    />
-        <result property="actualTime"    column="actual_time"    />
+        <result property="reportUrl"    column="report_url"    />
+<!--        <result property="actualTime"    column="actual_time"    />-->
         <result property="state"    column="state"    />
         <result property="repIntId"    column="rep_int_id"    />
     </resultMap>
 
     <sql id="selectSciLectureReportVo">
-        select #{uid} uid,id,u.user_name userName,u.login_name,d.dept_name dname,u.user_id,p.dept_name, s.report_time, s.report_theme, s.host_unit, s.report_place, s.report_number, s.report_subject, s.report_duration, i.classification report_classify,s.state,s.createtime,s.actual_number,s.actual_time,s.report_keyanfen,i.rep_int_id
+        select #{uid} uid,id,u.user_name userName,u.login_name,d.dept_name dname,u.user_id,p.dept_name, s.report_time, s.report_theme, s.host_unit, s.report_place, s.report_number, s.report_subject, s.report_duration, i.classification report_classify,s.state,s.createtime,s.report_url,s.report_keyanfen,i.rep_int_id
         from sci_lecture_report s left join sys_user u on  s.user_id=u.user_id
                                   left join sys_dept d on u.dept_id = d.dept_id
                                   left join sys_dept p on d.parent_id =p.dept_id
@@ -65,10 +65,28 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </if>
         <!-- 数据范围过滤 -->
     ${params.dataScope}
-        <if test="uid != null and uid != '' ">
-            or s.user_id = #{uid}
+        <if test="uid != null and uid != '' and year != null  and year != ''">
+            or (s.user_id = #{uid} and YEAR(DATE_ADD(report_time,INTERVAL 1 MONTH)) = #{year})
         </if>
-    order  by createtime desc
+    order  by
+        CASE
+            <if test="uid != null and uid != ''">
+                WHEN s.user_id = #{uid} AND state IN (3, 5, 7) THEN 0
+            </if>
+            ELSE 1
+        END,
+        CASE
+            WHEN state = 1 THEN 2
+            WHEN state = 6 THEN 3
+            WHEN state = 2 THEN 4
+
+            WHEN state = 5 THEN 5
+            WHEN state = 7 THEN 6
+            WHEN state = 3 THEN 7
+
+            WHEN state = 4 THEN 8
+        END,
+        createtime desc
     </select>
 
 <!--    <select id="selectSciLectureReportListBy" parameterType="SciLectureReport" resultMap="SciLectureReportResult">-->
@@ -114,6 +132,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="reportDuration != null">report_duration,</if>
             <if test="reportClassify != null">report_classify,</if>
             <if test="reportKeyanfen != null">report_keyanfen,</if>
+            <if test="reportUrl != null">report_url,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="userId != null">#{userId},</if>
@@ -127,6 +146,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="reportDuration != null">#{reportDuration},</if>
             <if test="reportClassify != null">#{reportClassify},</if>
             <if test="reportKeyanfen != null">#{reportKeyanfen},</if>
+            <if test="reportUrl != null">#{reportUrl},</if>
          </trim>
     </insert>
 
@@ -144,6 +164,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="reportDuration != null">report_duration = #{reportDuration},</if>
             <if test="reportClassify != null">report_classify = #{reportClassify},</if>
             <if test="reportKeyanfen != null">report_keyanfen = #{reportKeyanfen},</if>
+            <if test="reportUrl != null">report_url = #{reportUrl},</if>
             <if test="state != null">state = #{state},</if>
         </trim>
         where id = #{id}

@@ -1,0 +1,654 @@
+<!--<!DOCTYPE html>-->
+<!--<html lang="zh">-->
+<!--<head>-->
+<!--    <th:block th:include="include :: header('组合表头')"/>-->
+<!--    <style>-->
+<!--        table, th, td {-->
+<!--            border: 2px solid black; /* 设置表格边框宽度为2px */-->
+<!--        }-->
+<!--    </style>-->
+<!--</head>-->
+<!--<body class="gray-bg">-->
+<!--<div class="container-div">-->
+<!--    <div class="row">-->
+<!--        <div class="col-sm-12 select-table table-bordered">-->
+<!--            <table id="bootstrap-table"></table>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--</div>-->
+
+<!--<th:block th:include="include :: footer"/>-->
+<!--&lt;!&ndash; 引入 Bootstrap Table JS &ndash;&gt;-->
+<!--<script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.21.3/dist/bootstrap-table.min.js"></script>-->
+<!--<th:block th:include="include :: bootstrap-table-fixed-columns-js" />-->
+
+
+
+
+
+<!--<script th:inline="javascript">-->
+<!--    var prefix = ctx + "CollegeProject";-->
+<!--    var datas = [[${@dict.getType('sys_rjxy')}]];-->
+<!--    $(function () {-->
+<!--        // 初始化表格-->
+<!--        $('#bootstrap-table').bootstrapTable({-->
+<!--            url: prefix + "/list",-->
+<!--            method: 'POST',-->
+<!--            showSearch: false,-->
+<!--            showRefresh: false,-->
+<!--            showToggle: false,-->
+<!--            showColumns: true,-->
+<!--            fixedColumns: true,  // 确保设置了 fixedColumns 选项-->
+<!--            fixedNumber: 2,      // 确保设置了 fixedNumber 选项-->
+<!--            stickyHeader: true,-->
+<!--            columns: [-->
+<!--                [{-->
+<!--                    title: '  部 门  ',-->
+<!--                    align: 'center',-->
+<!--                    colspan: 2,-->
+<!--                }, {-->
+<!--                    title: '纵向科研项目',-->
+<!--                    align: 'center',-->
+<!--                    colspan: 7,-->
+<!--                    switchable: true-->
+<!--                }, {-->
+<!--                    title: '横向课题科研项目-校外',-->
+<!--                    align: 'center',-->
+<!--                    colspan: 8,-->
+<!--                    switchable: true-->
+<!--                }, {-->
+<!--                    title: '成果转化',-->
+<!--                    align: 'center',-->
+<!--                    colspan: 6-->
+<!--                }, {-->
+<!--                    title: '学术论文',-->
+<!--                    align: 'center',-->
+<!--                    colspan: 6-->
+<!--                }, {-->
+<!--                    title: '教材著作',-->
+<!--                    align: 'center',-->
+<!--                    colspan: 2-->
+<!--                }, {-->
+<!--                    title: '专利、软著',-->
+<!--                    align: 'center',-->
+<!--                    colspan: 4-->
+<!--                }, {-->
+<!--                    title: '奖励类',-->
+<!--                    align: 'center',-->
+<!--                    colspan: 9-->
+<!--                }, {-->
+<!--                    title: '学术报告(讲座类)',-->
+<!--                    align: 'center',-->
+<!--                    colspan: 5-->
+<!--                }-->
+
+<!--                ],-->
+<!--                [{-->
+<!--                    checkbox: true-->
+<!--                },-->
+<!--                    {-->
+<!--                        field: 'cgzhdeptId',-->
+<!--                        title: '部门',-->
+<!--                        formatter: function(value, row, index) {-->
+<!--                            return $.table.selectDictLabel(datas, value);-->
+<!--                        }-->
+<!--                    },-->
+<!--                    {-->
+<!--                        field: '主持国家基金科研项目',-->
+<!--                        title: '主持国家基金科研项目',-->
+<!--                        switchable: false-->
+<!--                    },-->
+<!--                    {-->
+<!--                        field: '主持省部级基金科研项目',-->
+<!--                        title: '主持省部级基金科研项目'-->
+<!--                    },-->
+<!--                    {-->
+<!--                        field: '主持省部级教改项目',-->
+<!--                        title: '主持省部级教改项目'-->
+<!--                    },-->
+<!--                    {-->
+<!--                        field: '主持省部级纵向科研项目',-->
+<!--                        title: '主持省部级纵向科研项目'-->
+<!--                    },-->
+<!--                    {-->
+<!--                        field: '主持厅局级、学会级科研项目',-->
+<!--                        title: '主持厅局级、学会级科研项目'-->
+<!--                    },-->
+<!--                    {-->
+<!--                        field: '主持校级教学管理项目（1万元以上）',-->
+<!--                        title: '主持校级教学管理项目（1万元以上）'-->
+<!--                    },-->
+<!--                    {-->
+<!--                        field: '主持校级教学管理项目（1 万元以下）',-->
+<!--                        title: '主持校级教学管理项目（1 万元以下）'-->
+<!--                    },-->
+
+
+<!--                    {-->
+<!--                        field: '2万元以下',-->
+<!--                        title: '2 万元以下'-->
+<!--                    },-->
+
+<!--                    {-->
+<!--                        field: '2-5万元（含2）',-->
+<!--                        title: '2 -5 万（含2万元）'-->
+<!--                    },-->
+<!--                    {-->
+<!--                        field: '5-10万元（含5）',-->
+<!--                        title: '5 -10 万（含5万元）'-->
+<!--                    },-->
+<!--                    {-->
+<!--                        field: '10-20万元（含10）',-->
+<!--                        title: '10 -20 万（含10万元）'-->
+<!--                    },-->
+<!--                    {-->
+<!--                        field: '20-35万元（含20）',-->
+<!--                        title: '20 -35 万（含20万元）'-->
+<!--                    },-->
+<!--                    {-->
+<!--                        field: '35-50万元（含35）',-->
+<!--                        title: '35-50 万（含35万元）'-->
+<!--                    },-->
+<!--                    {-->
+<!--                        field: '50-75万元（含50）',-->
+<!--                        title: '50 -75 万（含50万元）'-->
+<!--                    },-->
+<!--                    {-->
+<!--                        field: '75-100万元（含75）',-->
+<!--                        title: '75-100 万（含75万元）'-->
+<!--                    },-->
+
+
+<!--                    {-->
+<!--                        field: '成果转化2以下信息',-->
+<!--                        title: '2 万元以下'-->
+<!--                    },-->
+<!--                    {-->
+<!--                        field: '成果转化2-5信息',-->
+<!--                        title: '2 -5 万（含2）'-->
+<!--                    },-->
+<!--                    {-->
+<!--                        field: '成果转化5-10信息',-->
+<!--                        title: '5 -10 万（含5）'-->
+<!--                    },-->
+<!--                    {-->
+<!--                        field: '成果转化10-20信息',-->
+<!--                        title: '10 -20 万（含10）'-->
+<!--                    },-->
+<!--                    {-->
+<!--                        field: '成果转化20-35信息',-->
+<!--                        title: '20 -35 万（含20）'-->
+<!--                    },-->
+<!--                    {-->
+<!--                        field: '成果转化35-50信息',-->
+<!--                        title: '35-50 万（含35）'-->
+<!--                    },-->
+
+
+<!--                    {-->
+<!--                        field: 'SCI',-->
+<!--                        title: 'SCI'-->
+<!--                    },-->
+<!--                    {-->
+<!--                        field: 'EI',-->
+<!--                        title: 'EI'-->
+<!--                    },-->
+<!--                    {-->
+<!--                        field: '核心',-->
+<!--                        title: '核心期刊'-->
+<!--                    },-->
+<!--                    {-->
+<!--                        field: '三网',-->
+<!--                        title: '三网收录'-->
+<!--                    },-->
+<!--                    {-->
+<!--                        field: '普通',-->
+<!--                        title: '普通期刊'-->
+<!--                    },-->
+<!--                    {-->
+<!--                        field: '校办',-->
+<!--                        title: '校办期刊'-->
+<!--                    },-->
+
+
+<!--                    {-->
+<!--                        field: '专著数量',-->
+<!--                        title: '专著'-->
+<!--                    },-->
+<!--                    {-->
+<!--                        field: '教材数量',-->
+<!--                        title: '教材'-->
+<!--                    },-->
+
+
+<!--                    {-->
+<!--                        field: '授权发明专利',-->
+<!--                        title: '授权发明专利'-->
+<!--                    },-->
+<!--                    {-->
+<!--                        field: '实用新型专利',-->
+<!--                        title: '实用新型专利'-->
+<!--                    },-->
+<!--                    {-->
+<!--                        field: '外型设计专利',-->
+<!--                        title: '外型设计专利'-->
+<!--                    },-->
+<!--                    {-->
+<!--                        field: '计算机软件著作权',-->
+<!--                        title: '计算机软件著作权'-->
+<!--                    },-->
+
+
+
+<!--                    {-->
+<!--                        field: '省级教学成果奖数量',-->
+<!--                        title: '省级教学成果奖'-->
+<!--                    },-->
+<!--                    {-->
+<!--                        field: '省级科学技术奖数量',-->
+<!--                        title: '省级科学技术奖'-->
+<!--                    },-->
+<!--                    {-->
+<!--                        field: '省级一流精品课评比',-->
+<!--                        title: '省级一流精品课评比'-->
+<!--                    },-->
+<!--                    {-->
+<!--                        field: '市、厅局级自然科学类评奖',-->
+<!--                        title: '市、厅局级自然科学类评奖'-->
+<!--                    },-->
+<!--                    {-->
+<!--                        field: '市、厅局级社科类评奖',-->
+<!--                        title: '市、厅局级社科类评奖'-->
+<!--                    },-->
+<!--                    {-->
+<!--                        field: '校级教学成果奖',-->
+<!--                        title: '校级教学成果奖'-->
+<!--                    },-->
+<!--                    {-->
+<!--                        field: '应用型科研校级成果奖',-->
+<!--                        title: '应用型科研校级成果奖'-->
+<!--                    },-->
+<!--                    {-->
+<!--                        field: '校级精品课评比',-->
+<!--                        title: '校级精品课评比'-->
+<!--                    },-->
+<!--                    {-->
+<!--                        field: '教师参加省级大赛获奖',-->
+<!--                        title: '教师参加省级大赛获奖'-->
+<!--                    },-->
+
+
+
+<!--                    {-->
+<!--                        field: '举办国际',-->
+<!--                        title: '举办国际相关行业学术会议且做报告'-->
+<!--                    },-->
+<!--                    {-->
+<!--                        field: '举办国内',-->
+<!--                        title: '举办国内相关行业学术会议且做报告'-->
+<!--                    },-->
+<!--                    {-->
+<!--                        field: '参加国际',-->
+<!--                        title: '参加国际相关行业学术会议且做报告'-->
+<!--                    },-->
+<!--                    {-->
+<!--                        field: '参加国内',-->
+<!--                        title: '参加国内相关行业学术会议且做报告'-->
+<!--                    },-->
+<!--                    {-->
+<!--                        field: '校级学术',-->
+<!--                        title: '校级学术报告（讲座）'-->
+<!--                    }-->
+
+
+
+<!--                    // ,-->
+<!--                    // {-->
+<!--                    //     title: '操作',-->
+<!--                    //     align: 'center',-->
+<!--                    //     formatter: function(value, row, index) {-->
+<!--                    //         var actions = [];-->
+<!--                    //         actions.push('<a class="btn btn-success btn-xs" href="javascript:;"><i class="fa fa-edit"></i>编辑</a> ');-->
+<!--                    //         actions.push('<a class="btn btn-danger btn-xs" href="javascript:;"><i class="fa fa-remove"></i>删除</a>');-->
+<!--                    //         return actions.join('');-->
+<!--                    //     }-->
+<!--                    // }-->
+<!--                ]-->
+<!--            ],-->
+<!--            onLoadSuccess: function (data) {-->
+
+<!--            },-->
+
+
+<!--        });-->
+
+<!--    });-->
+<!--</script>-->
+<!--</body>-->
+<!--</html>-->
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <th:block th:include="include :: header('组合表头')"/>
+    <style>
+        table, th, td {
+            border: 2px solid black; /* 设置表格边框宽度为2px */
+        }
+        .fixed-table-container {
+            position: relative;
+        }
+        .fixed-table-header {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background-color: white;
+        }
+    </style>
+</head>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 select-table table-bordered">
+            <table id="bootstrap-table"></table>
+        </div>
+    </div>
+</div>
+
+<th:block th:include="include :: footer"/>
+<!-- 引入 Bootstrap Table JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.21.3/dist/bootstrap-table.min.js"></script>
+<th:block th:include="include :: bootstrap-table-fixed-columns-js" />
+
+<script th:inline="javascript">
+    var prefix = ctx + "CollegeProject";
+    var datas = [[${@dict.getType('sys_rjxy')}]];
+    $(function () {
+        // 初始化表格
+        $('#bootstrap-table').bootstrapTable({
+            url: prefix + "/list",
+            method: 'POST',
+            showSearch: false,
+            showRefresh: false,
+            showToggle: false,
+            showColumns: true,
+            fixedColumns: true,  // 确保设置了 fixedColumns 选项
+            fixedNumber: 2,      // 确保设置了 fixedNumber 选项
+            stickyHeader: true,
+            columns: [
+                [{
+                    title: '  部 门  ',
+                    align: 'center',
+                    colspan: 2,
+                }, {
+                    title: '纵向科研项目',
+                    align: 'center',
+                    colspan: 7,
+                    switchable: true
+                }, {
+                    title: '横向课题科研项目-校外',
+                    align: 'center',
+                    colspan: 8,
+                    switchable: true
+                }, {
+                    title: '成果转化',
+                    align: 'center',
+                    colspan: 6
+                }, {
+                    title: '学术论文',
+                    align: 'center',
+                    colspan: 6
+                }, {
+                    title: '教材著作',
+                    align: 'center',
+                    colspan: 2
+                }, {
+                    title: '专利、软著',
+                    align: 'center',
+                    colspan: 4
+                }, {
+                    title: '奖励类',
+                    align: 'center',
+                    colspan: 9
+                }, {
+                    title: '学术报告(讲座类)',
+                    align: 'center',
+                    colspan: 5
+                }
+
+                ],
+                [{
+                    checkbox: true
+                },
+                    {
+                        field: 'cgzhdeptId',
+                        title: '部门',
+                        formatter: function(value, row, index) {
+                            return $.table.selectDictLabel(datas, value);
+                        }
+                    },
+                    {
+                        field: '主持国家基金科研项目',
+                        title: '主持国家基金科研项目',
+                        switchable: false
+                    },
+                    {
+                        field: '主持省部级基金科研项目',
+                        title: '主持省部级基金科研项目'
+                    },
+                    {
+                        field: '主持省部级教改项目',
+                        title: '主持省部级教改项目'
+                    },
+                    {
+                        field: '主持省部级纵向科研项目',
+                        title: '主持省部级纵向科研项目'
+                    },
+                    {
+                        field: '主持厅局级、学会级科研项目',
+                        title: '主持厅局级、学会级科研项目'
+                    },
+                    {
+                        field: '主持校级教学管理项目（1万元以上）',
+                        title: '主持校级教学管理项目（1万元以上）'
+                    },
+                    {
+                        field: '主持校级教学管理项目（1 万元以下）',
+                        title: '主持校级教学管理项目（1 万元以下）'
+                    },
+
+
+                    {
+                        field: '2万元以下',
+                        title: '2 万元以下'
+                    },
+
+                    {
+                        field: '2-5万元（含2）',
+                        title: '2 -5 万（含2万元）'
+                    },
+                    {
+                        field: '5-10万元（含5）',
+                        title: '5 -10 万（含5万元）'
+                    },
+                    {
+                        field: '10-20万元（含10）',
+                        title: '10 -20 万（含10万元）'
+                    },
+                    {
+                        field: '20-35万元（含20）',
+                        title: '20 -35 万（含20万元）'
+                    },
+                    {
+                        field: '35-50万元（含35）',
+                        title: '35-50 万（含35万元）'
+                    },
+                    {
+                        field: '50-75万元（含50）',
+                        title: '50 -75 万（含50万元）'
+                    },
+                    {
+                        field: '75-100万元（含75）',
+                        title: '75-100 万（含75万元）'
+                    },
+
+
+                    {
+                        field: '成果转化2以下信息',
+                        title: '2 万元以下'
+                    },
+                    {
+                        field: '成果转化2-5信息',
+                        title: '2 -5 万（含2）'
+                    },
+                    {
+                        field: '成果转化5-10信息',
+                        title: '5 -10 万（含5）'
+                    },
+                    {
+                        field: '成果转化10-20信息',
+                        title: '10 -20 万（含10）'
+                    },
+                    {
+                        field: '成果转化20-35信息',
+                        title: '20 -35 万（含20）'
+                    },
+                    {
+                        field: '成果转化35-50信息',
+                        title: '35-50 万（含35）'
+                    },
+
+
+                    {
+                        field: 'SCI',
+                        title: 'SCI'
+                    },
+                    {
+                        field: 'EI',
+                        title: 'EI'
+                    },
+                    {
+                        field: '核心',
+                        title: '核心期刊'
+                    },
+                    {
+                        field: '三网',
+                        title: '三网收录'
+                    },
+                    {
+                        field: '普通',
+                        title: '普通期刊'
+                    },
+                    {
+                        field: '校办',
+                        title: '校办期刊'
+                    },
+
+
+                    {
+                        field: '专著数量',
+                        title: '专著'
+                    },
+                    {
+                        field: '教材数量',
+                        title: '教材'
+                    },
+
+
+                    {
+                        field: '授权发明专利',
+                        title: '授权发明专利'
+                    },
+                    {
+                        field: '实用新型专利',
+                        title: '实用新型专利'
+                    },
+                    {
+                        field: '外型设计专利',
+                        title: '外型设计专利'
+                    },
+                    {
+                        field: '计算机软件著作权',
+                        title: '计算机软件著作权'
+                    },
+
+
+
+                    {
+                        field: '省级教学成果奖数量',
+                        title: '省级教学成果奖'
+                    },
+                    {
+                        field: '省级科学技术奖数量',
+                        title: '省级科学技术奖'
+                    },
+                    {
+                        field: '省级一流精品课评比',
+                        title: '省级一流精品课评比'
+                    },
+                    {
+                        field: '市、厅局级自然科学类评奖',
+                        title: '市、厅局级自然科学类评奖'
+                    },
+                    {
+                        field: '市、厅局级社科类评奖',
+                        title: '市、厅局级社科类评奖'
+                    },
+                    {
+                        field: '校级教学成果奖',
+                        title: '校级教学成果奖'
+                    },
+                    {
+                        field: '应用型科研校级成果奖',
+                        title: '应用型科研校级成果奖'
+                    },
+                    {
+                        field: '校级精品课评比',
+                        title: '校级精品课评比'
+                    },
+                    {
+                        field: '教师参加省级大赛获奖',
+                        title: '教师参加省级大赛获奖'
+                    },
+
+
+
+                    {
+                        field: '举办国际',
+                        title: '举办国际相关行业学术会议且做报告'
+                    },
+                    {
+                        field: '举办国内',
+                        title: '举办国内相关行业学术会议且做报告'
+                    },
+                    {
+                        field: '参加国际',
+                        title: '参加国际相关行业学术会议且做报告'
+                    },
+                    {
+                        field: '参加国内',
+                        title: '参加国内相关行业学术会议且做报告'
+                    },
+                    {
+                        field: '校级学术',
+                        title: '校级学术报告（讲座）'
+                    }
+                ]
+            ],
+            onLoadSuccess: function (data) {
+                $('#bootstrap-table thead').addClass('fixed-table-header');
+            },
+        });
+    });
+</script>
+</body>
+</html>

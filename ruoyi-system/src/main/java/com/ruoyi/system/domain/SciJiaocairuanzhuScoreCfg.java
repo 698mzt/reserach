@@ -6,7 +6,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
 /**
- * 专利软著积分管理对象 sci_jiaocairuanzhu_score_cfg
+ * 教材软著积分管理对象 sci_jiaocairuanzhu_score_cfg
  * 
  * @author ruoyi
  * @date 2025-02-26

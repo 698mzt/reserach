@@ -12,10 +12,12 @@
         <result property="roleName"    column="role_name"    />
         <result property="rolekey"    column="role_key"    />
         <result property="college"    column="college"    />
-        <result property="researchRoom"    column="research_room"    />
+        <result property="researchRoom"    column="dname"    /><!--research_room -->
         <result property="employeeId"    column="employee_id"    />
         <result property="teacherName"    column="teacher_name"    />
         <result property="text_paper"    column="text_paper"    />
+        <result property="word_paper"    column="word_paper"    />
+        <result property="search_web"    column="search_web"    />
         <result property="administrativePosition"    column="administrative_position"    />
         <result property="socialTitle"    column="social_title"    />
         <result property="onCampusTitle"    column="on_campus_title"    />
@@ -40,7 +42,7 @@
     </resultMap>
 
     <sql id="selectSciPaperAVo">
-        select  #{uid} uid,p.id ,r.role_id,r.role_name,r.role_key,u.login_name employee_id,p.text_paper,p.user_id,d.dept_name dname,pt.dept_name college, p.teacher_name,u.tea_zhicheng on_campus_title, p.paper_title, p.paper_category, p.published_journal,p.publication_time, p.is_industry_collaborative, p.is_local_collaborative, p.is_international_collaborative, p.is_cross_discipline, p.paper_ranking, p.research_score, p.remarks,p.state,r.data_scope
+        select  #{uid} uid,p.id ,r.role_id,r.role_name,r.role_key,u.login_name employee_id,p.text_paper,p.word_paper,p.search_web,pt.dept_name research_room,p.user_id,d.dept_name dname,pt.dept_name college, p.teacher_name,u.tea_zhicheng on_campus_title, p.paper_title, p.paper_category, p.published_journal,p.publication_time, p.is_industry_collaborative, p.is_local_collaborative, p.is_international_collaborative, p.is_cross_discipline, p.paper_ranking, p.research_score, p.remarks,p.state,r.data_scope
         from sci_paper_a p
                  left join sys_user u on  p.user_id=u.user_id
                  left join sys_dept d on u.dept_id = d.dept_id
@@ -137,7 +139,7 @@
     </select>
 
     <select id="selectSciPaperAListCx" parameterType="SciPaperA" resultMap="SciPaperAResult">
-        select #{uid} uid,p.id,p.user_id,  u.login_name employee_id, p.teacher_name,p.text_paper,p.paper_title, p.paper_category, p.published_journal,p.publication_time, p.is_industry_collaborative, p.is_local_collaborative, p.is_international_collaborative, p.is_cross_discipline, p.paper_ranking, p.research_score, p.remarks,p.state
+        select #{uid} uid,p.id,p.user_id,  u.login_name employee_id, p.teacher_name,p.text_paper,pt.dept_name ,p.paper_title, p.paper_category, p.published_journal,p.publication_time, p.is_industry_collaborative, p.is_local_collaborative, p.is_international_collaborative, p.is_cross_discipline, p.paper_ranking, p.research_score, p.remarks,p.state
         from sci_paper_a p
                  left join sys_user u on  p.user_id=u.user_id
                  left join sys_dept d on u.dept_id = d.dept_id
@@ -185,6 +187,8 @@
             <if test="inclusionStatus != null">inclusion_status,</if>
             <if test="publicationTime != null">publication_time,</if>
             <if test="text_paper != null">text_paper,</if>
+            <if test="word_paper != null">word_paper,</if>
+            <if test="search_web != null">search_web,</if>
             <if test="isIndustryCollaborative != null">is_industry_collaborative,</if>
             <if test="isLocalCollaborative != null">is_local_collaborative,</if>
             <if test="isInternationalCollaborative != null">is_international_collaborative,</if>
@@ -209,6 +213,8 @@
             <if test="inclusionStatus != null">#{inclusionStatus},</if>
             <if test="publicationTime != null">#{publicationTime},</if>
             <if test="text_paper != null">#{text_paper},</if>
+            <if test="word_paper != null">#{word_paper},</if>
+            <if test="search_web != null">#{search_web},</if>
             <if test="isIndustryCollaborative != null">#{isIndustryCollaborative},</if>
             <if test="isLocalCollaborative != null">#{isLocalCollaborative},</if>
             <if test="isInternationalCollaborative != null">#{isInternationalCollaborative},</if>
@@ -283,6 +289,9 @@
             <if test="publishedJournal != null">published_journal = #{publishedJournal},</if>
             <if test="inclusionStatus != null">inclusion_status = #{inclusionStatus},</if>
             <if test="publicationTime != null">publication_time = #{publicationTime},</if>
+            <if test="text_paper != null">text_paper = #{text_paper},</if>
+            <if test="word_paper != null">text_paper = #{word_paper},</if>
+            <if test="search_web != null">search_web = #{search_web},</if>
             <if test="isIndustryCollaborative != null">is_industry_collaborative = #{isIndustryCollaborative},</if>
             <if test="isLocalCollaborative != null">is_local_collaborative = #{isLocalCollaborative},</if>
             <if test="isInternationalCollaborative != null">is_international_collaborative = #{isInternationalCollaborative},</if>

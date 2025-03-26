@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('表格虚拟滚动')" />
+</head>
+<body>
+<div class="container-div">
+    <div class="btn-group-sm" id="toolbar" role="group">
+        &nbsp;&nbsp;<span id="total" class="badge badge-success"></span>
+    </div>
+    <div class="row">
+        <div class="col-sm-12 select-table table-bordered">
+            <table id="bootstrap-table"></table>
+        </div>
+    </div>
+</div>
+<div th:include="include :: footer"></div>
+<script>
+    //var prefix = ctx + '/collegeresearch'
+    var total = 0;
+    var prefix = "/collegeresearch";
+    $(function() {
+        var options = {
+            url: prefix + "/list",
+            modalName: '学院科研项目',
+            method: "post",
+            height: 600,
+            sidePagination: "server",
+            pagination: true,
+            showSearch: false,
+            virtualScroll: true,
+            columns: [
+                {
+                    field: '学院名称',
+                    title: '学院名称',
+                    align: 'center'
+                },
+                {
+                    field: '专业名称',
+                    title: '专业名称',
+                    align: 'center'
+                },
+                {
+                    field: '横向课题科研项目',
+                    title: '横向课题科研项目',
+                    align: 'center'
+                },
+                {
+                    field: '纵向课题科研项目-校级以上',
+                    title: '纵向课题科研项目-校级以上',
+                    align: 'center'
+                },
+                {
+                    field: '纵向课题科研项目-校级',
+                    title: '纵向课题科研项目-校级',
+                    align: 'center'
+                },
+                {
+                    field: '论文-积分',
+                    title: '论文-积分',
+                    align: 'center'
+                },
+                {
+                    field: '讲座报告-积分',
+                    title: '讲座报告-积分',
+                    align: 'center'
+                },
+                {
+                    field: '教材软著-积分',
+                    title: '教材软著-积分',
+                    align: 'center'
+                },
+                {
+                    field: '成果转化-积分',
+                    title: '成果转化-积分',
+                    align: 'center'
+                },
+                {
+                    field: '专利-积分',
+                    title: '专利-积分',
+                    align: 'center'
+                },
+                {
+                    field: '软著-积分',
+                    title: '软著-积分',
+                    align: 'center'
+                },
+                {
+                    field: '奖励-积分',
+                    title: '奖励-积分',
+                    align: 'center'
+                }
+            ]
+        }
+        $.table.init(options);
+
+        $('#bootstrap-table').on('load-success.bs.table', function (data) {
+            var $table = $(this);
+            var $lastRow = $table.find('tbody tr:last');
+
+            // if ($lastRow.length > 0) {
+            //     // 合并前两个单元格
+            //     $lastRow.find('td:eq(0), td:eq(1)').attr('colspan', '2').addClass('text-center').html('合计');
+            //
+            //     // 删除多余的单元格
+            //     $lastRow.find('td:eq(1)').remove();
+            // }
+        });
+
+    });
+</script>
+</body>
+
+</html>

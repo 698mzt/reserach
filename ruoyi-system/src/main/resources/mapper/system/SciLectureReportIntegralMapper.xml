@@ -22,6 +22,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="integral != null  and integral != ''"> and integral = #{integral}</if>
             <if test="overCreatetime != null "> and over_createtime = #{overCreatetime}</if>
         </where>
+        order by integral desc
     </select>
     
     <select id="selectSciLectureReportIntegralById" parameterType="Integer" resultMap="SciLectureReportIntegralResult">

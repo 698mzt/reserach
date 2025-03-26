@@ -96,7 +96,7 @@
                     <failOnMissingWebXml>false</failOnMissingWebXml>
                     <warName>${project.artifactId}</warName>
                 </configuration>
-            </plugin>   
+            </plugin>
             <!-- YUI Compressor (CSS/JS压缩)
             <plugin>
                 <groupId>net.alchim31.maven</groupId>

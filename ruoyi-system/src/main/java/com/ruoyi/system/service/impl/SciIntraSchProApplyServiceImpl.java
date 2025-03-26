@@ -15,6 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
+
 @Service
 public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyService {
 
@@ -348,6 +350,11 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
     @Override
     public String getuser_dnameById(Long userId) {
         return sciIntraSchProApplyMapper.getuser_dnameById(userId);
+    }
+
+    @Override
+    public List<Map<String, Object>> getfilekey(Long userId) {
+        return sciIntraSchProApplyMapper.getfilekey(userId);
     }
 
 }
