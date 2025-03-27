@@ -380,11 +380,10 @@ JOIN
 
     <select id="selectTotalJZ">
         SELECT
-
             SUM(`纵向科研项目-校级以上`) AS `纵向科研项目-校级以上`,
             SUM(`纵向科研项目-校级`) AS `纵向科研项目-校级`,
             SUM(`横向课题科研项目`) AS `横向课题科研项目`,
-            MAX(`成果转化`) AS `成果转化`,
+            SUM(转化成果数量) AS 成果转化,
             SUM(`学术论文`) AS `学术论文`,
             SUM(`教材著作`) AS `教材著作`,
             SUM(专利) AS 专利,
@@ -398,7 +397,7 @@ JOIN
                      COALESCE(SUM(temp.`纵向科研项目-校级以上`), 0) AS `纵向科研项目-校级以上`,
                      COALESCE(SUM(temp.`纵向科研项目-校级`), 0) AS `纵向科研项目-校级`,
                      COALESCE(SUM(temp.`横向课题科研项目`), 0) AS `横向课题科研项目`,
-                     COALESCE(MAX(temp.`成果转化`), '0') AS `成果转化`,
+                     COALESCE(SUM(temp.转化成果数量), 0) AS 转化成果数量,
                      COALESCE(SUM(temp.`学术论文`), 0) AS `学术论文`,
                      COALESCE(SUM(temp.`教材著作`), 0) AS `教材著作`,
                      COALESCE(SUM(temp.专利), 0) AS 专利,
@@ -417,7 +416,7 @@ JOIN
                      COALESCE(SUM(subquery.count_type), 0) AS `纵向科研项目-校级以上`,
                      0 AS `纵向科研项目-校级`,
                      0 AS `横向课题科研项目`,
-                     0 AS `成果转化`,
+                     0 AS 转化成果数量,
                      0 AS `学术论文`,
                      0 AS `教材著作`,
                      0 AS 专利,
@@ -451,7 +450,7 @@ JOIN
                      0 AS `纵向科研项目-校级以上`,
                      COALESCE(SUM(subquery.count_type), 0) AS `纵向科研项目-校级`,
                      0 AS `横向课题科研项目`,
-                     0 AS `成果转化`,
+                     0 AS 转化成果数量,
                      0 AS `学术论文`,
                      0 AS `教材著作`,
                      0 AS 专利,
@@ -485,7 +484,7 @@ JOIN
                      0 AS `纵向科研项目-校级以上`,
                      0 AS `纵向科研项目-校级`,
                      COALESCE(SUM(subquery.count_amount), 0) AS `横向课题科研项目`,
-                     0 AS `成果转化`,
+                     0 AS 转化成果数量,
                      0 AS `学术论文`,
                      0 AS `教材著作`,
                      0 AS 专利,
@@ -518,7 +517,7 @@ JOIN
                      0 AS `纵向科研项目-校级以上`,
                      0 AS `纵向科研项目-校级`,
                      0 AS `横向课题科研项目`,
-                     COALESCE(CONCAT(p1.count, '个（', p1.amount, '）万'), '0') AS `成果转化`,
+                     COALESCE(p1.count, 0) AS 转化成果数量,
                      0 AS `学术论文`,
                      0 AS `教材著作`,
                      0 AS 专利,
@@ -528,8 +527,7 @@ JOIN
                      FROM (
                      SELECT
                      d.dept_id,
-                     COALESCE(COUNT(*), 0) AS count,
-                     COALESCE(SUM(amount), 0) AS amount
+                     COALESCE(COUNT(*), 0) AS count
                      FROM
                      sci_IntraSchPro_apply sc
                      LEFT JOIN sys_user u ON u.user_id = sc.user_id
@@ -551,7 +549,7 @@ JOIN
                      0 AS `纵向科研项目-校级以上`,
                      0 AS `纵向科研项目-校级`,
                      0 AS `横向课题科研项目`,
-                     0 AS `成果转化`,
+                     0 AS 转化成果数量,
                      COALESCE(SUM(subquery.SCI + subquery.EI + subquery.核心 + subquery.三网 + subquery.普通 + subquery.校办), 0) AS `学术论文`,
                      0 AS `教材著作`,
                      0 AS 专利,
@@ -606,7 +604,7 @@ JOIN
                      0 AS `纵向科研项目-校级以上`,
                      0 AS `纵向科研项目-校级`,
                      0 AS `横向课题科研项目`,
-                     0 AS `成果转化`,
+                     0 AS 转化成果数量,
                      0 AS `学术论文`,
                      COALESCE(COUNT(DISTINCT a1.id), 0) AS `教材著作`,
                      0 AS 专利,
@@ -642,7 +640,7 @@ JOIN
                      0 AS `纵向科研项目-校级以上`,
                      0 AS `纵向科研项目-校级`,
                      0 AS `横向课题科研项目`,
-                     0 AS `成果转化`,
+                     0 AS 转化成果数量,
                      0 AS `学术论文`,
                      0 AS `教材著作`,
                      COALESCE(SUM(CASE WHEN a1.fenlei IN (1,2,3) THEN 1 ELSE 0 END), 0) AS 专利,
@@ -680,7 +678,7 @@ JOIN
                      0 AS `纵向科研项目-校级以上`,
                      0 AS `纵向科研项目-校级`,
                      0 AS `横向课题科研项目`,
-                     0 AS `成果转化`,
+                     0 AS 转化成果数量,
                      0 AS `学术论文`,
                      0 AS `教材著作`,
                      0 AS 专利,
@@ -719,7 +717,7 @@ JOIN
                      0 AS `纵向科研项目-校级以上`,
                      0 AS `纵向科研项目-校级`,
                      0 AS `横向课题科研项目`,
-                     0 AS `成果转化`,
+                     0 AS 转化成果数量,
                      0 AS `学术论文`,
                      0 AS `教材著作`,
                      0 AS 专利,
@@ -743,7 +741,7 @@ JOIN
                      0 AS `纵向科研项目-校级以上`,
                      0 AS `纵向科研项目-校级`,
                      0 AS `横向课题科研项目`,
-                     0 AS `成果转化`,
+                     0 AS 转化成果数量,
                      0 AS `学术论文`,
                      0 AS `教材著作`,
                      0 AS 专利,
