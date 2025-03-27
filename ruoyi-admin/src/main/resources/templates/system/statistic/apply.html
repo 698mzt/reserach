@@ -37,7 +37,7 @@
 					[{
 						title: '基本信息',
 						align: 'center',
-						colspan: 2
+						colspan: 3
 					},
 					{
 						title: '纵向科研项目',
@@ -80,7 +80,11 @@
 						colspan: 5
 					}
 					],
-					[{
+					[
+					{
+						checkbox: true
+					},
+					{
 						field: 'deptName',
 						title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;专业&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
 						align: 'center'
@@ -341,10 +345,10 @@
 
                 if ($lastRow.length > 0) {
                     // 合并前两个单元格
-                    $lastRow.find('td:eq(0), td:eq(1)').attr('colspan', '2').addClass('text-center').html('合计');
+                    $lastRow.find('td:eq(0), td:eq(1), td:eq(2)').attr('colspan', '3').addClass('text-center').html('合计');
 
                     // 删除多余的单元格
-                    $lastRow.find('td:eq(1)').remove();
+                    $lastRow.find('td:eq(1),td:eq(2)').remove();
                 }
             });
 
