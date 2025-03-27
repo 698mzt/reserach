@@ -338,11 +338,11 @@
             $('#bootstrap-table').on('load-success.bs.table', function (data) {
                 var $table = $(this);
                 var $lastRow = $table.find('tbody tr:last');
-                
+
                 if ($lastRow.length > 0) {
                     // 合并前两个单元格
                     $lastRow.find('td:eq(0), td:eq(1)').attr('colspan', '2').addClass('text-center').html('合计');
-                    
+
                     // 删除多余的单元格
                     $lastRow.find('td:eq(1)').remove();
                 }
