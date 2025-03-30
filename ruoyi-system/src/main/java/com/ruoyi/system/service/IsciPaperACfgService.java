@@ -9,4 +9,7 @@ public interface IsciPaperACfgService {
 
     public int insertSciPaperCfg(SciPaperCfg sciPaperAcfg);
 
+    SciPaperCfg selectSciPaperACfgId(Integer id);
+
+    public int updateSciPaperCfg(SciPaperCfg sciPaperCfg);
 }

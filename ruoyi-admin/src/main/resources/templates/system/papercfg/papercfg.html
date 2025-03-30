@@ -31,6 +31,9 @@
             <a class="btn btn-success" onclick="$.operate.addTab()" shiro:hasPermission="system:papercfg:add">
                 <i class="fa fa-plus"></i> 添加
             </a>
+            <a class="btn btn-primary single disabled" onclick="$.operate.editTab()" shiro:hasPermission="system:papercfg:edit">
+                <i class="fa fa-edit"></i>修改
+            </a>
 <!--            <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:paper:export">-->
 <!--                <i class="fa fa-download"></i> 导出-->
 <!--            </a>-->
@@ -45,7 +48,6 @@
     var prefix = ctx + "system/papercfg";
     var KDates = [[${@dict.getType('sci_paper_k')}]];
     var QWERDates = [[${@dict.getType('sci_paper_qwer')}]];
-    console.log("DAMN:")
     function getUrl() {
         return prefix+"/list";
     }
@@ -59,7 +61,7 @@
             // url:getUrl($('table').attr('id')),
             createUrl: prefix + "/add",
             // detailUrl: prefix + "/detail/{id}",
-            // updateUrl: prefix + "/edit/{id}",
+            updateUrl: prefix + "/edit/{id}",
             // removeUrl: prefix + "/remove",
             // exportUrl: prefix + "/export",
             modalName: "论文积分",
