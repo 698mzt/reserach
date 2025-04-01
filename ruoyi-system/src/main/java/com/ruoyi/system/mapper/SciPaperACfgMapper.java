@@ -11,4 +11,8 @@ public interface SciPaperACfgMapper {
     public int insertSciPaperCfg(SciPaperCfg sciPaperAcfg);
 
     public int selectSciPaperACfgPoints(@Param("order")String order, @Param("user_order")String user_order);
+
+    public SciPaperCfg selectSciPaperACfgId(@Param("id")Integer id);
+
+    public int updateSciPaperCfg(SciPaperCfg sciPaperCfg);
 }

@@ -23,5 +23,14 @@ public class SciPaperACfgServicelmpl implements IsciPaperACfgService {
         return sciPaperACfgMapper.insertSciPaperCfg(sciPaperAcfg);
     }
 
+    @Override
+    public SciPaperCfg selectSciPaperACfgId(Integer id) {
+        return sciPaperACfgMapper.selectSciPaperACfgId(id);
+    }
 
+    @Override
+    public int updateSciPaperCfg(SciPaperCfg sciPaperCfg) {
+         sciPaperACfgMapper.updateSciPaperCfg(sciPaperCfg);
+         return 1;
+    }
 }
