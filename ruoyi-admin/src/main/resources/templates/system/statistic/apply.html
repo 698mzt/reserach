@@ -20,8 +20,10 @@
 			</div>
 		</div>
 	</div>
-    <div th:include="include :: footer"></div>
-    <script>
+	 <th:block th:include="include :: footer"/>
+	 <script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.21.3/dist/bootstrap-table.min.js"></script>
+	 <th:block th:include="include :: bootstrap-table-fixed-columns-js" />
+    <script th:inline="javascript">
         var total = 0
 		var prefix = ctx + 'statistic'
         $(function() {
@@ -33,11 +35,14 @@
 				pagination: true,
 				showSearch: false,
 				virtualScroll: true,
+				fixedColumns: true,  // 确保设置了 fixedColumns 选项
+				fixedNumber: 3,      // 确保设置了 fixedNumber 选项
+				stickyHeader: true,
 				columns:[
 					[{
 						title: '基本信息',
 						align: 'center',
-						colspan: 2
+						colspan: 3
 					},
 					{
 						title: '纵向科研项目',
@@ -80,7 +85,11 @@
 						colspan: 5
 					}
 					],
-					[{
+					[
+					{
+						checkbox: true
+					},
+					{
 						field: 'deptName',
 						title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;专业&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
 						align: 'center'
@@ -338,13 +347,13 @@
             $('#bootstrap-table').on('load-success.bs.table', function (data) {
                 var $table = $(this);
                 var $lastRow = $table.find('tbody tr:last');
-                
+
                 if ($lastRow.length > 0) {
                     // 合并前两个单元格
-                    $lastRow.find('td:eq(0), td:eq(1)').attr('colspan', '2').addClass('text-center').html('合计');
-                    
+                    $lastRow.find('td:eq(0), td:eq(1), td:eq(2)').attr('colspan', '3').addClass('text-center').html('合计');
+
                     // 删除多余的单元格
-                    $lastRow.find('td:eq(1)').remove();
+                    $lastRow.find('td:eq(1),td:eq(2)').remove();
                 }
             });
 

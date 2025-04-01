@@ -13,7 +13,7 @@
     </resultMap>
 
     <sql id="selectSciJiaocairuanzhuScoreCfgVo">
-        select id, fen_lei, pai_ming, total_score from sci_zhuanliruanzhu_score_cfg
+        select id, fen_lei, pai_ming, total_score from sci_jiaocairuanzhu_score_cfg
     </sql>
 
     <select id="selectSciJiaocairuanzhuScoreCfgList" parameterType="SciJiaocairuanzhuScoreCfg" resultMap="SciJiaocairuanzhuScoreCfgResult">
@@ -32,7 +32,7 @@
     </select>
 
     <insert id="insertSciJiaocairuanzhuScoreCfg" parameterType="SciJiaocairuanzhuScoreCfg" useGeneratedKeys="true" keyProperty="id">
-        insert into sci_zhuanliruanzhu_score_cfg
+        insert into sci_jiaocairuanzhu_score_cfg
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="fenLei != null and fenLei != ''">fen_lei,</if>
             <if test="paiMing != null and paiMing != ''">pai_ming,</if>
@@ -48,7 +48,7 @@
     </insert>
 
     <update id="updateSciJiaocairuanzhuScoreCfg" parameterType="SciJiaocairuanzhuScoreCfg">
-        update sci_zhuanliruanzhu_score_cfg
+        update sci_jiaocairuanzhu_score_cfg
         <trim prefix="SET" suffixOverrides=",">
             <if test="fenLei != null and fenLei != ''">fen_lei = #{fenLei},</if>
             <if test="paiMing != null and paiMing != ''">pai_ming = #{paiMing},</if>
@@ -59,11 +59,11 @@
     </update>
 
     <delete id="deleteSciJiaocairuanzhuScoreCfgById" parameterType="Long">
-        delete from sci_zhuanliruanzhu_score_cfg where id = #{id}
+        delete from sci_jiaocairuanzhu_score_cfg where id = #{id}
     </delete>
 
     <delete id="deleteSciJiaocairuanzhuScoreCfgByIds" parameterType="String">
-        delete from sci_zhuanliruanzhu_score_cfg where id in
+        delete from sci_jiaocairuanzhu_score_cfg where id in
         <foreach item="id" collection="array" open="(" separator="," close=")">
             #{id}
         </foreach>

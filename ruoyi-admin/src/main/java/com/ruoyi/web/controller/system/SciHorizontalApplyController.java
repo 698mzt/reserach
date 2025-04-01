@@ -20,6 +20,7 @@ import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -248,7 +249,7 @@ public class SciHorizontalApplyController extends BaseController
     }
 
     /**
-     * 新增横向课题
+     * 新增横向课题草稿箱
      */
     @RequiresPermissions("system:apply:add")
     @GetMapping("/add")
@@ -270,7 +271,7 @@ public class SciHorizontalApplyController extends BaseController
     }
 
     /**
-     * 新增保存横向课题
+     * 新增保存横向课题草稿箱
      */
     @RequiresPermissions("system:apply:add")
     @Log(title = "申请横向课题", businessType = BusinessType.INSERT)
@@ -280,8 +281,26 @@ public class SciHorizontalApplyController extends BaseController
     {
         Integer id = sciHorizontalApplyService.insertSciHorizontalApply(sciHorizontalApply);
         sciHorizontalReamount.setApplyId(id.toString());
-        sciHorizontalReamount.setState("1");
+        sciHorizontalReamount.setState("99");
         return toAjax(sciHorizontalReamountService.insertAmount(sciHorizontalReamount));
+    }
+
+    /**
+     * 提交申请进行审批
+     */
+    @RequiresPermissions("system:apply:add")
+    @Log(title = "申请横向课题", businessType = BusinessType.INSERT)
+    @PostMapping("/push/{id}")
+    @ResponseBody
+    @Transactional
+    public AjaxResult push(SciHorizontalApply sciHorizontalApply,SciHorizontalReamount sciHorizontalReamount)
+    {
+        String state = "1";
+        sciHorizontalApply.setState(state);
+        Integer a = sciHorizontalApplyService.updateSciHorizontalApply(sciHorizontalApply);
+        sciHorizontalReamount.setState("1");
+        sciHorizontalReamountService.push(sciHorizontalApply.getId(),state);
+        return toAjax(a);
     }
 
     /**

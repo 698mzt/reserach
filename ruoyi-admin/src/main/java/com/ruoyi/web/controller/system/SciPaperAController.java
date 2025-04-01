@@ -122,6 +122,7 @@ public AjaxResult uploadFile(MultipartFile file, @PathVariable("model") String m
             //学院
             if (roleId.contains("103")) {
                 list.addAll(sciPaperAService.selectSciPaperAListXY(sciPaperA));
+                System.out.println("list = " + list);
             }
             if (roleId.contains("100") && roleId.size()==1) {
                 list.addAll(sciPaperAService.selectSciPaperAListCx(sciPaperA));

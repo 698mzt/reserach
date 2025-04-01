@@ -41,4 +41,6 @@ public interface SciHorizontalReamountMapper {
     SciHorizontalApplyVertical selectVerticalAmountById(Integer id);
 
     int verticalamountpass(@Param("id")String id,@Param("state") String state);
+
+    int push(@Param("id")Integer id,@Param("state") String state);
 }

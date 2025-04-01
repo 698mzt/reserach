@@ -269,8 +269,8 @@
 
 
 window.history.forward(1);
-var ctx = [[@{/}]]; 
-var lockscreen = [[${session.lockscreen}]]; 
+var ctx = [[@{/}]];
+var lockscreen = [[${session.lockscreen}]];
 if(lockscreen){window.top.location=ctx+"lockscreen";}
 // 皮肤缓存
 var skin = storage.get("skin");
@@ -357,7 +357,7 @@ $(function() {
 	    	}
 	    }
 	}
-	
+
 	/* 初始密码提示 */
 	if([[${isDefaultModifyPwd}]]) {
 		layer.confirm("您的密码还是初始密码，请修改密码！", {
@@ -370,7 +370,7 @@ $(function() {
 			layer.close(index);
 		});
 	}
-	
+
 	/* 过期密码提示 */
 	if([[${isPasswordExpired}]]) {
 		layer.confirm("您的密码已过期，请尽快修改密码！", {

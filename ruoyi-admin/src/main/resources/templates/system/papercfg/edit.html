@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('修改论文')" />
+    <th:block th:include="include :: datetimepicker-css" />
+    <th:block th:include="include :: bootstrap-fileinput-css"/>
+    <th:block th:include="include :: select2-css"/>
+</head>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <form class="form-horizontal m" id="form-papercfg-edit" th:object="${sciPaperCfg}">
+        <input name="id" id="p_id" th:field="*{id}" type="hidden">
+
+        <div class="form-group">
+            <label class="col-sm-3 control-label">论文类别：</label>
+            <div class="col-sm-8" th:with="type=${@dict.getType('sci_paper_k')}">
+                <select  name="order" id="paperCategory" class="form-control m-b" >
+                    <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}" th:field="*{order}"></option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">排名：</label>
+            <div class="col-sm-8" th:with="type=${@dict.getType('sci_paper_qwer')}">
+                <select name="user_order"  th:field="*{user_order}"  class="form-control m-b">
+                    <option th:each="dict : ${type}"
+                            th:text="${dict.dictLabel}"
+                            th:value="${dict.dictValue}"
+                            th:selected="${sciPaperCfg.user_order == dict.dictValue}">
+                    </option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">得分：</label>
+            <div class="col-sm-8">
+                <input name="points" th:field="*{points}" class="form-control" type="text">
+            </div>
+        </div>
+    </form>
+</div>
+<div class="row">
+    <div class="col-sm-offset-5 col-sm-10">
+        <button type="button" class="btn btn-sm btn-primary" onclick="submitHandler()"><i class="fa fa-check"></i>保 存</button>&nbsp;
+        <button type="button" class="btn btn-sm btn-danger" onclick="closeItem()"><i class="fa fa-reply-all"></i>关 闭 </button>
+    </div>
+</div>
+
+<th:block th:include="include :: footer" />
+<th:block th:include="include :: datetimepicker-js" />
+<script th:inline="javascript">
+    var prefix = ctx + "system/papercfg";
+    $("#form-papercfg-edit").validate({
+        focusCleanup: true
+    });
+    function submitHandler() {
+        if ($.validate.form()) {
+            $.operate.saveTab(prefix + "/edit", $('#form-papercfg-edit').serialize());
+        }
+    }
+</script>
+</body>
+</html>

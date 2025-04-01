@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/statistic")
@@ -42,44 +43,42 @@ public class StatisticPage extends BaseController {
         String dept = getSysUser().getDeptId().toString();
         List<Map<String, Object>> list = statisticMapper.selectAll(dept);
         List<Map<String, Object>> list1 = statisticMapper.selectTotal(dept);
-
+        if (list == null || list1 == null || list1.isEmpty()) {
+            throw new IllegalStateException("查询结果为空");
+        }
         List<SysUser> users = userService.selectAllUser();
-//        todo:获取部门信息错误：list
-
-
+        Map<Long, SysUser> userMap = users.stream()
+                .collect(Collectors.toMap(SysUser::getUserId, user -> user));
         // 新增: 将用户和部门信息添加到list中
         for (Map<String, Object> map : list) {
             Long userId = (Long) map.get("教师");
             Long deptId = (Long) map.get("专业");
 
-            if (userId != null) {
-                Optional<SysUser> userOptional = users.stream()
-                        .filter(user -> user.getUserId().equals(userId))
-                        .findFirst();
-                userOptional.ifPresent(user -> map.put("userName", user.getUserName()));
+            if (userId != null && userMap.containsKey(userId)) {
+                SysUser user = userMap.get(userId);
+                map.put("userName", user.getUserName());
             }
 
-            if (deptId != null){
+            if (deptId != null) {
                 SysDept dept1 = deptService.selectDeptById(deptId);
-                map.put("deptName", dept1.getDeptName());
-            }
-
-        }
-
-        for (Map<String, Object> map : list) {
-            for (Map.Entry<String, Object> entry : map.entrySet()) {
-                Object value = entry.getValue();
-                if (value instanceof byte[]) {
-                    String decodedValue = new String((byte[]) value, StandardCharsets.UTF_8);
-                    entry.setValue(decodedValue);
-                } else if (value instanceof String) {
-                    entry.setValue(((String) value).trim());
+                if (dept1 != null) {
+                    map.put("deptName", dept1.getDeptName());
+                } else {
+                    map.put("deptName", "未知部门"); // 防止空值
                 }
             }
         }
-
+        for (Map<String, Object> map : list) {
+            map.replaceAll((key, value) -> {
+                if (value instanceof byte[]) {
+                    return new String((byte[]) value, StandardCharsets.UTF_8);
+                } else if (value instanceof String) {
+                    return ((String) value).trim();
+                }
+                return value;
+            });
+        }
         list.add(list1.get(0));
-
         TableDataInfo data = getDataTable(list);
         System.out.println(data);
         return data;
