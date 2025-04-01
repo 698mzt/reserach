@@ -7,6 +7,7 @@ import com.ruoyi.system.domain.SciIntraSchoolPro;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 public interface SciIntraSchProApplyMapper {
 
@@ -62,4 +63,6 @@ public interface SciIntraSchProApplyMapper {
     String geStaticById(Integer id);
 
     String getuser_dnameById(Long userId);
+
+    List<Map<String, Object>> getfilekey(@Param("userId")Long userId);
 }

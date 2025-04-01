@@ -1143,6 +1143,12 @@ var table = {
                     }
                 });
             },
+            push: function(id) {
+                table.set();
+                var url = $.common.isEmpty(id) ? table.options.pushUrl.replace("{id}", "") : table.options.pushUrl.replace("{id}", id);
+                var data = { "id": id };
+                $.operate.submit(url, "post", "json", data);
+            },
             // 批量删除信息
             removeAll: function() {
                 table.set();

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('表格虚拟滚动')" />
+</head>
+<body>
+<div class="container-div">
+    <div class="btn-group-sm" id="toolbar" role="group">
+        &nbsp;&nbsp;<span id="total" class="badge badge-success"></span>
+    </div>
+    <div class="row">
+        <div class="col-sm-12 select-table table-bordered">
+            <table id="bootstrap-table"></table>
+        </div>
+    </div>
+</div>
+<div th:include="include :: footer"></div>
+<script>
+    var prefix = "/jysky";
+    $(function () {
+        var options = {
+            url: prefix + "/list",
+            modalName: '教研室科研项目',
+            method: "post",
+            height: 600,
+            sidePagination: "server",
+            pagination: true,
+            showSearch: false,
+            virtualScroll: true,
+            columns: [
+                {
+                    checkbox: true, // 添加多选框列
+                    align: 'center'
+                },
+                { field: '教研室', title: '教研室', align: 'center' },
+                { field: '教师', title: '教师', align: 'center' },
+                { field: '横向课题科研项目', title: '横向课题科研项目', align: 'center' },
+                { field: '纵向课题科研项目-校级以上', title: '纵向课题科研项目-校级以上', align: 'center' },
+                { field: '纵向课题科研项目-校级', title: '纵向课题科研项目-校级', align: 'center' },
+                { field: '讲座报告积分', title: '讲座报告积分', align: 'center' },
+                { field: '奖励积分', title: '奖励积分', align: 'center' },
+                { field: '专利积分', title: '专利积分', align: 'center' },
+                { field: '软著积分', title: '软著积分', align: 'center' },
+                { field: '成果转化积分', title: '成果转化积分', align: 'center' },
+                { field: '教材软著积分', title: '教材软著积分', align: 'center' },
+                { field: '论文积分', title: '论文积分', align: 'center' }
+            ]
+        };
+        $.table.init(options);
+
+        $('#bootstrap-table').on('load-success.bs.table', function (data) {
+            var $table = $(this);
+            var dataRows = $table.bootstrapTable('getData'); // 获取表格数据
+
+            if (dataRows.length > 0) {
+                // 初始化合计对象
+                var totals = {
+                    '横向课题科研项目': 0,
+                    '纵向课题科研项目-校级以上': 0,
+                    '纵向课题科研项目-校级': 0,
+                    '讲座报告积分': 0,
+                    '奖励积分': 0,
+                    '专利积分': 0,
+                    '软著积分': 0,
+                    '成果转化积分': 0,
+                    '教材软著积分': 0,
+                    '论文积分': 0
+                };
+
+                // 遍历数据，累加数值
+                dataRows.forEach(function (row) {
+                    for (var key in totals) {
+                        totals[key] += parseFloat(row[key]) || 0; // 确保是数字，避免NaN
+                    }
+                });
+
+                // 动态生成合计行（跳过多选框列）
+                var totalRow = '<tr class="total-row">';
+                totalRow += '<td></td>'; // 跳过多选框列
+                totalRow += '<td colspan="2" class="text-center"><strong>合计</strong></td>';
+                totalRow += '<td>' + totals['横向课题科研项目'] + '</td>';
+                totalRow += '<td>' + totals['纵向课题科研项目-校级以上'] + '</td>';
+                totalRow += '<td>' + totals['纵向课题科研项目-校级'] + '</td>';
+                totalRow += '<td>' + totals['讲座报告积分'] + '</td>';
+                totalRow += '<td>' + totals['奖励积分'] + '</td>';
+                totalRow += '<td>' + totals['专利积分'] + '</td>';
+                totalRow += '<td>' + totals['软著积分'] + '</td>';
+                totalRow += '<td>' + totals['成果转化积分'] + '</td>';
+                totalRow += '<td>' + totals['教材软著积分'] + '</td>';
+                totalRow += '<td>' + totals['论文积分'] + '</td>';
+                totalRow += '</tr>';
+
+                // 插入合计行
+                $table.find('tbody').append(totalRow);
+            }
+        });
+    });
+</script>
+</body>
+</html>

@@ -63,16 +63,21 @@ public class SciZhuanliruanzhuController extends BaseController
         return prefix + "/zhuanliruanzhu";
     }
 
-    /**
+    /**f
      * 查询专利软著列表
      */
+
     @RequiresPermissions("system:zhuanliruanzhu:list")
     @PostMapping("/list")
     @ResponseBody
     public TableDataInfo list(SciZhuanliruanzhu sciZhuanliruanzhu,String year)
+
     {
+//        System.out.println("Received tableId: " + tableId);
+        System.out.println("Received year: " + year);
         sciZhuanliruanzhu.setYear(year);
         sciZhuanliruanzhu.setUid(getUserId());
+        System.out.println("SciZhuanliruanzhu object: " + sciZhuanliruanzhu);
 
 
 //        startPage();

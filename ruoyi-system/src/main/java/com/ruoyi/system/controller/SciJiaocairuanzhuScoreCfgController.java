@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * 专利软著积分管理Controller
+ * 教材软著积分管理Controller
  * 
  * @author ruoyi
  * @date 2025-02-15
@@ -39,7 +39,7 @@ public class SciJiaocairuanzhuScoreCfgController extends BaseController
     }
 
     /**
-     * 查询专利软著积分管理列表
+     * 查询教材软著积分管理列表
      */
     @RequiresPermissions("system:jiaocairuanzhuCfg:list")
     @PostMapping("/list")
@@ -52,21 +52,21 @@ public class SciJiaocairuanzhuScoreCfgController extends BaseController
     }
 
     /**
-     * 导出专利软著积分管理列表
+     * 导出教材软著积分管理列表
      */
     @RequiresPermissions("system:jiaocairuanzhuCfg:export")
-    @Log(title = "专利软著积分管理", businessType = BusinessType.EXPORT)
+    @Log(title = "教材软著积分管理", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     @ResponseBody
     public AjaxResult export(SciJiaocairuanzhuScoreCfg sciJiaocairuanzhuScoreCfg)
     {
         List<SciJiaocairuanzhuScoreCfg> list = sciJiaocairuanzhuScoreCfgService.selectSciJiaocairuanzhuScoreCfgList(sciJiaocairuanzhuScoreCfg);
         ExcelUtil<SciJiaocairuanzhuScoreCfg> util = new ExcelUtil<SciJiaocairuanzhuScoreCfg>(SciJiaocairuanzhuScoreCfg.class);
-        return util.exportExcel(list, "专利软著积分管理数据");
+        return util.exportExcel(list, "教材软著积分管理数据");
     }
 
     /**
-     * 新增专利软著积分管理
+     * 新增教材软著积分管理
      */
     @GetMapping("/add")
     public String add()
@@ -75,10 +75,10 @@ public class SciJiaocairuanzhuScoreCfgController extends BaseController
     }
 
     /**
-     * 新增保存专利软著积分管理
+     * 新增保存教材软著积分管理
      */
     @RequiresPermissions("system:jiaocairuanzhuCfg:add")
-    @Log(title = "专利软著积分管理", businessType = BusinessType.INSERT)
+    @Log(title = "教材软著积分管理", businessType = BusinessType.INSERT)
     @PostMapping("/add")
     @ResponseBody
     public AjaxResult addSave(SciJiaocairuanzhuScoreCfg sciJiaocairuanzhuScoreCfg)
@@ -87,7 +87,7 @@ public class SciJiaocairuanzhuScoreCfgController extends BaseController
     }
 
     /**
-     * 修改专利软著积分管理
+     * 修改教材软著积分管理
      */
     @RequiresPermissions("system:jiaocairuanzhuCfg:edit")
     @GetMapping("/edit/{id}")
@@ -99,10 +99,10 @@ public class SciJiaocairuanzhuScoreCfgController extends BaseController
     }
 
     /**
-     * 修改保存专利软著积分管理
+     * 修改保存教材软著积分管理
      */
     @RequiresPermissions("system:jiaocairuanzhuCfg:edit")
-    @Log(title = "专利软著积分管理", businessType = BusinessType.UPDATE)
+    @Log(title = "教材软著积分管理", businessType = BusinessType.UPDATE)
     @PostMapping("/edit")
     @ResponseBody
     public AjaxResult editSave(SciJiaocairuanzhuScoreCfg sciJiaocairuanzhuScoreCfg)
@@ -111,10 +111,10 @@ public class SciJiaocairuanzhuScoreCfgController extends BaseController
     }
 
     /**
-     * 删除专利软著积分管理
+     * 删除教材软著积分管理
      */
     @RequiresPermissions("system:jiaocairuanzhuCfg:remove")
-    @Log(title = "专利软著积分管理", businessType = BusinessType.DELETE)
+    @Log(title = "教材软著积分管理", businessType = BusinessType.DELETE)
     @PostMapping( "/remove")
     @ResponseBody
     public AjaxResult remove(String ids)

@@ -6,6 +6,7 @@ import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.enums.BusinessType;
+import com.ruoyi.common.utils.ShiroUtils;
 import com.ruoyi.system.domain.SciPaperA;
 import com.ruoyi.system.domain.SciPaperCfg;
 import com.ruoyi.system.service.ISciPaperAService;
@@ -15,10 +16,7 @@ import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -85,9 +83,29 @@ import java.util.List;
    {
 
       String user_name = userService.selectUserByLoginName(getLoginName()).getUserName();
-       System.out.println("sciPaperAcfg = " + sciPaperAcfg);
+      System.out.println("sciPaperAcfg = " + sciPaperAcfg);
 
       return toAjax(isciPaperACfgService.insertSciPaperCfg(sciPaperAcfg));
    }
+    @RequiresPermissions("system:paperdfg:edit")
+    @GetMapping("/edit/{id}")
+    public String edit(@PathVariable("id") Integer id, ModelMap mmap)
+    {
+        SysUser currentUser = ShiroUtils.getSysUser();
+        SciPaperCfg sciPaperCfg = isciPaperACfgService.selectSciPaperACfgId(id);
+        mmap.put("sysUsers",currentUser);
+        mmap.put("sciPaperCfg", sciPaperCfg);
+        return prefix + "/edit";
+    }
+
+    @RequiresPermissions("system:paper:edit")
+    @Log(title = "论文", businessType = BusinessType.UPDATE)
+    @PostMapping("/edit")
+    @ResponseBody
+    public AjaxResult editSave(SciPaperCfg sciPaperCfg)
+    {
+        isciPaperACfgService.updateSciPaperCfg(sciPaperCfg);
+        return null;
+    }
 
 }

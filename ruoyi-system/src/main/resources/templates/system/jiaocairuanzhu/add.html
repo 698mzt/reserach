@@ -42,15 +42,6 @@
                 <input name="jifen" class="form-control" type="hidden" value="0">
             </div>
         </div>
-
-
-
-
-
-
-
-
-
         <div class="form-group row">
             <div class="col-sm-6">
                 <label class="col-sm-4 control-label is-required">教材名称：</label>
@@ -124,7 +115,7 @@
 
         <div class="form-group row">
             <div class="col-sm-6">
-                <label class="col-sm-4 control-label is-required">专利文件：</label>
+                <label class="col-sm-4 control-label is-required">教材文件：</label>
                 <div class="col-sm-8">
                     <input type="hidden" name="wenjian">
                     <div class="file-loading">
@@ -159,7 +150,7 @@
         if ($.validate.form()) {
             // 检查文件输入框的值，而不是隐藏字段
             if ($("input[name='wenjian']").val() == "")
-                return $.modal.alertError("请上传专利文件");
+                return $.modal.alertError("请上传教材文件");
             $.operate.saveTab(prefix + "/add", $('#form-jiaocairuanzhu-add').serialize());
             // if ($.validate.form()) {
             //     $.operate.save(prefix + "/add", $('#form-jiaocairuanzhu-add').serialize());
@@ -176,10 +167,23 @@
 
 
     $(".file-upload").fileinput({
-        uploadUrl: ctx + 'common/upload',
+        uploadUrl: ctx + 'common/upload/jcrz',
         maxFileCount: 1,
         autoReplace: true,
-        allowedFileExtensions: ["pdf"]
+        allowedFileExtensions: ["pdf"],
+        slugCallback: function(filename) {
+            if ($("input[name='mingcheng']").val()===""){
+                $(".amountfile-upload").fileinput('clear');
+                $.modal.alertError("请先输入名称");
+                return false;
+            }
+            // 自定义文件名生成规则
+            fileExtension = filename.split('.').pop();
+            const year = new Date().getFullYear();
+            const newName = year +"-"+ $("input[name='mingcheng']").val() +"-"+ "教材软著"+ "." + fileExtension;
+            return newName;
+        },
+
     }).on('fileuploaded', function (event, data, previewId, index) {
         $("input[name='" + event.currentTarget.id + "']").val(data.response.url)
     }).on('fileremoved', function (event, id, index) {

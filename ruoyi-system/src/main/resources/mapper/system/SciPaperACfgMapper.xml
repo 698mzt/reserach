@@ -20,6 +20,15 @@
             <if test="user_order != null and user_order != ''">AND user_order = #{user_order}</if>
         </where>
     </select>
+
+    <select id="selectSciPaperACfgId"  parameterType="SciPaperCfg">
+        select * from  sci_paper_cfg
+        <where>
+            <if test="id != null and id != ''">AND `id` = #{id}</if>
+        </where>
+    </select>
+
+
     <insert id="insertSciPaperCfg" parameterType="SciPaperCfg" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO sci_paper_cfg
         <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -33,4 +42,14 @@
             <if test="points != null">#{points},</if>
         </trim>
     </insert>
+    <update id="updateSciPaperCfg">
+        UPDATE sci_paper_cfg
+        <set>
+            <if test="order != null">`order` = #{order},</if>
+            <if test="user_order != null">`user_order` = #{user_order},</if>
+            <if test="points != null">`points` = #{points},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
 </mapper>

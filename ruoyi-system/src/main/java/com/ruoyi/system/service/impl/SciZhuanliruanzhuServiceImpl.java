@@ -9,6 +9,7 @@ import com.ruoyi.system.domain.SciZhuanliruanzhuScoreCfg;
 import com.ruoyi.system.mapper.SciHorizontalPiyueMapper;
 import com.ruoyi.system.mapper.SciZhuanliruanzhuPiyueMapper;
 import com.ruoyi.system.mapper.SciZhuanliruanzhuScoreCfgMapper;
+import com.ruoyi.system.service.ISysUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.ruoyi.system.mapper.SciZhuanliruanzhuMapper;
@@ -37,6 +38,12 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
     @Autowired
     private SciZhuanliruanzhuScoreCfgMapper sciZhuanliruanzhuScoreCfgMapper;
 
+
+//    @Autowired
+//    private SciZhuanliruanzhuMapper sciZhuanliruanzhuMapper;
+
+    @Autowired
+    private ISysUserService userService;
 
 
     /**
@@ -72,6 +79,53 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
     @Override
     public int insertSciZhuanliruanzhu(SciZhuanliruanzhu sciZhuanliruanzhu)
     {
+//        try {
+//            // 获取当前用户信息
+//            SysUser currentUser = userService.selectUserById(getUserId());
+//
+//            // 获取学院、专业、教师信息
+//            String collegeName = currentUser.getCollegeName();  // 假设用户实体中有学院名称
+//            String majorName = currentUser.getMajorName();    // 假设用户实体中有专业名称
+//            String teacherName = currentUser.getUserName();     // 教师名称
+//
+//            // 获取模块名称
+//            String moduleName = sciZhuanliruanzhu.getModuleName();  // 假设 SciZhuanliruanzhu 实体中有模块名称
+//
+//            // 获取文件名
+//            String originalFilename = file.getOriginalFilename();
+//            String fileExtension = FilenameUtils.getExtension(originalFilename);
+//            String fileName = FilenameUtils.getBaseName(originalFilename);
+//
+//            // 获取当前年份
+//            String year = new SimpleDateFormat("yyyy").format(new Date());
+//
+//            // 构建文件路径
+//            String filePath = collegeName + "/" + majorName + "/" + teacherName + "/" + moduleName + "/" + year + "-" + fileName + "-" + teacherName + "." + fileExtension;
+//
+//            // 构建文件保存路径
+//            String savePath = "path/to/upload/directory/" + filePath;  // 替换为实际的上传目录
+//
+//            // 创建目录（如果不存在）
+//            File directory = new File(savePath.substring(0, savePath.lastIndexOf("/")));
+//            if (!directory.exists()) {
+//                directory.mkdirs();
+//            }
+//
+//            // 保存文件
+//            File dest = new File(savePath);
+//            file.transferTo(dest);
+//
+//            // 设置文件路径到 SciZhuanliruanzhu 对象
+//            sciZhuanliruanzhu.setFilePath(filePath);
+//
+//            // 保存到数据库
+//            sciZhuanliruanzhuMapper.insertSciZhuanliruanzhu(sciZhuanliruanzhu);
+//
+//            return AjaxResult.success("保存成功");
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return AjaxResult.error("保存失败");
+//        }
         return sciZhuanliruanzhuMapper.insertSciZhuanliruanzhu(sciZhuanliruanzhu);
     }
 
