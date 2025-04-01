@@ -6,6 +6,64 @@
 <head>
     <th:block th:include="include :: header('横向课题列表')" />
 </head>
+<style>
+    .modal-right {
+        position: fixed;
+        right: 0;
+        margin: 0;
+        height: 100%;
+        display: flex;
+        align-items: stretch;
+    }
+
+    .modal-right .modal-content {
+        height: 100%;
+    }
+
+    .link-button {
+        background: none;
+        border: none;
+        color: #2c99ff;
+        cursor: pointer;
+        font-size: inherit;
+    }
+
+    .progress-container {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        margin-top: 20px;
+    }
+
+    .progress-step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .progress-step .step-icon {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 5px;
+    }
+
+    .completed .step-icon {
+        background-color: green;
+        color: white;
+    }
+
+    .progress-step .step-text {
+        font-size: 14px;
+    }
+
+
+
+</style>
 <body class="gray-bg">
 <div class="wrapper wrapper-content animated fadeIn">
 
@@ -191,6 +249,47 @@
         </div>
     </div>
 </div>
+
+
+<div class="ibox ">
+    <div class="ibox-content">
+        <div class="modal inmodal" id="myModal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-right">
+                <div class="modal-content animated bounceInRight">
+                    <div class="modal-header">
+                        <div class="progress-container">
+                            <div class="progress-step completed" data-step="1">
+                                <span class="step-icon">&#10004;</span>
+                                <span class="step-text">待提交</span>
+                            </div>
+                            <div class="progress-step completed" data-step="2">
+                                <span class="step-icon">&#10004;</span>
+                                <span class="step-text">待审核</span>
+                            </div>
+                            <div class="progress-step" data-step="3">
+                                <span class="step-icon">3</span>
+                                <span class="step-text">已完成   </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-body">
+                        <p><strong>RuoYi</strong>是一个完全响应式，基于Bootstrap3.3.7最新版本开发的扁平化主题，她采用了主流的左右两栏式布局，使用了Html5+CSS3等现代技术，她提供了诸多的强大的可以重新组合的UI组件，并集成了最新的jQuery版本(v2.1.1)，当然，也集成了很多功能强大，用途广泛的jQuery插件，她可以用于所有的Web应用程序，如网站管理后台，网站会员中心，CMS，CRM，OA等等，当然，您也可以对她进行深度定制，以做出更强系统。</p>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" placeholder="请输入您的Email" class="form-control">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-white" data-dismiss="modal">关闭</button>
+                        <button type="button" class="btn btn-primary">保存</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
 <th:block th:include="include :: footer" />
 <script th:inline="javascript">
     var JYPY = [[${@permission.hasPermi('system:intraSch:JYPY')}]];
@@ -232,6 +331,7 @@
             updateUrl: prefix + "/edit/{id}",
             removeUrl: prefix + "/remove",
             exportUrl: prefix + "/export",
+            rowStyle: rowStyle0,
             modalName: "横向课题",
             sortOrder: "asc",
             columns: [{
@@ -240,6 +340,7 @@
                 width:5 ,
                 align:'center',
                 switchable:false,
+
                 formatter:function(value,row,index){
                     //return index+1; //序号正序排序从1开始
 
@@ -361,6 +462,7 @@
             updateUrl: prefix + "/edit/{id}",
             removeUrl: prefix + "/remove",
             exportUrl: prefix + "/export",
+            rowStyle: rowStyle0,
             modalName: "横向课题",
             sortOrder: "asc",
             columns: [{
@@ -469,10 +571,14 @@
                     align: 'center',
 
                     formatter: function(value, row, index) {
+
                         console.log("row=",row)
-                        var actions = [];
+                        var actions = [];/* Add this CSS to your stylesheet */
+
+                        actions.push('<button type="button" class="link-button" data-toggle="modal" data-target="#myModal">打开示例窗口</button>');
                         //这个role字段是在sql里面写死
-                        //教研
+                        //教研<!-- Update the button to use the new CSS class -->
+
                         if (row.role==='research') {
                             if (row.deptNamekey==='1'){
                                 //教研的options1只用处理state=1（待教研室处理）和state=11（待学院处理）的
@@ -596,6 +702,7 @@
             updateUrl: prefix + "/edit/{id}",
             removeUrl: prefix + "/remove",
             exportUrl: prefix + "/export",
+            rowStyle: rowStyle0,
             modalName: "横向课题结项",
             sortOrder: "asc",
             columns: [{
@@ -916,6 +1023,36 @@
         $.operate.save(prefix + "/change_sc_edit", data);
 
     }
+    function rowStyle0(row, index) {
+        if (["6"].includes(row.state)) {
+            console.log("row.state is 6",row.state)
+            // 完结 绿色
+            return {
+                css:{"color":'#67c23a'}
+
+            };
+        } else if (["15", "4"].includes(row.state)) {
+            // 草稿 黄色
+            return {
+               css:{"color":'#67c23a'}
+
+            };
+        } else if (["1", "2", "11", "7", "8", "13"].includes(row.state)) {
+            // 审核中 蓝色
+            return {
+                css:{"color":'#2c99ff'}
+
+            };
+        } else if (["3", "5", "12", "9", "10", "14"].includes(row.state)) {
+            // 被驳回 红色
+            return {
+                css:{"color":'#ff0000'}
+
+            };
+        }
+        return {};
+    }
+
 
     /**
      * @param amount
@@ -941,6 +1078,12 @@
                 });
             }
     }
+
+
+
+
+
+
 </script>
 </body>
 </html>

@@ -28,23 +28,23 @@
 		            checkbox: true
 		        },
 				{
-					field : 'userId', 
+					field : 'userId',
 					title : '用户ID'
 				},
 				{
-					field : 'userCode', 
+					field : 'userCode',
 					title : '用户编号'
 				},
 				{
-					field : 'userName', 
+					field : 'userName',
 					title : '用户姓名'
 				},
 				{
-					field : 'userPhone', 
+					field : 'userPhone',
 					title : '用户手机'
 				},
 				{
-					field : 'userEmail', 
+					field : 'userEmail',
 					title : '用户邮箱'
 				},
 				{
@@ -72,20 +72,8 @@
             };
             $.table.init(options);
         });
-        
-        function headerStyle(column) {
-            return {
-                userId: {
-                    classes: 'uppercase'
-                },
-                userName: {
-                    css: { background: 'yellow' }
-                },
-                userBalance: {
-                    css: { color: 'red' }
-                }
-            } [column.field]
-        }
+
+
     </script>
 </body>
 </html>
