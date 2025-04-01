@@ -69,10 +69,10 @@ public class SciHorizontalReamountServiceImpl implements SciHorizontalReamountSe
         return sciHorizontalReamountMapper.selectAmountListById(id);
     }
 
-
-
-
-
+    @Override
+    public int push(Integer id,String state) {
+        return sciHorizontalReamountMapper.push(id,state);
+    }
 
 
 }
