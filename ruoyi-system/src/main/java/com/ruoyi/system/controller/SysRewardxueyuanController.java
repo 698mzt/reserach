@@ -1,6 +1,8 @@
 package com.ruoyi.system.controller;
 
 import com.ruoyi.common.core.controller.BaseController;
+import com.ruoyi.common.core.domain.entity.SysDept;
+import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.system.mapper.SysRewardXueyuanMapper;
 import com.ruoyi.system.service.ISysDeptService;
@@ -42,7 +44,7 @@ public class SysRewardxueyuanController extends BaseController {
         List<Map<String, Object>> list1 = sysRewardXueyuanMapper.selectTotal(dept);
         list.add(list1.get(0));
         TableDataInfo data = getDataTable(list);
-        System.out.println(list1);
+//        System.out.println(list1);
         return data;
     }
 }
