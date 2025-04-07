@@ -5,409 +5,189 @@
 <mapper namespace="com.ruoyi.system.mapper.SysRewardXueyuanMapper">
     <select id="selectAll">
         SELECT
-            base.学院,
-            base.专业,
-            COALESCE(SUM(temp.`纵向科研项目-校级以上`), 0) AS `纵向科研项目-校级以上`,
-            COALESCE(SUM(temp.`纵向科研项目-校级`), 0) AS `纵向科研项目-校级`,
-            COALESCE(SUM(temp.`横向课题科研项目`), 0) AS `横向课题科研项目`,
-            MAX(COALESCE(temp.`成果转化`, '0个（0）万')) AS `成果转化`,
-            COALESCE(SUM(temp.`学术论文`), 0) AS `学术论文`,
-            COALESCE(SUM(temp.`教材著作`), 0) AS `教材著作`,
-            COALESCE(SUM(temp.专利), 0) AS 专利,
-            COALESCE(SUM(temp.软著), 0) AS 软著,
-            COALESCE(SUM(temp.奖励类), 0) AS 奖励类,
-            COALESCE(SUM(temp.学术报告), 0) AS 学术报告
-        FROM (
-                 -- 基础表：获取所有学院和专业
-                 SELECT
-                     p.dept_name AS 学院,
-                     d.dept_name AS 专业
-                 FROM sys_dept d
-                          JOIN sys_dept p ON d.parent_id = p.dept_id
-                 WHERE p.parent_id = 100  -- 根部门ID假设为100，按实际情况调整
-             ) base
+            p.dept_name AS 学院,
+            d.dept_name AS 专业,
+            COALESCE(SUM(v_upper.纵向科研项目校级以上), 0) AS `纵向科研项目-校级以上`,
+            COALESCE(SUM(v_school.纵向科研项目校级), 0) AS `纵向科研项目-校级`,
+            COALESCE(SUM(h_project.横向课题科研项目), 0) AS `横向课题科研项目`,
+            COALESCE(CONCAT(COALESCE(MAX(trans.count), 0), '个（', COALESCE(MAX(trans.amount), 0), '）万'), '0个（0）万') AS `成果转化`,
+            COALESCE(SUM(paper.学术论文), 0) AS `学术论文`,
+            COALESCE(SUM(textbook.教材著作), 0) AS `教材著作`,
+            COALESCE(SUM(patent.专利), 0) AS 专利,
+            COALESCE(SUM(software.软著), 0) AS 软著,
+            COALESCE(SUM(reward.奖励类), 0) AS 奖励类,
+            COALESCE(SUM(report.学术报告), 0) AS 学术报告
+        FROM sys_dept p
+                 JOIN sys_dept d ON p.dept_id = d.parent_id
+-- 纵向科研项目-校级以上
                  LEFT JOIN (
-            -- 合并所有统计数据的子查询
             SELECT
-                学院,
-                专业,
-                `纵向科研项目-校级以上`,
-                `纵向科研项目-校级`,
-                `横向课题科研项目`,
-                `成果转化`,
-                `学术论文`,
-                `教材著作`,
-                专利,
-                软著,
-                奖励类,
-                学术报告
+                parten.dept_id AS parent_id,
+                dept.dept_id,
+                COUNT(*) AS 纵向科研项目校级以上
             FROM (
-                     -- 纵向科研项目-校级以上
+                     SELECT a.user_id
+                     FROM sci_horizontal_apply_vertical a
+                     WHERE a.top_type NOT IN (6,7) AND a.state = 66
+                     GROUP BY a.user_id
+                 ) sub
+                     JOIN sys_user u ON sub.user_id = u.user_id
+                     JOIN sys_dept dept ON u.dept_id = dept.dept_id
+                     JOIN sys_dept parten ON dept.parent_id = parten.dept_id
+            GROUP BY parten.dept_id, dept.dept_id
+        ) v_upper ON p.dept_id = v_upper.parent_id AND d.dept_id = v_upper.dept_id
+-- 纵向科研项目-校级
+                 LEFT JOIN (
+            SELECT
+                parten.dept_id AS parent_id,
+                dept.dept_id,
+                COUNT(*) AS 纵向科研项目校级
+            FROM (
+                     SELECT a.user_id
+                     FROM sci_horizontal_apply_vertical a
+                     WHERE a.top_type IN (6,7) AND a.state = 66
+                     GROUP BY a.user_id
+                 ) sub
+                     JOIN sys_user u ON sub.user_id = u.user_id
+                     JOIN sys_dept dept ON u.dept_id = dept.dept_id
+                     JOIN sys_dept parten ON dept.parent_id = parten.dept_id
+            GROUP BY parten.dept_id, dept.dept_id
+        ) v_school ON p.dept_id = v_school.parent_id AND d.dept_id = v_school.dept_id
+-- 横向课题科研项目
+                 LEFT JOIN (
+            SELECT
+                parten.dept_id AS parent_id,
+                dept.dept_id,
+                COUNT(*) AS 横向课题科研项目
+            FROM (
+                     SELECT a.user_id
+                     FROM sci_horizontal_apply a
+                     WHERE a.state = 6
+                     GROUP BY a.user_id
+                 ) sub
+                     JOIN sys_user u ON sub.user_id = u.user_id
+                     JOIN sys_dept dept ON u.dept_id = dept.dept_id
+                     JOIN sys_dept parten ON dept.parent_id = parten.dept_id
+            GROUP BY parten.dept_id, dept.dept_id
+        ) h_project ON p.dept_id = h_project.parent_id AND d.dept_id = h_project.dept_id
+-- 成果转化
+                 LEFT JOIN (
+            SELECT
+                d.parent_id,
+                d.dept_id,
+                COUNT(*) AS count,
+        SUM(amount) AS amount
+            FROM sci_IntraSchPro_apply sc
+                JOIN sys_user u ON sc.user_id = u.user_id
+                JOIN sys_dept d ON u.dept_id = d.dept_id
+            WHERE sc.state = 6
+            GROUP BY d.dept_id
+        ) trans ON d.dept_id = trans.dept_id AND p.dept_id = trans.parent_id
+-- 学术论文
+                 LEFT JOIN (
+            SELECT
+                parent.dept_id AS parent_id,
+                d.dept_id,
+                COUNT(DISTINCT p.user_id) AS 学术论文
+            FROM (
                      SELECT
-                         parten.dept_name AS 学院,
-                         dept.dept_name AS 专业,
-                         COALESCE(SUM(subquery.count_type), 0) AS `纵向科研项目-校级以上`,
-                         0 AS `纵向科研项目-校级`,
-                         0 AS `横向课题科研项目`,
-                         0 AS `成果转化`,
-                         0 AS `学术论文`,
-                         0 AS `教材著作`,
-                         0 AS 专利,
-                         0 AS 软著,
-                         0 AS 奖励类,
-                         0 AS 学术报告
-                     FROM (
-                              SELECT
-                                  a.user_id,
-                                  COUNT(*) AS count_type
-                              FROM
-                                  sci_horizontal_apply_vertical AS a
-                              WHERE
-                                  a.top_type NOT IN (6,7)
-                                AND a.state = 66
-                              GROUP BY
-                                  a.user_id
-                          ) AS subquery
-                              JOIN sys_user AS user ON user.user_id = subquery.user_id
-                         JOIN sys_dept AS dept ON user.dept_id = dept.dept_id
-                         JOIN sys_dept AS parten ON parten.dept_id = dept.parent_id
-                     GROUP BY
-                         parten.dept_name,
-                         dept.dept_name
-
-                     UNION ALL
-
-                     -- 纵向科研项目-校级
-                     SELECT
-                         parten.dept_name AS 学院,
-                         dept.dept_name AS 专业,
-                         0 AS `纵向科研项目-校级以上`,
-                         COALESCE(SUM(subquery.count_type), 0) AS `纵向科研项目-校级`,
-                         0 AS `横向课题科研项目`,
-                         0 AS `成果转化`,
-                         0 AS `学术论文`,
-                         0 AS `教材著作`,
-                         0 AS 专利,
-                         0 AS 软著,
-                         0 AS 奖励类,
-                         0 AS 学术报告
-                     FROM (
-                         SELECT
-                         a.user_id,
-                         COUNT(*) AS count_type
-                         FROM
-                         sci_horizontal_apply_vertical AS a
-                         WHERE
-                         a.top_type IN (6,7)
-                         AND a.state = 66
-                         GROUP BY
-                         a.user_id
-                         ) AS subquery
-                         JOIN sys_user AS user ON user.user_id = subquery.user_id
-                         JOIN sys_dept AS dept ON user.dept_id = dept.dept_id
-                         JOIN sys_dept AS parten ON parten.dept_id = dept.parent_id
-                     GROUP BY
-                         parten.dept_name,
-                         dept.dept_name
-
-                     UNION ALL
-
-                     -- 横向课题科研项目
-                     SELECT
-                         parten.dept_name AS 学院,
-                         dept.dept_name AS 专业,
-                         0 AS `纵向科研项目-校级以上`,
-                         0 AS `纵向科研项目-校级`,
-                         COALESCE(SUM(subquery.count_amount), 0) AS `横向课题科研项目`,
-                         0 AS `成果转化`,
-                         0 AS `学术论文`,
-                         0 AS `教材著作`,
-                         0 AS 专利,
-                         0 AS 软著,
-                         0 AS 奖励类,
-                         0 AS 学术报告
-                     FROM (
-                         SELECT
-                         a.user_id,
-                         COUNT(*) AS count_amount
-                         FROM
-                         sci_horizontal_apply AS a
-                         WHERE
-                         a.state = 6
-                         GROUP BY
-                         a.user_id
-                         ) AS subquery
-                         JOIN sys_user AS user ON user.user_id = subquery.user_id
-                         JOIN sys_dept AS dept ON user.dept_id = dept.dept_id
-                         JOIN sys_dept AS parten ON parten.dept_id = dept.parent_id
-                     GROUP BY
-                         parten.dept_name,
-                         dept.dept_name
-
-                     UNION ALL
-
-                     -- 转化成果
-                     SELECT
-                         p1.d2n AS 学院,
-                         p1.dn AS 专业,
-                         0 AS `纵向科研项目-校级以上`,
-                         0 AS `纵向科研项目-校级`,
-                         0 AS `横向课题科研项目`,
-                         COALESCE(CONCAT(p1.count, '个（', p1.amount, '）万'), '0个（0）万') AS `成果转化`,
-                         0 AS `学术论文`,
-                         0 AS `教材著作`,
-                         0 AS 专利,
-                         0 AS 软著,
-                         0 AS 奖励类,
-                         0 AS 学术报告
-                     FROM (
-                         SELECT
-                         d2.dept_name AS d2n,
-                         d.dept_name AS dn,
-                         COALESCE(COUNT(*), 0) AS count,
-                         COALESCE(SUM(amount), 0) AS amount
-                         FROM
-                         sci_IntraSchPro_apply sc
-                         LEFT JOIN sys_user u ON u.user_id = sc.user_id
-                         LEFT JOIN sys_dept d ON d.dept_id = u.dept_id
-                         LEFT JOIN sys_dept d2 ON d2.dept_id = d.parent_id
-                         WHERE
-                         sc.state = 6
-                         GROUP BY
-                         d.dept_id
-                         ) p1
-
-                     UNION ALL
-
-                     -- 学术论文
-                     SELECT
-                         subquery.parent_dept_name AS 学院,
-                         subquery.dept_name AS 专业,
-                         0 AS `纵向科研项目-校级以上`,
-                         0 AS `纵向科研项目-校级`,
-                         0 AS `横向课题科研项目`,
-                         0 AS `成果转化`,
-                         COALESCE(SUM(subquery.SCI + subquery.EI + subquery.核心 + subquery.三网 + subquery.普通 + subquery.校办), 0) AS `学术论文`,
-                         0 AS `教材著作`,
-                         0 AS 专利,
-                         0 AS 软著,
-                         0 AS 奖励类,
-                         0 AS 学术报告
-                     FROM (
-                         SELECT
-                         parent_dept_alias.dept_name AS parent_dept_name,
-                         d_dept.dept_name AS dept_name,
-                         COALESCE(SUM(CASE WHEN p.paper_category BETWEEN 1 AND 4 THEN 1 ELSE 0 END), 0) AS SCI,
-                         COALESCE(SUM(CASE WHEN p.paper_category = 5 THEN 1 ELSE 0 END), 0) AS EI,
-                         COALESCE(SUM(CASE WHEN p.paper_category = 6 THEN 1 ELSE 0 END), 0) AS 核心,
-                         COALESCE(SUM(CASE WHEN p.paper_category = 7 THEN 1 ELSE 0 END), 0) AS 三网,
-                         COALESCE(SUM(CASE WHEN p.paper_category = 8 THEN 1 ELSE 0 END), 0) AS 普通,
-                         COALESCE(SUM(CASE WHEN p.paper_category = 9 THEN 1 ELSE 0 END), 0) AS 校办
-                         FROM (
-                         SELECT
+                         p1.user_id,
                          p1.paper_title,
-                         p1.paper_category,
-                         u.dept_id,
                          p1.paper_ranking,
-                         title_counts.title_count
-                         FROM sci_paper_a p1
-                         LEFT JOIN sys_user u ON p1.user_id = u.user_id
-                         JOIN (
-                         SELECT paper_title, COUNT(*) AS title_count
-                         FROM sci_paper_a
-                         GROUP BY paper_title
-                         ) title_counts ON p1.paper_title = title_counts.paper_title
-                         WHERE p1.state = 8
-                         ) p
-                         LEFT JOIN sys_dept d_dept ON p.dept_id = d_dept.dept_id
-                         LEFT JOIN sys_dept parent_dept_alias ON d_dept.parent_id = parent_dept_alias.dept_id
-                         WHERE
-                         (p.title_count = 1)
-                         OR (p.title_count > 1 AND p.paper_ranking = 1)
-                         GROUP BY
-                         d_dept.dept_id,
-                         parent_dept_alias.dept_name,
-                         d_dept.dept_name
-                         ) subquery
-                     GROUP BY
-                         subquery.parent_dept_name,
-                         subquery.dept_name
-
-                     UNION ALL
-
-                     -- 教材著作
-                     SELECT
-                         p_dept.dept_name AS 学院,
-                         d_dept.dept_name AS 专业,
-                         0 AS `纵向科研项目-校级以上`,
-                         0 AS `纵向科研项目-校级`,
-                         0 AS `横向课题科研项目`,
-                         0 AS `成果转化`,
-                         0 AS `学术论文`,
-                         COALESCE(COUNT(DISTINCT a1.id), 0) AS `教材著作`,
-                         0 AS 专利,
-                         0 AS 软著,
-                         0 AS 奖励类,
-                         0 AS 学术报告
-                     FROM (
-                         SELECT
-                         a1.id,
-                         a1.user_id
-                         FROM sci_jiaocairuanzhu a1
-                         INNER JOIN (
-                         SELECT
-                         mingcheng,
-                         MIN(paiming) AS min_paiming
-                         FROM sci_jiaocairuanzhu
-                         WHERE state = 6
-                         GROUP BY mingcheng
-                         ) a2 ON a1.mingcheng = a2.mingcheng AND a1.paiming = a2.min_paiming
-                         ) a1
-                         INNER JOIN sys_user u ON a1.user_id = u.user_id
-                         INNER JOIN sys_dept d_dept ON u.dept_id = d_dept.dept_id
-                         INNER JOIN sys_dept p_dept ON d_dept.parent_id = p_dept.dept_id
-                     GROUP BY
-                         p_dept.dept_id,
-                         d_dept.dept_id
-
-                     UNION ALL
-
-                     -- 专利
-                     SELECT
-                         p_dept.dept_name AS 学院,
-                         d_dept.dept_name AS 专业,
-                         0 AS `纵向科研项目-校级以上`,
-                         0 AS `纵向科研项目-校级`,
-                         0 AS `横向课题科研项目`,
-                         0 AS `成果转化`,
-                         0 AS `学术论文`,
-                         0 AS `教材著作`,
-                         COALESCE(SUM(CASE WHEN a1.fenlei IN (1,2,3) THEN 1 ELSE 0 END), 0) AS 专利,
-                         0 AS 软著,
-                         0 AS 奖励类,
-                         0 AS 学术报告
-                     FROM (
-                         SELECT
-                         a1.id,
-                         a1.fenlei,
-                         a1.paiming,
-                         a1.user_id
-                         FROM sci_zhuanliruanzhu a1
-                         INNER JOIN (
-                         SELECT
-                         mingcheng,
-                         MIN(paiming) AS min_paiming
-                         FROM sci_zhuanliruanzhu
-                         WHERE state = 6
-                         GROUP BY mingcheng
-                         ) a2 ON a1.mingcheng = a2.mingcheng AND a1.paiming = a2.min_paiming
-                         ) a1
-                         INNER JOIN sys_user u ON a1.user_id = u.user_id
-                         INNER JOIN sys_dept d_dept ON u.dept_id = d_dept.dept_id
-                         INNER JOIN sys_dept p_dept ON d_dept.parent_id = p_dept.dept_id
-                     WHERE p_dept.parent_id = 100
-                     GROUP BY
-                         p_dept.dept_id,
-                         d_dept.dept_id
-
-                     UNION ALL
-
-                     -- 软著
-                     SELECT
-                         p_dept.dept_name AS 学院,
-                         d_dept.dept_name AS 专业,
-                         0 AS `纵向科研项目-校级以上`,
-                         0 AS `纵向科研项目-校级`,
-                         0 AS `横向课题科研项目`,
-                         0 AS `成果转化`,
-                         0 AS `学术论文`,
-                         0 AS `教材著作`,
-                         0 AS 专利,
-                         COALESCE(SUM(CASE WHEN a1.fenlei = 4 THEN 1 ELSE 0 END), 0) AS 软著,
-                         0 AS 奖励类,
-                         0 AS 学术报告
-                     FROM (
-                         SELECT
-                         a1.id,
-                         a1.fenlei,
-                         a1.paiming,
-                         a1.user_id,
-                         a2.mingcheng
-                         FROM sci_zhuanliruanzhu a1
-                         INNER JOIN (
-                         SELECT
-                         mingcheng,
-                         MIN(paiming) AS min_paiming
-                         FROM sci_zhuanliruanzhu
-                         WHERE state = 6
-                         GROUP BY mingcheng
-                         ) a2 ON a1.mingcheng = a2.mingcheng AND a1.paiming = a2.min_paiming
-                         ) a1
-                         INNER JOIN sys_user u ON a1.user_id = u.user_id
-                         INNER JOIN sys_dept d_dept ON u.dept_id = d_dept.dept_id
-                         INNER JOIN sys_dept p_dept ON d_dept.parent_id = p_dept.dept_id
-                     GROUP BY
-                         p_dept.dept_id,
-                         d_dept.dept_id
-
-                     UNION ALL
-
-                     -- 奖励类
-                     SELECT
-                         p_dept.dept_name AS 学院,
-                         d_dept.dept_name AS 专业,
-                         0 AS `纵向科研项目-校级以上`,
-                         0 AS `纵向科研项目-校级`,
-                         0 AS `横向课题科研项目`,
-                         0 AS `成果转化`,
-                         0 AS `学术论文`,
-                         0 AS `教材著作`,
-                         0 AS 专利,
-                         0 AS 软著,
-                         COALESCE(COUNT(s.id), 0) AS 奖励类,
-                         0 AS 学术报告
-                     FROM sys_reward s
-                         LEFT JOIN sys_user u ON s.user_id = u.user_id
-                         LEFT JOIN sys_dept d_dept ON u.dept_id = d_dept.dept_id
-                         LEFT JOIN sys_dept p_dept ON d_dept.parent_id = p_dept.dept_id
-                     WHERE s.state = 6
-                     GROUP BY
-                         p_dept.dept_id,
-                         d_dept.dept_id
-
-                     UNION ALL
-
-                     -- 学术报告
-                     SELECT
-                         p_dept.dept_name AS 学院,
-                         d_dept.dept_name AS 专业,
-                         0 AS `纵向科研项目-校级以上`,
-                         0 AS `纵向科研项目-校级`,
-                         0 AS `横向课题科研项目`,
-                         0 AS `成果转化`,
-                         0 AS `学术论文`,
-                         0 AS `教材著作`,
-                         0 AS 专利,
-                         0 AS 软著,
-                         0 AS 奖励类,
-                         COALESCE(COUNT(s.id), 0) AS 学术报告
-                     FROM sci_lecture_report s
-                         LEFT JOIN sys_user u ON s.user_id = u.user_id
-                         LEFT JOIN sys_dept d_dept ON u.dept_id = d_dept.dept_id
-                         LEFT JOIN sys_dept p_dept ON d_dept.parent_id = p_dept.dept_id
-                     GROUP BY
-                         p_dept.dept_id,
-                         d_dept.dept_id
-                 ) all_data
-        ) temp
-                           ON base.学院 = temp.学院 AND base.专业 = temp.专业
-        WHERE base.专业 = (SELECT dept_name FROM sys_dept WHERE dept_id = (SELECT dept_id FROM sys_user WHERE user_id = CURRENT_USER()))
-        GROUP BY
-            base.学院,
-            base.专业
-        ORDER BY
-            base.学院,
-            base.专业
+                         (SELECT COUNT(*) FROM sci_paper_a p2 WHERE p2.paper_title = p1.paper_title) AS title_count
+                     FROM sci_paper_a p1
+                     WHERE p1.state = 8
+                 ) p
+                     JOIN sys_user u ON p.user_id = u.user_id
+                     JOIN sys_dept d ON u.dept_id = d.dept_id
+                     JOIN sys_dept parent ON d.parent_id = parent.dept_id
+            WHERE p.title_count = 1 OR (p.title_count > 1 AND p.paper_ranking = 1)
+            GROUP BY parent.dept_id, d.dept_id
+        ) paper ON p.dept_id = paper.parent_id AND d.dept_id = paper.dept_id
+-- 教材著作
+                 LEFT JOIN (
+            SELECT
+                parent.dept_id AS parent_id,
+                d.dept_id,
+                COUNT(DISTINCT a1.id) AS 教材著作
+            FROM sci_jiaocairuanzhu a1
+                     JOIN (
+                SELECT mingcheng, MIN(paiming) AS min_paiming
+                FROM sci_jiaocairuanzhu
+                WHERE state = 6
+                GROUP BY mingcheng
+            ) a2 ON a1.mingcheng = a2.mingcheng AND a1.paiming = a2.min_paiming
+                     JOIN sys_user u ON a1.user_id = u.user_id
+                     JOIN sys_dept d ON u.dept_id = d.dept_id
+                     JOIN sys_dept parent ON d.parent_id = parent.dept_id
+            GROUP BY parent.dept_id, d.dept_id
+        ) textbook ON p.dept_id = textbook.parent_id AND d.dept_id = textbook.dept_id
+-- 专利
+                 LEFT JOIN (
+            SELECT
+                parent.dept_id AS parent_id,
+                d.dept_id,
+                COUNT(DISTINCT a1.id) AS 专利
+            FROM sci_zhuanliruanzhu a1
+                     JOIN (
+                SELECT mingcheng, MIN(paiming) AS min_paiming
+                FROM sci_zhuanliruanzhu
+                WHERE state = 6
+                GROUP BY mingcheng
+            ) a2 ON a1.mingcheng = a2.mingcheng AND a1.paiming = a2.min_paiming
+                     JOIN sys_user u ON a1.user_id = u.user_id
+                     JOIN sys_dept d ON u.dept_id = d.dept_id
+                     JOIN sys_dept parent ON d.parent_id = parent.dept_id
+            WHERE a1.fenlei IN (1,2,3)
+            GROUP BY parent.dept_id, d.dept_id
+        ) patent ON p.dept_id = patent.parent_id AND d.dept_id = patent.dept_id
+-- 软著
+                 LEFT JOIN (
+            SELECT
+                parent.dept_id AS parent_id,
+                d.dept_id,
+                COUNT(DISTINCT a1.id) AS 软著
+            FROM sci_zhuanliruanzhu a1
+                     JOIN (
+                SELECT mingcheng, MIN(paiming) AS min_paiming
+                FROM sci_zhuanliruanzhu
+                WHERE state = 6
+                GROUP BY mingcheng
+            ) a2 ON a1.mingcheng = a2.mingcheng AND a1.paiming = a2.min_paiming
+                     JOIN sys_user u ON a1.user_id = u.user_id
+                     JOIN sys_dept d ON u.dept_id = d.dept_id
+                     JOIN sys_dept parent ON d.parent_id = parent.dept_id
+            WHERE a1.fenlei = 4
+            GROUP BY parent.dept_id, d.dept_id
+        ) software ON p.dept_id = software.parent_id AND d.dept_id = software.dept_id
+-- 奖励类
+                 LEFT JOIN (
+            SELECT
+                parent.dept_id AS parent_id,
+                d.dept_id,
+                COUNT(s.id) AS 奖励类
+            FROM sys_reward s
+                     JOIN sys_user u ON s.user_id = u.user_id
+                     JOIN sys_dept d ON u.dept_id = d.dept_id
+                     JOIN sys_dept parent ON d.parent_id = parent.dept_id
+            WHERE s.state = 6
+            GROUP BY parent.dept_id, d.dept_id
+        ) reward ON p.dept_id = reward.parent_id AND d.dept_id = reward.dept_id
+-- 学术报告
+                 LEFT JOIN (
+            SELECT
+                parent.dept_id AS parent_id,
+                d.dept_id,
+                COUNT(s.id) AS 学术报告
+            FROM sci_lecture_report s
+                     JOIN sys_user u ON s.user_id = u.user_id
+                     JOIN sys_dept d ON u.dept_id = d.dept_id
+                     JOIN sys_dept parent ON d.parent_id = parent.dept_id
+            GROUP BY parent.dept_id, d.dept_id
+        ) report ON p.dept_id = report.parent_id AND d.dept_id = report.dept_id
+        WHERE p.dept_id = #{dept}   -- 替换为动态学院ID
+        GROUP BY p.dept_name, d.dept_name
+        ORDER BY p.dept_name, d.dept_name
     </select>
 
     <select id="selectTotal">

@@ -111,10 +111,10 @@
 
 				if ($lastRow.length > 0) {
 					// 合并前两个单元格
-					$lastRow.find('td:eq(0)').attr('colspan', 2).addClass('text-center').html('合计');
+					$lastRow.find('td:eq(0), td:eq(1), td:eq(2)').attr('colspan', '3').addClass('text-center').html('合计');
 
 					// 删除多余的单元格
-					$lastRow.find('td:eq(1)').remove();
+					$lastRow.find('td:eq(1),td:eq(2)').remove();
 				}
 			});
 		});
