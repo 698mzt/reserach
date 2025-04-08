@@ -242,7 +242,15 @@
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
         )
         <!--            <if test="userId != null "> and user_id = #{userId}</if>-->
+        OR(
+        s.state = 15 and s.user_id = #{uid}
+        <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
 
+        <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+        <if test="state != null  and state != ''"> and state = #{state}</if>
+        <!--        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>-->
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
+        )
         GROUP BY
         s.id,
         u.user_name,
@@ -302,14 +310,14 @@
         LEFT JOIN sys_dept p ON d.parent_id = p.dept_id
         LEFT JOIN sci_IntraSchPro_score sc ON sc.sciIntraSch_Id = s.id
         WHERE
-        s.state IN (1, 2,3,4,5,11,12)
+        s.state IN (1, 2,3,4,5,11,12,15)
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
 
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
         OR (
-        s.state IN (1, 11, 2, 3, 4, 12,5)
+        s.state IN (1, 11, 2, 3, 4, 12,5,15)
         AND (
         s.user_id = #{uid}
         OR s.first_person_id = #{uid}

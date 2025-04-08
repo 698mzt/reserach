@@ -16,6 +16,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.ruoyi.common.config.datasource.DynamicDataSourceContextHolder.log;
+
 @Controller
 @RequestMapping("/CollegeProject")
 public class CollegeProjectController extends BaseController {
@@ -46,9 +48,10 @@ public class CollegeProjectController extends BaseController {
             lists = convertByteArraysToString(lists);
 
         }
-        for (Map<String, Object> list : lists) {
-            System.out.println("list = " + list);
-        }
+
+//        for (Map<String, Object> list : lists) {
+//            System.out.println("list = " + list);
+//        }
 
 
 //        Map<String, Object> result = new HashMap<>();

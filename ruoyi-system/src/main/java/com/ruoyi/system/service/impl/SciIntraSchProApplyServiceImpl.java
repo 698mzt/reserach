@@ -13,6 +13,7 @@ import com.ruoyi.system.mapper.SciIntraSchProScoreMapper;
 import com.ruoyi.system.service.ISciIntraSchProApplyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -266,7 +267,10 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
             state ="14";
 
         }
+        //改状态
         int a =  sciIntraSchProApplyMapper.sch_hxPass(id,state);
+
+        //插入记录
         sciIntraSchProPiyue.setUid(userId);
         sciIntraSchProPiyue.setSchxktId(Integer.valueOf(id));
         sciIntraSchProPiyue.setConcate(remark);
@@ -355,6 +359,25 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
     @Override
     public List<Map<String, Object>> getfilekey(Long userId) {
         return sciIntraSchProApplyMapper.getfilekey(userId);
+    }
+
+    /**
+     * 更改自己的草稿状态，提交到教研室，加入操作记录
+     * @param id
+     * @return
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int subDraft(String id, Long userid) {
+        //1.更改草稿状态
+        sciIntraSchProApplyMapper.sch_hxPass(id,"1");
+        //2.插入操作记录
+        SciIntraSchProPiyue sciIntraSchProPiyue = new SciIntraSchProPiyue();
+        sciIntraSchProPiyue.setUid(userid);
+        sciIntraSchProPiyue.setSchxktId(Integer.valueOf(id));
+        sciIntraSchProPiyue.setState("草稿提交到教研室");
+        sciIntraSchProPiyueMapper.insertIntraSchProPiyue(sciIntraSchProPiyue);
+        return 1;
     }
 
 }

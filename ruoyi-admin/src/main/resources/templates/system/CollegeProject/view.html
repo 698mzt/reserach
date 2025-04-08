@@ -33,7 +33,7 @@
 
 <script th:inline="javascript">
     var prefix = ctx + "CollegeProject";
-    var datas = [[${@dict.getType('sys_rjxy')}]];
+    var datas = [[${@dict.getType('sys_dept')}]];
     $(function () {
         // 初始化表格
         $('#bootstrap-table').bootstrapTable({
@@ -44,13 +44,13 @@
             showToggle: false,
             showColumns: true,
             fixedColumns: true,  // 确保设置了 fixedColumns 选项
-            fixedNumber: 2,      // 确保设置了 fixedNumber 选项
+            fixedNumber: 3,      // 确保设置了 fixedNumber 选项
             stickyHeader: true,
             columns: [
                 [{
                     title: '部&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;门',
                     align: 'center',
-                    colspan: 2,
+                    colspan: 3,
                 }, {
                     title: '纵向科研项目',
                     align: 'center',
@@ -98,8 +98,19 @@
                     }
                 },
                     {
+                        field: 'parent_deptid',
+                        title: '学&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;院',
+                        formatter: function(value, row, index) {
+                            var totalRows = $('#bootstrap-table').bootstrapTable('getData').length;
+                            if (index === totalRows - 1) {
+                                return '';
+                            }
+                            return $.table.selectDictLabel(datas, value);
+                        }
+                    },
+                    {
                         field: 'cgzhdeptId',
-                        title: '部&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;门',
+                        title: '专&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;业',
                         formatter: function(value, row, index) {
                             return $.table.selectDictLabel(datas, value);
                         }

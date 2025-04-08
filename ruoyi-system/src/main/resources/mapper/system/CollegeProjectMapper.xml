@@ -14,7 +14,9 @@
 
     <select id="selAll">
         SELECT
-        *
+        * ,
+        (select parent_id from sys_dept WHERE dept_id=cgzhdeptid
+        ) parent_deptid
         FROM
         -- 成果转化
         (
