@@ -429,7 +429,7 @@ public class SciHorizontalApplyController extends BaseController
     public AjaxResult editSave(SciHorizontalApply sciHorizontalApply,SciHorizontalReamount sciHorizontalReamount)
     {
         if (sciHorizontalApply.getState().equals("3") || sciHorizontalApply.getState().equals("5") || sciHorizontalApply.getState().equals("22"))
-            sciHorizontalApply.setState("1");
+            sciHorizontalApply.setState("99");
         if (!sciHorizontalReamount.getReAmount().isEmpty())
             sciHorizontalReamountService.insertAmount(sciHorizontalReamount);
         return toAjax(sciHorizontalApplyService.updateSciHorizontalApply(sciHorizontalApply));
@@ -452,7 +452,7 @@ public class SciHorizontalApplyController extends BaseController
     @ResponseBody
     public AjaxResult overeditSave(SciHorizontalApply sciHorizontalApply)
     {
-        sciHorizontalApply.setState("7");
+        sciHorizontalApply.setState("99");
         return toAjax(sciHorizontalApplyService.updateSciHorizontalApply(sciHorizontalApply));
     }
 

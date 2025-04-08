@@ -56,10 +56,10 @@
                     and s.state = 6
                 </when>
                 <when test="newsql == '01'">
-                    and s.state in (1,2,3,4,5)
+                    and s.state in (1,2,3,4,5,11,22)
                 </when>
                 <when test="newsql == '02'">
-                    and s.state in (7,8,9,10)
+                    and s.state in (7,8,9,10,33,44)
                 </when>
             </choose>
         </if>
@@ -70,7 +70,7 @@
 <!--    查询申请流程-->
     <select id="selectSciHorizontalApplyList" parameterType="SciHorizontalApply" resultMap="SciHorizontalApplyResult" >
         <include refid="selectSciHorizontalApplyVo"/>
-        where state in (1,2,3,4,5,11,22)
+        where state in (1,2,3,4,5,11,22,99)
         <!--            <if test="userId != null "> and user_id = #{userId}</if>-->
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
@@ -194,7 +194,7 @@
         left join sys_user u on  s.user_id=u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
-        where s.state in (10,33)
+        where s.state in (33)
         <!--            <if test="userId != null "> and user_id = #{userId}</if>-->
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
 
