@@ -115,7 +115,9 @@ public class SysLoginController extends BaseController
             subject.login(token);
             // 设置或删除cookie
             setRememberMeCookie(username,password,rememberMe,response);
+            System.out.println("success ");
             return success();
+
         }
         catch (AuthenticationException e)
         {

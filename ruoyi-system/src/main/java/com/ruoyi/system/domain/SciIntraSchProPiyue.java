@@ -14,7 +14,8 @@ public class SciIntraSchProPiyue extends BaseEntity {
     private Integer schxktId;
 
     /** 驳回意见 */
-    @Excel(name = "驳回意见")
+    //@Excel(name = "驳回意见")
+    @Excel(name = "操作")
     private String concate;
 
     /** 提交人 */

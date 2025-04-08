@@ -1,33 +1,23 @@
 package com.ruoyi.web.controller.IntraSchoolProject;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import com.ruoyi.common.annotation.Log;
-import com.ruoyi.common.config.RuoYiConfig;
-import com.ruoyi.common.config.ServerConfig;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.domain.entity.SysRole;
 import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.common.enums.BusinessType;
-import com.ruoyi.common.utils.file.FileUploadUtils;
-import com.ruoyi.common.utils.file.FileUtils;
 import com.ruoyi.system.domain.*;
 import com.ruoyi.system.service.*;
-import io.swagger.models.auth.In;
-import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.page.TableDataInfo;
-import org.springframework.web.multipart.MultipartFile;
-
-import static com.ruoyi.common.utils.file.FileUploadUtils.getAbsoluteFile;
 
 //http://localhost:8081/IntraSchPro
 @Controller
@@ -279,10 +269,10 @@ public class SciIntraSchoolProController extends BaseController {
         //sciIntraSchProScoreService.set_SchPro_score_noScore(sciIntraSchoolPro);
 //        return toAjax(sciIntraSchProApplyService.insert_SchPro_Apply(sciIntraSchoolPro));
 
-
+        //数据库里面这个的默认值是15 草稿
+        //System.out.println("addSave:"+sciIntraSchoolPro.getState());
         //插入这个课题
         int id =sciIntraSchProApplyService.insert_SchPro_Apply(sciIntraSchoolPro);
-
 
         System.out.println("id = " + id);
         if (id==1){
@@ -316,7 +306,7 @@ public class SciIntraSchoolProController extends BaseController {
 //            return prefix + "/edit_Over";
 //        }
 
-        if (Arrays.asList("1","2","3","4","5","11","12").contains(sciIntraSchoolPro.getState())){
+        if (Arrays.asList("1","2","3","4","5","11","12","15").contains(sciIntraSchoolPro.getState())){
             System.out.println("1");
             return prefix + "/edit";
         }else if(sciIntraSchoolPro.getState().equals("6")){
@@ -387,6 +377,23 @@ public class SciIntraSchoolProController extends BaseController {
         ob.setSchxktId(kid);
         List<SciIntraSchProPiyue> list = piyueService.selectIntraSchProPiyueList(ob);
         return getDataTable(list);
+    }
+
+
+    /**
+     * 更改自己的草稿状态，提交到教研室，加入操作记录
+     * @param id
+     * @return
+     */
+    @PostMapping("/subDraft/{id}")
+    @ResponseBody
+
+    public AjaxResult subDraft(@PathVariable("id")Integer id)
+    {
+//        int data=0;
+//        return AjaxResult.success("操作成功", data);
+        String sid = String.valueOf(id);
+        return toAjax(sciIntraSchProApplyService.subDraft(sid,getUserId()));
     }
 
     /**

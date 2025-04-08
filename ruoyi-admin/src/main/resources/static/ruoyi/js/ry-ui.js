@@ -96,7 +96,7 @@ var table = {
                     pagination: options.pagination,                     // 是否显示分页（*）
                     paginationLoop: options.paginationLoop,             // 是否启用分页条无限循环的功能
                     pageNumber: 1,                                      // 初始化加载第一页，默认第一页
-                    pageSize: options.pageSize,                         // 每页的记录行数（*） 
+                    pageSize: options.pageSize,                         // 每页的记录行数（*）
                     pageList: options.pageList,                         // 可供选择的每页的行数（*）
                     firstLoad: options.firstLoad,                       // 是否首次请求加载数据，对于数据较大可以配置false
                     escape: options.escape,                             // 转义HTML字符串
@@ -1285,6 +1285,7 @@ var table = {
             view: function(id){
                 table.set();
                 var url = table.options.viewUrl.replace("{id}", id);
+
                 $.modal.popupRight(table.options.modalName + "信息详情", url);
             },
             // 保存信息 刷新表格
