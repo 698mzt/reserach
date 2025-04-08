@@ -116,6 +116,26 @@ public class SysUser extends BaseEntity
     private String socialTitle;
     private String adminstrativeTitle;
     private String reserchDirection;
+    // 来校时间
+    private String serviceDate;
+    // 出生日期
+    private String dateOfBirth;
+
+    public String getServiceDate() {
+        return serviceDate;
+    }
+
+    public void setServiceDate(String serviceDate) {
+        this.serviceDate = serviceDate;
+    }
+
+    public String getDateOfBirth() {
+        return dateOfBirth;
+    }
+
+    public void setDateOfBirth(String dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
+    }
 
     public String getTeaZhicheng() {
         return teaZhicheng;
