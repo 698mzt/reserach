@@ -135,6 +135,9 @@ public class SysProfileController extends BaseController
         currentUser.setSex(user.getSex());
         currentUser.setTeaZhicheng(user.getTeaZhicheng());
         currentUser.setSocialTitle(user.getSocialTitle());
+        currentUser.setAdminstrativeTitle(user.getAdminstrativeTitle()); // 岗类
+        currentUser.setDateOfBirth(user.getDateOfBirth()); // 出生日期
+        currentUser.setReserchDirection(user.getReserchDirection()); // 科研方向
 //        currentUser.setServiceDate(user.getServiceDate());
         if (StringUtils.isNotEmpty(user.getPhonenumber()) && !userService.checkPhoneUnique(currentUser))
         {

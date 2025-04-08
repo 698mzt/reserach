@@ -3,6 +3,7 @@
 <head>
 	<th:block th:include="include :: header('新增用户')" />
 	<th:block th:include="include :: select2-css" />
+    <th:block th:include="include :: datetimepicker-css" />
 </head>
 <body>
     <div class="main-content">
@@ -33,7 +34,8 @@
             <div class="row">
                 <div class="col-sm-6">
                     <div class="form-group">
-                        <label class="col-sm-4 control-label">行政职务：</label>
+<!--                        <label class="col-sm-4 control-label">行政职务：</label>-->
+                        <label class="col-sm-4 control-label">岗类：</label>
                         <div class="col-sm-8">
                             <select name="adminstrativeTitle" class="form-control" th:with="type=${@dict.getType('sys_adminstrative_title')}" required>
                                 <option selected>无</option>
@@ -149,13 +151,26 @@
                 </div>
             </div>
             <div class="row">
-            	<div class="col-sm-12">
+            	<div class="col-sm-6">
                     <div class="form-group">
-                        <label class="col-xs-2 control-label">岗位：</label>
-                        <div class="col-xs-4">
+<!--                        <label class="col-xs-2 control-label">岗位：</label>-->
+                        <label class="col-sm-4 control-label">行政职务：</label>
+                        <div class="col-sm-8">
                             <select id="post" class="form-control select2-multiple" multiple>
 								<option th:each="post:${posts}" th:value="${post.postId}" th:text="${post.postName}" th:disabled="${post.status == '1'}"></option>
 							</select>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">出生日期：</label>
+                        <div class="col-sm-8">
+                            <div class="input-group date form_date">
+                                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                <input class="form-control" autocomplete="off" size="16" type="text" name="dateOfBirth" readonly>
+                                <span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -194,6 +209,7 @@
     </div>
 	<th:block th:include="include :: footer" />
 	<th:block th:include="include :: select2-js" />
+    <th:block th:include="include :: datetimepicker-js" />
 	<script>
 	    var prefix = ctx + "system/user";
 	
@@ -298,8 +314,15 @@
 
 		$(function() {
             $('#post').select2({
-                placeholder: "请选择岗位",
+                // placeholder: "请选择岗位",
+                placeholder: "请选择职务",
                 allowClear: true
+            });
+
+            $('.form_date').datetimepicker({
+                format: "yyyy-mm-dd",
+                minView: "month",
+                autoclose: true
             });
         })
     </script>
