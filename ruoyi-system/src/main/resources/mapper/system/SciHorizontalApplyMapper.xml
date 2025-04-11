@@ -56,7 +56,7 @@
                     and s.state = 6
                 </when>
                 <when test="newsql == '01'">
-                    and s.state in (1,2,3,4,5,11,22)
+                    and s.state in (1,2,3,4,5,11,22,99)
                 </when>
                 <when test="newsql == '02'">
                     and s.state in (7,8,9,10,33,44)
