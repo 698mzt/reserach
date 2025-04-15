@@ -295,6 +295,8 @@ public class SciHorizontalApplyController extends BaseController
     @Transactional
     public AjaxResult push(SciHorizontalApply sciHorizontalApply,SciHorizontalReamount sciHorizontalReamount)
     {
+        sciHorizontalApply.setUserId(Integer.valueOf(getSysUser().getUserId().toString()));
+        sciHorizontalApply.setNewsql("99");
         String state = "1";
         sciHorizontalApply.setState(state);
         Integer a = sciHorizontalApplyService.updateSciHorizontalApply(sciHorizontalApply);

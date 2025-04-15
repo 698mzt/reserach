@@ -140,6 +140,12 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
             sciHorizontalPersion.setPersionid(sciHorizontalApply.getFourthPersonId());
             sciHorizontalApplyMapper.insertPersion(sciHorizontalPersion);
         }
+        SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
+        sciHorizontalPiyue.setUid(Long.valueOf(sciHorizontalApply.getUserId()));
+        sciHorizontalPiyue.setHxktId(Integer.valueOf(id));
+        sciHorizontalPiyue.setConcate("新增");
+        sciHorizontalPiyue.setState("通过");
+        sciHorizontalPiyueMapper.insertSciHorizontalPiyue(sciHorizontalPiyue);
         return id;
     }
 
@@ -181,6 +187,17 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
             sciHorizontalPersion.setPersionid(sciHorizontalApply.getFourthPersonId());
             sciHorizontalApplyMapper.insertPersion(sciHorizontalPersion);
         }
+        SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
+        sciHorizontalPiyue.setUid(Long.valueOf(sciHorizontalApply.getUserId()));
+        sciHorizontalPiyue.setHxktId(Integer.valueOf(id));
+        if (sciHorizontalApply.getNewsql().equals("99")) {
+            sciHorizontalPiyue.setConcate("提交");
+            sciHorizontalPiyue.setState("提交");
+        }else {
+            sciHorizontalPiyue.setConcate("修改");
+            sciHorizontalPiyue.setState("修改");
+        }
+        sciHorizontalPiyueMapper.insertSciHorizontalPiyue(sciHorizontalPiyue);
         return '1';
     }
 

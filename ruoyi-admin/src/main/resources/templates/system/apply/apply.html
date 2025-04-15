@@ -14,7 +14,8 @@
 
         .modal-right .modal-content {
             height: 100%;
-            width: 100%;
+            width: 70%;
+            margin-left: auto;
         }
         .modal-right .but{
             position: absolute;
@@ -501,12 +502,6 @@
                         <div class="modal-dialog modal-right" >
                             <div class="modal-content animated bounceInRight">
                                 <div class="modal-header">
-                                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span
-                                            class="sr-only">关闭</span>
-                                    </button>
-                                </div>
-                                <div class="modal-body">
-                                    <!-- 流程记录标题 - 放在左上角 -->
                                     <div class="timeline-title">流程记录</div>
 
                                     <!-- 原有的流程进度条部分 -->
@@ -516,7 +511,7 @@
                                                 <label for='step-1'><span class="status-text active">待提交</span></label>
                                             </div>
                                             <div class='progress_inner__step pending' id='step-2'>
-                                                <label for='step-2'><span class="status-text">待审核</span></label>
+                                                <label for='step-2'><span class="status-text">审核中</span></label>
                                             </div>
                                             <div class='progress_inner__step pending' id='step-3'>
                                                 <label for='step-3'><span class="status-text">已完成</span></label>
@@ -526,6 +521,10 @@
                                             </div>
                                         </div>
                                     </div>
+                                </div>
+                                <div class="modal-body">
+                                    <!-- 流程记录标题 - 放在左上角 -->
+
 
                                     <!-- 流程记录内容 - 放在流程图下方 -->
                                     <div class="track-rcol">
@@ -538,17 +537,6 @@
                                                 </li>
                                             </ul>
                                         </div>
-                                    </div>
-
-                                    <div class="approve-status">
-                                        <label><input type="radio" name="approve" value="pass" checked> 审核通过</label>
-                                        <label><input type="radio" name="approve" value="reject"> 审核未通过</label>
-                                    </div>
-
-                                    <div class="buttons">
-                                        <button onclick="submitForm()">提交</button>
-                                        <button onclick="approveForm()">审核</button>
-                                        <button onclick="resetForm()">重置</button>
                                     </div>
                                 </div>
                                 <div class="modal-footer">
@@ -846,7 +834,7 @@
                             }
                             actions.push('<a class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                             // actions.push('<a class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">流程记录</a> ');
-                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" >流程记录&nbsp;</a> ');
+                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
                         }else
                         if(row.state == 1 ) {
                             if (row.userId == row.uid) {
@@ -858,7 +846,7 @@
                             if (proFlag !== "hidden" || editFlag !== "hidden")
                                 actions.push('<br>')
                             actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                            actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">流程记录</a> ');
+                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
                         }else
                         if((row.state == 3 || row.state == 5 ||row.state == 22)  ){
                             if (row.userId == row.uid){
@@ -885,7 +873,7 @@
                             if(proFlag !== "hidden" || DeptFlag !== "hidden" ||editFlag !== "hidden")
                                 actions.push('<br>')
                             actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                            actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">流程记录</a> ');
+                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
                         }else
                         if(row.state ==  4){
                             if(row.userId == row.uid){
@@ -909,6 +897,7 @@
                             actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                             actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">流程记录</a> ');
                         }
+
                         return actions.join('');
                     }
                 }]
@@ -1294,146 +1283,75 @@
         };
     }
 
-    function getCurrentTime() {
-        const now = new Date();
-        const year = now.getFullYear();
-        const month = String(now.getMonth() + 1).padStart(2, '0');
-        const day = String(now.getDate()).padStart(2, '0');
-        const hours = String(now.getHours()).padStart(2, '0');
-        const minutes = String(now.getMinutes()).padStart(2, '0');
-        const seconds = String(now.getSeconds()).padStart(2, '0');
-        return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    function showhistory(id,state) {
+        updateProgressStepColor(state)
+        //查询配乐记录
+        $.ajax({
+            url: prefix + '/bhyy/'+id,
+            type: 'POST',
+            data: {
+                kid: id
+            },
+            success: function (response) {
+                const eventList = document.getElementById('event-list');
+                eventList.innerHTML = '';
+
+                response.rows.forEach(function (row) {
+                    const li = document.createElement('li');
+                    li.innerHTML = `
+
+                        <div class="event-item">
+                            <div class="event-content">
+                                <i class="node-icon"></i>
+                                <span class="time" id="current-time">${row.createTime}</span>
+                                <span class="txt">[${row.state}] - ${row.uname}</span>
+                            </div>
+                        </div>
+                    `;
+                    eventList.insertBefore(li, eventList.firstChild);
+                });
+            },
+            error: function () {
+                alert('Failed to fetch event history.');
+            }
+        });
     }
 
-    function addEvent(text, isFirst = false) {
-        const eventList = document.getElementById('event-list');
-        const li = document.createElement('li');
-        if (isFirst) {
-            li.className = 'first';
-        }
-        li.innerHTML = `
-            <i class="node-icon"></i>
-            <span class="time">${getCurrentTime()}</span>
-            <span class="txt">${text}</span>
-        `;
+    function updateProgressStepColor(state) {
+        // 获取所有步骤元素
+        const steps = document.querySelectorAll('.progress_inner__step');
 
-        // 添加动画效果
-        li.style.opacity = '0';
-        li.style.transform = 'translateY(20px)';
-        eventList.insertBefore(li, eventList.firstChild);
+        // 遍历所有步骤，重置样式
+        steps.forEach(step => {
+            step.classList.remove('active', 'completed', 'pending');
+            step.querySelector('.status-text').classList.remove('active', 'completed');
+        });
 
-        // 触发动画
-        setTimeout(() => {
-            li.style.opacity = '1';
-            li.style.transform = 'translateY(0)';
-        }, 10);
-    }
-
-    function submitForm() {
-        document.getElementById('step-1').classList.remove('active');
-        document.getElementById('step-1').classList.add('completed');
-        document.getElementById('step-1').querySelector('.status-text').classList.remove('active');
-        document.getElementById('step-1').querySelector('.status-text').classList.add('completed');
-
-        document.getElementById('step-2').classList.remove('pending');
-        document.getElementById('step-2').classList.add('active');
-        document.getElementById('step-2').querySelector('.status-text').classList.add('active');
-        document.getElementById('step-2').querySelector('label').setAttribute('for', 'step-2');
-
-        document.getElementById('progress-bar').style.width = '0%';
-        setTimeout(() => {
-            document.getElementById('progress-bar').style.width = '50%';
-        }, 100);
-
-        // 添加流程记录
-        addEvent('[提交] - 哈尔滨信息工程学院，等待审核', true);
-    }
-
-    // function approveForm() {
-    //     document.getElementById('step-2').classList.remove('active');
-    //     document.getElementById('step-2').classList.add('completed');
-    //     document.getElementById('step-2').querySelector('.status-text').classList.remove('active');
-    //     document.getElementById('step-2').querySelector('.status-text').classList.add('completed');
-    //
-    //     document.getElementById('step-3').classList.remove('pending');
-    //     document.getElementById('step-3').classList.add('completed');
-    //     document.getElementById('step-3').querySelector('.status-text').classList.add('completed');
-    //
-    //     document.getElementById('progress-bar').style.width = '100%';
-    //
-    //     // 添加流程记录
-    //     addEvent('[审核] - 哈尔滨信息工程学院，审核通过', true);
-    // }
-    function approveForm() {
-        const isApproved = document.querySelector('input[name="approve"]:checked').value === 'pass';
-
-        if (isApproved) {
-            document.getElementById('step-2').classList.remove('active');
+        // 根据 state 设置相应的步骤颜色
+        if (state === 99) {
+            document.getElementById('step-1').classList.add('active');
+            document.getElementById('step-1').querySelector('.status-text').classList.add('active');
+        } else if (state === 6) {
+            document.getElementById('step-1').classList.add('completed');
+            document.getElementById('step-1').querySelector('.status-text').classList.add('completed');
             document.getElementById('step-2').classList.add('completed');
-            document.getElementById('step-2').querySelector('.status-text').classList.remove('active');
             document.getElementById('step-2').querySelector('.status-text').classList.add('completed');
-
-            document.getElementById('step-3').classList.remove('pending');
             document.getElementById('step-3').classList.add('completed');
             document.getElementById('step-3').querySelector('.status-text').classList.add('completed');
-
-            document.getElementById('progress-bar').style.width = '100%';
-
-            // 添加流程记录
-            addEvent('[审核] - 哈尔滨信息工程学院，审核通过', true);
-
-            //延时添加完成记录
-            setTimeout(() => {
-                addEvent('[完成] - 恭喜完成！', false);
-            })
+        } else if ([1, 2, 3, 4, 5, 7, 8].includes(state)) {
+            document.getElementById('step-1').classList.add('completed');
+            document.getElementById('step-1').querySelector('.status-text').classList.add('completed');
+            document.getElementById('step-2').classList.add('completed');
+            document.getElementById('step-2').querySelector('.status-text').classList.add('completed');
         } else {
-            // 审核未通过时，重置到待提交状态
-            document.getElementById('step-1').classList.remove('completed');
-            document.getElementById('step-1').classList.add('active');
-            document.getElementById('step-1').querySelector('.status-text').classList.remove('completed');
-            document.getElementById('step-1').querySelector('.status-text').classList.add('active');
-
-            document.getElementById('step-2').classList.remove('active', 'completed');
-            document.getElementById('step-2').classList.add('pending');
-            document.getElementById('step-2').querySelector('.status-text').classList.remove('active', 'completed');
-            document.getElementById('step-2').querySelector('label').setAttribute('for', 'step-2');
-
-            document.getElementById('progress-bar').style.width = '0%';
-
-            // 添加流程记录
-            addEvent('[审核] - 哈尔滨信息工程学院，审核未通过', true);
+            // 默认情况下，所有步骤为灰色
+            steps.forEach(step => {
+                step.classList.add('pending');
+                step.querySelector('.status-text').classList.add('pending');
+            });
         }
     }
 
-    function resetForm() {
-        document.getElementById('step-1').classList.remove('completed');
-        document.getElementById('step-1').classList.add('active');
-        document.getElementById('step-1').querySelector('.status-text').classList.remove('completed');
-        document.getElementById('step-1').querySelector('.status-text').classList.add('active');
-
-        document.getElementById('step-2').classList.remove('active', 'completed');
-        document.getElementById('step-2').classList.add('pending');
-        document.getElementById('step-2').querySelector('.status-text').classList.remove('active', 'completed');
-        document.getElementById('step-2').querySelector('label').setAttribute('for', 'step-2');
-
-        document.getElementById('step-3').classList.remove('completed');
-        document.getElementById('step-3').classList.add('pending');
-        document.getElementById('step-3').querySelector('.status-text').classList.remove('completed');
-
-        document.getElementById('progress-bar').style.width = '0%';
-
-        // 重置流程记录
-        const eventList = document.getElementById('event-list');
-        eventList.innerHTML = `
-            <li class="first">
-                <i class="node-icon"></i>
-                <span class="time">${getCurrentTime()}</span>
-                <span class="txt">流程已重置，请重新开始</span>
-            </li>
-        `;
-        // 重置审核状态为通过
-        document.querySelector('input[value="pass"]').checked = true;
-    }
 
     document.addEventListener('DOMContentLoaded', function () {
         // 初始化显示当前时间
