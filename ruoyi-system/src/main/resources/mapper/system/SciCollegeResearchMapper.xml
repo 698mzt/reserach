@@ -260,8 +260,28 @@
                      s.state = 6
                  GROUP BY
                      p.dept_id, d.dept_id
+
+                 UNION ALL
+
+                 SELECT
+                     s.parent_id,
+                     s.dept_id,
+                     s.dept_name,
+                     0 AS `横向课题科研项目`,
+                     0 AS `纵向课题科研项目 - 校级以上`,
+                     0 AS `纵向课题科研项目 - 校级`,
+                     0 AS `论文 - 积分`,
+                     0 AS `讲座报告 - 积分`,
+                     0 AS `教材软著 - 积分`,
+                     0 AS `成果转化 - 积分`,
+                     0 AS `专利 - 积分`,
+                     0 AS `软著 - 积分`
+                 FROM
+                     sys_dept s
+                 WHERE
+                     FIND_IN_SET(#{deptId}, ancestors) > 0
              ) sub
-        WHERE sub.dept_id IN ( SELECT dept_id FROM sys_dept WHERE dept_id = #{deptId} OR find_in_set( #{deptId}, ancestors ) )
+        WHERE sub.dept_id IN ( SELECT dept_id FROM sys_dept WHERE dept_id = #{deptId} OR find_in_set(#{deptId}, ancestors ) )
         GROUP BY sub.dept_id, sub.deptiod;
     </select>
     <select id="selectCollegeResearchID">

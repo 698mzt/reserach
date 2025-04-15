@@ -276,34 +276,6 @@
         }
     }
 
-    // function createFoldersAndDownload() {
-    //     //学院
-    //     const coll = document.getElementById('college').value;
-    //     //专业
-    //     const researchRoom = document.getElementById('researchRoom').value;
-    //     //教师
-    //     const teacherName = document.getElementById('teacherName').value;
-    //     const params = new URLSearchParams({
-    //         college: coll,
-    //         researchRoom: researchRoom,
-    //         teacherName: teacherName
-    //     });
-    //     fetch('/system/paper/create?' + params.toString(), {
-    //         method: 'GET'
-    //     })
-    //         .then(response => response.json())
-    //         .then(data => {
-    //             if (data.success) {
-    //                 // alert('文件夹检查/创建完成');
-    //                 const pdfUrl = document.getElementById('text_paper').value;
-    //                 triggerBackendDownload(pdfUrl);
-    //             } else {
-    //                 alert('文件夹创建失败: ' + data.message);
-    //             }
-    //         })
-    //         .catch(error => console.error('Error:', error));
-    // }
-
     $(function() {
         var pid = $("#pid").val();
         console.log("pid:",pid);
@@ -419,6 +391,7 @@
 
             var url = prefix + "/pybh/" + encodeURIComponent($("#pid").val());;
             $.operate.saveTab(url, {"urlFlag": urlFlag, "remark": remark})
+            console.log("urlFlagBH:", urlFlag)
 
         } else {
             console.error("Form validation failed");

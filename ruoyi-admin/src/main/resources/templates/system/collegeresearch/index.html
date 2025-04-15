@@ -2,20 +2,20 @@
 <html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
 <head>
     <th:block th:include="include :: header('表格虚拟滚动')" />
-    <style>
-        .fixed-column-1{
-            position: sticky; /* 固定列 */
-            left: 0;          /* 第一列固定在最左侧 */
-            background-color: white; /* 背景颜色 */
-            z-index: 10;      /* 确保覆盖其他内容 */
-        }
-        .fixed-column-2{
-            position: sticky; /* 固定列 */
-            left: 70px;       /* 第二列固定在第一列右侧，宽度为 50px */
-            background-color: white; /* 背景颜色 */
-            z-index: 9;       /* 确保覆盖其他内容，但低于第一列的层级 */
-        }
-    </style>
+<!--    <style>-->
+<!--        .fixed-column-1{-->
+<!--            position: sticky; /* 固定列 */-->
+<!--            left: 0;          /* 第一列固定在最左侧 */-->
+<!--            background-color: white; /* 背景颜色 */-->
+<!--            z-index: 10;      /* 确保覆盖其他内容 */-->
+<!--        }-->
+<!--        .fixed-column-2{-->
+<!--            position: sticky; /* 固定列 */-->
+<!--            left: 70px;       /* 第二列固定在第一列右侧，宽度为 50px */-->
+<!--            background-color: white; /* 背景颜色 */-->
+<!--            z-index: 9;       /* 确保覆盖其他内容，但低于第一列的层级 */-->
+<!--        }-->
+<!--    </style>-->
 </head>
 <body>
 <div class="container-div">
@@ -32,8 +32,9 @@
     </div>
 </div>
 <div th:include="include :: footer"></div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.21.3/dist/bootstrap-table.min.js"></script>
+<th:block th:include="include :: bootstrap-table-fixed-columns-js" />
 <script>
-
     //var prefix = ctx + '/collegeresearch'
     var total = 0;
     var prefix = "/collegeresearch";
@@ -50,13 +51,12 @@
             showExport:true,
             clickToSelect:true,
             virtualScroll: true,
-
             undefinedText:0,//没有数据默认值
 
             fixedColumns: true,
-            fixedNumber:2,
+            fixedNumber:3,
             columns: [{
-                checkbox: true
+                checkbox: true,
             },
                 {
                     field: '学院名称',
@@ -133,7 +133,18 @@
                     field: '奖励-积分',
                     title: '奖励-积分',
                     align: 'center',
-                }
+                },
+                {
+                    field: '专业',
+                    title: '专业',
+                    align: 'center',
+
+                    formatter: function (value, row, index) {
+                        // 如果 value 为空或未定义，则返回默认值 0
+                        console.log(value)
+                        return value;
+                    }
+                },
             ]
         }
         $.table.init(options);
