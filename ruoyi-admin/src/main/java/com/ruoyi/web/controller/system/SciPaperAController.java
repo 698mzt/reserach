@@ -110,21 +110,22 @@ public AjaxResult uploadFile(MultipartFile file, @PathVariable("model") String m
         sciPaperA.setYear(year);
 
         List<SciPaperA> list= new ArrayList<>();
+
             //教研室
             if (roleId.contains("102")) {
                 list.addAll(sciPaperAService.selectSciPaperAList(sciPaperA));
             }
             //科研处
-            if (roleId.contains("101")) {
+            else if (roleId.contains("101")) {
                 System.out.println("roleId = " + roleId);
                 list.addAll(sciPaperAService.selectSciPaperAListKY(sciPaperA));
             }
             //学院
-            if (roleId.contains("103")) {
+            else  if (roleId.contains("103")) {
                 list.addAll(sciPaperAService.selectSciPaperAListXY(sciPaperA));
                 System.out.println("list = " + list);
             }
-            if (roleId.contains("100") && roleId.size()==1) {
+            else if (roleId.contains("100") && roleId.size()==1) {
                 list.addAll(sciPaperAService.selectSciPaperAListCx(sciPaperA));
             }
 
@@ -283,6 +284,7 @@ public AjaxResult uploadFile(MultipartFile file, @PathVariable("model") String m
         SciPaperAr sciPaperAr = new SciPaperAr();
         sciPaperAr.setAr_id(arid);
         List<SciPaperAr> list = sciPaperAService.selectSciPaperArList(sciPaperAr);
+        System.out.println("list = " + list);
         return getDataTable(list);
     }
 

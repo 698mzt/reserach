@@ -162,9 +162,10 @@ public class SciPaperAServiceImpl implements ISciPaperAService
     @Override
     public int pybh(String id, Long userId, String remark, String urlFlag) {
         String state = "0";
-        if(urlFlag.equals("xyth")){
+        System.out.println("urlFlag = " + urlFlag);
+        if(urlFlag.equals("xytg")){
             state ="5";
-        }else if(urlFlag.equals("proth")){
+        }else if(urlFlag.equals("pro")){
             state ="3";
         }else if(urlFlag.equals("kyth")){
             state ="7";

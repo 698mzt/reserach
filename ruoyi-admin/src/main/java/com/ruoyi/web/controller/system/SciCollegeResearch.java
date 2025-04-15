@@ -41,9 +41,10 @@ public class SciCollegeResearch extends BaseController {
     public TableDataInfo list() {
         Long deptId =getSysUser().getDeptId();
         System.out.println("deptId = " + deptId);
-        //全部的教研室
+        //全部的教研室 N
         List<Map<String, Object>>  listout =sciCollegeResearchMapper.selectCollegeResearchID(deptId);
         System.out.println("listout = " + listout);
+
         List<Map<String, Object>> list = sciCollegeResearchMapper.selectCollegeResearch(deptId);
         System.out.println("list!!!!!!!!!! = " + list);
         TableDataInfo data = getDataTable(list);
@@ -61,7 +62,7 @@ public class SciCollegeResearch extends BaseController {
                 System.out.println("map1.get(\"专业\") = " + map1.get("专业"));
                 String dept_name1= String.valueOf(map1.get("专业"));
                 if (dept_id.equals(dept_name1)) { //判断是否匹配
-                    System.out.println("map1 = " + map1);
+//                    System.out.println("map1 = " + map1);
                     isMatched = true;
                     break;
                 }
@@ -72,6 +73,7 @@ public class SciCollegeResearch extends BaseController {
                 newMap.put("学院名称",map.get("学院名称"));
                 newMap.put("专业", dept_id);
                 newMap.put("专业名称", dept_name); // 向新的 Map 添加键值对
+
                 list.add(newMap); // 将新的 Map 添加到 list 中
                 System.out.println("newMap = " + newMap);
             }
@@ -79,7 +81,7 @@ public class SciCollegeResearch extends BaseController {
 
 
         System.out.println("list = " + list);
-//        this.setList(list);
+//      this.setList(list);
         data.setRows(list); // 数据列表
         data.setTotal(list.size()); // 总记录数
 
