@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('专利软著列表')" />
+<!--    <style>-->
+
+
+<!--        .table-container {-->
+<!--            overflow-x: auto;-->
+<!--            position: relative;-->
+<!--        }-->
+
+<!--        .custom-table {-->
+<!--            width: 100%;-->
+<!--            border-collapse: collapse;-->
+<!--        }-->
+
+<!--        .custom-table th, .custom-table td {-->
+<!--            padding: 8px 12px;-->
+<!--            text-align: left;-->
+<!--            border: 1px solid #ddd;-->
+<!--            white-space: nowrap;-->
+<!--        }-->
+
+<!--        .fixed-column {-->
+<!--            position: sticky;-->
+<!--            right: 0;-->
+<!--            background-color: white;-->
+<!--            z-index: 10;-->
+<!--        }-->
+
+<!--        /* 状态颜色 */-->
+<!--        .state-color-green {-->
+<!--            color: #67c23a;-->
+<!--        }-->
+
+<!--        .state-color-yellow {-->
+<!--            color: #e6a344;-->
+<!--        }-->
+
+<!--        .state-color-blue {-->
+<!--            color: #2c99ff;-->
+<!--        }-->
+
+<!--        .state-color-black {-->
+<!--            color: #000000;-->
+<!--        }-->
+
+
+<!--    </style>-->
+    <style>
+
+        /*.table-container {*/
+        /*    overflow-x: auto;*/
+        /*    position: relative;*/
+        /*}*/
+
+        /*.custom-table {*/
+        /*    width: 100%;*/
+        /*    border-collapse: collapse;*/
+        /*}*/
+
+        /*.custom-table th, .custom-table td {*/
+        /*    padding: 8px 12px;*/
+        /*    text-align: left;*/
+        /*    border: 1px solid #ddd;*/
+        /*    white-space: nowrap;*/
+        /*}*/
+
+        /*.fixed-column {*/
+        /*    position: sticky;*/
+        /*    right: 0;*/
+        /*    background-color: white;*/
+        /*    z-index: 10;*/
+        /*}*/
+
+        /*!* 状态颜色 *!*/
+        /*.state-color-green {*/
+        /*    color: #67c23a;*/
+        /*}*/
+
+        /*.state-color-yellow {*/
+        /*    color: #e6a344;*/
+        /*}*/
+
+        /*.state-color-blue {*/
+        /*    color: #2c99ff;*/
+        /*}*/
+
+        /*.state-color-black {*/
+        /*    color: #000000;*/
+        /*}*/
+
+        .modal-right {
+            position: fixed;
+            right: 0;
+            margin: 0;
+            height: 100%;
+            display: flex;
+            align-items: stretch;
+        }
+
+        .modal-right .modal-content {
+            height: 100%;
+            width: 70%;
+            margin-left: auto;
+        }
+        .modal-right .but{
+            position: absolute;
+            right: 2%;
+            bottom: 1.3%;
+            background: red;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+
+        .progress_inner {
+            height: 80px;
+            width: 100%;
+            position: relative;
+        }
+
+        .progress_inner__step {
+            width: 33.33%;
+            font-size: 12px;
+            padding: 0 5px;
+            transition: all 0.4s;
+            float: left;
+            text-align: center;
+            position: relative;
+        }
+
+        .progress_inner__step label {
+            padding-top: 30px;
+            display: block;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .progress_inner__step:before {
+            content: "1";
+            width: 24px;
+            height: 24px;
+            color: #2196F3;
+            background: white;
+            line-height: 22px;
+            border: 2px solid #2196F3;
+            font-size: 12px;
+            top: 0;
+            border-radius: 50%;
+            transition: all 0.4s;
+            position: absolute;
+            left: 0;
+            right: 0;
+            margin: auto;
+            font-weight: bold;
+            z-index: 11;
+        }
+
+        .progress_inner__step:nth-of-type(2):before {
+            content: "2";
+            color: #9E9E9E;
+            border-color: #9E9E9E;
+        }
+
+        .progress_inner__step:nth-of-type(3):before {
+            content: "3";
+            color: #9E9E9E;
+            border-color: #9E9E9E;
+        }
+
+        .progress_inner__step.completed:before {
+            content: "✓";
+            color: #4CAF50;
+            border-color: #4CAF50;
+            line-height: 22px;
+            font-size: 14px;
+        }
+
+        .progress_inner__step.active:before {
+            color: #2196F3;
+            border-color: #2196F3;
+            background: white;
+        }
+
+        .progress_inner__step.pending:before {
+            color: #9E9E9E;
+            border-color: #9E9E9E;
+            background: white;
+        }
+
+        .progress_inner__bar {
+            height: 3px;
+            left: 16.665%;
+            right: 16.665%;
+            background: #E0E0E0;
+            position: absolute;
+            top: 12px;
+            z-index: -1;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress_inner__bar--progress {
+            height: 100%;
+            background: #4CAF50;
+            width: 0;
+            transition: width 0.6s ease;
+        }
+
+        .status-text {
+            color: #9E9E9E;
+            font-weight: normal;
+            transition: all 0.4s;
+            font-size: 12px;
+        }
+
+        .status-text.active {
+            color: #2196F3;
+            font-weight: bold;
+        }
+
+        .status-text.completed {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+        .buttons {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        button {
+            background: #2196F3;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 3px;
+            margin: 0 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            font-size: 12px;
+        }
+
+        button:hover {
+            background: #1976D2;
+        }
+
+        button:last-child {
+            background: #9E9E9E;
+        }
+
+        button:last-child:hover {
+            background: #757575;
+        }
+
+        /* 新增的流程记录样式 */
+        .timeline-title {
+            font-weight: bold;
+            font-size: 14px;
+            color: #333;
+            text-align: left;
+            margin: 0 0 25px 20px;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+            position: relative;
+            padding-bottom: 15px;
+        }
+
+        .timeline-title::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            height: 0.5px;
+            /*background: linear-gradient(to right, #e0e0e0, #a0a0a0, #e0e0e0);*/
+            background: linear-gradient(to right,
+            rgba(224,224,224,0.8),
+            rgba(224,224,224,0.8),
+            rgba(224,224,224,0.8)); /* 添加透明度使线条更柔和 */
+            box-shadow: 0 0.5px 1px rgba(0,0,0,0.07);
+        }
+
+        .track-rcol {
+            width: 100%;
+            max-width: 500px;
+            margin: 20px auto;
+            /*width: 450px;*/
+            /*!*border: 1px solid #eee;*!*/
+            /*margin: 20px auto;*/
+            /*background: transparent;*/
+        }
+        .track-list {
+            margin: 20px;
+            padding-left: 5px;
+            position: relative;
+        }
+        .track-list ul {
+            padding-left: 0;
+        }
+        .track-list li {
+            position: relative;
+            padding: 5px 0 10px 25px;
+            line-height: 1.4;
+            border-left: 2px solid #d9d9d9;
+            color: #666;
+            list-style: none;
+            /*text-align: left;*/
+            transition: all 0.4s ease; /* 添加过渡效果 */
+        }
+        .track-list li.first {
+            color: #666;
+            padding-top: 0;
+            /*border-left-color: #fff;*/
+        }
+        .track-list li .node-icon {
+            position: absolute;
+            left: -7px;
+            top: 18px;
+            width: 8px; /* 调圆点*/
+            height: 8px;
+            background: #C0C0C0;
+            border-radius: 50%;
+            transition: all 0.4s ease; /* 添加过渡效果 */
+            border: 2px solid #E0E0E0;
+            box-sizing: content-box;
+        }
+        .track-list li.first .node-icon {
+            background: #C0C0C0; /* 天蓝色 */
+            width: 8px;
+            height: 8px;
+            left: -8px;
+        }
+        .track-list li .time {
+            display: block;
+            margin-bottom: 3px;
+            font-size: 11px;
+            color: #888;
+            transition: all 0.4s ease; /* 添加过渡效果 */
+        }
+        .track-list li .txt {
+            display: block;
+            font-size: 12px;
+            transition: all 0.4s ease; /* 添加过渡效果 */
+        }
+
+        /* 悬停效果 */
+        .track-list li:hover {
+            color: #333;
+        }
+        .track-list li:hover .node-icon {
+            transform: scale(1.3);
+            background: #ed8088;
+        }
+        .track-list li:hover .time {
+            color: #666;
+        }
+
+        /* 新增审核状态样式 */
+        .approve-status {
+            margin-top: 10px;
+            text-align: center;
+        }
+        .approve-status label {
+            margin: 0 10px;
+            cursor: pointer;
+        }
+        .approve-status input {
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 search-collapse">
+            <form id="formId">
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            <label>学院：</label>
+                            <select name="xueyuan" th:with="type=${@dict.getType('sys_dept')}">
+                                <option value="">所有</option>
+                                <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
+                            </select>
+                        </li>
+                        <li>
+                            <label>姓名：</label>
+                            <input type="text" name="xingming"/>
+                        </li>
+                        <li>
+                            <label>专利名称：</label>
+                            <input type="text" name="mingcheng"/>
+                        </li>
+                        <li>
+                            <label>授权号：</label>
+                            <input type="text" name="shoquanhao"/>
+                        </li>
+                        <li>
+                            <label>获批时间：</label>
+                            <input type="text" class="time-input" placeholder="请选择获批时间" name="huopishijain"/>
+                        </li>
+                        <li>
+                            <label>分类：</label>
+                            <select name="fenlei" th:with="type=${@dict.getType('sys_zhuanli_fenlei')}">
+                                <option value="">所有</option>
+                                <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
+                            </select>
+                        </li>
+                        <li>
+                            <label>排名：</label>
+                            <input type="text" name="paiming"/>
+                        </li>
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+
+        <div class="btn-group-sm" id="toolbar" role="group">
+            <a class="btn btn-success" onclick="$.operate.addTab()" shiro:hasPermission="system:zhuanliruanzhu:add">
+                <i class="fa fa-plus"></i> 添加
+            </a>
+            <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:zhuanliruanzhu:export">
+                <i class="fa fa-download"></i> 导出
+            </a>
+        </div>
+        <div class="col-sm-12 select-table table-striped">
+            <div class="table-container">
+                <table id="bootstrap-table" class="custom-table">
+                    <thead>
+                    <tr>
+                        <th>序号</th>
+                        <th>学院</th>
+                        <th>专业</th>
+                        <th>姓名</th>
+                        <th>专利名称</th>
+                        <th>类型</th>
+                        <th>获批时间</th>
+                        <th>分类</th>
+                        <th>负责人排名</th>
+                        <th>积分</th>
+                        <th class="fixed-column">操作</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <!-- 数据行将由JavaScript动态生成 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+
+
+            </div>
+        </div>
+
+<div class="wrapper wrapper-content fadeInRight" style="position: absolute; left: -9999px;">
+    <div class="row">
+        <div class="col-sm-4">
+            <div class="ibox ">
+                <div class="ibox-content">
+                    <div class="modal inmodal" id="lcjl_Moda" tabindex="-1" role="dialog" aria-hidden="true">
+                        <div class="modal-dialog modal-right" >
+                            <div class="modal-content animated bounceInRight">
+                                <div class="modal-header">
+                                    <div class="timeline-title">流程记录</div>
+
+                                    <!-- 原有的流程进度条部分 -->
+                                    <div>
+                                        <div class='progress_inner'>
+                                            <div class='progress_inner__step active' id='step-1'>
+                                                <label for='step-1'><span class="status-text active">待提交</span></label>
+                                            </div>
+                                            <div class='progress_inner__step pending' id='step-2'>
+                                                <label for='step-2'><span class="status-text">审核中</span></label>
+                                            </div>
+                                            <div class='progress_inner__step pending' id='step-3'>
+                                                <label for='step-3'><span class="status-text">已完成</span></label>
+                                            </div>
+                                            <div class='progress_inner__bar' style="z-index: 10">
+                                                <div class='progress_inner__bar--progress' id='progress-bar'></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-body">
+                                    <!-- 流程记录标题 - 放在左上角 -->
+
+
+                                    <!-- 流程记录内容 - 放在流程图下方 -->
+                                    <div class="track-rcol">
+                                        <div class="track-list">
+                                            <ul id="event-list">
+                                                <li class="first">
+                                                    <i class="node-icon"></i>
+                                                    <span class="time" id="current-time">等待操作...</span>
+                                                    <span class="txt">[新增] - 哈尔滨信息工程学院</span>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-white but" data-dismiss="modal">关闭</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<th:block th:include="include :: footer" />
+<script th:inline="javascript">
+    var editFlag = [[${@permission.hasPermi('system:zhuanliruanzhu:edit')}]];
+    var removeFlag = [[${@permission.hasPermi('system:zhuanliruanzhu:remove')}]];
+    var xueyuanDatas = [[${@dict.getType('sys_xueyuan')}]];
+    var leixingDatas = [[${@dict.getType('sys_zhuanli_leibie')}]];
+    var shifouyingyonDatas = [[${@dict.getType('sys_yes_no')}]];
+    var hangyelianheDatas = [[${@dict.getType('sys_yes_no')}]];
+    var fenleiDatas = [[${@dict.getType('sys_zhuanli_fenlei')}]];
+    var datas = [[${@dict.getType('sys_zhuanli_zd')}]];
+    var paiMingDatas = [[${@dict.getType('sys_zhuanliruanzhu_fzr')}]];
+    var proFlag = [[${@permission.hasPermi('system:zhuanliruanzhu:process')}]];
+    var editInfo = [[${@permission.hasPermi('system:zhuanliruanzhu:info')}]];
+    var hechaFlag = [[${@permission.hasPermi('system:zhuanliruanzhu:hecha')}]];
+    var createFlag = [[${@permission.hasPermi('system:zhuanliruanzhu:add')}]];
+    var chayueFlag = [[${@permission.hasPermi('system:zhuanliruanzhu:chayue')}]];
+    var chexiaoFlag = [[${@permission.hasPermi('system:zhuanliruanzhu:chexiao')}]];
+
+    var prefix = ctx + "system/zhuanliruanzhu";
+
+    $(function() {
+        function initTable(options) {
+            var tableId = options.id;
+            options.url = getUrl(tableId);
+            $.table.init(options);
+        }
+
+        function getUrl(tableId) {
+            var year = localStorage.getItem("year");
+            return prefix + "/list/?year=" + year;
+        }
+
+        var options = {
+            url: prefix + "/list",
+            createUrl: prefix + "/add",
+            updateUrl: prefix + "/edit/{id}",
+            removeUrl: prefix + "/remove",
+            detailUrl: prefix + "/detail/{id}",
+            exportUrl: prefix + "/export",
+            recallUrl: prefix + "/recall/{id}",
+            rowStyle: rowStyle0,
+            modalName: "专利软著",
+            columns: [
+                {
+                    field: 'number',
+                    title: '序号',
+                    width: 5,
+                    align: 'center',
+                    switchable: false,
+                    formatter: function(value, row, index) {
+                        return $.table.serialNumber(index);
+                    }
+                },
+                {
+                    field: 'yname',
+                    title: '学院'
+                },
+                {
+                    field: 'dname',
+                    title: '专业'
+                },
+                {
+                    field: 'userName',
+                    title: '姓名'
+                },
+                {
+                    field: 'mingcheng',
+                    title: '专利名称'
+                },
+                {
+                    field: 'leixing',
+                    title: '类型',
+                    formatter: function(value, row, index) {
+                        return $.table.selectDictLabel(leixingDatas, value);
+                    }
+                },
+                {
+                    field: 'huopishijain',
+                    title: '获批时间'
+                },
+                {
+                    field: 'fenlei',
+                    title: '分类',
+                    formatter: function(value, row, index) {
+                        return $.table.selectDictLabel(fenleiDatas, value);
+                    }
+                },
+                {
+                    field: 'paiming',
+                    title: '负责人排名',
+                    formatter: function(value, row, index) {
+                        return $.table.selectDictLabel(paiMingDatas, value);
+                    }
+                },
+                {
+                    field: 'jifen',
+                    title: '积分'
+                },
+                {
+                    title: '操作',
+                    align: 'center',
+                    class: 'fixed-column',
+                    formatter: function(value, row, index) {
+                        var actions = [];
+                        console.log(row);
+
+                        if (row.state == 0) {
+                            if (row.userId == row.uid) {
+                                actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/tijiao' + '\')"><i class=""></i>提交&nbsp;&nbsp;&nbsp;&nbsp;</a>');
+                                actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class=""></i>编辑&nbsp;&nbsp;&nbsp;&nbsp;</a>');
+                                actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"><i class="" style="color : #c90000"></i>删除</a>');
+
+
+                            }
+                            actions.push('<br>')
+                            actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan' + '\')"><i class=""></i>查看&nbsp;&nbsp;&nbsp;&nbsp;</a>');
+                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
+
+                        } else if (row.state == 1) {
+                            actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro' + '\')"><i class=""></i>批阅</a>');
+                            actions.push('<br>')
+                            actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan' + '\')"><i class=""></i>查看&nbsp;&nbsp;&nbsp;&nbsp;</a>');
+                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
+
+                        } else if ((row.state == 3 || row.state == 5 || row.state == 7) && row.userId == row.uid) {
+                            actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class=""></i>更新</a>');
+                            actions.push('<br>')
+                            actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan' + '\')"><i class=""></i>查看&nbsp;&nbsp;&nbsp;&nbsp;</a>');
+                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
+
+                        } else if (row.state == 3 || row.state == 5 || row.state == 7) {
+
+                            actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan' + '\')"><i class=""></i>查看&nbsp;&nbsp;&nbsp;&nbsp;</a>');
+                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
+                        } else if (row.state == 2) {
+                            actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')"><i class=""></i>撤回</a>');
+                            actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/hecha' + '\')"><i class=""></i>核查</a>');
+                            actions.push('<br>')
+                            actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan' + '\')"><i class=""></i>查看&nbsp;&nbsp;&nbsp;&nbsp;</a>');
+                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
+
+                        } else if (row.state == 4) {
+
+                            actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')"><i class=""></i>撤回</a>');
+                            actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chayue' + '\')"><i class=""></i>查阅</a>');
+                            actions.push('<br>')
+                            actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan' + '\')"><i class=""></i>查看&nbsp;&nbsp;&nbsp;&nbsp;</a>');
+                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
+
+                        } else if (row.state == 6) {
+
+                            actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')"><i class=""></i>撤回</a>');
+                            actions.push('<br>')
+                            actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan' + '\')"><i class=""></i>查看&nbsp;&nbsp;&nbsp;&nbsp;</a>');
+                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
+
+                        }
+                        return actions.join('');
+                    }
+                }
+            ]
+        };
+
+        $.table.init(options);
+
+        window.addEventListener("storage", function(event) {
+            if (event.key === "year") {
+                $('#bootstrap-table').bootstrapTable('destroy');
+                initTable(options);
+            }
+        });
+
+        function adjustTableLayout() {
+            const tableWidth = $('.table-container').width();
+            const fixedColumnWidth = $('.fixed-column').width();
+            const contentWidth = tableWidth - fixedColumnWidth;
+
+            $('.custom-table').css('width', contentWidth + fixedColumnWidth + 'px');
+        }
+
+        $(window).on('resize', function() {
+            adjustTableLayout();
+        });
+
+        adjustTableLayout();
+    });
+
+    function downloadFiles(id) {
+        window.location.href = ctx + 'common/HXdownloadZip?id=' + id;
+    }
+
+    function rowStyle0(row, index) {
+        const stateColorMap = {
+            6: '#67c23a', // 完结 绿色
+            3: '#e6a344', 5: '#e6a344', 7: '#e6a344', // 被驳回，草稿 黄色
+            1: '#2c99ff', 2: '#2c99ff', 4: '#2c99ff', // 审核中 蓝色
+            0: '#e6a344' // 草稿 黄色
+            // 1: '#2c99ff', // 审核中 蓝色
+            // 2: '#67c23a', // 完结 绿色
+            // 3: '#e6a344', // 被驳回，草稿 黄色
+            // 4: '#67c23a', // 完结 绿色
+            // 5: '#e6a344', // 被驳回，草稿 黄色
+            // 6: '#67c23a', // 完结 绿色
+           // 7: '#67c23a', // 完结 绿色
+        };
+
+        const state = String(row.state);
+        if (state in stateColorMap) {
+            return {
+                css: { 'color': stateColorMap[state] }
+            };
+        }
+
+        return {
+            css: { 'color': '#000000' }
+        };
+    }
+
+
+
+    function showhistory(id,state) {
+        updateProgressStepColor(state)
+        //查询配乐记录
+        $.ajax({
+            url: prefix + '/bhyy/'+id,
+            type: 'POST',
+            data: {
+                kid: id
+            },
+            success: function (response) {
+                const eventList = document.getElementById('event-list');
+                eventList.innerHTML = '';
+                console.log(response.rows);
+                response.rows.forEach(function (row) {
+                    console.log(response.rows);
+
+                    const li = document.createElement('li');
+                    li.innerHTML = `
+
+                        <div class="event-item">
+                            <div class="event-content">
+                                <i class="node-icon"></i>
+                                <span class="time" id="current-time">${row.createTime}</span>
+                                <span class="txt">[${row.state}] - ${row.uname}</span>
+                            </div>
+                        </div>
+                    `;
+                    eventList.insertBefore(li, eventList.firstChild);
+                });
+            },
+            error: function () {
+                alert('Failed to fetch event history.');
+            }
+        });
+    }
+
+    function updateProgressStepColor(state) {
+        // 获取所有步骤元素
+        const steps = document.querySelectorAll('.progress_inner__step');
+
+        // 遍历所有步骤，重置样式
+        steps.forEach(step => {
+            step.classList.remove('active', 'completed', 'pending');
+            step.querySelector('.status-text').classList.remove('active', 'completed');
+        });
+
+        // 根据 state 设置相应的步骤颜色
+        if ([0, 3, 5, 7].includes(state)) {
+            document.getElementById('step-1').classList.add('active');
+            document.getElementById('step-1').querySelector('.status-text').classList.add('active');
+        } else if (state === 6) {
+            document.getElementById('step-1').classList.add('completed');
+            document.getElementById('step-1').querySelector('.status-text').classList.add('completed');
+            document.getElementById('step-2').classList.add('completed');
+            document.getElementById('step-2').querySelector('.status-text').classList.add('completed');
+            document.getElementById('step-3').classList.add('completed');
+            document.getElementById('step-3').querySelector('.status-text').classList.add('completed');
+        } else if ([1, 2, 4].includes(state)) {
+            document.getElementById('step-1').classList.add('completed');
+            document.getElementById('step-1').querySelector('.status-text').classList.add('completed');
+            document.getElementById('step-2').classList.add('completed');
+            document.getElementById('step-2').querySelector('.status-text').classList.add('completed');
+        } else {
+            // 默认情况下，所有步骤为灰色
+            steps.forEach(step => {
+                step.classList.add('pending');
+                step.querySelector('.status-text').classList.add('pending');
+            });
+        }
+    }
+
+
+    document.addEventListener('DOMContentLoaded', function () {
+        // 初始化显示当前时间
+        document.getElementById('current-time').textContent = getCurrentTime();
+    });
+
+
+
+
+
+
+
+
+</script>
+</body>
+</html>

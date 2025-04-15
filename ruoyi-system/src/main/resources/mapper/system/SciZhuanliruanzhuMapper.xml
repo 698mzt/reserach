@@ -34,7 +34,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="selectSciZhuanliruanzhuList" parameterType="SciZhuanliruanzhu" resultMap="SciZhuanliruanzhuResult">
         <include refid="selectSciZhuanliruanzhuVo"/>
-        where state in (1,2,3,4,5,6,7)
+        where state in (0,1,2,3,4,5,6,7)
 
         <if test="xueyuan != null  and xueyuan != ''"> and xueyuan = #{xueyuan}</if>
 
@@ -51,7 +51,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="selectSciZhuanliruanzhuList1" parameterType="SciZhuanliruanzhu" resultMap="SciZhuanliruanzhuResult">
         <include refid="selectSciZhuanliruanzhuVo"/>
-        where (state in (1,2,3,4,5,6,7) and s.user_id = #{uid})
+        where (state in (0,1,2,3,4,5,6,7) and s.user_id = #{uid})
         <if test="userId != null  and userId != ''">and s.user_id = #{uid}</if>
 
 
@@ -70,7 +70,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="selectSciZhuanliruanzhuList2" parameterType="SciZhuanliruanzhu" resultMap="SciZhuanliruanzhuResult">
         <include refid="selectSciZhuanliruanzhuVo"/>
-        where ((state in (1,2,3,4,5,6) and d.dept_id = #{deptId}) or s.user_id = #{uid})
+        where (s.user_id = #{uid} or (state in (1,2,3,4,5,6) and d.dept_id = #{deptId}))
 
         <if test="xueyuan != null  and xueyuan != ''"> and xueyuan = #{xueyuan}</if>
 
@@ -87,7 +87,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="selectSciZhuanliruanzhuList3" parameterType="SciZhuanliruanzhu" resultMap="SciZhuanliruanzhuResult">
         <include refid="selectSciZhuanliruanzhuVo"/>
-        where ((state in (2,4,5,6) and d.parent_id = #{deptId}) or s.user_id = #{uid})
+        where  (s.user_id = #{uid} or (state in (2,4,5,6) and d.parent_id = #{deptId}))
 
         <if test="xueyuan != null  and xueyuan != ''"> and xueyuan = #{xueyuan}</if>
 
@@ -104,7 +104,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="selectSciZhuanliruanzhuList4" parameterType="SciZhuanliruanzhu" resultMap="SciZhuanliruanzhuResult">
         <include refid="selectSciZhuanliruanzhuVo"/>
-        where state in (4,6) or s.user_id = #{uid}
+        where  s.user_id = #{uid} or state in (4,6)
 
         <if test="xueyuan != null  and xueyuan != ''"> and xueyuan = #{xueyuan}</if>
 
@@ -174,7 +174,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="fenlei != null and fenlei != ''">fenlei = #{fenlei},</if>
             <if test="paiming != null and paiming != ''">paiming = #{paiming},</if>
             <if test="wenjian != null and wenjian != ''">wenjian = #{wenjian},</if>
-            state = "1"
+            state = "0"
 
         </trim>
         where id = #{id}
