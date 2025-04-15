@@ -833,7 +833,6 @@
                                 actions.push('<br>')
                             }
                             actions.push('<a class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                            // actions.push('<a class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">流程记录</a> ');
                             actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
                         }else
                         if(row.state == 1 ) {
@@ -1295,7 +1294,7 @@
             success: function (response) {
                 const eventList = document.getElementById('event-list');
                 eventList.innerHTML = '';
-
+                response.rows.sort((a, b) => new Date(b.createTime) - new Date(a.createTime));
                 response.rows.forEach(function (row) {
                     const li = document.createElement('li');
                     li.innerHTML = `
@@ -1308,7 +1307,7 @@
                             </div>
                         </div>
                     `;
-                    eventList.insertBefore(li, eventList.firstChild);
+                    eventList.appendChild(li);
                 });
             },
             error: function () {

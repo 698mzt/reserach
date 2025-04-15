@@ -85,6 +85,12 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
             sciHorizontalPersion.setPersionid(sciHorizontalApplyVertical.getFourthPersonId());
             sciHorizontalApplyVerticalMapper.insertPersionVertical(sciHorizontalPersion);
         }
+        SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
+        sciHorizontalPiyue.setUid(Long.valueOf(sciHorizontalApplyVertical.getUserId()));
+        sciHorizontalPiyue.setVerticalId(Integer.valueOf(id));
+        sciHorizontalPiyue.setConcate("新增");
+        sciHorizontalPiyue.setState("新增");
+        sciHorizontalPiyueMapper.insertVerticalPiyue(sciHorizontalPiyue);
         return id;
     }
 

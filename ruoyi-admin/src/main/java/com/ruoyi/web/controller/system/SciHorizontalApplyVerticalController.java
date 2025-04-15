@@ -20,6 +20,7 @@ import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
@@ -247,7 +248,23 @@ public class SciHorizontalApplyVerticalController extends BaseController {
     @ResponseBody
     public AjaxResult addSave(SciHorizontalApplyVertical sciHorizontalApplyVertical)
     {
+        sciHorizontalApplyVertical.setState("99");
         return toAjax(sciHorizontalApplyVerticalService.insertSciHorizontalApplyVertical(sciHorizontalApplyVertical));
+    }
+
+    /**
+     * 提交申请进行审批
+     */
+    @RequiresPermissions("system:apply:add")
+    @Log(title = "申请横向课题", businessType = BusinessType.INSERT)
+    @PostMapping("/push/{id}")
+    @ResponseBody
+    @Transactional
+    public AjaxResult push(SciHorizontalApplyVertical sciHorizontalApplyVertical)
+    {
+        sciHorizontalApplyVertical.setUserId(Integer.valueOf(getSysUser().getUserId().toString()));
+        sciHorizontalApplyVertical.setState("1");
+        return toAjax(sciHorizontalApplyVerticalService.updateSciHorizontalApplyVertical(sciHorizontalApplyVertical));
     }
 
     /**
