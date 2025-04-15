@@ -41,7 +41,7 @@
         from  sci_horizontal_apply_vertical s left join sys_user u on  s.user_id=u.user_id
                                               left join sys_dept d on u.dept_id = d.dept_id
                                               left join sys_dept p on d.parent_id =p.dept_id
-        where  s.state in (1,2,3,4,5,6,7)
+        where  s.state in (1,2,3,4,5,6,7,99)
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
@@ -267,7 +267,7 @@
                     and s.state = 6
                 </when>
                 <when test="newsql == '01'">
-                    and s.state in (1,2,3,4,5)
+                    and s.state in (1,2,3,4,5,99)
                 </when>
                 <when test="newsql == '02'">
                     and s.state in (7,8,9,10)
