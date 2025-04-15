@@ -31,37 +31,287 @@
         font-size: inherit;
     }
 
-    .progress-container {
-        display: flex;
-        justify-content: space-around;
-        align-items: center;
-        margin-top: 20px;
+
+    <style>
+     .modal-right {
+         position: fixed;
+         right: 0;
+         margin: 0;
+         height: 100%;
+         display: flex;
+         align-items: stretch;
+     }
+
+    .modal-right .modal-content {
+        height: 100%;
+        width: 100%;
+    }
+    .modal-right .but{
+        position: absolute;
+        right: 2%;
+        bottom: 1.3%;
+        background: red;
+        color: white;
+        border: none;
+        border-radius: 4px;
     }
 
-    .progress-step {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
+    .progress_inner {
+        height: 80px;
+        width: 100%;
+        position: relative;
+    }
+
+    .progress_inner__step {
+        width: 33.33%;
+        font-size: 12px;
+        padding: 0 5px;
+        transition: all 0.4s;
+        float: left;
+        text-align: center;
+        position: relative;
+    }
+
+    .progress_inner__step label {
+        padding-top: 30px;
+        display: block;
+        position: relative;
+        cursor: pointer;
+    }
+
+    .progress_inner__step:before {
+        content: "1";
+        width: 24px;
+        height: 24px;
+        color: #2196F3;
+        background: white;
+        line-height: 22px;
+        border: 2px solid #2196F3;
+        font-size: 12px;
+        top: 0;
+        border-radius: 50%;
+        transition: all 0.4s;
+        position: absolute;
+        left: 0;
+        right: 0;
+        margin: auto;
+        font-weight: bold;
+        z-index: 11;
+    }
+
+    .progress_inner__step:nth-of-type(2):before {
+        content: "2";
+        color: #9E9E9E;
+        border-color: #9E9E9E;
+    }
+
+    .progress_inner__step:nth-of-type(3):before {
+        content: "3";
+        color: #9E9E9E;
+        border-color: #9E9E9E;
+    }
+
+    .progress_inner__step.completed:before {
+        content: "✓";
+        color: #4CAF50;
+        border-color: #4CAF50;
+        line-height: 22px;
+        font-size: 14px;
+    }
+
+    .progress_inner__step.active:before {
+        color: #2196F3;
+        border-color: #2196F3;
+        background: white;
+    }
+
+    .progress_inner__step.pending:before {
+        color: #9E9E9E;
+        border-color: #9E9E9E;
+        background: white;
+    }
+
+    .progress_inner__bar {
+        height: 3px;
+        left: 16.665%;
+        right: 16.665%;
+        background: #E0E0E0;
+        position: absolute;
+        top: 12px;
+        z-index: -1;
+        border-radius: 3px;
+        overflow: hidden;
+    }
+
+    .progress_inner__bar--progress {
+        height: 100%;
+        background: #4CAF50;
+        width: 0;
+        transition: width 0.6s ease;
+    }
+
+    .status-text {
+        color: #9E9E9E;
+        font-weight: normal;
+        transition: all 0.4s;
+        font-size: 12px;
+    }
+
+    .status-text.active {
+        color: #2196F3;
+        font-weight: bold;
+    }
+
+    .status-text.completed {
+        color: #4CAF50;
+        font-weight: bold;
+    }
+
+    .buttons {
+        margin-top: 20px;
         text-align: center;
     }
 
-    .progress-step .step-icon {
-        width: 30px;
-        height: 30px;
-        border-radius: 50%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        margin-bottom: 5px;
-    }
-
-    .completed .step-icon {
-        background-color: green;
+    button {
+        background: #2196F3;
         color: white;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 3px;
+        margin: 0 8px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: all 0.3s;
+        font-size: 12px;
     }
 
-    .progress-step .step-text {
+    button:hover {
+        background: #1976D2;
+    }
+
+    button:last-child {
+        background: #9E9E9E;
+    }
+
+    button:last-child:hover {
+        background: #757575;
+    }
+
+    /* 新增的流程记录样式 */
+    .timeline-title {
+        font-weight: bold;
         font-size: 14px;
+        color: #333;
+        text-align: left;
+        margin: 0 0 25px 20px;
+        max-width: 500px;
+        margin-left: auto;
+        margin-right: auto;
+        position: relative;
+        padding-bottom: 15px;
+    }
+
+    .timeline-title::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        height: 0.5px;
+        /*background: linear-gradient(to right, #e0e0e0, #a0a0a0, #e0e0e0);*/
+        background: linear-gradient(to right,
+        rgba(224,224,224,0.8),
+        rgba(224,224,224,0.8),
+        rgba(224,224,224,0.8)); /* 添加透明度使线条更柔和 */
+        box-shadow: 0 0.5px 1px rgba(0,0,0,0.07);
+    }
+
+    .track-rcol {
+        width: 100%;
+        max-width: 500px;
+        margin: 20px auto;
+        /*width: 450px;*/
+        /*!*border: 1px solid #eee;*!*/
+        /*margin: 20px auto;*/
+        /*background: transparent;*/
+    }
+    .track-list {
+        margin: 20px;
+        padding-left: 5px;
+        position: relative;
+    }
+    .track-list ul {
+        padding-left: 0;
+    }
+    .track-list li {
+        position: relative;
+        padding: 5px 0 10px 25px;
+        line-height: 1.4;
+        border-left: 2px solid #d9d9d9;
+        color: #666;
+        list-style: none;
+        /*text-align: left;*/
+        transition: all 0.4s ease; /* 添加过渡效果 */
+    }
+    .track-list li.first {
+        color: #666;
+        padding-top: 0;
+        /*border-left-color: #fff;*/
+    }
+    .track-list li .node-icon {
+        position: absolute;
+        left: -7px;
+        top: 18px;
+        width: 8px; /* 调圆点*/
+        height: 8px;
+        background: #C0C0C0;
+        border-radius: 50%;
+        transition: all 0.4s ease; /* 添加过渡效果 */
+        border: 2px solid #E0E0E0;
+        box-sizing: content-box;
+    }
+    .track-list li.first .node-icon {
+        background: #C0C0C0; /* 天蓝色 */
+        width: 8px;
+        height: 8px;
+        left: -8px;
+    }
+    .track-list li .time {
+        display: block;
+        margin-bottom: 3px;
+        font-size: 11px;
+        color: #888;
+        transition: all 0.4s ease; /* 添加过渡效果 */
+    }
+    .track-list li .txt {
+        display: block;
+        font-size: 12px;
+        transition: all 0.4s ease; /* 添加过渡效果 */
+    }
+
+    /* 悬停效果 */
+    .track-list li:hover {
+        color: #333;
+    }
+    .track-list li:hover .node-icon {
+        transform: scale(1.3);
+        background: #ed8088;
+    }
+    .track-list li:hover .time {
+        color: #666;
+    }
+
+    /* 新增审核状态样式 */
+    .approve-status {
+        margin-top: 10px;
+        text-align: center;
+    }
+    .approve-status label {
+        margin: 0 10px;
+        cursor: pointer;
+    }
+    .approve-status input {
+        margin-right: 5px;
     }
 
 
@@ -128,7 +378,7 @@
                                     <!--                    <i class="fa fa-edit"></i> 修改-->
                                     <!--                </a>-->
                                     <!--                <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()" shiro:hasPermission="system:apply:remove">-->
-                                    <!--                    <i class="fa fa-remove"></i> 删除-->
+                                    <!--                     </i> 删除-->
                                     <!--                </a>-->
                                     <!--<a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:apply:list">
                                         <i class="fa fa-download"></i> 导出
@@ -189,7 +439,7 @@
                                     <!--                    <i class="fa fa-edit"></i> 修改-->
                                     <!--                </a>-->
                                     <!--                <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()" shiro:hasPermission="system:apply:remove">-->
-                                    <!--                    <i class="fa fa-remove"></i> 删除-->
+                                    <!--                     </i> 删除-->
                                     <!--                </a>-->
                                     <a class="btn btn-warning" onclick="$.table.exportExcel()"
                                        shiro:hasPermission="system:apply:export">
@@ -249,7 +499,7 @@
                                     <!--                    <i class="fa fa-edit"></i> 修改-->
                                     <!--                </a>-->
                                     <!--                <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()" shiro:hasPermission="system:apply:remove">-->
-                                    <!--                    <i class="fa fa-remove"></i> 删除-->
+                                    <!--                     </i> 删除-->
                                     <!--                </a>-->
                                     <a class="btn btn-warning" onclick="$.table.exportExcel()"
                                        shiro:hasPermission="system:apply:export">
@@ -271,57 +521,75 @@
 </div>
 
 
-<div class="ibox ">
-    <div class="ibox-content">
-        <div class="modal inmodal" id="myModal" tabindex="-1" role="dialog" aria-hidden="true">
-            <div class="modal-dialog modal-right" style="margin: 0; right: 0; position: fixed;">
-                <div class="modal-content animated bounceInRight">
-                    <div class="modal-header">
-                        <div class="progress-container">
-                            <div class="progress-step" data-step="1">
-                                <span class="step-icon">&#10004;</span>
-                                <span class="step-text">待提交</span>
-                            </div>
-                            <div class="progress-step" data-step="2">
-                                <span class="step-icon">&#10004;</span>
-                                <span class="step-text">待审核</span>
-                            </div>
-                            <div class="progress-step" data-step="3">
-                                <span class="step-icon">&#10004;</span>
-                                <span class="step-text">已完成   </span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-body" style="overflow-y: auto; max-height: 400px;">
+<div class="wrapper wrapper-content fadeInRight" style="position: absolute; left: -9999px;">
+    <div class="row">
+        <div class="col-sm-4">
+            <div class="ibox ">
+                <div class="ibox-content">
+                    <div class="modal inmodal" id="myModal" tabindex="-1" role="dialog" aria-hidden="true">
+                        <div class="modal-dialog modal-right" >
+                            <div class="modal-content animated bounceInRight">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span
+                                            class="sr-only">关闭</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <!-- 流程记录标题 - 放在左上角 -->
+                                    <div class="timeline-title">流程记录</div>
 
-                        <div id="ibox-content">
-                            <div id="vertical-timeline" class="vertical-container light-timeline" >
-                                <div class="vertical-timeline-block" >
-
-                                    <div class="vertical-timeline-icon navy-bg">
-                                        <i class="fa fa-briefcase"></i>
-                                    </div>
-                                    <div class="vertical-timeline-content">
-                                        <h2>会议</h2>
-                                        <p>上一年的销售业绩发布会。总结产品营销和销售趋势及销售的现状。
-                                        </p>
-                                        <a href="javascript:;" class="btn btn-sm btn-primary"> 更多信息</a>
-                                        <span class="vertical-date">今天 <br><small>2月3日</small></span>
+                                    <!-- 原有的流程进度条部分 -->
+                                    <div>
+                                        <div class='progress_inner'>
+                                            <div class='progress_inner__step active' id='step-1'>
+                                                <label for='step-1'><span class="status-text ">待提交</span></label>
+                                            </div>
+                                            <div class='progress_inner__step ' id='step-2'>
+                                                <label for='step-2'><span class="status-text">待审核</span></label>
+                                            </div>
+                                            <div class='progress_inner__step ' id='step-3'>
+                                                <label for='step-3'><span class="status-text">已完成</span></label>
+                                            </div>
+                                            <div class='progress_inner__bar' style="z-index: 10" >
+                                                <div class='progress_inner__bar--progress' id='progress-bar'></div>
+                                            </div>
+                                        </div>
                                     </div>
 
+                                    <!-- 流程记录内容 - 放在流程图下方 -->
+                                    <div class="track-rcol">
+                                        <div class="track-list">
+                                            <ul id="event-list">
+                                                <li class="first">
+                                                    <i class="node-icon"></i>
+                                                    <span class="time" id="current-time">等待操作...</span>
+                                                    <span class="txt">[新增] - 哈尔滨信息工程学院</span>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+
+<!--                                    <div class="approve-status">-->
+<!--                                        <label><input type="radio" name="approve" value="pass" checked> 审核通过</label>-->
+<!--                                        <label><input type="radio" name="approve" value="reject"> 审核未通过</label>-->
+<!--                                    </div>-->
+
+<!--                                    <div class="buttons">-->
+<!--                                        <button onclick="submitForm()">提交</button>-->
+<!--                                        <button onclick="approveForm()">审核</button>-->
+<!--                                        <button onclick="resetForm()">重置</button>-->
+<!--                                    </div>-->
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-white but" data-dismiss="modal">关闭</button>
                                 </div>
                             </div>
                         </div>
+                    </div>
 
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-white" data-dismiss="modal">关闭</button>
-                        <button type="button" class="btn btn-primary">保存</button>
-                    </div>
                 </div>
             </div>
         </div>
-
     </div>
 </div>
 
@@ -478,7 +746,7 @@
                         var actions = [];
                         if (row.state == 6) {
                             //actions.push('<a  class="btn btn-success btn-xs ' + editInfo + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
-                            actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"><i class="fa fa-edit"></i>查看</a> ');
+                            actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')">查看</a> ');
                         }
                         return actions.join('');
                     }
@@ -612,7 +880,7 @@
                         console.log("row=", row)
                         var actions = [];/* Add this CSS to your stylesheet */
 
-                        actions.push('<button type="button" class="link-button" data-toggle="modal" data-target="#myModal" onclick="loadReviewRecords(' + row.id + ', ' + row.state + ')">打开示例窗口</button>');
+                        actions.push('<a  class="link-button" data-toggle="modal" data-target="#myModal" onclick="loadReviewRecords(' + row.id + ', ' + row.state + ')">打开示例窗口</a> ');
                         if (row.state == '15') {
                             actions.push('<a   class="link-button' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')">更新</a> ');
                             actions.push('<a   class="link-button' + '" href="javascript:void(0)" onclick="subDraft(\'' + row.id + '\')">提交草稿</a> ');
@@ -626,41 +894,46 @@
                                 //教研的options1只用处理state=1（待教研室处理）和state=11（待学院处理）的
                                 if (row.state == '1') {
                                     console.log("this is reaearch 1")
-                                    actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro' + '\')"><i class="fa fa-edit"></i>批阅</a> ');
+                                    actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro' + '\')"> 批阅</a> ');
                                 } else if (row.state == '11') {
-                                    actions.push('<a  class="btn btn-danger btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro' + '\')"><i class="fa fa-edit"></i>撤回</a> ');
+                                    actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro' + '\')"> 撤回</a> ');
                                 }
+                                if (row.userId == row.uid){
+                                    actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> 更新</a> ');
+                                    actions.push('<a class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"> </i>删除</a>');
+                                }
+
                             } else if (row.userId == row.uid) {
                                 console.log("row.userId = row.uid:")
                                 if (row.state == '1') {
-                                    actions.push('<a   class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>更新</a> ');
-                                    actions.push('<a class="btn btn-danger btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-remove"></i>删除</a>');
+                                    actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> 更新</a> ');
+                                    actions.push('<a class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"> </i>删除</a>');
                                 }
                                 //待申请结题
                                 else if (row.state == '4') {
-                                    actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.overTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>申请结项</a> ');
+                                    actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.overTab(\'' + row.id + '\')"> 申请结项</a> ');
                                 } else if (row.state == '3' || row.state == '12' || row.state == '5') {
                                     //被三方驳回
-                                    actions.push('<a   class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>更新</a> ');
-                                    //actions.push('<a   class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="submitto(\'' + row.id + '\', \'' + row.state + '\')"><i class="fa fa-edit"></i>提交</a> ');
+                                    actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> 更新</a> ');
+                                    //actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick="submitto(\'' + row.id + '\', \'' + row.state + '\')"> 提交</a> ');
                                 } else {
-                                    actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"><i class="fa fa-edit"></i>查看</a> ');
+                                    actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"> 查看</a> ');
                                 }
                             } else {
                                 //不是自己项目，审批过的
-                                actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"><i class="fa fa-edit"></i>查看</a> ');
+                                actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"> 查看</a> ');
                             }
                         }
                         //学院
                         else if (row.role === 'dept_teacher') {
                             //学院的options1只用处理state=11（待学院处理）和state=2（待科研处理）的
                             if (row.state == '11') {
-                                actions.push('<a  class="btn btn-success btn-xs ' + XYPY + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/dept_teacher' + '\')"><i class="fa fa-edit"></i>批阅</a> ');
+                                actions.push('<a  class="link-button ' + XYPY + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/dept_teacher' + '\')"> 批阅</a> ');
                             } else if (row.state == '2') {
-                                actions.push('<a  class="btn btn-danger btn-xs ' + XYPY + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/dept_teacher' + '\')"><i class="fa fa-edit"></i>撤回</a> ');
+                                actions.push('<a  class="link-button' + XYPY + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/dept_teacher' + '\')"> 撤回</a> ');
                             } else {
                                 //审批过的
-                                actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"><i class="fa fa-edit"></i>查看</a> ');
+                                actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"> 查看</a> ');
 
                             }
 
@@ -669,30 +942,30 @@
                         else if (row.role === 'sci_tesearch') {
                             //科研的options1只用处理state=2（待科研处理）和state=4（待申请结题）的
                             if (row.state == '2') {
-                                actions.push('<a  class="btn btn-success btn-xs ' + KYPY + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/hecha' + '\')"><i class="fa fa-edit"></i>批阅</a> ');
+                                actions.push('<a  class="link-button ' + KYPY + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/hecha' + '\')"> 批阅</a> ');
                             } else if (row.state == '4') {
-                                actions.push('<a  class="btn btn-danger btn-xs ' + KYPY + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/hecha' + '\')"><i class="fa fa-edit"></i>撤回</a> ');
+                                actions.push('<a  class="link-button ' + KYPY + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/hecha' + '\')"> 撤回</a> ');
                             } else {
                                 //上面的这个else是为了保证批阅的时候没有查看
                                 //自己的项目
                                 if (row.userId == row.uid) {
                                     if (row.state == '1') {
-                                        actions.push('<a   class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>更新</a> ');
-                                        actions.push('<a class="btn btn-danger btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-remove"></i>删除</a>');
+                                        actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> 更新</a> ');
+                                        actions.push('<a class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"> </i>删除</a>');
                                     }
                                     //待申请结题
                                     else if (row.state == '4') {
-                                        actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.overTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>申请结项</a> ');
+                                        actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.overTab(\'' + row.id + '\')"> 申请结项</a> ');
                                     } else if (row.state == '3' || row.state == '12' || row.state == '5') {
                                         //被三方驳回
-                                        actions.push('<a   class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>更新</a> ');
-                                        //actions.push('<a   class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick=""submitto(\'' + row.id + '\', \'' + row.state + '\')"><i class="fa fa-edit"></i>提交</a> ');
+                                        actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> 更新</a> ');
+                                        //actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick=""submitto(\'' + row.id + '\', \'' + row.state + '\')"> 提交</a> ');
                                     } else {
-                                        actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"><i class="fa fa-edit"></i>查看</a> ');
+                                        actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"> 查看</a> ');
                                     }
                                 } else {
                                     //不是自己项目，审批过的
-                                    actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"><i class="fa fa-edit"></i>查看</a> ');
+                                    actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"> 查看</a> ');
                                 }
 
                             }
@@ -700,22 +973,22 @@
                         }
                         //admin
                         else if (row.role === 'admin') {
-                            actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"><i class="fa fa-edit"></i>查看</a> ');
+                            actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"> 查看</a> ');
                         } else if (row.role === 'teacher') {
                             if (row.userId == row.uid) {
                                 if (row.state == '1') {
-                                    actions.push('<a   class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>更新</a> ');
-                                    actions.push('<a class="btn btn-danger btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-remove"></i>删除</a>');
+                                    actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> 更新</a> ');
+                                    actions.push('<a class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"> </i>删除</a>');
                                 } else if (row.state == '4') {
-                                    actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.overTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>申请结项</a> ');
+                                    actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.overTab(\'' + row.id + '\')"> 申请结项</a> ');
                                 } else if (row.state == '3' || row.state == '12' || row.state == '5') {
-                                    actions.push('<a   class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>更新</a> ');
-                                    //actions.push('<a   class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="submitto(\'' + row.id + '\', \'' + row.state + '\')"><i class="fa fa-edit"></i>提交</a> ');
+                                    actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> 更新</a> ');
+                                    //actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick="submitto(\'' + row.id + '\', \'' + row.state + '\')"> 提交</a> ');
                                 } else {
-                                    actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"><i class="fa fa-edit"></i>查看</a> ');
+                                    actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"> 查看</a> ');
                                 }
                             } else {
-                                actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"><i class="fa fa-edit"></i>查看</a> ');
+                                actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"> 查看</a> ');
 
                             }
                         }
@@ -842,46 +1115,47 @@
                     align: 'center',
                     formatter: function (value, row, index) {
                         var actions = [];
+                        actions.push('<a  class="link-button" data-toggle="modal" data-target="#myModal" onclick="loadReviewRecords(' + row.id + ', ' + row.state + ')">打开示例窗口</a> ');
                         //教研
                         if (row.role === 'research') {
                             //如果这个项目所属的教研室是登陆人的教研室
                             if (row.deptNamekey === '1') {
                                 //教研的options1只用处理state=7（待教研室处理）和state=13（待学院处理）的
                                 if (row.state == '7') {
-                                    actions.push('<a  class="btn btn-success btn-xs ' + JYPY + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/JYSOVER' + '\')"><i class="fa fa-edit"></i>批阅</a> ');
+                                    actions.push('<a  class="link-button ' + JYPY + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/JYSOVER' + '\')"> 批阅</a> ');
                                 } else if (row.state == '13') {
-                                    actions.push('<a  class="btn btn-danger btn-xs ' + JYPY + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/JYSOVER' + '\')"><i class="fa fa-edit"></i>撤回</a> ');
+                                    actions.push('<a  class="link-button ' + JYPY + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/JYSOVER' + '\')"> 撤回</a> ');
                                 }
                             } else
                                 //上面的这个else是为了保证批阅的时候没有查看
                                 //自己的项目
                             if (row.userId == row.uid) {
                                 if (row.state == '7') {
-                                    actions.push('<a   class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>更新</a> ');
-                                    actions.push('<a class="btn btn-danger btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-remove"></i>删除</a>');
+                                    actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> 更新</a> ');
+                                    actions.push('<a class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"> </i>删除</a>');
                                 } else if (row.state == '9' || row.state == '10' || row.state == '14') {
                                     //被三方驳回
-                                    actions.push('<a   class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>更新</a> ');
-                                    //actions.push('<a   class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="submitto(\'' + row.id + '\', \'' + row.state + '\')"><i class="fa fa-edit"></i>提交</a> ');
+                                    actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> 更新</a> ');
+                                    //actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick="submitto(\'' + row.id + '\', \'' + row.state + '\')"> 提交</a> ');
                                 } else {
-                                    actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"><i class="fa fa-edit"></i>查看</a> ');
+                                    actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"> 查看</a> ');
                                 }
 
                             } else {
                                 //不是自己项目,审批过的
-                                actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"><i class="fa fa-edit"></i>查看</a> ');
+                                actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"> 查看</a> ');
                             }
                         }
                         //学院
                         else if (row.role === 'dept_teacher') {
                             //学院的options1只用处理state=13（待学院处理）和state=8（待科研处理）的
                             if (row.state == '13') {
-                                actions.push('<a  class="btn btn-success btn-xs ' + XYPY + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/dept_teacher' + '\')"><i class="fa fa-edit"></i>批阅</a> ');
+                                actions.push('<a  class="link-button ' + XYPY + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/dept_teacher' + '\')"> 批阅</a> ');
                             } else if (row.state == '8') {
-                                actions.push('<a  class="btn btn-danger btn-xs ' + XYPY + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/dept_teacher' + '\')"><i class="fa fa-edit"></i>撤回</a> ');
+                                actions.push('<a  class="link-button ' + XYPY + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/dept_teacher' + '\')"> 撤回</a> ');
                             } else {
                                 //审批过的
-                                actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"><i class="fa fa-edit"></i>查看</a> ');
+                                actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"> 查看</a> ');
 
                             }
 
@@ -890,26 +1164,26 @@
                         else if (row.role === 'sci_tesearch') {
                             //科研的options1只用处理state=8（待科研处理）和state=6（完结）的
                             if (row.state == '8') {
-                                actions.push('<a  class="btn btn-success btn-xs ' + KYPY + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/KYCOVER' + '\')"><i class="fa fa-edit"></i>批阅</a> ');
+                                actions.push('<a  class="link-button ' + KYPY + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/KYCOVER' + '\')"> 批阅</a> ');
                             } else if (row.state == '6') {
-                                actions.push('<a  class="btn btn-danger btn-xs ' + KYPY + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/KYCOVER' + '\')"><i class="fa fa-edit"></i>撤回</a> ');
+                                actions.push('<a  class="btn btn-danger btn-xs ' + KYPY + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/KYCOVER' + '\')"> 撤回</a> ');
                             } else {
                                 //上面的这个else是为了保证批阅的时候没有查看
                                 //自己的项目
                                 if (row.userId == row.uid) {
                                     if (row.state == '1') {
-                                        actions.push('<a   class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>更新</a> ');
-                                        actions.push('<a class="btn btn-danger btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-remove"></i>删除</a>');
+                                        actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> 更新</a> ');
+                                        actions.push('<a class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"> </i>删除</a>');
                                     } else if (row.state == '9' || row.state == '10' || row.state == '14') {
                                         //被三方驳回
-                                        actions.push('<a   class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>更新</a> ');
-                                        //actions.push('<a   class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="submitto(\'' + row.id + '\', \'' + row.state + '\')"><i class="fa fa-edit"></i>提交</a> ');
+                                        actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> 更新</a> ');
+                                        //actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick="submitto(\'' + row.id + '\', \'' + row.state + '\')"> 提交</a> ');
                                     } else {
-                                        actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"><i class="fa fa-edit"></i>查看</a> ');
+                                        actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"> 查看</a> ');
                                     }
                                 } else {
                                     //不是自己项目，审批过的
-                                    actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"><i class="fa fa-edit"></i>查看</a> ');
+                                    actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"> 查看</a> ');
 
                                 }
 
@@ -918,115 +1192,115 @@
                         }
                         //admin
                         else if (row.role === 'admin') {
-                            actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"><i class="fa fa-edit"></i>查看</a> ');
+                            actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"> 查看</a> ');
                         }
                         //普通教师
                         else if (row.role === 'teacher') {
                             if (row.userId == row.uid) {
                                 if (row.state == '7') {
-                                    actions.push('<a   class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>更新</a> ');
-                                    actions.push('<a class="btn btn-danger btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-remove"></i>删除</a>');
+                                    actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> 更新</a> ');
+                                    actions.push('<a class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"> </i>删除</a>');
                                 } else if (row.state == '9' || row.state == '10' || row.state == '14') {
                                     //被三方驳回
-                                    actions.push('<a   class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>更新</a> ');
-                                    //actions.push('<a   class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="submitto(\'' + row.id + '\', \'' + row.state + '\')"><i class="fa fa-edit"></i>提交</a> ');
+                                    actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> 更新</a> ');
+                                    //actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick="submitto(\'' + row.id + '\', \'' + row.state + '\')"> 提交</a> ');
                                 } else {
-                                    actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"><i class="fa fa-edit"></i>查看</a> ');
+                                    actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"> 查看</a> ');
                                 }
                             } else {
-                                actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"><i class="fa fa-edit"></i>查看</a> ');
+                                actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"> 查看</a> ');
                             }
                         }
                         // if (row.role==='sci_tesearch'){
                         //     if(row.state == '7' || row.state == '9'|| row.state == '10'){
                         //         if(row.userId == row.uid){
-                        //             actions.push('<a class="btn btn-danger btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-remove"></i>删除</a>');
-                        //             actions.push('<a   class="btn btn-success btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>更新</a> ');
+                        //             actions.push('<a class="btn btn-danger btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"> </i>删除</a>');
+                        //             actions.push('<a   class="btn btn-success btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> 更新</a> ');
                         //             if( row.state == '9'|| row.state == '10') {
-                        //                 actions.push('<a class="btn btn-success btn-xs" href="javascript:void(0)" onclick="submitto(\'' + row.id + '\', \'' + row.state + '\')"><i class="fa fa-edit"></i> 提交</a>');
+                        //                 actions.push('<a class="btn btn-success btn-xs" href="javascript:void(0)" onclick="submitto(\'' + row.id + '\', \'' + row.state + '\')">  提交</a>');
                         //             }
                         //         }else {
                         //             //todo:这个查看只能查看，不能进行任何操作
-                        //             actions.push('<a  class="btn btn-success btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
+                        //             actions.push('<a  class="btn btn-success btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')"> 查看</a> ');
                         //         }
                         //     }
                         //     else if(row.state=='6') {
                         //         if (row.userId == row.uid) {
-                        //             //actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.overTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>申请结项</a> ');
-                        //             actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan' + '\')"><i class="fa fa-edit"></i>查看</a> ');
+                        //             //actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.overTab(\'' + row.id + '\')"> 申请结项</a> ');
+                        //             actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan' + '\')"> 查看</a> ');
                         //         }else {
                         //             //todo:这个查看只能查看，不能进行任何操作
-                        //             actions.push('<a  class="btn btn-success btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
+                        //             actions.push('<a  class="btn btn-success btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')"> 查看</a> ');
                         //         }
                         //     }
                         //     else if (row.state=='8'){
-                        //         actions.push('<a  class="btn btn-success btn-xs ' +  '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id+'/KYCOVER' + '\')"><i class="fa fa-edit"></i>核查</a> ');
+                        //         actions.push('<a  class="btn btn-success btn-xs ' +  '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id+'/KYCOVER' + '\')"> 核查</a> ');
                         //     }
                         // }
                         // else if (row.role==='teacher'){
                         //     if(row.state == '7' || row.state == '9'|| row.state == '10'){
                         //         if(row.userId == row.uid){
-                        //             actions.push('<a class="btn btn-danger btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-remove"></i>删除</a>');
-                        //             actions.push('<a   class="btn btn-success btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>更新</a> ');
+                        //             actions.push('<a class="btn btn-danger btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"> </i>删除</a>');
+                        //             actions.push('<a   class="btn btn-success btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> 更新</a> ');
                         //             if( row.state == '9'|| row.state == '10') {
-                        //                 actions.push('<a class="btn btn-success btn-xs" href="javascript:void(0)" onclick="submitto(\'' + row.id + '\', \'' + row.state + '\')"><i class="fa fa-edit"></i> 提交</a>');
+                        //                 actions.push('<a class="btn btn-success btn-xs" href="javascript:void(0)" onclick="submitto(\'' + row.id + '\', \'' + row.state + '\')">  提交</a>');
                         //             }
                         //         }else {
                         //             //todo:这个查看只能查看，不能进行任何操作
-                        //             actions.push('<a  class="btn btn-success btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
+                        //             actions.push('<a  class="btn btn-success btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')"> 查看</a> ');
                         //         }
                         //     } else if(row.state=='6') {
                         //         if (row.userId == row.uid) {
-                        //             //actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.overTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>申请结项</a> ');
-                        //             actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan' + '\')"><i class="fa fa-edit"></i>查看</a> ');
+                        //             //actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.overTab(\'' + row.id + '\')"> 申请结项</a> ');
+                        //             actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan' + '\')"> 查看</a> ');
                         //         }else {
                         //             //todo:这个查看只能查看，不能进行任何操作
-                        //             actions.push('<a  class="btn btn-success btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
+                        //             actions.push('<a  class="btn btn-success btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')"> 查看</a> ');
                         //         }
                         //     }else if (row.state=='8'){
                         //     }
                         // }
                         // else if (row.role==='research'){
                         //     if(row.state == '8' ||row.state == '13' ){
-                        //         actions.push('<a  class="btn btn-success btn-xs ' +  '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id+'/JYSOVER' + '\')"><i class="fa fa-edit"></i>核查</a> ');
+                        //         actions.push('<a  class="btn btn-success btn-xs ' +  '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id+'/JYSOVER' + '\')"> 核查</a> ');
                         //     }
                         //     if(row.userId == row.uid){
                         //         if(row.state=='4') {
-                        //             actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.overTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>申请结项</a> ');
+                        //             actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.overTab(\'' + row.id + '\')"> 申请结项</a> ');
                         //         }else if(row.state=='3'||row.state=='12'||row.state=='15'){
-                        //             actions.push('<a   class="btn btn-success btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>更新</a> ');
-                        //             actions.push('<a   class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="submitto(\'' + row.id + '\')"><i class="fa fa-edit"></i>提交</a> ');
+                        //             actions.push('<a   class="btn btn-success btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> 更新</a> ');
+                        //             actions.push('<a   class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="submitto(\'' + row.id + '\')"> 提交</a> ');
                         //         }
                         //     }
                         // //     if(row.state == '8' || row.state == '9'|| row.state == '10'){
                         // //         if(row.userId == row.uid){
-                        // //             actions.push('<a class="btn btn-danger btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-remove"></i>删除</a>');
-                        // //             actions.push('<a   class="btn btn-success btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>更新</a> ');
+                        // //             actions.push('<a class="btn btn-danger btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"> </i>删除</a>');
+                        // //             actions.push('<a   class="btn btn-success btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> 更新</a> ');
                         // //             if( row.state == '9'|| row.state == '10') {
-                        // //                 actions.push('<a class="btn btn-success btn-xs" href="javascript:void(0)" onclick="submitto(\'' + row.id + '\', \'' + row.state + '\')"><i class="fa fa-edit"></i> 提交</a>');
+                        // //                 actions.push('<a class="btn btn-success btn-xs" href="javascript:void(0)" onclick="submitto(\'' + row.id + '\', \'' + row.state + '\')">  提交</a>');
                         // //             }
                         // //         }else {
                         // //             //todo:这个查看只能查看，不能进行任何操作
-                        // //             actions.push('<a  class="btn btn-success btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
+                        // //             actions.push('<a  class="btn btn-success btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')"> 查看</a> ');
                         // //         }
                         // //     } else if(row.state=='6') {
                         // //         if (row.userId == row.uid) {
-                        // //             //actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.overTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>申请结项</a> ');
-                        // //             actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan' + '\')"><i class="fa fa-edit"></i>查看</a> ');
+                        // //             //actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.overTab(\'' + row.id + '\')"> 申请结项</a> ');
+                        // //             actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan' + '\')"> 查看</a> ');
                         // //         }else {
-                        // //             actions.push('<a  class="btn btn-success btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
+                        // //             actions.push('<a  class="btn btn-success btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')"> 查看</a> ');
                         // //         }
                         // //     }else if (row.state=='7'){
-                        // //         actions.push('<a  class="btn btn-success btn-xs ' +  '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id+'/JYSOVER' + '\')"><i class="fa fa-edit"></i>核查</a> ');
+                        // //         actions.push('<a  class="btn btn-success btn-xs ' +  '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id+'/JYSOVER' + '\')"> 核查</a> ');
                         // //     }
                         //  }
                         // else if (row.role==='admin'){
-                        //     actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
+                        //     actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id +'/chakan'+ '\')"> 查看</a> ');
                         // }
                         // else if (row.role==='dept_teacher'){
-                        //     actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
+                        //     actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id +'/chakan'+ '\')"> 查看</a> ');
                         //     if (row.state == '13'){
-                        //         actions.push('<a  class="btn btn-success btn-xs ' +  '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id+'/dept_teacher' + '\')"><i class="fa fa-edit"></i>核查</a> ');
+                        //         actions.push('<a  class="btn btn-success btn-xs ' +  '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id+'/dept_teacher' + '\')"> 核查</a> ');
                         //     }
                         // }
                         return actions.join('');
@@ -1092,32 +1366,19 @@
 
         //批阅记录
         $.ajax({
-            url: prefix + "/bhyy/"+Id, // 替换为实际的API路径
+            url: prefix + "/bhyy/" + Id, // 替换为实际的API路径
             method: 'POST',
             data: {kid: Id},
             success: function (response) {
-               console.log("loadReviewRecords=",response)
-                var recordsContainer = $('#vertical-timeline');
-                recordsContainer.empty(); // 清空之前的记录
-                // <div className="vertical-timeline-content">
-                //     <h2>会议</h2>
-                //     <p>上一年的销售业绩发布会。总结产品营销和销售趋势及销售的现状。
-                //     </p>
-                //     <a href="javascript:;" className="btn btn-sm btn-primary"> 更多信息</a>
-                //     <span className="vertical-date">今天 <br><small>2月3日</small></span>
-                // </div>
-                response.rows.forEach(function(row) {
-                    var recordHtml = '<div class="vertical-timeline-block" >'+
-                        '<div class="vertical-timeline-icon navy-bg">'+
-                                    '<i class="fa fa-briefcase"></i>'+
-                                    ' </div>'+
-                        '<div class="vertical-timeline-content">' +
-                        '<h3>' + row.uname + '</h3>' +
-                        '<p>' + row.createTime + '</p>' +
-                        '<span>' + row.state + '</span>' +
-                        '</div>'+
-                        '</div>';
-                    recordsContainer.append(recordHtml);
+                const eventList = document.getElementById('event-list');
+                eventList.innerHTML = '';
+
+                response.rows.forEach(function (row) {
+                    const li = document.createElement('li');
+                   li.innerHTML = '<i class="node-icon"></i>' +
+                       '<span class="time">' + row.createTime + '</span>' +
+                       '<span class="txt">' + row.state + '</span>';
+                   eventList.insertBefore(li, eventList.firstChild);
                 });
             },
             error: function () {
@@ -1140,7 +1401,8 @@
             step = "2";
         }
         console.log("step=", step)
-        const progressSteps = document.querySelectorAll('.progress-step');
+        const progressSteps = document.querySelectorAll('.progress_inner__step');
+        console.log("progressSteps=", progressSteps)
         progressSteps.forEach((stepElement, index) => {
             if (index < step) {
                 stepElement.classList.add('completed');
@@ -1150,6 +1412,12 @@
                 stepElement.classList.remove('completed', 'active');
             }
         });
+        const progressBar = document.querySelector('.progress_inner__bar');
+        console.log("progressBar=", progressBar)
+        if (progressBar) {
+            const progressPercentage = (step - 1) / (progressSteps.length - 1) * 100;
+            progressBar.style.width = `${progressPercentage}%`;
+        }
     }
 
      function subDraft(id) {
