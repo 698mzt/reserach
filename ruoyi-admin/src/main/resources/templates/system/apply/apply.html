@@ -699,7 +699,7 @@
                                 actions.push('<br>')
                             // actions.push('<a  class="btn btn-success btn-xs ' + downloadFlag + '" href="javascript:void(0)" onclick="downloadFiles(\'' +row.id+'\')"><i class="fa fa-edit"></i>下载文件</a> ');
                             actions.push('<a class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                            actions.push('<a class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">流程记录</a> ');
+                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
                         }
                         return actions.join('');
                     }
@@ -859,7 +859,7 @@
                             if( editFlag !== "hidden")
                                 actions.push('<br>')
                             actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                            actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">流程记录</a> ');
+                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
                         }else
                         if(row.state ==  2){
                             if (row.userId == row.uid){
@@ -882,7 +882,7 @@
                             if(hechaFlag !== "hidden" || createFlag !== "hidden")
                                 actions.push('<br>')
                             actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                            actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">流程记录</a> ');
+                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
                         }else
                         if(row.state ==  11){
                             if (row.userId == row.uid){
@@ -894,7 +894,7 @@
                             if(hechaFlag !== "hidden" || DeptFlag !== "hidden" || editFlag !== "hidden")
                                 actions.push('<br>')
                             actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                            actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">流程记录</a> ');
+                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
                         }
 
                         return actions.join('');
@@ -1027,7 +1027,7 @@
                             if (proFlag !== "hidden")
                                 actions.push('<br>')
                             actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                            actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">流程记录</a> ');
+                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
 
                         }else
                         if((row.state == 9 || row.state == 10 || row.state == 44)  ){
@@ -1042,7 +1042,7 @@
                             if(editFlag !== "hidden")
                                 actions.push('<br>')
                             actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                            actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">流程记录</a> ');
+                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
 
                         }else if(row.state ==  8){
                             if(row.ynameId == row.userynameId || row.uid == 1)
@@ -1052,7 +1052,7 @@
                             if(proFlag !== "hidden" || DeptFlag !== "hidden")
                                 actions.push('<br>')
                             actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                            actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">流程记录</a> ');
+                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
                             }else
                         if(row.state == 33){
                             actions.push('<a  class="' + hechaFlag + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id +'/KYCOVER'+ '\')">批阅结项&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
@@ -1060,7 +1060,7 @@
                             if (DeptFlag !== "hidden" || hechaFlag !== "hidden")
                                 actions.push('<br>')
                             actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                            actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">流程记录</a> ');
+                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
                         }
                         return actions.join('');
                     }
@@ -1180,7 +1180,7 @@
                                 actions.push('<br>')
                             }
                             actions.push('<a class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                            actions.push('<a class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">流程记录</a> ');
+                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
                         }else
                         if(row.state == 1 ){
                             // if(row.userId == row.uid){
@@ -1192,7 +1192,7 @@
                             if(proFlag !== "hidden")
                                 actions.push('<br>')
                             actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.reid +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                            actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.reid +'/chakan'+ '\')">流程记录</a> ');
+                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
                         }else
                         if((row.state == 3 || row.state == 5 ||row.state == 22)  ){
                             if (row.userId == row.uid){
@@ -1204,7 +1204,7 @@
                             // actions.push('<a  class="btn btn-danger btn-xs ' + hechaFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>撤回</a> ');
                             // actions.push('<a  class="btn btn-danger btn-xs ' + DeptFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>撤回</a> ');
                             actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.reid +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                            actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.reid +'/chakan'+ '\')">流程记录</a> ');
+                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
                         }else
                         if(row.state ==  2){
                             // actions.push('<a  class="btn btn-danger btn-xs ' + proFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>撤回</a> ');
@@ -1213,12 +1213,12 @@
                             if(DeptFlag !== "hidden")
                                 actions.push('<br>')
                             actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.reid +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                            actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.reid +'/chakan'+ '\')">流程记录</a> ');
+                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
                         }else
                         if(row.state ==  4){
                             // actions.push('<a  class="btn btn-danger btn-xs ' + hechaFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>撤回</a> ');
                             actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.reid +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                            actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.reid +'/chakan'+ '\')">流程记录</a> ');
+                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
                         }else
                         if(row.state ==  11){
                             // actions.push('<a  class="btn btn-danger btn-xs ' + DeptFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>撤回</a> ');
@@ -1226,7 +1226,7 @@
                             if(hechaFlag !== "hidden")
                                 actions.push('<br>')
                             actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.reid +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                            actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.reid +'/chakan'+ '\')">流程记录</a> ');
+                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
                         }
                         return actions.join('');
                     }
@@ -1262,8 +1262,8 @@
         // 定义状态值与颜色的映射关系
         const stateColorMap = {
             6: '#67c23a', // 完结 绿色
-            3: '#e6a344', 5: '#e6a344', 9: '#e6a344', 10: '#e6a344', 22: '#e6a344', 44: '#e6a344',99: '#e6a344', // 被驳回，草稿 黄色
-            1: '#2c99ff', 2: '#2c99ff', 4: '#2c99ff', 7: '#2c99ff', 8: '#2c99ff', 11: '#2c99ff', 33: '#2c99ff' // 审核中 蓝色
+            3: '#e6a344', 4: '#e6a344', 5: '#e6a344', 9: '#e6a344', 10: '#e6a344', 22: '#e6a344', 44: '#e6a344',99: '#e6a344', // 被驳回，草稿 黄色
+            1: '#2c99ff', 2: '#2c99ff',  7: '#2c99ff', 8: '#2c99ff', 11: '#2c99ff', 33: '#2c99ff' // 审核中 蓝色
         };
 
         // 统一将 row.state 转换为字符串进行查找

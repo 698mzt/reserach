@@ -664,9 +664,12 @@
                     formatter: function(value, row, index) {
                         var actions = [];
                         if(row.state ==  66){
-                            actions.push('<a  class="btn btn-success btn-xs ' + downloadFlag + '" href="javascript:void(0)" onclick="downloadFiles(\'' +row.id+'\')"><i class="fa fa-edit"></i>下载文件</a> ');
-                            actions.push('<a  class="btn btn-success btn-xs ' + editInfo + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
-                            actions.push('<a  class="btn btn-danger btn-xs ' + KYCFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>撤回</a> ');
+                            // actions.push('<a  class="btn btn-success btn-xs ' + downloadFlag + '" href="javascript:void(0)" onclick="downloadFiles(\'' +row.id+'\')"><i class="fa fa-edit"></i>下载文件</a> ');
+                            actions.push('<a  class="' + KYCFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')">撤回</a> ');
+                            if (KYCFlag == 'hidden')
+                                actions.push('<br>');
+                            actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
+                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
                         }
                         return actions.join('');
                     }
@@ -1031,9 +1034,9 @@
     function rowStyle0(row, index) {
         // 定义状态值与颜色的映射关系
         const stateColorMap = {
-            6: '#67c23a', // 完结 绿色
-            3: '#e6a344', 5: '#e6a344', 9: '#e6a344', 10: '#e6a344', 22: '#e6a344', 44: '#e6a344',99: '#e6a344', // 被驳回，草稿 黄色
-            1: '#2c99ff', 2: '#2c99ff', 4: '#2c99ff', 7: '#2c99ff', 8: '#2c99ff', 11: '#2c99ff', 33: '#2c99ff' // 审核中 蓝色
+            66: '#67c23a', // 完结 绿色
+            3: '#e6a344', 5: '#e6a344', 6: '#e6a344', 7: '#e6a344', 33: '#e6a344', 55: '#e6a344',77: '#e6a344', // 被驳回，草稿 黄色
+            1: '#2c99ff', 2: '#2c99ff', 4: '#2c99ff', 11: '#2c99ff', 22: '#2c99ff', 44: '#2c99ff' // 审核中 蓝色
         };
 
         // 统一将 row.state 转换为字符串进行查找
