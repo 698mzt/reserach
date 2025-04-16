@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('表格虚拟滚动')" />
+</head>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="btn-group-sm" id="toolbar" role="group">
+        <!--	        <a class="btn btn-success" onclick="loadRows()">-->
+        <!--	            <i class="fa fa-plus"></i> 加载10000行数据-->
+        <!--	        </a>-->
+        <!--	        <a class="btn btn-info" onclick="appendRows()">-->
+        <!--	            <i class="fa fa-edit"></i> 追加10000行数据-->
+        <!--	        </a>-->
+        &nbsp;&nbsp;<span id="total" class="badge badge-success"></span>
+    </div>
+    <div class="row">
+        <div class="col-sm-12 select-table table-bordered">
+            <table id="bootstrap-table"></table>
+        </div>
+    </div>
+</div>
+<div th:include="include :: footer"></div>
+<script>
+    var total = 0
+    var prefix = ctx + 'rewardxuexiao'
+    $(function() {
+        var options = {
+            url: prefix + "/list",
+            modalName: '学院业绩成果数',
+            height: 600,
+            sidePagination: "server",
+            pagination: true,
+            showSearch: false,
+            virtualScroll: true,
+            columns:[
+                [
+                    {
+                        checkbox: true
+                    },
+                    {
+                        field: '学院',
+                        title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;学院&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
+                        align: 'center'
+                    },
+                    {
+                        field: '专业',
+                        title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;专业&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
+                        align: 'center'
+                    },
+                    {
+                        title: '纵向科研项目-校级以上',
+                        align: 'center',
+                        field: '纵向科研项目-校级以上'
+                    },
+                    {
+                        title: '纵向科研项目-校级',
+                        align: 'center',
+                        field: '纵向科研项目-校级'
+                    },
+                    {
+                        title: '横向课题科研项目',
+                        align: 'center',
+                        field: '横向课题科研项目'
+                    },
+                    {
+                        title: '成果转化',
+                        align: 'center',
+                        field: '成果转化'
+                    },
+                    {
+                        title: '学术论文',
+                        align: 'center',
+                        field: '学术论文'
+                    },
+                    {
+                        title: '教材著作',
+                        align: 'center',
+                        field: '教材著作'
+                    },
+                    {
+                        title: '专利',
+                        align: 'center',
+                        field: '专利'
+                    },
+                    {
+                        title: '软著',
+                        align: 'center',
+                        field: '软著'
+                    },
+                    {
+                        title: '奖励类',
+                        align: 'center',
+                        field: '奖励类'
+                    },
+                    {
+                        title: '学术报告(讲座类)',
+                        align: 'center',
+                        field: '学术报告'
+                    }
+                ],
+
+            ]
+        };
+        $.table.init(options);
+
+        // 添加表格加载完成后的回调函数
+        $('#bootstrap-table').on('load-success.bs.table', function (data) {
+            var $table = $(this);
+            var $lastRow = $table.find('tbody tr:last');
+
+            if ($lastRow.length > 0) {
+                // 合并前两个单元格
+                $lastRow.find('td:eq(0), td:eq(1), td:eq(2)').attr('colspan', '3').addClass('text-center').html('合计');
+
+                // 删除多余的单元格
+                $lastRow.find('td:eq(1),td:eq(2)').remove();
+            }
+        });
+    });
+
+</script>
+
+</body>
+</html>

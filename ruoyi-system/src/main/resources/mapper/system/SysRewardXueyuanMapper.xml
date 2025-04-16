@@ -3,7 +3,7 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.system.mapper.SysRewardXueyuanMapper">
-    <select id="selectAll">
+    <sql id="All">
         SELECT
             p.dept_name AS 学院,
             d.dept_name AS 专业,
@@ -11,7 +11,7 @@
             COALESCE(SUM(v_school.纵向科研项目校级), 0) AS `纵向科研项目-校级`,
             COALESCE(SUM(h_project.横向课题科研项目), 0) AS `横向课题科研项目`,
             COALESCE(CONCAT(COALESCE(MAX(trans.count), 0), '个（', COALESCE(MAX(trans.amount), 0), '）万'), '0个（0）万') AS `成果转化`,
-            COALESCE(SUM(paper.学术论文), 0) AS `学术论文`,
+            COALESCE(SUM(paper.total_papers), 0) AS `学术论文`,
             COALESCE(SUM(textbook.教材著作), 0) AS `教材著作`,
             COALESCE(SUM(patent.专利), 0) AS 专利,
             COALESCE(SUM(software.软著), 0) AS 软著,
@@ -86,23 +86,48 @@
 -- 学术论文
                  LEFT JOIN (
             SELECT
-                parent.dept_id AS parent_id,
+                d.parent_id AS parent_id,
                 d.dept_id,
-                COUNT(DISTINCT p.user_id) AS 学术论文
+                SUM(SCI + EI + 核心 + 三网 + 普通 + 校办) AS total_papers
             FROM (
                      SELECT
-                         p1.user_id,
-                         p1.paper_title,
-                         p1.paper_ranking,
-                         (SELECT COUNT(*) FROM sci_paper_a p2 WHERE p2.paper_title = p1.paper_title) AS title_count
-                     FROM sci_paper_a p1
-                     WHERE p1.state = 8
-                 ) p
-                     JOIN sys_user u ON p.user_id = u.user_id
-                     JOIN sys_dept d ON u.dept_id = d.dept_id
-                     JOIN sys_dept parent ON d.parent_id = parent.dept_id
-            WHERE p.title_count = 1 OR (p.title_count > 1 AND p.paper_ranking = 1)
-            GROUP BY parent.dept_id, d.dept_id
+                         d.dept_id,
+                         d.dept_name,
+                         SUM(CASE WHEN p.paper_category BETWEEN 1 AND 4 THEN 1 ELSE 0 END) AS SCI,
+                         SUM(CASE WHEN p.paper_category = 5 THEN 1 ELSE 0 END) AS EI,
+                         SUM(CASE WHEN p.paper_category = 6 THEN 1 ELSE 0 END) AS 核心,
+                         SUM(CASE WHEN p.paper_category = 7 THEN 1 ELSE 0 END) AS 三网,
+                         SUM(CASE WHEN p.paper_category = 8 THEN 1 ELSE 0 END) AS 普通,
+                         SUM(CASE WHEN p.paper_category = 9 THEN 1 ELSE 0 END) AS 校办
+                     FROM (
+                              SELECT
+                                  p1.paper_title,
+                                  p1.paper_category,
+                                  u.dept_id,
+                                  p1.paper_ranking,
+                                  p1.state,
+                                  title_counts.title_count
+                              FROM sci_paper_a p1
+                                       LEFT JOIN sys_user u ON p1.user_id = u.user_id
+                                       JOIN (
+                                  SELECT paper_title, COUNT(*) as title_count
+                                  FROM sci_paper_a
+                                  GROUP BY paper_title
+                              ) title_counts ON p1.paper_title = title_counts.paper_title
+                              WHERE p1.state = 8
+                          ) p
+                              LEFT JOIN sys_dept d ON p.dept_id = d.dept_id
+                     WHERE
+                         (p.title_count = 1)
+                        OR (p.title_count > 1 AND p.paper_ranking = 1)
+                     GROUP BY
+                         d.dept_id,
+                         d.dept_name
+                 ) subquery
+                     LEFT JOIN sys_dept d ON subquery.dept_id = d.dept_id
+            GROUP BY
+                d.parent_id,
+                d.dept_id
         ) paper ON p.dept_id = paper.parent_id AND d.dept_id = paper.dept_id
 -- 教材著作
                  LEFT JOIN (
@@ -185,23 +210,26 @@
                      JOIN sys_dept parent ON d.parent_id = parent.dept_id
             GROUP BY parent.dept_id, d.dept_id
         ) report ON p.dept_id = report.parent_id AND d.dept_id = report.dept_id
+    </sql>
+    <select id="selectAll" parameterType="map" resultType="map">
+        <include refid="All"/>
         WHERE p.dept_id = #{dept}   -- 替换为动态学院ID
         GROUP BY p.dept_name, d.dept_name
         ORDER BY p.dept_name, d.dept_name
     </select>
 
-    <select id="selectTotal">
+    <sql id ="Total">
         SELECT
-            SUM(`纵向科研项目-校级以上`) AS `纵向科研项目-校级以上`,
-            SUM(`纵向科研项目-校级`) AS `纵向科研项目-校级`,
-            SUM(`横向课题科研项目`) AS `横向课题科研项目`,
-            SUM(CAST(SUBSTRING_INDEX(`成果转化`, '个', 1) AS UNSIGNED)) AS `成果转化`, -- 提取数字并求和
-            SUM(`学术论文`) AS `学术论文`,
-            SUM(`教材著作`) AS `教材著作`,
-            SUM(专利) AS 专利,
-            SUM(软著) AS 软著,
-            SUM(奖励类) AS 奖励类,
-            SUM(学术报告) AS 学术报告
+            COALESCE(SUM(`纵向科研项目-校级以上`), 0) AS `纵向科研项目-校级以上`,
+            COALESCE(SUM(`纵向科研项目-校级`), 0) AS `纵向科研项目-校级`,
+            COALESCE(SUM(`横向课题科研项目`), 0) AS `横向课题科研项目`,
+            COALESCE(SUM(CAST(SUBSTRING_INDEX(`成果转化`, '个', 1) AS UNSIGNED)), 0) AS `成果转化`,
+            COALESCE(SUM(`学术论文`), 0) AS `学术论文`,
+            COALESCE(SUM(`教材著作`), 0) AS `教材著作`,
+            COALESCE(SUM(专利), 0) AS 专利,
+            COALESCE(SUM(软著), 0) AS 软著,
+            COALESCE(SUM(奖励类), 0) AS 奖励类,
+            COALESCE(SUM(学术报告), 0) AS 学术报告
         FROM (
                  -- 纵向科研项目-校级以上
                  SELECT
@@ -382,9 +410,6 @@
                      ) p
                      LEFT JOIN sys_dept d_dept ON p.dept_id = d_dept.dept_id
                      LEFT JOIN sys_dept parent_dept_alias ON d_dept.parent_id = parent_dept_alias.dept_id
-                     WHERE
-                     (p.title_count = 1)
-                     OR (p.title_count > 1 AND p.paper_ranking = 1)
                      GROUP BY
                      d_dept.dept_id,
                      parent_dept_alias.dept_name,
@@ -466,7 +491,6 @@
                      INNER JOIN sys_user u ON a1.user_id = u.user_id
                      INNER JOIN sys_dept d_dept ON u.dept_id = d_dept.dept_id
                      INNER JOIN sys_dept p_dept ON d_dept.parent_id = p_dept.dept_id
-                 WHERE p_dept.parent_id = 100
                  GROUP BY
                      p_dept.dept_id,
                      d_dept.dept_id
@@ -559,6 +583,48 @@
                  GROUP BY
                      p_dept.dept_id,
                      d_dept.dept_id
-             ) temp;
+             ) temp
+    </sql>
+    <select id="selectTotal">
+        <include refid="Total"/>
+        WHERE temp.学院 = (
+            SELECT dept_name
+            FROM sys_dept
+            WHERE dept_id = #{dept}
+        );
     </select>
+
+    <select id="selectXuexiao" parameterType="map" resultType="map">
+        SELECT * FROM (
+        <!-- 详细数据 -->
+        <include refid="All"/>
+        WHERE
+        <choose>
+            <when test="dept == 100">
+                p.dept_id IN (1139, 1140,1147,1145,1150,1155,1143,1149)
+            </when>
+            <otherwise>
+                p.dept_id = #{dept}
+            </otherwise>
+        </choose>
+        GROUP BY p.dept_name, d.dept_name
+    </select>
+
+<select id="selectXuexiaoall" parameterType="map" resultType="map">
+    <include refid="Total"/>
+    WHERE temp.学院 IN (
+        SELECT dept_name
+        FROM sys_dept
+        <choose>
+            <when test="dept == 100">
+                WHERE dept_id IN (1139, 1140,1147,1145,1150,1155,1143,1149)
+            </when>
+            <otherwise>
+                WHERE dept_id = #{dept}
+            </otherwise>
+        </choose>
+    )
+</select>
+
+
 </mapper>
