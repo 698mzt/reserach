@@ -175,11 +175,15 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
     @Override
 
         public int hxPass(String id,Long uid,String urlFlag) {
-        String state = "0";
+        String state = "8";
 //        SciZhuanliruanzhu sciZhuanliruanzhu = new SciZhuanliruanzhu();
 
         if(urlFlag.equals("hecha")){
             state ="4";
+        }
+        else if(urlFlag.equals("tijiao")){
+            state ="1";
+
         }else if(urlFlag.equals("pro")){
             state ="2";
         }
@@ -204,22 +208,35 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
         }
 
         int a =  sciZhuanliruanzhuMapper.hxPass(id,state);
-        SciZhuanliruanzhuPiyue sciZhuanliruanzhuPiyue = new SciZhuanliruanzhuPiyue();
-        sciZhuanliruanzhuPiyue.setUid(uid);
-        sciZhuanliruanzhuPiyue.setHxktId(Integer.valueOf(id));
-        sciZhuanliruanzhuPiyue.setConcate("同意");
-        sciZhuanliruanzhuPiyue.setState("通过");
-        sciZhuanliruanzhuPiyueMapper.insertSciZhuanliruanzhuPiyue(sciZhuanliruanzhuPiyue);
+
+        if (urlFlag.equals("tijiao")){
+            SciZhuanliruanzhuPiyue sciZhuanliruanzhuPiyue = new SciZhuanliruanzhuPiyue();
+            sciZhuanliruanzhuPiyue.setUid(uid);
+            sciZhuanliruanzhuPiyue.setHxktId(Integer.valueOf(id));
+            sciZhuanliruanzhuPiyue.setConcate("同意");
+            sciZhuanliruanzhuPiyue.setState("提交");
+            sciZhuanliruanzhuPiyueMapper.insertSciZhuanliruanzhuPiyue(sciZhuanliruanzhuPiyue);
+        }
+        else if (urlFlag.equals("pro") || urlFlag.equals("hecha") || urlFlag.equals("chayue")) {
+
+            SciZhuanliruanzhuPiyue sciZhuanliruanzhuPiyue = new SciZhuanliruanzhuPiyue();
+            sciZhuanliruanzhuPiyue.setUid(uid);
+            sciZhuanliruanzhuPiyue.setHxktId(Integer.valueOf(id));
+            sciZhuanliruanzhuPiyue.setConcate("同意");
+            sciZhuanliruanzhuPiyue.setState("通过");
+            sciZhuanliruanzhuPiyueMapper.insertSciZhuanliruanzhuPiyue(sciZhuanliruanzhuPiyue);}
         return a;
     }
 
 
     @Override
     public int hxBh(String id,Long uid, String remark,String urlFlag) {
-        String state = "0";
+        String state = "8";
+
         if(urlFlag.equals("hecha")){
             state ="5";
-        }else if(urlFlag.equals("pro")){
+        }
+       else if(urlFlag.equals("pro")){
             state ="3";
         }else if(urlFlag.equals("chayue")){
             state ="7";

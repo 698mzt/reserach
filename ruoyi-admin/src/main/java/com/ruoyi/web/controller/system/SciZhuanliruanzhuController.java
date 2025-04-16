@@ -1,4 +1,4 @@
-package com.ruoyi.system.controller;
+package com.ruoyi.web.controller.system;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -247,6 +247,8 @@ public class SciZhuanliruanzhuController extends BaseController
 
 
 //    @RequiresPermissions("system:zhuanliruanzhu:process","system:zhuanliruanzhu:info")
+
+    //批阅
     @RequiresPermissions(value={"system:zhuanliruanzhu:process","system:zhuanliruanzhu:info"},logical= Logical.OR)
     @GetMapping("/detail/{id}/{urlFlag}")
     public String detail(@PathVariable("id") Integer id,@PathVariable("urlFlag") String urlFlag, ModelMap mmap)
@@ -320,5 +322,9 @@ public class SciZhuanliruanzhuController extends BaseController
         List<SciZhuanliruanzhuPiyue> list = piyueService.selectSciZhuanliruanzhuPiyueList(ob);
         return getDataTable(list);
     }
+
+
+
+
 }
 
