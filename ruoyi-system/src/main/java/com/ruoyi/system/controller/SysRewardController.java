@@ -17,6 +17,7 @@ import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,7 +26,7 @@ import java.util.List;
 
 /**
  * 奖励Controller
- * 
+ *
  * @author ruoyi
  * @date 2024-12-23
  */
@@ -91,7 +92,7 @@ public class SysRewardController extends BaseController
 //                    list = sysRewardService.selectSysRewardListByOVER(sysReward);
 //                    break;
 //                case "bootstrap-table1":
-                    list = sysRewardService.selectSysRewardListByKYC(sysReward);
+            list = sysRewardService.selectSysRewardListByKYC(sysReward);
 //                    break;
 //                case "bootstrap-table2":
 //                    list = sysRewardService.selectSysRewardListByOverRewardKYC(sysReward);
@@ -109,7 +110,7 @@ public class SysRewardController extends BaseController
 //                    list = sysRewardService.selectSysRewardListByOVER(sysReward);
 //                    break;
 //                case "bootstrap-table1":
-                    list = sysRewardService.selectSysRewardListByJYS(sysReward);
+            list = sysRewardService.selectSysRewardListByJYS(sysReward);
 //                    break;
 //                case "bootstrap-table2":
 //                    list = sysRewardService.selectSysRewardListByOverRewardJYS(sysReward);
@@ -123,7 +124,7 @@ public class SysRewardController extends BaseController
 //                    list = sysRewardService.selectSysRewardListByOVER(sysReward);
 //                    break;
 //                case "bootstrap-table1":
-                    list = sysRewardService.selectSysRewardList(sysReward);
+            list = sysRewardService.selectSysRewardList(sysReward);
 //                    break;
 //                case "bootstrap-table2":
 //                    list = sysRewardService.selectSysRewardListByOverReward(sysReward);
@@ -159,7 +160,7 @@ public class SysRewardController extends BaseController
     {
         List<SysUser> userList =  userService.selectAllUser();
         for (int a = 0; a<userList.size();a++) {
-            if(userList.get(a).getUserId() == getUserId()){
+            if(userList.get(a).getUserId().equals(getUserId())){
                 SysUser user = userList.get(a);
                 user.setFlag(true);
                 userList.set(a,user);
@@ -179,7 +180,23 @@ public class SysRewardController extends BaseController
     @ResponseBody
     public AjaxResult addSave(SysReward sysReward)
     {
+        sysReward.setState("11");
         return toAjax(sysRewardService.insertSysReward(sysReward));
+    }
+
+    /**
+     * 提交申请进行审批
+     */
+    @RequiresPermissions("system:apply:add")
+    @Log(title = "申请横向课题", businessType = BusinessType.INSERT)
+    @PostMapping("/push/{id}")
+    @ResponseBody
+    @Transactional
+    public AjaxResult push(SysReward sysReward)
+    {
+        String state = "1";
+        sysReward.setState(state);
+        return toAjax(sysRewardService.updateSysReward(sysReward));
     }
 
     /**
@@ -219,7 +236,7 @@ public class SysRewardController extends BaseController
         return toAjax(sysRewardService.deleteSysRewardByIds(ids));
     }
 
-//    bhyy审批记录
+    //    bhyy审批记录
     @RequiresPermissions("system:reward:edit")
     @PostMapping("/bhyy/{kid}")
     @ResponseBody
@@ -250,7 +267,7 @@ public class SysRewardController extends BaseController
     @ResponseBody
     public AjaxResult hxPass(String id,String urlFlag)
     {
-        
+
         return toAjax(sysRewardService.hxPass(id,getUserId(),urlFlag));
     }
 
