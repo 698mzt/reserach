@@ -400,7 +400,7 @@
                                                 <li class="first">
                                                     <i class="node-icon"></i>
                                                     <span class="time" id="current-time"></span>
-                                                    <span class="txt" id="current-id">:</span>
+<!--                                                    <span class="txt" id="current-id"></span>-->
                                                     <span class="txt" id="current"></span>
                                                 </li>
                                             </ul>
@@ -633,11 +633,14 @@
                             });
                         });
                         var actions = [];
+                        if(row.state == 99){
+                            actions.push('<a class="' + editFlag + '" href="javascript:void(0)" onclick="pushTh(\'' + row.id + '\')"><i class=""></i>提交</a>&nbsp;&nbsp;&nbsp;');
+                            actions.push('<a class="' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"><i class=""></i>删除</a><br>&nbsp;&nbsp;&nbsp;');
+                            actions.push('<a class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class=""></i>编辑</a>&nbsp;&nbsp;&nbsp;');
+                        }
                         if (row.state == 1) { // 待处理
                             if (row.userId == row.uid) {
-                                actions.push('<a class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class=""></i>编辑</a>&nbsp;&nbsp;&nbsp;');
-                                actions.push('<a class="' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"><i class=""></i>删除</a><br>');
-                                actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="viewProcess(\'' + row.id + '\')"><i class=""></i>查看流程</a>');
+                                actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="viewProcess(\'' + row.id +','+row.state+ '\')"><i class=""></i>查看流程</a>');
                             }
                             actions.push('<a class="' + proFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro\')"><i class=""></i>教研室批阅</a>');
                         } else if (row.state == 2) { // 教研室通过
@@ -648,7 +651,7 @@
                                 actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="viewProcess(\'' + row.id +','+row.state+ '\')"><i class=""></i>查看流程</a>');
                             }
                         } else if (row.state == 3 ||row.state == 7||row.state == 5) { //退回
-                            actions.push('<a class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan\')"><i class=""></i>查看</a>');
+                            actions.push('<a class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan\')"><i class=""></i>查看</a>&nbsp;&nbsp;&nbsp;');
                             if (row.userId == row.uid) {
                                 actions.push('<a class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class=""></i>更新</a><br>');
                                 actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="viewProcess(\'' + row.id +','+row.state+ '\')"><i class=""></i>查看流程</a>');
@@ -689,6 +692,20 @@
 
     </script>
      <script>
+
+         function pushTh(id){
+             var url = prefix + "/tj/" + id;
+             //$.operate.saveTab(url, id)
+             $.ajax({
+                 url: prefix + "/tj/" + id,
+                 type: "post",
+                 success: function (data) {
+                     //alert("提交成功")
+                     $("#bootstrap-table").bootstrapTable('refresh');
+                }
+             })
+         }
+
          function viewProcess(kidd) {
              const kid = kidd.split(",")[0];   //id
              const state = kidd.split(",")[1]; //状态
@@ -707,8 +724,8 @@
                 <li class="time">
                     <i class="node-icon"></i>
                     <span class="time">${item.create_time}</span>
-                    <span class="txt">${item.uname}:</span>
-                    <span class="txt">${item.state}</span>
+                    <span class="txt">[${item.state}]:${item.uname}</span>
+<!--                    <span class="txt">:</span>-->
                 </li>
             `;
 
@@ -734,7 +751,7 @@
                          statusText.classList.remove('active');
                      }
                  });
-                 console.log("state:"+state)
+                 console.log("state$:"+state)
 
                  switch (state) { // 根据 state 更新状态
                      case "1":
@@ -822,8 +839,8 @@
              // 定义状态值与颜色的映射关系
              const stateColorMap = {
                  8: '#67c23a', // 完结 绿色
-                 1: '#e6a344',3: '#e6a344', 5: '#e6a344', 7: '#e6a344', 9: '#e6a344', 10: '#e6a344', 22: '#e6a344', 44: '#e6a344',99: '#e6a344', // 被驳回，草稿 黄色
-                 2: '#2c99ff', 4: '#2c99ff', 6: '#2c99ff', 11: '#2c99ff', 33: '#2c99ff' // 审核中 蓝色
+                 3: '#e6a344', 5: '#e6a344', 7: '#e6a344', 9: '#e6a344', 10: '#e6a344', 22: '#e6a344', 44: '#e6a344',99: '#e6a344', // 被驳回，草稿 黄色
+                 1: '#2c99ff',2: '#2c99ff', 4: '#2c99ff', 6: '#2c99ff', 11: '#2c99ff', 33: '#2c99ff' // 审核中 蓝色
              };
 
              // 统一将 row.state 转换为字符串进行查找
