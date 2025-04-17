@@ -189,6 +189,7 @@ public AjaxResult uploadFile(MultipartFile file, @PathVariable("model") String m
         sciPaperA.setTeacherName(user_name);
 
         System.out.println("sciPaperA = " + sciPaperA);
+        sciPaperA.setState("99");
         return toAjax(sciPaperAService.insertSciPaperA(sciPaperA));
     }
 
@@ -277,7 +278,7 @@ public AjaxResult uploadFile(MultipartFile file, @PathVariable("model") String m
 
 
     @RequiresPermissions("system:apply:edit")
-    @PostMapping("/bhxs/{kid}")
+    @PostMapping("/bhxs/{kid}")//驳回显示
     @ResponseBody
     public TableDataInfo bhxs(@PathVariable("kid")Integer arid)
     {
@@ -288,4 +289,11 @@ public AjaxResult uploadFile(MultipartFile file, @PathVariable("model") String m
         return getDataTable(list);
     }
 
+    @PostMapping("/tj/{id}")
+    @ResponseBody
+    public AjaxResult tj(@PathVariable("id")Integer id)
+    {
+        return toAjax(sciPaperAService.updateSciPaperAState(id));
+
+    }
 }

@@ -64,6 +64,7 @@ public interface ISciPaperAService
      * @return 结果
      */
     public int deleteSciPaperAById(Long id);
+    public int updateSciPaperAState(Integer id);
 
     public List<SciPaperA> selectSciPaperAListCx(SciPaperA sciPaperA);
 
