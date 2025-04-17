@@ -387,6 +387,7 @@
     function submitHandlerBH() {
         if ($.validate.form()) {
             var urlFlag = $("#urlFlag").val();
+            console.log("Submitting with urlFlag:", urlFlag);
             var remark = $('#remark').val();  // 直接获取textarea的值
 
             var url = prefix + "/pybh/" + encodeURIComponent($("#pid").val());;

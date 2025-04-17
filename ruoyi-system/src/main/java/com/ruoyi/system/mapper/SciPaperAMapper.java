@@ -2,6 +2,7 @@ package com.ruoyi.system.mapper;
 
 import java.util.List;
 
+import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.system.domain.SciHorizontalPiyue;
 import com.ruoyi.system.domain.SciPaperA;
 import com.ruoyi.system.domain.SciPaperAr;
@@ -73,7 +74,7 @@ public interface SciPaperAMapper {
 
     int pytg(@Param("id") String id, @Param("state") String state);
 
-
+    public int updateSciPaperAState(Integer id );
 
     List<SciPaperAr> selectSciPaperArList(SciPaperAr sciPaperAr);
 

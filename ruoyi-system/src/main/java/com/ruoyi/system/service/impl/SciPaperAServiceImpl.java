@@ -3,6 +3,7 @@ package com.ruoyi.system.service.impl;
 import java.util.List;
 
 import com.ruoyi.common.annotation.DataScope;
+import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.system.domain.SciPaperAr;
 import com.ruoyi.system.mapper.SciPaperACfgMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -114,6 +115,12 @@ public class SciPaperAServiceImpl implements ISciPaperAService
         return sciPaperAMapper.deleteSciPaperAById(id);
     }
 
+    @Override
+    public int updateSciPaperAState(Integer id) {
+        int a= sciPaperAMapper.updateSciPaperAState(id);
+        return a ;
+    }
+
 
     @Override
     public List<SciPaperA> selectSciPaperArole(Long userId) {
@@ -163,9 +170,9 @@ public class SciPaperAServiceImpl implements ISciPaperAService
     public int pybh(String id, Long userId, String remark, String urlFlag) {
         String state = "0";
         System.out.println("urlFlag = " + urlFlag);
-        if(urlFlag.equals("xytg")){
+        if(urlFlag.equals("xytg")|| urlFlag.equals("xyth") ){
             state ="5";
-        }else if(urlFlag.equals("pro")){
+        }else if(urlFlag.equals("pro") || urlFlag.equals("proth")){
             state ="3";
         }else if(urlFlag.equals("kyth")){
             state ="7";
@@ -179,7 +186,7 @@ public class SciPaperAServiceImpl implements ISciPaperAService
         System.out.println("remark132131 = " + remark);
 
         sciPaperAr.setConcate(remark);
-        sciPaperAr.setState("被驳回");
+        sciPaperAr.setState("驳回");
 
         sciPaperAMapper.insertSciPaperAr(sciPaperAr);
         return a;
