@@ -58,7 +58,7 @@
     <select id="selectSciPaperAList" parameterType="SciPaperA" resultMap="SciPaperAResult">
         <include refid="selectSciPaperAVo"/>
         <where>
-            p.state in (1,8)
+            p.state in (1,2,8)
             ${params.dataScope}
             <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
             <if test="teacherName != null  and teacherName != ''"> and teacher_name like concat('%', #{teacherName}, '%')</if>
@@ -107,7 +107,7 @@
     <select id="selectSciPaperAListXY" parameterType="SciPaperA" resultMap="SciPaperAResult">
         <include refid="selectSciPaperAVo"/>
         <where>
-            p.state in (2,8)
+            p.state in (2,4,8)
             ${params.dataScope}
             <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
             <if test="teacherName != null  and teacherName != ''"> and teacher_name like concat('%', #{teacherName}, '%')</if>
@@ -308,6 +308,9 @@
             <if test="state != null">state = #{state},</if>
         </trim>
         where id = #{id}
+    </update>
+    <update id="updateSciPaperAState">
+        update sci_paper_a set state = 1 where id = #{id}
     </update>
 
     <update id="pytg" >
