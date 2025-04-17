@@ -27,7 +27,6 @@ public interface ISysRewardService
      * @return 奖励集合
      */
     public List<SysReward> selectSysRewardList(SysReward sysReward);
-
     /**
      * 新增奖励
      * 
