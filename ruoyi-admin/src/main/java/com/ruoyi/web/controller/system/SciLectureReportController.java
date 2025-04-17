@@ -114,7 +114,7 @@ public class SciLectureReportController extends BaseController
         }
         // 普通用户以及管理员
         else{
-            sciLectureReport.setStatelist(Arrays.asList(1, 2, 3, 5,4,6,7)); // 查询时状态设置
+            sciLectureReport.setStatelist(Arrays.asList(0,1, 2, 3, 5,4,6,7)); // 查询时状态设置
         }
         list = sciLectureReportService.selectSciLectureReportList(sciLectureReport);
         // === 》 结束
@@ -251,15 +251,29 @@ public class SciLectureReportController extends BaseController
     }
 
     /**
+     * 提交讲座报告
+     */
+    @RequiresPermissions("system:report:submit")
+    @Log(title = "提交讲座报告", businessType = BusinessType.DELETE)
+    @PostMapping( "/tijiao")
+    @ResponseBody
+    public AjaxResult submit(String ids)
+    {
+//        System.out.println("ids = " + ids);
+        return toAjax(sciLectureReportService.updateSciLectureReportByIds(ids));
+    }
+
+    /**
      * 修改讲座报告   查询对应id的数据
      */
     @RequiresPermissions("system:report:edit")
-    @GetMapping("/edit/{id}")
-    public String edit(@PathVariable("id") Integer id, ModelMap mmap, SciLectureReportIntegral sciLectureReportIntegral)
+    @GetMapping("/edit/{id}/{urlFlag}")
+    public String edit(@PathVariable("id") Integer id, @PathVariable("urlFlag") String urlFlag,ModelMap mmap, SciLectureReportIntegral sciLectureReportIntegral)
     {
         // 获取当前的用户信息
         SysUser currentUser = ShiroUtils.getSysUser();
         SciLectureReport sciLectureReport = sciLectureReportService.selectSciLectureReportById(id);
+        sciLectureReport.setUrlFlag(urlFlag);
 //        List<SysUser> userList =  userService.selectAllUser();
 //        mmap.put("sysUsers",userList);
         List<SciLectureReportIntegral> reportIntegralList = sciLectureReportIntegralService.selectSciLectureReportIntegralList(sciLectureReportIntegral);
@@ -278,7 +292,7 @@ public class SciLectureReportController extends BaseController
     @ResponseBody
     public AjaxResult editSave(SciLectureReport sciLectureReport)
     {
-        sciLectureReport.setState("1");
+        sciLectureReport.setState("0");
         return toAjax(sciLectureReportService.updateSciLectureReport(sciLectureReport));
     }
 
@@ -346,6 +360,17 @@ public class SciLectureReportController extends BaseController
     @PostMapping("/opinion/{rid}")
     @ResponseBody
     public TableDataInfo opinion(@PathVariable("rid")Integer rid)
+    {
+        SciLectureReportOpinion op = new SciLectureReportOpinion();
+        op.setBaogaoId(rid);
+        List<SciLectureReportOpinion> list = opinion.opinionlist(op);
+        return getDataTable(list);
+    }
+
+    @RequiresPermissions("system:report:edit")
+    @GetMapping("/opinion/{rid}")
+    @ResponseBody
+    public TableDataInfo getopinion(@PathVariable("rid")Integer rid)
     {
         SciLectureReportOpinion op = new SciLectureReportOpinion();
         op.setBaogaoId(rid);
