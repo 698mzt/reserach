@@ -33,7 +33,7 @@
 
     <select id="selectSciJiaocairuanzhuList" parameterType="SciJiaocairuanzhu" resultMap="SciJiaocairuanzhuResult">
         <include refid="selectSciJiaocairuanzhuVo"/>
-        where state in (1,2,3,4,5,6)and s.user_id = #{uid}
+        where state in (0,1,2,3,4,5,6,7)and s.user_id = #{uid}
 
         <if test="xueyuan != null  and xueyuan != ''"> and xueyuan = #{xueyuan}</if>
 
@@ -50,7 +50,7 @@
 
     <select id="selectSciJiaocairuanzhuList1" parameterType="SciJiaocairuanzhu" resultMap="SciJiaocairuanzhuResult">
         <include refid="selectSciJiaocairuanzhuVo"/>
-        where state in (1,2,3,4,5,6,7) and s.user_id = #{uid}
+        where state in (0,1,2,3,4,5,6,7) and s.user_id = #{uid}
         <if test="userId != null  and userId != ''">and s.user_id = #{uid}</if>
 
 
@@ -69,7 +69,7 @@
 
     <select id="selectSciJiaocairuanzhuList2" parameterType="SciJiaocairuanzhu" resultMap="SciJiaocairuanzhuResult">
         <include refid="selectSciJiaocairuanzhuVo"/>
-        where (state in (1,2,3,4,5,6) and d.dept_id = #{deptId}) or s.user_id = #{uid}
+        where (s.user_id = #{uid} or (state in (1,2,3,4,5,6) and d.dept_id = #{deptId}))
 
         <if test="xueyuan != null  and xueyuan != ''"> and xueyuan = #{xueyuan}</if>
 
@@ -86,7 +86,7 @@
 
     <select id="selectSciJiaocairuanzhuList3" parameterType="SciJiaocairuanzhu" resultMap="SciJiaocairuanzhuResult">
         <include refid="selectSciJiaocairuanzhuVo"/>
-        where (state in (2,4,5,6) and d.parent_id = #{deptId}) or s.user_id = #{uid}
+        where  (s.user_id = #{uid} or (state in (2,4,5,6) and d.parent_id = #{deptId}))
 
         <if test="xueyuan != null  and xueyuan != ''"> and xueyuan = #{xueyuan}</if>
 
@@ -103,7 +103,7 @@
 
     <select id="selectSciJiaocairuanzhuList4" parameterType="SciJiaocairuanzhu" resultMap="SciJiaocairuanzhuResult">
         <include refid="selectSciJiaocairuanzhuVo"/>
-        where state in (4,6) or s.user_id = #{uid}
+        where  s.user_id = #{uid} or state in (4,6)
 
         <if test="xueyuan != null  and xueyuan != ''"> and xueyuan = #{xueyuan}</if>
 
