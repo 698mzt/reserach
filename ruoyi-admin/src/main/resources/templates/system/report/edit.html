@@ -20,6 +20,8 @@
         <form class="form-horizontal m" id="form-report-edit" th:object="${sciLectureReport}">
             <!--状态-->
             <input id="state" th:field="*{state}" type="hidden">
+            <!--批阅或核查的标识-->
+            <input name="urlFlag" id="urlFlag" th:field="*{urlFlag}" type="hidden">
             <!--被批阅的表单或报告的id-->
             <input name="id" id="report_id" th:field="*{id}" type="hidden">
 <!--            <input name="id" th:field="*{id}" type="hidden">-->

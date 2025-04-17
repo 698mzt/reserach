@@ -198,15 +198,17 @@
                 console.log("当前路径为:"+b)
                 // alert("状态为:"+a)
                 // 当状态是“2待科研室处理”、“1待处理”、“6待学院处理”时，显示退回原因和退回记录以及功能按钮
-                if(a == 2 || a == 1 || a == 6){
+                if(a == 2 || a == 1 || a == 6 || a == 0){
                     if(name.rows.length > 0){
                         $(".tdiv2").show();
                     }
-                    $(".tdiv1").show();
-                    if (b != "tuihui" && b != "xytuihui"){
+                    if (b != "info"){
+                        $(".tdiv1").show();
+                        $("#btn2").show();
+                    }
+                    if (b != "tuihui" && b != "xytuihui" && b != "info"){
                         $("#btn1").show();
                     }
-                    $("#btn2").show();
                 }
                 // 当状态是“4已完成”、“3教研室驳回”、“5科研室驳回”、“7学院驳回”时，显示退回记录
                 if(a == 4 || a == 3 || a == 5 || a == 7){

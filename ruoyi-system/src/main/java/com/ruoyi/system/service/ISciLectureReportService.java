@@ -50,6 +50,10 @@ public interface ISciLectureReportService
      * @return 结果
      */
     public int deleteSciLectureReportByIds(String ids);
+    /**
+     * 提交状态是草稿的讲座报告
+     */
+    public int updateSciLectureReportByIds(String ids);
 
     /**
      * 删除讲座报告信息
