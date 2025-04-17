@@ -2,6 +2,289 @@
 <html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
 <head>
     <th:block th:include="include :: header('讲座报告列表')"/>
+    <style>
+        .modal-right {
+            position: fixed;
+            right: 0;
+            margin: 0;
+            height: 100%;
+            display: flex;
+            align-items: stretch;
+        }
+
+        .modal-right .modal-content {
+            height: 100%;
+            width: 70%;
+            margin-left: auto;
+        }
+        .modal-right .but{
+            position: absolute;
+            right: 2%;
+            bottom: 1.3%;
+            background: red;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+
+        .progress_inner {
+            height: 80px;
+            width: 100%;
+            position: relative;
+        }
+
+        .progress_inner__step {
+            width: 33.33%;
+            font-size: 12px;
+            padding: 0 5px;
+            transition: all 0.4s;
+            float: left;
+            text-align: center;
+            position: relative;
+        }
+
+        .progress_inner__step label {
+            padding-top: 30px;
+            display: block;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .progress_inner__step:before {
+            content: "1";
+            width: 24px;
+            height: 24px;
+            color: #2196F3;
+            background: white;
+            line-height: 22px;
+            border: 2px solid #2196F3;
+            font-size: 12px;
+            top: 0;
+            border-radius: 50%;
+            transition: all 0.4s;
+            position: absolute;
+            left: 0;
+            right: 0;
+            margin: auto;
+            font-weight: bold;
+            z-index: 11;
+        }
+
+        .progress_inner__step:nth-of-type(2):before {
+            content: "2";
+            color: #9E9E9E;
+            border-color: #9E9E9E;
+        }
+
+        .progress_inner__step:nth-of-type(3):before {
+            content: "3";
+            color: #9E9E9E;
+            border-color: #9E9E9E;
+        }
+
+        .progress_inner__step.completed:before {
+            content: "✓";
+            color: #4CAF50;
+            border-color: #4CAF50;
+            line-height: 22px;
+            font-size: 14px;
+        }
+
+        .progress_inner__step.active:before {
+            color: #2196F3;
+            border-color: #2196F3;
+            background: white;
+        }
+
+        .progress_inner__step.pending:before {
+            color: #9E9E9E;
+            border-color: #9E9E9E;
+            background: white;
+        }
+
+        .progress_inner__bar {
+            height: 3px;
+            left: 16.665%;
+            right: 16.665%;
+            background: #E0E0E0;
+            position: absolute;
+            top: 12px;
+            z-index: -1;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress_inner__bar--progress {
+            height: 100%;
+            background: #4CAF50;
+            width: 0;
+            transition: width 0.6s ease;
+        }
+
+        .status-text {
+            color: #9E9E9E;
+            font-weight: normal;
+            transition: all 0.4s;
+            font-size: 12px;
+        }
+
+        .status-text.active {
+            color: #2196F3;
+            font-weight: bold;
+        }
+
+        .status-text.completed {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+        .buttons {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        button {
+            background: #2196F3;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 3px;
+            margin: 0 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            font-size: 12px;
+        }
+
+        button:hover {
+            background: #1976D2;
+        }
+
+        button:last-child {
+            background: #9E9E9E;
+        }
+
+        button:last-child:hover {
+            background: #757575;
+        }
+
+        /* 新增的流程记录样式 */
+        .timeline-title {
+            font-weight: bold;
+            font-size: 14px;
+            color: #333;
+            text-align: left;
+            margin: 0 0 25px 20px;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+            position: relative;
+            /*padding-bottom: 15px;*/
+        }
+
+        /*.timeline-title::after {*/
+        /*    content: "";*/
+        /*    position: absolute;*/
+        /*    left: 0;*/
+        /*    bottom: 0;*/
+        /*    width: 100%;*/
+        /*    height: 0.5px;*/
+        /*    !*background: linear-gradient(to right, #e0e0e0, #a0a0a0, #e0e0e0);*!*/
+        /*    background: linear-gradient(to right,*/
+        /*    rgba(224,224,224,0.8),*/
+        /*    rgba(224,224,224,0.8),*/
+        /*    rgba(224,224,224,0.8)); !* 添加透明度使线条更柔和 *!*/
+        /*    box-shadow: 0 0.5px 1px rgba(0,0,0,0.07);*/
+        /*}*/
+
+        .track-rcol {
+            width: 100%;
+            max-width: 500px;
+            margin: 20px auto;
+            /*width: 450px;*/
+            /*!*border: 1px solid #eee;*!*/
+            /*margin: 20px auto;*/
+            /*background: transparent;*/
+        }
+        .track-list {
+            margin: 20px;
+            padding-left: 5px;
+            position: relative;
+        }
+        .track-list ul {
+            padding-left: 0;
+        }
+        .track-list li {
+            position: relative;
+            padding: 5px 0 10px 25px;
+            line-height: 1.4;
+            border-left: 2px solid #d9d9d9;
+            color: #666;
+            list-style: none;
+            /*text-align: left;*/
+            transition: all 0.4s ease; /* 添加过渡效果 */
+        }
+        .track-list li.first {
+            color: #666;
+            padding-top: 0;
+            /*border-left-color: #fff;*/
+        }
+        .track-list li .node-icon {
+            position: absolute;
+            left: -7px;
+            top: 18px;
+            width: 8px; /* 调圆点*/
+            height: 8px;
+            background: #C0C0C0;
+            border-radius: 50%;
+            transition: all 0.4s ease; /* 添加过渡效果 */
+            border: 2px solid #E0E0E0;
+            box-sizing: content-box;
+        }
+        .track-list li.first .node-icon {
+            background: #C0C0C0; /* 天蓝色 */
+            width: 8px;
+            height: 8px;
+            left: -8px;
+        }
+        .track-list li .time {
+            display: block;
+            margin-bottom: 3px;
+            font-size: 11px;
+            color: #888;
+            transition: all 0.4s ease; /* 添加过渡效果 */
+        }
+        .track-list li .txt {
+            display: block;
+            font-size: 12px;
+            transition: all 0.4s ease; /* 添加过渡效果 */
+        }
+
+        /* 悬停效果 */
+        .track-list li:hover {
+            color: #333;
+        }
+        .track-list li:hover .node-icon {
+            transform: scale(1.3);
+            background: #ed8088;
+        }
+        .track-list li:hover .time {
+            color: #666;
+        }
+
+        /* 新增审核状态样式 */
+        .approve-status {
+            margin-top: 10px;
+            text-align: center;
+        }
+        .approve-status label {
+            margin: 0 10px;
+            cursor: pointer;
+        }
+        .approve-status input {
+            margin-right: 5px;
+        }
+    </style>
 </head>
 <body class="gray-bg">
 
@@ -41,7 +324,7 @@
                                 </form>
                             </div>
 
-                            <div class="btn-group-sm" role="group">
+                            <div class="btn-group-sm" id="toolbar" role="group">
                                 <a class="btn btn-success" onclick="$.operate.addTab()"
                                    shiro:hasPermission="system:report:add">
                                     <i class="fa fa-plus"></i> 添加
@@ -70,6 +353,97 @@
 
 </div>
 
+<!--<div class="wrapper wrapper-content fadeInRight" style="position: absolute; left: -9999px;">-->
+<!--    <div class="row">-->
+<!--        <div class="col-sm-4">-->
+<!--            <div class="ibox ">-->
+<!--                <div class="ibox-content">-->
+<!--                    <div class="modal inmodal" id="lcjl_Moda" tabindex="-1" role="dialog" aria-hidden="true">-->
+<!--                        <div class="modal-dialog modal-right" >-->
+<!--                            <div class="modal-content animated bounceInRight" style="background-color: #00f7de">-->
+<!--                                <div class="modal-header">-->
+<!--                                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span-->
+<!--                                            class="sr-only">关闭</span>-->
+<!--                                    </button>-->
+<!--                                </div>-->
+<!--                                <div class="modal-body">-->
+<!--                                    -->
+<!--                                </div>-->
+<!--                                <div class="modal-footer">-->
+<!--                                    <button type="button" class="btn btn-white but" data-dismiss="modal">关闭</button>-->
+<!--                                </div>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--</div>-->
+
+<div class="wrapper wrapper-content fadeInRight" style="position: absolute; left: -9999px;">
+    <div class="row">
+        <div class="col-sm-4">
+            <div class="ibox ">
+                <div class="ibox-content">
+                    <div class="modal inmodal" id="lcjl_Moda" tabindex="-1" role="dialog" aria-hidden="true">
+                        <div class="modal-dialog modal-right" >
+                            <div class="modal-content animated bounceInRight">
+                                <div class="modal-header">
+                                    <!-- 流程记录标题 - 放在左上角 -->
+                                    <div class="timeline-title">流程记录</div>
+<!--                                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span-->
+<!--                                            class="sr-only">关闭</span>-->
+<!--                                    </button>-->
+                                </div>
+                                <div class="modal-body">
+                                    <!-- 流程记录标题 - 放在左上角 -->
+<!--                                    <div class="timeline-title">流程记录</div>-->
+
+                                    <!-- 原有的流程进度条部分 -->
+                                    <div>
+                                        <div class='progress_inner'>
+                                            <div class='progress_inner__step active' id='step-1'>
+                                                <label for='step-1'><span class="status-text active">待提交</span></label>
+                                            </div>
+                                            <div class='progress_inner__step pending' id='step-2'>
+                                                <label for='step-2'><span class="status-text">待审核</span></label>
+                                            </div>
+                                            <div class='progress_inner__step pending' id='step-3'>
+                                                <label for='step-3'><span class="status-text">已完成</span></label>
+                                            </div>
+                                            <div class='progress_inner__bar' style="z-index: 10">
+                                                <div class='progress_inner__bar--progress' id='progress-bar'></div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- 流程记录内容 - 放在流程图下方 -->
+                                    <div class="track-rcol">
+                                        <div class="track-list">
+                                            <ul id="event-list">
+                                                <li class="first">
+                                                    <i class="node-icon"></i>
+                                                    <span class="time" id="current-time">操作日期</span>
+                                                    <span class="txt">[新增] - 哈尔滨信息工程学院</span>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-white but" data-dismiss="modal">关闭</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <th:block th:include="include :: footer"/>
 <script th:inline="javascript">
@@ -86,6 +460,7 @@
     var tuihuiFlag = [[${@permission.hasPermi('system:report:tuihui')}]];  // 退回  == 》 教研室负责人的特权
     var chexiaoFlag = [[${@permission.hasPermi('system:report:chexiao')}]];  // 撤销 == 》 学院负责人的特权
     var zgqxtuihuiFlag = [[${@permission.hasPermi('system:report:zgqxtuihui')}]];  // 驳回  == 》 科研室负责人的特权
+    var submitFlag = [[${@permission.hasPermi('system:report:submit')}]];  // 提交
 
     function getUrl(tableId) {
         var year = localStorage.getItem("year");
@@ -113,9 +488,33 @@
             updateUrl: prefix + "/edit/{id}",
             detailUrl: prefix + "/detail/{id}",
             removeUrl: prefix + "/remove",
+            tijiaoUrl: prefix + "/tijiao",
             exportUrl: prefix + "/export",
             overUrl: prefix + "/over/{id}", // 结项申请后端路径
             modalName: "讲座报告",
+            rowStyle: function(row, index) {
+                // 根据状态返回样式对象
+                switch(row.state) {
+                    case '0': // 草稿
+                        return { css: { "color": "#e6a344" } }; // 黄色
+                    case '1': // 待教研室审核
+                        return { css: { "color": "#2c99ff" } }; // 蓝色
+                    case '2': // 待科研处审核
+                        return { css: { "color": "#2c99ff" } }; // 蓝色
+                    case '3': // 教研室驳回
+                        return { css: { "color": "#e6a344" } }; // 黄色
+                    case '4': // 已通过
+                        return { css: { "color": "#67c23a" } }; // 绿色
+                    case '5': // 科研处驳回
+                        return { css: { "color": "#e6a344" } }; // 黄色
+                    case '6': // 待学院处理
+                        return { css: { "color": "#2c99ff" } }; // 蓝色
+                    case '7': // 学院驳回
+                        return { css: { "color": "#e6a344" } }; // 黄色
+                    default:
+                        return {css: { "color": "#000000" }};
+                }
+            },
             columns: [{
                 checkbox: true
             },
@@ -200,39 +599,69 @@
                     formatter: function (value, row, index) {
                         console.log(row)
                         var actions = [];
+                        var hasPreviousButtons = false; // 标记前面是否有按钮
 
-                        if (row.state == 1) {
+                        if (row.state == 0) {
                             if (row.userId == row.uid) {
-                                actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-remove"></i>删除</a>');
-                                actions.push('<a   class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>修改</a> ');
+                                // actions.push('<a  class="btn btn-success btn-xs ' + submitFlag + '" href="javascript:void(0)" onclick="$.operate.tijiao(\'' + row.id + '\')"><i class="fa fa-edit"></i>提交</a> ');
+                                // actions.push('<a   class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>修改</a> ');
+                                // actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-remove"></i>删除</a>');
+                                actions.push('<a  class="btn  btn-xs ' + submitFlag + '" href="javascript:void(0)" onclick="$.operate.tijiao(\'' + row.id + '\')">提交</a> ');
+                                actions.push('<a   class="btn  btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')">修改</a> ');
+                                actions.push('<a style="color: red" class="btn  btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')">删除</a>');
+                                hasPreviousButtons = true; // 设置前面有按钮的标志为true
                             }
 
-                            actions.push('<a  class="btn btn-success btn-xs ' + proFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro' + '\')"><i class="fa fa-edit"></i>批阅</a> ');
+                            // actions.push('<a  class="btn btn-success btn-xs ' + proFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro' + '\')"><i class="fa fa-edit"></i>批阅</a> ');
                             // actions.push('<a  class="btn btn-success btn-xs ' + proFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>批阅</a> ');
 
-                        }else if (row.state == 6){
-                                actions.push('<a  class="btn btn-success btn-xs ' + xyproFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/xypro' + '\')"><i class="fa fa-edit"></i>批阅</a> ');
-                                actions.push('<a  class="btn btn-danger btn-xs ' + tuihuiFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/tuihui' + '\')"><i class="fa fa-edit"></i>撤销</a> ');
+                        }else if (row.state == 1) {
+                            // actions.push('<a  class="btn btn-success btn-xs ' + proFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro' + '\')"><i class="fa fa-edit"></i>批阅</a> ');
+                            actions.push('<a  class="btn btn-xs ' + proFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro' + '\')">批阅</a> ');
+                            if (proFlag != 'hidden')
+                                hasPreviousButtons = true; // 设置前面有按钮的标志为true
+                        }
+                        else if (row.state == 6){
+                                // actions.push('<a  class="btn btn-success btn-xs ' + xyproFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/xypro' + '\')"><i class="fa fa-edit"></i>批阅</a> ');
+                                // actions.push('<a  class="btn btn-danger btn-xs ' + tuihuiFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/tuihui' + '\')"><i class="fa fa-edit"></i>撤销</a> ');
+                            actions.push('<a  class="btn btn-xs ' + xyproFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/xypro' + '\')">批阅</a> ');
+                            actions.push('<a style="color: red" class="btn btn-xs ' + tuihuiFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/tuihui' + '\')">撤销</a> ');
+                            if (tuihuiFlag != 'hidden' || xyproFlag != 'hidden')
+                                hasPreviousButtons = true; // 设置前面有按钮的标志为true
 
                         } else if ((row.state == 3 || row.state == 5 || row.state == 7) && row.userId == row.uid) {
-                            actions.push('<a   class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> <i class="fa fa-edit"></i>更新</a> ');
+                            // actions.push('<a   class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> <i class="fa fa-edit"></i>更新</a> ');
+                            actions.push('<a class="btn btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '/gengxin' +'\')">更新</a> ');
+                            hasPreviousButtons = true; // 设置前面有按钮的标志为true
                         }
                         else if (row.state == 2) {
-                            actions.push('<a  class="btn btn-success btn-xs ' + checkFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/check' + '\')"><i class="fa fa-edit"></i>核查</a> ');
-                            actions.push('<a  class="btn btn-danger btn-xs ' + chexiaoFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/xytuihui' + '\')"><i class="fa fa-edit"></i>撤销</a> ');
+                            // actions.push('<a  class="btn btn-success btn-xs ' + checkFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/check' + '\')"><i class="fa fa-edit"></i>核查</a> ');
+                            // actions.push('<a  class="btn btn-danger btn-xs ' + chexiaoFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/xytuihui' + '\')"><i class="fa fa-edit"></i>撤销</a> ');
+                            actions.push('<a  class="btn btn-xs ' + checkFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/check' + '\')">核查</a> ');
+                            actions.push('<a style="color: red" class="btn btn-xs ' + chexiaoFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/xytuihui' + '\')">撤销</a> ');
+                            if (checkFlag != 'hidden' || chexiaoFlag != 'hidden')
+                                hasPreviousButtons = true; // 设置前面有按钮的标志为true
                             // actions.push('<a  class="btn btn-success btn-xs ' + checkFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/check' + '\')"><i class="fa fa-edit"></i>核查</a> ');
                         }
-                        // else if (row.state == 4) {
-                        else if (row.state != 1) {
-                            // if (row.userId == row.uid) {
-                            //     actions.push('<a  class="btn btn-success btn-xs ' + jiexiangFlag + '" href="javascript:void(0)" onclick="$.operate.overTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>申请结项</a> ');
-                            // }
-
-                            actions.push('<a  class="btn btn-success btn-xs ' + infoFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/info' + '\')"><i class="fa fa-edit"></i>查看</a> ');
-                            if (row.state == 4){
-                                actions.push('<a  class="btn btn-danger btn-xs ' + zgqxtuihuiFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/zgqxtuihui' + '\')"><i class="fa fa-edit"></i>撤销</a> ');
-                            }
+                        else if (row.state == 4) {
+                            actions.push('<a style="color: red" class="btn btn-xs ' + zgqxtuihuiFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/zgqxtuihui' + '\')">撤销</a> ');
+                            if (zgqxtuihuiFlag != 'hidden')
+                                hasPreviousButtons = true;
                         }
+                        // else if (row.state != 1) {
+                        //     actions.push('<a  class="btn btn-success btn-xs ' + infoFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/info' + '\')"><i class="fa fa-edit"></i>查看</a> ');
+                        //     if (row.state == 4){
+                        //         actions.push('<a  class="btn btn-danger btn-xs ' + zgqxtuihuiFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/zgqxtuihui' + '\')"><i class="fa fa-edit"></i>撤销</a> ');
+                        //     }
+                        // }
+                        // 动态添加换行符
+                        if (hasPreviousButtons) {
+                            actions.push('<br>'); // 只有前面有按钮时才换行
+                        }
+                        actions.push('<a  class="btn btn-xs ' + infoFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/info' + '\')">查看</a> ');
+                        // actions.push('<a class="btn btn-xs" data-toggle="modal" data-target="#lcjl_Moda" onclick="autoProgressBar()" >流程记录</a> ');
+                        actions.push('<a class="btn btn-xs" data-toggle="modal" data-target="#lcjl_Moda" onclick="controlProgressBar(\'' + row.id + '\', ' + row.state + ')">流程记录</a>');
+                        // actions.push('<a class="btn btn-xs ' + infoFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/info' + '\')">流程记录</a> ');
                         return actions.join('');
                     }
                 }
@@ -255,6 +684,114 @@
             }
         })
     });
+
+//     ===================================================================================
+    function controlProgressBar(dataId, status) {
+        const eventList = document.getElementById('event-list');
+        autoProgressBar();
+        // 1. 先显示加载状态
+        eventList.innerHTML = `
+        <li class="first">
+            <i class="node-icon"></i>
+            <span class="time">加载中...</span>
+            <span class="txt">正在获取数据</span>
+        </li>
+    `;
+
+        // 2. 发送Ajax请求获取批阅记录
+        fetch(prefix + '/opinion/' + dataId)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('网络响应不正常');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('获取到的数据:', data);
+
+                // 清空现有内容
+                eventList.innerHTML = '';
+
+                // 处理数据
+                if (data.rows && data.rows.length > 0) {
+                    data.rows.forEach(record => {
+                        const li = document.createElement('li');
+                        li.className = 'first'; // 保持与原始结构一致
+                        li.innerHTML = `
+                        <i class="node-icon"></i>
+                        <span class="time">${record.createTime || '无时间信息'}</span>
+                        <span class="txt">[${record.state || '无状态'}] - ${record.uname || '匿名用户'}</span>
+                    `;
+                        eventList.appendChild(li);
+                    });
+                } else {
+                    // 无数据时显示占位内容
+                    eventList.innerHTML = `
+                    <li class="first">
+                        <i class="node-icon"></i>
+                        <span class="time">${new Date().toLocaleString()}</span>
+                        <span class="txt">[系统] - 暂无记录</span>
+                    </li>
+                `;
+                }
+            })
+            .catch(error => {
+                console.error('获取批阅记录失败:', error);
+                eventList.innerHTML = `
+                <li class="first error">
+                    <i class="node-icon"></i>
+                    <span class="time">${new Date().toLocaleString()}</span>
+                    <span class="txt">[系统] - 获取记录失败: ${error.message}</span>
+                </li>
+            `;
+            });
+    }
+
+// ========================================================================================
+    function autoProgressBar() {
+        const progressBar = document.getElementById('progress-bar');
+        const steps = document.querySelectorAll('[id^="step-"]'); // 获取所有步骤元素
+        let currentStep = 1;
+        const totalSteps = steps.length;
+
+        // 初始状态设置
+        resetAllSteps();
+        document.getElementById('step-1').classList.add('active');
+        progressBar.style.width = '0%';
+
+        // 每3秒执行一次的定时器
+        const interval = setInterval(() => {
+            // 更新当前步骤状态为completed
+            document.getElementById(`step-${currentStep}`).classList.remove('active');
+            document.getElementById(`step-${currentStep}`).classList.add('completed');
+
+            // 如果有下一步，激活下一步
+            if (currentStep < totalSteps) {
+                currentStep++;
+                document.getElementById(`step-${currentStep}`).classList.remove('pending');
+                document.getElementById(`step-${currentStep}`).classList.add('active');
+
+                // 更新进度条 (根据步骤数计算百分比)
+                const progressPercent = ((currentStep - 1) / (totalSteps - 1)) * 100;
+                progressBar.style.width = `${progressPercent}%`;
+
+                // 添加事件记录
+                addEvent(`[系统] - 自动进入步骤 ${currentStep}`, false);
+            } else {
+                // 如果是最后一步，停止定时器
+                clearInterval(interval);
+                addEvent('[系统] - 流程已完成', true);
+            }
+        }, 1000); // 3000毫秒 = 3秒
+
+        // 重置所有步骤状态
+        function resetAllSteps() {
+            steps.forEach(step => {
+                step.classList.remove('active', 'completed');
+                step.classList.add('pending');
+            });
+        }
+    }
 
 </script>
 </body>

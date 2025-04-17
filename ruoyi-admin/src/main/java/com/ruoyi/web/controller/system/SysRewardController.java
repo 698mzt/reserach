@@ -1,4 +1,4 @@
-package com.ruoyi.system.controller;
+package com.ruoyi.web.controller.system;
 
 import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.core.controller.BaseController;
@@ -196,7 +196,10 @@ public class SysRewardController extends BaseController
     {
         String state = "1";
         sysReward.setState(state);
-        return toAjax(sysRewardService.updateSysReward(sysReward));
+        sysReward.setUserId(getSysUser().getUserId());
+        int a = sysRewardService.updateSysReward(sysReward);
+
+        return toAjax(a);
     }
 
     /**
@@ -220,7 +223,7 @@ public class SysRewardController extends BaseController
     @ResponseBody
     public AjaxResult editSave(SysReward sysReward)
     {
-        sysReward.setState("1");
+        sysReward.setState("11");
         return toAjax(sysRewardService.updateSysReward(sysReward));
     }
 

@@ -1143,6 +1143,21 @@ var table = {
                     }
                 });
             },
+            // 提交信息
+            tijiao: function(id) {
+                table.set();
+                $.modal.confirm("确定提交该条" + table.options.modalName + "信息吗？", function() {
+                    var url = $.common.isEmpty(id) ? table.options.tijiaoUrl : table.options.tijiaoUrl.replace("{id}", id);
+                    // alert(url);
+                    if (table.options.type == table_type.bootstrapTreeTable) {
+                        $.operate.get(url);
+                    }
+                    else {
+                        var data = { "ids": id };
+                        $.operate.submit(url, "post", "json", data);
+                    }
+                });
+            },
             push: function(id) {
                 table.set();
                 var url = $.common.isEmpty(id) ? table.options.pushUrl.replace("{id}", "") : table.options.pushUrl.replace("{id}", id);
