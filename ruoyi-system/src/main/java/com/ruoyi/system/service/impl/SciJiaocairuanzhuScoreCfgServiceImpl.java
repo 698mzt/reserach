@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 /**
- * 专利软著积分管理Service业务层处理
+ * 教材软著积分管理Service业务层处理
  * 
  * @author ruoyi
  * @date 2025-02-15
@@ -23,10 +23,10 @@ public class SciJiaocairuanzhuScoreCfgServiceImpl implements ISciJiaocairuanzhuS
     private SciJiaocairuanzhuScoreCfgMapper sciJiaocairuanzhuScoreCfgMapper;
 
     /**
-     * 查询专利软著积分管理
+     * 查询教材软著积分管理
      * 
-     * @param id 专利软著积分管理主键
-     * @return 专利软著积分管理
+     * @param id 教材软著积分管理主键
+     * @return 教材软著积分管理
      */
     @Override
     public SciJiaocairuanzhuScoreCfg selectSciJiaocairuanzhuScoreCfgById(Long id)
@@ -35,10 +35,10 @@ public class SciJiaocairuanzhuScoreCfgServiceImpl implements ISciJiaocairuanzhuS
     }
 
     /**
-     * 查询专利软著积分管理列表
+     * 查询教材软著积分管理列表
      * 
-     * @param sciJiaocairuanzhuScoreCfg 专利软著积分管理
-     * @return 专利软著积分管理
+     * @param sciJiaocairuanzhuScoreCfg 教材软著积分管理
+     * @return 教材软著积分管理
      */
     @Override
     public List<SciJiaocairuanzhuScoreCfg> selectSciJiaocairuanzhuScoreCfgList(SciJiaocairuanzhuScoreCfg sciJiaocairuanzhuScoreCfg)
@@ -47,9 +47,9 @@ public class SciJiaocairuanzhuScoreCfgServiceImpl implements ISciJiaocairuanzhuS
     }
 
     /**
-     * 新增专利软著积分管理
+     * 新增教材软著积分管理
      * 
-     * @param sciJiaocairuanzhuScoreCfg 专利软著积分管理
+     * @param sciJiaocairuanzhuScoreCfg 教材软著积分管理
      * @return 结果
      */
     @Override
@@ -59,9 +59,9 @@ public class SciJiaocairuanzhuScoreCfgServiceImpl implements ISciJiaocairuanzhuS
     }
 
     /**
-     * 修改专利软著积分管理
+     * 修改教材软著积分管理
      * 
-     * @param sciJiaocairuanzhuScoreCfg 专利软著积分管理
+     * @param sciJiaocairuanzhuScoreCfg 教材软著积分管理
      * @return 结果
      */
     @Override
@@ -72,9 +72,9 @@ public class SciJiaocairuanzhuScoreCfgServiceImpl implements ISciJiaocairuanzhuS
     }
 
     /**
-     * 批量删除专利软著积分管理
+     * 批量删除教材软著积分管理
      * 
-     * @param ids 需要删除的专利软著积分管理主键
+     * @param ids 需要删除的教材软著积分管理主键
      * @return 结果
      */
     @Override
@@ -84,9 +84,9 @@ public class SciJiaocairuanzhuScoreCfgServiceImpl implements ISciJiaocairuanzhuS
     }
 
     /**
-     * 删除专利软著积分管理信息
+     * 删除教材软著积分管理信息
      * 
-     * @param id 专利软著积分管理主键
+     * @param id 教材软著积分管理主键
      * @return 结果
      */
     @Override
