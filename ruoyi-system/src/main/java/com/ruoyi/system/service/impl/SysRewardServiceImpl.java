@@ -2,6 +2,7 @@ package com.ruoyi.system.service.impl;
 
 import com.ruoyi.common.annotation.DataScope;
 import com.ruoyi.common.core.text.Convert;
+import com.ruoyi.system.domain.SciHorizontalPiyue;
 import com.ruoyi.system.domain.SciRewardScoreCfg;
 import com.ruoyi.system.domain.SysReward;
 import com.ruoyi.system.domain.SysRewardPiyue;
@@ -124,7 +125,18 @@ public class SysRewardServiceImpl implements ISysRewardService
     @Override
     public int updateSysReward(SysReward sysReward)
     {
-        return sysRewardMapper.updateSysReward(sysReward);
+        sysRewardMapper.updateSysReward(sysReward);
+        SysRewardPiyue sysRewardPiyue = new SysRewardPiyue();
+        sysRewardPiyue.setUid(sysReward.getUserId());
+        sysRewardPiyue.setRewardId(Integer.valueOf(sysReward.getId().toString()));
+        if (sysReward.getState().equals("1")) {
+            sysRewardPiyue.setConcate("提交");
+            sysRewardPiyue.setState("提交");
+        }else {
+            sysRewardPiyue.setConcate("修改");
+            sysRewardPiyue.setState("修改");
+        }
+        return sysRewardPiyueMapper.insertSysRewardPiyue(sysRewardPiyue);
     }
 
     /**

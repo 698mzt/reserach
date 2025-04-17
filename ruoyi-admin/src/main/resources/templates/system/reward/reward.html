@@ -624,7 +624,7 @@
                             }else if(row.state ==  2){
                                 // actions.push('<a  class="btn btn-success btn-xs ' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
                                 actions.push('<a  class="' + proFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000">撤回&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                                actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
+                                // actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
 
                                 if( editFlag !== "hidden")
                                     actions.push('<br>')
@@ -751,47 +751,33 @@
             // 获取所有步骤元素
             const steps = document.querySelectorAll('.progress_inner__step');
 
-            // 重置所有步骤样式
+            // 遍历所有步骤，重置样式
             steps.forEach(step => {
                 step.classList.remove('active', 'completed', 'pending');
                 step.querySelector('.status-text').classList.remove('active', 'completed');
             });
 
-            // 根据状态设置进度显示
-            if (state === 11) { // 草稿状态
-                activateStep(1);
-            } else if (state === 6) { // 流程完结
-                completeSteps([1,2,3]);
-            } else if ([1, 2, 4].includes(state)) { // 审核流程中
-                completeSteps([1,2]);
-                activateStep(3);
-            } else if ([3, 5, 7].includes(state)) { // 被驳回状态
-                completeSteps([1]);
-                activateStep(2);
-            } else { // 未知状态
-                pendingSteps([1,2,3]); // 全部灰显
-            }
-
-            // 辅助函数
-            function activateStep(stepNumber) {
-                const step = document.getElementById(`step-${stepNumber}`);
-                step.classList.add('active');
-                step.querySelector('.status-text').classList.add('active');
-            }
-
-            function completeSteps(steps) {
+            // 根据 state 设置相应的步骤颜色
+            if (state === 11) {
+                document.getElementById('step-1').classList.add('active');
+                document.getElementById('step-1').querySelector('.status-text').classList.add('active');
+            } else if (state === 6) {
+                document.getElementById('step-1').classList.add('completed');
+                document.getElementById('step-1').querySelector('.status-text').classList.add('completed');
+                document.getElementById('step-2').classList.add('completed');
+                document.getElementById('step-2').querySelector('.status-text').classList.add('completed');
+                document.getElementById('step-3').classList.add('completed');
+                document.getElementById('step-3').querySelector('.status-text').classList.add('completed');
+            } else if ([1, 2, 3, 4, 5].includes(state)) {
+                document.getElementById('step-1').classList.add('completed');
+                document.getElementById('step-1').querySelector('.status-text').classList.add('completed');
+                document.getElementById('step-2').classList.add('completed');
+                document.getElementById('step-2').querySelector('.status-text').classList.add('completed');
+            } else {
+                // 默认情况下，所有步骤为灰色
                 steps.forEach(step => {
-                    const element = document.getElementById(`step-${step}`);
-                    element.classList.add('completed');
-                    element.querySelector('.status-text').classList.add('completed');
-                });
-            }
-
-            function pendingSteps(steps) {
-                steps.forEach(step => {
-                    const element = document.getElementById(`step-${step}`);
-                    element.classList.add('pending');
-                    element.querySelector('.status-text').classList.add('pending');
+                    step.classList.add('pending');
+                    step.querySelector('.status-text').classList.add('pending');
                 });
             }
         }
