@@ -197,4 +197,8 @@ public class SciPaperAServiceImpl implements ISciPaperAService
         return sciPaperAMapper.selectSciPaperArList(sciPaperAr);
     }
 
+    @Override
+    public List<SciPaperA> selectAllPaperName(String query) {
+        return sciPaperAMapper.selectAllPaperName(query);
+    }
 }

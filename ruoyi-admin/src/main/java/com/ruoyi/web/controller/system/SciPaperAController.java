@@ -289,11 +289,25 @@ public AjaxResult uploadFile(MultipartFile file, @PathVariable("model") String m
         return getDataTable(list);
     }
 
+    /**
+     * 提交后将state状态设置为1
+     */
     @PostMapping("/tj/{id}")
     @ResponseBody
     public AjaxResult tj(@PathVariable("id")Integer id)
     {
         return toAjax(sciPaperAService.updateSciPaperAState(id));
 
+    }
+    /**
+     *查询所有的论文名称并需要进行模糊查询
+     */
+    @PostMapping("/queryName/{query}")
+    @ResponseBody
+    public List<SciPaperA> selectAllPaperName(@PathVariable("query")String query)
+    {
+        List<SciPaperA> list = sciPaperAService.selectAllPaperName(query);
+        System.out.println("list = " + list);
+        return list;
     }
 }
