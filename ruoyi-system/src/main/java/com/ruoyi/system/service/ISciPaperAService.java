@@ -76,4 +76,5 @@ public interface ISciPaperAService
 
     int pybh(String id, Long userId, String remark, String urlFlag);
 
+    List<SciPaperA> selectAllPaperName(String query);
 }

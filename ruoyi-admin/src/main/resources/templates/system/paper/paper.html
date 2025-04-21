@@ -556,6 +556,12 @@
                     field: 'inclusionStatus',
                     title: '收录情况',
                     align: 'center',
+                    visible: false,
+                },
+                {
+                    field: 'search_web',
+                    title: '收录网站',
+                    align: 'center',
                 },
                 {
                     field: 'publicationTime',
@@ -692,7 +698,6 @@
 
     </script>
      <script>
-
          function pushTh(id){
              var url = prefix + "/tj/" + id;
              //$.operate.saveTab(url, id)
@@ -796,8 +801,7 @@
                      }
                  }
              }
-
-// 标记指定步骤为已完成
+            // 标记指定步骤为已完成(获取索引)
              function markCompleted(index) {
                  const step = document.querySelectorAll('.progress_inner__step')[index];
                  if (step) {
@@ -805,7 +809,6 @@
                      step.classList.remove('pending', 'active');
                  }
              }
-
 
              // 使用 $.ajax 发起请求
              $.ajax({

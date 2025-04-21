@@ -84,4 +84,6 @@ public interface SciPaperAMapper {
     List<SciPaperA> selectSciPaperAListXY(SciPaperA sciPaperA);
 
     List<SciPaperA> selectSciPaperAListKY(SciPaperA sciPaperA);
+
+    List<SciPaperA> selectAllPaperName(String query);
 }

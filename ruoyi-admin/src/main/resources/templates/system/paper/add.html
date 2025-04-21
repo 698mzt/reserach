@@ -2,27 +2,40 @@
 <html lang="zh" xmlns:th="http://www.thymeleaf.org" >
 <head>
     <th:block th:include="include :: header('新增论文')" />
+    <th:block th:include="include :: bootstrap-duallistbox-js" />
+    <th:block th:include="include :: bootstrap-suggest-js" />
+    <th:block th:include="include :: bootstrap-typeahead-js" />
+    <th:block th:include="include :: datetimepicker-js" />
+
     <th:block th:include="include :: datetimepicker-css" />
     <th:block th:include="include :: bootstrap-fileinput-css"/>
     <th:block th:include="include :: bootstrap-duallistbox-css" />
-    <th:block th:include="include :: bootstrap-duallistbox-js" />
+    <style>
+        #suggestionsDropdown {
+            display: none; /* 默认隐藏 */
+            position: absolute;
+            background-color: white;
+            border: 1px solid #ccc;
+            z-index: 1000;
+            height: auto;
+            width: auto;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
 </head>
 <body class="white-bg">
     <div class="wrapper wrapper-content animated fadeInRight ibox-content">
         <form class="form-horizontal m" id="form-paper-add" >
-
-<!--            <div class="form-group">-->
-<!--                <label class="col-sm-3 control-label">教师姓名：</label>-->
-<!--                <div class="col-sm-8">-->
-<!--                    <input name="teacherName"  class="form-control"  type="text" required  >-->
-<!--                </div>-->
-
-<!--            </div>-->
-
             <div class="form-group">
                 <label class="col-sm-3 control-label">论文名称：</label>
                 <div class="col-sm-8">
-                    <input name="paperTitle" class="form-control" type="text"required>
+                    <div class="input-group-btn">
+<!--                        todo:搜索补全样式有问题     -->
+                        <input name="paperTitle" id="paperTitle" class="form-control" type="text" placeholder="请输入论文名称..." required>
+                        <ul class="dropdown-menu dropdown-menu-right" role="menu" id="suggestionsDropdown">
+                        </ul>
+                    </div>
                 </div>
             </div>
             <div class="form-group">
@@ -36,7 +49,7 @@
             <div class="form-group">
                 <label class="col-sm-3 control-label">发表期刊：</label>
                 <div class="col-sm-8">
-                    <input name="publishedJournal" class="form-control" type="text" required>
+                    <input name="publishedJournal" id="publishedJournal" class="form-control" type="text" required>
                 </div>
             </div>
             <div class="form-group">
@@ -57,8 +70,6 @@
                     </div>
                 </div>
             </div>
-
-
 
             <div class="col-md-12">
                 <div class="form-group">
@@ -87,7 +98,7 @@
             <div class="col-md-12">
                 <div class="form-group">
                     <label class="col-sm-3 control-label">是否是跨学科论文：</label>
-                    <div class="col-sm-9">
+                    <div class="col-sm-9" >
                         <label class="radio-box">
                             <input name="isCrossDiscipline" class="form-control" type="radio" value="是">是</label>
                         <label class="radio-box">
@@ -104,16 +115,11 @@
                     </select>
                 </div>
             </div>
-<!--            <div class="form-group">-->
-<!--                <label class="col-sm-3 control-label">科研分：</label>-->
-<!--                <div class="col-sm-8">-->
-<!--                    <input name="researchScore" class="form-control" type="text" required>-->
-<!--                </div>-->
-<!--            </div>-->
+
             <div class="form-group">
                 <label class="col-sm-3 control-label">论文网址：</label>
                 <div class="col-sm-8">
-                    <input name="search_web" class="form-control" type="text"required>
+                    <input name="search_web" id="search_web" class="form-control" type="text"required>
                 </div>
             </div>
             <div class="form-group">
@@ -137,7 +143,7 @@
             <div class="form-group">
                 <label class="col-sm-3 control-label">备注：</label>
                 <div class="col-sm-8">
-                    <input name="remarks" class="form-control" type="text" required>
+                    <input name="remarks" id="remark" class="form-control" type="text" required>
                     <input type="hidden" class="form-control" name="remarks" >
                     <div class="summernote" id="remarks"></div>
                 </div>
@@ -151,10 +157,10 @@
         </div>
     </div>
 
-
     <th:block th:include="include :: footer" />
     <th:block th:include="include :: bootstrap-fileinput-js"/>
-    <th:block th:include="include :: datetimepicker-js" />
+
+
 
     <script th:inline="javascript">
         var prefix = ctx + "system/paper"
@@ -230,24 +236,135 @@
         });
 
     </script>
-    <script>
-        //todo: 下拉框
-        $(".m-b").duallistbox({
-            moveSelectedLabel: 'col-sm-3 control-label',
-            nonSelectedListLabel: '可选',
-            selectedListLabel: '已选',
-            preserveSelectionOnMove: 'moved',
-            moveOnSelect: false
-        })
-        console.log("!!!!!!!!!!!!!!")
-        document.getElementById('paperCategory').addEventListener('input', function() {
+    <script >
+        $(document).ready(function () {
+            // 监听输入框的输入事件
+            $('#paperTitle').on('input', function () {
+                const query = $(this).val(); // 获取输入框的值
+
+                // 如果输入为空，则隐藏下拉菜单
+                if (query.trim() === '') {
+                    console.log("输入为空")
+                    $('#suggestionsDropdown').hide();
+                    return;
+                }
+
+                // 发送 AJAX 请求到后端
+                $.ajax({
+                    url: prefix+'/queryName/'+query,
+                    method: 'POST',
+                    data: { q: query }, // 将用户输入作为查询参数
+                    success: function (response) {
+                        console.log("response:",response)
+                        let data = response; // 后端返回的对象
+                        if (typeof response === 'string') {
+                            try {
+                                data = JSON.parse(response);
+                            } catch (e) {
+                                console.error("Failed to parse response:", e);
+                                alert("服务器返回的数据格式错误！");
+                                return;
+                            }
+                        }
+                        if (!Array.isArray(data)) {
+                            data = [data]; // 将单个对象转换为数组
+                        }
+                        console.log(data)
+                        console.log("data:",data)
+                        // 清空下拉菜单内容
+                        $('#suggestionsDropdown').empty();
+
+                        // 如果没有匹配结果，则隐藏下拉菜单
+                        if (data.length === 0) {
+                            $('#suggestionsDropdown').hide();
+                            return;
+                        }
+
+                        // 遍历返回的数据，生成下拉菜单项
+                        data.forEach(function (item) {
+                            console.log("Item data:", item);
+                            console.log("isIndustryCollaborative:", item.isIndustryCollaborative);
+                            const listItem = $('<ul>')
+                                .addClass('dropdown-menu-right')
+                                .text(item.paperTitle) // 返回的数据包含 paperTitle 字段
+
+                                .on('click', function () {
+                                    // 点击某一项时，将其值填充到输入框中
+                                    $('#paperTitle').val(item.paperTitle);
+                                    $('#paperCategory').val(item.paperCategory);
+                                    $('#publishedJournal').val(item.publishedJournal);
+
+                                    var date = new Date(item.publicationTime);
+                                    var year = date.getFullYear();
+                                    var month = (date.getMonth() + 1).toString().padStart(2, '0'); // 月份从0开始，所以要加1
+                                    var day = date.getDate().toString().padStart(2, '0');
+                                    let formattedDate =`${year}-${month}-${day}`;
+                                    $('#publicationTime').val(formattedDate);
+
+                                    //处理单选框
+                                    if (item.isIndustryCollaborative === '是') {
+                                        $('input[name="isIndustryCollaborative"][value="是"]').prop('checked', true).iCheck('update');
+                                    } else if (item.isIndustryCollaborative === '否') {
+                                        $('input[name="isIndustryCollaborative"][value="否"]').prop('checked', true).iCheck('update');
+                                    }
+                                    if (item.isLocalCollaborative === '是') {
+                                        $('input[name="isLocalCollaborative"][value="是"]').prop('checked', true).iCheck('update');
+                                    } else if (item.isLocalCollaborative === '否') {
+                                        $('input[name="isLocalCollaborative"][value="否"]').prop('checked', true).iCheck('update');
+                                    }
+                                    if (item.isInternationalCollaborative === '是') {
+                                        $('input[name="isInternationalCollaborative"][value="是"]').prop('checked', true).iCheck('update');
+                                    } else if (item.isInternationalCollaborative === '否') {
+                                        $('input[name="isInternationalCollaborative"][value="否"]').prop('checked', true).iCheck('update');
+                                    }
+                                    if (item.isCrossDiscipline === '是') {
+                                        $('input[name="isCrossDiscipline"][value="是"]').prop('checked', true).iCheck('update');
+                                    } else if (item.isCrossDiscipline === '否') {
+                                        $('input[name="isCrossDiscipline"][value="否"]').prop('checked', true).iCheck('update');
+                                    }
+
+                                    $('#paperRanking').val(item.paperRanking);
+                                    $('#search_web').val(item.search_web);
+                                    $('#remark').val(item.remarks);
+                                    $('#suggestionsDropdown').hide(); // 隐藏下拉菜单
+                                });
+                            $('#suggestionsDropdown').append(listItem);
+                        });
+
+                        // 显示下拉菜单
+                        $('#suggestionsDropdown').show();
+                    },
+                    error: function () {
+                        alert('请求失败，请稍后再试！');
+                    }
+                });
+            });
+
+            // 点击页面其他地方时，隐藏下拉菜单
+            $(document).on('click', function (e) {
+                if (!$(e.target).closest('#paperTitle, #suggestionsDropdown').length) {
+                    $('#suggestionsDropdown').hide();
+                }
+            });
+        });
+
+        $(document).ready(function () {
+            $(".m-b").bootstrapDualListbox({
+                nonSelectedListLabel: '可选',
+                selectedListLabel: '已选',
+                preserveSelectionOnMove: 'moved',
+                moveOnSelect: false
+            });
+        });
+            document.getElementById('paperCategory').addEventListener('input', function() {
             let inputValue = this.value;
             console.log("inputValue:",inputValue)
-            if(inputValue == 9){
-                console.log("成功:",999)
-                document.getElementById("paperRanking").value = 1;
-            }
+            if(inputValue == "9"){
+            console.log("成功:",999)
+            document.getElementById("paperRanking").value = 1;
+        }
         });
+
     </script>
 </body>
 </html>
