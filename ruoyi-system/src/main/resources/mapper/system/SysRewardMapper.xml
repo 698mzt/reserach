@@ -221,6 +221,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         update sys_reward set jifen = #{jifen} where id = #{id}
     </update>
 
+    <update id="resetJifenById">
+        UPDATE sys_reward
+        SET jifen = 0
+        WHERE id = #{id}
+    </update>
+
+
+
     <update id="hxPass" >
         update sys_reward set state = #{state} where id = #{id}
     </update>
