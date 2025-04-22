@@ -5,9 +5,7 @@
     <th:block th:include="include :: bootstrap-duallistbox-js" />
     <th:block th:include="include :: bootstrap-suggest-js" />
     <th:block th:include="include :: bootstrap-typeahead-js" />
-    <th:block th:include="include :: datetimepicker-js" />
 
-    <th:block th:include="include :: datetimepicker-css" />
     <th:block th:include="include :: bootstrap-fileinput-css"/>
     <th:block th:include="include :: bootstrap-duallistbox-css" />
     <style>
@@ -55,7 +53,7 @@
             <div class="form-group">
                 <label class="col-sm-3 control-label">发表时间：</label>
                 <div class="input-group date">
-                    <input autocomplete="off" id="publicationTime" name="publicationTime" class="form-control" placeholder="yyyy-MM-dd" type="text" >
+                    <input autocomplete="off" id="publicationTime" name="publicationTime" class="form-control" placeholder="yyyy-MM-dd" type="text"  required >
                     <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
                 </div>
             </div>
@@ -159,9 +157,9 @@
 
     <th:block th:include="include :: footer" />
     <th:block th:include="include :: bootstrap-fileinput-js"/>
+    <th:block th:include="include :: datetimepicker-js" />
 
-
-
+    <th:block th:include="include :: datetimepicker-css" />
     <script th:inline="javascript">
         var prefix = ctx + "system/paper"
         $("#form-paper-add").validate({
@@ -229,10 +227,12 @@
             $("input[name='" + event.currentTarget.id + "']").val('')
         })
 
-        $("input[name='publicationTime']").datetimepicker({
-            format: "yyyy-mm-dd",
-            minView: "month",
-            autoclose: true
+        $(document).ready(function () {
+            $("input[name='publicationTime']").datetimepicker({
+                format: "yyyy-mm-dd",
+                minView: "month",
+                autoclose: true
+            });
         });
 
     </script>
@@ -266,9 +266,9 @@
                                 return;
                             }
                         }
-                        if (!Array.isArray(data)) {
-                            data = [data]; // 将单个对象转换为数组
-                        }
+                        // if (!Array.isArray(data)) {
+                        //     data = [data]; // 将单个对象转换为数组
+                        // }
                         console.log(data)
                         console.log("data:",data)
                         // 清空下拉菜单内容
