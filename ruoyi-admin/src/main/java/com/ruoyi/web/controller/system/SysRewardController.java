@@ -264,7 +264,7 @@ public class SysRewardController extends BaseController
         return prefix + "/detail";
     }
 
-    @RequiresPermissions(value={"system:reward:hecha","system:reward:process"},logical= Logical.OR)
+    @RequiresPermissions(value={"system:reward:hecha","system:reward:process","system:reward:chayue"},logical= Logical.OR)
     @Log(title = "奖励审核通过", businessType = BusinessType.UPDATE)
     @PostMapping( "/hxPass")
     @ResponseBody
