@@ -238,23 +238,30 @@ public class SysRewardServiceImpl implements ISysRewardService
     @Override
     public int recall(Integer id, String state,Long uid, String remark, String urlFlag) {
         String newState = state;
-        switch (state){
+        switch (state) {
 //            教研室
-            case "2": case "3":
+            case "2":
+            case "3":
                 newState = "1";
                 break;
             //            学院
-            case "4": case "5":
+            case "4":
+            case "5":
                 newState = "2";
                 break;
             //            科研处
-            case "6": case "7":
+            case "6":
+            case "7":
                 newState = "4";
                 break;
         }
+        if (state.equals("6")) {
+            sysRewardMapper.resetJifenById(Long.valueOf(id));
+        }
+
 
 //        设置状态
-int a =sysRewardMapper.hxPass(id.toString(),newState);
+    int a =sysRewardMapper.hxPass(id.toString(),newState);
     //        插入日志
     SysRewardPiyue sysRewardPiyue = new SysRewardPiyue();
         sysRewardPiyue.setUid(uid);

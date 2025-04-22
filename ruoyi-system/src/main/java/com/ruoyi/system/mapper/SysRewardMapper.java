@@ -81,4 +81,5 @@ public interface SysRewardMapper
 
 
     void updateJifen(@Param("id")  Long id,@Param("jifen") int jifen);
+    void resetJifenById(@Param("id") Long id);
 }
