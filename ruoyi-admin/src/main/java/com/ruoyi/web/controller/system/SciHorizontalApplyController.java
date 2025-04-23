@@ -189,7 +189,7 @@ public class SciHorizontalApplyController extends BaseController
                 ));
 
         Integer did = sysUser.getDeptId().intValue();
-        Integer yid = sysUser.getDeptId().intValue();
+        Integer yid = sysUser.getParentId().intValue();
         distinctList.addAll(Alist);
         if(!distinctList.isEmpty()){
             for (SciHorizontalApply apply: distinctList){
@@ -331,6 +331,7 @@ public class SciHorizontalApplyController extends BaseController
         Integer id = sciHorizontalApply.getId();
         sciHorizontalReamount.setApplyId(id.toString());
         sciHorizontalReamount.setState("1");
+        sciHorizontalApply.setUserId(Integer.valueOf(getSysUser().getUserId().toString()));
         sciHorizontalApplyService.overSaveSciHorizontalApply(sciHorizontalApply);
         return toAjax(sciHorizontalReamountService.insertAmount(sciHorizontalReamount));
     }
@@ -430,6 +431,7 @@ public class SciHorizontalApplyController extends BaseController
     @ResponseBody
     public AjaxResult editSave(SciHorizontalApply sciHorizontalApply,SciHorizontalReamount sciHorizontalReamount)
     {
+        sciHorizontalApply.setUserId(Integer.valueOf(getSysUser().getUserId().toString()));
         if (sciHorizontalApply.getState().equals("3") || sciHorizontalApply.getState().equals("5") || sciHorizontalApply.getState().equals("22"))
             sciHorizontalApply.setState("99");
         if (!sciHorizontalReamount.getReAmount().isEmpty())

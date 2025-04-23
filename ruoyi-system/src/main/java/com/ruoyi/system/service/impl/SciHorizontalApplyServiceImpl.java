@@ -18,6 +18,7 @@ import com.ruoyi.system.mapper.SciHorizontalApplyMapper;
 import com.ruoyi.system.domain.SciHorizontalApply;
 import com.ruoyi.system.service.ISciHorizontalApplyService;
 import com.ruoyi.common.core.text.Convert;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * 横向课题Service业务层处理
@@ -114,6 +115,7 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
      * @return 结果
      */
     @Override
+    @Transactional
     public int insertSciHorizontalApply(SciHorizontalApply sciHorizontalApply)
     {
         sciHorizontalApplyMapper.insertSciHorizontalApply(sciHorizontalApply);
@@ -143,8 +145,8 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
         SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
         sciHorizontalPiyue.setUid(Long.valueOf(sciHorizontalApply.getUserId()));
         sciHorizontalPiyue.setHxktId(Integer.valueOf(id));
-        sciHorizontalPiyue.setConcate("新增");
-        sciHorizontalPiyue.setState("通过");
+        sciHorizontalPiyue.setConcate("新增数据");
+        sciHorizontalPiyue.setState("新增");
         sciHorizontalPiyueMapper.insertSciHorizontalPiyue(sciHorizontalPiyue);
         return id;
     }
@@ -167,31 +169,33 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
         SciHorizontalPersion sciHorizontalPersion = new SciHorizontalPersion();
         sciHorizontalPersion.setApplyid(id);
         sciHorizontalApplyMapper.deletePersion(sciHorizontalPersion);
-        if (StringUtils.isNotEmpty(sciHorizontalApply.getFirstPersonId())) {
-            sciHorizontalPersion.setRanking("1");
-            sciHorizontalPersion.setPersionid(sciHorizontalApply.getFirstPersonId());
-            sciHorizontalApplyMapper.insertPersion(sciHorizontalPersion);
-        }
-        if (StringUtils.isNotEmpty(sciHorizontalApply.getSecondPersonId())) {
-            sciHorizontalPersion.setRanking("2");
-            sciHorizontalPersion.setPersionid(sciHorizontalApply.getSecondPersonId());
-            sciHorizontalApplyMapper.insertPersion(sciHorizontalPersion);
-        }
-        if (StringUtils.isNotEmpty(sciHorizontalApply.getThirdPersonId())) {
-            sciHorizontalPersion.setRanking("3");
-            sciHorizontalPersion.setPersionid(sciHorizontalApply.getThirdPersonId());
-            sciHorizontalApplyMapper.insertPersion(sciHorizontalPersion);
-        }
-        if (StringUtils.isNotEmpty(sciHorizontalApply.getFourthPersonId())) {
-            sciHorizontalPersion.setRanking("4");
-            sciHorizontalPersion.setPersionid(sciHorizontalApply.getFourthPersonId());
-            sciHorizontalApplyMapper.insertPersion(sciHorizontalPersion);
+        if (sciHorizontalApply.getNewsql().equals("99")) {
+            if (StringUtils.isNotEmpty(sciHorizontalApply.getFirstPersonId())) {
+                sciHorizontalPersion.setRanking("1");
+                sciHorizontalPersion.setPersionid(sciHorizontalApply.getFirstPersonId());
+                sciHorizontalApplyMapper.insertPersion(sciHorizontalPersion);
+            }
+            if (StringUtils.isNotEmpty(sciHorizontalApply.getSecondPersonId())) {
+                sciHorizontalPersion.setRanking("2");
+                sciHorizontalPersion.setPersionid(sciHorizontalApply.getSecondPersonId());
+                sciHorizontalApplyMapper.insertPersion(sciHorizontalPersion);
+            }
+            if (StringUtils.isNotEmpty(sciHorizontalApply.getThirdPersonId())) {
+                sciHorizontalPersion.setRanking("3");
+                sciHorizontalPersion.setPersionid(sciHorizontalApply.getThirdPersonId());
+                sciHorizontalApplyMapper.insertPersion(sciHorizontalPersion);
+            }
+            if (StringUtils.isNotEmpty(sciHorizontalApply.getFourthPersonId())) {
+                sciHorizontalPersion.setRanking("4");
+                sciHorizontalPersion.setPersionid(sciHorizontalApply.getFourthPersonId());
+                sciHorizontalApplyMapper.insertPersion(sciHorizontalPersion);
+            }
         }
         SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
         sciHorizontalPiyue.setUid(Long.valueOf(sciHorizontalApply.getUserId()));
         sciHorizontalPiyue.setHxktId(Integer.valueOf(id));
         if (sciHorizontalApply.getNewsql().equals("99")) {
-            sciHorizontalPiyue.setConcate("提交");
+            sciHorizontalPiyue.setConcate("提交申请");
             sciHorizontalPiyue.setState("提交");
         }else {
             sciHorizontalPiyue.setConcate("修改");
@@ -337,7 +341,7 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
         sciHorizontalPiyue.setUid(uid);
         sciHorizontalPiyue.setHxktId(Integer.valueOf(id));
         sciHorizontalPiyue.setConcate(remark);
-        sciHorizontalPiyue.setState("被驳回");
+        sciHorizontalPiyue.setState("驳回");
         sciHorizontalPiyueMapper.insertSciHorizontalPiyue(sciHorizontalPiyue);
         return a;
     }
@@ -426,6 +430,12 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
 //     申请结项流程
     @Override
     public int overSaveSciHorizontalApply(SciHorizontalApply sciHorizontalApply) {
+        SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
+        sciHorizontalPiyue.setUid(Long.valueOf(sciHorizontalApply.getUserId()));
+        sciHorizontalPiyue.setHxktId(sciHorizontalApply.getId());
+        sciHorizontalPiyue.setConcate("提交结项");
+        sciHorizontalPiyue.setState("提交");
+        sciHorizontalPiyueMapper.insertSciHorizontalPiyue(sciHorizontalPiyue);
         return sciHorizontalApplyMapper.updateSciHorizontalApply(sciHorizontalApply);
     }
 
@@ -501,7 +511,7 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
         sciHorizontalPiyue.setUid(uid);
         sciHorizontalPiyue.setHxktId(id);
         sciHorizontalPiyue.setConcate(remark);
-        sciHorizontalPiyue.setState("撤回上一条操作");
+        sciHorizontalPiyue.setState("撤回");
         sciHorizontalPiyueMapper.insertSciHorizontalPiyue(sciHorizontalPiyue);
         return a;
     }
