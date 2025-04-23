@@ -335,10 +335,18 @@
                                     </form>
                                 </div>
 
-                                <div class="btn-group-sm" id="toolbar0" role="group">
-                                    <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:apply_vertical:export">
-                                        <i class="fa fa-download"></i> 导出
-                                    </a>
+                                <div id="toolbar0" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                                    <div class="btn-group-sm"  role="group" style="display: inline-flex; gap: 4px;">
+                                        <a class="btn btn-success" onclick="$.operate.addTab()" shiro:hasPermission="system:apply:add">
+                                            <i class="fa fa-plus"></i> 添加
+                                        </a>
+                                        <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:apply:export">
+                                            <i class="fa fa-download"></i> 导出
+                                        </a>
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 15px; padding: 6px 36px; border-radius: 4px;">
+                                        <th:block th:replace="include :: status-circles"/>
+                                    </div>
                                 </div>
                                 <div class="col-sm-12 select-table table-striped">
                                     <table id="bootstrap-table0"></table>
@@ -382,14 +390,19 @@
                                     </form>
                                 </div>
 
-                                <div class="btn-group-sm" id="toolbar1" role="group">
-                                    <a class="btn btn-success" onclick="$.operate.addTab()" shiro:hasPermission="system:apply_vertical:add">
+                                <div id="toolbar1" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                                <div class="btn-group-sm"  role="group" style="display: inline-flex; gap: 4px;">
+                                    <a class="btn btn-success" onclick="$.operate.addTab()" shiro:hasPermission="system:apply:add">
                                         <i class="fa fa-plus"></i> 添加
                                     </a>
-                                    <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:apply_vertical:export">
+                                    <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:apply:export">
                                         <i class="fa fa-download"></i> 导出
                                     </a>
                                 </div>
+                                <div style="display: flex; align-items: center; gap: 15px; padding: 6px 36px; border-radius: 4px;">
+                                    <th:block th:replace="include :: status-circles"/>
+                                </div>
+                            </div>
                                 <div class="col-sm-12 select-table table-striped">
                                     <table id="bootstrap-table1"></table>
                                 </div>
@@ -430,10 +443,16 @@
                                     </form>
                                 </div>
 
-                                <div class="btn-group-sm" id="toolbar2" role="group">
-                                    <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:apply_vertical:export">
-                                        <i class="fa fa-download"></i> 导出
-                                    </a>
+                                <div id="toolbar2" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                                    <div class="btn-group-sm"  role="group" style="display: inline-flex; gap: 4px;">
+
+                                        <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:apply:export">
+                                            <i class="fa fa-download"></i> 导出
+                                        </a>
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 15px; padding: 6px 36px; border-radius: 4px;">
+                                        <th:block th:replace="include :: status-circles"/>
+                                    </div>
                                 </div>
                                 <div class="col-sm-12 select-table table-striped">
                                     <table id="bootstrap-table2"></table>
