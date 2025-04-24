@@ -33,17 +33,32 @@ public class SysRewardxuexiaoController extends BaseController {
         return prefix + "/applyxuexiao";
     }
 
-    @PostMapping("/list")
-    @ResponseBody
-    public TableDataInfo list() {
-        startPage();
-        String dept = getSysUser().getDeptId().toString();
-        List<Map<String, Object>> list = sysRewardXueyuanMapper.selectXuexiao(dept);
-        List<Map<String, Object>> list1;
-        list1 = sysRewardXueyuanMapper.selectXuexiaoall(dept);
-        list.add(list1.get(0));
-        TableDataInfo data = getDataTable(list);
-//        System.out.println(list1);
-        return data;
+@PostMapping("/list")
+@ResponseBody
+public TableDataInfo list() {
+    String dept = getSysUser().getDeptId().toString();
+    startPage();
+    List<Map<String, Object>> list = sysRewardXueyuanMapper.selectXuexiao(dept);
+
+    // 确保所有行都有学院字段
+    list.forEach(row -> {
+        if (!row.containsKey("学院")) {
+            row.put("学院", "N/A");
+        }
+        if (row.get("专业") == null) {
+            row.put("isCollegeTotal", true);
+        }
+    });
+
+    // 添加总合计行前检查空数据
+    List<Map<String, Object>> grandList = sysRewardXueyuanMapper.selectXuexiaoall(dept);
+    if (!grandList.isEmpty()) {
+        Map<String, Object> grandTotal = grandList.get(0);
+        grandTotal.put("isGrandTotal", true);
+        list.add(grandTotal);
     }
+
+    return getDataTable(list);
+}
+
 }
