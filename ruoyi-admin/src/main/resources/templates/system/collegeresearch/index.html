@@ -38,6 +38,183 @@
     //var prefix = ctx + '/collegeresearch'
     var total = 0;
     var prefix = "/collegeresearch";
+    // $(function() {
+    //     var options = {
+    //         url: prefix + "/list",
+    //         exportUrl: prefix + "/export",
+    //         modalName: '学院科研项目',
+    //         method: "post",
+    //         height: 600,
+    //         sidePagination: "server",
+    //         pagination: true,
+    //         showSearch: false,
+    //         showExport:true,
+    //         clickToSelect:true,
+    //         virtualScroll: true,
+    //         undefinedText:0,//没有数据默认值
+    //
+    //         fixedColumns: true,
+    //         fixedNumber:3,
+    //         columns: [{
+    //             checkbox: true,
+    //         },
+    //             {
+    //                 field: '学院名称',
+    //                 title: '学院名称',
+    //                 align: 'center',
+    //                 class:"fixed-column-1",
+    //             },
+    //             {
+    //                 field: '专业名称',
+    //                 title: '专业名称',
+    //                 align: 'center',
+    //                 class:"fixed-column-2",
+    //             },
+    //             {
+    //                 field: '横向课题科研项目',
+    //                 title: '横向课题科研项目',
+    //                 align: 'center',
+    //                 // formatter: function (value, row, index) {
+    //                 //     // 如果 value 为空或未定义，则返回默认值 0
+    //                 //     return value || 0;
+    //                 // }
+    //             },
+    //             {
+    //                 field: '纵向课题科研项目-校级以上',
+    //                 title: '纵向课题科研项目-校级以上',
+    //                 align: 'center',
+    //                 // formatter: function (value, row, index) {
+    //                 //     // 如果 value 为空或未定义，则返回默认值 0
+    //                 //     return value || 0;
+    //                 // }
+    //             },
+    //             {
+    //                 field: '纵向课题科研项目-校级',
+    //                 title: '纵向课题科研项目-校级',
+    //                 align: 'center',
+    //
+    //             },
+    //             {
+    //                 field: '论文-积分',
+    //                 title: '论文-积分',
+    //                 align: 'center',
+    //
+    //             },
+    //             {
+    //                 field: '讲座报告-积分',
+    //                 title: '讲座报告-积分',
+    //                 align: 'center',
+    //
+    //             },
+    //             {
+    //                 field: '教材软著-积分',
+    //                 title: '教材软著-积分',
+    //                 align: 'center',
+    //
+    //             },
+    //             {
+    //                 field: '成果转化-积分',
+    //                 title: '成果转化-积分',
+    //                 align: 'center',
+    //
+    //             },
+    //             {
+    //                 field: '专利-积分',
+    //                 title: '专利-积分',
+    //                 align: 'center',
+    //
+    //             },
+    //             {
+    //                 field: '软著-积分',
+    //                 title: '软著-积分',
+    //                 align: 'center',
+    //             },
+    //             {
+    //                 field: '奖励-积分',
+    //                 title: '奖励-积分',
+    //                 align: 'center',
+    //             },
+    //             {
+    //                 field: '专业',
+    //                 title: '专业',
+    //                 align: 'center',
+    //
+    //                 formatter: function (value, row, index) {
+    //                     // 如果 value 为空或未定义，则返回默认值 0
+    //                     console.log(value)
+    //                     return value;
+    //                 }
+    //             },
+    //         ]
+    //     }
+    //     $.table.init(options);
+    //
+    //     $('#bootstrap-table').on('load-success.bs.table', function (data) {
+    //         var $table = $(this);
+    //         var $tbody = $table.find('tbody');
+    //
+    //         // 获取表格配置中的列信息
+    //         var columns = $table.bootstrapTable('getOptions').columns[0]; // 获取第一层列定义
+    //
+    //         // 初始化总计变量
+    //         var totals = {
+    //             '横向课题科研项目': 0,
+    //             '纵向课题科研项目-校级以上': 0,
+    //             '纵向课题科研项目-校级': 0,
+    //             '论文-积分': 0,
+    //             '讲座报告-积分': 0,
+    //             '教材软著-积分': 0,
+    //             '成果转化-积分': 0,
+    //             '专利-积分': 0,
+    //             '软著-积分': 0,
+    //             '奖励-积分': 0
+    //         };
+    //
+    //         // 动态获取列索引
+    //         var columnIndexMap = {};
+    //         columns.forEach(function (column, index) {
+    //             if (column.field) {
+    //                 columnIndexMap[column.field] = index;
+    //             }
+    //         });
+    //
+    //         // 遍历表格数据，计算总计
+    //         $tbody.find('tr').each(function () {
+    //             var $row = $(this);
+    //
+    //             // 跳过选择框列，根据字段名动态获取列索引
+    //             totals['横向课题科研项目'] += parseFloat($row.find(`td:eq(${columnIndexMap['横向课题科研项目']})`).text()) || 0;
+    //             totals['纵向课题科研项目-校级以上'] += parseFloat($row.find(`td:eq(${columnIndexMap['纵向课题科研项目-校级以上']})`).text()) || 0;
+    //             totals['纵向课题科研项目-校级'] += parseFloat($row.find(`td:eq(${columnIndexMap['纵向课题科研项目-校级']})`).text()) || 0;
+    //             totals['论文-积分'] += parseFloat($row.find(`td:eq(${columnIndexMap['论文-积分']})`).text()) || 0;
+    //             totals['讲座报告-积分'] += parseFloat($row.find(`td:eq(${columnIndexMap['讲座报告-积分']})`).text()) || 0;
+    //             totals['教材软著-积分'] += parseFloat($row.find(`td:eq(${columnIndexMap['教材软著-积分']})`).text()) || 0;
+    //             totals['成果转化-积分'] += parseFloat($row.find(`td:eq(${columnIndexMap['成果转化-积分']})`).text()) || 0;
+    //             totals['专利-积分'] += parseFloat($row.find(`td:eq(${columnIndexMap['专利-积分']})`).text()) || 0;
+    //             totals['软著-积分'] += parseFloat($row.find(`td:eq(${columnIndexMap['软著-积分']})`).text()) || 0;
+    //             totals['奖励-积分'] += parseFloat($row.find(`td:eq(${columnIndexMap['奖励-积分']})`).text()) || 0;
+    //         });
+    //
+    //         // 创建总计行
+    //         var $totalRow = $('<tr></tr>');
+    //
+    //         $totalRow.append($('<td></td>').attr('colspan', '3').css('text-align', 'center').text('总计')); // 合并前3列（选择框 + 学院名称 + 专业名称）
+    //         $totalRow.append($('<td></td>').css('text-align', 'center').text(totals['横向课题科研项目']));
+    //         $totalRow.append($('<td></td>').css('text-align', 'center').text(totals['纵向课题科研项目-校级以上']));
+    //         $totalRow.append($('<td></td>').css('text-align', 'center').text(totals['纵向课题科研项目-校级']));
+    //         $totalRow.append($('<td></td>').css('text-align', 'center').text(totals['论文-积分']));
+    //         $totalRow.append($('<td></td>').css('text-align', 'center').text(totals['讲座报告-积分']));
+    //         $totalRow.append($('<td></td>').css('text-align', 'center').text(totals['教材软著-积分']));
+    //         $totalRow.append($('<td></td>').css('text-align', 'center').text(totals['成果转化-积分']));
+    //         $totalRow.append($('<td></td>').css('text-align', 'center').text(totals['专利-积分']));
+    //         $totalRow.append($('<td></td>').css('text-align', 'center').text(totals['软著-积分']));
+    //         $totalRow.append($('<td></td>').css('text-align', 'center').text(totals['奖励-积分']));
+    //
+    //         // 添加总计行到表格末尾
+    //         $tbody.append($totalRow);
+    //     });
+    //
+    // });
     $(function() {
         var options = {
             url: prefix + "/list",
@@ -74,19 +251,19 @@
                     field: '横向课题科研项目',
                     title: '横向课题科研项目',
                     align: 'center',
-                    // formatter: function (value, row, index) {
-                    //     // 如果 value 为空或未定义，则返回默认值 0
-                    //     return value || 0;
-                    // }
+                    formatter: function (value, row, index) {
+                        // 如果 value 为空或未定义，则返回默认值 0
+                        return value || 0;
+                    }
                 },
                 {
                     field: '纵向课题科研项目-校级以上',
                     title: '纵向课题科研项目-校级以上',
                     align: 'center',
-                    // formatter: function (value, row, index) {
-                    //     // 如果 value 为空或未定义，则返回默认值 0
-                    //     return value || 0;
-                    // }
+                    formatter: function (value, row, index) {
+                        // 如果 value 为空或未定义，则返回默认值 0
+                        return value || 0;
+                    }
                 },
                 {
                     field: '纵向课题科研项目-校级',
@@ -134,17 +311,6 @@
                     title: '奖励-积分',
                     align: 'center',
                 },
-                {
-                    field: '专业',
-                    title: '专业',
-                    align: 'center',
-
-                    formatter: function (value, row, index) {
-                        // 如果 value 为空或未定义，则返回默认值 0
-                        console.log(value)
-                        return value;
-                    }
-                },
             ]
         }
         $.table.init(options);
@@ -177,12 +343,13 @@
                     columnIndexMap[column.field] = index;
                 }
             });
-
-            // 遍历表格数据，计算总计
-            $tbody.find('tr').each(function () {
+            var fixedIndexes = [6,13,17];
+            // 遍历表格数据，计算总计并插入总计行
+            $tbody.find('tr').each(function (index) {
                 var $row = $(this);
 
                 // 跳过选择框列，根据字段名动态获取列索引
+                // 跳过选
                 totals['横向课题科研项目'] += parseFloat($row.find(`td:eq(${columnIndexMap['横向课题科研项目']})`).text()) || 0;
                 totals['纵向课题科研项目-校级以上'] += parseFloat($row.find(`td:eq(${columnIndexMap['纵向课题科研项目-校级以上']})`).text()) || 0;
                 totals['纵向课题科研项目-校级'] += parseFloat($row.find(`td:eq(${columnIndexMap['纵向课题科研项目-校级']})`).text()) || 0;
@@ -193,28 +360,46 @@
                 totals['专利-积分'] += parseFloat($row.find(`td:eq(${columnIndexMap['专利-积分']})`).text()) || 0;
                 totals['软著-积分'] += parseFloat($row.find(`td:eq(${columnIndexMap['软著-积分']})`).text()) || 0;
                 totals['奖励-积分'] += parseFloat($row.find(`td:eq(${columnIndexMap['奖励-积分']})`).text()) || 0;
+                if (fixedIndexes.includes(index)) {
+                    console.log("$tbody.find('tr').length:"+$tbody.find('tr').length)
+                    insertTotalRow($tbody, totals, index);
+                    resetTotals(totals); // 重置总计
+                }
             });
+            console.log("!@#!@$#:"+$tbody.find('tr').length)
+            // 插入最后一组数据的总计行
+            insertTotalRow($tbody, totals, $tbody.find('tr').length-1);
+            function insertTotalRow($tbody, totals, index) {
+                var $totalRow = $('<tr></tr>');
 
-            // 创建总计行
-            var $totalRow = $('<tr></tr>');
+                $totalRow.append($('<td></td>').attr('colspan', '3').css('text-align', 'center').text('总计')); // 合并前3列
+                $totalRow.append($('<td></td>').css('text-align', 'center').text(totals['横向课题科研项目']));
+                $totalRow.append($('<td></td>').css('text-align', 'center').text(totals['纵向课题科研项目-校级以上']));
+                $totalRow.append($('<td></td>').css('text-align', 'center').text(totals['纵向课题科研项目-校级']));
+                $totalRow.append($('<td></td>').css('text-align', 'center').text(totals['论文-积分']));
+                $totalRow.append($('<td></td>').css('text-align', 'center').text(totals['讲座报告-积分']));
+                $totalRow.append($('<td></td>').css('text-align', 'center').text(totals['教材软著-积分']));
+                $totalRow.append($('<td></td>').css('text-align', 'center').text(totals['成果转化-积分']));
+                $totalRow.append($('<td></td>').css('text-align', 'center').text(totals['专利-积分']));
+                $totalRow.append($('<td></td>').css('text-align', 'center').text(totals['软著-积分']));
+                $totalRow.append($('<td></td>').css('text-align', 'center').text(totals['奖励-积分']));
 
-            $totalRow.append($('<td></td>').attr('colspan', '3').css('text-align', 'center').text('总计')); // 合并前3列（选择框 + 学院名称 + 专业名称）
-            $totalRow.append($('<td></td>').css('text-align', 'center').text(totals['横向课题科研项目']));
-            $totalRow.append($('<td></td>').css('text-align', 'center').text(totals['纵向课题科研项目-校级以上']));
-            $totalRow.append($('<td></td>').css('text-align', 'center').text(totals['纵向课题科研项目-校级']));
-            $totalRow.append($('<td></td>').css('text-align', 'center').text(totals['论文-积分']));
-            $totalRow.append($('<td></td>').css('text-align', 'center').text(totals['讲座报告-积分']));
-            $totalRow.append($('<td></td>').css('text-align', 'center').text(totals['教材软著-积分']));
-            $totalRow.append($('<td></td>').css('text-align', 'center').text(totals['成果转化-积分']));
-            $totalRow.append($('<td></td>').css('text-align', 'center').text(totals['专利-积分']));
-            $totalRow.append($('<td></td>').css('text-align', 'center').text(totals['软著-积分']));
-            $totalRow.append($('<td></td>').css('text-align', 'center').text(totals['奖励-积分']));
+                // 将总计行插入到指定位置（当前遍历的最后一行之后）
+                $tbody.find('tr').eq(index).after($totalRow);
+            }
 
-            // 添加总计行到表格末尾
-            $tbody.append($totalRow);
-        });
-
+            /**
+             * 重置总计对象
+             * @param {Object} totals 总计对象
+             */
+            function resetTotals(totals) {
+                for (var key in totals) {
+                    totals[key] = 0;
+                }
+            }
+        })
     });
+
 </script>
 </body>
 
