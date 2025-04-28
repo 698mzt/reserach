@@ -424,13 +424,18 @@
             </form>
         </div>
 
-        <div class="btn-group-sm" id="toolbar" role="group">
-            <a class="btn btn-success" onclick="$.operate.addTab()" shiro:hasPermission="system:zhuanliruanzhu:add">
+        <div id="toolbar"  style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <div class="btn-group-sm" role="group" style="display: inline-flex; gap: 4px;">
+                <a class="btn btn-success" onclick="$.operate.addTab()" shiro:hasPermission="system:zhuanliruanzhu:add">
                 <i class="fa fa-plus"></i> 添加
             </a>
             <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:zhuanliruanzhu:export">
                 <i class="fa fa-download"></i> 导出
             </a>
+            </div>
+                <div style="display: flex; align-items: center; gap: 15px; padding: 6px 36px; border-radius: 4px;">
+                    <th:block th:replace="include :: status-circles"/>
+                </div>
         </div>
         <div class="col-sm-12 select-table table-striped">
             <div class="table-container">

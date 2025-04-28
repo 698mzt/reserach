@@ -41,6 +41,10 @@ public class StatisticJiaoZong extends BaseController {
     public TableDataInfo listJZ() {
         startPage();
         String dept = getSysUser().getDeptId().toString();
+//        String ParentId = getSysUser().getParentId().toString();
+//        System.out.println(ParentId);
+
+
         List<Map<String, Object>> list = statisticJZMapper.selectAllJZ(dept);
         List<Map<String, Object>> list1 = statisticJZMapper.selectTotalJZ(dept);
 
