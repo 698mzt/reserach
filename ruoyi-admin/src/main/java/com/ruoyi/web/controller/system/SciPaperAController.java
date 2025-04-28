@@ -128,10 +128,9 @@ public AjaxResult uploadFile(MultipartFile file, @PathVariable("model") String m
             else if (roleId.contains("100") && roleId.size()==1) {
                 list.addAll(sciPaperAService.selectSciPaperAListCx(sciPaperA));
             }
-
-
-
         System.out.println("year = " + year);
+        System.out.println("list = " + list);
+        List<Map<String,Object>> data =new ArrayList<>();
         startPage();
 
         return getDataTable(list);

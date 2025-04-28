@@ -1,0 +1,50 @@
+package com.ruoyi.web.controller.system;
+
+import com.ruoyi.common.core.controller.BaseController;
+import com.ruoyi.common.core.page.TableDataInfo;
+import com.ruoyi.system.mapper.SciCollegeResearchMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@Controller
+@RequestMapping("/work")
+public class SciWorkController extends BaseController {
+    @Autowired
+    private SciCollegeResearchMapper sciCollegeResearchMapper;
+    private String prefix = "/system/work";
+
+    @GetMapping
+    public String index()
+    {
+        return prefix + "/index";
+    }
+
+    @PostMapping("/list")
+    @ResponseBody
+    public TableDataInfo all_list() {
+
+        Long deptId = getSysUser().getDeptId();
+        List<Map<String, Object>> GeneraList = new ArrayList<>();
+
+        GeneraList = sciCollegeResearchMapper.GeneralCollegeSearcherList();
+        new TableDataInfo();
+        TableDataInfo data;
+        data = getDataTable(GeneraList);data.setRows(GeneraList); // 数据列表;
+        data.setTotal(GeneraList.size()); // 总记录数
+
+        System.out.println("GeneraList = " + GeneraList);
+        System.out.println("list = " + data.getRows());
+        return data;
+    }
+}
+
+

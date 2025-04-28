@@ -281,7 +281,7 @@
                  WHERE
                      FIND_IN_SET(100, ancestors) > 0
              ) sub
-        WHERE sub.deptiod IN ( SELECT dept_id FROM sys_dept WHERE dept_id = #{deptId} OR find_in_set(#{deptId}, ancestors ) )
+        WHERE sub.deptiod IN ( SELECT dept_id FROM sys_dept WHERE  find_in_set(#{deptId}, ancestors ) )
         GROUP BY sub.dept_id, sub.deptiod;
     </select>
     <select id="selectCollegeResearchID">
