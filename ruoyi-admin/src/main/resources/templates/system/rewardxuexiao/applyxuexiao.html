@@ -3,28 +3,14 @@
 <head>
     <th:block th:include="include :: header('表格虚拟滚动')" />
     <!-- 确保CSS正确放置 -->
-<style>
-/* 移动到body结束标签前 */
-.table-bordered tr:has(td[colspan]) {
-    background-color: #f8f9fa;
-}
-.table-bordered td[colspan] {
-    font-weight: 600;
-    text-align: center !important;
-}
-</style>
-
 </head>
 <body class="gray-bg">
 <div class="container-div">
     <div class="btn-group-sm" id="toolbar" role="group">
-        <!--	        <a class="btn btn-success" onclick="loadRows()">-->
-        <!--	            <i class="fa fa-plus"></i> 加载10000行数据-->
-        <!--	        </a>-->
-        <!--	        <a class="btn btn-info" onclick="appendRows()">-->
-        <!--	            <i class="fa fa-edit"></i> 追加10000行数据-->
-        <!--	        </a>-->
         &nbsp;&nbsp;<span id="total" class="badge badge-success"></span>
+        <a class="btn btn-warning" onclick="$.table.exportExcel()">
+            <i class="fa fa-download"></i> 导出
+        </a>
     </div>
     <div class="row">
         <div class="col-sm-12 select-table table-bordered">
@@ -33,6 +19,8 @@
     </div>
 </div>
 <div th:include="include :: footer"></div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.21.3/dist/bootstrap-table.min.js"></script>
+<th:block th:include="include :: bootstrap-table-fixed-columns-js" />
 <script>
     var total = 0
     var prefix = ctx + 'rewardxuexiao'
@@ -41,10 +29,10 @@
             url: prefix + "/list",
             modalName: '学院业绩成果数',
             height: 600,
-            sidePagination: "server",
-            pagination: true,
+            sidePagination: "client", // 改为客户端分页
+            pagination: false,        // 关闭分页功能
             showSearch: false,
-            virtualScroll: true,
+            virtualScroll: false,     // 关闭虚拟滚动
             columns:[
                 [
                     {
@@ -118,38 +106,60 @@
 
 
 // 事件监听调整到初始化之前
-$('#bootstrap-table').on('load-success.bs.table', function (e, data) {
-  const $table = $(this);
-  const rows = data.rows; // 直接使用回调数据
+        $('#bootstrap-table').on('load-success.bs.table', function () {
+    var $table = $(this);
+    var data = $table.bootstrapTable('getData');
+    var $tbody = $table.find('tbody');
 
-  // 延迟确保 DOM 渲染完成
-  setTimeout(() => {
-    $table.find('tbody tr').each(function(index) {
-      const rowData = rows[index];
-      const $cells = $(this).find('td');
+    // 清空合计行
+    $tbody.find('tr.total-row').remove();
 
-      if (rowData && rowData.isCollegeTotal) {
-        $cells.eq(1)
-          .attr('colspan', 2)
-          .html('学院合计')
-          .css('font-weight', 'bold');
-        $cells.eq(2).remove();
-      }
+    // 有效插入位置过滤
+    var validPositions = [5, 9, 17, 20, 27]
+        .filter(p => p < data.length) // 仅保留有效位置
+        .map(p => Math.min(p, data.length - 1)); // 确保不超过最大索引
 
-      if (rowData && rowData.isGrandTotal) {
-        $cells.eq(0)
-          .attr('colspan', 3)
-          .html('合计')
-          .css({'font-weight': 'bold', 'background-color': '#f5f5f5'});
-        $cells.slice(1, 3).remove();
-      }
+    // 区间计算优化
+    var ranges = validPositions
+        .sort((a, b) => b - a)
+        .map((pos, index, arr) => {
+            let nextPos = arr[index + 1];
+            return {
+                insertAt: pos,
+                start: nextPos !== undefined ? nextPos + 1 : 0,
+                end: pos - 1
+            };
+        });
+
+    ranges.forEach(({ insertAt, start, end }) => {
+        if (start > end || end >= data.length) return;
+
+        // 精确切片
+        var targetRows = data.slice(start, end + 1);
+        if (targetRows.length === 0) return;
+
+        // 计算合计
+        var sums = targetRows.reduce((acc, row) => {
+            Object.keys(row).forEach(key => {
+                if (!['学院', '专业'].includes(key) && !isNaN(row[key])) {
+                    acc[key] = (acc[key] || 0) + parseFloat(row[key]);
+                }
+            });
+            return acc;
+        }, {});
+
+        // 创建合计行
+        var $totalRow = $('<tr class="total-row">')
+            .append('<td colspan="3" class="text-center">合计</td>')
+            .append(Object.keys(sums).map(key =>
+                `<td class="text-center">${sums[key] || 0}</td>`
+            ).join(''));
+
+        // 精准定位插入
+        var $refRow = $tbody.find(`tr[data-index="${insertAt}"]`);
+        $refRow.length > 0 ? $refRow.after($totalRow) : $tbody.append($totalRow);
     });
-  }, 0);
 });
-
-// 初始化表格
-$.table.init(options);
-
 
 
     });

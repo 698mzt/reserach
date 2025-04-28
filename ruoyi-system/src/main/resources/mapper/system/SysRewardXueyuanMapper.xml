@@ -97,19 +97,7 @@
     </select>
 
 <select id="selectXuexiao" parameterType="map" resultType="map">
-    SELECT
-        IFNULL(`学院`, '小计') AS `学院`,  <!-- 使用内层定义的别名 -->
-        IFNULL(`专业`, '') AS `专业`,
-        `纵向科研项目-校级以上`,
-        `纵向科研项目-校级`,
-        `横向课题科研项目`,
-        `成果转化`,
-        `学术论文`,
-        `教材著作`,
-        `专利`,
-        `软著`,
-        `奖励`,
-        `学术报告(讲座类)`
+    SELECT *
     FROM (
         <include refid="All"/>
         <where>
@@ -122,10 +110,8 @@
                 </otherwise>
             </choose>
         </where>
-        GROUP BY partenName, deptName WITH ROLLUP
+        GROUP BY partenName, deptName
     ) tmp
-    WHERE `学院` IS NOT NULL
-    AND (`专业` IS NOT NULL OR `学院` = '小计')
 </select>
 
 
