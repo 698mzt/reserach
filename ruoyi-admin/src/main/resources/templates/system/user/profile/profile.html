@@ -16,7 +16,7 @@
                     <h5>个人资料</h5>
                 </div>
                 <div class="ibox-content">
-                    <div class="text-center">
+                    <div class="text-center" style="display: none">
                         <p class="user-info-head" onclick="avatar()">
                             <img class="img-circle img-lg"
                                  th:src="(${#strings.isEmpty(user.avatar)}) ? @{/img/profile.jpg} : @{${user.avatar}}"
