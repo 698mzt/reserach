@@ -213,7 +213,7 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
             SciZhuanliruanzhuPiyue sciZhuanliruanzhuPiyue = new SciZhuanliruanzhuPiyue();
             sciZhuanliruanzhuPiyue.setUid(uid);
             sciZhuanliruanzhuPiyue.setHxktId(Integer.valueOf(id));
-            sciZhuanliruanzhuPiyue.setConcate("同意");
+            sciZhuanliruanzhuPiyue.setConcate("提交申请");
             sciZhuanliruanzhuPiyue.setState("提交");
             sciZhuanliruanzhuPiyueMapper.insertSciZhuanliruanzhuPiyue(sciZhuanliruanzhuPiyue);
         }
