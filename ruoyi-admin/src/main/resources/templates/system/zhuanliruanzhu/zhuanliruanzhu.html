@@ -424,13 +424,18 @@
             </form>
         </div>
 
-        <div class="btn-group-sm" id="toolbar" role="group">
-            <a class="btn btn-success" onclick="$.operate.addTab()" shiro:hasPermission="system:zhuanliruanzhu:add">
+        <div id="toolbar"  style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <div class="btn-group-sm" role="group" style="display: inline-flex; gap: 4px;">
+                <a class="btn btn-success" onclick="$.operate.addTab()" shiro:hasPermission="system:zhuanliruanzhu:add">
                 <i class="fa fa-plus"></i> 添加
             </a>
             <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:zhuanliruanzhu:export">
                 <i class="fa fa-download"></i> 导出
             </a>
+            </div>
+                <div style="display: flex; align-items: center; gap: 15px; padding: 6px 36px; border-radius: 4px;">
+                    <th:block th:replace="include :: status-circles"/>
+                </div>
         </div>
         <div class="col-sm-12 select-table table-striped">
             <div class="table-container">
@@ -630,8 +635,8 @@
                         if (row.state == 0) {
                             if (row.userId == row.uid) {
                                 actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/tijiao' + '\')"><i class=""></i>提交&nbsp;&nbsp;&nbsp;&nbsp;</a>');
-                                actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class=""></i>编辑&nbsp;&nbsp;&nbsp;&nbsp;</a>');
-                                actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"><i class="" style="color : #c90000"></i>删除</a>');
+                                actions.push('<a class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class=""></i>编辑&nbsp;&nbsp;&nbsp;&nbsp;</a>');
+                                actions.push('<a class="' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"><i class="" style="color : #c90000"></i>删除</a>');
 
 
                             }
@@ -640,13 +645,13 @@
                             actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
 
                         } else if (row.state == 1) {
-                            actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro' + '\')"><i class=""></i>批阅</a>');
+                            actions.push('<a class="' + proFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro' + '\')"><i class=""></i>批阅</a>');
                             actions.push('<br>')
                             actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan' + '\')"><i class=""></i>查看&nbsp;&nbsp;&nbsp;&nbsp;</a>');
                             actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
 
                         } else if ((row.state == 3 || row.state == 5 || row.state == 7) && row.userId == row.uid) {
-                            actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class=""></i>更新</a>');
+                            actions.push('<a class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class=""></i>更新</a>');
                             actions.push('<br>')
                             actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan' + '\')"><i class=""></i>查看&nbsp;&nbsp;&nbsp;&nbsp;</a>');
                             actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
@@ -656,23 +661,23 @@
                             actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan' + '\')"><i class=""></i>查看&nbsp;&nbsp;&nbsp;&nbsp;</a>');
                             actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
                         } else if (row.state == 2) {
-                            actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')"><i class=""></i>撤回</a>');
-                            actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/hecha' + '\')"><i class=""></i>核查</a>');
+                            actions.push('<a class="' + proFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')"><i class=""></i>撤回&nbsp;&nbsp;&nbsp;&nbsp;</a>');
+                            actions.push('<a class="' + hechaFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/hecha' + '\')"><i class=""></i>核查</a>');
                             actions.push('<br>')
                             actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan' + '\')"><i class=""></i>查看&nbsp;&nbsp;&nbsp;&nbsp;</a>');
                             actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
 
                         } else if (row.state == 4) {
 
-                            actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')"><i class=""></i>撤回</a>');
-                            actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chayue' + '\')"><i class=""></i>查阅</a>');
+                            actions.push('<a class="' + hechaFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')"><i class=""></i>撤回&nbsp;&nbsp;&nbsp;&nbsp;</a>');
+                            actions.push('<a class="' + chayueFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chayue' + '\')"><i class=""></i>查阅</a>');
                             actions.push('<br>')
                             actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan' + '\')"><i class=""></i>查看&nbsp;&nbsp;&nbsp;&nbsp;</a>');
                             actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
 
                         } else if (row.state == 6) {
 
-                            actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')"><i class=""></i>撤回</a>');
+                            actions.push('<a class="' + chayueFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')"><i class=""></i>撤回</a>');
                             actions.push('<br>')
                             actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan' + '\')"><i class=""></i>查看&nbsp;&nbsp;&nbsp;&nbsp;</a>');
                             actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');

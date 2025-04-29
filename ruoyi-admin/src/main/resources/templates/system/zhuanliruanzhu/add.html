@@ -91,7 +91,7 @@
                     <label class="col-sm-4 control-label is-required">是否应用：</label>
                     <div class="col-sm-8" th:with="type=${@dict.getType('sys_yes_no')}">
                         <label th:each="dict : ${type}" class="check-box">
-                            <input name="shifouyingyon" type="checkbox" th:value="${dict.dictValue}" th:text="${dict.dictLabel}" required>
+                            <input name="shifouyingyon" type="radio" th:value="${dict.dictValue}" th:text="${dict.dictLabel}" required>
                         </label>
                     </div>
                 </div>
@@ -99,7 +99,7 @@
                     <label class="col-sm-4 control-label is-required">是否行业联合：</label>
                     <div class="col-sm-8" th:with="type=${@dict.getType('sys_yes_no')}">
                         <label th:each="dict : ${type}" class="check-box">
-                            <input name="hangyelianhe" type="checkbox" th:value="${dict.dictValue}" th:text="${dict.dictLabel}" required>
+                            <input name="hangyelianhe" type="radio" th:value="${dict.dictValue}" th:text="${dict.dictLabel}" required>
                         </label>
                     </div>
                 </div>
@@ -184,7 +184,7 @@
             allowedFileExtensions: ["pdf"],
             slugCallback: function(filename) {
                 if ($("input[name='mingcheng']").val()===""){
-                    $(".amountfile-upload").fileinput('clear');
+                    $(".file-upload").fileinput('clear');
                     $.modal.alertError("请先输入课题名称");
                     return false;
                 }
