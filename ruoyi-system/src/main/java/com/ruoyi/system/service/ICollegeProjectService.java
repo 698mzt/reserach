@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 public interface ICollegeProjectService {
-    boolean judge(Long deptId, String loginName);
+    Integer judge(Long deptId, String loginName);
 
-    List<Map<String, Object>> selAll(Long deptId);
+    List<Map<String, Object>> selAll( Long deptId);
 }

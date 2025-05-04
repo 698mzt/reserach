@@ -46,11 +46,13 @@ public class SysLoginController extends BaseController
         Cookie[] cookies = request.getCookies();
 // 如果没有 Cookie 或者 Cookie 数组为空
         if (cookies == null || cookies.length == 0) {
+            System.out.println("SysLoginController.login1");
             // 设置默认用户名为 "admin"
-            model.addAttribute("username", "admin");
+            //model.addAttribute("username", "");
             // 设置默认密码为 "admin123"
-            model.addAttribute("password", "admin123");
+            //model.addAttribute("password", "");
         } else {
+            System.out.println("SysLoginController.login2");
             // 标记是否找到了用户名
             boolean foundUsername = false;
             // 标记是否找到了密码
@@ -83,13 +85,13 @@ public class SysLoginController extends BaseController
                 }
             }
             // 如果未找到用户名，设置默认用户名为 "admin"
-            if (!foundUsername) {
-                model.addAttribute("username", "admin");
-            }
+//            if (!foundUsername) {
+//                model.addAttribute("username", "admin");
+//            }
             // 如果未找到密码，设置默认密码为 "admin123"
-            if (!foundPassword) {
-                model.addAttribute("password", "admin123");
-            }
+//            if (!foundPassword) {
+//                model.addAttribute("password", "admin123");
+//            }
         }
 
         // 如果是Ajax请求，返回Json字符串。

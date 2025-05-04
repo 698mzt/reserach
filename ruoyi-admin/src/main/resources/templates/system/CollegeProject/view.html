@@ -46,6 +46,9 @@
             fixedColumns: true,  // 确保设置了 fixedColumns 选项
             fixedNumber: 3,      // 确保设置了 fixedNumber 选项
             stickyHeader: true,
+            pagination: true,
+            // 每页显示的记录数
+            pageSize: 10,
             columns: [
                 [{
                     title: '部&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;门',
@@ -177,7 +180,7 @@
 
                     {
                         field: '2-5万元（含2）',
-                        title: '2 -5 万（含2万元）',
+                        title: '2 -5 &nbsp;&nbsp;万（含2万元）',
                         formatter: function(value, row, index) {
                             return value ? value : '0个 (0万)'; // 如果值为空，则返回默认值 '0'
                         }
@@ -228,42 +231,42 @@
 
                     {
                         field: '成果转化2以下信息',
-                        title: '2 万元以下',
+                        title: '2 万&nbsp;&nbsp;元以下',
                         formatter: function(value, row, index) {
                             return value ? value : '0个 (0万)'; // 如果值为空，则返回默认值 '0'
                         }
                     },
                     {
                         field: '成果转化2-5信息',
-                        title: '2 -5 万（含2）',
+                        title: '2 -5 万&nbsp;&nbsp;（含2）',
                         formatter: function(value, row, index) {
                             return value ? value : '0个 (0万)'; // 如果值为空，则返回默认值 '0'
                         }
                     },
                     {
                         field: '成果转化5-10信息',
-                        title: '5 -10 万（含5）',
+                        title: '5 -10 万&nbsp;&nbsp;（含5）',
                         formatter: function(value, row, index) {
                             return value ? value : '0个 (0万)'; // 如果值为空，则返回默认值 '0'
                         }
                     },
                     {
                         field: '成果转化10-20信息',
-                        title: '10 -20 万（含10）',
+                        title: '10 -20 万&nbsp;&nbsp;（含10）',
                         formatter: function(value, row, index) {
                             return value ? value : '0个 (0万)'; // 如果值为空，则返回默认值 '0'
                         }
                     },
                     {
                         field: '成果转化20-35信息',
-                        title: '20 -35 万（含20）',
+                        title: '20 -35 万&nbsp;&nbsp;（含20）',
                         formatter: function(value, row, index) {
                             return value ? value : '0个 (0万)'; // 如果值为空，则返回默认值 '0'
                         }
                     },
                     {
                         field: '成果转化35-50信息',
-                        title: '35-50 万（含35）',
+                        title: '35-50 万&nbsp;&nbsp;（含35）',
                         formatter: function(value, row, index) {
                             return value ? value : '0个 (0万)'; // 如果值为空，则返回默认值 '0'
                         }
