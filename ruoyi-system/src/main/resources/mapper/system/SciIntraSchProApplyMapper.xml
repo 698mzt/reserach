@@ -758,7 +758,7 @@
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
         LEFT JOIN sci_IntraSchPro_score sc ON sc.sciIntraSch_Id = s.id
---         ,7,9,10,14
+
         where s.state in (13,8)
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
 
@@ -767,15 +767,19 @@
         <!--        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>-->
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
         <!-- 数据范围过滤 -->
-        ${params.dataScope}
-        OR (
-        s.user_id = #{uid}
-        OR s.first_person_id = #{uid}
-        OR s.second_person_id = #{uid}
-        OR s.third_person_id = #{uid}
-        OR s.fourth_person_id = #{uid}
-        )
-        <!--            <if test="userId != null "> and user_id = #{userId}</if>-->
+      ${params.dataScope}
+
+
+      OR (
+      (
+      s.user_id = #{uid}
+      OR s.first_person_id = #{uid}
+      OR s.second_person_id = #{uid}
+      OR s.third_person_id = #{uid}
+      OR s.fourth_person_id = #{uid}
+      )and s.state IN ( 13, 8 )
+      )
+      <!--            <if test="userId != null "> and user_id = #{userId}</if>-->
 
         GROUP BY
         s.id,
