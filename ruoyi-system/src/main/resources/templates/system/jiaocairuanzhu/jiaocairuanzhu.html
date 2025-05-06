@@ -530,7 +530,7 @@
     var shifouyingyonDatas = [[${@dict.getType('sys_yes_no')}]];
     var hangyelianheDatas = [[${@dict.getType('sys_yes_no')}]];
     var fenleiDatas = [[${@dict.getType('sys_jiaocairuanzhu_fenlei')}]];
-    var datas = [[${@dict.getType('sys_jiaocairuanzhu_zd')}]];
+    var datas = [[${@dict.getType('sys_jiaocairuanzhu_zt')}]];
     var paiMingDatas = [[${@dict.getType('sys_jiaocairuanzhu_fzr')}]];
     var proFlag = [[${@permission.hasPermi('system:jiaocairuanzhu:process')}]];
     var editInfo = [[${@permission.hasPermi('system:jiaocairuanzhu:info')}]];
@@ -656,7 +656,7 @@
                             actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan' + '\')"><i class=""></i>查看&nbsp;&nbsp;&nbsp;&nbsp;</a>');
                             actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
                         } else if (row.state == 2) {
-                            actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')"><i class=""></i>撤回</a>');
+                            actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')"><i class=""></i>撤回&nbsp;&nbsp;&nbsp;&nbsp;</a>');
                             actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/hecha' + '\')"><i class=""></i>核查</a>');
                             actions.push('<br>')
                             actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan' + '\')"><i class=""></i>查看&nbsp;&nbsp;&nbsp;&nbsp;</a>');
@@ -664,7 +664,7 @@
 
                         } else if (row.state == 4) {
 
-                            actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')"><i class=""></i>撤回</a>');
+                            actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')"><i class=""></i>撤回&nbsp;&nbsp;&nbsp;&nbsp;</a>');
                             actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chayue' + '\')"><i class=""></i>查阅</a>');
                             actions.push('<br>')
                             actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan' + '\')"><i class=""></i>查看&nbsp;&nbsp;&nbsp;&nbsp;</a>');
