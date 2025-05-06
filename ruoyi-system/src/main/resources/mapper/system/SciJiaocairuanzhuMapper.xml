@@ -160,10 +160,7 @@
     <update id="updateSciJiaocairuanzhu" parameterType="SciJiaocairuanzhu">
         update sci_jiaocairuanzhu
         <trim prefix="SET" suffixOverrides=",">
-
-
             <if test="userId != null">user_id = #{userId},</if>
-
             <if test="mingcheng != null and mingcheng != ''">mingcheng = #{mingcheng},</if>
             <if test="leixing != null and leixing != ''">leixing = #{leixing},</if>
             <if test="isbn != null">isbn = #{isbn},</if>
@@ -173,7 +170,7 @@
             <if test="fenlei != null and fenlei != ''">fenlei = #{fenlei},</if>
             <if test="paiming != null and paiming != ''">paiming = #{paiming},</if>
             <if test="wenjian != null and wenjian != ''">wenjian = #{wenjian},</if>
-            state = "1"
+            state = "0"
 
         </trim>
         where id = #{id}
