@@ -1133,7 +1133,7 @@ var table = {
             // 删除信息
             remove: function(id) {
                 table.set();
-                $.modal.confirm("确定删除该条" + table.options.modalName + "信息吗？", function() {
+                $.modal.confirm("确定删除该条" + table.options.modalName + "信息吗？删除后无法复原", function() {
                     var url = $.common.isEmpty(id) ? table.options.removeUrl : table.options.removeUrl.replace("{id}", id);
                     if (table.options.type == table_type.bootstrapTreeTable) {
                         $.operate.get(url);

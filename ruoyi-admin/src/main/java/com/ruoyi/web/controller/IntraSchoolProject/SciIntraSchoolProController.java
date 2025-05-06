@@ -76,6 +76,7 @@ public class SciIntraSchoolProController extends BaseController {
         String role_str=panRole_str();
         System.out.println("role_str = " + role_str);
         List<SciIntraSchoolPro> list = new ArrayList<>();
+
         //学院
         if (role_str.equals("dept_teacher")){
 
@@ -271,13 +272,9 @@ public class SciIntraSchoolProController extends BaseController {
 
         //数据库里面这个的默认值是15 草稿
         //System.out.println("addSave:"+sciIntraSchoolPro.getState());
-        //插入这个课题
+        //插入这个课题，并插入
         int id =sciIntraSchProApplyService.insert_SchPro_Apply(sciIntraSchoolPro);
 
-        System.out.println("id = " + id);
-        if (id==1){
-
-        }
         //插入这个课题的积分明细
         return toAjax(sciIntraSchProScoreService.set_SchPro_score_noScore(sciIntraSchoolPro));
     }

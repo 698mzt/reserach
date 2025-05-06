@@ -3,19 +3,24 @@ package com.ruoyi.system.service.impl;
 import java.util.List;
 
 import com.ruoyi.common.core.domain.entity.SysUser;
-import com.ruoyi.system.domain.*;
-import com.ruoyi.system.mapper.*;
-import com.ruoyi.system.service.ISciJiaocairuanzhuService;
+import com.ruoyi.system.domain.SciHorizontalPiyue;
+import com.ruoyi.system.domain.SciJiaocairuanzhuPiyue;
+import com.ruoyi.system.domain.SciJiaocairuanzhuScoreCfg;
+import com.ruoyi.system.mapper.SciHorizontalPiyueMapper;
+import com.ruoyi.system.mapper.SciJiaocairuanzhuPiyueMapper;
+import com.ruoyi.system.mapper.SciJiaocairuanzhuScoreCfgMapper;
 import com.ruoyi.system.service.ISysUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import com.ruoyi.system.mapper.SciJiaocairuanzhuMapper;
+import com.ruoyi.system.domain.SciJiaocairuanzhu;
 import com.ruoyi.system.service.ISciJiaocairuanzhuService;
 import com.ruoyi.common.core.text.Convert;
 
 
 
 /**
- * 专利软著Service业务层处理
+ * 教材软著Service业务层处理
  *
  * @author ruoyi
  * @date 2024-11-21
@@ -42,10 +47,10 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService
 
 
     /**
-     * 查询专利软著
+     * 查询教材软著
      *
-     * @param id 专利软著主键
-     * @return 专利软著
+     * @param id 教材软著主键
+     * @return 教材软著
      */
     @Override
     public SciJiaocairuanzhu selectSciJiaocairuanzhuById(Integer id)
@@ -54,10 +59,10 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService
     }
 
     /**
-     * 查询专利软著列表
+     * 查询教材软著列表
      *
-     * @param sciJiaocairuanzhu 专利软著
-     * @return 专利软著
+     * @param sciJiaocairuanzhu 教材软著
+     * @return 教材软著
      */
     @Override
     public List<SciJiaocairuanzhu> selectSciJiaocairuanzhuList(SciJiaocairuanzhu sciJiaocairuanzhu)
@@ -66,9 +71,9 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService
     }
 
     /**
-     * 新增专利软著
+     * 新增教材软著
      *
-     * @param sciJiaocairuanzhu 专利软著
+     * @param sciJiaocairuanzhu 教材软著
      * @return 结果
      */
     @Override
@@ -125,9 +130,9 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService
     }
 
     /**
-     * 修改专利软著
+     * 修改教材软著
      *
-     * @param sciJiaocairuanzhu 专利软著
+     * @param sciJiaocairuanzhu 教材软著
      * @return 结果
      */
     @Override
@@ -137,9 +142,9 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService
     }
 
     /**
-     * 批量删除专利软著
+     * 批量删除教材软著
      *
-     * @param ids 需要删除的专利软著主键
+     * @param ids 需要删除的教材软著主键
      * @return 结果
      */
     @Override
@@ -149,9 +154,9 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService
     }
 
     /**
-     * 删除专利软著信息
+     * 删除教材软著信息
      *
-     * @param id 专利软著主键
+     * @param id 教材软著主键
      * @return 结果
      */
     @Override
