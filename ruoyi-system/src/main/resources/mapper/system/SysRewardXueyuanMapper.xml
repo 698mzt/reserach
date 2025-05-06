@@ -14,7 +14,7 @@
     SUM(SCI + EI + hx + sw + pt + xb ) AS `学术论文`,
     SUM(zz + jc ) AS `教材著作`,
     SUM(sqfmzl + syxxzl + wxsjzl ) AS `专利`,
-    SUM(sjjxcgj ) AS '软著',
+    SUM(sjjxcgj ) AS `软著`,
     SUM(sjjxcgj + sjkxjsj + sjyljpkpb + stjjzrkxlpj + stjjsklpj + xjjxcgj + yyxkyxjcgj + xjjpkpb +  jscjsjdshj ) AS `奖励`,
     SUM(jbgj + jbgn + cjgj + cjgn + xjxs  ) AS `学术报告(讲座类)`
     FROM Alltotle
@@ -96,8 +96,20 @@
         partenId = #{dept}
     </select>
 
-<select id="selectXuexiao" parameterType="map" resultType="map">
-    SELECT *
+<select id="selectXuexiao" parameterType="map" resultType="java.util.LinkedHashMap">
+    SELECT
+    `学院`,
+    `专业`,
+    `纵向科研项目-校级以上`,
+    `纵向科研项目-校级`,
+    `横向课题科研项目`,
+    `成果转化`,
+    `学术论文`,
+    `教材著作`,
+    `专利`,
+    `软著`,
+    `奖励`,
+    `学术报告(讲座类)`
     FROM (
         <include refid="All"/>
         <where>
