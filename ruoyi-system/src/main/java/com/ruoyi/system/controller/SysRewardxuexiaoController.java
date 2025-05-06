@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -37,8 +38,8 @@ public class SysRewardxuexiaoController extends BaseController {
 @ResponseBody
 public TableDataInfo list() {
     String dept = getSysUser().getDeptId().toString();
-    List<Map<String, Object>> list = sysRewardXueyuanMapper.selectXuexiao(dept);
-    list.add(list.get(0));
+    List<LinkedHashMap<String, Object>> list = sysRewardXueyuanMapper.selectXuexiao(dept);
+//    list.add(list.get(0));
     TableDataInfo data = getDataTable(list);
 //    data.setRows(list); // 数据列表;
 //    data.setTotal(list.size()); // 总记录数
