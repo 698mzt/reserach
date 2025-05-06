@@ -106,7 +106,7 @@
 
 
 // 事件监听调整到初始化之前
-        $('#bootstrap-table').on('load-success.bs.table', function () {
+$('#bootstrap-table').on('load-success.bs.table', function () {
     var $table = $(this);
     var data = $table.bootstrapTable('getData');
     var $tbody = $table.find('tbody');
@@ -114,31 +114,33 @@
     // 清空合计行
     $tbody.find('tr.total-row').remove();
 
-    // 有效插入位置过滤
-    var validPositions = [5, 9, 17, 20, 27]
-        .filter(p => p < data.length) // 仅保留有效位置
-        .map(p => Math.min(p, data.length - 1)); // 确保不超过最大索引
+    // 按学院分组计算
+    var schoolMap = new Map();
+    data.forEach((row, index) => {
+        if (!schoolMap.has(row.学院)) {
+            schoolMap.set(row.学院, []);
+        }
+        schoolMap.get(row.学院).push(index);
+    });
 
-    // 区间计算优化
+    // 生成插入位置（每个学院的最后一行位置）
+    var validPositions = Array.from(schoolMap.values())
+        .map(indices => Math.max(...indices));
+
+    // 区间计算优化（倒序处理防止位置偏移）
     var ranges = validPositions
         .sort((a, b) => b - a)
-        .map((pos, index, arr) => {
-            let nextPos = arr[index + 1];
-            return {
-                insertAt: pos,
-                start: nextPos !== undefined ? nextPos + 1 : 0,
-                end: pos - 1
-            };
-        });
+        .map(pos => ({
+            insertAt: pos,
+            start: pos - schoolMap.get(data[pos].学院).length + 1,
+            end: pos
+        }));
 
     ranges.forEach(({ insertAt, start, end }) => {
-        if (start > end || end >= data.length) return;
-
         // 精确切片
         var targetRows = data.slice(start, end + 1);
-        if (targetRows.length === 0) return;
 
-        // 计算合计
+        // 计算学院合计
         var sums = targetRows.reduce((acc, row) => {
             Object.keys(row).forEach(key => {
                 if (!['学院', '专业'].includes(key) && !isNaN(row[key])) {
@@ -150,12 +152,12 @@
 
         // 创建合计行
         var $totalRow = $('<tr class="total-row">')
-            .append('<td colspan="3" class="text-center">合计</td>')
+            .append(`<td colspan="3" class="text-center">${data[insertAt].学院}合计</td>`)
             .append(Object.keys(sums).map(key =>
                 `<td class="text-center">${sums[key] || 0}</td>`
             ).join(''));
 
-        // 精准定位插入
+        // 插入到当前学院的最后一行之后
         var $refRow = $tbody.find(`tr[data-index="${insertAt}"]`);
         $refRow.length > 0 ? $refRow.after($totalRow) : $tbody.append($totalRow);
     });
