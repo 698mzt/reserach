@@ -785,6 +785,8 @@
     function updateProgressStepColor(state) {
         // 获取所有步骤元素
         const steps = document.querySelectorAll('.progress_inner__step');
+        const progressBar = document.querySelector('.progress_inner__bar--progress');
+
 
         // 遍历所有步骤，重置样式
         steps.forEach(step => {
@@ -796,6 +798,7 @@
         if ([0, 3, 5, 7].includes(state)) {
             document.getElementById('step-1').classList.add('active');
             document.getElementById('step-1').querySelector('.status-text').classList.add('active');
+            progressBar.style.width = '0';
         } else if (state === 6) {
             document.getElementById('step-1').classList.add('completed');
             document.getElementById('step-1').querySelector('.status-text').classList.add('completed');
@@ -803,11 +806,13 @@
             document.getElementById('step-2').querySelector('.status-text').classList.add('completed');
             document.getElementById('step-3').classList.add('completed');
             document.getElementById('step-3').querySelector('.status-text').classList.add('completed');
+            progressBar.style.width = '100%';
         } else if ([1, 2, 4].includes(state)) {
             document.getElementById('step-1').classList.add('completed');
             document.getElementById('step-1').querySelector('.status-text').classList.add('completed');
             document.getElementById('step-2').classList.add('completed');
             document.getElementById('step-2').querySelector('.status-text').classList.add('completed');
+            progressBar.style.width = '50%';
         } else {
             // 默认情况下，所有步骤为灰色
             steps.forEach(step => {
