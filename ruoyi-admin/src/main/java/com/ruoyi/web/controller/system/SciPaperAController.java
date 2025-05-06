@@ -105,14 +105,22 @@ public AjaxResult uploadFile(MultipartFile file, @PathVariable("model") String m
         System.out.println("userId = " + userId);
         List<String> roleId = sciPaperAService.selectSciPaperAByroleId(userId);
         System.out.println("roleId = " + roleId);
-
+        System.out.println("dadadadadaa:"+roleId.contains("102"));
+        System.out.println("dadadadadaa:"+roleId.contains("100"));
         sciPaperA.setUid(userId);
         sciPaperA.setYear(year);
 
         List<SciPaperA> list= new ArrayList<>();
 
+            //教研室与普通老师
+            if (roleId.contains("102") && roleId.contains("100")){
+                list.addAll(sciPaperAService.selectSciPaperAList(sciPaperA));
+                //System.out.println("list1 = " + list);
+                list.addAll(sciPaperAService.selectSciPaperAListCx(sciPaperA));
+                //System.out.println("list2 = " + list);
+            }
             //教研室
-            if (roleId.contains("102")) {
+            else  if (roleId.contains("102")) {
                 list.addAll(sciPaperAService.selectSciPaperAList(sciPaperA));
             }
             //科研处
@@ -128,6 +136,8 @@ public AjaxResult uploadFile(MultipartFile file, @PathVariable("model") String m
             else if (roleId.contains("100") && roleId.size()==1) {
                 list.addAll(sciPaperAService.selectSciPaperAListCx(sciPaperA));
             }
+
+
         System.out.println("year = " + year);
         System.out.println("list = " + list);
         List<Map<String,Object>> data =new ArrayList<>();
