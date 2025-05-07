@@ -166,7 +166,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-xs-6">
+            <div class="col-xs-6" th:if="${sciHorizontalApply.filingurl != null and sciHorizontalApply.filingurl != ''}">
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">结项合同：</label>
                     <div class="col-sm-8">
@@ -181,7 +181,7 @@
                     </div>
                 </div>
             </div>
-        <div class="col-xs-6">
+        <div class="col-xs-6" th:if="${sciHorizontalApply.agreeurl != null and sciHorizontalApply.agreeurl != ''}">
             <div class="form-group">
                 <label class="col-sm-4 control-label is-required">结项备案表：</label>
                 <div class="col-sm-8">

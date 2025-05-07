@@ -3,6 +3,32 @@
 <head>
     <th:block th:include="include :: header('纵向课题列表')" />
     <style>
+        .track-list {
+            margin: 20px;
+            padding-left: 5px;
+            position: relative;
+        }
+
+        .track-list ul {
+            padding-left: 0;
+            list-style: none;
+            max-height: 700px;
+            overflow-y: auto;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+            padding: 10px;
+        }
+
+        .track-list li {
+            position: relative;
+            padding: 5px 0 10px 25px;
+            line-height: 1.4;
+            border-left: 2px solid #d9d9d9;
+            color: #666;
+            transition: all 0.4s ease;
+        }
+
         .modal-right {
             position: fixed;
             right: 0;
@@ -337,9 +363,6 @@
 
                                 <div id="toolbar0" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
                                     <div class="btn-group-sm"  role="group" style="display: inline-flex; gap: 4px;">
-                                        <a class="btn btn-success" onclick="$.operate.addTab()" shiro:hasPermission="system:apply:add">
-                                            <i class="fa fa-plus"></i> 添加
-                                        </a>
                                         <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:apply:export">
                                             <i class="fa fa-download"></i> 导出
                                         </a>
@@ -465,12 +488,7 @@
         </div>
     </div>
 
-
-
-
-
 </div>
-
 <div class="wrapper wrapper-content fadeInRight" style="position: absolute; left: -9999px;">
     <div class="row">
         <div class="col-sm-4">
@@ -529,7 +547,6 @@
         </div>
     </div>
 </div>
-
 <th:block th:include="include :: footer" />
 <script th:inline="javascript">
 
@@ -669,14 +686,14 @@
                         return row.score;
                     }
                 },
-                {
-                    field: 'state',
-                    title: '申请状态',
-                    align: 'center',
-                    formatter: function(value, row, index) {
-                        return $.table.selectDictLabel(datas, value);
-                    }
-                }  ,
+                // {
+                //     field: 'state',
+                //     title: '申请状态',
+                //     align: 'center',
+                //     formatter: function(value, row, index) {
+                //         return $.table.selectDictLabel(datas, value);
+                //     }
+                // }  ,
                 {
                     title: '操作',
                     align: 'center',
@@ -684,8 +701,8 @@
                         var actions = [];
                         if(row.state ==  66){
                             // actions.push('<a  class="btn btn-success btn-xs ' + downloadFlag + '" href="javascript:void(0)" onclick="downloadFiles(\'' +row.id+'\')"><i class="fa fa-edit"></i>下载文件</a> ');
-                            actions.push('<a  class="' + KYCFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')">撤回</a> ');
-                            if (KYCFlag == 'hidden')
+                            actions.push('<a  class="' + KYCFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000">撤回</a> ');
+                            if (KYCFlag !== 'hidden')
                                 actions.push('<br>');
                             actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                             actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
@@ -799,14 +816,14 @@
                         return row.score;
                     }
                 },
-                {
-                    field: 'state',
-                    title: '申请状态',
-                    align: 'center',
-                    formatter: function(value, row, index) {
-                        return $.table.selectDictLabel(datas, value);
-                    }
-                }  ,
+                // {
+                //     field: 'state',
+                //     title: '申请状态',
+                //     align: 'center',
+                //     formatter: function(value, row, index) {
+                //         return $.table.selectDictLabel(datas, value);
+                //     }
+                // }  ,
                 {
                     title: '操作',
                     align: 'center',
@@ -843,7 +860,7 @@
                             if(row.ynameId == row.userynameId)
                                 actions.push('<a  class="' + DeptFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/Dept'+ '\')">学院批阅&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                             if (row.dnameId == row.userdnameId)
-                                actions.push('<a  class="' + JYSFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')">撤回&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
+                                actions.push('<a  class="' + JYSFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000">撤回&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                             if (DeptFlag != "hidden" || JYSFlag != "hidden")
                                 actions.push('<br>')
                             actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
@@ -853,7 +870,7 @@
                             if(row.userId == row.uid){
                                 actions.push('<a  class="' + createFlag + '" href="javascript:void(0)" onclick="$.operate.overTab(\'' + row.id +'\')">申请结项&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                             }
-                            actions.push('<a  class="' + KYCFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')">撤回&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
+                            actions.push('<a  class="' + KYCFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000">撤回&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                             if (KYCFlag != "hidden" || createFlag != "hidden")
                                 actions.push('<br>')
                             actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
@@ -861,7 +878,7 @@
                         }
                         if(row.state ==  4){
                             actions.push('<a  class="' + KYCFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/KYC'+ '\')">科研处批阅&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                            actions.push('<a  class="' + DeptFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')">撤回&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
+                            actions.push('<a  class="' + DeptFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000">撤回&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                             if (KYCFlag != "hidden" || DeptFlag != "hidden")
                                 actions.push('<br>')
                             actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
@@ -974,14 +991,14 @@
                         return row.score;
                     }
                 },
-                {
-                    field: 'state',
-                    title: '申请状态',
-                    align: 'center',
-                    formatter: function(value, row, index) {
-                        return $.table.selectDictLabel(datas, value);
-                    }
-                }  ,
+                // {
+                //     field: 'state',
+                //     title: '申请状态',
+                //     align: 'center',
+                //     formatter: function(value, row, index) {
+                //         return $.table.selectDictLabel(datas, value);
+                //     }
+                // }  ,
                 {
                     title: '操作',
                     align: 'center',
@@ -1006,7 +1023,7 @@
                             actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
                         }else if(row.state ==  44){
                             actions.push('<a  class="' + KYCFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/KYC'+ '\')">科研处批阅&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                            actions.push('<a  class="' + DeptFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')">撤回&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
+                            actions.push('<a  class="' + DeptFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000">撤回&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                             if (KYCFlag != "hidden" || DeptFlag != "hidden")
                                 actions.push('<br>')
                             actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
@@ -1016,7 +1033,7 @@
                             if(row.ynameId == row.userynameId)
                                 actions.push('<a  class="' + DeptFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/Dept'+ '\')">学院批阅&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                             if (row.dnameId == row.userdnameId)
-                                actions.push('<a  class="' + JYSFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')">撤回&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
+                                actions.push('<a  class="' + JYSFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000">撤回&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                             if (DeptFlag != "hidden" || JYSFlag != "hidden")
                                 actions.push('<br>')
                             actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
@@ -1054,7 +1071,7 @@
         // 定义状态值与颜色的映射关系
         const stateColorMap = {
             66: '#67c23a', // 完结 绿色
-            3: '#e6a344', 5: '#e6a344', 6: '#e6a344', 7: '#e6a344', 33: '#e6a344', 55: '#e6a344',77: '#e6a344', // 被驳回，草稿 黄色
+            3: '#e6a344', 5: '#e6a344', 6: '#e6a344', 7: '#e6a344', 33: '#e6a344', 55: '#e6a344',77: '#e6a344',99: '#e6a344', // 被驳回，草稿 黄色
             1: '#2c99ff', 2: '#2c99ff', 4: '#2c99ff', 11: '#2c99ff', 22: '#2c99ff', 44: '#2c99ff' // 审核中 蓝色
         };
 
@@ -1111,6 +1128,7 @@
     function updateProgressStepColor(state) {
         // 获取所有步骤元素
         const steps = document.querySelectorAll('.progress_inner__step');
+        const progressBar = document.querySelector('.progress_inner__bar--progress');
 
         // 遍历所有步骤，重置样式
         steps.forEach(step => {
@@ -1118,24 +1136,34 @@
             step.querySelector('.status-text').classList.remove('active', 'completed');
         });
 
+        // 重置进度条
+        progressBar.style.width = '0';
+
         // 根据 state 设置相应的步骤颜色
-        if (state === 99) {
+        if (state === 99) { // 待提交状态
             document.getElementById('step-1').classList.add('active');
             document.getElementById('step-1').querySelector('.status-text').classList.add('active');
-        } else if (state === 6) {
+            progressBar.style.width = '0';
+        } else if (state === 66) { // 已完成状态
             document.getElementById('step-1').classList.add('completed');
             document.getElementById('step-1').querySelector('.status-text').classList.add('completed');
             document.getElementById('step-2').classList.add('completed');
             document.getElementById('step-2').querySelector('.status-text').classList.add('completed');
             document.getElementById('step-3').classList.add('completed');
             document.getElementById('step-3').querySelector('.status-text').classList.add('completed');
-        } else if ([1, 2, 3, 4, 5, 7, 8].includes(state)) {
+            progressBar.style.width = '100%';
+        } else if ([1, 2, 3, 4, 5, 6, 7, 11, 22, 33, 44, 55, 77].includes(state)) { // 审核中状态
+            // 待提交步骤高亮为 completed
             document.getElementById('step-1').classList.add('completed');
             document.getElementById('step-1').querySelector('.status-text').classList.add('completed');
-            document.getElementById('step-2').classList.add('completed');
-            document.getElementById('step-2').querySelector('.status-text').classList.add('completed');
-        } else {
-            // 默认情况下，所有步骤为灰色
+
+            // 审核中步骤高亮为 active
+            document.getElementById('step-2').classList.add('active');
+            document.getElementById('step-2').querySelector('.status-text').classList.add('active');
+
+            // 进度条宽度设置为 45%
+            progressBar.style.width = '45%';
+        } else { // 默认情况下，所有步骤为灰色
             steps.forEach(step => {
                 step.classList.add('pending');
                 step.querySelector('.status-text').classList.add('pending');

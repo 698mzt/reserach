@@ -166,7 +166,7 @@ public class SciHorizontalApplyVerticalController extends BaseController {
                 ));
 
         Integer did = sysUser.getDeptId().intValue();
-        Integer yid = sysUser.getDeptId().intValue();
+        Integer yid = sysUser.getParentId().intValue();
         if(!distinctList.isEmpty()){
             for (SciHorizontalApplyVertical apply: distinctList){
                 apply.setUserdnameId(did);
@@ -263,7 +263,7 @@ public class SciHorizontalApplyVerticalController extends BaseController {
     public AjaxResult push(SciHorizontalApplyVertical sciHorizontalApplyVertical)
     {
         sciHorizontalApplyVertical.setUserId(Integer.valueOf(getSysUser().getUserId().toString()));
-        sciHorizontalApplyVertical.setState("1");
+        sciHorizontalApplyVertical.setNewsql("1");
         return toAjax(sciHorizontalApplyVerticalService.updateSciHorizontalApplyVertical(sciHorizontalApplyVertical));
     }
 
@@ -286,7 +286,9 @@ public class SciHorizontalApplyVerticalController extends BaseController {
     @ResponseBody
     public AjaxResult overaddSave(SciHorizontalApplyVertical sciHorizontalApplyVertical)
     {
+        sciHorizontalApplyVertical.setUserId(Integer.valueOf(getSysUser().getUserId().toString()));
         sciHorizontalApplyVertical.setState("11");
+        sciHorizontalApplyVertical.setNewsql("11");
         return toAjax(sciHorizontalApplyVerticalService.updateSciHorizontalApplyVertical(sciHorizontalApplyVertical));
     }
 
@@ -313,7 +315,7 @@ public class SciHorizontalApplyVerticalController extends BaseController {
     @ResponseBody
     public AjaxResult editSave(SciHorizontalApplyVertical sciHorizontalApplyVertical)
     {
-        sciHorizontalApplyVertical.setState("1");
+        sciHorizontalApplyVertical.setNewsql("111");
         return toAjax(sciHorizontalApplyVerticalService.updateSciHorizontalApplyVertical(sciHorizontalApplyVertical));
     }
 
@@ -339,7 +341,7 @@ public class SciHorizontalApplyVerticalController extends BaseController {
     @ResponseBody
     public AjaxResult overeditSave(SciHorizontalApplyVertical sciHorizontalApplyVertical)
     {
-        sciHorizontalApplyVertical.setState("1111");
+        sciHorizontalApplyVertical.setNewsql("111");
         return toAjax(sciHorizontalApplyVerticalService.updateSciHorizontalApplyVertical(sciHorizontalApplyVertical));
     }
 

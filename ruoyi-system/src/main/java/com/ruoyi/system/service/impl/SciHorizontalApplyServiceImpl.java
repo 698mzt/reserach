@@ -168,28 +168,26 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
         Integer id = sciHorizontalApply.getId();
         SciHorizontalPersion sciHorizontalPersion = new SciHorizontalPersion();
         sciHorizontalPersion.setApplyid(id);
-        sciHorizontalApplyMapper.deletePersion(sciHorizontalPersion);
-        if (sciHorizontalApply.getNewsql().equals("99")) {
-            if (StringUtils.isNotEmpty(sciHorizontalApply.getFirstPersonId())) {
-                sciHorizontalPersion.setRanking("1");
-                sciHorizontalPersion.setPersionid(sciHorizontalApply.getFirstPersonId());
-                sciHorizontalApplyMapper.insertPersion(sciHorizontalPersion);
-            }
-            if (StringUtils.isNotEmpty(sciHorizontalApply.getSecondPersonId())) {
-                sciHorizontalPersion.setRanking("2");
-                sciHorizontalPersion.setPersionid(sciHorizontalApply.getSecondPersonId());
-                sciHorizontalApplyMapper.insertPersion(sciHorizontalPersion);
-            }
-            if (StringUtils.isNotEmpty(sciHorizontalApply.getThirdPersonId())) {
-                sciHorizontalPersion.setRanking("3");
-                sciHorizontalPersion.setPersionid(sciHorizontalApply.getThirdPersonId());
-                sciHorizontalApplyMapper.insertPersion(sciHorizontalPersion);
-            }
-            if (StringUtils.isNotEmpty(sciHorizontalApply.getFourthPersonId())) {
-                sciHorizontalPersion.setRanking("4");
-                sciHorizontalPersion.setPersionid(sciHorizontalApply.getFourthPersonId());
-                sciHorizontalApplyMapper.insertPersion(sciHorizontalPersion);
-            }
+        if (StringUtils.isNotEmpty(sciHorizontalApply.getFirstPersonId()) ) {
+            sciHorizontalApplyMapper.deletePersion(sciHorizontalPersion);
+            sciHorizontalPersion.setRanking("1");
+            sciHorizontalPersion.setPersionid(sciHorizontalApply.getFirstPersonId());
+            sciHorizontalApplyMapper.insertPersion(sciHorizontalPersion);
+        }
+        if (StringUtils.isNotEmpty(sciHorizontalApply.getSecondPersonId())) {
+            sciHorizontalPersion.setRanking("2");
+            sciHorizontalPersion.setPersionid(sciHorizontalApply.getSecondPersonId());
+            sciHorizontalApplyMapper.insertPersion(sciHorizontalPersion);
+        }
+        if (StringUtils.isNotEmpty(sciHorizontalApply.getThirdPersonId())) {
+            sciHorizontalPersion.setRanking("3");
+            sciHorizontalPersion.setPersionid(sciHorizontalApply.getThirdPersonId());
+            sciHorizontalApplyMapper.insertPersion(sciHorizontalPersion);
+        }
+        if (StringUtils.isNotEmpty(sciHorizontalApply.getFourthPersonId())) {
+            sciHorizontalPersion.setRanking("4");
+            sciHorizontalPersion.setPersionid(sciHorizontalApply.getFourthPersonId());
+            sciHorizontalApplyMapper.insertPersion(sciHorizontalPersion);
         }
         SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
         sciHorizontalPiyue.setUid(Long.valueOf(sciHorizontalApply.getUserId()));
@@ -268,7 +266,7 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
         SciUserScore sciUserScore = new SciUserScore();
         sciUserScore.setApplyId(applyId.toString());
         if(urlFlag.equals("hecha")){
-            state ="4";
+            state ="6";
 //            以负责人列表大小为准，顺序匹配每个负责人所对应的分数，记录到sciUserScore中。
 //            科研处
             for (int i = 0; i < persion.size(); i++) {
