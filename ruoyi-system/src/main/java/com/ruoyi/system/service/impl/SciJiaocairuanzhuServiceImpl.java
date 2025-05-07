@@ -213,11 +213,11 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService
             SciJiaocairuanzhuPiyue sciJiaocairuanzhuPiyue = new SciJiaocairuanzhuPiyue();
             sciJiaocairuanzhuPiyue.setUid(uid);
             sciJiaocairuanzhuPiyue.setJiaocai_id(Integer.valueOf(id));
-            sciJiaocairuanzhuPiyue.setConcate("同意");
+            sciJiaocairuanzhuPiyue.setConcate("提交申请");
             sciJiaocairuanzhuPiyue.setState("提交");
             sciJiaocairuanzhuPiyueMapper.insertSciJiaocairuanzhuPiyue(sciJiaocairuanzhuPiyue);
         }
-        else if (urlFlag.equals("pro") || urlFlag.equals("hecha") || urlFlag.equals("chayue")) {
+       else if (urlFlag.equals("pro") || urlFlag.equals("hecha") || urlFlag.equals("chayue")) {
 
             SciJiaocairuanzhuPiyue sciJiaocairuanzhuPiyue = new SciJiaocairuanzhuPiyue();
             sciJiaocairuanzhuPiyue.setUid(uid);

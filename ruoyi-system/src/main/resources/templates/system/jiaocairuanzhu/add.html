@@ -88,7 +88,7 @@
                 <label class="col-sm-4 control-label is-required">本校是否用书：</label>
                 <div class="col-sm-8" th:with="type=${@dict.getType('sys_yes_no')}">
                     <label th:each="dict : ${type}" class="check-box">
-                        <input name="benxiaoshifoyongshu" type="checkbox" th:value="${dict.dictValue}" th:text="${dict.dictLabel}" required>
+                        <input name="benxiaoshifoyongshu" type="radio" th:value="${dict.dictValue}" th:text="${dict.dictLabel}" required>
                     </label>
                 </div>
             </div>
