@@ -294,6 +294,10 @@
                 <div class="select-list">
                     <ul>
                         <li>
+                            <label>荣誉名称：</label>
+                            <input type="text" name="rewardName"/>
+                        </li>
+                        <li>
                             <label>申请人：</label>
                             <input type="text" name="userName"/>
                         </li>
@@ -322,24 +326,28 @@
                         <!--                                <input type="text" name="rewardFenlei"/>-->
                         <!--                            </li>-->
                         <li>
-                            <label>等级：</label>
-                            <input type="text" name="rewardDengji"/>
+                            <label>专业：</label>
+                            <input type="text" name="dname" oninput="$.table.search()" />
                         </li>
+<!--                        <li>-->
+<!--                            <label>等级：</label>-->
+<!--                            <input type="text" name="rewardDengji"/>-->
+<!--                        </li>-->
                         <!--                            <li>-->
                         <!--                                <label>排名：</label>-->
                         <!--                                <input type="text" name="rewardPaiming"/>-->
                         <!--                            </li>-->
-                        <li>
-                            <label>级别：</label>
-                            <input type="text" name="rewardJibie"/>
-                        </li>
-                        <li>
-                            <label>状态：</label>
-                            <select name="state" th:with="type=${@dict.getType('sci_crosswise_tasks')}">
-                                <option value="">所有</option>
-                                <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
-                            </select>
-                        </li>
+<!--                        <li>-->
+<!--                            <label>级别：</label>-->
+<!--                            <input type="text" name="rewardJibie"/>-->
+<!--                        </li>-->
+<!--                        <li>-->
+<!--                            <label>状态：</label>-->
+<!--                            <select name="state" th:with="type=${@dict.getType('sci_crosswise_tasks')}">-->
+<!--                                <option value="">所有</option>-->
+<!--                                <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>-->
+<!--                            </select>-->
+<!--                        </li>-->
                         <li>
                             <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
                             <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
@@ -801,5 +809,15 @@
             document.getElementById('current-time').textContent = getCurrentTime();
         });
     </script>
+<script>
+    var options = {
+    url: prefix + "/list",
+    queryParams: function(params) {
+        params.dname = $('input[name="dname"]').val(); // 将输入框的值传给后端
+        return params;
+    }
+};
+
+</script>
 </body>
 </html>

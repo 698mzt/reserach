@@ -35,6 +35,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="userId != null "> and user_id like concat('%', #{userId}, '%')</if>
             <if test="rewardName != null  and rewardName != ''"> and reward_name like concat('%', #{rewardName}, '%')</if>
             <if test="yname != null  and yname != ''"> and yname = #{yname}</if>
+            <if test="dname != null and dname != ''">
+                AND d.dept_name = #{dname}
+            </if>
 --             <if test="rewardDanwei != null  and rewardDanwei != ''"> and reward_danwei = #{rewardDanwei}</if>
 --             <if test="rewardLeixing != null  and rewardLeixing != ''"> and reward_leixing = #{rewardLeixing}</if>
 --             <if test="rewardWenjian != null  and rewardWenjian != ''"> and reward_wenjian = #{rewardWenjian}</if>
@@ -129,6 +132,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <if test="rewardTime != null "> and reward_time = #{rewardTime}</if>
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
+        <if test="dname != null and dname != ''">
+            AND d.dept_name = #{dname}
+        </if>
         ${params.dataScope}
         order  by state ,reward_time desc
     </select>
@@ -146,6 +152,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <if test="rewardTime != null "> and reward_time = #{rewardTime}</if>
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
+        <if test="dname != null and dname != ''">
+            AND d.dept_name = #{dname}
+        </if>
         ${params.dataScope}
         order  by state ,reward_time desc
     </select>
@@ -163,6 +172,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <if test="rewardTime != null "> and reward_time = #{rewardTime}</if>
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
+        <if test="dname != null and dname != ''">
+            AND d.dept_name = #{dname}
+        </if>
         order  by state ,reward_time desc
     </select>
 

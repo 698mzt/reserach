@@ -24,6 +24,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.ruoyi.common.utils.DictUtils.getDictLabel;
+
 /**
  * 奖励Controller
  *
@@ -59,9 +61,10 @@ public class SysRewardController extends BaseController
     @RequiresPermissions("system:reward:list")
     @PostMapping("/list")
     @ResponseBody
-    public TableDataInfo list(String time,SysReward sysReward)
+    public TableDataInfo list(String time,SysReward sysReward, @RequestParam(value = "dname", required = false) String dname)
     {
 //        sysReward.setRewardTime(time);
+        sysReward.setDname(dname);
         sysReward.setUid(getUserId());
         startPage();
 //        List<SysReward> list = sysRewardService.selectSysRewardList(sysReward);
@@ -140,16 +143,36 @@ public class SysRewardController extends BaseController
     /**
      * 导出奖励列表
      */
-    @RequiresPermissions("system:reward:export")
-    @Log(title = "奖励", businessType = BusinessType.EXPORT)
-    @PostMapping("/export")
-    @ResponseBody
-    public AjaxResult export(SysReward sysReward)
-    {
-        List<SysReward> list = sysRewardService.selectSysRewardList(sysReward);
-        ExcelUtil<SysReward> util = new ExcelUtil<SysReward>(SysReward.class);
-        return util.exportExcel(list, "奖励数据");
+@RequiresPermissions("system:reward:export")
+@Log(title = "奖励", businessType = BusinessType.EXPORT)
+@PostMapping("/export")
+@ResponseBody
+public AjaxResult export(SysReward sysReward) {
+    List<SysReward> list = sysRewardService.selectSysRewardList(sysReward);
+
+    // 使用 getDictLabel 方法转换 rewardPaiming 字段为对应的字典标签
+    for (SysReward reward : list) {
+        if (reward.getRewardPaiming() != null) {
+            String label = getDictLabel("sys_reward_paiming", reward.getRewardPaiming());
+            reward.setRewardPaiming(label);  // 假设你允许直接修改原字段
+        }
+        if (reward.getRewardFenlei() != null) {
+            String label = getDictLabel("sys_reward_fenlei", reward.getRewardFenlei());
+            reward.setRewardFenlei(label);  // 假设你允许直接修改原字段
+        }
+        if (reward.getRewardDengji() != null) {
+            String label = getDictLabel("sys_reward_dengji", reward.getRewardDengji());
+            reward.setRewardDengji(label);  // 假设你允许直接修改原字段
+        }
+        if (reward.getState() != null) {
+            String label = getDictLabel("sys_reward_sg", reward.getState());
+            reward.setState(label);  // 假设你允许直接修改原字段
+        }
     }
+
+    ExcelUtil<SysReward> util = new ExcelUtil<>(SysReward.class);
+    return util.exportExcel(list, "奖励数据");
+}
 
     /**
      * 新增奖励
