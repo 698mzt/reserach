@@ -12,13 +12,13 @@
         <input name="urlFlag" id="urlFlag" th:field="*{urlFlag}"  type="hidden">
         <input name="state" id="state" th:field="*{state}" type="hidden">
         <input name="id" id="ktid" th:field="*{id}" type="hidden">
-        <input name="amount" id="amount" th:field="*{amount}" type="hidden">
+
 <!--        <input name="id" th:field="*{id}" type="hidden">-->
         <div class="form-group row">
             <div class="col-sm-6">
                 <label class="col-sm-4 control-label is-required">学院：</label>
                 <div class="col-sm-8">
-                    <select name="xueyuan" class="form-control" th:with="type=${@dict.getType('sys_xueyuan')}" required disabled="true">
+                    <select name="xueyuan" class="form-control" th:with="type=${@dict.getType('sys_dept')}" required disabled="true">
                         <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}" th:field="*{xueyuan}"></option>
                     </select>
                 </div>
@@ -147,7 +147,7 @@
                 </div>
             </div>
         </div>
-    </form>
+
 </div>
 <div class="row">
     <div class="col-sm-offset-5 col-sm-10">
