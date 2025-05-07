@@ -121,6 +121,11 @@ public class SciPaperAServiceImpl implements ISciPaperAService
         return a ;
     }
 
+    @Override
+    public List<SciPaperA> selectSciPaperAListCxList(SciPaperA sciPaperA) {
+        System.out.println("sciPaperA.getUserId() = " + sciPaperA.getUserId());
+        return  sciPaperAMapper.selectSciPaperAListCxList(sciPaperA);
+    }
 
     @Override
     public List<SciPaperA> selectSciPaperArole(Long userId) {
