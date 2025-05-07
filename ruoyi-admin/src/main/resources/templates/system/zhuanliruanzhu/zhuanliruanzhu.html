@@ -372,6 +372,32 @@
         .approve-status input {
             margin-right: 5px;
         }
+        .track-list {
+            margin: 20px;
+            padding-left: 5px;
+            position: relative;
+        }
+
+        .track-list ul {
+            padding-left: 0;
+            list-style: none;
+            max-height: 50vh;
+            overflow-y: auto;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+            padding: 10px;
+        }
+
+        .track-list li {
+            position: relative;
+            padding: 5px 0 10px 25px;
+            line-height: 1.4;
+            border-left: 2px solid #d9d9d9;
+            color: #666;
+            transition: all 0.4s ease;
+        }
+
     </style>
 </head>
 <body class="gray-bg">
@@ -833,8 +859,8 @@
         } else if ([1, 2, 4].includes(state)) {
             document.getElementById('step-1').classList.add('completed');
             document.getElementById('step-1').querySelector('.status-text').classList.add('completed');
-            document.getElementById('step-2').classList.add('completed');
-            document.getElementById('step-2').querySelector('.status-text').classList.add('completed');
+            document.getElementById('step-2').classList.add('active');
+            document.getElementById('step-2').querySelector('.status-text').classList.add('active');
             progressBar.style.width = '50%';
         } else {
             // 默认情况下，所有步骤为灰色
