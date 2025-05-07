@@ -294,6 +294,10 @@
                 <div class="select-list">
                     <ul>
                         <li>
+                            <label>荣誉名称：</label>
+                            <input type="text" name="rewardName"/>
+                        </li>
+                        <li>
                             <label>申请人：</label>
                             <input type="text" name="userName"/>
                         </li>
@@ -322,24 +326,28 @@
                         <!--                                <input type="text" name="rewardFenlei"/>-->
                         <!--                            </li>-->
                         <li>
-                            <label>等级：</label>
-                            <input type="text" name="rewardDengji"/>
+                            <label>专业：</label>
+                            <input type="text" name="dname" oninput="$.table.search()" />
                         </li>
+<!--                        <li>-->
+<!--                            <label>等级：</label>-->
+<!--                            <input type="text" name="rewardDengji"/>-->
+<!--                        </li>-->
                         <!--                            <li>-->
                         <!--                                <label>排名：</label>-->
                         <!--                                <input type="text" name="rewardPaiming"/>-->
                         <!--                            </li>-->
-                        <li>
-                            <label>级别：</label>
-                            <input type="text" name="rewardJibie"/>
-                        </li>
-                        <li>
-                            <label>状态：</label>
-                            <select name="state" th:with="type=${@dict.getType('sci_crosswise_tasks')}">
-                                <option value="">所有</option>
-                                <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
-                            </select>
-                        </li>
+<!--                        <li>-->
+<!--                            <label>级别：</label>-->
+<!--                            <input type="text" name="rewardJibie"/>-->
+<!--                        </li>-->
+<!--                        <li>-->
+<!--                            <label>状态：</label>-->
+<!--                            <select name="state" th:with="type=${@dict.getType('sci_crosswise_tasks')}">-->
+<!--                                <option value="">所有</option>-->
+<!--                                <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>-->
+<!--                            </select>-->
+<!--                        </li>-->
                         <li>
                             <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
                             <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
@@ -360,9 +368,9 @@
             <!--                <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()" shiro:hasPermission="system:reward:remove">-->
             <!--                    <i class="fa fa-remove"></i> 删除-->
             <!--                </a>-->
-            <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:reward:export">
-                <i class="fa fa-download"></i> 导出
-            </a>
+                <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:reward:export">
+                    <i class="fa fa-download"></i> 导出
+                </a>
             </div>
 
                 <div style="display: flex; align-items: center; gap: 15px; padding: 6px 36px; border-radius: 4px;">
@@ -567,14 +575,14 @@
                         field: 'jifen',
                         title: '积分'
                     },
-                    {
-                        field: 'state',
-                        title: '状态',
-                        align: 'center',
-                        formatter: function(value, row, index) {
-                            return $.table.selectDictLabel(datas, value);
-                        }
-                    }  ,
+                    // {
+                    //     field: 'state',
+                    //     title: '状态',
+                    //     align: 'center',
+                    //     formatter: function(value, row, index) {
+                    //         return $.table.selectDictLabel(datas, value);
+                    //     }
+                    // }  ,
                     {
                         title: '操作',
                         align: 'center',
@@ -599,9 +607,9 @@
                                 // }
                                 // actions.push('<a  class="btn btn-success btn-xs ' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
 
-                                actions.push('<a  class="' + proFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro' + '\')">批阅</a> ');
+                                actions.push('<a  class="' + proFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro' + '\')">批阅&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                                 // }
-                                if (proFlag !== "hidden" || editFlag !== "hidden")
+                                if (proFlag != "hidden")
                                     actions.push('<br>')
                                 actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                                 actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
@@ -613,17 +621,17 @@
                                     // actions.push('<a  class="btn btn-success btn-xs ' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan' + '\')"><i class="fa fa-edit"></i>查看</a> ');
                                     actions.push('<a   class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')">编辑&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                                 }
-                                if( editFlag !== "hidden")
-                                    actions.push('<br>')
+
+                                if(removeFlag != "hidden" || row.state != 7){
+                                    actions.push('<br>')}
                                 actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                                 actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
                             }
                             else if(row.state == 3 || row.state == 5 || row.state == 7){
 
                                 // actions.push('<a  class="btn btn-success btn-xs ' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
-                                actions.push('<a  class="' + proFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000">撤回</a> ');
-
-                                if( editFlag !== "hidden")
+                                actions.push('<a  class="' + proFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000">撤回&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
+                                if(proFlag != "hidden" || hechaFlag != "hidden")
                                     actions.push('<br>')
                                 actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                                 actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
@@ -632,10 +640,10 @@
                             }else if(row.state ==  2){
                                 // actions.push('<a  class="btn btn-success btn-xs ' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
                                 actions.push('<a  class="' + proFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000">撤回&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                                actions.push('<a  class="' + hechaFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/hecha' + '\')">核查</a> ');
+                                actions.push('<a  class="' + hechaFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/hecha' + '\')">核查&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                                 // actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
 
-
+                                if (hechaFlag != "hidden" || proFlag != "hidden")
                                     actions.push('<br>')
                                 actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                                 actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
@@ -647,17 +655,17 @@
                                 //     actions.push('<a  class="btn btn-success btn-xs ' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
 
                                 // }
-                                actions.push('<a  class="' + chayueFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chayue' + '\')">查阅</a> ');
+                                actions.push('<a  class="' + chayueFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chayue' + '\')">查阅&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
 
-                                if (editFlag !== "hidden")
+                                if ( row.state == 4)
                                     actions.push('<br>')
                                 actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan' + '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                                 actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
                             }
                             else if(row.state ==  6){
                                 // actions.push('<a  class="btn btn-success btn-xs ' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
-                                actions.push('<a  class="' + chayueFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000">撤回</a> ');
-
+                                actions.push('<a  class="' + chayueFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000">撤回&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
+                                if (chayueFlag != "hidden")
                                     actions.push('<br>')
                                 actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan' + '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                                 actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
@@ -758,6 +766,7 @@
         function updateProgressStepColor(state) {
             // 获取所有步骤元素
             const steps = document.querySelectorAll('.progress_inner__step');
+            const progressBar = document.querySelector('.progress_inner__bar--progress');
 
             // 遍历所有步骤，重置样式
             steps.forEach(step => {
@@ -769,6 +778,7 @@
             if (state === 11) {
                 document.getElementById('step-1').classList.add('active');
                 document.getElementById('step-1').querySelector('.status-text').classList.add('active');
+                progressBar.style.width = '0';
             } else if (state === 6) {
                 document.getElementById('step-1').classList.add('completed');
                 document.getElementById('step-1').querySelector('.status-text').classList.add('completed');
@@ -776,11 +786,13 @@
                 document.getElementById('step-2').querySelector('.status-text').classList.add('completed');
                 document.getElementById('step-3').classList.add('completed');
                 document.getElementById('step-3').querySelector('.status-text').classList.add('completed');
+                progressBar.style.width = '100%';
             } else if ([1, 2, 3, 4, 5].includes(state)) {
                 document.getElementById('step-1').classList.add('completed');
                 document.getElementById('step-1').querySelector('.status-text').classList.add('completed');
                 document.getElementById('step-2').classList.add('completed');
                 document.getElementById('step-2').querySelector('.status-text').classList.add('completed');
+                progressBar.style.width = '50%';
             } else {
                 // 默认情况下，所有步骤为灰色
                 steps.forEach(step => {
@@ -797,5 +809,15 @@
             document.getElementById('current-time').textContent = getCurrentTime();
         });
     </script>
+<script>
+    var options = {
+    url: prefix + "/list",
+    queryParams: function(params) {
+        params.dname = $('input[name="dname"]').val(); // 将输入框的值传给后端
+        return params;
+    }
+};
+
+</script>
 </body>
 </html>
