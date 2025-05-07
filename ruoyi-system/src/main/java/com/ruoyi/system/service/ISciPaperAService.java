@@ -1,5 +1,6 @@
 package com.ruoyi.system.service;
 
+import java.util.Collection;
 import java.util.List;
 import com.ruoyi.system.domain.SciPaperA;
 import com.ruoyi.system.domain.SciPaperAr;
@@ -77,4 +78,6 @@ public interface ISciPaperAService
     int pybh(String id, Long userId, String remark, String urlFlag);
 
     List<SciPaperA> selectAllPaperName(String query);
+
+    public List<SciPaperA> selectSciPaperAListCxList(SciPaperA sciPaperA);
 }
