@@ -9,6 +9,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="userId"    column="user_id"    />
 
 
+        <result property="xueyuan" column="yname"/> <!-- 学院 -->
+        <result property="jiaoyanshi" column="dname"/> <!-- 教研室 -->
+        <result property="xingming" column="userName"/> <!-- 姓名 -->
+
         <result property="mingcheng"    column="mingcheng"    />
         <result property="leixing"    column="leixing"    />
         <result property="shoquanhao"    column="shoquanhao"    />
@@ -36,7 +40,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <include refid="selectSciZhuanliruanzhuVo"/>
         where state in (0,1,2,3,4,5,6,7)
 
-        <if test="xueyuan != null  and xueyuan != ''"> and xueyuan = #{xueyuan}</if>
 
 
         <if test="mingcheng != null  and mingcheng != ''"> and mingcheng like concat('%', #{mingcheng}, '%')</if>
@@ -57,7 +60,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
 
 
-            <if test="mingcheng != null  and mingcheng != ''"> and mingcheng like concat('%', #{mingcheng}, '%')</if>
+
+
+        <if test="mingcheng != null  and mingcheng != ''"> and mingcheng like concat('%', #{mingcheng}, '%')</if>
             <if test="huopishijain != null "> and huopishijain = #{huopishijain}</if>
             <if test="fenlei != null  and fenlei != ''"> and fenlei = #{fenlei}</if>
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(createtime,INTERVAL 1 MONTH)) = #{year}</if>
@@ -70,7 +75,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="selectSciZhuanliruanzhuList2" parameterType="SciZhuanliruanzhu" resultMap="SciZhuanliruanzhuResult">
         <include refid="selectSciZhuanliruanzhuVo"/>
-        where (s.user_id = #{uid} or (state in (1,2,3,4,5,6) and d.dept_id = #{deptId}))
+        where (s.user_id = #{uid} or (state in (1,2,3) and d.dept_id = #{deptId}))
 
         <if test="xueyuan != null  and xueyuan != ''"> and xueyuan = #{xueyuan}</if>
 
@@ -87,9 +92,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="selectSciZhuanliruanzhuList3" parameterType="SciZhuanliruanzhu" resultMap="SciZhuanliruanzhuResult">
         <include refid="selectSciZhuanliruanzhuVo"/>
-        where  (s.user_id = #{uid} or (state in (2,4,5,6) and d.parent_id = #{deptId}))
+        where  (s.user_id = #{uid} or (state in (2,4,5) and d.parent_id = #{deptId}))
+        <if test="jiaoyanshi != null  and jiaoyanshi != ''">and  d.dept_id = #{jiaoyanshi}</if>
 
-        <if test="xueyuan != null  and xueyuan != ''"> and xueyuan = #{xueyuan}</if>
 
 
         <if test="mingcheng != null  and mingcheng != ''"> and mingcheng like concat('%', #{mingcheng}, '%')</if>
@@ -104,7 +109,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="selectSciZhuanliruanzhuList4" parameterType="SciZhuanliruanzhu" resultMap="SciZhuanliruanzhuResult">
         <include refid="selectSciZhuanliruanzhuVo"/>
-        where  s.user_id = #{uid} or state in (4,6)
+        where  s.user_id = #{uid} or state in (4,6,7)
+        <if test="jiaoyanshi != null  and jiaoyanshi != ''">and  d.dept_id = #{jiaoyanshi}</if>
 
         <if test="xueyuan != null  and xueyuan != ''"> and xueyuan = #{xueyuan}</if>
 
