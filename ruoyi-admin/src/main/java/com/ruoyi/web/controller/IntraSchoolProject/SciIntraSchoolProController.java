@@ -201,7 +201,7 @@ public class SciIntraSchoolProController extends BaseController {
                 roles_list.set(4, 1);
             }
             //学院负责人
-            if (r.getRoleId()==103 ){
+            if (r.getRoleId()==103 || r.getRoleId()==104 || r.getRoleId()==105 || r.getRoleId()==106|| r.getRoleId()==107||  r.getRoleId()==108){
                 roles_list.set(5, 1);
             }
             //超级管理员
@@ -284,7 +284,7 @@ public class SciIntraSchoolProController extends BaseController {
     {
         System.out.println("id = " + id);
         SciIntraSchoolPro sciIntraSchoolPro = sciIntraSchProApplyService.sel_IntraSchPro_by_id(id);
-
+        System.out.println("sciIntraSchoolPro.getOverFiling() = " + sciIntraSchoolPro.getOverFiling());
         List<SysUser> userList1 =  userService.selectAllUser();
 
         mmap.put("sysUsers1",userList1);

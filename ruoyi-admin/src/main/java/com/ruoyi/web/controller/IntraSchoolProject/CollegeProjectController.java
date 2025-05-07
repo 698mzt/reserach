@@ -31,7 +31,7 @@ public class CollegeProjectController extends BaseController {
         System.out.println("CollegeProjectController.view");
         return prefix + "/view";
     }
-//http://localhost:8081/CollegeProject/list
+  //http://localhost:8081/CollegeProject/list
     @PostMapping("/list")
     @ResponseBody
     public List<Map<String, Object>> list() {
@@ -87,13 +87,13 @@ public class CollegeProjectController extends BaseController {
         Map<String, Object> result = new HashMap<>();
         for (Map<String, Object> currentMap : lists) {
             //如果他是学院，不显示学院这一行
-            Object cgzhdeptId = currentMap.get("cgzhdeptId");
-            if (cgzhdeptId instanceof Long) {
-                Long longValue = (Long) cgzhdeptId;
-                if (colleges.contains(longValue)) {
-                    continue;
-                }
-            }
+//            Object cgzhdeptId = currentMap.get("cgzhdeptId");
+//            if (cgzhdeptId instanceof Long) {
+//                Long longValue = (Long) cgzhdeptId;
+//                if (colleges.contains(longValue)) {
+//                    continue;
+//                }
+//            }
             for (Map.Entry<String, Object> entry : currentMap.entrySet()) {
 
 

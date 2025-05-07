@@ -901,7 +901,7 @@
                           console.log("research=",1)
                             if (row.deptNamekey === '1'  && row.userId != row.uid) {
                                 //教研的options1只用处理state=1（待教研室处理）和state=11（待学院处理）的
-                                console.log("row.role=",1)
+                                console.log("row.userId=",row.userId)
                                 if (row.state == '1') {
                                     console.log("this is reaearch 1")
                                     actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro' + '\')"> 批阅</a> ');
@@ -914,7 +914,6 @@
                                 }
 
                             } else if (row.userId == row.uid) {
-                                console.log("row.userId = row.uid:")
                                 if (row.state == '1') {
                                     actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> 更新</a> ');
                                     actions.push('<a class="del-link-button ' + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"> </i>删除</a>');
@@ -984,10 +983,13 @@
                         //admin
                         else if (row.role === 'admin') {
                             actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"> 查看</a> ');
-                        } else if (row.role === 'teacher') {
+                        }
+                        //教师
+                        else if (row.role === 'teacher') {
+                          console.log("teacher",row.state);
                             if (row.userId == row.uid) {
                                 if (row.state == '1') {
-                                    actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> 更新</a> ');
+                                    //actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> 更新</a> ');
                                     actions.push('<a class="del-link-button ' + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"> </i>删除</a>');
                                 } else if (row.state == '4') {
                                     actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.overTab(\'' + row.id + '\')"> 申请结项</a> ');
@@ -1375,8 +1377,8 @@
         } else if (["3", "5", "12", "9", "10", "14"].includes(row.state)) {
             // 被驳回 红色
             return {
-                css: {"color": '#ff0000'}
-
+              // css: {"color": '#ff0000'}
+              css: {"color": '#c78045'}
             };
         }
         return {};
