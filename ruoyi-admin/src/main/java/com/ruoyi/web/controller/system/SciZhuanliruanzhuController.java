@@ -96,6 +96,11 @@ public class SciZhuanliruanzhuController extends BaseController
                     role = "research";
                     break label;
                 case "dept_teacher":
+                case "discuss_college":
+                case "art_design_college":
+                case "cxcy_college":
+                case "marxism_college":
+                case "dzgc_college":
                     role = "dept_teacher";
                     break label;
                 case "admin":
@@ -308,7 +313,7 @@ public class SciZhuanliruanzhuController extends BaseController
 
 
 
-    @RequiresPermissions(value={"system:zhuanliruanzhu:hecha","system:zhuanliruanzhu:process","system:zhuanliruanzhu:chayue"},logical= Logical.OR)
+    @RequiresPermissions(value={"system:zhuanliruanzhu:hecha","system:zhuanliruanzhu:process","system:zhuanliruanzhu:chayue","system:zhuanliruanzhu:info"},logical= Logical.OR)
     @Log(title = "专利软著审核通过", businessType = BusinessType.UPDATE)
     @PostMapping( "/hxPass")
     @ResponseBody
