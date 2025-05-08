@@ -3,6 +3,31 @@
 <head>
     <th:block th:include="include :: header('奖励列表')" />
     <style>
+        .track-list {
+            margin: 20px;
+            padding-left: 5px;
+            position: relative;
+        }
+
+        .track-list ul {
+            padding-left: 0;
+            list-style: none;
+            max-height: 50vh;
+            overflow-y: auto;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+            padding: 10px;
+        }
+
+        .track-list li {
+            position: relative;
+            padding: 5px 0 10px 25px;
+            line-height: 1.4;
+            border-left: 2px solid #d9d9d9;
+            color: #666;
+            transition: all 0.4s ease;
+        }
         .modal-right {
             position: fixed;
             right: 0;
@@ -293,6 +318,7 @@
             <form id="formId">
                 <div class="select-list">
                     <ul>
+                        <shiro:hasAnyRoles name="sci_tesearch,dept_teacher">
                         <li>
                             <label>荣誉名称：</label>
                             <input type="text" name="rewardName"/>
@@ -352,6 +378,7 @@
                             <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
                             <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
                         </li>
+                        </shiro:hasAnyRoles>
                     </ul>
                 </div>
             </form>
@@ -575,115 +602,84 @@
                         field: 'jifen',
                         title: '积分'
                     },
-                    // {
-                    //     field: 'state',
-                    //     title: '状态',
-                    //     align: 'center',
-                    //     formatter: function(value, row, index) {
-                    //         return $.table.selectDictLabel(datas, value);
-                    //     }
-                    // }  ,
+                    {
+                        field: 'state',
+                        title: '状态',
+                        align: 'center',
+                        formatter: function(value, row, index) {
+                            return $.table.selectDictLabel(datas, value);
+                        }
+                    }  ,
                     {
                         title: '操作',
                         align: 'center',
                         formatter: function(value, row, index) {
                             var actions = [];
+                            var huanhang = false;
                             if(row.state == 11 ){
                                 if (row.userId == row.uid){
                                     actions.push('<a class="' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.push(\'' + row.id + '\')">提交&nbsp;&nbsp;&nbsp;&nbsp;</a>');
                                     actions.push('<a class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')">编辑&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                                     actions.push('<a class="' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')" style="color : #c90000">删除</a>');
-                                    actions.push('<br>')
-                                    actions.push('<a class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                                    actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
                                 }
+                                huanhang = true;
                             }else
 
                             if(row.state == 1 ){
                                 console.log(row)
-                                // if(row.userId == row.uid) {
-                                // actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-remove"></i>删除</a>');
-                                // actions.push('<a   class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>更新</a> ');
-                                // }
-                                // actions.push('<a  class="btn btn-success btn-xs ' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
-
+                                if (proFlag != 'hidden'){
                                 actions.push('<a  class="' + proFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro' + '\')">批阅&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                                // }
-                                if (proFlag != "hidden")
-                                    actions.push('<br>')
-                                actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                                actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
+                                    huanhang = true;
+                                }
 
                             }else
                             if((row.state == 3 || row.state == 5 || row.state == 7)) {
                                 if (row.userId == row.uid) {
-                                    // actions.push('<a   class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> <i class="fa fa-edit"></i>更新</a> ');
-                                    // actions.push('<a  class="btn btn-success btn-xs ' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan' + '\')"><i class="fa fa-edit"></i>查看</a> ');
                                     actions.push('<a   class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')">编辑&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
+                                    huanhang = true;
                                 }
-
-                                if(removeFlag != "hidden" || row.state != 7){
-                                    actions.push('<br>')}
-                                actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                                actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
+                                // actions.push('<a  class="' + proFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000">撤回&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                             }
-                            else if(row.state == 3 || row.state == 5 || row.state == 7){
 
-                                // actions.push('<a  class="btn btn-success btn-xs ' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
+                            // else if(row.state == 3 || row.state == 5 || row.state == 7){
+                            //     if (row.userId == row.uid){
+                            //     actions.push('<a  class="' + proFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000">撤回&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
+                            //     huanhang = true;
+                            //     }
+                            // }
+                            else if(row.state ==  2){
                                 actions.push('<a  class="' + proFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000">撤回&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                                if(proFlag != "hidden" || hechaFlag != "hidden")
-                                    actions.push('<br>')
-                                actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                                actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
-
-
-                            }else if(row.state ==  2){
-                                // actions.push('<a  class="btn btn-success btn-xs ' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
-                                actions.push('<a  class="' + proFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000">撤回&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
+                                if (hechaFlag != 'hidden'){
                                 actions.push('<a  class="' + hechaFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/hecha' + '\')">核查&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                                // actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
-
-                                if (hechaFlag != "hidden" || proFlag != "hidden")
-                                    actions.push('<br>')
-                                actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                                actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
+                                }
+                                huanhang = true;
                             }else
                             if(row.state ==  4) {
-                                // actions.push('<a  class="btn btn-success btn-xs ' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan' + '\')"><i class="fa fa-edit"></i>查看</a> ');
+                                if (row.userId == row.uid) {
                                 actions.push('<a  class="' + hechaFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000">撤回&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                                // if(row.userId == row.uid){
-                                //     actions.push('<a  class="btn btn-success btn-xs ' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
-
-                                // }
+                                if (chayueFlag != 'hidden') {
                                 actions.push('<a  class="' + chayueFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chayue' + '\')">查阅&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-
-                                if ( row.state == 4)
-                                    actions.push('<br>')
-                                actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan' + '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                                actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
+                                }
+                                huanhang = true;
+                              }
                             }
                             else if(row.state ==  6){
-                                // actions.push('<a  class="btn btn-success btn-xs ' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
+                                if (chayueFlag != 'hidden') {
                                 actions.push('<a  class="' + chayueFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000">撤回&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                                if (chayueFlag != "hidden")
-                                    actions.push('<br>')
-                                actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan' + '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                                actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
+                                huanhang = true;
+                              }}
+
+                            if (huanhang) {
+                                actions.push('<br>'); // 只有前面有按钮时才换行
+
                             }
+                            actions.push('<a class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
+                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
+
                             return actions.join('');
+
                         }
                     }]
-                // {
-                //     title: '操作',
-                //     align: 'center',
-                //     formatter: function(value, row, index) {
-                //         var actions = [];
-                //         actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.edit(\'' + row.id + '\')"><i class="fa fa-edit"></i>编辑</a> ');
-                //         actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-remove"></i>删除</a>');
-                //         return actions.join('');
-                //     }
-                // }
-
             };
             $.table.init(options);
             window.addEventListener("storage",function (event){
@@ -790,8 +786,8 @@
             } else if ([1, 2, 3, 4, 5].includes(state)) {
                 document.getElementById('step-1').classList.add('completed');
                 document.getElementById('step-1').querySelector('.status-text').classList.add('completed');
-                document.getElementById('step-2').classList.add('completed');
-                document.getElementById('step-2').querySelector('.status-text').classList.add('completed');
+                document.getElementById('step-2').classList.add('active');
+                document.getElementById('step-2').querySelector('.status-text').classList.add('active');
                 progressBar.style.width = '50%';
             } else {
                 // 默认情况下，所有步骤为灰色
