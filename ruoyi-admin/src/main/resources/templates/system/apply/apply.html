@@ -341,16 +341,20 @@
                                                     <input type="text" name="userName"/>
                                                 </li>
                                                 <li>
-                                                    <label>课题名称：</label>
+                                                    <label>课题：</label>
                                                     <input type="text" name="topName"/>
                                                 </li>
                                                 <li>
-                                                    <label>状态：</label>
-                                                    <select name="state" th:with="type=${@dict.getType('sci_crosswise_tasks')}">
-                                                        <option value="">所有</option>
-                                                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
-                                                    </select>
+                                                    <label>教研室：</label>
+                                                    <input type="text" name="dname"/>
                                                 </li>
+<!--                                                <li>-->
+<!--                                                    <label>状态：</label>-->
+<!--                                                    <select name="state" th:with="type=${@dict.getType('sci_crosswise_tasks')}">-->
+<!--                                                        <option value="">所有</option>-->
+<!--                                                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>-->
+<!--                                                    </select>-->
+<!--                                                </li>-->
                                                 <li>
                                                     <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search('formId0','bootstrap-table0')"><i class="fa fa-search"></i>&nbsp;搜索</a>
                                                     <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
@@ -392,15 +396,12 @@
                                                     <input type="text" name="userName"/>
                                                 </li>
                                                 <li>
-                                                    <label>课题名称：</label>
+                                                    <label>课题：</label>
                                                     <input type="text" name="topName"/>
                                                 </li>
                                                 <li>
-                                                    <label>状态：</label>
-                                                    <select name="state" th:with="type=${@dict.getType('sci_crosswise_tasks')}">
-                                                        <option value="">所有</option>
-                                                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
-                                                    </select>
+                                                    <label>教研室：</label>
+                                                    <input type="text" name="dname"/>
                                                 </li>
                                                 <li>
                                                     <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search('formId1','bootstrap-table1')"><i class="fa fa-search"></i>&nbsp;搜索</a>
@@ -444,15 +445,12 @@
                                                     <input type="text" name="userName"/>
                                                 </li>
                                                 <li>
-                                                    <label>课题名称：</label>
+                                                    <label>课题：</label>
                                                     <input type="text" name="topName"/>
                                                 </li>
                                                 <li>
-                                                    <label>状态：</label>
-                                                    <select name="state" th:with="type=${@dict.getType('sci_crosswise_tasks')}">
-                                                        <option value="">所有</option>
-                                                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
-                                                    </select>
+                                                    <label>教研室：</label>
+                                                    <input type="text" name="dname"/>
                                                 </li>
                                                 <li>
                                                     <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search('formId2','bootstrap-table2')"><i class="fa fa-search"></i>&nbsp;搜索</a>
@@ -493,15 +491,12 @@
                                                     <input type="text" name="userName"/>
                                                 </li>
                                                 <li>
-                                                    <label>课题名称：</label>
+                                                    <label>课题：</label>
                                                     <input type="text" name="topName"/>
                                                 </li>
                                                 <li>
-                                                    <label>状态：</label>
-                                                    <select name="state" th:with="type=${@dict.getType('sci_crosswise_tasks')}">
-                                                        <option value="">所有</option>
-                                                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
-                                                    </select>
+                                                    <label>教研室：</label>
+                                                    <input type="text" name="dname"/>
                                                 </li>
                                                 <li>
                                                     <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search('formId3','bootstrap-table3')"><i class="fa fa-search"></i>&nbsp;搜索</a>

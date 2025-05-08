@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.ruoyi.common.utils.DictUtils.getDictLabel;
 
@@ -77,14 +78,15 @@ public class SysRewardController extends BaseController
             if(r.getRoleKey().equals("sci_tesearch")){
                 role ="sci_tesearch";
                 break;
-            }else if (r.getRoleKey().equals("dept_teacher")){
+            }
+            else if (r.getRoleKey().equals("dept_teacher")){
                 role="dept_teacher";
                 break;
             }
-            else if (r.getRoleKey().equals("research")){
-                role="research";
-                break;
-            }
+//            else if (r.getRoleKey().equals("research")){
+//                role="research";
+//                break;
+//            }
         }
         sysReward.setRole(role);
         List<SysReward> list = new ArrayList<>();
@@ -143,36 +145,64 @@ public class SysRewardController extends BaseController
     /**
      * 导出奖励列表
      */
-@RequiresPermissions("system:reward:export")
-@Log(title = "奖励", businessType = BusinessType.EXPORT)
-@PostMapping("/export")
-@ResponseBody
-public AjaxResult export(SysReward sysReward) {
-    List<SysReward> list = sysRewardService.selectSysRewardList(sysReward);
+    @RequiresPermissions("system:reward:export")
+    @Log(title = "奖励", businessType = BusinessType.EXPORT)
+    @PostMapping("/export")
+    @ResponseBody
+    public AjaxResult export(SysReward sysReward) {
+//        List<SysReward> list = sysRewardService.selectSysRewardList(sysReward);
+        List<SysRole> roles = getSysUser().getRoles();
+        String role = "";
+        for (SysRole r : roles){
+            if(r.getRoleKey().equals("sci_tesearch")){
+                role ="sci_tesearch";
+                break;
+            }else if (r.getRoleKey().equals("dept_teacher")){
+                role="dept_teacher";
+                break;
+            }
+            else if (r.getRoleKey().equals("research")){
+                role="research";
+                break;
+            }
+        }
 
-    // 使用 getDictLabel 方法转换 rewardPaiming 字段为对应的字典标签
-    for (SysReward reward : list) {
-        if (reward.getRewardPaiming() != null) {
-            String label = getDictLabel("sys_reward_paiming", reward.getRewardPaiming());
-            reward.setRewardPaiming(label);  // 假设你允许直接修改原字段
+        List<SysReward> list;
+        if(role.equals("sci_tesearch")){
+            list = sysRewardService.selectSysRewardListByKYC(sysReward);
+        }else if(role.equals("dept_teacher")){
+            list = sysRewardService.selectSysRewardListByXUE(sysReward);
+        }else if(role.equals("research")){
+            list = sysRewardService.selectSysRewardListByJYS(sysReward);
+        }else{
+            list = sysRewardService.selectSysRewardList(sysReward);
         }
-        if (reward.getRewardFenlei() != null) {
-            String label = getDictLabel("sys_reward_fenlei", reward.getRewardFenlei());
-            reward.setRewardFenlei(label);  // 假设你允许直接修改原字段
+        list = list.stream()
+                .filter(reward -> !"11".equals(reward.getState()))
+                .collect(Collectors.toList());
+        // 使用 getDictLabel 方法转换 rewardPaiming 字段为对应的字典标签
+        for (SysReward reward : list) {
+            if (reward.getRewardPaiming() != null) {
+                String label = getDictLabel("sys_reward_paiming", reward.getRewardPaiming());
+                reward.setRewardPaiming(label);  // 假设你允许直接修改原字段
+            }
+            if (reward.getRewardFenlei() != null) {
+                String label = getDictLabel("sys_reward_fenlei", reward.getRewardFenlei());
+                reward.setRewardFenlei(label);  // 假设你允许直接修改原字段
+            }
+            if (reward.getRewardDengji() != null) {
+                String label = getDictLabel("sys_reward_dengji", reward.getRewardDengji());
+                reward.setRewardDengji(label);  // 假设你允许直接修改原字段
+            }
+            if (reward.getState() != null) {
+                String label = getDictLabel("sys_reward_sg", reward.getState());
+                reward.setState(label);  // 假设你允许直接修改原字段
+            }
         }
-        if (reward.getRewardDengji() != null) {
-            String label = getDictLabel("sys_reward_dengji", reward.getRewardDengji());
-            reward.setRewardDengji(label);  // 假设你允许直接修改原字段
-        }
-        if (reward.getState() != null) {
-            String label = getDictLabel("sys_reward_sg", reward.getState());
-            reward.setState(label);  // 假设你允许直接修改原字段
-        }
+
+        ExcelUtil<SysReward> util = new ExcelUtil<>(SysReward.class);
+        return util.exportExcel(list, "奖励数据");
     }
-
-    ExcelUtil<SysReward> util = new ExcelUtil<>(SysReward.class);
-    return util.exportExcel(list, "奖励数据");
-}
 
     /**
      * 新增奖励
