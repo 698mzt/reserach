@@ -243,6 +243,7 @@ public class SciHorizontalApplyController extends BaseController
                 }
             }
         }
+
         List<SciHorizontalApply> list = sciHorizontalApplyService.exportSciHorizontalApplyList(sciHorizontalApply);
         List<SciHorizontalApply> newList = new ArrayList<>();
         for (SciHorizontalApply apply: list ) {
