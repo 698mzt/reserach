@@ -132,10 +132,9 @@
         <div class="form-group">
           <label class="col-sm-4 control-label is-required">合同：</label>
           <div class="col-sm-8">
-            <input type="text" name="contract" th:field="*{overContract}">
-
+            <input type="hidden" name="overContract" th:field="*{overContract}">
             <div class="file-loading">
-              <input class="form-control file-upload" id="contract" name="file" type="file">
+              <input class="form-control file-upload" id="overContract" name="file" type="file">
             </div>
           </div>
         </div>
@@ -144,9 +143,9 @@
         <div class="form-group">
           <label class="col-sm-4 control-label is-required">备案表：</label>
           <div class="col-sm-8">
-            <input type="hidden" name="filing" th:field="*{overFiling}">
+            <input type="hidden" name="overFiling" th:field="*{overFiling}">
             <div class="file-loading">
-              <input class="form-control file-upload" id="filing" name="file" type="file">
+              <input class="form-control file-upload" id="overFiling" name="file" type="file">
             </div>
           </div>
         </div>
@@ -289,6 +288,12 @@
 
   $(".file-upload").each(function (i) {
     var val = $("input[name='" + this.id + "']").val()
+    console.log("val=",val)
+    // var $fileInput = $(this); // 当前文件上传控件
+    // var fieldName = $fileInput.attr('id'); // 获取 ID（如 contract）
+    // var val = $("#" + fieldName).val(); // 使用 ID 获取对应隐藏字段的值
+
+    console.log("val =", val);
     $(this).fileinput({
       'uploadUrl': ctx + 'common/upload',
       initialPreviewAsData: true,
