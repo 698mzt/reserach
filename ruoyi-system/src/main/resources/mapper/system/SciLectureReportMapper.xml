@@ -53,8 +53,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <include refid="selectSciLectureReportVo"/>
         where state in <foreach item="item" collection="statelist" open="(" separator="," close=")">#{item}</foreach>
         <if test="reportTheme != null  and reportTheme != ''"> and report_theme like concat('%', #{reportTheme}, '%')</if>
-        <if test="hostUnit != null  and hostUnit != ''"> and host_unit like concat('%', #{hostUnit}, '%')</if>
-        <if test="reportPlace != null  and reportPlace != ''"> and report_place like concat('%', #{reportPlace}, '%')</if>
+<!--        <if test="hostUnit != null  and hostUnit != ''"> and host_unit like concat('%', #{hostUnit}, '%')</if>-->
+<!--        <if test="reportPlace != null  and reportPlace != ''"> and report_place like concat('%', #{reportPlace}, '%')</if>-->
+        <if test="keyanshi != null  and keyanshi != ''"> and d.dept_name like concat('%', #{keyanshi}, '%')</if>
+        <if test="teacherName != null  and teacherName != ''"> and u.user_name like concat('%', #{teacherName}, '%')</if>
         <if test="userId != null and userId != ''">and user_id = #{userId}</if>
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(report_time,INTERVAL 1 MONTH)) = #{year}</if>
         <if test="state != null and state !='' and uid != null and uid != '' and tab != null and tab != '' and tab == 'bootstrap-table1'">
@@ -70,10 +72,17 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </if>
     order  by
         CASE
-            <if test="uid != null and uid != ''">
-                WHEN s.user_id = #{uid} AND state IN (3, 5, 7) THEN 0
-            </if>
-            ELSE 1
+<!--            <if test="uid != null and uid != ''">-->
+<!--                WHEN s.user_id = #{uid} AND state IN (3, 5, 7) THEN 0-->
+<!--            </if>-->
+<!--            ELSE 1-->
+                <if test="uid != null and uid != ''">
+                    WHEN s.user_id = #{uid} AND state IN (3, 5, 7) THEN 0
+                    ELSE 1
+                </if>
+                <if test="uid == null or uid == ''">
+                    WHEN 1=1 THEN 1
+                </if>
         END,
         CASE
             WHEN state = 1 THEN 2

@@ -1,8 +1,6 @@
 package com.ruoyi.web.controller.system;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 import com.ruoyi.common.core.domain.entity.SysRole;
 import com.ruoyi.common.core.domain.entity.SysUser;
@@ -57,6 +55,15 @@ public class SciLectureReportController extends BaseController
     @Autowired
     private ISciLectureReportIntegralService sciLectureReportIntegralService;
 
+    // 设置角色集合。若后期需要添加新的学院管理员角色，将其权限字符添加到集合中即可
+    private static final Set<String> TEACHER_ROLES = new HashSet<>(Arrays.asList(
+            "dept_teacher", // 软件学院管理员
+            "discuss_college", // 商学院管理员
+            "dzgc_college", // 电子工程学院管理员
+            "art_design_college", // 艺术设计学院管理员
+            "cxcy_college", // 创新创业学院管理员
+            "marxism_college" // 马克思主义学院管理员
+    ));
     @RequiresPermissions("system:report:view")
     @GetMapping()
     public String report()
@@ -88,8 +95,12 @@ public class SciLectureReportController extends BaseController
             }else if (r.getRoleKey().equals("admin")){
                 role="admin";
                 break;
-            }else if (r.getRoleKey().equals("dept_teacher")){
-                role="dept_teacher";
+//            }else if (r.getRoleKey().equals("dept_teacher") ||  r.getRoleKey().equals("discuss_college") || r.getRoleKey().equals("dzgc_college") || r.getRoleKey().equals("art_design_college") || r.getRoleKey().equals("cxcy_college") || r.getRoleKey().equals("marxism_college")){
+//                role="dept_teacher";
+//                break;
+//            }
+            } else if (TEACHER_ROLES.contains(r.getRoleKey())) {
+                role = "dept_teacher";
                 break;
             }
         }
@@ -206,7 +217,25 @@ public class SciLectureReportController extends BaseController
     @ResponseBody
     public AjaxResult export(SciLectureReport sciLectureReport)
     {
-        sciLectureReport.setStatelist(Arrays.asList(1, 2, 3, 5,4,6,7));
+        // 获取当前的用户信息
+        SysUser currentUser = ShiroUtils.getSysUser();
+        sciLectureReport.setUid(currentUser.getUserId());
+        List<SysRole> roles = getSysUser().getRoles();
+        for (SysRole r :roles){
+            if(r.getRoleKey().equals("sci_tesearch")){ // 科研处
+                sciLectureReport.setStatelist(Arrays.asList(2,5,4)); // 查询时状态设置
+                break;
+            }else if (r.getRoleKey().equals("research")){ // 教研室
+                sciLectureReport.setStatelist(Arrays.asList(1,6, 3, 4,5,7)); // 查询时状态设置
+                break;
+            }else if (r.getRoleKey().equals("admin")){ // 管理员
+                sciLectureReport.setStatelist(Arrays.asList(0,1, 2, 3, 5,4,6,7)); // 查询时状态设置
+                break;
+            } else if (TEACHER_ROLES.contains(r.getRoleKey())) { // 学院
+                sciLectureReport.setStatelist(Arrays.asList(2,4,6,7,5)); // 查询时状态设置
+                break;
+            }
+        }
         List<SciLectureReport> list = sciLectureReportService.selectSciLectureReportList(sciLectureReport);
         ExcelUtil<SciLectureReport> util = new ExcelUtil<SciLectureReport>(SciLectureReport.class);
         return util.exportExcel(list, "讲座报告数据");
