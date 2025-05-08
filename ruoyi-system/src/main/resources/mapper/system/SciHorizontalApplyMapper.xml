@@ -385,12 +385,9 @@
         left join sys_user u on  s.user_id=u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
-        <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
-        <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
-        <if test="state != null  and state != ''"> and state = #{state}</if>
-        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
-        <!-- 数据范围过滤 -->
-        ${params.dataScope}
+        where s.state != 99
+        <if test="dnameId != null and dnameId != ''"> and d.dept_id = #{dnameId}</if>
+        <if test="ynameId != null and ynameId != ''"> and p.dept_id = #{ynameId}</if>
         order  by createtime desc
     </select>
 

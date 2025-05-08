@@ -29,11 +29,15 @@
     </resultMap>
 
     <select id="selectSciHorizontalApplyVerticalAllList" resultType="SciHorizontalApplyVertical" resultMap="SciHorizontalApplyVerticalResult">
-        select s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,s.top_number ,s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file,s.open_file,s.mid_file,s.over_file
+        select s.id,u.user_name userName,d.dept_id,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,s.top_number ,s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file,s.open_file,s.mid_file,s.over_file
         from  sci_horizontal_apply_vertical s left join sci_persion pe on pe.apply_id = s.id
                                               left join sys_user u on  s.user_id=u.user_id
                                               left join sys_dept d on u.dept_id = d.dept_id
                                               left join sys_dept p on d.parent_id =p.dept_id
+        where s.state != 99
+        <if test="dnameId != null and dnameId != ''"> and d.dept_id = #{dnameId}</if>
+        <if test="ynameId != null and ynameId != ''"> and p.dept_id = #{ynameId}</if>
+        order  by createtime desc
     </select>
 
     <select id="selectSciHorizontalApplyVerticalList"  resultType="SciHorizontalApplyVertical" resultMap="SciHorizontalApplyVerticalResult">
