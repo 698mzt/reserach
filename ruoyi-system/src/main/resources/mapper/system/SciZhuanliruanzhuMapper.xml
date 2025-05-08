@@ -38,8 +38,39 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="selectSciZhuanliruanzhuList" parameterType="SciZhuanliruanzhu" resultMap="SciZhuanliruanzhuResult">
         <include refid="selectSciZhuanliruanzhuVo"/>
-        where state in (0,1,2,3,4,5,6,7)
+        where state in (1,2,3,4,5,6,7)
 
+
+        <if test="mingcheng != null  and mingcheng != ''"> and mingcheng like concat('%', #{mingcheng}, '%')</if>
+        <if test="huopishijain != null "> and huopishijain = #{huopishijain}</if>
+        <if test="fenlei != null  and fenlei != ''"> and fenlei = #{fenlei}</if>
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(createtime,INTERVAL 1 MONTH)) = #{year}</if>
+        <if test="userId != null  and userId != ''">and s.user_id = #{uid}</if>
+
+
+
+    </select>
+
+
+    <select id="selectSciZhuanliruanzhuList31" parameterType="SciZhuanliruanzhu" resultMap="SciZhuanliruanzhuResult">
+        <include refid="selectSciZhuanliruanzhuVo"/>
+        where state in (1,2,3,4,5,6,7) and d.parent_id = #{deptId}
+
+
+        <if test="mingcheng != null  and mingcheng != ''"> and mingcheng like concat('%', #{mingcheng}, '%')</if>
+        <if test="huopishijain != null "> and huopishijain = #{huopishijain}</if>
+        <if test="fenlei != null  and fenlei != ''"> and fenlei = #{fenlei}</if>
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(createtime,INTERVAL 1 MONTH)) = #{year}</if>
+        <if test="userId != null  and userId != ''">and s.user_id = #{uid}</if>
+
+
+
+    </select>
+
+
+    <select id="selectSciZhuanliruanzhuList21" parameterType="SciZhuanliruanzhu" resultMap="SciZhuanliruanzhuResult">
+        <include refid="selectSciZhuanliruanzhuVo"/>
+        where state in (1,2,3,4,5,6,7) and d.dept_id = #{deptId}
 
 
         <if test="mingcheng != null  and mingcheng != ''"> and mingcheng like concat('%', #{mingcheng}, '%')</if>

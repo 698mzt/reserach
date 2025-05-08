@@ -275,6 +275,18 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
         return sciZhuanliruanzhuMapper.selectSciZhuanliruanzhuList1(sciZhuanliruanzhu);
     }
 
+
+    @Override
+    public List<SciZhuanliruanzhu> selectSciZhuanliruanzhuList31(SciZhuanliruanzhu sciZhuanliruanzhu)
+    {
+        return sciZhuanliruanzhuMapper.selectSciZhuanliruanzhuList31(sciZhuanliruanzhu);
+    }
+    @Override
+    public List<SciZhuanliruanzhu> selectSciZhuanliruanzhuList21(SciZhuanliruanzhu sciZhuanliruanzhu)
+    {
+        return sciZhuanliruanzhuMapper.selectSciZhuanliruanzhuList21(sciZhuanliruanzhu);
+    }
+
     @Override
     public int recall(Integer id, String state,Long uid, String remark, String urlFlag) {
         String newState = state;

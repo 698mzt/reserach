@@ -83,6 +83,10 @@ public interface ISciZhuanliruanzhuService
     List<SciZhuanliruanzhu> selectSciZhuanliruanzhuList1(SciZhuanliruanzhu sciZhuanliruanzhu);
 
     int recall(Integer id, String state, Long userId, String remark, String urlFlag);
+
+    List<SciZhuanliruanzhu> selectSciZhuanliruanzhuList31(SciZhuanliruanzhu sciZhuanliruanzhu);
+
+    List<SciZhuanliruanzhu> selectSciZhuanliruanzhuList21(SciZhuanliruanzhu sciZhuanliruanzhu);
 //    int hxoverBh(String id, Long userId, String remark, String urlFlag);
 
 //    int collegeAudit(String id, Long userId, String urlFlag);
