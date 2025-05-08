@@ -318,6 +318,7 @@
             <form id="formId">
                 <div class="select-list">
                     <ul>
+                        <shiro:hasAnyRoles name="sci_tesearch,dept_teacher">
                         <li>
                             <label>荣誉名称：</label>
                             <input type="text" name="rewardName"/>
@@ -377,6 +378,7 @@
                             <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
                             <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
                         </li>
+                        </shiro:hasAnyRoles>
                     </ul>
                 </div>
             </form>
@@ -653,12 +655,14 @@
                                 huanhang = true;
                             }else
                             if(row.state ==  4) {
+                                if (row.userId == row.uid) {
                                 actions.push('<a  class="' + hechaFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000">撤回&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                                 if (chayueFlag != 'hidden') {
                                 actions.push('<a  class="' + chayueFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chayue' + '\')">查阅&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                                 }
                                 huanhang = true;
                               }
+                            }
                             else if(row.state ==  6){
                                 if (chayueFlag != 'hidden') {
                                 actions.push('<a  class="' + chayueFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000">撤回&nbsp;&nbsp;&nbsp;&nbsp;</a> ');

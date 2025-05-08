@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.ruoyi.common.utils.DictUtils.getDictLabel;
 
@@ -77,14 +78,15 @@ public class SysRewardController extends BaseController
             if(r.getRoleKey().equals("sci_tesearch")){
                 role ="sci_tesearch";
                 break;
-            }else if (r.getRoleKey().equals("dept_teacher")){
+            }
+            else if (r.getRoleKey().equals("dept_teacher")){
                 role="dept_teacher";
                 break;
             }
-            else if (r.getRoleKey().equals("research")){
-                role="research";
-                break;
-            }
+//            else if (r.getRoleKey().equals("research")){
+//                role="research";
+//                break;
+//            }
         }
         sysReward.setRole(role);
         List<SysReward> list = new ArrayList<>();
@@ -148,7 +150,7 @@ public class SysRewardController extends BaseController
     @PostMapping("/export")
     @ResponseBody
     public AjaxResult export(SysReward sysReward) {
-        List<SysReward> list = sysRewardService.selectSysRewardList(sysReward);
+//        List<SysReward> list = sysRewardService.selectSysRewardList(sysReward);
         List<SysRole> roles = getSysUser().getRoles();
         String role = "";
         for (SysRole r : roles){
@@ -165,16 +167,19 @@ public class SysRewardController extends BaseController
             }
         }
 
-        List<SysReward> list1;
+        List<SysReward> list;
         if(role.equals("sci_tesearch")){
-            list1 = sysRewardService.selectSysRewardListByKYC(sysReward);
+            list = sysRewardService.selectSysRewardListByKYC(sysReward);
         }else if(role.equals("dept_teacher")){
-            list1 = sysRewardService.selectSysRewardListByXUE(sysReward);
+            list = sysRewardService.selectSysRewardListByXUE(sysReward);
         }else if(role.equals("research")){
-            list1 = sysRewardService.selectSysRewardListByJYS(sysReward);
+            list = sysRewardService.selectSysRewardListByJYS(sysReward);
         }else{
-            list1 = sysRewardService.selectSysRewardList(sysReward);
+            list = sysRewardService.selectSysRewardList(sysReward);
         }
+        list = list.stream()
+                .filter(reward -> !"11".equals(reward.getState()))
+                .collect(Collectors.toList());
         // 使用 getDictLabel 方法转换 rewardPaiming 字段为对应的字典标签
         for (SysReward reward : list) {
             if (reward.getRewardPaiming() != null) {
