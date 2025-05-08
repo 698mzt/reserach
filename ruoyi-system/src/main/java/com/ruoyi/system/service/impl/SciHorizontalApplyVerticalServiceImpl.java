@@ -113,6 +113,52 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
      */
     @Override
     public int updateSciHorizontalApplyVertical(SciHorizontalApplyVertical sciHorizontalApplyVertical) {
+        SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
+        sciHorizontalPiyue.setUid(Long.valueOf(sciHorizontalApplyVertical.getUserId()));
+        sciHorizontalPiyue.setVerticalId(sciHorizontalApplyVertical.getId());
+        if (sciHorizontalApplyVertical.getNewsql().equals("11")){
+            sciHorizontalPiyue.setConcate("提交");
+            sciHorizontalPiyue.setState("结项");
+            sciHorizontalApplyVertical.setState("11");
+        }else if (sciHorizontalApplyVertical.getNewsql().equals("1")){
+            sciHorizontalPiyue.setConcate("提交");
+            sciHorizontalPiyue.setState("新增");
+            sciHorizontalApplyVertical.setState("1");
+        }else if (sciHorizontalApplyVertical.getNewsql().equals("111")){
+            String newState = sciHorizontalApplyVertical.getState();
+            switch (newState){
+//            教研室
+                case "33":
+                    newState = "11";
+                    break;
+                case "3":
+                    newState = "1";
+                    break;
+//                学院
+                case "5":
+                    newState = "2";
+                    break;
+                case "55":
+                    newState = "22";
+                    break;
+//                科研处
+                case "77":
+                    newState = "44";
+                    break;
+                case "7":
+                    newState = "4";
+                    break;
+//                教师
+                case "99":
+                    newState = "99";
+                    break;
+            }
+            sciHorizontalApplyVertical.setState(newState);
+            sciHorizontalPiyue.setConcate("修改");
+            sciHorizontalPiyue.setState("修改");
+        }
+
+        sciHorizontalPiyueMapper.insertVerticalPiyue(sciHorizontalPiyue);
          return sciHorizontalApplyVerticalMapper.updateSciHorizontalApplyVertical(sciHorizontalApplyVertical);
     }
 

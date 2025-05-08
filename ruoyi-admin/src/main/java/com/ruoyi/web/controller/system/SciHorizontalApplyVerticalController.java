@@ -166,7 +166,7 @@ public class SciHorizontalApplyVerticalController extends BaseController {
                 ));
 
         Integer did = sysUser.getDeptId().intValue();
-        Integer yid = sysUser.getDeptId().intValue();
+        Integer yid = sysUser.getParentId().intValue();
         if(!distinctList.isEmpty()){
             for (SciHorizontalApplyVertical apply: distinctList){
                 apply.setUserdnameId(did);
@@ -207,6 +207,19 @@ public class SciHorizontalApplyVerticalController extends BaseController {
     @ResponseBody
     public AjaxResult export(SciHorizontalApplyVertical sciHorizontalApplyVertical)
     {
+        // 获取当前用户的所有角色
+        List<SysRole> roles = getSysUser().getRoles();
+
+        // 遍历 roles 列表并提取每个 SysRole 的 roleKey
+        for (SysRole role : roles) {
+            if (!role.getRoleKey().equals("teacher")){
+                if (role.getRoleKey().equals("dept_teacher"))
+                    sciHorizontalApplyVertical.setYnameId(getSysUser().getParentId().toString());
+                else if (role.getRoleKey().equals("research")) {
+                    sciHorizontalApplyVertical.setDnameId(Integer.valueOf(getSysUser().getDeptId().toString()));
+                }
+            }
+        }
         List<SciHorizontalApplyVertical> list = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalAllList(sciHorizontalApplyVertical);
         for (SciHorizontalApplyVertical applyVeryical: list ) {
             if(applyVeryical.getState().equals("4444")){
@@ -263,7 +276,7 @@ public class SciHorizontalApplyVerticalController extends BaseController {
     public AjaxResult push(SciHorizontalApplyVertical sciHorizontalApplyVertical)
     {
         sciHorizontalApplyVertical.setUserId(Integer.valueOf(getSysUser().getUserId().toString()));
-        sciHorizontalApplyVertical.setState("1");
+        sciHorizontalApplyVertical.setNewsql("1");
         return toAjax(sciHorizontalApplyVerticalService.updateSciHorizontalApplyVertical(sciHorizontalApplyVertical));
     }
 
@@ -286,7 +299,9 @@ public class SciHorizontalApplyVerticalController extends BaseController {
     @ResponseBody
     public AjaxResult overaddSave(SciHorizontalApplyVertical sciHorizontalApplyVertical)
     {
+        sciHorizontalApplyVertical.setUserId(Integer.valueOf(getSysUser().getUserId().toString()));
         sciHorizontalApplyVertical.setState("11");
+        sciHorizontalApplyVertical.setNewsql("11");
         return toAjax(sciHorizontalApplyVerticalService.updateSciHorizontalApplyVertical(sciHorizontalApplyVertical));
     }
 
@@ -313,7 +328,7 @@ public class SciHorizontalApplyVerticalController extends BaseController {
     @ResponseBody
     public AjaxResult editSave(SciHorizontalApplyVertical sciHorizontalApplyVertical)
     {
-        sciHorizontalApplyVertical.setState("1");
+        sciHorizontalApplyVertical.setNewsql("111");
         return toAjax(sciHorizontalApplyVerticalService.updateSciHorizontalApplyVertical(sciHorizontalApplyVertical));
     }
 
@@ -339,7 +354,7 @@ public class SciHorizontalApplyVerticalController extends BaseController {
     @ResponseBody
     public AjaxResult overeditSave(SciHorizontalApplyVertical sciHorizontalApplyVertical)
     {
-        sciHorizontalApplyVertical.setState("1111");
+        sciHorizontalApplyVertical.setNewsql("111");
         return toAjax(sciHorizontalApplyVerticalService.updateSciHorizontalApplyVertical(sciHorizontalApplyVertical));
     }
 

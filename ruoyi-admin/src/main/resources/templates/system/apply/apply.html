@@ -3,6 +3,32 @@
 <head>
     <th:block th:include="include :: header('横向课题列表')" />
     <style>
+        .track-list {
+            margin: 20px;
+            padding-left: 5px;
+            position: relative;
+        }
+
+        .track-list ul {
+            padding-left: 0;
+            list-style: none;
+            max-height: 50%;
+            overflow-y: auto;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+            padding: 10px;
+        }
+
+        .track-list li {
+            position: relative;
+            padding: 5px 0 10px 25px;
+            line-height: 1.4;
+            border-left: 2px solid #d9d9d9;
+            color: #666;
+            transition: all 0.4s ease;
+        }
+
         .modal-right {
             position: fixed;
             right: 0;
@@ -695,14 +721,14 @@
                         return ranking.join('');
                     }
                 },
-                {
-                    field: 'state',
-                    title: '申请状态',
-                    align: 'center',
-                    formatter: function(value, row, index) {
-                        return $.table.selectDictLabel(datas, value);
-                    }
-                },
+                // {
+                //     field: 'state',
+                //     title: '申请状态',
+                //     align: 'center',
+                //     formatter: function(value, row, index) {
+                //         return $.table.selectDictLabel(datas, value);
+                //     }
+                // },
                 {
                     field: 'score',
                     align: 'center',
@@ -827,14 +853,14 @@
                         return ranking.join('');
                     }
                 },
-                {
-                    field: 'state',
-                    title: '申请状态',
-                    align: 'center',
-                    formatter: function(value, row, index) {
-                        return $.table.selectDictLabel(datas, value);
-                    }
-                }  ,
+                // {
+                //     field: 'state',
+                //     title: '申请状态',
+                //     align: 'center',
+                //     formatter: function(value, row, index) {
+                //         return $.table.selectDictLabel(datas, value);
+                //     }
+                // }  ,
                 {
                     field: 'score',
                     align: 'center',
@@ -1019,14 +1045,14 @@
                         return ranking.join('');
                     }
                 },
-                {
-                    field: 'state',
-                    title: '申请状态',
-                    align: 'center',
-                    formatter: function(value, row, index) {
-                        return $.table.selectDictLabel(datas, value);
-                    }
-                },
+                // {
+                //     field: 'state',
+                //     title: '申请状态',
+                //     align: 'center',
+                //     formatter: function(value, row, index) {
+                //         return $.table.selectDictLabel(datas, value);
+                //     }
+                // },
                 {
                     field: 'score',
                     align: 'center',
@@ -1180,14 +1206,14 @@
                 //     align: 'center',
                 //     title: '已获积分'
                 // },
-                {
-                    field: 'state',
-                    title: '申请状态',
-                    align: 'center',
-                    formatter: function(value, row, index) {
-                        return $.table.selectDictLabel(datas, value);
-                    }
-                },
+                // {
+                //     field: 'state',
+                //     title: '申请状态',
+                //     align: 'center',
+                //     formatter: function(value, row, index) {
+                //         return $.table.selectDictLabel(datas, value);
+                //     }
+                // },
                 {
                     title: '操作',
                     align: 'center',
@@ -1224,7 +1250,7 @@
                             // actions.push('<a  class="btn btn-danger btn-xs ' + hechaFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>撤回</a> ');
                             // actions.push('<a  class="btn btn-danger btn-xs ' + DeptFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>撤回</a> ');
                             actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.reid +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
+                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory1(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
                         }else
                         if(row.state ==  2){
                             // actions.push('<a  class="btn btn-danger btn-xs ' + proFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>撤回</a> ');
@@ -1233,12 +1259,12 @@
                             if(DeptFlag !== "hidden")
                                 actions.push('<br>')
                             actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.reid +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
+                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory1(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
                         }else
-                        if(row.state ==  4){
+                        if(row.state ==  6){
                             // actions.push('<a  class="btn btn-danger btn-xs ' + hechaFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>撤回</a> ');
                             actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.reid +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
+                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory1(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
                         }else
                         if(row.state ==  11){
                             // actions.push('<a  class="btn btn-danger btn-xs ' + DeptFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>撤回</a> ');
@@ -1246,7 +1272,7 @@
                             if(hechaFlag !== "hidden")
                                 actions.push('<br>')
                             actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.reid +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
+                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory1(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
                         }
                         return actions.join('');
                     }
@@ -1336,6 +1362,40 @@
         });
     }
 
+    function showhistory1(id,state) {
+        updateProgressStepColor(state)
+        //查询配乐记录
+        $.ajax({
+            url: prefix + '/abhyy/'+id,
+            type: 'POST',
+            data: {
+                kid: id
+            },
+            success: function (response) {
+                const eventList = document.getElementById('event-list');
+                eventList.innerHTML = '';
+                response.rows.sort((a, b) => new Date(b.createTime) - new Date(a.createTime));
+                response.rows.forEach(function (row) {
+                    const li = document.createElement('li');
+                    li.innerHTML = `
+
+                        <div class="event-item">
+                            <div class="event-content">
+                                <i class="node-icon"></i>
+                                <span class="time" id="current-time">${row.createTime}</span>
+                                <span class="txt">[${row.state}] - ${row.uname}</span>
+                            </div>
+                        </div>
+                    `;
+                    eventList.appendChild(li);
+                });
+            },
+            error: function () {
+                alert('Failed to fetch event history.');
+            }
+        });
+    }
+
     function updateProgressStepColor(state) {
         // 获取所有步骤元素
         const steps = document.querySelectorAll('.progress_inner__step');
@@ -1367,9 +1427,11 @@
         } else if ([1, 2,  7, 8, 11, 33].includes(state)) {
             document.getElementById('step-1').classList.add('completed');
             document.getElementById('step-1').querySelector('.status-text').classList.add('completed');
-            document.getElementById('step-2').classList.add('completed');
-            document.getElementById('step-2').querySelector('.status-text').classList.add('completed');
-            progressBar.style.width = '66%';
+
+            // 审核中步骤高亮为 active
+            document.getElementById('step-2').classList.add('active');
+            document.getElementById('step-2').querySelector('.status-text').classList.add('active');
+            progressBar.style.width = '45%';
         } else {
             // 默认情况下，所有步骤为灰色
             steps.forEach(step => {

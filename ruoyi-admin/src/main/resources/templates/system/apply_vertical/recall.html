@@ -151,21 +151,6 @@
                     </div>
                 </div>
             </div>
-            <div class="col-xs-6">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">备案表：</label>
-                    <div class="col-sm-8">
-                        <input th:field="*{overfile}" hidden id="contract" type="text" >
-                        <div style="display: inline-block;">
-                            <div id="contractFileName" style="display: inline; margin-right: 5px;"></div>
-                        </div>
-                        <div>
-                            <button onclick="beian()"  class="btn btn-sm btn-primary color">预览</button>
-                            <button onclick="downloadFile('contract')" class="btn btn-sm btn-primary color">下载</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
 <!--            <div class="col-xs-6">-->
 <!--                <div class="form-group">-->
 <!--                    <label class="col-sm-4 control-label is-required">合同：</label>-->
@@ -244,11 +229,7 @@
             const fileName = input.value.split('/').pop(); // 获取文件名
             const parts = fileName.split('_'); // 按下划线分割
             const firstPart = parts[0]; // 下划线前的部分
-
-            const dotParts = fileName.split('.'); // 按点分割
-            const lastPart = dotParts[dotParts.length - 1]; // 点后的部分
-
-            fileNameSpan.textContent = `${firstPart}.${lastPart}`; // 组合并显示
+            fileNameSpan.textContent = `${firstPart}`; // 组合并显示
         } else {
             fileNameSpan.textContent = '';
         }
@@ -418,10 +399,7 @@
     });
     // 页面加载时显示文件名
     window.onload = function() {
-        displayFileName('contract', 'contractFileName');
         displayFileName('filing', 'filingFileName');
-        displayFileName('agreeurl', 'agreeurlFileName');
-        displayFileName('filingurl', 'filingurlFileName');
     };
 </script>
 </body>

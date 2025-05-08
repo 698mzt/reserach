@@ -230,6 +230,20 @@ public class SciHorizontalApplyController extends BaseController
     @ResponseBody
     public AjaxResult export(SciHorizontalApply sciHorizontalApply)
     {
+        // 获取当前用户的所有角色
+        List<SysRole> roles = getSysUser().getRoles();
+
+        // 遍历 roles 列表并提取每个 SysRole 的 roleKey
+        for (SysRole role : roles) {
+            if (!role.getRoleKey().equals("teacher")){
+                if (role.getRoleKey().equals("dept_teacher"))
+                    sciHorizontalApply.setYnameId(getSysUser().getParentId().toString());
+                else if (role.getRoleKey().equals("research")) {
+                    sciHorizontalApply.setDnameId(Integer.valueOf(getSysUser().getDeptId().toString()));
+                }
+            }
+        }
+
         List<SciHorizontalApply> list = sciHorizontalApplyService.exportSciHorizontalApplyList(sciHorizontalApply);
         List<SciHorizontalApply> newList = new ArrayList<>();
         for (SciHorizontalApply apply: list ) {
