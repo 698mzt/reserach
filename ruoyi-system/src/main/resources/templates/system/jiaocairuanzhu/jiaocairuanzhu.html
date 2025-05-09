@@ -372,18 +372,44 @@
         .approve-status input {
             margin-right: 5px;
         }
+        .track-list {
+            margin: 20px;
+            padding-left: 5px;
+            position: relative;
+        }
+
+        .track-list ul {
+            padding-left: 0;
+            list-style: none;
+            max-height: 50vh;
+            overflow-y: auto;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+            padding: 10px;
+        }
+
+        .track-list li {
+            position: relative;
+            padding: 5px 0 10px 25px;
+            line-height: 1.4;
+            border-left: 2px solid #d9d9d9;
+            color: #666;
+            transition: all 0.4s ease;
+        }
+
     </style>
 </head>
 <body class="gray-bg">
 <div class="container-div">
     <div class="row">
-        <div class="col-sm-12 search-collapse">
-            <form id="formId">
+        <div class="col-sm-12 search-collapse" shiro:hasAnyPermissions="system:Jiaocairuanzhu:hecha, system:Jiaocairuanzhu:chayue">
+            <form id="formId"  >
                 <div class="select-list">
                     <ul>
                         <li>
-                            <label>学院：</label>
-                            <select name="xueyuan" th:with="type=${@dict.getType('sys_dept')}">
+                            <label>教研室：</label>
+                            <select name="jiaoyanshi" th:with="type=${@dict.getType('sys_dept')}">
                                 <option value="">所有</option>
                                 <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
                             </select>
@@ -395,25 +421,6 @@
                         <li>
                             <label>教材名称：</label>
                             <input type="text" name="mingcheng"/>
-                        </li>
-                        <li>
-                            <label>ISBN：</label>
-                            <input type="text" name="isbn"/>
-                        </li>
-                        <li>
-                            <label>出版时间：</label>
-                            <input type="text" class="time-input" placeholder="请选择出版时间" name="chubanshijian"/>
-                        </li>
-                        <li>
-                            <label>分类：</label>
-                            <select name="fenlei" th:with="type=${@dict.getType('sys_jiaocairuanzhu_fenlei')}">
-                                <option value="">所有</option>
-                                <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
-                            </select>
-                        </li>
-                        <li>
-                            <label>排名：</label>
-                            <input type="text" name="paiming"/>
                         </li>
                         <li>
                             <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
@@ -580,15 +587,15 @@
                     }
                 },
                 {
-                    field: 'yname',
+                    field: 'xueyuan',
                     title: '学院'
                 },
                 {
-                    field: 'dname',
+                    field: 'jiaoyanshi',
                     title: '专业'
                 },
                 {
-                    field: 'userName',
+                    field: 'xingming',
                     title: '姓名'
                 },
                 {
@@ -630,6 +637,7 @@
                     class: 'fixed-column',
                     formatter: function(value, row, index) {
                         var actions = [];
+                        var huanhang = false;
                         console.log(row);
 
                         if (row.state == 0) {
@@ -640,49 +648,71 @@
 
 
                             }
-                            actions.push('<br>')
-                            actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan' + '\')"><i class=""></i>查看&nbsp;&nbsp;&nbsp;&nbsp;</a>');
-                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
+                            huanhang = true;
+                            // actions.push('<br>')
+                            // actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan' + '\')"><i class=""></i>查看&nbsp;&nbsp;&nbsp;&nbsp;</a>');
+                            // actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
 
                         } else if (row.state == 1) {
                             actions.push('<a class="' + proFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro' + '\')"><i class=""></i>批阅</a>');
-                            actions.push('<br>')
-                            actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan' + '\')"><i class=""></i>查看&nbsp;&nbsp;&nbsp;&nbsp;</a>');
-                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
+                            huanhang = true;
+                            // actions.push('<br>')
+                            // actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan' + '\')"><i class=""></i>查看&nbsp;&nbsp;&nbsp;&nbsp;</a>');
+                            // actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
 
                         } else if ((row.state == 3 || row.state == 5 || row.state == 7) && row.userId == row.uid) {
                             actions.push('<a class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class=""></i>更新</a>');
-                            actions.push('<br>')
-                            actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan' + '\')"><i class=""></i>查看&nbsp;&nbsp;&nbsp;&nbsp;</a>');
-                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
+                            huanhang = true;
+                            // actions.push('<br>')
+                            // actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan' + '\')"><i class=""></i>查看&nbsp;&nbsp;&nbsp;&nbsp;</a>');
+                            // actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
 
-                        } else if (row.state == 3 || row.state == 5 || row.state == 7) {
-
-                            actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan' + '\')"><i class=""></i>查看&nbsp;&nbsp;&nbsp;&nbsp;</a>');
-                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
-                        } else if (row.state == 2) {
-                            actions.push('<a class="' + proFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')"><i class=""></i>撤回&nbsp;&nbsp;&nbsp;&nbsp;</a>');
-                            actions.push('<a class="' + hechaFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/hecha' + '\')"><i class=""></i>核查</a>');
-                            actions.push('<br>')
-                            actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan' + '\')"><i class=""></i>查看&nbsp;&nbsp;&nbsp;&nbsp;</a>');
-                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
+                        }
+                            // else if (row.state == 3 || row.state == 5 || row.state == 7) {
+                            //
+                            //     actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan' + '\')"><i class=""></i>查看&nbsp;&nbsp;&nbsp;&nbsp;</a>');
+                            //     actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
+                        // }
+                        else if (row.state == 2) {
+                            actions.push('<a class="' + proFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000"><i class=""></i>撤回</a>');
+                            if (hechaFlag != 'hidden') {
+                                actions.push('<a class="' + hechaFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/hecha' + '\')"><i class=""></i>核查</a>');
+                            }
+                            huanhang = true;
+                            // actions.push('<br>')
+                            // actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan' + '\')"><i class=""></i>查看&nbsp;&nbsp;&nbsp;&nbsp;</a>');
+                            // actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
 
                         } else if (row.state == 4) {
 
-                            actions.push('<a class="' + hechaFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')"><i class=""></i>撤回&nbsp;&nbsp;&nbsp;&nbsp;</a>');
-                            actions.push('<a class="' + chayueFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chayue' + '\')"><i class=""></i>查阅</a>');
-                            actions.push('<br>')
-                            actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan' + '\')"><i class=""></i>查看&nbsp;&nbsp;&nbsp;&nbsp;</a>');
-                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
+                            actions.push('<a class="' + hechaFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000"><i class=""></i>撤回</a>');
+                            if (chayueFlag != 'hidden') {
+                                actions.push('<a class="' + chayueFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chayue' + '\')"><i class=""></i>查阅</a>');
+                            }
+                            huanhang = true;
+                            // actions.push('<br>')
+                            // actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan' + '\')"><i class=""></i>查看&nbsp;&nbsp;&nbsp;&nbsp;</a>');
+                            // actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
 
                         } else if (row.state == 6) {
+                            if (chayueFlag != 'hidden') {
+                                actions.push('<a class="' + chayueFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000"><i class=""></i>撤回</a>');
+                                huanhang = true;
+                            }
 
-                            actions.push('<a class="' + chayueFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')"><i class=""></i>撤回</a>');
-                            actions.push('<br>')
-                            actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan' + '\')"><i class=""></i>查看&nbsp;&nbsp;&nbsp;&nbsp;</a>');
-                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
+                            // actions.push('<br>')
+                            // actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan' + '\')"><i class=""></i>查看&nbsp;&nbsp;&nbsp;&nbsp;</a>');
+                            // actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
 
                         }
+
+                        if (huanhang) {
+                            actions.push('<br>'); // 只有前面有按钮时才换行
+
+                        }
+                        actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan' + '\')"><i class=""></i>查看&nbsp;&nbsp;&nbsp;&nbsp;</a>');
+                        actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
+
                         return actions.join('');
                     }
                 }

@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.system.domain.SciJiaocairuanzhu;
+import com.ruoyi.system.domain.SciJiaocairuanzhu;
 
 /**
  * 教材软著Service接口
@@ -81,6 +82,10 @@ public interface ISciJiaocairuanzhuService
     List<SciJiaocairuanzhu> selectSciJiaocairuanzhuList2(SciJiaocairuanzhu sciJiaocairuanzhu);
 
     List<SciJiaocairuanzhu> selectSciJiaocairuanzhuList1(SciJiaocairuanzhu sciJiaocairuanzhu);
+
+    List<SciJiaocairuanzhu> selectSciJiaocairuanzhuList31(SciJiaocairuanzhu sciJiaocairuanzhu);
+
+    List<SciJiaocairuanzhu> selectSciJiaocairuanzhuList21(SciJiaocairuanzhu sciJiaocairuanzhu);
 
     int recall(Integer id, String state, Long userId, String remark, String urlFlag);
 //    int hxoverBh(String id, Long userId, String remark, String urlFlag);

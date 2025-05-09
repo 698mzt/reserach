@@ -5,6 +5,7 @@ import java.util.List;
 import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.system.domain.SciJiaocairuanzhu;
 import com.ruoyi.system.domain.SciJiaocairuanzhu;
+import com.ruoyi.system.domain.SciJiaocairuanzhu;
 import org.apache.ibatis.annotations.Param;
 
 /**
@@ -86,5 +87,7 @@ public interface SciJiaocairuanzhuMapper
     public List<SciJiaocairuanzhu> selectSciJiaocairuanzhuList3(SciJiaocairuanzhu sciJiaocairuanzhu);
     public List<SciJiaocairuanzhu> selectSciJiaocairuanzhuList2(SciJiaocairuanzhu sciJiaocairuanzhu);
     public List<SciJiaocairuanzhu> selectSciJiaocairuanzhuList1(SciJiaocairuanzhu sciJiaocairuanzhu);
+    public List<SciJiaocairuanzhu> selectSciJiaocairuanzhuList31(SciJiaocairuanzhu sciJiaocairuanzhu);
+    public List<SciJiaocairuanzhu> selectSciJiaocairuanzhuList21(SciJiaocairuanzhu sciJiaocairuanzhu);
 
 }
