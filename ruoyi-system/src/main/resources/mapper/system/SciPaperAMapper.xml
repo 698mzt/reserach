@@ -111,10 +111,8 @@
             ${params.dataScope}
             <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
             <if test="teacherName != null  and teacherName != ''"> and teacher_name like concat('%', #{teacherName}, '%')</if>
-            <!--<if test="administrativePosition != null  and administrativePosition != ''"> and administrative_position = #{administrativePosition}</if>
-            <if test="socialTitle != null  and socialTitle != ''"> and social_title = #{socialTitle}</if>
-            <if test="onCampusTitle != null  and onCampusTitle != ''"> and on_campus_title = #{onCampusTitle}</if>
-            <if test="authorType != null  and authorType != ''"> and author_type = #{authorType}</if>-->
+            <if test="college != null  and college != ''"> and pt.dept_name like concat('%', #{college}, '%')</if>
+            <if test="roleName != null  and roleName != ''"> and d.dept_name like concat('%', #{roleName}, '%')</if>
 
             <if test="paperTitle != null  and paperTitle != ''"> and paper_title = #{paperTitle}</if>
             <if test="paperCategory != null  and paperCategory != ''"> and paper_category = #{paperCategory}</if>
@@ -152,6 +150,8 @@
             ${params.dataScope}
 <!--            <if test="userId != null  and userId != ''"> and p.user_id = #{userId}</if>-->
             <if test="teacherName != null  and teacherName != ''"> and teacher_name like concat('%', #{teacherName}, '%')</if>
+            <if test="college != null  and college != ''"> and pt.dept_name like concat('%', #{college}, '%')</if>
+            <if test="roleName != null  and roleName != ''"> and d.dept_name like concat('%', #{roleName}, '%')</if>
             <if test="paperTitle != null  and paperTitle != ''"> and paper_title = #{paperTitle}</if>
             <if test="paperCategory != null  and paperCategory != ''"> and paper_category = #{paperCategory}</if>
             <if test="publishedJournal != null  and publishedJournal != ''"> and published_journal = #{publishedJournal}</if>
@@ -186,7 +186,13 @@
                  left join sys_dept pt on d.parent_id =pt.dept_id
                  left join sys_user_role ur on u.user_id = ur.user_id
                  left join sys_role r on r.role_id = ur.role_id
-        where p.user_id = #{uid}
+--         where p.user_id = #{uid}
+        <where>
+            p.user_id = #{uid}
+            <if test="teacherName != null  and teacherName != ''"> and teacher_name like concat('%', #{teacherName}, '%')</if>
+            <if test="college != null  and college != ''"> and pt.dept_name like concat('%', #{college}, '%')</if>
+            <if test="roleName != null  and roleName != ''"> and d.dept_name like concat('%', #{roleName}, '%')</if>
+        </where>
         order  by publication_time desc
     </select>
 
