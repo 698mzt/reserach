@@ -428,21 +428,21 @@
 <body class="gray-bg">
      <div class="container-div">
         <div class="row">
-            <div class="col-sm-12 search-collapse">
+            <div class="col-sm-12 search-collapse" shiro:hasPermission="system:paper:chaxun">
                 <form id="formId">
-                    <div class="select-list">
+                    <div class="select-list" >
                         <ul>
                             <li>
                                 <label>学院：</label>
                                 <input type="text" name="college"/>
                             </li>
                             <li>
-                                <label>工号：</label>
-                                <input type="text" name="employeeId"/>
-                            </li>
-                            <li>
                                 <label>教师姓名：</label>
                                 <input type="text" name="teacherName"/>
+                            </li>
+                            <li>
+                                <label>教研室：</label>
+                                <input type="text" name="roleName"/>
                             </li>
                             <li>
                                 <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>

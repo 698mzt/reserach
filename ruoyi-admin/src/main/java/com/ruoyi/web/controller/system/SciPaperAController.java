@@ -126,7 +126,7 @@ public AjaxResult uploadFile(MultipartFile file, @PathVariable("model") String m
                 list.addAll(sciPaperAService.selectSciPaperAListKY(sciPaperA));
             }
             //学院
-            else  if (roleId.contains("103")) {
+            else  if (roleId.contains("103") || roleId.contains("104") || roleId.contains("105") || roleId.contains("106") || roleId.contains("107") || roleId.contains("108")) {
                 list.addAll(sciPaperAService.selectSciPaperAListXY(sciPaperA));
                 System.out.println("list = " + list);
             }
