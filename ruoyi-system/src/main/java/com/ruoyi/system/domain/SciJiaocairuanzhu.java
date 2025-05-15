@@ -21,7 +21,6 @@ public class SciJiaocairuanzhu extends BaseEntity
                 ", parentId=" + parentId +
                 ", deptId=" + deptId +
                 ", role='" + role + '\'' +
-                ", amount='" + amount + '\'' +
                 ", jifen='" + jifen + '\'' +
                 ", year='" + year + '\'' +
                 ", urlFlag='" + urlFlag + '\'' +
@@ -47,7 +46,6 @@ public class SciJiaocairuanzhu extends BaseEntity
                 ", benxiaoshifoyongshu='" + benxiaoshifoyongshu + '\'' +
                 ", fenlei='" + fenlei + '\'' +
                 ", paiming='" + paiming + '\'' +
-                ", keyanfen=" + keyanfen +
                 ", state='" + state + '\'' +
                 '}';
     }
@@ -60,7 +58,7 @@ public class SciJiaocairuanzhu extends BaseEntity
         this.wenjian = wenjian;
     }
 
-    private String wenjian;
+
 
 
     public Long getParentId() {
@@ -98,18 +96,6 @@ public class SciJiaocairuanzhu extends BaseEntity
 
     private String role;
 
-    public String getAmount() {
-        return amount;
-    }
-
-    public void setAmount(String amount) {
-        this.amount = amount;
-    }
-
-    @Excel(name = "项目金额")
-    private String amount;
-
-
     public String getJifen() {
         return jifen;
     }
@@ -118,7 +104,6 @@ public class SciJiaocairuanzhu extends BaseEntity
         this.jifen = jifen;
     }
 
-    private String jifen;
 
 
     public String getYear() {
@@ -204,6 +189,7 @@ public class SciJiaocairuanzhu extends BaseEntity
     private String xueyuan;
 
     /** 教研室 */
+    @Excel(name = "教研室")
     private String jiaoyanshi;
 
     /** 工号 */
@@ -230,10 +216,11 @@ public class SciJiaocairuanzhu extends BaseEntity
     private String mingcheng;
 
     /** 类型 */
-    @Excel(name = "类型")
+    @Excel(name = "类型",dictType = "sys_jiaocairuanzhu_leibie")
     private String leixing;
 
     /** isbn */
+    @Excel(name = "ISBN")
     private String isbn;
 
     /** 出版时间 */
@@ -246,20 +233,22 @@ public class SciJiaocairuanzhu extends BaseEntity
     private String chubanshe;
 
     /** 本校是否用书 */
-    @Excel(name = "本校是否用书")
+    @Excel(name = "本校是否用书",dictType = "sys_yes_no")
     private String benxiaoshifoyongshu;
 
     /** 分类 */
-    @Excel(name = "分类")
+    @Excel(name = "分类",dictType = "sys_jiaocairuanzhu_fenlei")
     private String fenlei;
 
     /** 排名 */
-    @Excel(name = "排名")
+    @Excel(name = "排名",dictType = "sys_jiaocairuanzhu_fzr")
     private String paiming;
 
     /** 科研分 */
-    @Excel(name = "科研分")
-    private Long keyanfen;
+    @Excel(name = "积分")
+    private String jifen;
+    @Excel(name = "文件")
+    private String wenjian;
 
     public String getState() {
         return state;
@@ -424,15 +413,7 @@ public class SciJiaocairuanzhu extends BaseEntity
     {
         return paiming;
     }
-    public void setKeyanfen(Long keyanfen)
-    {
-        this.keyanfen = keyanfen;
-    }
 
-    public Long getKeyanfen()
-    {
-        return keyanfen;
-    }
 
 
 }

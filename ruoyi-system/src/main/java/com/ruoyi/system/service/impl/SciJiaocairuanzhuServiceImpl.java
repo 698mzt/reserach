@@ -3,9 +3,7 @@ package com.ruoyi.system.service.impl;
 import java.util.List;
 
 import com.ruoyi.common.core.domain.entity.SysUser;
-import com.ruoyi.system.domain.SciHorizontalPiyue;
-import com.ruoyi.system.domain.SciJiaocairuanzhuPiyue;
-import com.ruoyi.system.domain.SciJiaocairuanzhuScoreCfg;
+import com.ruoyi.system.domain.*;
 import com.ruoyi.system.mapper.SciHorizontalPiyueMapper;
 import com.ruoyi.system.mapper.SciJiaocairuanzhuPiyueMapper;
 import com.ruoyi.system.mapper.SciJiaocairuanzhuScoreCfgMapper;
@@ -13,7 +11,6 @@ import com.ruoyi.system.service.ISysUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.ruoyi.system.mapper.SciJiaocairuanzhuMapper;
-import com.ruoyi.system.domain.SciJiaocairuanzhu;
 import com.ruoyi.system.service.ISciJiaocairuanzhuService;
 import com.ruoyi.common.core.text.Convert;
 
@@ -274,6 +271,17 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService
     {
         return sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuList1(sciJiaocairuanzhu);
     }
+    @Override
+    public List<SciJiaocairuanzhu> selectSciJiaocairuanzhuList31(SciJiaocairuanzhu sciJiaocairuanzhu)
+    {
+        return sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuList31(sciJiaocairuanzhu);
+    }
+    @Override
+    public List<SciJiaocairuanzhu> selectSciJiaocairuanzhuList21(SciJiaocairuanzhu sciJiaocairuanzhu)
+    {
+        return sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuList21(sciJiaocairuanzhu);
+    }
+
 
     @Override
     public int recall(Integer id, String state,Long uid, String remark, String urlFlag) {

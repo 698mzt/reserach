@@ -159,7 +159,48 @@ public class SciJiaocairuanzhuController extends BaseController
     @ResponseBody
     public AjaxResult export(SciJiaocairuanzhu sciJiaocairuanzhu)
     {
-        List<SciJiaocairuanzhu> list = sciJiaocairuanzhuService.selectSciJiaocairuanzhuList(sciJiaocairuanzhu);
+
+        List<SysRole> roles = getSysUser().getRoles();
+        String role = "";
+        label:
+        for (SysRole r :roles){
+            switch (r.getRoleKey()) {
+                case "sci_tesearch":
+                    role = "sci_tesearch";
+                    break label;
+                case "research":
+                    role = "research";
+                    break label;
+                case "dept_teacher":
+                    role = "dept_teacher";
+                    break label;
+                case "admin":
+                    role = "admin";
+                    break label;
+            }
+        }
+        sciJiaocairuanzhu.setRole(role);
+
+        //设置部门id，传输过去用来为查询设置部门限制
+        sciJiaocairuanzhu.setDeptId(getSysUser().getDeptId());
+
+        List<SciJiaocairuanzhu> list = new ArrayList<>();
+//        科研处
+        switch (role) {
+            case "sci_tesearch":
+
+                list = sciJiaocairuanzhuService.selectSciJiaocairuanzhuList(sciJiaocairuanzhu);   //导出科研处的下的所有数据
+                break;
+            //      学院负责人
+            case "dept_teacher":
+                list = sciJiaocairuanzhuService.selectSciJiaocairuanzhuList31(sciJiaocairuanzhu);  //导出此学院下的所有数据
+                break;
+//        教研室
+            case "research":
+                list = sciJiaocairuanzhuService.selectSciJiaocairuanzhuList21(sciJiaocairuanzhu);   //导出此教研室下的所有数据
+                break;
+
+        }
         ExcelUtil<SciJiaocairuanzhu> util = new ExcelUtil<SciJiaocairuanzhu>(SciJiaocairuanzhu.class);
         return util.exportExcel(list, "教材软著数据");
     }
