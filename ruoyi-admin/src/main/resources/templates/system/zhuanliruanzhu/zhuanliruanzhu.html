@@ -409,10 +409,7 @@
                     <ul>
                         <li>
                             <label>教研室：</label>
-                            <select name="jiaoyanshi" th:with="type=${@dict.getType('sys_dept')}">
-                                <option value="">所有</option>
-                                <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
-                            </select>
+                            <input type="text" name="jiaoyanshi"/>
                         </li>
                         <li>
                             <label>姓名：</label>
@@ -661,7 +658,7 @@
 
                         if (row.state == 0) {
                             if (row.userId == row.uid) {
-                                actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/tijiao' + '\')"><i class=""></i>提交&nbsp;&nbsp;&nbsp;&nbsp;</a>');
+                                actions.push('<a class="" href="javascript:void(0)" onclick="submitDirectly(\'' + row.id + '\')"><i class=""></i>提交&nbsp;&nbsp;&nbsp;&nbsp;</a>');
                                 actions.push('<a class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class=""></i>编辑&nbsp;&nbsp;&nbsp;&nbsp;</a>');
                                 actions.push('<a class="' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"><i class="" style="color : #c90000"></i>删除</a>');
 
@@ -673,8 +670,11 @@
                             // actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
 
                         } else if (row.state == 1) {
-                            actions.push('<a class="' + proFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro' + '\')"><i class=""></i>批阅</a>');
-                            huanhang = true;
+                            if (proFlag != 'hidden') {
+                                actions.push('<a class="' + proFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro' + '\')"><i class=""></i>批阅</a>');
+                                huanhang = true;
+                            }
+
                             // actions.push('<br>')
                             // actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan' + '\')"><i class=""></i>查看&nbsp;&nbsp;&nbsp;&nbsp;</a>');
                             // actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
@@ -876,6 +876,22 @@
         // 初始化显示当前时间
         document.getElementById('current-time').textContent = getCurrentTime();
     });
+
+
+    function submitDirectly(id) {
+        submitHandler(id, "tijiao");
+    }
+
+    function submitHandler(id, urlFlag) {
+        $.operate.saveTab(
+            ctx + "system/zhuanliruanzhu/hxPass",
+            { id: id, urlFlag: urlFlag },)
+                // 手动刷新当前页的表格
+                // $('#bootstrap-table').bootstrapTable('refresh');
+                location.reload();
+
+
+    }
 
 
 
