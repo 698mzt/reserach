@@ -126,7 +126,7 @@
     function submitHandler() {
         if ($.validate.form()) {
             if ($("input[name='reportUrl']").val() === "")
-                return $.modal.alertError("请上传合同");
+                return $.modal.alertError("请上传附件");
             $.operate.saveTab(prefix + "/add", $('#form-report-add').serialize());
         }
     }
