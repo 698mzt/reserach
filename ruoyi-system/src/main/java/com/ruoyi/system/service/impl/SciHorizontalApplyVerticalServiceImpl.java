@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static com.ruoyi.common.utils.ShiroUtils.getSysUser;
+
 /**
  * 纵向课题Service业务层处理
  *
@@ -114,7 +116,7 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
     @Override
     public int updateSciHorizontalApplyVertical(SciHorizontalApplyVertical sciHorizontalApplyVertical) {
         SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
-        sciHorizontalPiyue.setUid(Long.valueOf(sciHorizontalApplyVertical.getUserId()));
+        sciHorizontalPiyue.setUid(getSysUser().getUserId());
         sciHorizontalPiyue.setVerticalId(sciHorizontalApplyVertical.getId());
         if (sciHorizontalApplyVertical.getNewsql().equals("11")){
             sciHorizontalPiyue.setConcate("提交");
