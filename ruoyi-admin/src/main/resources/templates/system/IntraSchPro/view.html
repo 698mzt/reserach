@@ -135,7 +135,7 @@
         height: 3px;
         left: 16.665%;
         right: 16.665%;
-        background: #E0E0E0;
+        background: #1dc33c;
         position: absolute;
         top: 12px;
         z-index: -1;
@@ -337,10 +337,11 @@
                     <div class="panel-body">
                         <div class="container-div">
                             <div class="row">
-                                <div class="col-sm-12 search-collapse">
+                                <div class="col-sm-12 search-collapse" shiro:hasPermission="['system:intraSch:select']">
                                     <form id="formId0">
-                                        <div class="select-list">
-                                            <ul>
+<!--                                        <div class="select-list"+[[${@permission.hasPermi('system:intraSch:select')}]]>-->
+                                      <div class="select-list" v-hasPermi="['system:intraSch:select']">
+                                      <ul>
                                                 <li>
                                                     <label>申请人：</label>
                                                     <input type="text" name="userName"/>
@@ -349,15 +350,21 @@
                                                     <label>课题名称：</label>
                                                     <input type="text" name="topName"/>
                                                 </li>
-                                                <li>
-                                                    <label>状态：</label>
-                                                    <select name="state"
-                                                            th:with="type=${@dict.getType('sys_intraschpro_tasks')}">
-                                                        <option value="">所有</option>
-                                                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}"
-                                                                th:value="${dict.dictValue}"></option>
-                                                    </select>
-                                                </li>
+                                              <li>
+                                                <label>专业名称：</label>
+                                                <input type="text" name="deptname"/>
+                                              </li>
+<!--                                                <li>-->
+<!--                                                    <label>状态：</label>-->
+<!--                                                    <select name="state"-->
+<!--                                                            th:with="type=${@dict.getType('sys_intraschpro_tasks')}">-->
+<!--                                                        <option value="">所有</option>-->
+<!--                                                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}"-->
+<!--                                                                th:value="${dict.dictValue}"></option>-->
+<!--                                                    </select>-->
+<!--                                                </li>-->
+
+
                                                 <li>
                                                     <a class="btn btn-primary btn-rounded btn-sm"
                                                        onclick="$.table.search('formId0','bootstrap-table0')"><i
@@ -366,7 +373,7 @@
                                                        onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
                                                 </li>
                                             </ul>
-                                        </div>
+                                        </div >
                                     </form>
                                 </div>
 
@@ -400,10 +407,11 @@
                     <div class="panel-body">
                         <div class="container-div">
                             <div class="row">
-                                <div class="col-sm-12 search-collapse">
+                                <div class="col-sm-12 search-collapse" shiro:hasPermission="['system:intraSch:select']">
                                     <form id="formId1">
-                                        <div class="select-list">
-                                            <ul>
+<!--                                        <div class="select-list">-->
+                                      <div class="select-list" >
+                                      <ul>
                                                 <li>
                                                     <label>申请人：</label>
                                                     <input type="text" name="userName"/>
@@ -412,15 +420,20 @@
                                                     <label>课题名称：</label>
                                                     <input type="text" name="topName"/>
                                                 </li>
-                                                <li>
-                                                    <label>状态：</label>
-                                                    <select name="state"
-                                                            th:with="type=${@dict.getType('sys_intraschpro_tasks')}">
-                                                        <option value="">所有</option>
-                                                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}"
-                                                                th:value="${dict.dictValue}"></option>
-                                                    </select>
-                                                </li>
+                                              <li>
+                                                <label>专业名称：</label>
+                                                <input type="text" name="dname"/>
+                                              </li>
+<!--                                                <li>-->
+<!--                                                    <label>状态：</label>-->
+<!--                                                    <select name="state"-->
+<!--                                                            th:with="type=${@dict.getType('sys_intraschpro_tasks')}">-->
+<!--                                                        <option value="">所有</option>-->
+<!--                                                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}"-->
+<!--                                                                th:value="${dict.dictValue}"></option>-->
+<!--                                                    </select>-->
+<!--                                                </li>-->
+
                                                 <li>
                                                     <a class="btn btn-primary btn-rounded btn-sm"
                                                        onclick="$.table.search('formId1','bootstrap-table1')"><i
@@ -464,7 +477,7 @@
                     <div class="panel-body">
                         <div class="container-div">
                             <div class="row">
-                                <div class="col-sm-12 search-collapse">
+                                <div class="col-sm-12 search-collapse" shiro:hasPermission="['system:intraSch:select']">
                                     <form id="formId2">
                                         <div class="select-list">
                                             <ul>
@@ -476,15 +489,19 @@
                                                     <label>课题名称：</label>
                                                     <input type="text" name="topName"/>
                                                 </li>
-                                                <li>
-                                                    <label>状态：</label>
-                                                    <select name="state"
-                                                            th:with="type=${@dict.getType('sys_intraschpro_tasks')}">
-                                                        <option value="">所有</option>
-                                                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}"
-                                                                th:value="${dict.dictValue}"></option>
-                                                    </select>
-                                                </li>
+                                              <li>
+                                                <label>专业名称：</label>
+                                                <input type="text" name="deptname"/>
+                                              </li>
+<!--                                                <li>-->
+<!--                                                    <label>状态：</label>-->
+<!--                                                    <select name="state"-->
+<!--                                                            th:with="type=${@dict.getType('sys_intraschpro_tasks')}">-->
+<!--                                                        <option value="">所有</option>-->
+<!--                                                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}"-->
+<!--                                                                th:value="${dict.dictValue}"></option>-->
+<!--                                                    </select>-->
+<!--                                                </li>-->
                                                 <li>
                                                     <a class="btn btn-primary btn-rounded btn-sm"
                                                        onclick="$.table.search('formId2','bootstrap-table2')"><i
@@ -611,6 +628,7 @@
     var JYCH = [[${@permission.hasPermi('system:intraSch:JYCH')}]];
     var XYCH = [[${@permission.hasPermi('system:intraSch:XYCH')}]];
     var KYCH = [[${@permission.hasPermi('system:intraSch:KYCH')}]];
+    var select = [[${@permission.hasPermi('system:intraSch:select')}]];
 
     //var datas = [[${@dict.getType('sys_intraschpro_tasks')}]];
     //科研项目的状态，在sys_dict_data,sys_dict_type(横向课题状态)
@@ -1438,7 +1456,7 @@
         const progressBar = document.querySelector('.progress_inner__bar');
         console.log("progressBar=", progressBar)
         if (progressBar) {
-            const progressPercentage = (step - 1) / (progressSteps.length - 1) * 100;
+            const progressPercentage = (step - 1) / (progressSteps.length - 1) * 100-15;
             progressBar.style.width = `${progressPercentage}%`;
         }
     }

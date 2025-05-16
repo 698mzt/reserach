@@ -128,7 +128,7 @@ public class SciIntraSchoolPro extends BaseEntity {
     private String thirdPoints;
     private String forthPoints;
 
-    public String getFirstPoints() {
+  public String getFirstPoints() {
         return firstPoints;
     }
 
