@@ -173,6 +173,10 @@
         });
 
         function submitHandler() {
+            if ($("input[name='rewardWenjian']").val() === "") {
+                $.modal.alertError("请添加证书文件");
+                return false;
+            }
             if ($.validate.form()) {
                 $.operate.saveTab(prefix + "/add", $('#form-reward-add').serialize());
             }
