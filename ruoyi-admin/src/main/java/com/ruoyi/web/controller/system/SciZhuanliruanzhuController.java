@@ -33,7 +33,7 @@ import com.ruoyi.system.mapper.SciProjectScoreCfgMapper;
  * 专利软著Controller
  * 
  * @author ruoyi
- * @date 2024-11-21
+ *  2024-11-21
  */
 @Controller
 @RequestMapping("/system/zhuanliruanzhu")
