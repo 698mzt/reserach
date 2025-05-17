@@ -240,6 +240,7 @@ public class SciHorizontalApplyController extends BaseController
         // 获取当前用户的所有角色
         List<SysRole> roles = getSysUser().getRoles();
 
+
         // 遍历 roles 列表并提取每个 SysRole 的 roleKey
         for (SysRole role : roles) {
             if (!role.getRoleKey().equals("teacher")){
