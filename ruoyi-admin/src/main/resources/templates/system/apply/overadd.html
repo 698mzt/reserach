@@ -190,10 +190,10 @@
 
     function submitHandler() {
         if ($.validate.form()){
-            if($("input[name='contract']").val()=="")
-                return $.modal.alertError("请上传合同");
-            if($("input[name='filing']").val()=="")
-                return $.modal.alertError("请上传备案表");
+            if($("input[name='filingurl']").val()=="")
+                return $.modal.alertError("请上传文件");
+            if($("input[name='agreeurl']").val()=="")
+                return $.modal.alertError("请上传文件");
             if($("input[name='reAmount']").val()==="")
                 return $.modal.alertError("请添加到账金额");
             $.operate.saveTab(prefix + "/overadd", $('#form-apply-add').serialize());

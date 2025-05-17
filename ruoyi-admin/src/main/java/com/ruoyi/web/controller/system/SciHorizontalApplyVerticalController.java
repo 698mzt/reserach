@@ -164,7 +164,7 @@ public class SciHorizontalApplyVerticalController extends BaseController {
         List<SciHorizontalApplyVertical> distinctList = list.stream()
                 .collect(Collectors.collectingAndThen(
                         Collectors.toMap(
-                                SciHorizontalApplyVertical::getTopName, // 使用 topName 作为键
+                                SciHorizontalApplyVertical::getTopNumber, // 使用 topName 作为键
                                 Function.identity(), // 值为原对象
                                 (existing, replacement) -> existing, // 如果有重复，保留第一个出现的对象
                                 LinkedHashMap::new // 保持插入顺序
