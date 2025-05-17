@@ -331,22 +331,48 @@
 </div>
 <script type="text/javascript">
     function submitAmount() {
-        if($("input[name='reAmount1']").val()==="")
-            return $.modal.alertError("请添加到账金额");
-        if($("input[name='accountData1']").val()==="")
-            return $.modal.alertError("请添加到账时间");
-        if($("input[name='reamountUrl1']").val()==="")
-            return $.modal.alertError("请上传到账金额文件");
+        var reAmount1 = $("input[name='reAmount1']").val();
+        var accountData1 = $("input[name='accountData1']").val();
+        var reamountUrl1 = $("input[name='reamountUrl1']").val();
 
-        if($("input[name='reAmount1']").val()!=="" && $("input[name='accountData1']").val()!=="" && $("input[name='reamountUrl1']").val()!==""){
-            $("#reAmount").val($("input[name='reAmount1']").val());
-            $("#accountData").val($("input[name='accountData1']").val());
-            $("#reamountUrl").val($("input[name='reamountUrl1']").val());
+        if (reAmount1 === "") {
+            return $.modal.alertError("请添加到账金额");
+        }
+
+        // 校验到账金额不能为负数
+        if (parseFloat(reAmount1) < 0) {
+            return $.modal.alertError("到账金额不能为负数");
+        }
+
+        // 去除前后空格并转换为字符串
+        var value = reAmount1.trim();
+
+// 判断是否是有效数字
+        if (isNaN(value)) {
+            return $.modal.alertError("请输入有效的数字");
+        }
+
+// 全由0组成（包括整数和小数形式）
+        if (/^0+(\.0+)?$/.test(value)) {
+            return $.modal.alertError("到账金额不能为零");
+        }
+
+        if (accountData1 === "") {
+            return $.modal.alertError("请添加到账时间");
+        }
+
+        if (reamountUrl1 === "") {
+            return $.modal.alertError("请上传到账金额文件");
+        }
+
+        if (reAmount1 && accountData1 && reamountUrl1) {
+            $("#reAmount").val(reAmount1);
+            $("#accountData").val(accountData1);
+            $("#reamountUrl").val(reamountUrl1);
             $("#close").click();
-        }else{
+        } else {
             return $.modal.alertError("上传信息有误");
         }
-        // $.operate.saveTab(prefix + "/Reamount");
     }
 
     $("input[name='accountData1']").datetimepicker({

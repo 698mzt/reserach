@@ -517,9 +517,9 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
     @Override
     public int amountBh(String id, String reid, Long userId, String remark, String urlFlag) {
         String state = "0";
-        if(urlFlag.equals("JYS")){
+        if(urlFlag.equals("pro")){
             state ="3";
-        }else if(urlFlag.equals("KYC")){
+        }else if(urlFlag.equals("hecha")){
             state ="5";
         }else if (urlFlag.equals("Dept")){
             state ="22";

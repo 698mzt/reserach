@@ -80,7 +80,7 @@ public class SciHorizontalApply extends BaseEntity
 
     private String persionId;
     /** 排名 */
-    @Excel(name = "排名")
+//    @Excel(name = "排名")
     private String ranking;
 
 
