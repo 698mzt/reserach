@@ -131,6 +131,8 @@ public AjaxResult uploadFile(MultipartFile file, @PathVariable("model") String m
                 System.out.println("list = " + list);
             }
             else if (roleId.contains("100") && roleId.size()==1) {
+                System.out.println("单个老师进入方法");
+                System.out.println(" sciPaperA=" + sciPaperA);
                 list.addAll(sciPaperAService.selectSciPaperAListCx(sciPaperA));
             }
 
