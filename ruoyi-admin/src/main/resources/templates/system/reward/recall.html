@@ -119,11 +119,11 @@
                         <label class="col-sm-4 control-label is-required">证书文件：</label>
                         <div class="col-sm-8">
                             <input type="hidden" name="rewardWenjian" th:field="*{rewardWenjian}" disabled>
-                            <!--                        <div class="file-loading">-->
-                            <!--                            <input class="form-control file-upload" id="rewardWenjian" name="file" type="file">-->
-                            <!--                        </div>-->
+<!--                            <div class="file-loading">-->
+<!--                                <input class="form-control file-upload" id="rewardWenjian" name="file" type="file">-->
+<!--                            </div>-->
                             <div style="display: inline-block;">
-                                <div id="rewardWenjian" style="display: inline; margin-right: 5px;"></div>
+                                <div id="rewardWenjianFileName" style="display: inline; margin-right: 5px;"></div>
                             </div>
                             <div>
                                 <button onclick="chakan()" class="btn btn-sm btn-primary color">预览</button>
@@ -295,6 +295,11 @@
             })
             $(this).fileinput('_initFileActions');
         });
+        // 页面加载时显示文件名
+        window.onload = function() {
+            // displayFileName('contract', 'contractFileName');
+            displayFileName('rewardWenjian', 'rewardWenjianFileName');
+        };
     </script>
 </body>
 </html>
