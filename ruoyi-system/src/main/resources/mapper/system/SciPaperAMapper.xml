@@ -113,7 +113,6 @@
             <if test="teacherName != null  and teacherName != ''"> and teacher_name like concat('%', #{teacherName}, '%')</if>
             <if test="college != null  and college != ''"> and pt.dept_name like concat('%', #{college}, '%')</if>
             <if test="roleName != null  and roleName != ''"> and d.dept_name like concat('%', #{roleName}, '%')</if>
-
             <if test="paperTitle != null  and paperTitle != ''"> and paper_title = #{paperTitle}</if>
             <if test="paperCategory != null  and paperCategory != ''"> and paper_category = #{paperCategory}</if>
             <if test="publishedJournal != null  and publishedJournal != ''"> and published_journal = #{publishedJournal}</if>
@@ -127,8 +126,6 @@
             <if test="researchScore != null  and researchScore != ''"> and research_score = #{researchScore}</if>
             <if test="remarks != null  and remarks != ''"> and remarks = #{remarks}</if>
             <if test="year != null  and year != ''"> and YEAR(publication_time) = #{year}</if>
-            <!--            <if test="userId != null  and userId != ''"> and p.userId=#{uid}</if>-->
-            <!--            <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>-->
         </where>
         order  by publication_time desc
     </select>
@@ -186,13 +183,7 @@
                  left join sys_dept pt on d.parent_id =pt.dept_id
                  left join sys_user_role ur on u.user_id = ur.user_id
                  left join sys_role r on r.role_id = ur.role_id
---         where p.user_id = #{uid}
-        <where>
-            p.user_id = #{uid}
-            <if test="teacherName != null  and teacherName != ''"> and teacher_name like concat('%', #{teacherName}, '%')</if>
-            <if test="college != null  and college != ''"> and pt.dept_name like concat('%', #{college}, '%')</if>
-            <if test="roleName != null  and roleName != ''"> and d.dept_name like concat('%', #{roleName}, '%')</if>
-        </where>
+         where p.user_id = #{uid}
         order  by publication_time desc
     </select>
 
@@ -230,15 +221,8 @@
     <insert id="insertSciPaperA" parameterType="SciPaperA" useGeneratedKeys="true" keyProperty="id">
         insert into sci_paper_a
         <trim prefix="(" suffix=")" suffixOverrides=",">
-          <!--  &lt;!&ndash;<if test="college != null">college,</if>
-            <if test="researchRoom != null">research_room,</if>
-            <if test="employeeId != null">employee_id,</if>-->
             <if test="userId != null">user_id,</if>
             <if test="teacherName != null">teacher_name,</if>
-        <!--<if test="administrativePosition != null">administrative_position,</if>
-            <if test="socialTitle != null">social_title,</if>
-            <if test="onCampusTitle != null">on_campus_title,</if>&ndash;&gt;
-            <if test="authorType != null">author_type,</if>-->
             <if test="paperTitle != null">paper_title,</if>
             <if test="paperCategory != null">paper_category,</if>
             <if test="publishedJournal != null">published_journal,</if>
@@ -256,15 +240,8 @@
             <if test="remarks != null">remarks,</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-          <!--  <if test="college != null">#{college},</if>
-            <if test="researchRoom != null">#{researchRoom},</if>
-            <if test="employeeId != null">#{employeeId},</if>-->
             <if test="userId != null">#{userId},</if>
             <if test="teacherName != null">#{teacherName},</if>
-            <!--<if test="administrativePosition != null">#{administrativePosition},</if>
-            <if test="socialTitle != null">#{socialTitle},</if>
-            <if test="onCampusTitle != null">#{onCampusTitle},</if>
-            <if test="authorType != null">#{authorType},</if>-->
             <if test="paperTitle != null">#{paperTitle},</if>
             <if test="paperCategory != null">#{paperCategory},</if>
             <if test="publishedJournal != null">#{publishedJournal},</if>
@@ -334,14 +311,7 @@
     <update id="updateSciPaperA" parameterType="SciPaperA">
         update sci_paper_a
         <trim prefix="SET" suffixOverrides=",">
-        <!--    <if test="college != null">college = #{college},</if>
-            <if test="researchRoom != null">research_room = #{researchRoom},</if>
-            <if test="employeeId != null">employee_id = #{employeeId},</if>-->
             <if test="teacherName != null">teacher_name = #{teacherName},</if>
-        <!--<if test="administrativePosition != null">administrative_position = #{administrativePosition},</if>
-            <if test="socialTitle != null">social_title = #{socialTitle},</if>
-            <if test="onCampusTitle != null">on_campus_title = #{onCampusTitle},</if>
-            <if test="authorType != null">author_type = #{authorType},</if>-->
             <if test="paperTitle != null">paper_title = #{paperTitle},</if>
             <if test="paperCategory != null">paper_category = #{paperCategory},</if>
             <if test="publishedJournal != null">published_journal = #{publishedJournal},</if>

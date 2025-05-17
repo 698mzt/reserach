@@ -659,7 +659,7 @@
                                 actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="viewProcess(\'' + row.id +','+row.state+ '\')"><i class=""></i>查看流程</a>');
                             }
                         } else if (row.state == 3 ||row.state == 7||row.state == 5) { //退回
-                            actions.push('<a class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan\')"><i class=""></i>查看</a>&nbsp;&nbsp;&nbsp;');
+                            actions.push('<a class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan\')"><i class=""></i>查看</a>&nbsp;');
                             if (row.userId == row.uid) {
                                 actions.push('<a class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class=""></i>更新</a><br>');
                                 actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="viewProcess(\'' + row.id +','+row.state+ '\')"><i class=""></i>查看流程</a>');

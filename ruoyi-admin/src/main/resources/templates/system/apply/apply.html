@@ -357,7 +357,7 @@
 <!--                                                </li>-->
                                                 <li>
                                                     <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search('formId0','bootstrap-table0')"><i class="fa fa-search"></i>&nbsp;搜索</a>
-                                                    <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                                                    <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset('formId0')"><i class="fa fa-refresh"></i>&nbsp;重置</a>
                                                 </li>
                                             </ul>
                                         </div>
@@ -405,7 +405,7 @@
                                                 </li>
                                                 <li>
                                                     <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search('formId1','bootstrap-table1')"><i class="fa fa-search"></i>&nbsp;搜索</a>
-                                                    <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                                                    <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset('formId1')"><i class="fa fa-refresh"></i>&nbsp;重置</a>
                                                 </li>
                                             </ul>
                                         </div>
@@ -454,7 +454,7 @@
                                                 </li>
                                                 <li>
                                                     <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search('formId2','bootstrap-table2')"><i class="fa fa-search"></i>&nbsp;搜索</a>
-                                                    <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                                                    <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset('formId2')"><i class="fa fa-refresh"></i>&nbsp;重置</a>
                                                 </li>
                                             </ul>
                                         </div>
@@ -500,7 +500,7 @@
                                                 </li>
                                                 <li>
                                                     <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search('formId3','bootstrap-table3')"><i class="fa fa-search"></i>&nbsp;搜索</a>
-                                                    <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                                                    <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset('formId3')"><i class="fa fa-refresh"></i>&nbsp;重置</a>
                                                 </li>
                                             </ul>
                                         </div>
@@ -882,36 +882,36 @@
                             }
                             if (row.dnameId == row.userdnameId || row.uid == 1) {
                                 actions.push('<a  class="' + proFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro' + '\')">批阅</a> ');
-                            }
-                            if (proFlag !== "hidden" || editFlag !== "hidden")
                                 actions.push('<br>')
+                            }
                             actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                             actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
                         }else
                         if((row.state == 3 || row.state == 5 ||row.state == 22)  ){
                             if (row.userId == row.uid){
                                 actions.push('<a   class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')">编辑&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                            }
-                            // if (row.dnameId == row.userdnameId)
-                            //     actions.push('<a  class="' + proFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000">撤回&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                            // actions.push('<a  class="' + hechaFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000">撤回&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                            // if(row.ynameId == row.userynameId)
-                            //     actions.push('<a  class="' + DeptFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000">撤回&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                            if( editFlag !== "hidden")
                                 actions.push('<br>')
+                            }
                             actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                             actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
                         }else
                         if(row.state ==  2){
+                            let hasButton = false;
                             if (row.userId == row.uid){
                                 actions.push('<a   class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.reamountTab(\'' + row.id + '\')">追加金额&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
+                                hasButton = true;
                             }
-                            if(row.ynameId == row.userynameId || row.uid == 1)
-                                actions.push('<a  class="' + DeptFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/Dept'+ '\')">学院核查&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                            if (row.dnameId == row.userdnameId || row.uid == 1)
+                            if (row.ynameId == row.userynameId || row.uid == 1) {
+                                actions.push('<a  class="' + DeptFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/Dept' + '\')">学院核查&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
+                                hasButton = true;
+                            }
+                            if (row.dnameId == row.userdnameId || row.uid == 1) {
                                 actions.push('<a  class="' + proFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000">撤回</a> ');
-                            if(proFlag !== "hidden" || DeptFlag !== "hidden" ||editFlag !== "hidden")
-                                actions.push('<br>')
+                                hasButton = true;
+                            }
+                            if (hasButton) {
+                                actions.push('<br>');
+                            }
                             actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                             actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
                         }else
@@ -919,9 +919,10 @@
                             if(row.userId == row.uid){
                                 actions.push('<a  class="' + createFlag + '" href="javascript:void(0)" onclick="$.operate.overTab(\'' + row.id +'\')">申请结项&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                             }
-                            actions.push('<a  class="' + hechaFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000">撤回&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                            if(hechaFlag !== "hidden" || createFlag !== "hidden")
+                            if(hechaFlag !== "hidden"){
+                                actions.push('<a  class="' + hechaFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000">撤回&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                                 actions.push('<br>')
+                                }
                             actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                             actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
                         }else

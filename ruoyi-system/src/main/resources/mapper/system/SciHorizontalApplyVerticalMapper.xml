@@ -276,10 +276,10 @@
                     and s.state = 66
                 </when>
                 <when test="newsql == '01'">
-                    and s.state in (1,2,3,4,5,99)
+                    and s.state in (99,1,2,3,4,5,6)
                 </when>
                 <when test="newsql == '02'">
-                    and s.state in (7,8,9,10)
+                    and s.state in (11,22,33,44,55)
                 </when>
             </choose>
         </if>

@@ -255,11 +255,11 @@
     }
     function chakan(){
         var c = $("#filing").val();
-        $.modal.openTab("查看合同" ,c );
+        window.open("查看合同" ,c );
     }
     function beian(){
         var c = $("#contract").val();
-        $.modal.openTab("查看备案表" ,c );
+        window.open("查看备案表" ,c );
     }
     function downloadFile(type){
         var c = $("#"+type).val();
