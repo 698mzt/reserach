@@ -220,18 +220,18 @@
             const dotParts = fileName.split('.'); // 按点分割
             const lastPart = dotParts[dotParts.length - 1]; // 点后的部分
 
-            fileNameSpan.textContent = `${firstPart}.${lastPart}`; // 组合并显示
+            fileNameSpan.textContent = `${firstPart}`; // 组合并显示
         } else {
             fileNameSpan.textContent = '';
         }
     }
     function chakan(){
-        var c = $("#filing").val();
-        window.open("查看合同" ,c );
+        var c = $("#filingurl").val();
+        window.open(c);
             }
     function beian(){
-        var c = $("#contract").val();
-        window.open("查看备案表" ,c );
+        var c = $("#agreeurl").val();
+        window.open(c );
     }
     function downloadFile(type){
         var c = $("#"+type).val();
