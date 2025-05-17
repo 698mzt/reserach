@@ -205,7 +205,7 @@ public class SciHorizontalApplyVerticalController extends BaseController {
     }
 
     /**
-     * 导出横向课题列表
+     * 导出纵向课题列表
      */
     @RequiresPermissions("system:apply_vertical:export")
     @Log(title = "导出纵向课题", businessType = BusinessType.EXPORT)

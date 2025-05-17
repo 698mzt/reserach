@@ -187,7 +187,7 @@ public class SciHorizontalApplyController extends BaseController
         List<SciHorizontalApply> distinctList = list.stream()
                 .collect(Collectors.collectingAndThen(
                         Collectors.toMap(
-                                SciHorizontalApply::getTopName, // 使用 topName 作为键
+                                SciHorizontalApply::getTopNumber, // 使用 topName 作为键
                                 Function.identity(), // 值为原对象
                                 (existing, replacement) -> existing, // 如果有重复，保留第一个出现的对象
                                 LinkedHashMap::new // 保持插入顺序
@@ -254,16 +254,12 @@ public class SciHorizontalApplyController extends BaseController
         List<SciHorizontalApply> list = sciHorizontalApplyService.exportSciHorizontalApplyList(sciHorizontalApply);
         List<SciHorizontalApply> newList = new ArrayList<>();
         for (SciHorizontalApply apply: list ) {
-            if (apply.getRanking().equals("1")){
-                apply.setRanking("第一");
                 if(apply.getState().equals("6")){
                     apply.setState("结项");
                 }else{
                     apply.setState("在研");
                 }
                 newList.add(apply);
-            }
-
         }
         ExcelUtil<SciHorizontalApply> util = new ExcelUtil<SciHorizontalApply>(SciHorizontalApply.class);
         return util.exportExcel(newList, "横向课题数据");
@@ -453,8 +449,8 @@ public class SciHorizontalApplyController extends BaseController
     public AjaxResult editSave(SciHorizontalApply sciHorizontalApply,SciHorizontalReamount sciHorizontalReamount)
     {
         sciHorizontalApply.setUserId(Integer.valueOf(getSysUser().getUserId().toString()));
-        if (sciHorizontalApply.getState().equals("3") || sciHorizontalApply.getState().equals("5") || sciHorizontalApply.getState().equals("22"))
-            sciHorizontalApply.setState("99");
+        if (sciHorizontalApply.getState().equals("3") || sciHorizontalApply.getState().equals("5") || sciHorizontalApply.getState().equals("22") ||  sciHorizontalApply.getState().equals("99"))
+            sciHorizontalApply.setNewsql("99");
         if (!sciHorizontalReamount.getReAmount().isEmpty())
             sciHorizontalReamountService.insertAmount(sciHorizontalReamount);
         return toAjax(sciHorizontalApplyService.updateSciHorizontalApply(sciHorizontalApply));
@@ -477,7 +473,8 @@ public class SciHorizontalApplyController extends BaseController
     @ResponseBody
     public AjaxResult overeditSave(SciHorizontalApply sciHorizontalApply)
     {
-        sciHorizontalApply.setState("99");
+        if (sciHorizontalApply.getState().equals("9") || sciHorizontalApply.getState().equals("10") || sciHorizontalApply.getState().equals("44"))
+            sciHorizontalApply.setNewsql("7");
         return toAjax(sciHorizontalApplyService.updateSciHorizontalApply(sciHorizontalApply));
     }
 
@@ -642,6 +639,7 @@ public class SciHorizontalApplyController extends BaseController
     @ResponseBody
     public AjaxResult amountBh(String id,String reid,String remark,String urlFlag)
     {
+
         return toAjax(sciHorizontalApplyService.amountBh(id,reid,getUserId(),remark,urlFlag));
     }
 
