@@ -83,10 +83,10 @@ public class SysRewardController extends BaseController
                 role="dept_teacher";
                 break;
             }
-//            else if (r.getRoleKey().equals("research")){
-//                role="research";
-//                break;
-//            }
+            else if (r.getRoleKey().equals("research")){
+                role="research";
+                break;
+            }
         }
         sysReward.setRole(role);
         List<SysReward> list = new ArrayList<>();
@@ -129,6 +129,7 @@ public class SysRewardController extends BaseController
 //                    list = sysRewardService.selectSysRewardListByOVER(sysReward);
 //                    break;
 //                case "bootstrap-table1":
+            sysReward.setUserId(getUserId());
             list = sysRewardService.selectSysRewardList(sysReward);
 //                    break;
 //                case "bootstrap-table2":
@@ -251,7 +252,6 @@ public class SysRewardController extends BaseController
         sysReward.setState(state);
         sysReward.setUserId(getSysUser().getUserId());
         int a = sysRewardService.updateSysReward(sysReward);
-
         return toAjax(a);
     }
 
