@@ -129,7 +129,7 @@ public class SysRewardController extends BaseController
 //                    list = sysRewardService.selectSysRewardListByOVER(sysReward);
 //                    break;
 //                case "bootstrap-table1":
-            sysReward.setUserId(getUserId());
+//            sysReward.setUserId(getUserId());
             list = sysRewardService.selectSysRewardList(sysReward);
 //                    break;
 //                case "bootstrap-table2":
