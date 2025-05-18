@@ -602,14 +602,14 @@
                         field: 'jifen',
                         title: '积分'
                     },
-                    {
-                        field: 'state',
-                        title: '状态',
-                        align: 'center',
-                        formatter: function(value, row, index) {
-                            return $.table.selectDictLabel(datas, value);
-                        }
-                    }  ,
+                    // {
+                    //     field: 'state',
+                    //     title: '状态',
+                    //     align: 'center',
+                    //     formatter: function(value, row, index) {
+                    //         return $.table.selectDictLabel(datas, value);
+                    //     }
+                    // }  ,
                     {
                         title: '操作',
                         align: 'center',
@@ -773,7 +773,7 @@
             });
 
             // 根据 state 设置相应的步骤颜色
-            if (state === 11 || state === 7) {
+            if([11, 3, 5, 7].includes(state)) {
                 document.getElementById('step-1').classList.add('active');
                 document.getElementById('step-1').querySelector('.status-text').classList.add('active');
                 progressBar.style.width = '0';
@@ -785,7 +785,7 @@
                 document.getElementById('step-3').classList.add('completed');
                 document.getElementById('step-3').querySelector('.status-text').classList.add('completed');
                 progressBar.style.width = '100%';
-            } else if ([1, 2, 3, 4, 5 ].includes(state)) {
+            } else if ([1, 2, 4 ].includes(state)) {
                 document.getElementById('step-1').classList.add('completed');
                 document.getElementById('step-1').querySelector('.status-text').classList.add('completed');
                 document.getElementById('step-2').classList.add('active');
