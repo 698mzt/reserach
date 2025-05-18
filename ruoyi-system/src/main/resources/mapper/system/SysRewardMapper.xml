@@ -31,8 +31,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectSysRewardList" parameterType="SysReward" resultMap="SysRewardResult">
         <include refid="selectSysRewardVo"/>
         <where>
-            (state in (1,2,3,4,5,6,7,11) and s.user_id = #{uid})
-            <if test="userId != null "> and user_id like concat('%', #{userId}, '%')</if>
+            (state in (1,2,3,4,5,6,7,11))
+            <if test="userId != null">
+                AND s.user_id = #{userId}
+            </if>
             <if test="rewardName != null  and rewardName != ''"> and reward_name like concat('%', #{rewardName}, '%')</if>
             <if test="yname != null  and yname != ''"> and yname = #{yname}</if>
             <if test="dname != null and dname != ''">
@@ -125,7 +127,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         from sys_reward s left join sys_user u on  s.user_id= u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
-        where (s.user_id = #{uid} and (s.state in (1,2,3,4,5,6,7,11))
+        where (s.state in (1,2,3,4,5,6,7))
         <!--            <if test="userId != null "> and user_id = #{userId}</if>-->
         <if test="yname != null  and yname != ''"> and yname = #{yname}</if>
         <if test="rewardName != null  and rewardName != ''"> and reward_name like concat('%', #{rewardName}, '%')</if>
@@ -134,6 +136,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <if test="state != null  and state != ''"> and state = #{state}</if>
         <if test="dname != null and dname != ''">
             AND d.dept_name = #{dname}
+        </if>
+        <if test="state != null and state != ''">
+            AND state = #{state}
         </if>
         ${params.dataScope}
         order  by state ,reward_time desc
