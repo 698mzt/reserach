@@ -114,6 +114,7 @@ public class SysRewardController extends BaseController
         }
         //学院负责人
         else if(role.equals("dept_teacher")){
+            sysReward.setParentId(getSysUser().getParentId());
             list = sysRewardService.selectSysRewardListByXUE(sysReward);
         }
 //        教研室
