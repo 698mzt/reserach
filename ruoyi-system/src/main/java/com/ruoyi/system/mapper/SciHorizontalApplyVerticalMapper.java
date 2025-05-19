@@ -82,6 +82,7 @@ public interface SciHorizontalApplyVerticalMapper {
      * @param sciHorizontalApplyVertical 纵向课题
      * @return 结果
      */
+
     public List<SciHorizontalApplyVertical> selectSciHorizontalApplyVerticalListOVER(SciHorizontalApplyVertical sciHorizontalApplyVertical);
 
     /**
