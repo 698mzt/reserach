@@ -24,6 +24,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="wenjian"    column="wenjian"    />
         <result property="createtime" column="createtime" /> <!-- 确保映射正确 -->
         <result property="year" column="year" /> <!-- 确保映射正确 -->
+        <result property="year" column="year" /> <!-- 确保映射正确 -->
+        <result  property="parentId" column="parent_id" />
 
 
 
@@ -107,7 +109,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="selectSciZhuanliruanzhuList2" parameterType="SciZhuanliruanzhu" resultMap="SciZhuanliruanzhuResult">
         <include refid="selectSciZhuanliruanzhuVo"/>
-        where (s.user_id = #{uid} or (state in (1,2,3) and d.dept_id = #{deptId}))
+        where (s.user_id = #{uid} or (state in (1,2) and d.dept_id = #{deptId}))
 
         <if test="xueyuan != null  and xueyuan != ''"> and xueyuan = #{xueyuan}</if>
 
@@ -124,7 +126,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="selectSciZhuanliruanzhuList3" parameterType="SciZhuanliruanzhu" resultMap="SciZhuanliruanzhuResult">
         <include refid="selectSciZhuanliruanzhuVo"/>
-        where  (s.user_id = #{uid} or (state in (2,4,5) and d.parent_id = #{deptId}))
+        where  (s.user_id = #{uid} or (state in (2,4) and d.parent_id = #{parentId}))
         <if test="jiaoyanshi != null  and jiaoyanshi != ''">and  d.dept_name like concat('%', #{jiaoyanshi}, '%')</if>
         <if test="xingming != null  and xingming != ''">and  u.user_name like concat('%', #{xingming}, '%')</if>
 
@@ -142,7 +144,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="selectSciZhuanliruanzhuList4" parameterType="SciZhuanliruanzhu" resultMap="SciZhuanliruanzhuResult">
         <include refid="selectSciZhuanliruanzhuVo"/>
-        where  s.user_id = #{uid} or state in (4,6,7)
+        where  s.user_id = #{uid} or state in (4,6)
         <if test="jiaoyanshi != null  and jiaoyanshi != ''">and  d.dept_name like concat('%', #{jiaoyanshi}, '%')</if>
         <if test="xingming != null  and xingming != ''">and  u.user_name like concat('%', #{xingming}, '%')</if>
         <if test="xueyuan != null  and xueyuan != ''"> and xueyuan = #{xueyuan}</if>

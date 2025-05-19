@@ -39,6 +39,26 @@ public class SysReward extends BaseEntity
     @Excel(name = "专业")
     private String  dname;
 
+    public Long getDeptId() {
+        return deptId;
+    }
+
+    public void setDeptId(Long deptId) {
+        this.deptId = deptId;
+    }
+
+    private Long deptId;
+
+    public Long getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(Long parentId) {
+        this.parentId = parentId;
+    }
+
+    private Long parentId;
+
     @Excel(name = "积分")
     private String  jifen;
 
@@ -248,18 +268,28 @@ public class SysReward extends BaseEntity
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
-            .append("id", getId())
-            .append("userId", getUserId())
-            .append("rewardName", getRewardName())
-            .append("rewardDanwei", getRewardDanwei())
-            .append("rewardLeixing", getRewardLeixing())
-            .append("rewardWenjian", getRewardWenjian())
-            .append("rewardTime", getRewardTime())
-            .append("rewardFenlei", getRewardFenlei())
-            .append("rewardDengji", getRewardDengji())
-            .append("rewardPaiming", getRewardPaiming())
-            .append("rewardJibie", getRewardJibie())
-            .toString();
+        return "SysReward{" +
+                "uid=" + uid +
+                ", id=" + id +
+                ", userId=" + userId +
+                ", userName='" + userName + '\'' +
+                ", urlFlag='" + urlFlag + '\'' +
+                ", yname='" + yname + '\'' +
+                ", dname='" + dname + '\'' +
+                ", deptId=" + deptId +
+                ", parentId=" + parentId +
+                ", jifen='" + jifen + '\'' +
+                ", rewardName='" + rewardName + '\'' +
+                ", rewardDanwei='" + rewardDanwei + '\'' +
+                ", rewardLeixing='" + rewardLeixing + '\'' +
+                ", rewardWenjian='" + rewardWenjian + '\'' +
+                ", rewardTime=" + rewardTime +
+                ", rewardFenlei='" + rewardFenlei + '\'' +
+                ", rewardDengji='" + rewardDengji + '\'' +
+                ", rewardPaiming='" + rewardPaiming + '\'' +
+                ", rewardJibie='" + rewardJibie + '\'' +
+                ", state='" + state + '\'' +
+                ", role='" + role + '\'' +
+                '}';
     }
 }
