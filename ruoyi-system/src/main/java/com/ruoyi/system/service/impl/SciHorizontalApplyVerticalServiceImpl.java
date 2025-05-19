@@ -275,6 +275,7 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
 
 
     @Override
+    @DataScope(deptAlias = "d",userAlias = "u")
     public List<SciHorizontalApplyVertical> selectSciHorizontalApplyVerticalListJX(SciHorizontalApplyVertical sciHorizontalApplyVertical) {
         List<SciHorizontalApplyVertical> list = new ArrayList<>();
         if (sciHorizontalApplyVertical.getRole().equals("research"))
@@ -290,6 +291,7 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
     }
 
     @Override
+    @DataScope(deptAlias = "d",userAlias = "u")
     public List<SciHorizontalApplyVertical> selectSciHorizontalApplyVerticalListOVER(SciHorizontalApplyVertical sciHorizontalApplyVertical) {
         return sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalListOVER(sciHorizontalApplyVertical);
 
