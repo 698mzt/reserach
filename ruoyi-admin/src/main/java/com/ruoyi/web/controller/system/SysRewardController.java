@@ -21,8 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.ruoyi.common.utils.DictUtils.getDictLabel;
@@ -48,6 +47,15 @@ public class SysRewardController extends BaseController
     @Autowired
     private ISysRewardPiyueService piyueService;
 
+    // 设置角色集合。若后期需要添加新的学院管理员角色，将其权限字符添加到集合中即可
+    private static final Set<String> TEACHER_ROLES = new HashSet<>(Arrays.asList(
+            "dept_teacher", // 软件学院管理员
+            "discuss_college", // 商学院管理员
+            "dzgc_college", // 电子工程学院管理员
+            "art_design_college", // 艺术设计学院管理员
+            "cxcy_college", // 创新创业学院管理员
+            "marxism_college" // 马克思主义学院管理员
+    ));
 
     @RequiresPermissions("system:reward:view")
     @GetMapping()
@@ -79,7 +87,7 @@ public class SysRewardController extends BaseController
                 role ="sci_tesearch";
                 break;
             }
-            else if (r.getRoleKey().equals("dept_teacher")){
+            else if (TEACHER_ROLES.contains(r.getRoleKey())){
                 role="dept_teacher";
                 break;
             }
