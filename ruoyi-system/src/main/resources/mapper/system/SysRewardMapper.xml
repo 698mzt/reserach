@@ -20,6 +20,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="jifen"    column="jifen"    />
         <result property="state"    column="state"    />
         <result  property="parentId" column="parent_id" />
+        <result  property="dname" column="dname" />
+        <result  property="yname" column="yname" />
     </resultMap>
 
     <sql id="selectSysRewardVo">
@@ -142,7 +144,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <if test="state != null and state != ''">
             AND state = #{state}
         </if>
-
+        ${params.dataScope}
         order  by state ,reward_time desc
     </select>
 
@@ -152,16 +154,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         from sys_reward s left join sys_user u on  s.user_id= u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
-        where s.user_id = #{uid} or state in (2,4)
+        where (s.user_id = #{uid} or (state in (2,4) and d.parent_id = #{parentId}))
         <!--            <if test="userId != null "> and user_id = #{userId}</if>-->
         <if test="yname != null  and yname != ''"> and yname = #{yname}</if>
         <if test="rewardName != null  and rewardName != ''"> and reward_name like concat('%', #{rewardName}, '%')</if>
         <if test="rewardTime != null "> and reward_time = #{rewardTime}</if>
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
-        <if test="dname != null and dname != ''">
-            AND d.dept_name = #{dname}
-        </if>
+        <if test="dname != null and dname != ''"> AND d.dept_name = #{dname}</if>
 
         order  by state ,reward_time desc
     </select>
