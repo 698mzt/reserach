@@ -109,7 +109,7 @@ public class SciJiaocairuanzhuController extends BaseController
         sciJiaocairuanzhu.setDeptId(getSysUser().getDeptId());
 
 //          无用了//设置部门父id，传输过去用来为查询设置部门限制，这个是为查询部门负责人时，查询出部门负责人的部门，并设置查询条件，查询出部门负责人的部门下的所有子部门，
-//        sciJiaocairuanzhu.setParentId(user.getDept().getParentId());
+          sciJiaocairuanzhu.setParentId(user.getDept().getParentId());
 //        sciJiaocairuanzhu.setParentId(getSysUser().getAncestors());
 //        System.out.println(getSysUser());
 //        System.out.println(user.getDept().getParentId());

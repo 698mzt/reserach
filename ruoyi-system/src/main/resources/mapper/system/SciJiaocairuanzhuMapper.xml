@@ -20,6 +20,9 @@
         <result property="jifen"    column="jifen"    />
         <result property="wenjian"    column="wenjian"    />
         <result property="createtime" column="createtime" />
+        <result property="year" column="year" /> <!-- 确保映射正确 -->
+        <result property="year" column="year" /> <!-- 确保映射正确 -->
+        <result  property="parentId" column="parent_id" />
 
 
 
@@ -100,7 +103,7 @@
 
     <select id="selectSciJiaocairuanzhuList2" parameterType="SciJiaocairuanzhu" resultMap="SciJiaocairuanzhuResult">
         <include refid="selectSciJiaocairuanzhuVo"/>
-        where (s.user_id = #{uid} or (state in (1,2,3) and d.dept_id = #{deptId}))
+        where (s.user_id = #{uid} or (state in (1,2) and d.dept_id = #{deptId}))
 
         <if test="xueyuan != null  and xueyuan != ''"> and xueyuan = #{xueyuan}</if>
 
@@ -117,7 +120,7 @@
 
     <select id="selectSciJiaocairuanzhuList3" parameterType="SciJiaocairuanzhu" resultMap="SciJiaocairuanzhuResult">
         <include refid="selectSciJiaocairuanzhuVo"/>
-        where  (s.user_id = #{uid} or (state in (2,4,5) and d.parent_id = #{deptId}))
+        where  (s.user_id = #{uid} or (state in (2,4) and d.dept_id = #{deptId}))
 
         <if test="jiaoyanshi != null  and jiaoyanshi != ''">and  d.dept_id = #{jiaoyanshi}</if>
 
@@ -134,7 +137,7 @@
 
     <select id="selectSciJiaocairuanzhuList4" parameterType="SciJiaocairuanzhu" resultMap="SciJiaocairuanzhuResult">
         <include refid="selectSciJiaocairuanzhuVo"/>
-        where  s.user_id = #{uid} or state in (4,6,7)
+        where  s.user_id = #{uid} or state in (4,6)
         <if test="jiaoyanshi != null  and jiaoyanshi != ''">and  d.dept_id = #{jiaoyanshi}</if>
 
         <if test="xueyuan != null  and xueyuan != ''"> and xueyuan = #{xueyuan}</if>
