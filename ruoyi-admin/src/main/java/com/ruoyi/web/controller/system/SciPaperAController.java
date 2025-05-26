@@ -222,6 +222,7 @@ public AjaxResult uploadFile(MultipartFile file, @PathVariable("model") String m
     public String detail(@PathVariable("id") Long id,@PathVariable("urlFlag") String urlFlag, ModelMap mmap)
     {
         SciPaperA sciPaperA = sciPaperAService.selectSciPaperAById(id);
+
         sciPaperA.setUrlFlag(urlFlag);
 
         System.out.println("mmap = " + mmap);

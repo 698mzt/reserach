@@ -206,7 +206,7 @@
             uploadUrl: ctx + 'common/upload/lw',
             maxFileCount: 1,
             autoReplace: true,
-            allowedFileExtensions: ["docx"],
+            allowedFileExtensions: ["docx","doc"],
             slugCallback: function(filename) {
                 if ($("input[name='paperTitle']").val()===""){
                     $(".file-uploada").fileinput('clear');

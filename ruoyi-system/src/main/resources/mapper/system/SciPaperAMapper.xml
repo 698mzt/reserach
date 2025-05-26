@@ -202,7 +202,7 @@
 
     <select id="selectSciPaperAById" parameterType="Long" resultMap="SciPaperAResult">
         <include refid="selectSciPaperAVo"/>
-        where id = #{id}
+        where id = #{id} AND r.data_scope !=3
     </select>
 
     <select id="selectAllPaperName" parameterType="SciPaperA" resultMap="SciPaperAResult">
