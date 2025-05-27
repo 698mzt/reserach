@@ -564,6 +564,7 @@
                     field: 'search_web',
                     title: '收录网站',
                     align: 'center',
+                    visible: false,
                 },
                 {
                     field: 'publicationTime',
@@ -581,25 +582,29 @@
                     field: 'isIndustryCollaborative',
                     title: '是否与行业联合发表',
                     align: 'center',
+                    visible: false,
                 },
                 {
                     field: 'isLocalCollaborative',
                     title: '是否与地方联合发表',
                     align: 'center',
+                    visible: false,
                 },
                 {
                     field: 'isInternationalCollaborative',
                     title: '是否与国际联合发表',
                     align: 'center',
+                    visible: false,
                 },
                 {
                     field: 'isCrossDiscipline',
                     title: '是否是跨学科论文',
                     align: 'center',
+                    visible: false,
                 },
                 {
                     field: 'paperRanking',
-                    title: '项目负责人',
+                    title: '作者排名',
                     formatter: function(value, row, index) {
                         console.log( $.table.selectDictLabels(QWERDates, value))
                         return $.table.selectDictLabel(QWERDates, value);
