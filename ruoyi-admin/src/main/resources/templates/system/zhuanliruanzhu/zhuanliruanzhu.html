@@ -470,7 +470,7 @@
                         <th>专业</th>
                         <th>姓名</th>
                         <th>专利名称</th>
-                        <th>类型</th>
+<!--                        <th>类型</th>-->
                         <th>获批时间</th>
                         <th>分类</th>
                         <th>负责人排名</th>
@@ -618,13 +618,13 @@
                     field: 'mingcheng',
                     title: '专利名称'
                 },
-                {
-                    field: 'leixing',
-                    title: '类型',
-                    formatter: function(value, row, index) {
-                        return $.table.selectDictLabel(leixingDatas, value);
-                    }
-                },
+                // {
+                //     field: 'leixing',
+                //     title: '类型',
+                //     formatter: function(value, row, index) {
+                //         return $.table.selectDictLabel(leixingDatas, value);
+                //     }
+                // },
                 {
                     field: 'huopishijain',
                     title: '获批时间'
