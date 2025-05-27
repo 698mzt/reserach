@@ -138,7 +138,6 @@ public AjaxResult uploadFile(MultipartFile file, @PathVariable("model") String m
 
 
         System.out.println("year = " + year);
-        System.out.println("list = " + list);
         List<Map<String,Object>> data =new ArrayList<>();
         startPage();
 
@@ -190,7 +189,7 @@ public AjaxResult uploadFile(MultipartFile file, @PathVariable("model") String m
         System.out.println("sciPaperA = " + sciPaperA);
         Long userId = getUserId();
         sciPaperA.setUserId(userId);
-        System.out.println("userId = " + sciPaperA.getUserId());
+        System.out.println("userId2 = " + sciPaperA.getUserId());
 
 
         String user_name = userService.selectUserByLoginName(getLoginName()).getUserName();
@@ -222,15 +221,10 @@ public AjaxResult uploadFile(MultipartFile file, @PathVariable("model") String m
     public String detail(@PathVariable("id") Long id,@PathVariable("urlFlag") String urlFlag, ModelMap mmap)
     {
         SciPaperA sciPaperA = sciPaperAService.selectSciPaperAById(id);
+        if (sciPaperA == null) {
+            return prefix+ "/paper";
+        }
         sciPaperA.setUrlFlag(urlFlag);
-
-        System.out.println("mmap = " + mmap);
-
-        System.out.println("sciPaperA = " + sciPaperA);
-
-//        List<SysUser> userList =  userService.selectAllUser();
-//        mmap.put("sysUsers",userList);
-
         mmap.put("sciPaperA", sciPaperA);
         return prefix + "/detail";
     }
