@@ -226,7 +226,7 @@
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
         <!--where s.state in (1,11,2,3,4,12)-->
         <!-- 数据范围过滤 -->
-        <!--${params.dataScope}-->
+        ${params.dataScope}
         or (
         s.state in (1,11,2,3,4,12)
         and
@@ -385,7 +385,7 @@
         <!--        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>-->
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
         OR (
-        s.state in (6,8,7,9,10,14)
+        s.state in (6,8,7,9,10,14,16)
         and
         (
         s.user_id = #{uid}
@@ -452,7 +452,7 @@
         <!-- 数据范围过滤 -->
         ${params.dataScope}
         OR (
-        s.state in (7,13,8,9,10,14)
+        s.state in (7,13,8,9,10,14,16)
         and
         (
         s.user_id = #{uid}

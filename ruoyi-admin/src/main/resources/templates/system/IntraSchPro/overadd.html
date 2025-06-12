@@ -204,7 +204,7 @@
                 $.modal.alertWarning("请上传备案表");
                 return;
             }
-            $.operate.saveTab(prefix + "/sch_overadd", $('#form-apply-add').serialize());
+          $.operate.saveTab(prefix + "/sch_overadd", $('#form-apply-add').serialize(),"function");
         }
     }
     $("input[name='validityDate']").datetimepicker({
