@@ -257,8 +257,15 @@
         }
     }
     function chakan(id){
-        var c = $("#"+id).val();
-        window.open(c);
+        var relativePath = $("#"+id).val();
+        if (!relativePath) {
+            alert("没有可预览的文件！");
+            return;
+        }
+        // 拼接完整 URL
+        var fullPath = window.location.origin + relativePath;
+        // 打开新窗口预览
+        window.open(fullPath, '_blank');
     }
     function downloadFile(type){
         var c = $("#"+type).val();
