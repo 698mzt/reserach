@@ -104,7 +104,7 @@ public class CommonController extends BaseController
             String fileName = FileUploadUtils.newupload(filePath, file,model);
             String url = serverConfig.getUrl() + fileName;
             AjaxResult ajax = AjaxResult.success();
-            ajax.put("url", url);
+            ajax.put("url", fileName);
             ajax.put("fileName", fileName);
             ajax.put("newFileName", FileUtils.getName(fileName));
             ajax.put("originalFilename", file.getOriginalFilename());
