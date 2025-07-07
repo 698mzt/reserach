@@ -345,6 +345,13 @@ public class SciIntraSchoolProController extends BaseController {
         return prefix + "/detail";
     }
 
+  /**
+   * 查看
+   * @param id
+   * @param urlFlag
+   * @param mmap
+   * @return
+   */
     @GetMapping("/overdetail/{id}/{urlFlag}")
     public String overdetail(@PathVariable("id") Integer id,@PathVariable("urlFlag") String urlFlag, ModelMap mmap)
     {

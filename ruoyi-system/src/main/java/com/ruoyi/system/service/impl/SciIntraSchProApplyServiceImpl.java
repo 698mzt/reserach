@@ -284,10 +284,10 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
 
         String id = String.valueOf(sciIntraSchoolPro.getId());
         if (NowState.equals("3") || NowState.equals("5") ||NowState.equals("12")){
-            sciIntraSchProApplyMapper.sch_hxPass(id,"1");
+            sciIntraSchProApplyMapper.sch_hxPass(id,"15");
         }else if (NowState.equals("9") || NowState.equals("10") ||NowState.equals("14")){
 
-            sciIntraSchProApplyMapper.sch_hxPass(id,"7");
+            sciIntraSchProApplyMapper.sch_hxPass(id,"16");
         }
         return sciIntraSchProApplyMapper.updateIntraSchoolApply(sciIntraSchoolPro);
     }

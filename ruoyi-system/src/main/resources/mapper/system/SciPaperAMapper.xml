@@ -82,7 +82,7 @@
     <select id="selectSciPaperAListKY" parameterType="SciPaperA" resultMap="SciPaperAResult">
         <include refid="selectSciPaperAVo"/>
         <where>
-            p.state in (4,8)
+            p.state in (4,8) and r.data_scope = '5'
             ${params.dataScope}
             <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
             <if test="teacherName != null  and teacherName != ''"> and teacher_name like concat('%', #{teacherName}, '%')</if>
@@ -107,7 +107,7 @@
     <select id="selectSciPaperAListXY" parameterType="SciPaperA" resultMap="SciPaperAResult">
         <include refid="selectSciPaperAVo"/>
         <where>
-            p.state in (2,4,8)
+            p.state in (2,4,8)and r.data_scope = '5'
             ${params.dataScope}
             <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
             <if test="teacherName != null  and teacherName != ''"> and teacher_name like concat('%', #{teacherName}, '%')</if>
@@ -202,7 +202,7 @@
 
     <select id="selectSciPaperAById" parameterType="Long" resultMap="SciPaperAResult">
         <include refid="selectSciPaperAVo"/>
-        where id = #{id}
+        where id = #{id} AND r.data_scope !=3
     </select>
 
     <select id="selectAllPaperName" parameterType="SciPaperA" resultMap="SciPaperAResult">

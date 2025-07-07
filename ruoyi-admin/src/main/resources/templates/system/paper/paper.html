@@ -564,6 +564,7 @@
                     field: 'search_web',
                     title: '收录网站',
                     align: 'center',
+                    visible: false,
                 },
                 {
                     field: 'publicationTime',
@@ -581,25 +582,29 @@
                     field: 'isIndustryCollaborative',
                     title: '是否与行业联合发表',
                     align: 'center',
+                    visible: false,
                 },
                 {
                     field: 'isLocalCollaborative',
                     title: '是否与地方联合发表',
                     align: 'center',
+                    visible: false,
                 },
                 {
                     field: 'isInternationalCollaborative',
                     title: '是否与国际联合发表',
                     align: 'center',
+                    visible: false,
                 },
                 {
                     field: 'isCrossDiscipline',
                     title: '是否是跨学科论文',
                     align: 'center',
+                    visible: false,
                 },
                 {
                     field: 'paperRanking',
-                    title: '项目负责人',
+                    title: '作者排名',
                     formatter: function(value, row, index) {
                         console.log( $.table.selectDictLabels(QWERDates, value))
                         return $.table.selectDictLabel(QWERDates, value);
@@ -648,7 +653,7 @@
                         }
                         if (row.state == 1) { // 待处理
                             if (row.userId == row.uid) {
-                                actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="viewProcess(\'' + row.id +','+row.state+ '\')"><i class=""></i>查看流程</a>');
+                                actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="viewProcess(\'' + row.id +','+row.state+ '\')"><i class=""></i>查看流程</a><br>');
                             }
                             actions.push('<a class="' + proFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro\')"><i class=""></i>教研室批阅</a>');
                         } else if (row.state == 2) { // 教研室通过

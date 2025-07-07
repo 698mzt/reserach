@@ -336,7 +336,7 @@
                     $(".tdiv2").show();
                 }
                 if(a == 7 ||a == 9||a == 10){
-
+                  $("#btn3").show();
                 }else if (a==8){
                     $(".tdiv1").show();
                     $("#btn1").show();
@@ -347,13 +347,14 @@
                     $("#btn4").show();
                     $("#btn3").show();
                 }
-            }else if (role_str=="research"){
+            }
+            else if (role_str=="research"){
                 //批阅记录
                 if(name.rows.length > 0){
                     $(".tdiv2").show();
                 }
                 if(a == 9 ||a == 6||a == 10){
-
+                  $("#btn3").show();
                 }else if (a==7){
                     $(".tdiv1").show();
                     $("#btn1").show();
@@ -370,8 +371,9 @@
                 if(name.rows.length > 0){
                     $(".tdiv2").show();
                 }
-
-            }else if (role_str=="dept_teacher"){
+              $("#btn3").show();
+            }
+            else if (role_str=="dept_teacher"){
 
                 if(name.rows.length > 0){
                     $(".tdiv2").show();

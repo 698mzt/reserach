@@ -33,6 +33,7 @@
         <result property="year"    column="year"    />
         <result property="overContract"    column="over_contract"    />
         <result property="overFiling"    column="over_filing"    />
+
     </resultMap>
 
 
@@ -56,6 +57,7 @@
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
 
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+        <if test="dname != null  and dname != ''"> and d.dept_name like concat('%', #{dname}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
         <!-- 数据范围过滤 -->
         <!--${params.dataScope}-->
@@ -155,6 +157,7 @@
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
 
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+        <if test="dname != null  and dname != ''"> and d.dept_name like concat('%', #{dname}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
         <!--        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>-->
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
@@ -223,7 +226,7 @@
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
         <!--where s.state in (1,11,2,3,4,12)-->
         <!-- 数据范围过滤 -->
-        <!--${params.dataScope}-->
+        ${params.dataScope}
         or (
         s.state in (1,11,2,3,4,12)
         and
@@ -376,13 +379,13 @@
 --         ,7,9,10,14
         where s.state in (6,8)
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
-
+      <if test="dname != null  and dname != ''"> and d.dept_name like concat('%', #{dname}, '%')</if>
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
         <!--        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>-->
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
         OR (
-        s.state in (6,8,7,9,10,14)
+        s.state in (6,8,7,9,10,14,16)
         and
         (
         s.user_id = #{uid}
@@ -449,7 +452,7 @@
         <!-- 数据范围过滤 -->
         ${params.dataScope}
         OR (
-        s.state in (7,13,8,9,10,14)
+        s.state in (7,13,8,9,10,14,16)
         and
         (
         s.user_id = #{uid}
@@ -654,7 +657,7 @@
         where s.state =6
         <!--            <if test="userId != null "> and user_id = #{userId}</if>-->
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
-
+      <if test="dname != null  and dname != ''"> and d.dept_name like concat('%', #{dname}, '%')</if>
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
@@ -676,7 +679,7 @@
         where s.state in (1,2,3,4,5)
         <!--            <if test="userId != null "> and user_id = #{userId}</if>-->
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
-
+      <if test="dname != null  and dname != ''"> and d.dept_name like concat('%', #{dname}, '%')</if>
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
@@ -698,7 +701,7 @@
         where s.state in (7,8,9,10)
         <!--            <if test="userId != null "> and user_id = #{userId}</if>-->
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
-
+      <if test="dname != null  and dname != ''"> and d.dept_name like concat('%', #{dname}, '%')</if>
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
@@ -723,7 +726,7 @@
         left join sys_dept p on d.parent_id =p.dept_id
         where s.state in (11,2) and d.dept_name in (SELECT dept_name from sys_dept where parent_id = (SELECT parent_id from sys_dept WHERE dept_id=(SELECT dept_id from sys_user WHERE user_id= #{uid})))
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
-
+        <if test="dname != null  and dname != ''"> and d.dept_name like concat('%', #{dname}, '%')</if>
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
         <!--        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>-->
@@ -761,7 +764,7 @@
         where s.state in (13,8) and d.dept_name in (SELECT dept_name from sys_dept where parent_id = (SELECT parent_id from sys_dept WHERE dept_id=(SELECT dept_id from sys_user WHERE user_id= #{uid})))
 
       <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
-
+      <if test="dname != null  and dname != ''"> and d.dept_name like concat('%', #{dname}, '%')</if>
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
         <!--        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>-->
@@ -816,6 +819,7 @@
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
 
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+        <if test="dname != null  and dname != ''"> and d.dept_name like concat('%', #{dname}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
         <!-- 数据范围过滤 -->
         ${params.dataScope}
