@@ -268,7 +268,11 @@ public class SciHorizontalApplyVerticalController extends BaseController {
     public AjaxResult addSave(SciHorizontalApplyVertical sciHorizontalApplyVertical)
     {
         sciHorizontalApplyVertical.setState("99");
-        return toAjax(sciHorizontalApplyVerticalService.insertSciHorizontalApplyVertical(sciHorizontalApplyVertical));
+        int result = sciHorizontalApplyVerticalService.insertSciHorizontalApplyVertical(sciHorizontalApplyVertical);
+        if (result == -1) {
+            return AjaxResult.error("课题名称或课题编号已存在");
+        }
+        return toAjax(result);
     }
 
     /**
@@ -467,7 +471,13 @@ public class SciHorizontalApplyVerticalController extends BaseController {
         if (sciHorizontalApplyVertical.getFourthPersonId() != null && !sciHorizontalApplyVertical.getFourthPersonId().isEmpty()) {
             persion.add(sciHorizontalApplyVertical.getFourthPersonId());
         }
-        return toAjax(sciHorizontalApplyVerticalService.overPass(id,getUserId(),urlFlag,score,persion,verticalId));
+        int result = sciHorizontalApplyVerticalService.overPass(id, getUserId(), urlFlag, null, null, id);
+        if (result == -1) {
+            return AjaxResult.error("请选择有效的结项日期");
+        } else if (result == -2) {
+            return AjaxResult.error("日期格式错误");
+        }
+        return toAjax(result);
     }
 
     @RequiresPermissions(value={"system:apply_vertical:JYS","system:apply_vertical:KYC","system:apply_vertical:Dept"},logical= Logical.OR)

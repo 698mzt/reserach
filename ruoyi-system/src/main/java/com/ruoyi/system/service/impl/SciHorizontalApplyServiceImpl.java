@@ -2,6 +2,7 @@ package com.ruoyi.system.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Date;
 
 import com.ruoyi.common.annotation.DataScope;
 import com.ruoyi.common.utils.StringUtils;
@@ -118,7 +119,18 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
     @Transactional
     public int insertSciHorizontalApply(SciHorizontalApply sciHorizontalApply)
     {
+        // 新增：插入前查重
+        SciHorizontalApply query = new SciHorizontalApply();
+        query.setTopName(sciHorizontalApply.getTopName());
+        query.setTopNumber(sciHorizontalApply.getTopNumber());
+        List<SciHorizontalApply> existList = sciHorizontalApplyMapper.selectSciHorizontalApplyList(query);
+        if (existList != null && !existList.isEmpty()) {
+            // 课题名称或编号已存在，返回-1
+            return -1;
+        }
         sciHorizontalApplyMapper.insertSciHorizontalApply(sciHorizontalApply);
+
+        //插入人员的排名
         Integer id = sciHorizontalApply.getId();
         SciHorizontalPersion sciHorizontalPersion = new SciHorizontalPersion();
         sciHorizontalPersion.setApplyid(id);
@@ -428,6 +440,21 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
 //     申请结项流程
     @Override
     public int overSaveSciHorizontalApply(SciHorizontalApply sciHorizontalApply) {
+        // 校验结项日期必须在立项日期后
+        String signingData = sciHorizontalApply.getSigningData();
+        String validityDate = sciHorizontalApply.getValidityDate();
+        if (signingData != null && validityDate != null) {
+            try {
+                java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd");
+                Date start = sdf.parse(signingData);
+                Date end = sdf.parse(validityDate);
+                if (!end.after(start)) {
+                    return -1;
+                }
+            } catch (Exception e) {
+                return -2;
+            }
+        }
         SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
         sciHorizontalPiyue.setUid(Long.valueOf(sciHorizontalApply.getUserId()));
         sciHorizontalPiyue.setHxktId(sciHorizontalApply.getId());

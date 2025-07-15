@@ -298,6 +298,9 @@ public class SciHorizontalApplyController extends BaseController
     public AjaxResult addSave(SciHorizontalApply sciHorizontalApply,SciHorizontalReamount sciHorizontalReamount)
     {
         Integer id = sciHorizontalApplyService.insertSciHorizontalApply(sciHorizontalApply);
+        if (id == -1) {
+            return AjaxResult.error("课题名称或课题编号已存在");
+        }
         sciHorizontalReamount.setApplyId(id.toString());
         sciHorizontalReamount.setState("99");
         return toAjax(sciHorizontalReamountService.insertAmount(sciHorizontalReamount));
@@ -350,11 +353,16 @@ public class SciHorizontalApplyController extends BaseController
         sciHorizontalReamount.setApplyId(id.toString());
         sciHorizontalReamount.setState("1");
         sciHorizontalApply.setUserId(Integer.valueOf(getSysUser().getUserId().toString()));
-        sciHorizontalApplyService.overSaveSciHorizontalApply(sciHorizontalApply);
+        int result = sciHorizontalApplyService.overSaveSciHorizontalApply(sciHorizontalApply);
+        if (result == -1) {
+            return AjaxResult.error("请选择有效的结项日期");
+        } else if (result == -2) {
+            return AjaxResult.error("日期格式错误");
+        }
         return toAjax(sciHorizontalReamountService.insertAmount(sciHorizontalReamount));
     }
 
-
+//detail 审批
     @RequiresPermissions("system:apply:info")
     @GetMapping("/detail/{id}/{urlFlag}")
     public String detail(@PathVariable("id") Integer id,@PathVariable("urlFlag") String urlFlag, ModelMap mmap)

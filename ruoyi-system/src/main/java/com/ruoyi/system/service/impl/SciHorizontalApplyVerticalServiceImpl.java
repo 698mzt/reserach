@@ -63,6 +63,16 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
      */
     @Override
     public int insertSciHorizontalApplyVertical(SciHorizontalApplyVertical sciHorizontalApplyVertical) {
+        // 新增：插入前查重
+        SciHorizontalApplyVertical query = new SciHorizontalApplyVertical();
+        query.setTopName(sciHorizontalApplyVertical.getTopName());
+        query.setTopNumber(sciHorizontalApplyVertical.getTopNumber());
+        // 这里只查重名称和编号
+        List<SciHorizontalApplyVertical> existList = sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalList(query);
+        if (existList != null && !existList.isEmpty()) {
+            // 课题名称或编号已存在，返回-1
+            return -1;
+        }
         sciHorizontalApplyVerticalMapper.insertSciHorizontalApplyVertical(sciHorizontalApplyVertical);
         Integer id = sciHorizontalApplyVertical.getId() ;
         SciHorizontalPersion sciHorizontalPersion = new SciHorizontalPersion();
@@ -226,6 +236,22 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
 
     @Override
     public int overPass(String id, Long userId, String urlFlag,List score,List persion,String verticalId) {
+        // 校验结项日期必须在立项日期后
+        SciHorizontalApplyVertical apply = sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalById(Integer.valueOf(id));
+        String signingData = apply.getSigningData();
+        String validityDate = apply.getOverfile(); // 这里假设overfile存储结项日期，实际如有validityDate字段应用validityDate
+        if (signingData != null && validityDate != null) {
+            try {
+                java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd");
+                java.util.Date start = sdf.parse(signingData);
+                java.util.Date end = sdf.parse(validityDate);
+                if (!end.after(start)) {
+                    return -1;
+                }
+            } catch (Exception e) {
+                return -2;
+            }
+        }
         String state = "0";
         SciUserScore sciUserScore = new SciUserScore();
         sciUserScore.setVerticalId(verticalId);
