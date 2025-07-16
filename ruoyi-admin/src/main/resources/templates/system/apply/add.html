@@ -201,18 +201,49 @@
                 var thirdPersonId = document.querySelector('select[name="thirdPersonId"]').value;
                 var fourthPersonId = document.querySelector('select[name="fourthPersonId"]').value;
                 var personIds = [firstPersonId, secondPersonId, thirdPersonId, fourthPersonId];
+
+
+                // 校验项目金额不能为负数
+                var projectAmount = $("input[name='amount']").val();
+                if (parseFloat(projectAmount) < 0) {
+                    return $.modal.alertError("到账金额不能为负数");
+                }
+
                 // 检查是否有重复的值
                 var uniqueIds = new Set(personIds);
                 if (uniqueIds.size !== personIds.length) {
                     alert("成员不能有重复的值");
                     return false;
                 }
+
+                // 校验课题名称、甲方、乙方不能包含特殊字符
+                var topName = $("input[name='topName']").val();
+                var partyA = $("input[name='partyA']").val();
+                var partyB = $("input[name='partyB']").val();
+                var topNumber = $("input[name='topNumber']").val();
+                var specialCharPattern = /[@#￥%&*$!]/;
+
                 if($("input[name='contract']").val()==="")
                     return $.modal.alertError("请上传合同");
                 if($("input[name='filing']").val()==="")
                     return $.modal.alertError("请上传备案表");
                 if($("input[name='reAmount']").val()==="")
                     return $.modal.alertError("请添加到账金额");
+                if (specialCharPattern.test(topName)) {
+                    return $.modal.alertError("课题名称不能包含特殊字符");
+                }
+                if (specialCharPattern.test(partyA)) {
+                    return $.modal.alertError("甲方不能包含特殊字符");
+                }
+                if (specialCharPattern.test(partyB)) {
+                    return $.modal.alertError("乙方不能包含特殊字符");
+                }
+
+                // 课题编号只能输入字母、数字和下划线，不能有中文和特殊字符
+                var topNumberPattern = /^[A-Za-z0-9_]+$/;
+                if (!topNumberPattern.test(topNumber)) {
+                    return $.modal.alertError("课题编号只能输入字母、数字和下划线，不能包含中文或特殊字符");
+                }
                 $.operate.saveTab(prefix + "/add", $('#form-apply-add').serialize());
             }
         }
@@ -356,6 +387,7 @@
         var reAmount1 = $("input[name='reAmount1']").val();
         var accountData1 = $("input[name='accountData1']").val();
         var reamountUrl1 = $("input[name='reamountUrl1']").val();
+        var projectAmount = $("input[name='amount']").val(); // 获取项目金额
 
         if (reAmount1 === "") {
             return $.modal.alertError("请添加到账金额");
@@ -364,6 +396,14 @@
         // 校验到账金额不能为负数
         if (parseFloat(reAmount1) < 0) {
             return $.modal.alertError("到账金额不能为负数");
+        }
+
+        // 校验到账金额不能大于项目金额的70%
+        if (projectAmount !== undefined && projectAmount !== "") {
+            var maxAmount = parseFloat(projectAmount) * 0.7;
+            if (parseFloat(reAmount1) > maxAmount) {
+                return $.modal.alertError("到账金额不能大于项目金额的70%");
+            }
         }
 
         // 去除前后空格并转换为字符串

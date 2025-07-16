@@ -169,7 +169,7 @@
 <script th:inline="javascript">
     var prefix = ctx + "system/apply_vertical"
     $("#form-apply-add").validate({
-        focusCleanup: true
+        focusCleanup: true,
     });
 
     function submitHandler() {
@@ -185,8 +185,38 @@
                 alert("成员不能有重复的值");
                 return false;
             }
+
+            // 校验项目金额不能为负数
+            var projectAmount = $("input[name='amount']").val();
+            if (parseFloat(projectAmount) < 0) {
+                return $.modal.alertError("到账金额不能为负数");
+            }
+
             if ($("input[name='filing']").val() === "")
                 return $.modal.alertError("请上传文件");
+
+            // 校验课题名称、甲方、乙方不能包含特殊字符
+            var topName = $("input[name='topName']").val();
+            var partyA = $("input[name='partyA']").val();
+            var partyB = $("input[name='partyB']").val();
+            var topNumber = $("input[name='topNumber']").val();
+            var specialCharPattern = /[@#￥%&*$!]/;
+
+            if (specialCharPattern.test(topName)) {
+                return $.modal.alertError("课题名称不能包含特殊字符");
+            }
+            if (specialCharPattern.test(partyA)) {
+                return $.modal.alertError("甲方不能包含特殊字符");
+            }
+            if (specialCharPattern.test(partyB)) {
+                return $.modal.alertError("乙方不能包含特殊字符");
+            }
+
+            // 课题编号只能输入字母、数字和下划线，不能有中文和特殊字符
+            var topNumberPattern = /^[A-Za-z0-9_]+$/;
+            if (!topNumberPattern.test(topNumber)) {
+                return $.modal.alertError("课题编号只能输入字母、数字和下划线，不能包含中文或特殊字符");
+            }
             $.operate.saveTab(prefix + "/add", $('#form-apply-add').serialize());
         }
     }
