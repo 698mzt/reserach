@@ -388,7 +388,7 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
             switch (tableId){
                 case "bootstrap-table0":
                     sciHorizontalApply.setNewsql("00");
-                    list = list = sciHorizontalApplyMapper.selectOtherListByUid(sciHorizontalApply);
+                    list = sciHorizontalApplyMapper.selectOtherListByUid(sciHorizontalApply);
                     break;
                 case "bootstrap-table1":
                     sciHorizontalApply.setNewsql("01");

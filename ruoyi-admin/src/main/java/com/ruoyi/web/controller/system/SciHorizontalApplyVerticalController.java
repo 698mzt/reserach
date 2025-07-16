@@ -6,7 +6,9 @@ import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.domain.entity.SysRole;
 import com.ruoyi.common.core.domain.entity.SysUser;
+import com.ruoyi.common.core.page.PageDomain;
 import com.ruoyi.common.core.page.TableDataInfo;
+import com.ruoyi.common.core.page.TableSupport;
 import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.system.domain.*;
@@ -199,8 +201,27 @@ public class SciHorizontalApplyVerticalController extends BaseController {
                 apply.setScore(count.toString());
             }
         }
-        startPage();
-        TableDataInfo data= getDataTable(distinctList);
+
+        // 获取分页参数
+        PageDomain pageDomain = TableSupport.buildPageRequest();
+        Integer pageNum = pageDomain.getPageNum();
+        Integer pageSize = pageDomain.getPageSize();
+        int total = distinctList.size();
+
+        // 计算当前页的起始和结束索引
+        int fromIndex = (pageNum - 1) * pageSize;
+        int toIndex = Math.min(pageNum * pageSize, total);
+
+        // 防止越界
+        if (fromIndex > total) {
+            distinctList = new ArrayList<>();
+        } else {
+            distinctList = distinctList.subList(fromIndex, toIndex);
+        }
+
+        // 返回分页数据
+        TableDataInfo data = getDataTable(distinctList);
+        data.setTotal(total);
         return data;
     }
 
@@ -309,6 +330,7 @@ public class SciHorizontalApplyVerticalController extends BaseController {
     @ResponseBody
     public AjaxResult overaddSave(SciHorizontalApplyVertical sciHorizontalApplyVertical)
     {
+
         sciHorizontalApplyVertical.setUserId(Integer.valueOf(getSysUser().getUserId().toString()));
         sciHorizontalApplyVertical.setState("11");
         sciHorizontalApplyVertical.setNewsql("11");

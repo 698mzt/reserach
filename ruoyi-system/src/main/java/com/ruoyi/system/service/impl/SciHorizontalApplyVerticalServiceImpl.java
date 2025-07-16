@@ -442,6 +442,29 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
         return list;
     }
 
+    /**
+     * 结项保存校验：结项日期必须在申请日期之后
+     */
+    public int overSaveSciHorizontalApplyVertical(SciHorizontalApplyVertical sciHorizontalApplyVertical) {
+        // 获取原始申请信息
+        SciHorizontalApplyVertical old = sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalById(sciHorizontalApplyVertical.getId());
+        String applyDateStr = old.getSigningData(); // 申请日期
+        String overDateStr = sciHorizontalApplyVertical.getSigningData(); // 结项日期
+        if (applyDateStr != null && overDateStr != null) {
+            try {
+                java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd");
+                java.util.Date applyDate = sdf.parse(applyDateStr);
+                java.util.Date overDate = sdf.parse(overDateStr);
+                if (!overDate.after(applyDate)) {
+                    return -1;
+                }
+            } catch (Exception e) {
+                return -2;
+            }
+        }
+        // 校验通过，执行更新
+        return sciHorizontalApplyVerticalMapper.updateSciHorizontalApplyVertical(sciHorizontalApplyVertical);
+    }
 
 
 }

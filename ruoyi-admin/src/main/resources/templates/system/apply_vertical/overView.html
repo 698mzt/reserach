@@ -252,9 +252,16 @@
     return null;
   }
 
-  function chakan(a){
-    var c = $("#"+a).val();
-    window.open(c);
+  function chakan(a) {
+    var relativePath = $("#"+a).val();
+    if (!relativePath) {
+      alert("没有可预览的文件！");
+      return;
+    }
+    // 拼接完整 URL
+    var fullPath = window.location.origin + relativePath;
+    // 打开新窗口预览
+    window.open(fullPath, '_blank');
   }
 
   function downloadFile(type){

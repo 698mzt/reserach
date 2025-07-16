@@ -6,6 +6,8 @@ import java.util.stream.Collectors;
 
 import com.ruoyi.common.core.domain.entity.SysRole;
 import com.ruoyi.common.core.domain.entity.SysUser;
+import com.ruoyi.common.core.page.PageDomain;
+import com.ruoyi.common.core.page.TableSupport;
 import com.ruoyi.system.domain.*;
 import com.ruoyi.system.mapper.SciHorizontalApplyMapper;
 import com.ruoyi.system.mapper.SciProjectScoreCfgMapper;
@@ -90,7 +92,6 @@ public class SciHorizontalApplyController extends BaseController
         sciHorizontalApply.setUid(getUserId());
         List<SysRole> roles = getSysUser().getRoles();
         String role = "";
-        label:
         for (SysRole r : roles) {
             if ("sci_tesearch".equals(r.getRoleKey())) {
                 role = "sci_tesearch";
@@ -223,8 +224,27 @@ public class SciHorizontalApplyController extends BaseController
                 apply.setScore(count.toString());
             }
         }
-        startPage();
-        TableDataInfo data= getDataTable(distinctList);
+
+        // 获取分页参数
+        PageDomain pageDomain = TableSupport.buildPageRequest();
+        Integer pageNum = pageDomain.getPageNum();
+        Integer pageSize = pageDomain.getPageSize();
+        Integer total = distinctList.size();
+
+        // 计算当前页的起始和结束索引
+        int fromIndex = (pageNum - 1) * pageSize;
+        int toIndex = Math.min(pageNum * pageSize, total);
+
+        // 防止越界
+        if (fromIndex > total) {
+            distinctList = new ArrayList<>();
+        } else {
+            distinctList = distinctList.subList(fromIndex, toIndex);
+        }
+
+        // 返回分页数据
+        TableDataInfo data = getDataTable(distinctList);
+        data.setTotal(total);
         return data;
     }
 

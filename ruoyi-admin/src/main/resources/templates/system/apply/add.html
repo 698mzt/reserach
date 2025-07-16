@@ -70,7 +70,7 @@
 
             <div class="col-xs-6">
                 <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">项目金额：</label>
+                    <label class="col-sm-4 control-label is-required">项目金额(万)：</label>
                     <div class="col-sm-8">
                         <div class="input-group ">
                             <input name="amount"  class="form-control" type="number" required>
@@ -202,11 +202,15 @@
                 var fourthPersonId = document.querySelector('select[name="fourthPersonId"]').value;
                 var personIds = [firstPersonId, secondPersonId, thirdPersonId, fourthPersonId];
 
-
                 // 校验项目金额不能为负数
                 var projectAmount = $("input[name='amount']").val();
                 if (parseFloat(projectAmount) < 0) {
                     return $.modal.alertError("到账金额不能为负数");
+                }
+
+                // 校验项目金额小数点后最多4位
+                if (!/^\d+(\.\d{1,4})?$/.test(projectAmount)) {
+                    return $.modal.alertError("项目金额小数点后最多4位");
                 }
 
                 // 检查是否有重复的值

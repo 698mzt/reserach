@@ -192,6 +192,11 @@
                 return $.modal.alertError("到账金额不能为负数");
             }
 
+            // 校验项目金额小数点后最多4位
+            if (!/^\d+(\.\d{1,4})?$/.test(projectAmount)) {
+                return $.modal.alertError("项目金额小数点后最多4位");
+            }
+
             if ($("input[name='filing']").val() === "")
                 return $.modal.alertError("请上传文件");
 
@@ -228,11 +233,6 @@
         autoclose: true
     });
 
-    $("input[name='validityDate']").datetimepicker({
-        format: "yyyy-mm-dd",
-        minView: "month",
-        autoclose: true
-    });
     $(".file-upload").fileinput({
         uploadUrl: ctx + 'common/upload/zxkt',
         maxFileCount: 1,
