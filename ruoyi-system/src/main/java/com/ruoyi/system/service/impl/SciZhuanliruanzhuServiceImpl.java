@@ -319,4 +319,12 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
         return a;
     }
 
+
+
+    @Override
+    public boolean checkExist(String mingcheng, String paiming) {
+        return sciZhuanliruanzhuMapper.checkExist(mingcheng, paiming) > 0;
+    }
+
+
 }

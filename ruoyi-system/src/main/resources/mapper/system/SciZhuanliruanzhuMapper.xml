@@ -246,4 +246,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         SET jifen = #{jifen}
         WHERE id = #{id}
     </update>
+
+    <select id="checkExist" resultType="int">
+        SELECT COUNT(*) FROM sci_zhuanliruanzhu
+        WHERE mingcheng = #{mingcheng}
+          AND paiming = #{paiming}
+    </select>
+
 </mapper>

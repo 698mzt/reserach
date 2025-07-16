@@ -15,11 +15,7 @@ import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.system.service.ISciZhuanliruanzhuService;
@@ -213,6 +209,23 @@ public class SciZhuanliruanzhuController extends BaseController
 //        List<SciZhuanliruanzhu> list = sciZhuanliruanzhuService.selectSciZhuanliruanzhuList(sciZhuanliruanzhu);
         ExcelUtil<SciZhuanliruanzhu> util = new ExcelUtil<SciZhuanliruanzhu>(SciZhuanliruanzhu.class);
         return util.exportExcel(list, "专利软著数据");
+    }
+
+
+
+    /**
+     * 检查专利名称与负责人级别是否重复
+     */
+    @RequiresPermissions("system:zhuanliruanzhu:add")
+    @PostMapping("/checkDuplicate")
+    @ResponseBody
+    public AjaxResult checkDuplicate(@RequestParam String mingcheng, @RequestParam String paiming) {
+        boolean exists = sciZhuanliruanzhuService.checkExist(mingcheng, paiming);
+        if (exists) {
+            return AjaxResult.error("该专利名称的该负责人级别已存在，不可重复添加");
+        } else {
+            return AjaxResult.success(); // code == 0
+        }
     }
 
     /**
