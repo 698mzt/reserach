@@ -165,17 +165,51 @@
             focusCleanup: true
         });
 
+        // function submitHandler() {
+        //     if ($.validate.form()) {
+        //         // 检查文件输入框的值，而不是隐藏字段
+        //         if ($("input[name='wenjian']").val() == "")
+        //             return $.modal.alertError("请上传专利文件");
+        //         $.operate.saveTab(prefix + "/add", $('#form-zhuanliruanzhu-add').serialize());
+        //         // if ($.validate.form()) {
+        //         //     $.operate.save(prefix + "/add", $('#form-zhuanliruanzhu-add').serialize());
+        //         // }
+        //     }
+        // }
         function submitHandler() {
             if ($.validate.form()) {
-                // 检查文件输入框的值，而不是隐藏字段
-                if ($("input[name='wenjian']").val() == "")
+                // 检查文件是否上传
+                if ($("input[name='wenjian']").val() == "") {
                     return $.modal.alertError("请上传专利文件");
-                $.operate.saveTab(prefix + "/add", $('#form-zhuanliruanzhu-add').serialize());
-                // if ($.validate.form()) {
-                //     $.operate.save(prefix + "/add", $('#form-zhuanliruanzhu-add').serialize());
-                // }
+                }
+
+                // 获取专利名称和负责人级别
+                const mingcheng = $("input[name='mingcheng']").val();
+                const paiming = $("select[name='paiming']").val();
+
+                // 发起异步请求验证是否存在相同记录
+                $.ajax({
+                    url: prefix + "/checkDuplicate",
+                    type: "POST",
+                    data: { mingcheng: mingcheng, paiming: paiming },
+                    async: false,
+                    success: function (res) {
+                        if (res.code !== 0) {
+                            // 如果不是 code == 0，则提示错误并阻止提交
+                            $.modal.alertWarning(res.msg);
+                        } else {
+                            // 否则正常提交
+                            $.operate.saveTab(prefix + "/add", $('#form-zhuanliruanzhu-add').serialize());
+                        }
+                    },
+                    error: function () {
+                        $.modal.alertError("系统异常，请稍后再试");
+                    }
+                });
+
             }
         }
+
 
         $("input[name='huopishijain']").datetimepicker({
             format: "yyyy-mm-dd",

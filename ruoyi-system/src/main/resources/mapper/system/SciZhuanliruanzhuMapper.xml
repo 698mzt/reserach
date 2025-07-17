@@ -42,7 +42,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <include refid="selectSciZhuanliruanzhuVo"/>
         where state in (1,2,3,4,5,6,7)
 
-
+        <if test="jiaoyanshi != null  and jiaoyanshi != ''">and  d.dept_name like concat('%', #{jiaoyanshi}, '%')</if>
+        <if test="xingming != null  and xingming != ''">and  u.user_name like concat('%', #{xingming}, '%')</if>
         <if test="mingcheng != null  and mingcheng != ''"> and mingcheng like concat('%', #{mingcheng}, '%')</if>
         <if test="huopishijain != null "> and huopishijain = #{huopishijain}</if>
         <if test="fenlei != null  and fenlei != ''"> and fenlei = #{fenlei}</if>
@@ -245,4 +246,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         SET jifen = #{jifen}
         WHERE id = #{id}
     </update>
+
+    <select id="checkExist" resultType="int">
+        SELECT COUNT(*) FROM sci_zhuanliruanzhu
+        WHERE mingcheng = #{mingcheng}
+          AND paiming = #{paiming}
+    </select>
+
 </mapper>
