@@ -125,6 +125,17 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
      */
     @Override
     public int updateSciHorizontalApplyVertical(SciHorizontalApplyVertical sciHorizontalApplyVertical) {
+        // 查重逻辑
+        SciHorizontalApplyVertical query = new SciHorizontalApplyVertical();
+        query.setTopName(sciHorizontalApplyVertical.getTopName());
+        query.setTopNumber(sciHorizontalApplyVertical.getTopNumber());
+        List<SciHorizontalApplyVertical> existList = sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalList(query);
+        // 排除自己
+        existList.removeIf(item -> item.getId().equals(sciHorizontalApplyVertical.getId()));
+        if (existList != null && !existList.isEmpty()) {
+            return -1;
+        }
+
         SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
         sciHorizontalPiyue.setUid(getSysUser().getUserId());
         sciHorizontalPiyue.setVerticalId(sciHorizontalApplyVertical.getId());
@@ -169,7 +180,6 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
             sciHorizontalPiyue.setConcate("修改");
             sciHorizontalPiyue.setState("修改");
         }
-
         sciHorizontalPiyueMapper.insertVerticalPiyue(sciHorizontalPiyue);
          return sciHorizontalApplyVerticalMapper.updateSciHorizontalApplyVertical(sciHorizontalApplyVertical);
     }

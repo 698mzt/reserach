@@ -175,8 +175,19 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
     @Override
     public int updateSciHorizontalApply(SciHorizontalApply sciHorizontalApply)
     {
-
+        // 更新：插入前查重
+        SciHorizontalApply query = new SciHorizontalApply();
+        query.setTopName(sciHorizontalApply.getTopName());
+        query.setTopNumber(sciHorizontalApply.getTopNumber());
+        List<SciHorizontalApply> existList = sciHorizontalApplyMapper.selectSciHorizontalApplyList(query);
+        // 排除自己
+        existList.removeIf(item -> item.getId().equals(query.getId()));
+        if (existList != null && !existList.isEmpty()) {
+            // 课题名称或编号已存在，返回-1
+            return -1;
+        }
         sciHorizontalApplyMapper.updateSciHorizontalApply(sciHorizontalApply);
+
         Integer id = sciHorizontalApply.getId();
         SciHorizontalPersion sciHorizontalPersion = new SciHorizontalPersion();
         sciHorizontalPersion.setApplyid(id);

@@ -361,7 +361,11 @@ public class SciHorizontalApplyVerticalController extends BaseController {
     public AjaxResult editSave(SciHorizontalApplyVertical sciHorizontalApplyVertical)
     {
         sciHorizontalApplyVertical.setNewsql("111");
-        return toAjax(sciHorizontalApplyVerticalService.updateSciHorizontalApplyVertical(sciHorizontalApplyVertical));
+        int result = sciHorizontalApplyVerticalService.updateSciHorizontalApplyVertical(sciHorizontalApplyVertical);
+        if (result == -1) {
+            return AjaxResult.error("课题名称或课题编号已存在");
+        }
+        return toAjax(result);
     }
 
     /**

@@ -480,11 +480,15 @@ public class SciHorizontalApplyController extends BaseController
         sciHorizontalApply.setUserId(Integer.valueOf(getSysUser().getUserId().toString()));
         if (sciHorizontalApply.getState().equals("3") || sciHorizontalApply.getState().equals("5") || sciHorizontalApply.getState().equals("22") ||  sciHorizontalApply.getState().equals("99")){
             sciHorizontalApply.setNewsql("99");
-            sciHorizontalApply.setState("1");
+            sciHorizontalApply.setState("99");
         }
         if (!sciHorizontalReamount.getReAmount().isEmpty())
             sciHorizontalReamountService.insertAmount(sciHorizontalReamount);
-        return toAjax(sciHorizontalApplyService.updateSciHorizontalApply(sciHorizontalApply));
+        int id = sciHorizontalApplyService.updateSciHorizontalApply(sciHorizontalApply);
+        if (id == -1) {
+            return AjaxResult.error("课题名称或课题编号已存在");
+        }
+        return toAjax(id);
     }
 
     @RequiresPermissions("system:apply:edit")

@@ -29,7 +29,7 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">课题编号：</label>
                     <div class="col-sm-8">
-                        <input name="topNumber" class="form-control" type="text" required>
+                        <input name="topNumber" class="form-control" type="text" required  maxlength="20">
                     </div>
                 </div>
             </div>
@@ -47,7 +47,7 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">课题名称：</label>
                     <div class="col-sm-8">
-                        <input name="topName" class="form-control" type="text" required>
+                        <input name="topName" class="form-control" type="text" required  maxlength="20">
                     </div>
                 </div>
             </div>
@@ -55,7 +55,7 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">甲方：</label>
                     <div class="col-sm-8">
-                        <input name="partyA" class="form-control" type="text" required>
+                        <input name="partyA" class="form-control" type="text" required  maxlength="20">
                     </div>
                 </div>
             </div>
@@ -63,7 +63,7 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">乙方：</label>
                     <div class="col-sm-8">
-                        <input name="partyB" class="form-control" type="text" required>
+                        <input name="partyB" class="form-control" type="text" required  maxlength="20">
                     </div>
                 </div>
             </div>
@@ -204,8 +204,8 @@
 
                 // 校验项目金额不能为负数
                 var projectAmount = $("input[name='amount']").val();
-                if (parseFloat(projectAmount) < 0) {
-                    return $.modal.alertError("到账金额不能为负数");
+                if (parseFloat(projectAmount) <= 0) {
+                    return $.modal.alertError("请输入有效的项目金额");
                 }
 
                 // 校验项目金额小数点后最多4位
@@ -220,6 +220,13 @@
                     return false;
                 }
 
+                if($("input[name='contract']").val()==="")
+                    return $.modal.alertError("请上传合同");
+                if($("input[name='filing']").val()==="")
+                    return $.modal.alertError("请上传备案表");
+                if($("input[name='reAmount']").val()==="")
+                    return $.modal.alertError("请添加到账金额");
+
                 // 校验课题名称、甲方、乙方不能包含特殊字符
                 var topName = $("input[name='topName']").val();
                 var partyA = $("input[name='partyA']").val();
@@ -227,20 +234,26 @@
                 var topNumber = $("input[name='topNumber']").val();
                 var specialCharPattern = /[@#￥%&*$!]/;
 
-                if($("input[name='contract']").val()==="")
-                    return $.modal.alertError("请上传合同");
-                if($("input[name='filing']").val()==="")
-                    return $.modal.alertError("请上传备案表");
-                if($("input[name='reAmount']").val()==="")
-                    return $.modal.alertError("请添加到账金额");
                 if (specialCharPattern.test(topName)) {
                     return $.modal.alertError("课题名称不能包含特殊字符");
+                }
+                if (topName === "") {
+                    return $.modal.alertError("课题名称不能为空或纯空格");
                 }
                 if (specialCharPattern.test(partyA)) {
                     return $.modal.alertError("甲方不能包含特殊字符");
                 }
                 if (specialCharPattern.test(partyB)) {
                     return $.modal.alertError("乙方不能包含特殊字符");
+                }
+                if (topName.length > 20) {
+                    return $.modal.alertError("课题名称不能超过20个字符");
+                }
+                if (partyA && partyA.length > 20) {
+                    return $.modal.alertError("甲方不能超过20个字符");
+                }
+                if (partyB && partyB.length > 20) {
+                    return $.modal.alertError("乙方不能超过20个字符");
                 }
 
                 // 课题编号只能输入字母、数字和下划线，不能有中文和特殊字符
@@ -413,12 +426,12 @@
         // 去除前后空格并转换为字符串
         var value = reAmount1.trim();
 
-// 判断是否是有效数字
+        // 判断是否是有效数字
         if (isNaN(value)) {
             return $.modal.alertError("请输入有效的数字");
         }
 
-// 全由0组成（包括整数和小数形式）
+        // 全由0组成（包括整数和小数形式）
         if (/^0+(\.0+)?$/.test(value)) {
             return $.modal.alertError("到账金额不能为零");
         }
