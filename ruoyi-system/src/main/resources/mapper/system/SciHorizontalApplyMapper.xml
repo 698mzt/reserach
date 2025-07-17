@@ -63,6 +63,9 @@
                 </when>
             </choose>
         </if>
+        <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
+        <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+        <if  test="dname != null  and dname != ''"> and d.dept_name like concat('%', #{dname}, '%')</if>
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
         order  by createtime desc
     </select>
@@ -71,9 +74,10 @@
     <select id="selectSciHorizontalApplyList" parameterType="SciHorizontalApply" resultMap="SciHorizontalApplyResult" >
         <include refid="selectSciHorizontalApplyVo"/>
         where state in (1,2,3,4,5,11,22,99)
-        <!--            <if test="userId != null "> and user_id = #{userId}</if>-->
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
+        <if test="topNumber != null  and topNumber != ''"> or top_number = #{topNumber}</if>
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+        <if  test="dname != null  and dname != ''"> and d.dept_name like concat('%', #{dname}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
         <!-- 数据范围过滤 -->
@@ -165,8 +169,8 @@
         where s.state in(7,8,9,10,33,44)
         <!--            <if test="userId != null "> and user_id = #{userId}</if>-->
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
-
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+        <if  test="dname != null  and dname != ''"> and d.dept_name like concat('%', #{dname}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
         ${params.dataScope}
@@ -184,6 +188,7 @@
         <!--            <if test="userId != null "> and user_id = #{userId}</if>-->
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+        <if  test="dname != null  and dname != ''"> and d.dept_name like concat('%', #{dname}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
         ${params.dataScope}

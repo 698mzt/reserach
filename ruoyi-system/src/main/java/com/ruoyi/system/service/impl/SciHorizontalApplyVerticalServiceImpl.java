@@ -63,6 +63,16 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
      */
     @Override
     public int insertSciHorizontalApplyVertical(SciHorizontalApplyVertical sciHorizontalApplyVertical) {
+        // 新增：插入前查重
+        SciHorizontalApplyVertical query = new SciHorizontalApplyVertical();
+        query.setTopName(sciHorizontalApplyVertical.getTopName());
+        query.setTopNumber(sciHorizontalApplyVertical.getTopNumber());
+        // 这里只查重名称和编号
+        List<SciHorizontalApplyVertical> existList = sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalList(query);
+        if (existList != null && !existList.isEmpty()) {
+            // 课题名称或编号已存在，返回-1
+            return -1;
+        }
         sciHorizontalApplyVerticalMapper.insertSciHorizontalApplyVertical(sciHorizontalApplyVertical);
         Integer id = sciHorizontalApplyVertical.getId() ;
         SciHorizontalPersion sciHorizontalPersion = new SciHorizontalPersion();
@@ -115,6 +125,17 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
      */
     @Override
     public int updateSciHorizontalApplyVertical(SciHorizontalApplyVertical sciHorizontalApplyVertical) {
+        // 查重逻辑
+        SciHorizontalApplyVertical query = new SciHorizontalApplyVertical();
+        query.setTopName(sciHorizontalApplyVertical.getTopName());
+        query.setTopNumber(sciHorizontalApplyVertical.getTopNumber());
+        List<SciHorizontalApplyVertical> existList = sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalList(query);
+        // 排除自己
+        existList.removeIf(item -> item.getId().equals(sciHorizontalApplyVertical.getId()));
+        if (existList != null && !existList.isEmpty()) {
+            return -1;
+        }
+
         SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
         sciHorizontalPiyue.setUid(getSysUser().getUserId());
         sciHorizontalPiyue.setVerticalId(sciHorizontalApplyVertical.getId());
@@ -159,7 +180,6 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
             sciHorizontalPiyue.setConcate("修改");
             sciHorizontalPiyue.setState("修改");
         }
-
         sciHorizontalPiyueMapper.insertVerticalPiyue(sciHorizontalPiyue);
          return sciHorizontalApplyVerticalMapper.updateSciHorizontalApplyVertical(sciHorizontalApplyVertical);
     }
@@ -226,6 +246,22 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
 
     @Override
     public int overPass(String id, Long userId, String urlFlag,List score,List persion,String verticalId) {
+        // 校验结项日期必须在立项日期后
+        SciHorizontalApplyVertical apply = sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalById(Integer.valueOf(id));
+        String signingData = apply.getSigningData();
+        String validityDate = apply.getOverfile(); // 这里假设overfile存储结项日期，实际如有validityDate字段应用validityDate
+        if (signingData != null && validityDate != null) {
+            try {
+                java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd");
+                java.util.Date start = sdf.parse(signingData);
+                java.util.Date end = sdf.parse(validityDate);
+                if (!end.after(start)) {
+                    return -1;
+                }
+            } catch (Exception e) {
+                return -2;
+            }
+        }
         String state = "0";
         SciUserScore sciUserScore = new SciUserScore();
         sciUserScore.setVerticalId(verticalId);
@@ -416,6 +452,29 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
         return list;
     }
 
+    /**
+     * 结项保存校验：结项日期必须在申请日期之后
+     */
+    public int overSaveSciHorizontalApplyVertical(SciHorizontalApplyVertical sciHorizontalApplyVertical) {
+        // 获取原始申请信息
+        SciHorizontalApplyVertical old = sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalById(sciHorizontalApplyVertical.getId());
+        String applyDateStr = old.getSigningData(); // 申请日期
+        String overDateStr = sciHorizontalApplyVertical.getSigningData(); // 结项日期
+        if (applyDateStr != null && overDateStr != null) {
+            try {
+                java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd");
+                java.util.Date applyDate = sdf.parse(applyDateStr);
+                java.util.Date overDate = sdf.parse(overDateStr);
+                if (!overDate.after(applyDate)) {
+                    return -1;
+                }
+            } catch (Exception e) {
+                return -2;
+            }
+        }
+        // 校验通过，执行更新
+        return sciHorizontalApplyVerticalMapper.updateSciHorizontalApplyVertical(sciHorizontalApplyVertical);
+    }
 
 
 }

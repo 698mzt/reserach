@@ -29,7 +29,7 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">课题编号：</label>
                     <div class="col-sm-8">
-                        <input name="topNumber" class="form-control" type="text" required>
+                        <input name="topNumber" class="form-control" type="text" required  maxlength="20">
                     </div>
                 </div>
             </div>
@@ -47,7 +47,7 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">课题名称：</label>
                     <div class="col-sm-8">
-                        <input name="topName" class="form-control" type="text" required>
+                        <input name="topName" class="form-control" type="text" required  maxlength="20">
                     </div>
                 </div>
             </div>
@@ -55,7 +55,7 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">甲方：</label>
                     <div class="col-sm-8">
-                        <input name="partyA" class="form-control" type="text" required>
+                        <input name="partyA" class="form-control" type="text" required  maxlength="20">
                     </div>
                 </div>
             </div>
@@ -63,14 +63,14 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">乙方：</label>
                     <div class="col-sm-8">
-                        <input name="partyB" class="form-control" type="text" required>
+                        <input name="partyB" class="form-control" type="text" required  maxlength="20">
                     </div>
                 </div>
             </div>
 
             <div class="col-xs-6">
                 <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">项目金额：</label>
+                    <label class="col-sm-4 control-label is-required">项目金额(万)：</label>
                     <div class="col-sm-8">
                         <div class="input-group ">
                             <input name="amount"  class="form-control" type="number" required>
@@ -201,18 +201,66 @@
                 var thirdPersonId = document.querySelector('select[name="thirdPersonId"]').value;
                 var fourthPersonId = document.querySelector('select[name="fourthPersonId"]').value;
                 var personIds = [firstPersonId, secondPersonId, thirdPersonId, fourthPersonId];
+
+                // 校验项目金额不能为负数
+                var projectAmount = $("input[name='amount']").val();
+                if (parseFloat(projectAmount) <= 0) {
+                    return $.modal.alertError("请输入有效的项目金额");
+                }
+
+                // 校验项目金额小数点后最多4位
+                if (!/^\d+(\.\d{1,4})?$/.test(projectAmount)) {
+                    return $.modal.alertError("项目金额小数点后最多4位");
+                }
+
                 // 检查是否有重复的值
                 var uniqueIds = new Set(personIds);
                 if (uniqueIds.size !== personIds.length) {
                     alert("成员不能有重复的值");
                     return false;
                 }
+
                 if($("input[name='contract']").val()==="")
                     return $.modal.alertError("请上传合同");
                 if($("input[name='filing']").val()==="")
                     return $.modal.alertError("请上传备案表");
                 if($("input[name='reAmount']").val()==="")
                     return $.modal.alertError("请添加到账金额");
+
+                // 校验课题名称、甲方、乙方不能包含特殊字符
+                var topName = $("input[name='topName']").val();
+                var partyA = $("input[name='partyA']").val();
+                var partyB = $("input[name='partyB']").val();
+                var topNumber = $("input[name='topNumber']").val();
+                var specialCharPattern = /[@#￥%&*$!]/;
+
+                if (specialCharPattern.test(topName)) {
+                    return $.modal.alertError("课题名称不能包含特殊字符");
+                }
+                if (topName === "") {
+                    return $.modal.alertError("课题名称不能为空或纯空格");
+                }
+                if (specialCharPattern.test(partyA)) {
+                    return $.modal.alertError("甲方不能包含特殊字符");
+                }
+                if (specialCharPattern.test(partyB)) {
+                    return $.modal.alertError("乙方不能包含特殊字符");
+                }
+                if (topName.length > 20) {
+                    return $.modal.alertError("课题名称不能超过20个字符");
+                }
+                if (partyA && partyA.length > 20) {
+                    return $.modal.alertError("甲方不能超过20个字符");
+                }
+                if (partyB && partyB.length > 20) {
+                    return $.modal.alertError("乙方不能超过20个字符");
+                }
+
+                // 课题编号只能输入字母、数字和下划线，不能有中文和特殊字符
+                var topNumberPattern = /^[A-Za-z0-9_]+$/;
+                if (!topNumberPattern.test(topNumber)) {
+                    return $.modal.alertError("课题编号只能输入字母、数字和下划线，不能包含中文或特殊字符");
+                }
                 $.operate.saveTab(prefix + "/add", $('#form-apply-add').serialize());
             }
         }
@@ -356,6 +404,7 @@
         var reAmount1 = $("input[name='reAmount1']").val();
         var accountData1 = $("input[name='accountData1']").val();
         var reamountUrl1 = $("input[name='reamountUrl1']").val();
+        var projectAmount = $("input[name='amount']").val(); // 获取项目金额
 
         if (reAmount1 === "") {
             return $.modal.alertError("请添加到账金额");
@@ -366,15 +415,23 @@
             return $.modal.alertError("到账金额不能为负数");
         }
 
+        // 校验到账金额不能大于项目金额的70%
+        if (projectAmount !== undefined && projectAmount !== "") {
+            var maxAmount = parseFloat(projectAmount) * 0.7;
+            if (parseFloat(reAmount1) > maxAmount) {
+                return $.modal.alertError("到账金额不能大于项目金额的70%");
+            }
+        }
+
         // 去除前后空格并转换为字符串
         var value = reAmount1.trim();
 
-// 判断是否是有效数字
+        // 判断是否是有效数字
         if (isNaN(value)) {
             return $.modal.alertError("请输入有效的数字");
         }
 
-// 全由0组成（包括整数和小数形式）
+        // 全由0组成（包括整数和小数形式）
         if (/^0+(\.0+)?$/.test(value)) {
             return $.modal.alertError("到账金额不能为零");
         }
