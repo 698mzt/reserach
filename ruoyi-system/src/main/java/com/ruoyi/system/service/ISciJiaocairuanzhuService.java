@@ -91,5 +91,11 @@ public interface ISciJiaocairuanzhuService
 //    int hxoverBh(String id, Long userId, String remark, String urlFlag);
 
 //    int collegeAudit(String id, Long userId, String urlFlag);
-
+    /**
+     * 检查是否已存在相同专利名称和负责人级别
+     * @param mingcheng 专利名称
+     * @param paiming 负责人级别
+     * @return 是否存在
+     */
+    boolean checkExist(String mingcheng, String paiming);
 }

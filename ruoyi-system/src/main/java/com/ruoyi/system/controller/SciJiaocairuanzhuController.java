@@ -16,11 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.system.service.ISciJiaocairuanzhuService;
@@ -208,6 +204,17 @@ public class SciJiaocairuanzhuController extends BaseController
     /**
      * 新增教材软著
      */
+    @RequiresPermissions("system:jiaocairuanzhu:add")
+    @PostMapping("/checkDuplicate")
+    @ResponseBody
+    public AjaxResult checkDuplicate(@RequestParam String mingcheng, @RequestParam String paiming) {
+        boolean exists = sciJiaocairuanzhuService.checkExist(mingcheng, paiming);
+        if (exists) {
+            return AjaxResult.error("该教材软著名称的该负责人级别已存在，不可重复添加");
+        } else {
+            return AjaxResult.success(); // code == 0
+        }
+    }
 
     //get请求一般是加载表单页面，而不是处理表单提交
     @GetMapping("/add")
