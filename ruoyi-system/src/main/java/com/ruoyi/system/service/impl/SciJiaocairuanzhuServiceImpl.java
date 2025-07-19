@@ -214,7 +214,7 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService
             sciJiaocairuanzhuPiyue.setState("提交");
             sciJiaocairuanzhuPiyueMapper.insertSciJiaocairuanzhuPiyue(sciJiaocairuanzhuPiyue);
         }
-       else if (urlFlag.equals("pro") || urlFlag.equals("hecha") || urlFlag.equals("chayue")) {
+       else if (urlFlag.equals("pro") || urlFlag.equals("hecha") || urlFlag.equals("chayue")){
 
             SciJiaocairuanzhuPiyue sciJiaocairuanzhuPiyue = new SciJiaocairuanzhuPiyue();
             sciJiaocairuanzhuPiyue.setUid(uid);
@@ -313,6 +313,10 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService
         sciJiaocairuanzhuPiyue.setState("撤回上一条操作");
         sciJiaocairuanzhuPiyueMapper.insertSciJiaocairuanzhuPiyue(sciJiaocairuanzhuPiyue);
         return a;
+    }
+    @Override
+    public boolean checkExist(String mingcheng, String paiming) {
+        return sciJiaocairuanzhuMapper.checkExist(mingcheng, paiming) > 0;
     }
 
 }

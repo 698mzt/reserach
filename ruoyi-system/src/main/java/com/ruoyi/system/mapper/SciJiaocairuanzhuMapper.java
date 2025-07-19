@@ -89,5 +89,9 @@ public interface SciJiaocairuanzhuMapper
     public List<SciJiaocairuanzhu> selectSciJiaocairuanzhuList1(SciJiaocairuanzhu sciJiaocairuanzhu);
     public List<SciJiaocairuanzhu> selectSciJiaocairuanzhuList31(SciJiaocairuanzhu sciJiaocairuanzhu);
     public List<SciJiaocairuanzhu> selectSciJiaocairuanzhuList21(SciJiaocairuanzhu sciJiaocairuanzhu);
+    /**
+     * 查询是否存在相同专利名称和负责人级别
+     */
+    int checkExist(@Param("mingcheng") String mingcheng, @Param("paiming") String paiming);
 
 }
