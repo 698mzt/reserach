@@ -63,34 +63,30 @@ public class SciPaperAController extends BaseController
 
     @RequiresPermissions("system:paper:view")
     @GetMapping()
-    public String paper()
-    {
+    public String paper() {
         return prefix + "/paper";
     }
 
-@PostMapping("/upload/{model}")
-@ResponseBody
-public AjaxResult uploadFile(MultipartFile file, @PathVariable("model") String model) throws Exception{
-    try
-    {
-        // 上传文件路径
-        String filePath = RuoYiConfig.getUploadPath() ;
-        // 上传并返回新文件名称
+    @PostMapping("/upload/{model}")
+    @ResponseBody
+    public AjaxResult uploadFile(MultipartFile file, @PathVariable("model") String model) throws Exception {
+        try {
+            // 上传文件路径
+            String filePath = RuoYiConfig.getUploadPath();
+            // 上传并返回新文件名称
 //            String fileName = FileUploadUtils.upload(filePath, file);
-        String fileName = FileUploadUtils.newupload(filePath, file,model);
-        String url = serverConfig.getUrl() + fileName;
-        AjaxResult ajax = AjaxResult.success();
-        ajax.put("url", url);
-        ajax.put("fileName", fileName);
-        ajax.put("newFileName", FileUtils.getName(fileName));
-        ajax.put("originalFilename", file.getOriginalFilename());
-        return ajax;
+            String fileName = FileUploadUtils.newupload(filePath, file, model);
+            String url = serverConfig.getUrl() + fileName;
+            AjaxResult ajax = AjaxResult.success();
+            ajax.put("url", url);
+            ajax.put("fileName", fileName);
+            ajax.put("newFileName", FileUtils.getName(fileName));
+            ajax.put("originalFilename", file.getOriginalFilename());
+            return ajax;
+        } catch (Exception e) {
+            return AjaxResult.error(e.getMessage());
+        }
     }
-    catch (Exception e)
-    {
-        return AjaxResult.error(e.getMessage());
-    }
-}
 
     /**
      * 查询论文列表
@@ -186,6 +182,15 @@ public AjaxResult uploadFile(MultipartFile file, @PathVariable("model") String m
     @ResponseBody
     public AjaxResult addSave(SciPaperA sciPaperA)
     {
+        try {
+            SciPaperA Paper = new SciPaperA();
+            Paper.setPaperTitle(sciPaperA.getPaperTitle());
+
+        }catch (Exception e){
+            return error(e.getMessage());
+        }
+
+
         System.out.println("sciPaperA = " + sciPaperA);
         Long userId = getUserId();
         sciPaperA.setUserId(userId);

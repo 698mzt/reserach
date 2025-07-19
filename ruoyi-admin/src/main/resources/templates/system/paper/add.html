@@ -167,6 +167,9 @@
         });
 
         function submitHandler() {
+            if (row.uid === 1 ){
+                alert("系统管理员添加论文不显示")
+            }
             if ($.validate.form()) {
                 if($("input[name='text_paper']").val()=="")
                     return $.modal.alertError("请上传论文收录通知");
