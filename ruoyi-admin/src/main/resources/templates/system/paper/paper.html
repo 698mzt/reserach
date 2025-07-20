@@ -705,17 +705,19 @@
 
     </script>
      <script>
-         function pushTh(id){
-             var url = prefix + "/tj/" + id;
-             //$.operate.saveTab(url, id)
-             $.ajax({
-                 url: prefix + "/tj/" + id,
-                 type: "post",
-                 success: function (data) {
-                     //alert("提交成功")
-                     $("#bootstrap-table").bootstrapTable('refresh');
-                }
-             })
+         function pushTh(id) {
+             $.modal.confirm("确认要提交吗?", function () {
+                 var url = prefix + "/tj/" + id;
+                 //$.operate.saveTab(url, id)
+                 $.ajax({
+                     url: prefix + "/tj/" + id,
+                     type: "post",
+                     success: function (data) {
+                         //alert("提交成功")
+                         $("#bootstrap-table").bootstrapTable('refresh');
+                     }
+                 })
+             });
          }
 
          function viewProcess(kidd) {
@@ -766,13 +768,13 @@
                  console.log("state$:"+state)
 
                  switch (state) { // 根据 state 更新状态
-                     case "1":
+
                      case "3":
                      case "5":
                          // 当前步骤为 step-1
                          highlightStep(0); // 高亮第一个步骤
                          break;
-
+                     case "1":
                      case "2":
                      case "4":
                      case "6":
