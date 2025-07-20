@@ -164,12 +164,15 @@ public class SciPaperAController extends BaseController
         SysUser sysUser=null;
         Long user_id = getUserId();
         for (int a = 0; a<userList.size();a++) {
-            if(userList.get(a).getUserId() == user_id){
+            if(userList.get(a).getUserId().equals(user_id)){
                 sysUser=userList.get(a);
                 break;
             }
         }
         mmap.put("user",sysUser);
+        if (sysUser != null) {
+            mmap.addAttribute("user",sysUser.getUserId());
+        }
         return prefix + "/add";
     }
 
