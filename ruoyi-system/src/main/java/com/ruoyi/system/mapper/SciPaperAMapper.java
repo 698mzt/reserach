@@ -88,4 +88,6 @@ public interface SciPaperAMapper {
     List<SciPaperA> selectAllPaperName(String query);
 
     List<SciPaperA> selectSciPaperAListCxList(SciPaperA sciPaperA);
+
+    Integer selectSciPaperA(SciPaperA paper);
 }
