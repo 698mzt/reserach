@@ -2,6 +2,8 @@ package com.ruoyi.system.service;
 
 import java.util.Collection;
 import java.util.List;
+
+import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.system.domain.SciPaperA;
 import com.ruoyi.system.domain.SciPaperAr;
 
@@ -80,4 +82,6 @@ public interface ISciPaperAService
     List<SciPaperA> selectAllPaperName(String query);
 
     public List<SciPaperA> selectSciPaperAListCxList(SciPaperA sciPaperA);
+
+    public Integer selectSciPaperA(SciPaperA paper);
 }

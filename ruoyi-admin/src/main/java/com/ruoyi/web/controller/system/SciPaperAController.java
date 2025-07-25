@@ -109,8 +109,6 @@ public class SciPaperAController extends BaseController
             //教研室与普通老师
             if (roleId.contains("102") && roleId.contains("100")){
                 list.addAll(sciPaperAService.selectSciPaperAListCxList(sciPaperA));
-                System.out.println("list1 = " + list);
-                //list.addAll(sciPaperAService.selectSciPaperAListCx(sciPaperA));
             }
             //教研室
             else  if (roleId.contains("102")) {
@@ -164,12 +162,15 @@ public class SciPaperAController extends BaseController
         SysUser sysUser=null;
         Long user_id = getUserId();
         for (int a = 0; a<userList.size();a++) {
-            if(userList.get(a).getUserId() == user_id){
+            if(userList.get(a).getUserId().equals(user_id)){
                 sysUser=userList.get(a);
                 break;
             }
         }
         mmap.put("user",sysUser);
+        if (sysUser != null) {
+            mmap.addAttribute("user",sysUser.getUserId());
+        }
         return prefix + "/add";
     }
 
@@ -183,26 +184,20 @@ public class SciPaperAController extends BaseController
     public AjaxResult addSave(SciPaperA sciPaperA)
     {
         try {
-            SciPaperA Paper = new SciPaperA();
-            Paper.setPaperTitle(sciPaperA.getPaperTitle());
+            if ( sciPaperAService.selectSciPaperA(sciPaperA)!=0){
+                return error("该论文已存在");
+            }else {
+                Long userId = getUserId();
+                sciPaperA.setUserId(userId);
+                String user_name = userService.selectUserByLoginName(getLoginName()).getUserName();
+                sciPaperA.setTeacherName(user_name);
+                sciPaperA.setState("99");
+                return toAjax(sciPaperAService.insertSciPaperA(sciPaperA));
+            }
 
         }catch (Exception e){
             return error(e.getMessage());
         }
-
-
-        System.out.println("sciPaperA = " + sciPaperA);
-        Long userId = getUserId();
-        sciPaperA.setUserId(userId);
-        System.out.println("userId2 = " + sciPaperA.getUserId());
-
-
-        String user_name = userService.selectUserByLoginName(getLoginName()).getUserName();
-        sciPaperA.setTeacherName(user_name);
-
-        System.out.println("sciPaperA = " + sciPaperA);
-        sciPaperA.setState("99");
-        return toAjax(sciPaperAService.insertSciPaperA(sciPaperA));
     }
 
     /**

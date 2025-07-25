@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh" xmlns:th="http://www.thymeleaf.org" >
 <head>
+    <script th:src="@{/js/jquery.min.js}"></script>
     <th:block th:include="include :: header('新增论文')" />
     <th:block th:include="include :: bootstrap-duallistbox-js" />
     <th:block th:include="include :: bootstrap-suggest-js" />
@@ -25,6 +26,7 @@
 <body class="white-bg">
     <div class="wrapper wrapper-content animated fadeInRight ibox-content">
         <form class="form-horizontal m" id="form-paper-add" >
+            <input type="hidden" id="UserId" th:value="${user}">
             <div class="form-group">
                 <label class="col-sm-3 control-label">论文名称：</label>
                 <div class="col-sm-8">
@@ -162,14 +164,16 @@
     <th:block th:include="include :: datetimepicker-css" />
     <script th:inline="javascript">
         var prefix = ctx + "system/paper"
+        var userId = $("#UserId").val();
+        if (userId === "1" ){
+            alert("系统管理员添加论文不显示,请退出")
+            $(".row").hide()
+        }
         $("#form-paper-add").validate({
             focusCleanup: true
         });
 
         function submitHandler() {
-            if (row.uid === 1 ){
-                alert("系统管理员添加论文不显示")
-            }
             if ($.validate.form()) {
                 if($("input[name='text_paper']").val()=="")
                     return $.modal.alertError("请上传论文收录通知");
@@ -244,7 +248,10 @@
             // 监听输入框的输入事件
             $('#paperTitle').on('input', function () {
                 const query = $(this).val(); // 获取输入框的值
-
+                if (!validateNotAllDigits(query)) {
+                    $(this).addClass('is-invalid');
+                    // $.modal.alertError("标题不允许为纯数字");
+                }
                 // 如果输入为空，则隐藏下拉菜单
                 if (query.trim() === '') {
                     console.log("输入为空")
@@ -367,7 +374,15 @@
             document.getElementById("paperRanking").value = 1;
         }
         });
+        function validateNotAllDigits(paperTitle) {
+            const value = paperTitle.trim();
+            const regex = /^\d+$/; // 匹配全为数字的字符串
 
+            if (regex.test(value)) {
+                return false;
+            }
+            return true;
+        }
     </script>
 </body>
 </html>

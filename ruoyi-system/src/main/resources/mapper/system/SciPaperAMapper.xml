@@ -174,7 +174,7 @@
     </select>
 
     <select id="selectSciPaperAListCx" parameterType="SciPaperA" resultMap="SciPaperAResult">
-        select #{uid} uid,p.id,p.user_id,  u.login_name employee_id, p.teacher_name,p.text_paper,pt.dept_name college,
+        select  #{uid} uid,p.id,p.user_id,  u.login_name employee_id, p.teacher_name,p.text_paper,pt.dept_name college,
                d.dept_name dname,p.paper_title, p.paper_category, p.published_journal,p.publication_time,p.word_paper,p.search_web, p.is_industry_collaborative,
                p.is_local_collaborative, p.is_international_collaborative, p.is_cross_discipline, p.paper_ranking, p.research_score, p.remarks,p.state
         from sci_paper_a p
@@ -203,6 +203,25 @@
     <select id="selectSciPaperAById" parameterType="Long" resultMap="SciPaperAResult">
         <include refid="selectSciPaperAVo"/>
         where id = #{id} AND r.data_scope !=3
+    </select>
+
+
+    <select id="selectSciPaperA" parameterType="SciPaperA" resultType="java.lang.Integer">
+        SELECT count(*) FROM `sci_paper_a`
+        <where>
+            <if test="paperTitle != null  and paperTitle != ''"> AND paper_title = #{paperTitle}</if>
+            <if test="paperCategory != null  and paperCategory != ''"> AND paper_category = #{paperCategory}</if>
+            <if test="publishedJournal != null  and publishedJournal != ''"> AND published_journal = #{publishedJournal}</if>
+            <if test="inclusionStatus != null  and inclusionStatus != ''"> AND inclusion_status = #{inclusionStatus}</if>
+            <if test="publicationTime != null "> AND publication_time = #{publicationTime}</if>
+            <if test="isIndustryCollaborative != null  and isIndustryCollaborative != ''"> AND is_industry_collaborative = #{isIndustryCollaborative}</if>
+            <if test="isLocalCollaborative != null  and isLocalCollaborative != ''"> AND is_local_collaborative = #{isLocalCollaborative}</if>
+            <if test="isInternationalCollaborative != null  and isInternationalCollaborative != ''"> AND is_international_collaborative = #{isInternationalCollaborative}</if>
+            <if test="isCrossDiscipline != null  and isCrossDiscipline != ''"> AND is_cross_discipline = #{isCrossDiscipline}</if>
+            <if test="paperRanking != null  and paperRanking != ''"> AND paper_ranking = #{paperRanking}</if>
+            <if test="researchScore != null  and researchScore != ''"> AND research_score = #{researchScore}</if>
+            <if test="remarks != null  and remarks != ''"> AND remarks = #{remarks}</if>
+        </where>
     </select>
 
     <select id="selectAllPaperName" parameterType="SciPaperA" resultMap="SciPaperAResult">

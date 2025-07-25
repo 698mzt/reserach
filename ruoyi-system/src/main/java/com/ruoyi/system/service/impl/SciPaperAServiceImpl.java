@@ -123,7 +123,6 @@ public class SciPaperAServiceImpl implements ISciPaperAService
 
     @Override
     public List<SciPaperA> selectSciPaperAListCxList(SciPaperA sciPaperA) {
-        System.out.println("sciPaperA.getUserId() = " + sciPaperA.getUserId());
         return  sciPaperAMapper.selectSciPaperAListCxList(sciPaperA);
     }
 
@@ -205,5 +204,13 @@ public class SciPaperAServiceImpl implements ISciPaperAService
     @Override
     public List<SciPaperA> selectAllPaperName(String query) {
         return sciPaperAMapper.selectAllPaperName(query);
+    }
+
+    @Override
+    public Integer selectSciPaperA(SciPaperA paper) {
+        System.out.println("--------------------------");
+        Integer a = sciPaperAMapper.selectSciPaperA(paper);
+        System.out.println("a = " + a);
+        return a;
     }
 }
