@@ -12,6 +12,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="jobId"    column="login_name"    />
         <result property="teacherName"    column="userName"    />
         <result property="reportTime"    column="report_time"    />
+        <result property="reportEndTime"    column="report_end_time"    />
         <result property="reportTheme"    column="report_theme"    />
         <result property="hostUnit"    column="host_unit"    />
         <result property="reportPlace"    column="report_place"    />
@@ -27,7 +28,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectSciLectureReportVo">
-        select #{uid} uid,id,u.user_name userName,u.login_name,d.dept_name dname,u.user_id,p.dept_name, s.report_time, s.report_theme, s.host_unit, s.report_place, s.report_number, s.report_subject, s.report_duration, i.classification report_classify,s.state,s.createtime,s.report_url,s.report_keyanfen,i.rep_int_id
+        select #{uid} uid,id,u.user_name userName,u.login_name,d.dept_name dname,u.user_id,p.dept_name, s.report_time, s.report_end_time, s.report_theme, s.host_unit, s.report_place, s.report_number, s.report_subject, s.report_duration, i.classification report_classify,s.state,s.createtime,s.report_url,s.report_keyanfen,i.rep_int_id
         from sci_lecture_report s left join sys_user u on  s.user_id=u.user_id
                                   left join sys_dept d on u.dept_id = d.dept_id
                                   left join sys_dept p on d.parent_id =p.dept_id
@@ -59,23 +60,41 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <if test="teacherName != null  and teacherName != ''"> and u.user_name like concat('%', #{teacherName}, '%')</if>
         <if test="userId != null and userId != ''">and user_id = #{userId}</if>
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(report_time,INTERVAL 1 MONTH)) = #{year}</if>
-        <if test="state != null and state !='' and uid != null and uid != '' and tab != null and tab != '' and tab == 'bootstrap-table1'">
-            and (state != #{state} or (state = #{state} and s.user_id != #{uid}))
-        </if>
-        <if test="state != null and state !='' and uid != null and uid != '' and tab != null and tab != '' and tab == 'bootstrap-table2'">
-            and (state != #{state} or (state = #{state} and s.user_id = #{uid}))
-        </if>
+<!--        <if test="state != null and state !='' and uid != null and uid != '' and tab != null and tab != '' and tab == 'bootstrap-table1'">-->
+<!--            and (state != #{state} or (state = #{state} and s.user_id != #{uid}))-->
+<!--        </if>-->
+<!--        <if test="state != null and state !='' and uid != null and uid != '' and tab != null and tab != '' and tab == 'bootstrap-table2'">-->
+<!--            and (state != #{state} or (state = #{state} and s.user_id = #{uid}))-->
+<!--        </if>-->
         <!-- 数据范围过滤 -->
     ${params.dataScope}
-        <if test="uid != null and uid != '' and year != null  and year != ''">
+        <!-- 没有搜索条件时执行 -->
+        <if test="uid != null and uid != '' and year != null  and year != ''
+          and (reportTheme == null or reportTheme == '')
+          and (keyanshi == null or keyanshi == '')
+          and (teacherName == null or teacherName == '')">
             or (s.user_id = #{uid} and YEAR(DATE_ADD(report_time,INTERVAL 1 MONTH)) = #{year})
+        </if>
+        <!-- 有搜索条件时执行 -->
+        <if test="uid != null and uid != '' and year != null  and year != ''
+          and (reportTheme != null and reportTheme != ''
+          or keyanshi != null and keyanshi != ''
+          or teacherName != null and teacherName != '')">
+            or (
+                s.user_id = #{uid} and YEAR(DATE_ADD(report_time,INTERVAL 1 MONTH)) = #{year}
+                <if test="reportTheme != null and reportTheme != ''">
+                    and report_theme like concat('%', #{reportTheme}, '%')
+                </if>
+                <if test="keyanshi != null and keyanshi != ''">
+                    and d.dept_name like concat('%', #{keyanshi}, '%')
+                </if>
+                <if test="teacherName != null and teacherName != ''">
+                    and u.user_name like concat('%', #{teacherName}, '%')
+                </if>
+            )
         </if>
     order  by
         CASE
-<!--            <if test="uid != null and uid != ''">-->
-<!--                WHEN s.user_id = #{uid} AND state IN (3, 5, 7) THEN 0-->
-<!--            </if>-->
-<!--            ELSE 1-->
                 <if test="uid != null and uid != ''">
                     WHEN s.user_id = #{uid} AND state IN (3, 5, 7) THEN 0
                     ELSE 1
@@ -120,6 +139,19 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 <!--        order  by createtime desc-->
 <!--    </select>-->
 
+<!--    根据用户选择性导出数据-->
+    <select id="selectSciLectureReportListByIds" parameterType="String" resultMap="SciLectureReportResult">
+        select id,u.user_name userName,u.login_name,d.dept_name dname,u.user_id,p.dept_name, s.report_time, s.report_end_time, s.report_theme, s.host_unit, s.report_place, s.report_number, s.report_subject, s.report_duration, i.classification report_classify,s.state,s.createtime,s.report_url,s.report_keyanfen,i.rep_int_id
+        from sci_lecture_report s left join sys_user u on  s.user_id=u.user_id
+        left join sys_dept d on u.dept_id = d.dept_id
+        left join sys_dept p on d.parent_id =p.dept_id
+        left join sci_lecture_report_integral i on i.rep_int_id = s.report_classify
+        <where>
+            id in
+            <foreach item="item" collection="array" open="(" separator="," close=")">#{item}</foreach>
+        </where>
+    </select>
+
 <!--    讲座报告数据  修改查询语句-->
     <select id="selectSciLectureReportById" parameterType="Integer" resultMap="SciLectureReportResult">
         <include refid="selectSciLectureReportVo"/>
@@ -133,6 +165,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="userId != null">user_id,</if>
 
             <if test="reportTime != null and reportTime != ''">report_time,</if>
+            <if test="reportEndTime != null and reportEndTime != ''">report_end_time,</if>
             <if test="reportTheme != null">report_theme,</if>
             <if test="hostUnit != null and hostUnit != ''">host_unit,</if>
             <if test="reportPlace != null and reportPlace != ''">report_place,</if>
@@ -147,6 +180,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="userId != null">#{userId},</if>
 
             <if test="reportTime != null and reportTime != ''">#{reportTime},</if>
+            <if test="reportEndTime != null and reportEndTime != ''">#{reportEndTime},</if>
             <if test="reportTheme != null">#{reportTheme},</if>
             <if test="hostUnit != null and hostUnit != ''">#{hostUnit},</if>
             <if test="reportPlace != null and reportPlace != ''">#{reportPlace},</if>
@@ -158,6 +192,26 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="reportUrl != null">#{reportUrl},</if>
          </trim>
     </insert>
+
+    <select id="checkConflict" parameterType="SciLectureReport" resultType="Integer">
+        SELECT COUNT(*)
+        FROM sci_lecture_report
+        WHERE host_unit = #{hostUnit}
+        AND report_place = #{reportPlace}
+        AND (
+        (#{reportTime} &gt;= report_time AND #{reportTime} &lt; report_end_time)
+        OR
+        (#{reportEndTime} &gt; report_time AND #{reportEndTime} &lt;= report_end_time)
+        OR
+        (report_time &gt;= #{reportTime} AND report_end_time &lt;= #{reportEndTime})
+        OR
+        (#{reportTime} &gt;= report_time AND #{reportEndTime} &lt;= report_end_time)
+        )
+        <!-- 排除自身（如果是更新操作） -->
+        <if test="id != null and id != ''">
+            AND id != #{id}
+        </if>
+    </select>
 
 <!--    修改保存讲座报告的语句-->
     <update id="updateSciLectureReport" parameterType="SciLectureReport">

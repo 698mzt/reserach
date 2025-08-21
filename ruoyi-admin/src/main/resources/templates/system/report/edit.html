@@ -41,9 +41,9 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="col-sm-3 control-label">讲座主题：</label>
+                    <label class="col-sm-3 control-label is-required">讲座主题：</label>
                     <div class="col-sm-8">
-                        <input name="reportTheme" th:field="*{reportTheme}" class="form-control" type="text">
+                        <input name="reportTheme" th:field="*{reportTheme}" class="form-control" type="text" required>
                     </div>
                 </div>
                 <div class="form-group">
@@ -84,13 +84,13 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="col-sm-3 control-label">报告时长：</label>
+                    <label class="col-sm-3 control-label is-required">报告时长：</label>
                     <div class="col-sm-8">
-                        <input name="reportDuration" th:field="*{reportDuration}" class="form-control" type="text">
+                        <input name="reportDuration" th:field="*{reportDuration}" class="form-control" type="text" placeholder="请输入报告时长（分钟）">
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="col-sm-3 control-label">分类：</label>
+                    <label class="col-sm-3 control-label is-required">分类：</label>
                     <div class="col-sm-8">
 <!--                        <input name="reportClassify" th:field="*{reportClassify}" class="form-control" type="text">-->
                         <select name="reportClassify" class="form-control m-b" required>
@@ -135,7 +135,29 @@
     <script th:inline="javascript">
         var prefix = ctx + "system/report";
         $("#form-report-edit").validate({
-            focusCleanup: true
+            focusCleanup: true,
+            rules: {
+                reportNumber: {
+                    digits: true,     // 必须为整数
+                    min: 1
+                },
+                reportDuration: {
+                    required: true,    // 必填
+                    digits: true,     // 必须为整数
+                    min: 1           // 最小值为1
+                }
+            },
+            messages: {
+                reportNumber: {
+                    digits: "人数必须为整数",
+                    min: "参与人数必须大于0"
+                },
+                reportDuration: {
+                    required: "请输入报告时长",
+                    digits: "报告时长必须为整数",
+                    min: "报告时长必须大于0"
+                }
+            }
         });
 
 
@@ -193,9 +215,52 @@
 
         // 修改保存方法
         function submitHandler() {
+            if ($("input[name='reportUrl']").val() === "")
+                return $.modal.alertError("请上传附件");
             if ($.validate.form()) {
-                $.operate.saveTab(prefix + "/edit", $('#form-report-edit').serialize());
+                // 新增：场地冲突校验
+                checkTimePlaceConflict(function(hasConflict) {
+                    if (hasConflict) {
+                        return $.modal.alertError("该场地在指定时间段已被占用，请调整时间或地点！");
+                    } else {
+                        // 无冲突时提交表单
+                        $.operate.saveTab(prefix + "/edit", $('#form-report-edit').serialize());
+                    }
+                });
             }
+        }
+
+        // 新增：异步校验时间地点冲突
+        function checkTimePlaceConflict(callback) {
+            var report_id = $("#report_id").val(); // 讲座id
+            var reportTime = $("input[name='reportTime']").val(); // 讲座开始时间
+            var hostUnit = $("input[name='hostUnit']").val(); // 主办单位
+            var reportPlace = $("input[name='reportPlace']").val(); // 讲座地点
+            var reportDuration = $("input[name='reportDuration']").val(); // 讲座时长
+            if (!reportTime || !hostUnit || !reportPlace || !reportDuration) {
+                callback(false); // 字段不全时跳过校验
+                return;
+            }
+
+            $.ajax({
+                url: prefix + "/checkConflict",
+                type: "POST",
+                data: {
+                    id: report_id,
+                    reportTime: reportTime,
+                    hostUnit: hostUnit,
+                    reportPlace: reportPlace,
+                    reportDuration: reportDuration
+                },
+                success: function(response) {
+                    console.log("后台场地校验后返回的结果：",response.data)
+                    callback(response.data.conflict); // 返回冲突结果
+                },
+                error: function() {
+                    $.modal.alertError("场地校验失败，请稍后重试");
+                    callback(true); // 失败时不允许提交
+                }
+            });
         }
 
         $(".file-upload").each(function (i) {

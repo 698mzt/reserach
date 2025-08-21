@@ -340,7 +340,8 @@
                                     <!--                                   shiro:hasPermission="system:report:remove">-->
                                     <!--                                    <i class="fa fa-remove"></i> 批量删除-->
                                     <!--                                </a>-->
-                                    <a class="btn btn-warning" onclick="$.table.exportExcel()"
+<!--                                    <a class="btn btn-warning" onclick="$.table.exportExcel()"-->
+                                    <a class="btn btn-warning" onclick="$.table.IfexportExcel()"
                                        shiro:hasPermission="system:report:export">
                                         <i class="fa fa-download"></i> 导出
                                     </a>
@@ -606,7 +607,7 @@
                     title: '操作',
                     align: 'center',
                     formatter: function (value, row, index) {
-                        console.log(row)
+                        // console.log(row)
                         var actions = [];
                         var hasPreviousButtons = false; // 标记前面是否有按钮
 
@@ -697,7 +698,7 @@
 //     ===================================================================================
     function controlProgressBar(dataId, status) {
         const eventList = document.getElementById('event-list');
-        autoProgressBar();
+        autoProgressBar(status);
         // 1. 先显示加载状态
         eventList.innerHTML = `
         <li class="first">
@@ -757,47 +758,92 @@
     }
 
 // ========================================================================================
-    function autoProgressBar() {
-        const progressBar = document.getElementById('progress-bar');
-        const steps = document.querySelectorAll('[id^="step-"]'); // 获取所有步骤元素
-        let currentStep = 1;
-        const totalSteps = steps.length;
+//     function autoProgressBar() {
+//         const progressBar = document.getElementById('progress-bar');
+//         const steps = document.querySelectorAll('[id^="step-"]'); // 获取所有步骤元素
+//         let currentStep = 1;
+//         const totalSteps = steps.length;
+//
+//         // 初始状态设置
+//         resetAllSteps();
+//         document.getElementById('step-1').classList.add('active');
+//         progressBar.style.width = '0%';
+//
+//         // 每3秒执行一次的定时器
+//         const interval = setInterval(() => {
+//             // 更新当前步骤状态为completed
+//             document.getElementById(`step-${currentStep}`).classList.remove('active');
+//             document.getElementById(`step-${currentStep}`).classList.add('completed');
+//
+//             // 如果有下一步，激活下一步
+//             if (currentStep < totalSteps) {
+//                 currentStep++;
+//                 document.getElementById(`step-${currentStep}`).classList.remove('pending');
+//                 document.getElementById(`step-${currentStep}`).classList.add('active');
+//
+//                 // 更新进度条 (根据步骤数计算百分比)
+//                 const progressPercent = ((currentStep - 1) / (totalSteps - 1)) * 100;
+//                 progressBar.style.width = `${progressPercent}%`;
+//
+//                 // 添加事件记录
+//                 addEvent(`[系统] - 自动进入步骤 ${currentStep}`, false);
+//             } else {
+//                 // 如果是最后一步，停止定时器
+//                 clearInterval(interval);
+//                 addEvent('[系统] - 流程已完成', true);
+//             }
+//         }, 1000); // 3000毫秒 = 3秒
+//
+//         // 重置所有步骤状态
+//         function resetAllSteps() {
+//             steps.forEach(step => {
+//                 step.classList.remove('active', 'completed');
+//                 step.classList.add('pending');
+//             });
+//         }
+//     }
 
-        // 初始状态设置
-        resetAllSteps();
-        document.getElementById('step-1').classList.add('active');
-        progressBar.style.width = '0%';
+    function autoProgressBar(state) {
+        // 获取所有步骤元素
+        const steps = document.querySelectorAll('.progress_inner__step');
+        const progressBar = document.querySelector('.progress_inner__bar--progress');
 
-        // 每3秒执行一次的定时器
-        const interval = setInterval(() => {
-            // 更新当前步骤状态为completed
-            document.getElementById(`step-${currentStep}`).classList.remove('active');
-            document.getElementById(`step-${currentStep}`).classList.add('completed');
 
-            // 如果有下一步，激活下一步
-            if (currentStep < totalSteps) {
-                currentStep++;
-                document.getElementById(`step-${currentStep}`).classList.remove('pending');
-                document.getElementById(`step-${currentStep}`).classList.add('active');
+        // 遍历所有步骤，重置样式
+        steps.forEach(step => {
+            step.classList.remove('active', 'completed', 'pending');
+            step.querySelector('.status-text').classList.remove('active', 'completed');
+        });
 
-                // 更新进度条 (根据步骤数计算百分比)
-                const progressPercent = ((currentStep - 1) / (totalSteps - 1)) * 100;
-                progressBar.style.width = `${progressPercent}%`;
+        // 重置进度条
+        progressBar.style.width = '0';
 
-                // 添加事件记录
-                addEvent(`[系统] - 自动进入步骤 ${currentStep}`, false);
-            } else {
-                // 如果是最后一步，停止定时器
-                clearInterval(interval);
-                addEvent('[系统] - 流程已完成', true);
-            }
-        }, 1000); // 3000毫秒 = 3秒
+        // 根据 state 设置相应的步骤颜色
+        if (state === 0) {
+            document.getElementById('step-1').classList.add('active');
+            document.getElementById('step-1').querySelector('.status-text').classList.add('active');
+            progressBar.style.width = '0';
+        } else if (state === 4) {
+            document.getElementById('step-1').classList.add('completed');
+            document.getElementById('step-1').querySelector('.status-text').classList.add('completed');
+            document.getElementById('step-2').classList.add('completed');
+            document.getElementById('step-2').querySelector('.status-text').classList.add('completed');
+            document.getElementById('step-3').classList.add('completed');
+            document.getElementById('step-3').querySelector('.status-text').classList.add('completed');
+            progressBar.style.width = '100%';
+        } else if ([1, 2, 6].includes(state)) {
+            document.getElementById('step-1').classList.add('completed');
+            document.getElementById('step-1').querySelector('.status-text').classList.add('completed');
 
-        // 重置所有步骤状态
-        function resetAllSteps() {
+            // 审核中步骤高亮为 active
+            document.getElementById('step-2').classList.add('active');
+            document.getElementById('step-2').querySelector('.status-text').classList.add('active');
+            progressBar.style.width = '45%';
+        } else {
+            // 默认情况下，所有步骤为灰色
             steps.forEach(step => {
-                step.classList.remove('active', 'completed');
                 step.classList.add('pending');
+                step.querySelector('.status-text').classList.add('pending');
             });
         }
     }
