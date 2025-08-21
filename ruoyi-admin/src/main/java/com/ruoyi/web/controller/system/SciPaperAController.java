@@ -10,6 +10,7 @@ import com.ruoyi.common.config.RuoYiConfig;
 import com.ruoyi.common.config.ServerConfig;
 import com.ruoyi.common.utils.file.FileUploadUtils;
 import com.ruoyi.common.utils.file.FileUtils;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -145,9 +146,11 @@ public class SciPaperAController extends BaseController
     @Log(title = "论文", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     @ResponseBody
-    public AjaxResult export(SciPaperA sciPaperA)
+    public AjaxResult export(@RequestParam List<String> ListRowId, SciPaperA sciPaperA)
     {
-        List<SciPaperA> list = sciPaperAService.selectSciPaperAList(sciPaperA);
+        logger.info("导出论文数据 {}", ListRowId);
+//        List<SciPaperA> list = sciPaperAService.selectSciPaperAList(sciPaperA);
+        List<SciPaperA> list =sciPaperAService.selectSciPaperAExport(ListRowId,sciPaperA);
         ExcelUtil<SciPaperA> util = new ExcelUtil<SciPaperA>(SciPaperA.class);
         return util.exportExcel(list, "论文数据");
     }

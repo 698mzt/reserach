@@ -5,7 +5,6 @@
 <mapper namespace="com.ruoyi.system.mapper.SciPaperAMapper">
 
     <resultMap type="SciPaperA" id="SciPaperAResult">
-
         <result property="id"    column="id"    />
         <result property="userId"    column="user_id"    />
         <result property="roleId"    column="role_id"    />
@@ -205,6 +204,27 @@
         where id = #{id} AND r.data_scope !=3
     </select>
 
+    <select id="selectSciPaperAExport"  resultMap="SciPaperAResult">
+        select  p.id ,r.role_id,r.role_name,r.role_key,u.login_name employee_id,
+        p.text_paper,p.word_paper,p.search_web,pt.dept_name research_room,p.user_id,
+        d.dept_name dname,pt.dept_name college, p.teacher_name,u.tea_zhicheng on_campus_title,
+        p.paper_title, p.paper_category, p.published_journal,p.publication_time, p.is_industry_collaborative,
+        p.is_local_collaborative, p.is_international_collaborative, p.is_cross_discipline, p.paper_ranking, p.research_score, p.remarks,p.state,r.data_scope
+        from sci_paper_a p
+        left join sys_user u on  p.user_id=u.user_id
+        left join sys_dept d on u.dept_id = d.dept_id
+        left join sys_dept pt on d.parent_id =pt.dept_id
+        left join sys_user_role ur on u.user_id = ur.user_id
+        left join sys_role r on r.role_id = ur.role_id
+        <where>
+            <if test="ListRowId != null  and ListRowId != ''">
+                and p.id in
+                <foreach item="item" collection="ListRowId" separator="," open="(" close=")" index="">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+    </select>
 
     <select id="selectSciPaperA" parameterType="SciPaperA" resultType="java.lang.Integer">
         SELECT count(*) FROM `sci_paper_a`
