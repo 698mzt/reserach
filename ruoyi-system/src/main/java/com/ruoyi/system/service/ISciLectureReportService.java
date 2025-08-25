@@ -1,5 +1,6 @@
 package com.ruoyi.system.service;
 
+import java.util.HashMap;
 import java.util.List;
 import com.ruoyi.system.domain.SciLectureReport;
 
@@ -28,12 +29,28 @@ public interface ISciLectureReportService
     public List<SciLectureReport> selectSciLectureReportList(SciLectureReport sciLectureReport);
 
     /**
+     * 查询讲座报告列表(导出）
+     *
+     * @param ids 需要导出的讲座报告id集合
+     * @return 讲座报告集合
+     */
+    public List<SciLectureReport> selectSciLectureReportListByIds(String ids);
+
+    /**
      * 新增讲座报告
      * 
      * @param sciLectureReport 讲座报告
      * @return 结果
      */
     public int insertSciLectureReport(SciLectureReport sciLectureReport);
+
+    /**
+     * 新增讲座报告时场地校验
+     *
+     * @param sciLectureReport 讲座报告
+     * @return 结果
+     */
+    public HashMap<String, Object> checkConflict(SciLectureReport sciLectureReport);
 
     /**
      * 修改讲座报告

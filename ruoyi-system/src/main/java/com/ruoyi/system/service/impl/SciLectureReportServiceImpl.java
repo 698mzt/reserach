@@ -1,9 +1,9 @@
 package com.ruoyi.system.service.impl;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.*;
 
 import com.ruoyi.common.annotation.DataScope;
 import com.ruoyi.common.core.domain.entity.SysUser;
@@ -51,7 +51,7 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService
 
     /**
      * 查询讲座报告列表
-     * 
+     *
      * @param sciLectureReport 讲座报告
      * @return 讲座报告
      */
@@ -61,6 +61,20 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService
     {
         return sciLectureReportMapper.selectSciLectureReportList(sciLectureReport);
     }
+
+    /**
+     * 查询讲座报告列表（导出用）
+     *
+     * @param ids 需要导出的讲座 报告id集合
+     * @return 讲座报告
+     */
+    @Override
+    @DataScope(deptAlias = "d", userAlias = "u")
+    public List<SciLectureReport> selectSciLectureReportListByIds(String ids)
+    {
+        return sciLectureReportMapper.selectSciLectureReportListByIds(Convert.toStrArray(ids));
+    }
+
 
     // 教研室查询讲座报告列表
 //    @Override
@@ -182,6 +196,14 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService
     @Transactional
     public int insertSciLectureReport(SciLectureReport sciLectureReport)
     {
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"); // 设置时间格式
+            LocalDateTime endTime = LocalDateTime.parse(sciLectureReport.getReportTime(), formatter)
+                    .plusMinutes(sciLectureReport.getReportDuration()); // 计算结束时间
+            sciLectureReport.setReportEndTime(endTime.format(formatter));
+        } catch (DateTimeParseException e) {
+            System.err.println("时间格式错误！请使用 yyyy-MM-dd HH:mm 格式。");
+        }
         int number =sciLectureReportMapper.insertSciLectureReport(sciLectureReport);
 
         SciLectureReportOpinion sciLectureReportOpinion = new SciLectureReportOpinion();
@@ -195,6 +217,37 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService
         // 将批阅记录插入数据库
         opinionMapper.opinionadd(sciLectureReportOpinion);
         return number;
+    }
+
+    /**
+     * 新增讲座报告场地校验
+     *
+     * @param sciLectureReport 讲座报告
+     * @return 结果
+     */
+    @Override
+    @Transactional
+    public HashMap<String, Object> checkConflict(SciLectureReport sciLectureReport)
+    {
+        HashMap<String, Object> map = new HashMap<>();
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"); // 设置时间格式
+            LocalDateTime endTime = LocalDateTime.parse(sciLectureReport.getReportTime(), formatter)
+                    .plusMinutes(sciLectureReport.getReportDuration()); // 计算结束时间
+            sciLectureReport.setReportEndTime(endTime.format(formatter));
+            int number = sciLectureReportMapper.checkConflict(sciLectureReport); // 进行数据比对
+            if (number > 0){
+                map.put("conflict", true);
+                map.put("message", "有冲突");
+            }else {
+                map.put("conflict", false);
+                map.put("message", "无冲突");
+            }
+        } catch (DateTimeParseException e) {
+            map.put("conflict", true);
+            map.put("message", "时间格式错误！请使用 yyyy-MM-dd HH:mm 格式。");
+        }
+        return map;
     }
 
     /**

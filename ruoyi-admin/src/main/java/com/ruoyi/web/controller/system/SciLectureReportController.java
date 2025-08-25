@@ -215,28 +215,35 @@ public class SciLectureReportController extends BaseController
     @Log(title = "讲座报告", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     @ResponseBody
-    public AjaxResult export(SciLectureReport sciLectureReport)
+    public AjaxResult export(SciLectureReport sciLectureReport, String ids)
     {
-        // 获取当前的用户信息
-        SysUser currentUser = ShiroUtils.getSysUser();
-        sciLectureReport.setUid(currentUser.getUserId());
-        List<SysRole> roles = getSysUser().getRoles();
-        for (SysRole r :roles){
-            if(r.getRoleKey().equals("sci_tesearch")){ // 科研处
-                sciLectureReport.setStatelist(Arrays.asList(2,5,4)); // 查询时状态设置
-                break;
-            }else if (r.getRoleKey().equals("research")){ // 教研室
-                sciLectureReport.setStatelist(Arrays.asList(1,6, 3, 4,5,7)); // 查询时状态设置
-                break;
-            }else if (r.getRoleKey().equals("admin")){ // 管理员
-                sciLectureReport.setStatelist(Arrays.asList(0,1, 2, 3, 5,4,6,7)); // 查询时状态设置
-                break;
-            } else if (TEACHER_ROLES.contains(r.getRoleKey())) { // 学院
-                sciLectureReport.setStatelist(Arrays.asList(2,4,6,7,5)); // 查询时状态设置
-                break;
+        List<SciLectureReport> list = new ArrayList<SciLectureReport>();
+        if (ids.equals("")){
+            // 获取当前的用户信息
+            SysUser currentUser = ShiroUtils.getSysUser();
+            sciLectureReport.setUid(currentUser.getUserId());
+            List<SysRole> roles = getSysUser().getRoles();
+            for (SysRole r :roles){
+                if(r.getRoleKey().equals("sci_tesearch")){ // 科研处
+                    sciLectureReport.setStatelist(Arrays.asList(2,5,4)); // 查询时状态设置
+                    break;
+                }else if (r.getRoleKey().equals("research")){ // 教研室
+                    sciLectureReport.setStatelist(Arrays.asList(1,6, 3, 4,5,7)); // 查询时状态设置
+                    break;
+                }else if (r.getRoleKey().equals("admin")){ // 管理员
+                    sciLectureReport.setStatelist(Arrays.asList(0,1, 2, 3, 5,4,6,7)); // 查询时状态设置
+                    break;
+                } else if (TEACHER_ROLES.contains(r.getRoleKey())) { // 学院
+                    sciLectureReport.setStatelist(Arrays.asList(2,4,6,7,5)); // 查询时状态设置
+                    break;
+                } else if (r.getRoleKey().equals("teacher")) { // 普通教师
+                    sciLectureReport.setStatelist(Arrays.asList(0,1, 2, 3, 5,4,6,7)); // 查询时状态设置
+                }
             }
+            list = sciLectureReportService.selectSciLectureReportList(sciLectureReport);
+        }else {
+            list = sciLectureReportService.selectSciLectureReportListByIds(ids);
         }
-        List<SciLectureReport> list = sciLectureReportService.selectSciLectureReportList(sciLectureReport);
         ExcelUtil<SciLectureReport> util = new ExcelUtil<SciLectureReport>(SciLectureReport.class);
         return util.exportExcel(list, "讲座报告数据");
     }
@@ -277,6 +284,19 @@ public class SciLectureReportController extends BaseController
     public AjaxResult addSave(SciLectureReport sciLectureReport)
     {
         return toAjax(sciLectureReportService.insertSciLectureReport(sciLectureReport));
+    }
+
+    /**
+     * 新增保存讲座报告保存时场地校验
+     */
+    @RequiresPermissions("system:report:add")
+    @Log(title = "讲座报告场地校验", businessType = BusinessType.INSERT)
+    @PostMapping("/checkConflict")
+    @ResponseBody
+    public AjaxResult checkConflict(SciLectureReport sciLectureReport)
+    {
+        Map <String, Object> map = sciLectureReportService.checkConflict(sciLectureReport);
+        return success(map);
     }
 
     /**

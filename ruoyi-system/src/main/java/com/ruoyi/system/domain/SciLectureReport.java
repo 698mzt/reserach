@@ -64,9 +64,13 @@ public class SciLectureReport extends BaseEntity
 //    /** 校内职称 */
 //    private String schoolTitle;
 
-    /** 讲座时间 */
-    @Excel(name = "讲座时间")
+    /** 讲座开始时间 */
+    @Excel(name = "开始时间")
     private String reportTime;
+
+    /** 讲座结束时间 */
+    @Excel(name = "结束时间")
+    private String reportEndTime;
 
     /** 讲座主题 */
     @Excel(name = "讲座主题")
@@ -84,13 +88,13 @@ public class SciLectureReport extends BaseEntity
     @Excel(name = "讲座题目")
     private String reportSubject;
 
-    /** 预期参与人数 */
+    /** 参与人数 */
     @Excel(name = "参与人数")
     private Integer reportNumber;
 
-    /** 预期报告时长 */
+    /** 报告时长 */
     @Excel(name = "报告时长")
-    private String reportDuration;
+    private Long reportDuration;
 
 
     /** 文件路径 */
@@ -111,7 +115,13 @@ public class SciLectureReport extends BaseEntity
     /**
      * get---set方法
      * */
+    public String getReportEndTime() {
+        return reportEndTime;
+    }
 
+    public void setReportEndTime(String reportEndTime) {
+        this.reportEndTime = reportEndTime;
+    }
     public int getRepIntId() {
         return repIntId;
     }
@@ -289,16 +299,16 @@ public class SciLectureReport extends BaseEntity
     {
         return reportSubject;
     }
-    public void setReportDuration(String reportDuration) 
-    {
+
+    public Long getReportDuration() {
+        return reportDuration;
+    }
+
+    public void setReportDuration(Long reportDuration) {
         this.reportDuration = reportDuration;
     }
 
-    public String getReportDuration() 
-    {
-        return reportDuration;
-    }
-    public void setReportClassify(String reportClassify) 
+    public void setReportClassify(String reportClassify)
     {
         this.reportClassify = reportClassify;
     }

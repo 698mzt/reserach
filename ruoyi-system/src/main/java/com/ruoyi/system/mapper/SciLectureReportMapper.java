@@ -29,6 +29,14 @@ public interface SciLectureReportMapper
     public List<SciLectureReport> selectSciLectureReportList(SciLectureReport sciLectureReport);
 
     /**
+     * 查询讲座报告（导出）
+     *
+     * @param ids 讲座报告id集合
+     * @return 讲座报告集合
+     */
+    public List<SciLectureReport> selectSciLectureReportListByIds(String[] ids);
+
+    /**
      * 新增讲座报告
      * 
      * @param sciLectureReport 讲座报告
@@ -36,6 +44,13 @@ public interface SciLectureReportMapper
      */
     public int insertSciLectureReport(SciLectureReport sciLectureReport);
 
+    /**
+     * 新增讲座报告时场地校验
+     *
+     * @param sciLectureReport 讲座报告
+     * @return 结果
+     */
+    public int checkConflict(SciLectureReport sciLectureReport);
     /**
      * 修改讲座报告
      * 
