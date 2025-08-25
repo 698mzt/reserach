@@ -29,7 +29,7 @@ public class StatisticJiaoZong extends BaseController {
     @Autowired
     private ISysDeptService deptService;
 
-    private String prefix = "/system/statisticJZ";
+    private String prefix = "system/statisticJZ";
     @GetMapping()
     public String apply()
     {

@@ -28,7 +28,7 @@ public class SysRewardxueyuanController extends BaseController {
     @Autowired
     private ISysDeptService deptService;
 
-    private String prefix = "/system/rewardxueyuan";
+    private String prefix = "system/rewardxueyuan";
     @GetMapping()
     public String apply()
     {
