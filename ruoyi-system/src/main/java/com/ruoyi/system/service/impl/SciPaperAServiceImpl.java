@@ -54,6 +54,12 @@ public class SciPaperAServiceImpl implements ISciPaperAService
 
     @Override
     @DataScope(deptAlias = "d",userAlias = "u")
+    public List<SciPaperA> selectSciPaperAExport(List<String> ListRowId,SciPaperA sciPaperA) {
+        return sciPaperAMapper.selectSciPaperAExport(ListRowId,sciPaperA);
+    }
+
+    @Override
+    @DataScope(deptAlias = "d",userAlias = "u")
     public List<SciPaperA> selectSciPaperAListKY(SciPaperA sciPaperA) {
         return sciPaperAMapper.selectSciPaperAListKY(sciPaperA);
     }

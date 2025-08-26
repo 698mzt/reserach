@@ -90,4 +90,6 @@ public interface SciPaperAMapper {
     List<SciPaperA> selectSciPaperAListCxList(SciPaperA sciPaperA);
 
     Integer selectSciPaperA(SciPaperA paper);
+
+    List<SciPaperA> selectSciPaperAExport(@Param("ListRowId") List<String> ListRowId,SciPaperA sciPaperA);
 }

@@ -144,10 +144,6 @@
         font-weight: bold;
     }
 
-    .buttons {
-        margin-top: 20px;
-        text-align: center;
-    }
 
     button {
         background: #2196F3;
@@ -195,7 +191,6 @@
         bottom: 0;
         width: 100%;
         height: 0.5px;
-        /*background: linear-gradient(to right, #e0e0e0, #a0a0a0, #e0e0e0);*/
         background: linear-gradient(to right,
         rgba(224,224,224,0.8),
         rgba(224,224,224,0.8),
@@ -207,10 +202,6 @@
         width: 100%;
         max-width: 500px;
         margin: 20px auto;
-        /*width: 450px;*/
-        /*!*border: 1px solid #eee;*!*/
-        /*margin: 20px auto;*/
-        /*background: transparent;*/
     }
     .track-list {
         margin: 20px;
@@ -227,13 +218,11 @@
         border-left: 2px solid #d9d9d9;
         color: #666;
         list-style: none;
-        /*text-align: left;*/
         transition: all 0.4s ease; /* 添加过渡效果 */
     }
     .track-list li.first {
         color: #666;
         padding-top: 0;
-        /*border-left-color: #fff;*/
     }
     .track-list li .node-icon {
         position: absolute;
@@ -353,95 +342,111 @@
 </div>
 
 <body class="gray-bg">
-     <div class="container-div">
-        <div class="row">
-            <div class="col-sm-12 search-collapse" shiro:hasPermission="system:paper:chaxun">
-                <form id="formId">
-                    <div class="select-list" >
-                        <ul>
-                            <li>
-                                <label>学院：</label>
-                                <input type="text" name="college"/>
-                            </li>
-                            <li>
-                                <label>教师姓名：</label>
-                                <input type="text" name="teacherName"/>
-                            </li>
-                            <li>
-                                <label>教研室：</label>
-                                <input type="text" name="roleName"/>
-                            </li>
-                            <li>
-                                <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
-                                <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
-                            </li>
-                        </ul>
-                    </div>
-                </form>
-            </div>
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 search-collapse" shiro:hasPermission="system:paper:chaxun">
+            <form id="formId">
+                <div class="select-list" >
+                    <ul>
+                        <li>
+                            <label>学院：</label>
+                            <input type="text" name="college"/>
+                        </li>
+                        <li>
+                            <label>教师姓名：</label>
+                            <input type="text" name="teacherName"/>
+                        </li>
+                        <li>
+                            <label>教研室：</label>
+                            <input type="text" name="roleName"/>
+                        </li>
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
 
-            <div class="btn-group-sm" id="toolbar" role="group">
-                <a class="btn btn-success" onclick="$.operate.addTab()" shiro:hasPermission="system:paper:add">
-                    <i class="fa fa-plus"></i> 添加
-                </a>
-<!--                <a class="btn btn-primary single disabled" onclick="$.operate.editTab()" shiro:hasPermission="system:paper:edit">-->
-<!--                    <i class="fa fa-edit"></i> 修改-->
-<!--                </a>-->
-<!--                <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()" shiro:hasPermission="system:paper:remove">-->
-<!--                    <i class="fa fa-remove"></i> 删除-->
-<!--                </a>-->
-                <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:paper:export">
-                    <i class="fa fa-download"></i> 导出
-                </a>
-            </div>
-            <div class="col-sm-12 select-table table-striped">
-                <table id="bootstrap-table"></table>
-            </div>
+        <div class="btn-group-sm" id="toolbar" role="group">
+            <a class="btn btn-success" onclick="$.operate.addTab()" shiro:hasPermission="system:paper:add">
+                <i class="fa fa-plus"></i> 添加
+            </a>
+            <!--                <a class="btn btn-primary single disabled" onclick="$.operate.editTab()" shiro:hasPermission="system:paper:edit">-->
+            <!--                    <i class="fa fa-edit"></i> 修改-->
+            <!--                </a>-->
+            <!--                <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()" shiro:hasPermission="system:paper:remove">-->
+            <!--                    <i class="fa fa-remove"></i> 删除-->
+            <!--                </a>-->
+            <a class="btn btn-warning" onclick="exportExcel('formId',ListRowId)" shiro:hasPermission="system:paper:export">
+                <i class="fa fa-download"></i> 导出
+            </a>
+        </div>
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table"></table>
         </div>
     </div>
-    <th:block th:include="include :: footer"/>
-    <script th:inline="javascript">
-        var editFlag = [[${@permission.hasPermi('system:paper:edit')}]];
-        var removeFlag = [[${@permission.hasPermi('system:paper:remove')}]];
-        var editInfo = [[${@permission.hasPermi('system:paper:info')}]];
-        var revokeInfo = [[${@permission.hasPermi('system:paper:revoke')}]];
-        var XYPYFlag = [[${@permission.hasPermi('system:paper:xypy')}]];
-        var KYPYFlag = [[${@permission.hasPermi('system:paper:kypy')}]];
+</div>
+<th:block th:include="include :: footer"/>
+<script th:inline="javascript">
+    var editFlag = [[${@permission.hasPermi('system:paper:edit')}]];
+    var removeFlag = [[${@permission.hasPermi('system:paper:remove')}]];
+    var editInfo = [[${@permission.hasPermi('system:paper:info')}]];
+    var revokeInfo = [[${@permission.hasPermi('system:paper:revoke')}]];
+    var XYPYFlag = [[${@permission.hasPermi('system:paper:xypy')}]];
+    var KYPYFlag = [[${@permission.hasPermi('system:paper:kypy')}]];
 
-        var proFlag = [[${@permission.hasPermi('system:paper:process')}]];
-        var XyRevoke = [[${@permission.hasPermi('system:paper:xyrevoke')}]];
-        var KyRevoke = [[${@permission.hasPermi('system:paper:kyrevoke')}]];
-        var QWERDates = [[${@dict.getType('sci_paper_qwer')}]];
+    var proFlag = [[${@permission.hasPermi('system:paper:process')}]];
+    var XyRevoke = [[${@permission.hasPermi('system:paper:xyrevoke')}]];
+    var KyRevoke = [[${@permission.hasPermi('system:paper:kyrevoke')}]];
+    var QWERDates = [[${@dict.getType('sci_paper_qwer')}]];
 
-        var PaperDates = [[${@dict.getType('sci_paper_ar')}]];
-        var KDates = [[${@dict.getType('sci_paper_k')}]];
+    var PaperDates = [[${@dict.getType('sci_paper_ar')}]];
+    var KDates = [[${@dict.getType('sci_paper_k')}]];
 
-        var prefix = ctx + "system/paper";
+    var prefix = ctx + "system/paper";
 
-        function getUrl() {
-            var year = localStorage.getItem("year");
-            return prefix+"/list/?year="+year;
-        }
-        function initTable(options) {
-            options.url = getUrl();
-            $.table.init(options);
-        }
 
-        $(function() {
-            var options = {
-                // url:getUrl($('table').attr('id')),
-                createUrl: prefix + "/add",
-                detailUrl: prefix + "/detail/{id}",
-                updateUrl: prefix + "/edit/{id}",
-                removeUrl: prefix + "/remove",
-                exportUrl: prefix + "/export",
-                modalName: "论文",
-                rowStyle: rowStyle0,
-                pagination:true,
-                pageSize: 10,
-                columns: [{
-                    checkbox: true
-                },
+    var rowSelected=$("#bootstrap-table").bootstrapTable('getSelections');
+    console.log(rowSelected);
+    var ListRowId = [];
+    function getUrl() {
+        var year = localStorage.getItem("year");
+        return prefix+"/list/?year="+year;
+    }
+    function initTable(options) {
+        options.url = getUrl();
+        $.table.init(options);
+    }
+
+    $(function() {
+        var options = {
+            // url:getUrl($('table').attr('id')),
+            createUrl: prefix + "/add",
+            detailUrl: prefix + "/detail/{id}",
+            updateUrl: prefix + "/edit/{id}",
+            removeUrl: prefix + "/remove",
+            exportUrl: prefix + "/export",
+            modalName: "论文",
+            clickToSelect: true,
+            rowStyle: rowStyle0,
+            pagination:true,
+            pageSize: 10,
+            onCheck: function(row) {
+                ListRowId.push(row.id);
+                console.log(ListRowId);
+            },
+            onUncheck:function (row){
+                var index = ListRowId.indexOf(row.id);
+                if (index > -1) {
+                    ListRowId.splice(index, 1);
+                }
+                console.log(ListRowId);
+            },
+            columns: [{
+                checkbox: true,
+            },
                 {
                     field: 'id',
                     title: '序号',
@@ -451,11 +456,11 @@
                     field: 'college',
                     title: '学院',
                 },
-                    {
-                        field: 'researchRoom',
-                        title: '专业',
-                        visible: false
-                    },
+                {
+                    field: 'researchRoom',
+                    title: '专业',
+                    visible: false
+                },
                 {
                     field: 'teacherName',
                     title: '教师姓名',
@@ -472,7 +477,6 @@
                     title: '论文类别',
                     align: 'center',
                     formatter: function(value, row, index) {
-                        console.log( $.table.selectDictLabels(KDates, value))
                         return $.table.selectDictLabel(KDates, value);
                     }
                 },
@@ -541,19 +545,6 @@
                     field: 'researchScore',
                     title: '科研分'
                 },
-                // {
-                //     field: 'remarks',
-                //     title: '备注'
-                // },
-                {
-                    field: 'state',
-                    title: '申请状态',
-                    align: 'center',
-                    visible: false,
-                    formatter: function(value, row, index) {
-                         return $.table.selectDictLabel(PaperDates, value);
-                    }
-                },
                 {
                     title: '操作',
                     align: 'center',
@@ -563,8 +554,8 @@
                         console.log("row.rolekey:",row.rolekey)
 
                         // console.log("row.state:",row.state)
-                         console.log("row.userId:",row.userId) // 角色自己ID
-                         console.log("row.uid:",row.uid) //登录人的ID
+                        console.log("row.userId:",row.userId) // 角色自己ID
+                        console.log("row.uid:",row.uid) //登录人的ID
 
                         $(document).ready(function () {
                             // 点击按钮时显示模态框
@@ -603,11 +594,11 @@
                                 actions.push('<a class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan\')"><i class=""></i>查看</a><br>');
                                 actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="viewProcess(\'' + row.id +','+row.state+ '\')"><i class=""></i>查看流程</a>');
                             }
-                        // }  else if (row.state == 6) { // 科研处通过
-                        //     actions.push('<a class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan\')"><i class=""></i>查看</a>');
-                        //     if (row.userId == row.uid) {
-                        //         actions.push('<a class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan\')"><i class=""></i>查看</a>');
-                        //     }
+                            // }  else if (row.state == 6) { // 科研处通过
+                            //     actions.push('<a class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan\')"><i class=""></i>查看</a>');
+                            //     if (row.userId == row.uid) {
+                            //         actions.push('<a class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan\')"><i class=""></i>查看</a>');
+                            //     }
                         }  else if (row.state == 8) { // 完成
                             actions.push('<a  class="' + KyRevoke + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/kyth\')"><i class=""></i>撤回</a> ');
                             if (row.userId == row.uid) {
@@ -618,185 +609,204 @@
                         return actions.join('');
                     }
                 }]
-            };
-            initTable(options);
+        };
+        initTable(options);
 
-            window.addEventListener("storage",function (event) {
-                if (event.key === "year") {
-                    $('#bootstrap-table').bootstrapTable("destroy")
-                    initTable(options);
+        window.addEventListener("storage",function (event) {
+            if (event.key === "year") {
+                $('#bootstrap-table').bootstrapTable("destroy")
+                initTable(options);
+            }
+        })
+    });
+
+
+</script>
+<script>
+    function pushTh(id) {
+        $.modal.confirm("确认要提交吗?", function () {
+            var url = prefix + "/tj/" + id;
+            //$.operate.saveTab(url, id)
+            $.ajax({
+                url: prefix + "/tj/" + id,
+                type: "post",
+                success: function (data) {
+                    //alert("提交成功")
+                    $("#bootstrap-table").bootstrapTable('refresh');
                 }
             })
         });
-
-
-    </script>
-     <script>
-         function pushTh(id) {
-             $.modal.confirm("确认要提交吗?", function () {
-                 var url = prefix + "/tj/" + id;
-                 //$.operate.saveTab(url, id)
-                 $.ajax({
-                     url: prefix + "/tj/" + id,
-                     type: "post",
-                     success: function (data) {
-                         //alert("提交成功")
-                         $("#bootstrap-table").bootstrapTable('refresh');
-                     }
-                 })
-             });
-         }
-
-         function viewProcess(kidd) {
-             const kid = kidd.split(",")[0];   //id
-             const state = kidd.split(",")[1]; //状态
-
-             console.log(kid)
-             console.log(state)
-
-             $('#myModal1111').modal('show');
-
-             function updateEventData(rows) {
-                 $("#event-list").empty();
-
-                 rows.forEach(function (item, index) {
-
-                     const newLi = `
+    }
+    function  exportExcel(formId,ListRowId) {
+        console.log('typeof formId:', typeof formId);
+        table.set();
+        $.modal.confirm("确定导出" + table.options.modalName + "吗？", function() {
+            var currentId = $.common.isEmpty(formId) ? $('form').attr('id') : formId;
+            var params = $("#" + table.options.id).bootstrapTable('getOptions');
+            var dataParam = $("#" + currentId).serializeArray();
+            dataParam.push({ "name": "orderByColumn", "value": params.sortName });
+            dataParam.push({ "name": "isAsc", "value": params.sortOrder });
+            console.log("dataParam:1:",dataParam);
+            // 添加选中行的ID到参数中
+            if (ListRowId.length > 0) {
+                dataParam.push({ "name": "ListRowId", "value": ListRowId.join(',') });
+            }
+            $.modal.loading("正在导出数据，请稍候...");
+            $.post(table.options.exportUrl, dataParam, function(result) {
+                if (result.code == web_status.SUCCESS) {
+                    window.location.href = ctx + "common/download?fileName=" + encodeURI(result.msg) + "&delete=" + true;
+                } else if (result.code == web_status.WARNING) {
+                    $.modal.alertWarning(result.msg)
+                } else {
+                    $.modal.alertError(result.msg);
+                }
+                $.modal.closeLoading();
+            });
+        });
+    }
+    function viewProcess(kidd) {
+        const kid = kidd.split(",")[0];   //id
+        const state = kidd.split(",")[1]; //状态
+        // console.log(kid)
+        // console.log(state)
+        $('#myModal1111').modal('show');
+        function updateEventData(rows) {
+            $("#event-list").empty();
+            rows.forEach(function (item, index) {
+                const newLi = `
                 <li class="time">
                     <i class="node-icon"></i>
                     <span class="time">${item.create_time}</span>
                     <span class="txt">[${item.state}]:${item.uname}</span>
-<!--                    <span class="txt">:</span>-->
                 </li>
             `;
+                $("#event-list").append(newLi);
+            });
+            const steps = document.querySelectorAll('.progress_inner__step');
+            console.log("steps:"+steps.values())
+        }
 
-                     $("#event-list").append(newLi);
-                 });
-                 const steps = document.querySelectorAll('.progress_inner__step');
-                 console.log("steps:"+steps.values())
-             }
 
+        function updateProgressState(state) {
+            // 获取所有步骤元素
+            const steps = document.querySelectorAll('.progress_inner__step');
 
-             function updateProgressState(state) {
-                 // 获取所有步骤元素
-                 const steps = document.querySelectorAll('.progress_inner__step');
+            // 清除所有步骤的状态
+            steps.forEach((step, index) => {
+                step.classList.remove('active', 'completed');
+                step.classList.add('pending'); // 默认为 pending 状态
 
-                 // 清除所有步骤的状态
-                 steps.forEach((step, index) => {
-                     step.classList.remove('active', 'completed');
-                     step.classList.add('pending'); // 默认为 pending 状态
+                // 更新文本状态
+                const statusText = step.querySelector('.status-text');
+                if (statusText) {
+                    statusText.classList.remove('active');
+                }
+            });
+            console.log("state$:"+state)
 
-                     // 更新文本状态
-                     const statusText = step.querySelector('.status-text');
-                     if (statusText) {
-                         statusText.classList.remove('active');
-                     }
-                 });
-                 console.log("state$:"+state)
+            switch (state) { // 根据 state 更新状态
 
-                 switch (state) { // 根据 state 更新状态
+                case "3":
+                case "5":
+                    // 当前步骤为 step-1
+                    highlightStep(0); // 高亮第一个步骤
+                    break;
+                case "1":
+                case "2":
+                case "4":
+                case "6":
+                case "7":
+                case "9":
+                case "10":
+                    // 当前步骤为 step-2，step-1 完成
+                    markCompleted(0); // step-1 完成
+                    highlightStep(1); // 高亮第二个步骤
+                    break;
 
-                     case "3":
-                     case "5":
-                         // 当前步骤为 step-1
-                         highlightStep(0); // 高亮第一个步骤
-                         break;
-                     case "1":
-                     case "2":
-                     case "4":
-                     case "6":
-                     case "7":
-                     case "9":
-                     case "10":
-                         // 当前步骤为 step-2，step-1 完成
-                         markCompleted(0); // step-1 完成
-                         highlightStep(1); // 高亮第二个步骤
-                         break;
+                case "8":
+                    // 所有步骤完成
+                    markCompleted(0); // step-1 完成
+                    markCompleted(1); // step-2 完成
+                    highlightStep(2); // 高亮第三个步骤
+                    break;
 
-                     case "8":
-                         // 所有步骤完成
-                         markCompleted(0); // step-1 完成
-                         markCompleted(1); // step-2 完成
-                         highlightStep(2); // 高亮第三个步骤
-                         break;
+                default:
+                    console.error('未知状态:', state);
+            }
+        }
+        function highlightStep(index) { // 高亮指定步骤
+            const step = document.querySelectorAll('.progress_inner__step')[index];
+            if (step) {
+                step.classList.add('active');
+                step.classList.remove('pending');
 
-                     default:
-                         console.error('未知状态:', state);
-                 }
-             }
-             function highlightStep(index) { // 高亮指定步骤
-                 const step = document.querySelectorAll('.progress_inner__step')[index];
-                 if (step) {
-                     step.classList.add('active');
-                     step.classList.remove('pending');
+                // 高亮文本
+                const statusText = step.querySelector('.status-text');
+                if (statusText) {
+                    statusText.classList.add('active');
+                }
+            }
+        }
+        // 标记指定步骤为已完成(获取索引)
+        function markCompleted(index) {
+            const step = document.querySelectorAll('.progress_inner__step')[index];
+            if (step) {
+                step.classList.add('completed');
+                step.classList.remove('pending', 'active');
+            }
+        }
 
-                     // 高亮文本
-                     const statusText = step.querySelector('.status-text');
-                     if (statusText) {
-                         statusText.classList.add('active');
-                     }
-                 }
-             }
-            // 标记指定步骤为已完成(获取索引)
-             function markCompleted(index) {
-                 const step = document.querySelectorAll('.progress_inner__step')[index];
-                 if (step) {
-                     step.classList.add('completed');
-                     step.classList.remove('pending', 'active');
-                 }
-             }
+        // 使用 $.ajax 发起请求
+        $.ajax({
+            url: prefix + '/bhxs/' + kid,
+            method: 'POST',
+            dataType: 'json',
+            success: function (data) {
+                console.log(data);
+                // 检查返回的数据是否有效
+                if (data && Array.isArray(data.rows)) {
+                    // 更新页面上的数据
+                    updateEventData(data.rows);
+                    updateProgressState(state);
+                } else {
+                    console.error("返回的数据格式不正确");
+                    updateEventData([]); // 清空列表
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error('请求失败:', error);
+                updateEventData([]); // 清空列表
+            }
+        });
+    }
 
-             // 使用 $.ajax 发起请求
-             $.ajax({
-                 url: prefix + '/bhxs/' + kid,
-                 method: 'POST',
-                 dataType: 'json',
-                 success: function (data) {
-                     console.log(data);
-                     // 检查返回的数据是否有效
-                     if (data && Array.isArray(data.rows)) {
-                         // 更新页面上的数据
-                         updateEventData(data.rows);
-                         updateProgressState(state);
-                     } else {
-                         console.error("返回的数据格式不正确");
-                         updateEventData([]); // 清空列表
-                     }
-                 },
-                 error: function (xhr, status, error) {
-                     console.error('请求失败:', error);
-                     updateEventData([]); // 清空列表
-                 }
-             });
-         }
+    function downloadFiles(id) {
+        window.location.href = ctx + 'common/HXdownloadZip?id='+id;
+    }
 
-         function downloadFiles(id) {
-             window.location.href = ctx + 'common/HXdownloadZip?id='+id;
-         }
+    function rowStyle0(row, index) {
+        // 定义状态值与颜色的映射关系
+        const stateColorMap = {
+            8: '#67c23a', // 完结 绿色
+            3: '#e6a344', 5: '#e6a344', 7: '#e6a344', 9: '#e6a344', 10: '#e6a344', 22: '#e6a344', 44: '#e6a344',99: '#e6a344', // 被驳回，草稿 黄色
+            1: '#2c99ff',2: '#2c99ff', 4: '#2c99ff', 6: '#2c99ff', 11: '#2c99ff', 33: '#2c99ff' // 审核中 蓝色
+        };
 
-         function rowStyle0(row, index) {
-             // 定义状态值与颜色的映射关系
-             const stateColorMap = {
-                 8: '#67c23a', // 完结 绿色
-                 3: '#e6a344', 5: '#e6a344', 7: '#e6a344', 9: '#e6a344', 10: '#e6a344', 22: '#e6a344', 44: '#e6a344',99: '#e6a344', // 被驳回，草稿 黄色
-                 1: '#2c99ff',2: '#2c99ff', 4: '#2c99ff', 6: '#2c99ff', 11: '#2c99ff', 33: '#2c99ff' // 审核中 蓝色
-             };
+        // 统一将 row.state 转换为字符串进行查找
+        const state = String(row.state);
 
-             // 统一将 row.state 转换为字符串进行查找
-             const state = String(row.state);
+        // 根据状态值查找对应的颜色
+        if (state in stateColorMap) {
+            return {
+                css: { color: stateColorMap[state] }
+            };
+        }
 
-             // 根据状态值查找对应的颜色
-             if (state in stateColorMap) {
-                 return {
-                     css: { color: stateColorMap[state] }
-                 };
-             }
-
-             // 默认样式（可自定义）
-             return {
-                 css: { color: '#000000' } // 默认黑色
-             };
-         }
-     </script>
+        // 默认样式（可自定义）
+        return {
+            css: { color: '#000000' } // 默认黑色
+        };
+    }
+</script>
 </body>
 </html>

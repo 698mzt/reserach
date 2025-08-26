@@ -394,6 +394,32 @@ var table = {
                     });
                 });
             },
+            // 条件式导出数据（后期新增的函数）
+            IfexportExcel: function(formId) {
+                table.set();
+                var rows = $.common.isEmpty(table.options.uniqueId) ? $.table.selectFirstColumns() : $.table.selectColumns(table.options.uniqueId);
+                $.modal.confirm("确定导出"+(rows.length == 0 ? "所有" : rows.length + "条") + table.options.modalName + "吗？", function() {
+                    var currentId = $.common.isEmpty(formId) ? $('form').attr('id') : formId;
+                    var params = $("#" + table.options.id).bootstrapTable('getOptions');
+                    var dataParam = $("#" + currentId).serializeArray();
+                    var year = localStorage.getItem("year");
+                    dataParam.push({"name":"year", "value":year}); // 当前年份
+                    dataParam.push({ "name": "ids", "value": rows.join() }); // 批量导出的数据id
+                    dataParam.push({ "name": "orderByColumn", "value": params.sortName });
+                    dataParam.push({ "name": "isAsc", "value": params.sortOrder });
+                    $.modal.loading("正在导出数据，请稍候...");
+                    $.post(table.options.exportUrl, dataParam, function(result) {
+                        if (result.code == web_status.SUCCESS) {
+                            window.location.href = ctx + "common/download?fileName=" + encodeURI(result.msg) + "&delete=" + true;
+                        } else if (result.code == web_status.WARNING) {
+                            $.modal.alertWarning(result.msg)
+                        } else {
+                            $.modal.alertError(result.msg);
+                        }
+                        $.modal.closeLoading();
+                    });
+                });
+            },
             // 下载模板
             importTemplate: function() {
                 $.get(activeWindow().table.options.importTemplateUrl, function(result) {
