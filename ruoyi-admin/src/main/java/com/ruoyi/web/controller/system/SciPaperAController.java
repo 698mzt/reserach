@@ -148,11 +148,14 @@ public class SciPaperAController extends BaseController
     @ResponseBody
     public AjaxResult export(@RequestParam List<String> ListRowId, SciPaperA sciPaperA)
     {
-        logger.info("导出论文数据 {}", ListRowId);
-//        List<SciPaperA> list = sciPaperAService.selectSciPaperAList(sciPaperA);
-        List<SciPaperA> list =sciPaperAService.selectSciPaperAExport(ListRowId,sciPaperA);
-        ExcelUtil<SciPaperA> util = new ExcelUtil<SciPaperA>(SciPaperA.class);
-        return util.exportExcel(list, "论文数据");
+        try{
+            List<SciPaperA> list =sciPaperAService.selectSciPaperAExport(ListRowId,sciPaperA);
+            ExcelUtil<SciPaperA> util = new ExcelUtil<SciPaperA>(SciPaperA.class);
+            return util.exportExcel(list, "论文数据");
+        }catch (Exception e){
+            return error(e.getMessage());
+        }
+
     }
 
     /**

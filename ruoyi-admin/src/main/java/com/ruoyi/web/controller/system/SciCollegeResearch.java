@@ -20,9 +20,8 @@ import java.util.Map;
 public class SciCollegeResearch extends BaseController {
     @Autowired
     private SciCollegeResearchMapper sciCollegeResearchMapper;
-    private String prefix = "/system/collegeresearch";
-//为了导出写的
-//    public  List<Map<String, Object>> list;
+    private String prefix = "system/collegeresearch";
+
     @GetMapping
     public String index()
     {
@@ -32,38 +31,8 @@ public class SciCollegeResearch extends BaseController {
     @ResponseBody
     public TableDataInfo list() {
         Long deptId =getSysUser().getDeptId();
-
-        //全部的教研室
-//        List<Map<String, Object>>  listout =sciCollegeResearchMapper.selectCollegeResearchID(deptId);
-
         List<Map<String, Object>> list = sciCollegeResearchMapper.selectCollegeResearch(deptId);
-
         TableDataInfo data = getDataTable(list);
-//        for (Map<String, Object> map : listout) {//循环全部教研室，获取每一个的部门名
-//            String dept_name = (String) map.get("dept_name");
-//            Long dept_id_long = (Long) map.get("dept_id");
-//            String dept_id = String.valueOf(dept_id_long);
-//            System.out.println("dept_id = " + dept_id);
-//            boolean isMatched = false; // 标记是否匹配
-//
-//            for (Map<String, Object> map1 : list) {//循环当前有数据的list
-//                System.out.println("map1.get(\"专业\") = " + map1.get("专业"));
-//                String dept_name1= String.valueOf(map1.get("专业"));
-//                if (dept_id.equals(dept_name1)) { //判断是否匹配
-//                    System.out.println("map1 = " + map1);
-//                    isMatched = true;
-//                    break;
-//                }
-//            }
-//            if (!isMatched) { // 如果没有匹配到，则向 list 添加 "专业" 键值对
-//                Map<String, Object> newMap = new HashMap<>();
-//                newMap.put("学院名称",map.get("学院名称"));
-//                newMap.put("专业", dept_id);
-//                newMap.put("专业名称", dept_name); // 向新的 Map 添加键值对
-//                list.add(newMap); // 将新的 Map 添加到 list 中
-//                System.out.println("newMap = " + newMap);
-//            }
-//        }
         data.setRows(list); // 数据列表
         data.setTotal(list.size()); // 总记录数
         return data;
@@ -71,10 +40,8 @@ public class SciCollegeResearch extends BaseController {
     @PostMapping("/all_list")
     @ResponseBody
     public TableDataInfo all_list() {
-
         Long deptId = getSysUser().getDeptId();
         List<Map<String, Object>> GeneraList = new ArrayList<>();
-
         GeneraList = sciCollegeResearchMapper.GeneralCollegeSearcherList();
         new TableDataInfo();
         TableDataInfo data;
