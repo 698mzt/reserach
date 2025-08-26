@@ -51,7 +51,10 @@ public interface ISciPaperAService
      * @return 结果
      */
     public int updateSciPaperA(SciPaperA sciPaperA);
-
+    /**
+     * 导出论文查询
+     */
+    public List<SciPaperA> selectSciPaperAExport(List<String> ListRowId,SciPaperA sciPaperA);
     /**
      * 批量删除论文
      * 
