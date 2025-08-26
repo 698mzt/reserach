@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.SynchronizeDataMapper">
+
+<!--    更新alltotal表的横向课题数据-->
+    <update id="SynchronizeHX">
+        UPDATE Alltotle a
+        -- 横向课题统计子查询（有数据显示实际结果，无数据显示默认值）
+        JOIN (
+        SELECT
+        user_id,
+        -- 2万元以下区间：有数据拼实际结果，无数据显示"0个(0万)"
+        IFNULL(
+        -- 仅拼接符合条件的结果（无符合条件时GROUP_CONCAT返回NULL）
+        GROUP_CONCAT(
+        CASE WHEN amount &lt; 2
+        THEN CONCAT(cnt, '个（', ROUND(amount, 2), '万）')
+        END SEPARATOR '，'
+        ),
+        '0个(0万)'  -- 兜底：GROUP_CONCAT为NULL时显示默认值
+        ) AS ewyyx_formatted,
+        -- 2-5万元（含2万）：同上逻辑
+        IFNULL(
+        GROUP_CONCAT(
+        CASE WHEN amount >= 2 AND amount  &lt; 5
+        THEN CONCAT(cnt, '个（', ROUND(amount, 2), '万）')
+        END SEPARATOR '，'
+        ),
+        '0个(0万)'
+        ) AS edwwy_formatted,
+        -- 5-10万元（含5万）
+        IFNULL(
+        GROUP_CONCAT(
+        CASE WHEN amount >= 5 AND amount  &lt; 10
+        THEN CONCAT(cnt, '个（', ROUND(amount, 2), '万）')
+        END SEPARATOR '，'
+        ),
+        '0个(0万)'
+        ) AS wdswy_formatted,
+        -- 10-20万元（含10万）
+        IFNULL(
+        GROUP_CONCAT(
+        CASE WHEN amount >= 10 AND amount  &lt; 20
+        THEN CONCAT(cnt, '个（', ROUND(amount, 2), '万）')
+        END SEPARATOR '，'
+        ),
+        '0个(0万)'
+        ) AS sdeswy_formatted,
+        -- 20-35万元（含20万）
+        IFNULL(
+        GROUP_CONCAT(
+        CASE WHEN amount >= 20 AND amount  &lt; 35
+        THEN CONCAT(cnt, '个（', ROUND(amount, 2), '万）')
+        END SEPARATOR '，'
+        ),
+        '0个(0万)'
+        ) AS esdsswwy_formatted,
+        -- 35-50万元（含35万）
+        IFNULL(
+        GROUP_CONCAT(
+        CASE WHEN amount >= 35 AND amount  &lt; 50
+        THEN CONCAT(cnt, '个（', ROUND(amount, 2), '万）')
+        END SEPARATOR '，'
+        ),
+        '0个(0万)'
+        ) AS wswwydwswy_formatted,
+        -- 50-75万元（含50万）
+        IFNULL(
+        GROUP_CONCAT(
+        CASE WHEN amount >= 50 AND amount  &lt; 75
+        THEN CONCAT(cnt, '个（', ROUND(amount, 2), '万）')
+        END SEPARATOR '，'
+        ),
+        '0个(0万)'
+        ) AS wsdqswwy_formatted,
+        -- 75-100万元（含75万）
+        IFNULL(
+        GROUP_CONCAT(
+        CASE WHEN amount >= 75 AND amount  &lt; 100
+        THEN CONCAT(cnt, '个（', ROUND(amount, 2), '万）')
+        END SEPARATOR '，'
+        ),
+        '0个(0万)'
+        ) AS qswdybwy_formatted
+        FROM (
+        -- 内层子查询：按user_id+amount分组统计实际课题（单位：万元）
+        SELECT
+        user_id,
+        amount,
+        COUNT(*) AS cnt  -- 相同金额的课题个数
+        FROM sci_horizontal_apply
+        WHERE state = 6
+        GROUP BY user_id, amount
+        -- 补充：确保无任何课题的user_id也能被统计（避免关联丢失）
+        UNION ALL
+        SELECT DISTINCT
+        user_id,
+        0 AS amount,  -- 占位金额（不影响区间判断）
+        0 AS cnt       -- 占位数量
+        FROM sci_horizontal_apply
+        ) AS amount_group
+        GROUP BY user_id
+        ) h ON a.userId = h.user_id
+        SET
+        -- 清理可能的末尾多余逗号（有数据时生效，无数据时默认值无逗号）
+        a.ewyyx = TRIM(TRAILING '，' FROM h.ewyyx_formatted),
+        a.edwwy = TRIM(TRAILING '，' FROM h.edwwy_formatted),
+        a.wdswy = TRIM(TRAILING '，' FROM h.wdswy_formatted),
+        a.sdeswy = TRIM(TRAILING '，' FROM h.sdeswy_formatted),
+        a.esdsswwy = TRIM(TRAILING '，' FROM h.esdsswwy_formatted),
+        a.wswwydwswy = TRIM(TRAILING '，' FROM h.wswwydwswy_formatted),
+        a.wsdqswwy = TRIM(TRAILING '，' FROM h.wsdqswwy_formatted),
+        a.qswdybwy = TRIM(TRAILING '，' FROM h.qswdybwy_formatted)
+    </update>
+
+<!--    同步纵向课题的数据-->
+    <update id="SynchronizeZX">
+        UPDATE Alltotle a
+            JOIN (
+            SELECT
+            user_id,
+            -- 1. 主持国家基金科研项目（匹配字典键值对应的标签逻辑，通过子查询关联拿到 dict_label）
+            IFNULL(
+            GROUP_CONCAT(
+            CASE
+            -- 这里要先确保能关联到 dict_label，通过子查询里关联的 dd 表字段
+            WHEN type_amount_group.dict_label = '主持国家基金科研项目'
+            THEN CONCAT(cnt, '个（', ROUND(type_amount_group.amount, 2), '万）')
+            END SEPARATOR '，'
+            ),
+            '0个(0万)'
+            ) AS zcgjjjkyxm_formatted,
+            -- 2. 主持省部级基金科研项目
+            IFNULL(
+            GROUP_CONCAT(
+            CASE
+            WHEN type_amount_group.dict_label = '主持省部级基金科研项目'
+            THEN CONCAT(cnt, '个（', ROUND(type_amount_group.amount, 2), '万）')
+            END SEPARATOR '，'
+            ),
+            '0个(0万)'
+            ) AS zcsbjjjkyxm_formatted,
+            -- 3. 主持省部级教改项目
+            IFNULL(
+            GROUP_CONCAT(
+            CASE
+            WHEN type_amount_group.dict_label = '主持省部级教改项目'
+            THEN CONCAT(cnt, '个（', ROUND(type_amount_group.amount, 2), '万）')
+            END SEPARATOR '，'
+            ),
+            '0个(0万)'
+            ) AS zcsbjjgxm_formatted,
+            -- 4. 主持省部级纵向科研项目
+            IFNULL(
+            GROUP_CONCAT(
+            CASE
+            WHEN type_amount_group.dict_label = '主持省部级纵向科研项目'
+            THEN CONCAT(cnt, '个（', ROUND(type_amount_group.amount, 2), '万）')
+            END SEPARATOR '，'
+            ),
+            '0个(0万)'
+            ) AS zcsbjzxkyxm_formatted,
+            -- 5. 主持厅局级、学会级科研项目
+            IFNULL(
+            GROUP_CONCAT(
+            CASE
+            WHEN type_amount_group.dict_label = '主持厅局级、学会级科研项目'
+            THEN CONCAT(cnt, '个（', ROUND(type_amount_group.amount, 2), '万）')
+            END SEPARATOR '，'
+            ),
+            '0个(0万)'
+            ) AS zctjjxhjkyxm_formatted,
+            -- 6. 主持校级教学管理项目（1万元以上）
+            IFNULL(
+            GROUP_CONCAT(
+            CASE
+            WHEN type_amount_group.dict_label = '主持校级教学管理项目（1万元以上）'
+            THEN CONCAT(cnt, '个（', ROUND(type_amount_group.amount, 2), '万）')
+            END SEPARATOR '，'
+            ),
+            '0个(0万)'
+            ) AS zcxjjxglxmywyys_formatted,
+            -- 7. 主持校级教学管理项目（1万元以下）
+            IFNULL(
+            GROUP_CONCAT(
+            CASE
+            WHEN type_amount_group.dict_label = '主持校级教学管理项目（1万元以下）'
+            THEN CONCAT(cnt, '个（', ROUND(type_amount_group.amount, 2), '万）')
+            END SEPARATOR '，'
+            ),
+            '0个(0万)'
+            ) AS zcxjjxglxmywyyx_formatted
+            FROM (
+            SELECT
+            v.user_id,
+            v.top_type,
+            v.amount,
+            dd.dict_label, -- 新增选取出 dict_label，让外层能使用
+            COUNT(*) AS cnt
+            FROM sci_horizontal_apply_vertical v
+            -- 关联字典数据表，筛选 dict_type 为 sci_vertical_type 的数据，这里关联条件是匹配 dict_value
+            JOIN sys_dict_data dd ON v.top_type = dd.dict_value
+            AND dd.dict_type = 'sci_vertical_type'  -- 限定纵向课题分类字典类型
+            WHERE v.state = 66
+            GROUP BY v.user_id, v.top_type, v.amount, dd.dict_label -- 分组里加上 dict_label
+            ) AS type_amount_group
+            GROUP BY user_id
+            ) v ON a.userId = v.user_id
+            SET
+                a.zcgjjjkyxm = TRIM(TRAILING '，' FROM v.zcgjjjkyxm_formatted),
+                a.zcsbjjjkyxm = TRIM(TRAILING '，' FROM v.zcsbjjjkyxm_formatted),
+                a.zcsbjjgxm = TRIM(TRAILING '，' FROM v.zcsbjjgxm_formatted),
+                a.zcsbjzxkyxm = TRIM(TRAILING '，' FROM v.zcsbjzxkyxm_formatted),
+                a.zctjjxhjkyxm = TRIM(TRAILING '，' FROM v.zctjjxhjkyxm_formatted),
+                a.zcxjjxglxmywyys = TRIM(TRAILING '，' FROM v.zcxjjxglxmywyys_formatted),
+                a.zcxjjxglxmywyyx = TRIM(TRAILING '，' FROM v.zcxjjxglxmywyyx_formatted);
+    </update>
+</mapper>
