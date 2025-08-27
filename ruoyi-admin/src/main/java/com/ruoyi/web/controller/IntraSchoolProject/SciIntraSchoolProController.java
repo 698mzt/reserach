@@ -72,7 +72,7 @@ public class SciIntraSchoolProController extends BaseController {
 //        System.out.println("roleid_list  " + roleid_list.contains(100L));
 
         startPage();
-        //当前登陆角色列表，如果一个人有多个角色，列表就多一项
+        //判断当前用户的角色
         String role_str=panRole_str();
         System.out.println("role_str = " + role_str);
         List<SciIntraSchoolPro> list = new ArrayList<>();

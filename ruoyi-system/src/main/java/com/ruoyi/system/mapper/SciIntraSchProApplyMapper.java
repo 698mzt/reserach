@@ -65,4 +65,6 @@ public interface SciIntraSchProApplyMapper {
     String getuser_dnameById(Long userId);
 
     List<Map<String, Object>> getfilekey(@Param("userId")Long userId);
+
+    List<Map<String, Object>> getAllOverSchProToAlltotle();
 }
