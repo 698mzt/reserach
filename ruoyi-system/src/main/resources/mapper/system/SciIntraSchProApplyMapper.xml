@@ -852,4 +852,18 @@
             u.dept_id = d.dept_id AND u.user_id = #{userId}
 
     </select>
+
+  <select id="getAllOverSchProToAlltotle" parameterType="java.util.HashMap" >
+    select
+      id,
+      first_person_id ,
+      second_person_id ,
+      third_person_id ,
+      fourth_person_id ,
+      amount
+    from
+      sci_IntraSchPro_apply
+    where
+      state = 6
+  </select>
 </mapper>
