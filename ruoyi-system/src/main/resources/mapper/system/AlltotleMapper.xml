@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.AlltotleMapper">
+
+  <resultMap type="Alltotle" id="AlltotleResult">
+    <result property="userId"    column="userId"    />
+    <result property="userName"    column="userName"    />
+    <result property="partenId"    column="partenId"    />
+    <result property="partenName"    column="partenName"    />
+    <result property="deptId"    column="deptId"    />
+    <result property="deptName"    column="deptName"    />
+    <result property="zcgjjjkyxm"    column="zcgjjjkyxm"    />
+    <result property="zcsbjjjkyxm"    column="zcsbjjjkyxm"    />
+    <result property="zcsbjjgxm"    column="zcsbjjgxm"    />
+    <result property="zcsbjzxkyxm"    column="zcsbjzxkyxm"    />
+    <result property="zctjjxhjkyxm"    column="zctjjxhjkyxm"    />
+    <result property="zcxjjxglxmywyys"    column="zcxjjxglxmywyys"    />
+    <result property="zcxjjxglxmywyyx"    column="zcxjjxglxmywyyx"    />
+    <result property="ewyyx"    column="ewyyx"    />
+    <result property="edwwy"    column="edwwy"    />
+    <result property="wdswy"    column="wdswy"    />
+    <result property="sdeswy"    column="sdeswy"    />
+    <result property="esdsswwy"    column="esdsswwy"    />
+    <result property="wswwydwswy"    column="wswwydwswy"    />
+    <result property="wsdqswwy"    column="wsdqswwy"    />
+    <result property="qswdybwy"    column="qswdybwy"    />
+    <result property="eyxxx"    column="eyxxx"    />
+    <result property="edwxx"    column="edwxx"    />
+    <result property="wdsxx"    column="wdsxx"    />
+    <result property="sdesxx"    column="sdesxx"    />
+    <result property="esdsswxx"    column="esdsswxx"    />
+    <result property="sswdwsxx"    column="sswdwsxx"    />
+    <result property="dywsxx"    column="dywsxx"    />
+    <result property="SCI"    column="SCI"    />
+    <result property="EI"    column="EI"    />
+    <result property="hx"    column="hx"    />
+    <result property="sw"    column="sw"    />
+    <result property="pt"    column="pt"    />
+    <result property="xb"    column="xb"    />
+    <result property="zz"    column="zz"    />
+    <result property="jc"    column="jc"    />
+    <result property="sqfmzl"    column="sqfmzl"    />
+    <result property="syxxzl"    column="syxxzl"    />
+    <result property="wxsjzl"    column="wxsjzl"    />
+    <result property="jsjrjzzq"    column="jsjrjzzq"    />
+    <result property="sjjxcgj"    column="sjjxcgj"    />
+    <result property="sjkxjsj"    column="sjkxjsj"    />
+    <result property="sjyljpkpb"    column="sjyljpkpb"    />
+    <result property="stjjzrkxlpj"    column="stjjzrkxlpj"    />
+    <result property="stjjsklpj"    column="stjjsklpj"    />
+    <result property="xjjxcgj"    column="xjjxcgj"    />
+    <result property="yyxkyxjcgj"    column="yyxkyxjcgj"    />
+    <result property="xjjpkpb"    column="xjjpkpb"    />
+    <result property="jscjsjdshj"    column="jscjsjdshj"    />
+    <result property="jbgj"    column="jbgj"    />
+    <result property="jbgn"    column="jbgn"    />
+    <result property="cjgj"    column="cjgj"    />
+    <result property="cjgn"    column="cjgn"    />
+    <result property="xjxs"    column="xjxs"    />
+  </resultMap>
+
+  <sql id="selectAlltotleVo">
+    select userId, userName, partenId, partenName, deptId, deptName, zcgjjjkyxm, zcsbjjjkyxm, zcsbjjgxm, zcsbjzxkyxm, zctjjxhjkyxm, zcxjjxglxmywyys, zcxjjxglxmywyyx, ewyyx, edwwy, wdswy, sdeswy, esdsswwy, wswwydwswy, wsdqswwy, qswdybwy, eyxxx, edwxx, wdsxx, sdesxx, esdsswxx, sswdwsxx, dywsxx, SCI, EI, hx, sw, pt, xb, zz, jc, sqfmzl, syxxzl, wxsjzl, jsjrjzzq, sjjxcgj, sjkxjsj, sjyljpkpb, stjjzrkxlpj, stjjsklpj, xjjxcgj, yyxkyxjcgj, xjjpkpb, jscjsjdshj, jbgj, jbgn, cjgj, cjgn, xjxs from Alltotle
+  </sql>
+
+  <select id="selectAlltotleList" parameterType="Alltotle" resultMap="AlltotleResult">
+    <include refid="selectAlltotleVo"/>
+    <where>
+      <if test="userId != null "> and userId = #{userId}</if>
+      <if test="userName != null  and userName != ''"> and userName like concat('%', #{userName}, '%')</if>
+      <if test="partenId != null "> and partenId = #{partenId}</if>
+      <if test="partenName != null  and partenName != ''"> and partenName like concat('%', #{partenName}, '%')</if>
+      <if test="deptId != null "> and deptId = #{deptId}</if>
+      <if test="deptName != null  and deptName != ''"> and deptName like concat('%', #{deptName}, '%')</if>
+      <if test="zcgjjjkyxm != null  and zcgjjjkyxm != ''"> and zcgjjjkyxm = #{zcgjjjkyxm}</if>
+      <if test="zcsbjjjkyxm != null  and zcsbjjjkyxm != ''"> and zcsbjjjkyxm = #{zcsbjjjkyxm}</if>
+      <if test="zcsbjjgxm != null  and zcsbjjgxm != ''"> and zcsbjjgxm = #{zcsbjjgxm}</if>
+      <if test="zcsbjzxkyxm != null  and zcsbjzxkyxm != ''"> and zcsbjzxkyxm = #{zcsbjzxkyxm}</if>
+      <if test="zctjjxhjkyxm != null  and zctjjxhjkyxm != ''"> and zctjjxhjkyxm = #{zctjjxhjkyxm}</if>
+      <if test="zcxjjxglxmywyys != null  and zcxjjxglxmywyys != ''"> and zcxjjxglxmywyys = #{zcxjjxglxmywyys}</if>
+      <if test="zcxjjxglxmywyyx != null  and zcxjjxglxmywyyx != ''"> and zcxjjxglxmywyyx = #{zcxjjxglxmywyyx}</if>
+      <if test="ewyyx != null  and ewyyx != ''"> and ewyyx = #{ewyyx}</if>
+      <if test="edwwy != null  and edwwy != ''"> and edwwy = #{edwwy}</if>
+      <if test="wdswy != null  and wdswy != ''"> and wdswy = #{wdswy}</if>
+      <if test="sdeswy != null  and sdeswy != ''"> and sdeswy = #{sdeswy}</if>
+      <if test="esdsswwy != null  and esdsswwy != ''"> and esdsswwy = #{esdsswwy}</if>
+      <if test="wswwydwswy != null  and wswwydwswy != ''"> and wswwydwswy = #{wswwydwswy}</if>
+      <if test="wsdqswwy != null  and wsdqswwy != ''"> and wsdqswwy = #{wsdqswwy}</if>
+      <if test="qswdybwy != null  and qswdybwy != ''"> and qswdybwy = #{qswdybwy}</if>
+      <if test="eyxxx != null  and eyxxx != ''"> and eyxxx = #{eyxxx}</if>
+      <if test="edwxx != null  and edwxx != ''"> and edwxx = #{edwxx}</if>
+      <if test="wdsxx != null  and wdsxx != ''"> and wdsxx = #{wdsxx}</if>
+      <if test="sdesxx != null  and sdesxx != ''"> and sdesxx = #{sdesxx}</if>
+      <if test="esdsswxx != null  and esdsswxx != ''"> and esdsswxx = #{esdsswxx}</if>
+      <if test="sswdwsxx != null  and sswdwsxx != ''"> and sswdwsxx = #{sswdwsxx}</if>
+      <if test="dywsxx != null  and dywsxx != ''"> and dywsxx = #{dywsxx}</if>
+      <if test="SCI != null  and SCI != ''"> and SCI = #{SCI}</if>
+      <if test="EI != null  and EI != ''"> and EI = #{EI}</if>
+      <if test="hx != null  and hx != ''"> and hx = #{hx}</if>
+      <if test="sw != null  and sw != ''"> and sw = #{sw}</if>
+      <if test="pt != null  and pt != ''"> and pt = #{pt}</if>
+      <if test="xb != null  and xb != ''"> and xb = #{xb}</if>
+      <if test="zz != null  and zz != ''"> and zz = #{zz}</if>
+      <if test="jc != null  and jc != ''"> and jc = #{jc}</if>
+      <if test="sqfmzl != null  and sqfmzl != ''"> and sqfmzl = #{sqfmzl}</if>
+      <if test="syxxzl != null  and syxxzl != ''"> and syxxzl = #{syxxzl}</if>
+      <if test="wxsjzl != null  and wxsjzl != ''"> and wxsjzl = #{wxsjzl}</if>
+      <if test="jsjrjzzq != null  and jsjrjzzq != ''"> and jsjrjzzq = #{jsjrjzzq}</if>
+      <if test="sjjxcgj != null  and sjjxcgj != ''"> and sjjxcgj = #{sjjxcgj}</if>
+      <if test="sjkxjsj != null  and sjkxjsj != ''"> and sjkxjsj = #{sjkxjsj}</if>
+      <if test="sjyljpkpb != null  and sjyljpkpb != ''"> and sjyljpkpb = #{sjyljpkpb}</if>
+      <if test="stjjzrkxlpj != null  and stjjzrkxlpj != ''"> and stjjzrkxlpj = #{stjjzrkxlpj}</if>
+      <if test="stjjsklpj != null  and stjjsklpj != ''"> and stjjsklpj = #{stjjsklpj}</if>
+      <if test="xjjxcgj != null  and xjjxcgj != ''"> and xjjxcgj = #{xjjxcgj}</if>
+      <if test="yyxkyxjcgj != null  and yyxkyxjcgj != ''"> and yyxkyxjcgj = #{yyxkyxjcgj}</if>
+      <if test="xjjpkpb != null  and xjjpkpb != ''"> and xjjpkpb = #{xjjpkpb}</if>
+      <if test="jscjsjdshj != null  and jscjsjdshj != ''"> and jscjsjdshj = #{jscjsjdshj}</if>
+      <if test="jbgj != null  and jbgj != ''"> and jbgj = #{jbgj}</if>
+      <if test="jbgn != null  and jbgn != ''"> and jbgn = #{jbgn}</if>
+      <if test="cjgj != null  and cjgj != ''"> and cjgj = #{cjgj}</if>
+      <if test="cjgn != null  and cjgn != ''"> and cjgn = #{cjgn}</if>
+      <if test="xjxs != null  and xjxs != ''"> and xjxs = #{xjxs}</if>
+    </where>
+  </select>
+
+  <select id="selectAlltotleByUserId" parameterType="Long" resultMap="AlltotleResult">
+    <include refid="selectAlltotleVo"/>
+    where userId = #{userId}
+  </select>
+
+  <insert id="insertAlltotle" parameterType="Alltotle">
+    insert into Alltotle
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="userId != null">userId,</if>
+      <if test="userName != null">userName,</if>
+      <if test="partenId != null">partenId,</if>
+      <if test="partenName != null">partenName,</if>
+      <if test="deptId != null">deptId,</if>
+      <if test="deptName != null">deptName,</if>
+      <if test="zcgjjjkyxm != null">zcgjjjkyxm,</if>
+      <if test="zcsbjjjkyxm != null">zcsbjjjkyxm,</if>
+      <if test="zcsbjjgxm != null">zcsbjjgxm,</if>
+      <if test="zcsbjzxkyxm != null">zcsbjzxkyxm,</if>
+      <if test="zctjjxhjkyxm != null">zctjjxhjkyxm,</if>
+      <if test="zcxjjxglxmywyys != null">zcxjjxglxmywyys,</if>
+      <if test="zcxjjxglxmywyyx != null">zcxjjxglxmywyyx,</if>
+      <if test="ewyyx != null">ewyyx,</if>
+      <if test="edwwy != null">edwwy,</if>
+      <if test="wdswy != null">wdswy,</if>
+      <if test="sdeswy != null">sdeswy,</if>
+      <if test="esdsswwy != null">esdsswwy,</if>
+      <if test="wswwydwswy != null">wswwydwswy,</if>
+      <if test="wsdqswwy != null">wsdqswwy,</if>
+      <if test="qswdybwy != null">qswdybwy,</if>
+      <if test="eyxxx != null">eyxxx,</if>
+      <if test="edwxx != null">edwxx,</if>
+      <if test="wdsxx != null">wdsxx,</if>
+      <if test="sdesxx != null">sdesxx,</if>
+      <if test="esdsswxx != null">esdsswxx,</if>
+      <if test="sswdwsxx != null">sswdwsxx,</if>
+      <if test="dywsxx != null">dywsxx,</if>
+      <if test="SCI != null">SCI,</if>
+      <if test="EI != null">EI,</if>
+      <if test="hx != null">hx,</if>
+      <if test="sw != null">sw,</if>
+      <if test="pt != null">pt,</if>
+      <if test="xb != null">xb,</if>
+      <if test="zz != null">zz,</if>
+      <if test="jc != null">jc,</if>
+      <if test="sqfmzl != null">sqfmzl,</if>
+      <if test="syxxzl != null">syxxzl,</if>
+      <if test="wxsjzl != null">wxsjzl,</if>
+      <if test="jsjrjzzq != null">jsjrjzzq,</if>
+      <if test="sjjxcgj != null">sjjxcgj,</if>
+      <if test="sjkxjsj != null">sjkxjsj,</if>
+      <if test="sjyljpkpb != null">sjyljpkpb,</if>
+      <if test="stjjzrkxlpj != null">stjjzrkxlpj,</if>
+      <if test="stjjsklpj != null">stjjsklpj,</if>
+      <if test="xjjxcgj != null">xjjxcgj,</if>
+      <if test="yyxkyxjcgj != null">yyxkyxjcgj,</if>
+      <if test="xjjpkpb != null">xjjpkpb,</if>
+      <if test="jscjsjdshj != null">jscjsjdshj,</if>
+      <if test="jbgj != null">jbgj,</if>
+      <if test="jbgn != null">jbgn,</if>
+      <if test="cjgj != null">cjgj,</if>
+      <if test="cjgn != null">cjgn,</if>
+      <if test="xjxs != null">xjxs,</if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="userId != null">#{userId},</if>
+      <if test="userName != null">#{userName},</if>
+      <if test="partenId != null">#{partenId},</if>
+      <if test="partenName != null">#{partenName},</if>
+      <if test="deptId != null">#{deptId},</if>
+      <if test="deptName != null">#{deptName},</if>
+      <if test="zcgjjjkyxm != null">#{zcgjjjkyxm},</if>
+      <if test="zcsbjjjkyxm != null">#{zcsbjjjkyxm},</if>
+      <if test="zcsbjjgxm != null">#{zcsbjjgxm},</if>
+      <if test="zcsbjzxkyxm != null">#{zcsbjzxkyxm},</if>
+      <if test="zctjjxhjkyxm != null">#{zctjjxhjkyxm},</if>
+      <if test="zcxjjxglxmywyys != null">#{zcxjjxglxmywyys},</if>
+      <if test="zcxjjxglxmywyyx != null">#{zcxjjxglxmywyyx},</if>
+      <if test="ewyyx != null">#{ewyyx},</if>
+      <if test="edwwy != null">#{edwwy},</if>
+      <if test="wdswy != null">#{wdswy},</if>
+      <if test="sdeswy != null">#{sdeswy},</if>
+      <if test="esdsswwy != null">#{esdsswwy},</if>
+      <if test="wswwydwswy != null">#{wswwydwswy},</if>
+      <if test="wsdqswwy != null">#{wsdqswwy},</if>
+      <if test="qswdybwy != null">#{qswdybwy},</if>
+      <if test="eyxxx != null">#{eyxxx},</if>
+      <if test="edwxx != null">#{edwxx},</if>
+      <if test="wdsxx != null">#{wdsxx},</if>
+      <if test="sdesxx != null">#{sdesxx},</if>
+      <if test="esdsswxx != null">#{esdsswxx},</if>
+      <if test="sswdwsxx != null">#{sswdwsxx},</if>
+      <if test="dywsxx != null">#{dywsxx},</if>
+      <if test="SCI != null">#{SCI},</if>
+      <if test="EI != null">#{EI},</if>
+      <if test="hx != null">#{hx},</if>
+      <if test="sw != null">#{sw},</if>
+      <if test="pt != null">#{pt},</if>
+      <if test="xb != null">#{xb},</if>
+      <if test="zz != null">#{zz},</if>
+      <if test="jc != null">#{jc},</if>
+      <if test="sqfmzl != null">#{sqfmzl},</if>
+      <if test="syxxzl != null">#{syxxzl},</if>
+      <if test="wxsjzl != null">#{wxsjzl},</if>
+      <if test="jsjrjzzq != null">#{jsjrjzzq},</if>
+      <if test="sjjxcgj != null">#{sjjxcgj},</if>
+      <if test="sjkxjsj != null">#{sjkxjsj},</if>
+      <if test="sjyljpkpb != null">#{sjyljpkpb},</if>
+      <if test="stjjzrkxlpj != null">#{stjjzrkxlpj},</if>
+      <if test="stjjsklpj != null">#{stjjsklpj},</if>
+      <if test="xjjxcgj != null">#{xjjxcgj},</if>
+      <if test="yyxkyxjcgj != null">#{yyxkyxjcgj},</if>
+      <if test="xjjpkpb != null">#{xjjpkpb},</if>
+      <if test="jscjsjdshj != null">#{jscjsjdshj},</if>
+      <if test="jbgj != null">#{jbgj},</if>
+      <if test="jbgn != null">#{jbgn},</if>
+      <if test="cjgj != null">#{cjgj},</if>
+      <if test="cjgn != null">#{cjgn},</if>
+      <if test="xjxs != null">#{xjxs},</if>
+    </trim>
+  </insert>
+
+  <update id="updateAlltotle" parameterType="Alltotle">
+    update Alltotle
+    <trim prefix="SET" suffixOverrides=",">
+      <if test="userName != null">userName = #{userName},</if>
+      <if test="partenId != null">partenId = #{partenId},</if>
+      <if test="partenName != null">partenName = #{partenName},</if>
+      <if test="deptId != null">deptId = #{deptId},</if>
+      <if test="deptName != null">deptName = #{deptName},</if>
+      <if test="zcgjjjkyxm != null">zcgjjjkyxm = #{zcgjjjkyxm},</if>
+      <if test="zcsbjjjkyxm != null">zcsbjjjkyxm = #{zcsbjjjkyxm},</if>
+      <if test="zcsbjjgxm != null">zcsbjjgxm = #{zcsbjjgxm},</if>
+      <if test="zcsbjzxkyxm != null">zcsbjzxkyxm = #{zcsbjzxkyxm},</if>
+      <if test="zctjjxhjkyxm != null">zctjjxhjkyxm = #{zctjjxhjkyxm},</if>
+      <if test="zcxjjxglxmywyys != null">zcxjjxglxmywyys = #{zcxjjxglxmywyys},</if>
+      <if test="zcxjjxglxmywyyx != null">zcxjjxglxmywyyx = #{zcxjjxglxmywyyx},</if>
+      <if test="ewyyx != null">ewyyx = #{ewyyx},</if>
+      <if test="edwwy != null">edwwy = #{edwwy},</if>
+      <if test="wdswy != null">wdswy = #{wdswy},</if>
+      <if test="sdeswy != null">sdeswy = #{sdeswy},</if>
+      <if test="esdsswwy != null">esdsswwy = #{esdsswwy},</if>
+      <if test="wswwydwswy != null">wswwydwswy = #{wswwydwswy},</if>
+      <if test="wsdqswwy != null">wsdqswwy = #{wsdqswwy},</if>
+      <if test="qswdybwy != null">qswdybwy = #{qswdybwy},</if>
+      <if test="eyxxx != null">eyxxx = #{eyxxx},</if>
+      <if test="edwxx != null">edwxx = #{edwxx},</if>
+      <if test="wdsxx != null">wdsxx = #{wdsxx},</if>
+      <if test="sdesxx != null">sdesxx = #{sdesxx},</if>
+      <if test="esdsswxx != null">esdsswxx = #{esdsswxx},</if>
+      <if test="sswdwsxx != null">sswdwsxx = #{sswdwsxx},</if>
+      <if test="dywsxx != null">dywsxx = #{dywsxx},</if>
+      <if test="SCI != null">SCI = #{SCI},</if>
+      <if test="EI != null">EI = #{EI},</if>
+      <if test="hx != null">hx = #{hx},</if>
+      <if test="sw != null">sw = #{sw},</if>
+      <if test="pt != null">pt = #{pt},</if>
+      <if test="xb != null">xb = #{xb},</if>
+      <if test="zz != null">zz = #{zz},</if>
+      <if test="jc != null">jc = #{jc},</if>
+      <if test="sqfmzl != null">sqfmzl = #{sqfmzl},</if>
+      <if test="syxxzl != null">syxxzl = #{syxxzl},</if>
+      <if test="wxsjzl != null">wxsjzl = #{wxsjzl},</if>
+      <if test="jsjrjzzq != null">jsjrjzzq = #{jsjrjzzq},</if>
+      <if test="sjjxcgj != null">sjjxcgj = #{sjjxcgj},</if>
+      <if test="sjkxjsj != null">sjkxjsj = #{sjkxjsj},</if>
+      <if test="sjyljpkpb != null">sjyljpkpb = #{sjyljpkpb},</if>
+      <if test="stjjzrkxlpj != null">stjjzrkxlpj = #{stjjzrkxlpj},</if>
+      <if test="stjjsklpj != null">stjjsklpj = #{stjjsklpj},</if>
+      <if test="xjjxcgj != null">xjjxcgj = #{xjjxcgj},</if>
+      <if test="yyxkyxjcgj != null">yyxkyxjcgj = #{yyxkyxjcgj},</if>
+      <if test="xjjpkpb != null">xjjpkpb = #{xjjpkpb},</if>
+      <if test="jscjsjdshj != null">jscjsjdshj = #{jscjsjdshj},</if>
+      <if test="jbgj != null">jbgj = #{jbgj},</if>
+      <if test="jbgn != null">jbgn = #{jbgn},</if>
+      <if test="cjgj != null">cjgj = #{cjgj},</if>
+      <if test="cjgn != null">cjgn = #{cjgn},</if>
+      <if test="xjxs != null">xjxs = #{xjxs},</if>
+    </trim>
+    where userId = #{userId}
+  </update>
+
+  <delete id="deleteAlltotleByUserId" parameterType="Long">
+    delete from Alltotle where userId = #{userId}
+  </delete>
+
+  <delete id="deleteAlltotleByUserIds" parameterType="String">
+    delete from Alltotle where userId in
+    <foreach item="userId" collection="array" open="(" separator="," close=")">
+      #{userId}
+    </foreach>
+  </delete>
+
+</mapper>
