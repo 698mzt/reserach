@@ -14,7 +14,7 @@
             SUM(SCI + EI + hx + sw + pt + xb ) AS `学术论文`,
             SUM(zz + jc ) AS `教材著作`,
             SUM(sqfmzl + syxxzl + wxsjzl ) AS `专利`,
-            SUM(sjjxcgj ) AS '软著',
+            SUM(jsjrjzzq ) AS '软著',
                 SUM(sjjxcgj + sjkxjsj + sjyljpkpb + stjjzrkxlpj + stjjsklpj + xjjxcgj + yyxkyxjcgj + xjjpkpb +  jscjsjdshj ) AS `奖励类`,
             SUM(jbgj + jbgn + cjgj + cjgn + xjxs  ) AS `学术报告`
         FROM Alltotle
@@ -34,7 +34,7 @@
             SUM(SCI + EI + hx + sw + pt + xb ) AS `学术论文`,
             SUM(zz + jc ) AS `教材著作`,
             SUM(sqfmzl + syxxzl + wxsjzl ) AS `专利`,
-            SUM(sjjxcgj ) AS '软著',
+            SUM(jsjrjzzq ) AS '软著',
                 SUM(sjjxcgj + sjkxjsj + sjyljpkpb + stjjzrkxlpj + stjjsklpj + xjjxcgj + yyxkyxjcgj + xjjpkpb +  jscjsjdshj ) AS `奖励类`,
             SUM(jbgj + jbgn + cjgj + cjgn + xjxs  ) AS `学术报告`
         FROM Alltotle
