@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.SynchronizeZlrzMapper">
+    <update id="synchronizeZLRZ">
+        UPDATE Alltotle a
+            JOIN (
+            SELECT
+            user_id,
+            SUM(CASE WHEN fenlei = 1 THEN 1 ELSE 0 END) AS count_fenlei_1,
+            SUM(CASE WHEN fenlei = 2 THEN 1 ELSE 0 END) AS count_fenlei_2,
+            SUM(CASE WHEN fenlei = 3 THEN 1 ELSE 0 END) AS count_fenlei_3,
+            SUM(CASE WHEN fenlei = 4 THEN 1 ELSE 0 END) AS count_fenlei_4
+            FROM sci_zhuanliruanzhu
+            WHERE state = 6
+            GROUP BY user_id
+            ) b ON a.userId = b.user_id
+            SET
+                a.sqfmzl = COALESCE(b.count_fenlei_1, 0),
+                a.syxxzl = COALESCE(b.count_fenlei_2, 0),
+                a.wxsjzl = COALESCE(b.count_fenlei_3, 0),
+                a.jsjrjzzq = COALESCE(b.count_fenlei_4, 0)
+    </update>
+
+
+</mapper>

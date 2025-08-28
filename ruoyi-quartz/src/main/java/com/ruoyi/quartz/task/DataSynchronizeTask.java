@@ -1,6 +1,7 @@
 package com.ruoyi.quartz.task;
 
 import com.ruoyi.system.mapper.SynchronizeDataMapper;
+import com.ruoyi.system.mapper.SynchronizeZlrzMapper;
 import com.ruoyi.system.service.IAlltotleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -19,6 +20,10 @@ public class DataSynchronizeTask {
   @Autowired
   private IAlltotleService synchronousAlltotle;
 
+  @Autowired
+  private SynchronizeZlrzMapper synchronizeZlrzMapper;
+
+
   /**
    * 同步所有数据
    * 包括横向课题和纵向课题数据
@@ -32,6 +37,9 @@ public class DataSynchronizeTask {
 
     //自动同步成果转化
     synchronousAlltotle();
+
+    //同步专利软著
+    synchronizeZLRZ();
   }
 
   /**
@@ -59,5 +67,15 @@ public class DataSynchronizeTask {
     System.out.println("成果转化数据开始同步");
     synchronousAlltotle.synchronousAlltotle();
     System.out.println("成果转化数据同步完成");
+  }
+
+
+  /**
+   * 同步专利软著数据
+   */
+  private void synchronizeZLRZ() {
+    System.out.println("专利软著数据开始同步");
+    synchronizeZlrzMapper.synchronizeZLRZ();
+    System.out.println("专利软著数据同步完成");
   }
 }
