@@ -48,7 +48,7 @@ public class SciZhuanliruanzhu extends BaseEntity
                 ", xiaoneizhicheng='" + xiaoneizhicheng + '\'' +
                 ", jiaoshixingming='" + jiaoshixingming + '\'' +
                 ", mingcheng='" + mingcheng + '\'' +
-                ", leixing='" + leixing + '\'' +
+//                ", leixing='" + leixing + '\'' +
                 ", shoquanhao='" + shoquanhao + '\'' +
                 ", huopishijain=" + huopishijain +
                 ", shifouyingyon='" + shifouyingyon + '\'' +
@@ -232,8 +232,8 @@ public class SciZhuanliruanzhu extends BaseEntity
     @Excel(name = "名称")
     private String mingcheng;
 
-    /** 类型 */
-    @Excel(name = "类型",dictType = "sys_zhuanli_leibie")
+//    /** 类型 */
+//    @Excel(name = "类型",dictType = "sys_zhuanli_leibie")
     private String leixing;
 
     /** 授权号 */
@@ -276,6 +276,7 @@ public class SciZhuanliruanzhu extends BaseEntity
         this.state = state;
     }
 
+    @Excel(name = "状态")
     private String state;
 
     public void setId(Integer id) 

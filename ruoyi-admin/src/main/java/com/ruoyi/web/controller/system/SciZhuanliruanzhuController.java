@@ -188,6 +188,9 @@ public class SciZhuanliruanzhuController extends BaseController
         //设置部门id，传输过去用来为查询设置部门限制
         sciZhuanliruanzhu.setDeptId(getSysUser().getDeptId());
 
+        SysUser user = getSysUser();
+        sciZhuanliruanzhu.setParentId(user.getDept().getParentId());
+
         List<SciZhuanliruanzhu> list = new ArrayList<>();
 //        科研处
         switch (role) {
@@ -204,6 +207,15 @@ public class SciZhuanliruanzhuController extends BaseController
                 list = sciZhuanliruanzhuService.selectSciZhuanliruanzhuList21(sciZhuanliruanzhu);   //导出此教研室下的所有数据
                 break;
 
+        }
+
+        // 处理状态显示：状态为6显示"已完结"，其他显示"审批中"
+        for (SciZhuanliruanzhu item : list) {
+            if (item.getState() != null && "6".equals(item.getState())){
+                item.setState("已完结");
+            } else {
+                item.setState("审批中");
+            }
         }
 
 //        List<SciZhuanliruanzhu> list = sciZhuanliruanzhuService.selectSciZhuanliruanzhuList(sciZhuanliruanzhu);
