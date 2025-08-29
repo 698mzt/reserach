@@ -130,4 +130,5 @@ public class DataSynchronizeTask {
     synchronizedFlowMapper.syncronzedFlow();
     System.out.println("论文数据同步完成");
   }
+
 }
