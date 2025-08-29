@@ -119,7 +119,7 @@
             <div class="form-group">
                 <label class="col-sm-3 control-label">论文网址：</label>
                 <div class="col-sm-8">
-                    <input name="search_web" id="search_web" class="form-control" type="text"required>
+                    <input name="search_web" id="search_web" class="form-control" type="text" required>
                 </div>
             </div>
             <div class="form-group">
@@ -174,6 +174,14 @@
         });
 
         function submitHandler() {
+            if ($.validate.form()) {
+                // 校验网址
+                const searchWeb = $("#search_web").val().trim();
+                if (searchWeb !== "" && !validateUrl(searchWeb)) {
+                    $.modal.alertError("论文网址格式不正确，请以 http:// 或 https:// 开头");
+                    return false;
+                }
+            }
             if ($.validate.form()) {
                 if($("input[name='text_paper']").val()=="")
                     return $.modal.alertError("请上传论文收录通知");
@@ -382,6 +390,16 @@
                 return false;
             }
             return true;
+        }
+        function validateUrl(string) {
+            // 确保网址以 http:// 或 https:// 开头
+            if (!string.startsWith('http://') && !string.startsWith('https://')) {
+                return false;
+            }
+
+            // 使用正则表达式验证网址格式
+            const urlPattern = /^(https?):\/\/([^\s\.]+\.[^\s]{2,}|www\.[^\s]+\.[^\s]{2,})/;
+            return urlPattern.test(string);
         }
     </script>
 </body>
