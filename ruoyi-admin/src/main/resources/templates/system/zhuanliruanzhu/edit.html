@@ -69,6 +69,16 @@
                         </div>
                     </div>
                 </div>
+
+<!--                <div class="col-sm-6">-->
+<!--                    <label class="col-sm-4 control-label is-required">获批时间：</label>-->
+<!--                    <div class="col-sm-8">-->
+<!--                        <div class="input-group date">-->
+<!--                            <input name="huopishijain" class="form-control" placeholder="yyyy-MM-dd" type="text" required autocomplete="off">-->
+<!--                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
             </div>
 
             <div class="form-group row">
@@ -76,7 +86,7 @@
                     <label class="col-sm-4 control-label">是否应用：</label>
                     <div class="col-sm-8" th:with="type=${@dict.getType('sys_yes_no')}">
                         <label th:each="dict : ${type}" class="check-box">
-                            <input name="shifouyingyon" type="checkbox" th:value="${dict.dictValue}" th:text="${dict.dictLabel}" th:attr="checked=${sciZhuanliruanzhu.shifouyingyon.contains(dict.dictValue)?true:false}">
+                            <input name="shifouyingyon" type="radio" th:value="${dict.dictValue}" th:text="${dict.dictLabel}" th:attr="checked=${sciZhuanliruanzhu.shifouyingyon.contains(dict.dictValue)?true:false}">
                         </label>
                     </div>
                 </div>
@@ -84,7 +94,7 @@
                     <label class="col-sm-4 control-label">是否行业联合：</label>
                     <div class="col-sm-8" th:with="type=${@dict.getType('sys_yes_no')}">
                         <label th:each="dict : ${type}" class="check-box">
-                            <input name="hangyelianhe" type="checkbox" th:value="${dict.dictValue}" th:text="${dict.dictLabel}" th:attr="checked=${sciZhuanliruanzhu.hangyelianhe.contains(dict.dictValue)?true:false}">
+                            <input name="hangyelianhe" type="radio" th:value="${dict.dictValue}" th:text="${dict.dictLabel}" th:attr="checked=${sciZhuanliruanzhu.hangyelianhe.contains(dict.dictValue)?true:false}">
                         </label>
                     </div>
                 </div>
@@ -180,6 +190,14 @@
         }).on('fileremoved', function (event, id, index) {
             $("input[name='" + event.currentTarget.id + "']").val('')
         })
+
+
+        $("input[name='huopishijain']").datetimepicker({
+            format: "yyyy-mm-dd",
+            minView: "month",
+            autoclose: true
+        });
+
     </script>
 </body>
 </html>
