@@ -6,14 +6,7 @@
 
 <!--    同步用户数据-->
     <insert id="SynchronizeUser">
-        INSERT
-        INTO
-            Alltotle (userId,
-                      userName,
-                      partenId,
-                      partenName,
-                      deptId,
-                      deptName)
+        REPLACE INTO Alltotle (userId, userName, partenId, partenName, deptId, deptName)
         SELECT
             u.user_id AS userId,
             u.user_name AS userName,
@@ -21,26 +14,9 @@
             p.dept_name AS partenName,
             u.dept_id AS deptId,
             d.dept_name AS deptName
-
         FROM sys_user u
-                 left join sys_dept d on
-            u.dept_id = d.dept_id
-                 left join sys_dept p on
-            d.parent_id = p.dept_id ON
-	DUPLICATE KEY
-        UPDATE
-            userId =
-        VALUES(userId),
-            userName =
-        VALUES(userName),
-            partenId =
-        VALUES(partenId),
-            partenName =
-        VALUES(partenName),
-            deptId =
-        VALUES(deptId),
-            deptName =
-        VALUES(deptName)
+                 LEFT JOIN sys_dept d ON u.dept_id = d.dept_id
+                 LEFT JOIN sys_dept p ON d.parent_id = p.dept_id;
     </insert>
 
 <!--    删除alltotle表中的用户-->
