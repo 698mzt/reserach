@@ -92,7 +92,7 @@ public class DataSynchronizeTask {
    * 同步奖励数据
    */
   private void Reward() {
-    System.out.println("奖励数据同步完成");
+    System.out.println("奖励数据开始同步");
     synrewardDataMapper.Reward();
     System.out.println("奖励数据同步完成");
   }
