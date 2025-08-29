@@ -33,6 +33,12 @@ public class DataSynchronizeTask {
    * 包括横向课题和纵向课题数据
    */
   public void synchronizeAll() {
+    // 同步用户数据
+    SynchronizeUser();
+
+    // 删除不存在的用户数据
+    SynchronizeDeleteUser();
+
     // 同步横向课题数据
     synchronizeHX();
 
@@ -47,6 +53,19 @@ public class DataSynchronizeTask {
 
     //同步奖励数据
     Reward();
+  }
+
+
+  /**
+   * 同步横向课题数据
+   */
+  public void SynchronizeUser() {
+    System.out.println("用户数据开始同步");
+    synchronizeDataMapper.SynchronizeUser();
+  }
+  public void SynchronizeDeleteUser() {
+    synchronizeDataMapper.SynchronizeDeleteUser();
+    System.out.println("用户数据同步完成");
   }
 
   /**

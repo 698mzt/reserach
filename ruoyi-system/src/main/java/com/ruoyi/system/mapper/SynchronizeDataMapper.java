@@ -24,4 +24,19 @@ public interface SynchronizeDataMapper {
      */
     int SynchronizeZX();
 
+    /**
+     * 同步用户数据
+     * 对应 XML 中 id="SynchronizeUser" 的 insert 语句
+     *
+     * @return 更新记录数
+     */
+    int SynchronizeUser();
+
+    /**
+     * 删除不存在的用户数据
+     * 对应 XML 中 id="SynchronizeDeleteUser" 的 delete语句
+     *
+     * @return 更新记录数
+     */
+    int SynchronizeDeleteUser();
 }
