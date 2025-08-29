@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 @Controller
 @RequestMapping("/collegeresearch")
 public class SciCollegeResearch extends BaseController {
@@ -31,7 +30,10 @@ public class SciCollegeResearch extends BaseController {
     @ResponseBody
     public TableDataInfo list() {
         Long deptId =getSysUser().getDeptId();
-        List<Map<String, Object>> list = sciCollegeResearchMapper.selectCollegeResearch(deptId);
+        Long deptId1 = getSysUser().getParentId();
+        System.out.println("deptId = " + deptId);
+        System.out.println("deptId1 = " + deptId1);
+        List<Map<String, Object>> list = sciCollegeResearchMapper.selectCollegeResearch(deptId1);
         TableDataInfo data = getDataTable(list);
         data.setRows(list); // 数据列表
         data.setTotal(list.size()); // 总记录数
