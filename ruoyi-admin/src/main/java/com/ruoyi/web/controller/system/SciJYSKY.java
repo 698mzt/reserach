@@ -18,7 +18,7 @@ import java.util.Map;
 public class SciJYSKY extends BaseController {
     @Autowired
     private SciJYSKYMapper sciJYSKYMapper;
-    private String prefix = "/system/jysky";
+    private String prefix = "system/jysky";
     @GetMapping
     public String index()
     {
