@@ -127,6 +127,28 @@
         transition: width 0.6s ease;
     }
 
+    /* 分段高亮连接线 */
+    .progress_inner__bar .segment {
+        position: absolute;
+        height: 100%;
+        width: 50%;
+        background: transparent;
+        transition: background 0.4s ease;
+    }
+
+    .progress_inner__bar .segment.first {
+        left: 0;
+    }
+
+    .progress_inner__bar .segment.second {
+        right: 0;
+    }
+
+    .progress_inner__bar .segment.highlight {
+        background: #4CAF50;
+        box-shadow: 0 0 8px rgba(10, 225, 19, 0.7);
+    }
+
     .status-text {
         color: #9E9E9E;
         font-weight: normal;
@@ -550,12 +572,12 @@
                     align: 'center',
                     width: '150px',
                     formatter: function(value, row, index) {
-                        console.log("row.roleId:",row.roleId)
-                        console.log("row.rolekey:",row.rolekey)
-
+                        // console.log("row.roleId:",row.roleId)
+                        // console.log("row.rolekey:",row.rolekey)
+                        //
                         // console.log("row.state:",row.state)
-                        console.log("row.userId:",row.userId) // 角色自己ID
-                        console.log("row.uid:",row.uid) //登录人的ID
+                        // console.log("row.userId:",row.userId) // 角色自己ID
+                        // console.log("row.uid:",row.uid) //登录人的ID
 
                         $(document).ready(function () {
                             // 点击按钮时显示模态框
@@ -600,9 +622,9 @@
                             //         actions.push('<a class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan\')"><i class=""></i>查看</a>');
                             //     }
                         }  else if (row.state == 8) { // 完成
+                            actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan\')"><i class=""></i>查看</a><br>');
                             actions.push('<a  class="' + KyRevoke + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/kyth\')"><i class=""></i>撤回</a> ');
                             if (row.userId == row.uid) {
-                                actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan\')"><i class=""></i>查看</a><br>');
                                 actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="viewProcess(\'' + row.id +','+row.state+ '\')"><i class=""></i>查看流程</a>');
                             }
                         }
@@ -626,7 +648,6 @@
     function pushTh(id) {
         $.modal.confirm("确认要提交吗?", function () {
             var url = prefix + "/tj/" + id;
-            //$.operate.saveTab(url, id)
             $.ajax({
                 url: prefix + "/tj/" + id,
                 type: "post",
@@ -690,6 +711,7 @@
         function updateProgressState(state) {
             // 获取所有步骤元素
             const steps = document.querySelectorAll('.progress_inner__step');
+            const progressBar = document.querySelector('.progress_inner__bar');
 
             // 清除所有步骤的状态
             steps.forEach((step, index) => {
@@ -702,6 +724,23 @@
                     statusText.classList.remove('active');
                 }
             });
+
+            // 创建分段元素（如果尚未创建）
+            if (progressBar && !progressBar.querySelector('.segment')) {
+                const firstSegment = document.createElement('div');
+                firstSegment.className = 'segment first';
+                const secondSegment = document.createElement('div');
+                secondSegment.className = 'segment second';
+                progressBar.appendChild(firstSegment);
+                progressBar.appendChild(secondSegment);
+            }
+
+            // 移除所有分段高亮
+            const segments = progressBar ? progressBar.querySelectorAll('.segment') : [];
+            segments.forEach(segment => {
+                segment.classList.remove('highlight');
+            });
+
             console.log("state$:"+state)
 
             switch (state) { // 根据 state 更新状态
@@ -721,6 +760,11 @@
                     // 当前步骤为 step-2，step-1 完成
                     markCompleted(0); // step-1 完成
                     highlightStep(1); // 高亮第二个步骤
+
+                    // 高亮第一段连接线
+                    if (segments[0]) {
+                        segments[0].classList.add('highlight');
+                    }
                     break;
 
                 case "8":
@@ -728,6 +772,11 @@
                     markCompleted(0); // step-1 完成
                     markCompleted(1); // step-2 完成
                     highlightStep(2); // 高亮第三个步骤
+                    markCompleted(2) // step-3 完成
+                    // 高亮所有连接线
+                    segments.forEach(segment => {
+                        segment.classList.add('highlight');
+                    });
                     break;
 
                 default:

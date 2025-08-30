@@ -10,6 +10,7 @@ import com.ruoyi.common.config.RuoYiConfig;
 import com.ruoyi.common.config.ServerConfig;
 import com.ruoyi.common.utils.file.FileUploadUtils;
 import com.ruoyi.common.utils.file.FileUtils;
+import com.ruoyi.system.mapper.SciPaperAMapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -41,6 +42,8 @@ import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.common.core.page.TableDataInfo;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Resource;
+
 /**
  * 论文Controller
  * 
@@ -53,14 +56,18 @@ public class SciPaperAController extends BaseController
 {
     private String prefix = "system/paper";
 
-    @Autowired
+    @Resource
     private ISciPaperAService sciPaperAService;
 
-    @Autowired
+    @Resource
     private ServerConfig serverConfig;
 
-    @Autowired
+    @Resource
     private ISysUserService userService;
+
+    @Resource
+    private SciPaperAMapper sciPaperAMapper;
+
 
     @RequiresPermissions("system:paper:view")
     @GetMapping()
@@ -304,8 +311,13 @@ public class SciPaperAController extends BaseController
     @ResponseBody
     public AjaxResult tj(@PathVariable("id")Integer id)
     {
+        SciPaperAr sciPaperAr = new SciPaperAr();
+        sciPaperAr.setAr_id(id);
+        sciPaperAr.setUid(getUserId());
+        sciPaperAr.setConcate("提交");
+        sciPaperAr.setState("提交");
+        sciPaperAMapper.insertSciPaperAr(sciPaperAr);
         return toAjax(sciPaperAService.updateSciPaperAState(id));
-
     }
     /**
      *查询所有的论文名称并需要进行模糊查询

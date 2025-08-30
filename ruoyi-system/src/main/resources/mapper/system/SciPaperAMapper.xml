@@ -142,7 +142,7 @@
         left join sys_user_role ur on u.user_id = ur.user_id
         left join sys_role r on r.role_id = ur.role_id
         <where>
-            p.state in (1,2,8,99) and r.data_scope = '5'
+           ( p.state in (1,2,8) and r.data_scope = '5') or ( p.state = 99 and p.teacher_name = #{teacherName} and r.data_scope = '5')
             ${params.dataScope}
 <!--            <if test="userId != null  and userId != ''"> and p.user_id = #{userId}</if>-->
             <if test="teacherName != null  and teacherName != ''"> and teacher_name like concat('%', #{teacherName}, '%')</if>

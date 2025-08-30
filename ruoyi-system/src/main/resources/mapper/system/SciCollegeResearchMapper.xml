@@ -266,7 +266,6 @@
                  SELECT
                      s.parent_id,
                      s.dept_id,
-                     s.dept_name,
                      0 AS `横向课题科研项目`,
                      0 AS `纵向课题科研项目 - 校级以上`,
                      0 AS `纵向课题科研项目 - 校级`,

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.synchronizedFlowMapper">
+    <update id="syncronzedFlow">
+        UPDATE Alltotle a
+            JOIN (
+                SELECT
+                    p.user_id,
+                    p.teacher_name,
+                    SUM( CASE WHEN d.dict_label IN ( 'SCI分区Ⅰ区', 'SCI分区Ⅱ区', 'SCI分区Ⅲ区', 'SCI分区Ⅳ区' ) THEN p.research_score ELSE 0 END ) AS `SCI`,
+                    SUM( CASE WHEN d.dict_label = 'EI期刊论文' THEN p.research_score ELSE 0 END ) AS `EI`,
+                    SUM( CASE WHEN d.dict_label = '核心期刊文章（北大、 南大核心；社科类）' THEN p.research_score ELSE 0 END ) AS `hx`,
+                    SUM( CASE WHEN d.dict_label = '三网收录论文' THEN p.research_score ELSE 0 END ) AS `sw`,
+                    SUM( CASE WHEN d.dict_label = '普通期刊' THEN p.research_score ELSE 0 END ) AS `pt`,
+                    SUM( CASE WHEN d.dict_label = '校办期刊' THEN p.research_score ELSE 0 END ) AS `xb`,
+                    sum( p.research_score ) AS `总分数`
+                FROM
+                    sci_paper_a p
+                        LEFT JOIN sys_dict_data d ON d.dict_type = 'sci_paper_k'
+                        AND p.paper_category = d.dict_value
+                WHERE
+                    p.state = 8
+                GROUP BY
+                    p.user_id,
+                    p.teacher_name
+                ORDER BY
+                    p.user_id
+            ) sp ON a.userId = sp.user_id
+        SET a.SCI = sp.SCI,
+            a.EI = sp.EI,
+            a.hx = sp.hx,
+            a.sw = sp.sw,
+            a.pt = sp.pt,
+            a.xb = sp.xb
+    </update>
+</mapper>
