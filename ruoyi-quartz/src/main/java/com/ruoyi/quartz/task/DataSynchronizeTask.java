@@ -2,6 +2,7 @@ package com.ruoyi.quartz.task;
 
 import com.ruoyi.system.mapper.SynchronizeDataMapper;
 import com.ruoyi.system.mapper.SynchronizeZlrzMapper;
+import com.ruoyi.system.mapper.SynchronizeJcrzMapper;
 import com.ruoyi.system.mapper.SynrewardDataMapper;
 import com.ruoyi.system.mapper.synchronizedFlowMapper;
 import com.ruoyi.system.service.IAlltotleService;
@@ -24,6 +25,8 @@ public class DataSynchronizeTask {
 
   @Autowired
   private SynchronizeZlrzMapper synchronizeZlrzMapper;
+  @Autowired
+  private SynchronizeJcrzMapper synchronizeJcrzMapper;
 
   @Autowired
   private SynrewardDataMapper synrewardDataMapper;
@@ -54,6 +57,8 @@ public class DataSynchronizeTask {
 
     //同步专利软著
     synchronizeZLRZ();
+    //同步教材软著
+    synchronizeJCRZ();
 
     //同步奖励数据
     Reward();
@@ -112,6 +117,14 @@ public class DataSynchronizeTask {
     synchronizeZlrzMapper.synchronizeZLRZ();
     System.out.println("专利软著数据同步完成");
 
+  }
+  /**
+   * 同步教材软著数据
+   */
+  private void synchronizeJCRZ() {
+    System.out.println("教材软著数据开始同步");
+    synchronizeJcrzMapper.synchronizeJCRZ();
+    System.out.println("教材软著数据同步完成");
   }
 
 

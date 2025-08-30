@@ -197,6 +197,14 @@ public class SciJiaocairuanzhuController extends BaseController
                 break;
 
         }
+        // 处理状态显示：状态为6显示"已完结"，其他显示"审批中"
+        for (SciJiaocairuanzhu item : list) {
+            if (item.getState() != null && "6".equals(item.getState())){
+                item.setState("已完结");
+            } else {
+                item.setState("审批中");
+            }
+        }
         ExcelUtil<SciJiaocairuanzhu> util = new ExcelUtil<SciJiaocairuanzhu>(SciJiaocairuanzhu.class);
         return util.exportExcel(list, "教材软著数据");
     }

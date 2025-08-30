@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.SynchronizeJcrzMapper">
+    <update id="synchronizeJCRZ">
+        UPDATE Alltotle a
+            JOIN (
+            SELECT
+            user_id,
+            SUM(CASE WHEN fenlei = 1 THEN 1 ELSE 0 END) AS fenlei_1,
+            SUM(CASE WHEN fenlei = 2 THEN 1 ELSE 0 END) AS fenlei_2,
+            SUM(CASE WHEN fenlei = 3 THEN 1 ELSE 0 END) AS fenlei_3,
+            SUM(CASE WHEN fenlei = 4 THEN 1 ELSE 0 END) AS fenlei_4,
+            SUM(CASE WHEN fenlei = 5 THEN 1 ELSE 0 END) AS fenlei_5,
+            SUM(CASE WHEN fenlei = 6 THEN 1 ELSE 0 END) AS fenlei_6,
+            SUM(CASE WHEN fenlei = 7 THEN 1 ELSE 0 END) AS fenlei_7
+            FROM sci_jiaocairuanzhu
+            WHERE state = 6
+            GROUP BY user_id
+            ) AS stats ON a.userId = stats.user_id
+            SET
+                a.cbzz1 = COALESCE(stats.fenlei_1, 0),
+                a.cbzz2 = COALESCE(stats.fenlei_2, 0),
+                a.cbyz1 = COALESCE(stats.fenlei_3, 0),
+                a.cbyz2 = COALESCE(stats.fenlei_4, 0),
+                a.cbjc1 = COALESCE(stats.fenlei_5, 0),
+                a.cbjc2 = COALESCE(stats.fenlei_6, 0),
+                a.zbjc = COALESCE(stats.fenlei_7, 0)
+    </update>
+
+
+
+</mapper>
