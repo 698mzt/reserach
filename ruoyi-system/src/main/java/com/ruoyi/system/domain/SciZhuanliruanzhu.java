@@ -8,7 +8,7 @@ import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
 
 /**
- * 专利软著对象 sci_zhuanliruanzhu
+ * 教材软著对象 sci_zhuanliruanzhu
  * 
  * @author ruoyi
  * @date 2024-11-21

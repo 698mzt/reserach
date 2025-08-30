@@ -13,7 +13,6 @@ import com.ruoyi.system.service.ISysUserService;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
@@ -30,7 +29,7 @@ import com.ruoyi.system.mapper.SciProjectScoreCfgMapper;
  * 教材软著Controller
  *
  * @author ruoyi
- * @date 2024-11-21
+ *  2024-11-21
  */
 @Controller
 @RequestMapping("/system/jiaocairuanzhu")
@@ -44,8 +43,6 @@ public class SciJiaocairuanzhuController extends BaseController
     @Autowired
     private ISysUserService userService;
 
-
-    @Qualifier("sciJiaocairuanzhuPiyueServiceImpl")
     @Autowired
     private ISciJiaocairuanzhuPiyueService piyueService;
 
@@ -62,16 +59,21 @@ public class SciJiaocairuanzhuController extends BaseController
         return prefix + "/jiaocairuanzhu";
     }
 
-    /**
+    /**f
      * 查询教材软著列表
      */
+
     @RequiresPermissions("system:jiaocairuanzhu:list")
     @PostMapping("/list")
     @ResponseBody
     public TableDataInfo list(SciJiaocairuanzhu sciJiaocairuanzhu,String year)
+
     {
+//        System.out.println("Received tableId: " + tableId);
+        System.out.println("Received year: " + year);
         sciJiaocairuanzhu.setYear(year);
         sciJiaocairuanzhu.setUid(getUserId());
+        System.out.println("SciJiaocairuanzhu object: " + sciJiaocairuanzhu);
 
 
 //        startPage();
@@ -90,6 +92,11 @@ public class SciJiaocairuanzhuController extends BaseController
                     role = "research";
                     break label;
                 case "dept_teacher":
+                case "discuss_college":
+                case "art_design_college":
+                case "cxcy_college":
+                case "marxism_college":
+                case "dzgc_college":
                     role = "dept_teacher";
                     break label;
                 case "admin":
@@ -105,14 +112,14 @@ public class SciJiaocairuanzhuController extends BaseController
         sciJiaocairuanzhu.setDeptId(getSysUser().getDeptId());
 
 //          无用了//设置部门父id，传输过去用来为查询设置部门限制，这个是为查询部门负责人时，查询出部门负责人的部门，并设置查询条件，查询出部门负责人的部门下的所有子部门，
-          sciJiaocairuanzhu.setParentId(user.getDept().getParentId());
+        sciJiaocairuanzhu.setParentId(user.getDept().getParentId());
 //        sciJiaocairuanzhu.setParentId(getSysUser().getAncestors());
 //        System.out.println(getSysUser());
 //        System.out.println(user.getDept().getParentId());
-//
-//
-//
-//
+
+
+
+
 //        System.out.println(sciJiaocairuanzhu);
 
         List<SciJiaocairuanzhu> list = new ArrayList<>();
@@ -130,11 +137,12 @@ public class SciJiaocairuanzhuController extends BaseController
             case "research":
                 list = sciJiaocairuanzhuService.selectSciJiaocairuanzhuList2(sciJiaocairuanzhu);
                 break;
+
+
             case "admin":
                 list = sciJiaocairuanzhuService.selectSciJiaocairuanzhuList(sciJiaocairuanzhu);
                 break;
-
-//        教师
+            //        教师
             default:
                 list = sciJiaocairuanzhuService.selectSciJiaocairuanzhuList1(sciJiaocairuanzhu);
                 break;
@@ -179,6 +187,7 @@ public class SciJiaocairuanzhuController extends BaseController
 
         //设置部门id，传输过去用来为查询设置部门限制
         sciJiaocairuanzhu.setDeptId(getSysUser().getDeptId());
+
         SysUser user = getSysUser();
         sciJiaocairuanzhu.setParentId(user.getDept().getParentId());
 
@@ -199,6 +208,7 @@ public class SciJiaocairuanzhuController extends BaseController
                 break;
 
         }
+
         // 处理状态显示：状态为6显示"已完结"，其他显示"审批中"
         for (SciJiaocairuanzhu item : list) {
             if (item.getState() != null && "6".equals(item.getState())){
@@ -207,12 +217,16 @@ public class SciJiaocairuanzhuController extends BaseController
                 item.setState("审批中");
             }
         }
+
+//        List<SciJiaocairuanzhu> list = sciJiaocairuanzhuService.selectSciJiaocairuanzhuList(sciJiaocairuanzhu);
         ExcelUtil<SciJiaocairuanzhu> util = new ExcelUtil<SciJiaocairuanzhu>(SciJiaocairuanzhu.class);
         return util.exportExcel(list, "教材软著数据");
     }
 
+
+
     /**
-     * 新增教材软著
+     * 检查专利名称与负责人级别是否重复
      */
     @RequiresPermissions("system:jiaocairuanzhu:add")
     @PostMapping("/checkDuplicate")
@@ -220,11 +234,15 @@ public class SciJiaocairuanzhuController extends BaseController
     public AjaxResult checkDuplicate(@RequestParam String mingcheng, @RequestParam String paiming) {
         boolean exists = sciJiaocairuanzhuService.checkExist(mingcheng, paiming);
         if (exists) {
-            return AjaxResult.error("该教材软著名称的该负责人级别已存在，不可重复添加");
+            return AjaxResult.error("该专利名称的该负责人级别已存在，不可重复添加");
         } else {
             return AjaxResult.success(); // code == 0
         }
     }
+
+    /**
+     * 新增教材软著
+     */
 
     //get请求一般是加载表单页面，而不是处理表单提交
     @GetMapping("/add")
@@ -301,7 +319,9 @@ public class SciJiaocairuanzhuController extends BaseController
 
 
 
-    //    @RequiresPermissions("system:jiaocairuanzhu:process","system:jiaocairuanzhu:info")
+//    @RequiresPermissions("system:jiaocairuanzhu:process","system:jiaocairuanzhu:info")
+
+    //批阅
     @RequiresPermissions(value={"system:jiaocairuanzhu:process","system:jiaocairuanzhu:info"},logical= Logical.OR)
     @GetMapping("/detail/{id}/{urlFlag}")
     public String detail(@PathVariable("id") Integer id,@PathVariable("urlFlag") String urlFlag, ModelMap mmap)
@@ -318,7 +338,7 @@ public class SciJiaocairuanzhuController extends BaseController
 
 
 
-    @RequiresPermissions(value={"system:jiaocairuanzhu:hecha","system:jiaocairuanzhu:process","system:jiaocairuanzhu:chayue"},logical= Logical.OR)
+    @RequiresPermissions(value={"system:jiaocairuanzhu:hecha","system:jiaocairuanzhu:process","system:jiaocairuanzhu:chayue","system:jiaocairuanzhu:info"},logical= Logical.OR)
     @Log(title = "教材软著审核通过", businessType = BusinessType.UPDATE)
     @PostMapping( "/hxPass")
     @ResponseBody
@@ -375,5 +395,9 @@ public class SciJiaocairuanzhuController extends BaseController
         List<SciJiaocairuanzhuPiyue> list = piyueService.selectSciJiaocairuanzhuPiyueList(ob);
         return getDataTable(list);
     }
+
+
+
+
 }
 
