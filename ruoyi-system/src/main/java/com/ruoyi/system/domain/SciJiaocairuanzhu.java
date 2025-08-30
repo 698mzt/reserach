@@ -258,6 +258,7 @@ public class SciJiaocairuanzhu extends BaseEntity
         this.state = state;
     }
 
+    @Excel(name = "状态")
     private String state;
 
     public void setId(Integer id)
@@ -345,20 +346,13 @@ public class SciJiaocairuanzhu extends BaseEntity
     {
         this.mingcheng = mingcheng;
     }
-
     public String getMingcheng()
     {
         return mingcheng;
     }
-    public void setLeixing(String leixing)
-    {
-        this.leixing = leixing;
-    }
+    public void setLeixing(String leixing){this.leixing = leixing;}
 
-    public String getLeixing()
-    {
-        return leixing;
-    }
+    public String getLeixing(){return leixing;}
     public void setIsbn(String isbn)
     {
         this.isbn = isbn;
