@@ -23,13 +23,10 @@
         <result property="year" column="year" /> <!-- 确保映射正确 -->
         <result property="year" column="year" /> <!-- 确保映射正确 -->
         <result  property="parentId" column="parent_id" />
-
-
-
+        
     </resultMap>
-
     <sql id="selectSciJiaocairuanzhuVo">
-        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.mingcheng, s.leixing, s.isbn, s.chubanshijian, s.chubanshe, s.benxiaoshifoyongshu, s.fenlei, s.state,s.jifen,s.paiming,s.wenjian
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.mingcheng, s.isbn, s.chubanshijian, s.chubanshe, s.benxiaoshifoyongshu, s.fenlei, s.state,s.jifen,s.paiming,s.wenjian,s.createtime
         from sci_jiaocairuanzhu s left join sys_user u on  s.user_id=u.user_id
                                   left join sys_dept d on u.dept_id = d.dept_id
                                   left join sys_dept p on d.parent_id =p.dept_id
@@ -54,7 +51,7 @@
 
     <select id="selectSciJiaocairuanzhuList31" parameterType="SciJiaocairuanzhu" resultMap="SciJiaocairuanzhuResult">
         <include refid="selectSciJiaocairuanzhuVo"/>
-        where state in (1,2,3,4,5,6,7) and d.parent_id = #{deptId}
+        where state in (1,2,3,4,5,6,7) and d.parent_id = #{parentId}
 
 
         <if test="mingcheng != null  and mingcheng != ''"> and mingcheng like concat('%', #{mingcheng}, '%')</if>
@@ -73,13 +70,10 @@
         where state in (1,2,3,4,5,6,7) and d.dept_id = #{deptId}
 
 
-
-        <if test="xueyuan != null  and xueyuan != ''"> and xueyuan = #{xueyuan}</if>
-
         <if test="mingcheng != null  and mingcheng != ''"> and mingcheng like concat('%', #{mingcheng}, '%')</if>
         <if test="chubanshijian != null "> and chubanshijian = #{chubanshijian}</if>
         <if test="fenlei != null  and fenlei != ''"> and fenlei = #{fenlei}</if>
-        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(createtime,INTERVAL 1 MONTH)) = #{year}</if>
         <if test="userId != null  and userId != ''">and s.user_id = #{uid}</if>
 
 
@@ -88,16 +82,22 @@
 
     <select id="selectSciJiaocairuanzhuList1" parameterType="SciJiaocairuanzhu" resultMap="SciJiaocairuanzhuResult">
         <include refid="selectSciJiaocairuanzhuVo"/>
-        where state in (0,1,2,3,4,5,6,7) and s.user_id = #{uid}
+        where (state in (0,1,2,3,4,5,6,7) and s.user_id = #{uid})
         <if test="userId != null  and userId != ''">and s.user_id = #{uid}</if>
+
+
+
+
+
+
 
         <if test="mingcheng != null  and mingcheng != ''"> and mingcheng like concat('%', #{mingcheng}, '%')</if>
         <if test="chubanshijian != null "> and chubanshijian = #{chubanshijian}</if>
         <if test="fenlei != null  and fenlei != ''"> and fenlei = #{fenlei}</if>
-        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(createtime,INTERVAL 1 MONTH)) = #{year}</if>
 
 
-
+        order by state, createtime desc
     </select>
 
 
@@ -112,26 +112,27 @@
         <if test="mingcheng != null  and mingcheng != ''"> and mingcheng like concat('%', #{mingcheng}, '%')</if>
         <if test="chubanshijian != null "> and chubanshijian = #{chubanshijian}</if>
         <if test="fenlei != null  and fenlei != ''"> and fenlei = #{fenlei}</if>
-        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(createtime,INTERVAL 1 MONTH)) = #{year}</if>
 
-
+        order by state, createtime desc
     </select>
 
 
 
     <select id="selectSciJiaocairuanzhuList3" parameterType="SciJiaocairuanzhu" resultMap="SciJiaocairuanzhuResult">
         <include refid="selectSciJiaocairuanzhuVo"/>
-        where  (s.user_id = #{uid} or (state in (2,4) and d.dept_id = #{deptId}))
+        where  (s.user_id = #{uid} or (state in (2,4) and d.parent_id = #{parentId}))
+        <if test="jiaoyanshi != null  and jiaoyanshi != ''">and  d.dept_name like concat('%', #{jiaoyanshi}, '%')</if>
+        <if test="xingming != null  and xingming != ''">and  u.user_name like concat('%', #{xingming}, '%')</if>
 
-        <if test="jiaoyanshi != null  and jiaoyanshi != ''">and  d.dept_id = #{jiaoyanshi}</if>
 
 
         <if test="mingcheng != null  and mingcheng != ''"> and mingcheng like concat('%', #{mingcheng}, '%')</if>
         <if test="chubanshijian != null "> and chubanshijian = #{chubanshijian}</if>
         <if test="fenlei != null  and fenlei != ''"> and fenlei = #{fenlei}</if>
-        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(createtime,INTERVAL 1 MONTH)) = #{year}</if>
 
-
+        order by state, createtime desc
     </select>
 
 
@@ -139,19 +140,19 @@
     <select id="selectSciJiaocairuanzhuList4" parameterType="SciJiaocairuanzhu" resultMap="SciJiaocairuanzhuResult">
         <include refid="selectSciJiaocairuanzhuVo"/>
         where  s.user_id = #{uid} or state in (4,6)
-        <if test="jiaoyanshi != null  and jiaoyanshi != ''">and  d.dept_id = #{jiaoyanshi}</if>
-
+        <if test="jiaoyanshi != null  and jiaoyanshi != ''">and  d.dept_name like concat('%', #{jiaoyanshi}, '%')</if>
+        <if test="xingming != null  and xingming != ''">and  u.user_name like concat('%', #{xingming}, '%')</if>
         <if test="xueyuan != null  and xueyuan != ''"> and xueyuan = #{xueyuan}</if>
 
 
         <if test="mingcheng != null  and mingcheng != ''"> and mingcheng like concat('%', #{mingcheng}, '%')</if>
         <if test="chubanshijian != null "> and chubanshijian = #{chubanshijian}</if>
         <if test="fenlei != null  and fenlei != ''"> and fenlei = #{fenlei}</if>
-        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(createtime,INTERVAL 1 MONTH)) = #{year}</if>
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
-        <if test="state != null  and state != ''"> and state = #{state}</if>
 
 
+        order by state, createtime desc
     </select>
 
     <select id="selectSciJiaocairuanzhuById" parameterType="Integer" resultMap="SciJiaocairuanzhuResult">
@@ -196,7 +197,10 @@
     <update id="updateSciJiaocairuanzhu" parameterType="SciJiaocairuanzhu">
         update sci_jiaocairuanzhu
         <trim prefix="SET" suffixOverrides=",">
+
+
             <if test="userId != null">user_id = #{userId},</if>
+
             <if test="mingcheng != null and mingcheng != ''">mingcheng = #{mingcheng},</if>
             <if test="leixing != null and leixing != ''">leixing = #{leixing},</if>
             <if test="isbn != null">isbn = #{isbn},</if>
@@ -238,8 +242,9 @@
     </update>
 
     <select id="checkExist" resultType="int">
-        SELECT COUNT(*) FROM sci_zhuanliruanzhu
+        SELECT COUNT(*) FROM sci_jiaocairuanzhu
         WHERE mingcheng = #{mingcheng}
           AND paiming = #{paiming}
     </select>
+
 </mapper>
