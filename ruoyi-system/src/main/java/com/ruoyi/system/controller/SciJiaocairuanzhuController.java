@@ -179,6 +179,8 @@ public class SciJiaocairuanzhuController extends BaseController
 
         //设置部门id，传输过去用来为查询设置部门限制
         sciJiaocairuanzhu.setDeptId(getSysUser().getDeptId());
+        SysUser user = getSysUser();
+        sciJiaocairuanzhu.setParentId(user.getDept().getParentId());
 
         List<SciJiaocairuanzhu> list = new ArrayList<>();
 //        科研处

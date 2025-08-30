@@ -39,7 +39,7 @@ public class SciJiaocairuanzhu extends BaseEntity
                 ", xiaoneizhicheng='" + xiaoneizhicheng + '\'' +
                 ", jiaoshixingming='" + jiaoshixingming + '\'' +
                 ", mingcheng='" + mingcheng + '\'' +
-                ", leixing='" + leixing + '\'' +
+//                ", leixing='" + leixing + '\'' +
                 ", isbn='" + isbn + '\'' +
                 ", chubanshijian=" + chubanshijian +
                 ", chubanshe='" + chubanshe + '\'' +
@@ -216,8 +216,8 @@ public class SciJiaocairuanzhu extends BaseEntity
     private String mingcheng;
 
     /** 类型 */
-    @Excel(name = "类型",dictType = "sys_jiaocairuanzhu_leibie")
-    private String leixing;
+//    @Excel(name = "类型",dictType = "sys_jiaocairuanzhu_leibie")
+  private String leixing;
 
     /** isbn */
     @Excel(name = "ISBN")
@@ -350,9 +350,15 @@ public class SciJiaocairuanzhu extends BaseEntity
     {
         return mingcheng;
     }
-    public void setLeixing(String leixing){this.leixing = leixing;}
+    public void setLeixing(String leixing)
+    {
+        this.leixing = leixing;
+    }
 
-    public String getLeixing(){return leixing;}
+    public String getLeixing()
+    {
+        return leixing;
+    }
     public void setIsbn(String isbn)
     {
         this.isbn = isbn;

@@ -538,9 +538,8 @@
     var editFlag = [[${@permission.hasPermi('system:jiaocairuanzhu:edit')}]];
     var removeFlag = [[${@permission.hasPermi('system:jiaocairuanzhu:remove')}]];
     var xueyuanDatas = [[${@dict.getType('sys_xueyuan')}]];
-    var leixingDatas = [[${@dict.getType('sys_jiaocairuanzhu_leibie')}]];
-    var shifouyingyonDatas = [[${@dict.getType('sys_yes_no')}]];
-    var hangyelianheDatas = [[${@dict.getType('sys_yes_no')}]];
+    // var leixingDatas = [[${@dict.getType('sys_jiaocairuanzhu_leibie')}]];
+    var benxiaoshifoyongshuDatas = [[${@dict.getType('sys_yes_no')}]];
     var fenleiDatas = [[${@dict.getType('sys_jiaocairuanzhu_fenlei')}]];
     var datas = [[${@dict.getType('sys_jiaocairuanzhu_zt')}]];
     var paiMingDatas = [[${@dict.getType('sys_jiaocairuanzhu_fzr')}]];
@@ -602,13 +601,13 @@
                     field: 'mingcheng',
                     title: '教材软著名称'
                 },
-                {
-                    field: 'leixing',
-                    title: '类型',
-                    formatter: function(value, row, index) {
-                        return $.table.selectDictLabel(leixingDatas, value);
-                    }
-                },
+                // {
+                //     field: 'leixing',
+                //     title: '类型',
+                //     formatter: function(value, row, index) {
+                //         return $.table.selectDictLabel(leixingDatas, value);
+                //     }
+                // },
                 {
                     field: 'chubanshijian',
                     title: '出版时间'
