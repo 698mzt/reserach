@@ -3,7 +3,9 @@ package com.ruoyi.system.service.impl;
 import java.util.List;
 
 import com.ruoyi.common.core.domain.entity.SysUser;
-import com.ruoyi.system.domain.*;
+import com.ruoyi.system.domain.SciHorizontalPiyue;
+import com.ruoyi.system.domain.SciJiaocairuanzhuPiyue;
+import com.ruoyi.system.domain.SciJiaocairuanzhuScoreCfg;
 import com.ruoyi.system.mapper.SciHorizontalPiyueMapper;
 import com.ruoyi.system.mapper.SciJiaocairuanzhuPiyueMapper;
 import com.ruoyi.system.mapper.SciJiaocairuanzhuScoreCfgMapper;
@@ -11,6 +13,7 @@ import com.ruoyi.system.service.ISysUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.ruoyi.system.mapper.SciJiaocairuanzhuMapper;
+import com.ruoyi.system.domain.SciJiaocairuanzhu;
 import com.ruoyi.system.service.ISciJiaocairuanzhuService;
 import com.ruoyi.common.core.text.Convert;
 
@@ -214,7 +217,7 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService
             sciJiaocairuanzhuPiyue.setState("提交");
             sciJiaocairuanzhuPiyueMapper.insertSciJiaocairuanzhuPiyue(sciJiaocairuanzhuPiyue);
         }
-       else if (urlFlag.equals("pro") || urlFlag.equals("hecha") || urlFlag.equals("chayue")){
+        else if (urlFlag.equals("pro") || urlFlag.equals("hecha") || urlFlag.equals("chayue")) {
 
             SciJiaocairuanzhuPiyue sciJiaocairuanzhuPiyue = new SciJiaocairuanzhuPiyue();
             sciJiaocairuanzhuPiyue.setUid(uid);
@@ -271,6 +274,8 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService
     {
         return sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuList1(sciJiaocairuanzhu);
     }
+
+
     @Override
     public List<SciJiaocairuanzhu> selectSciJiaocairuanzhuList31(SciJiaocairuanzhu sciJiaocairuanzhu)
     {
@@ -281,7 +286,6 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService
     {
         return sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuList21(sciJiaocairuanzhu);
     }
-
 
     @Override
     public int recall(Integer id, String state,Long uid, String remark, String urlFlag) {
@@ -314,9 +318,13 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService
         sciJiaocairuanzhuPiyueMapper.insertSciJiaocairuanzhuPiyue(sciJiaocairuanzhuPiyue);
         return a;
     }
+
+
+
     @Override
     public boolean checkExist(String mingcheng, String paiming) {
         return sciJiaocairuanzhuMapper.checkExist(mingcheng, paiming) > 0;
     }
+
 
 }
