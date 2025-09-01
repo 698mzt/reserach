@@ -1,5 +1,7 @@
 package com.ruoyi.web.controller.system;
 
+//教研室科研工作量
+
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.system.mapper.SciJYSKYMapper;
@@ -18,11 +20,11 @@ import java.util.Map;
 public class SciJYSKY extends BaseController {
     @Autowired
     private SciJYSKYMapper sciJYSKYMapper;
-    private String prefix = "system/jysky";
+    private String prefix = "system/statistic";
     @GetMapping
     public String index()
     {
-        return prefix + "/index";
+        return prefix + "/kygzlJYS";
     }
 
     @PostMapping("/list")
