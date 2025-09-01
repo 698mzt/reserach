@@ -1,4 +1,6 @@
-package com.ruoyi.system.controller;
+package com.ruoyi.web.controller.system;
+
+//学校业绩成果数
 
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.page.TableDataInfo;
@@ -14,7 +16,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 @Controller
 @RequestMapping("/rewardxuexiao")
@@ -27,11 +28,11 @@ public class SysRewardxuexiaoController extends BaseController {
     @Autowired
     private ISysDeptService deptService;
 
-    private String prefix = "/system/rewardxuexiao";
+    private String prefix = "/system/statistic";
     @GetMapping()
     public String apply()
     {
-        return prefix + "/applyxuexiao";
+        return prefix + "/yjcgXX";
     }
 
 @PostMapping("/list")

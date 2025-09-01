@@ -1,4 +1,7 @@
 <!DOCTYPE html>
+
+<!--教研室科研工作量-->
+
 <html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
 <head>
     <th:block th:include="include :: header('表格虚拟滚动')" />
@@ -20,7 +23,7 @@
     $(function () {
         var options = {
             url: prefix + "/list",
-            modalName: '教研室科研项目',
+            modalName: '教研室科研工作量',
             method: "post",
             height: 600,
             sidePagination: "server",

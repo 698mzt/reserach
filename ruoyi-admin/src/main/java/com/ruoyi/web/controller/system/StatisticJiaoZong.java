@@ -1,5 +1,7 @@
 package com.ruoyi.web.controller.system;
 
+//<!--教研室业绩成果数-->
+
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.entity.SysDept;
 import com.ruoyi.common.core.domain.entity.SysUser;
@@ -29,11 +31,11 @@ public class StatisticJiaoZong extends BaseController {
     @Autowired
     private ISysDeptService deptService;
 
-    private String prefix = "system/statisticJZ";
+    private String prefix = "system/statistic";
     @GetMapping()
     public String apply()
     {
-        return prefix + "/applyJZ";
+        return prefix + "/yjcgJYS.html";
     }
 
     @PostMapping("/listJZ")

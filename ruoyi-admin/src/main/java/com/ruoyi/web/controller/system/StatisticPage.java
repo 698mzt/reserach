@@ -1,5 +1,5 @@
 package com.ruoyi.web.controller.system;
-
+//<!--教研室科研工作任务计划表-->
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.entity.SysDept;
 import com.ruoyi.common.core.domain.entity.SysUser;
@@ -33,7 +33,7 @@ public class StatisticPage extends BaseController {
     @GetMapping()
     public String apply()
     {
-        return prefix + "/apply";
+        return prefix + "/kygzrwJYS.html";
     }
 
     @PostMapping("/list")

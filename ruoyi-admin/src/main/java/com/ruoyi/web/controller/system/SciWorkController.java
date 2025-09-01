@@ -1,5 +1,7 @@
 package com.ruoyi.web.controller.system;
 
+//学校科研工作量
+
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.system.mapper.SciCollegeResearchMapper;
@@ -20,12 +22,12 @@ import java.util.Map;
 public class SciWorkController extends BaseController {
     @Autowired
     private SciCollegeResearchMapper sciCollegeResearchMapper;
-    private String prefix = "/system/work";
+    private String prefix = "/system/statistic";
 
     @GetMapping
     public String index()
     {
-        return prefix + "/index";
+        return prefix + "/kygzlXX";
     }
 
     @PostMapping("/list")
