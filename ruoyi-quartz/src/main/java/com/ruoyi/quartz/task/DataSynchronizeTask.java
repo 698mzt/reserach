@@ -57,6 +57,7 @@ public class DataSynchronizeTask {
 
     //同步专利软著
     synchronizeZLRZ();
+
     //同步教材软著
     synchronizeJCRZ();
 
@@ -66,6 +67,8 @@ public class DataSynchronizeTask {
     //同步论文
     syncronzedFlow();
 
+    //同步讲座报告
+    SynchronizeReport();
   }
 
 
@@ -137,11 +140,22 @@ public class DataSynchronizeTask {
     System.out.println("奖励数据同步完成");
   }
 
-  //同步论文
+  /**
+   * 同步论文
+   */
   private void syncronzedFlow() {
     System.out.println("论文数据开始同步");
     synchronizedFlowMapper.syncronzedFlow();
     System.out.println("论文数据同步完成");
+  }
+
+  /**
+   * 同步讲座报告
+   */
+  private void SynchronizeReport() {
+    System.out.println("讲座报告数据开始同步");
+    synchronizeDataMapper.SynchronizeReport();
+    System.out.println("讲座报告数据同步完成");
   }
 
 }
