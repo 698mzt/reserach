@@ -26,7 +26,7 @@ public class SciCollegeResearch extends BaseController {
     @GetMapping
     public String index()
     {
-        return prefix + "/kygzlXY";
+        return prefix + "kygzlXY";
     }
     @PostMapping("/list")
     @ResponseBody

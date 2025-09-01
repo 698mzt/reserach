@@ -28,7 +28,7 @@ public class SysRewardxuexiaoController extends BaseController {
     @Autowired
     private ISysDeptService deptService;
 
-    private String prefix = "/system/statistic";
+    private String prefix = "system/statistic";
     @GetMapping()
     public String apply()
     {
