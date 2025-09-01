@@ -39,4 +39,12 @@ public interface SynchronizeDataMapper {
      * @return 更新记录数
      */
     int SynchronizeDeleteUser();
+
+    /**
+     * 同步讲座报告数据
+     * 对应 XML 中 id="SynchronizeReport" 的 delete语句
+     *
+     * @return 更新记录数
+     */
+    int SynchronizeReport();
 }

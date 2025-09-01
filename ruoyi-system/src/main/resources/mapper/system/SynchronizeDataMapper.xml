@@ -245,4 +245,33 @@
                 a.zcxjjxglxmywyys = TRIM(TRAILING '，' FROM v.zcxjjxglxmywyys_formatted),
                 a.zcxjjxglxmywyyx = TRIM(TRAILING '，' FROM v.zcxjjxglxmywyyx_formatted);
     </update>
+
+
+<!--    同步讲座报告数据-->
+    <update id="SynchronizeReport">
+        UPDATE Alltotle a
+            JOIN (
+            SELECT
+            user_id,
+            -- 统计举办国际（假设 state 等条件需结合业务调整，这里先简单示例）
+            SUM(CASE WHEN report_classify = 11 THEN 1 ELSE 0 END) AS jbgj_count,
+            -- 统计举办国内
+            SUM(CASE WHEN report_classify = 12 THEN 1 ELSE 0 END) AS jbgn_count,
+            -- 统计参加国际
+            SUM(CASE WHEN report_classify = 13 THEN 1 ELSE 0 END) AS cjgj_count,
+            -- 统计参加国内
+            SUM(CASE WHEN report_classify = 14 THEN 1 ELSE 0 END) AS cjgn_count,
+            -- 统计校级学术
+            SUM(CASE WHEN report_classify = 15 THEN 1 ELSE 0 END) AS xjxs_count
+            FROM sci_lecture_report
+            WHERE state = '6'
+            GROUP BY user_id
+            ) b ON a.userId = b.user_id
+            SET
+                a.jbgj = COALESCE(b.jbgj_count, 0),
+                a.jbgn = COALESCE(b.jbgn_count, 0),
+                a.cjgj = COALESCE(b.cjgj_count, 0),
+                a.cjgn = COALESCE(b.cjgn_count, 0),
+                a.xjxs = COALESCE(b.xjxs_count, 0)
+    </update>
 </mapper>

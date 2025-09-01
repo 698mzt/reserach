@@ -35,15 +35,15 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.21.3/dist/bootstrap-table.min.js"></script>
 <th:block th:include="include :: bootstrap-table-fixed-columns-js" />
 <script>
-    //var prefix = ctx + '/collegeresearch'
+
     var total = 0;
-    var prefix = "/work";
+    var prefix = "work";
 
     $(function() {
         var options = {
             url: prefix + "/list",
             exportUrl: prefix + "/export",
-            modalName: '学院科研项目',
+            modalName: '学校科研工作量',
             method: "post",
             height: 600,
             sidePagination: "server",
