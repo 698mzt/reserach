@@ -22,7 +22,7 @@ import java.util.Map;
 public class SciWorkController extends BaseController {
     @Autowired
     private SciCollegeResearchMapper sciCollegeResearchMapper;
-    private String prefix = "/system/statistic";
+    private String prefix = "system/statistic";
 
     @GetMapping
     public String index()
@@ -48,5 +48,3 @@ public class SciWorkController extends BaseController {
         return data;
     }
 }
-
-

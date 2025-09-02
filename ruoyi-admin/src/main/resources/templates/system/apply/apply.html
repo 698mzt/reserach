@@ -12,7 +12,7 @@
         .track-list ul {
             padding-left: 0;
             list-style: none;
-            max-height: 50%;
+            max-height: 300px;
             overflow-y: auto;
             border: 1px solid #e0e0e0;
             border-radius: 4px;
@@ -239,6 +239,8 @@
         }
         .track-list ul {
             padding-left: 0;
+            max-height: 300px;
+            overflow-y: auto;
         }
         .track-list li {
             position: relative;
@@ -735,7 +737,7 @@
                     formatter: function(value, row, index) {
                         var actions = [];
                         if(row.state ==  6){
-                            actions.push('<a  class="' + hechaFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')">撤回</a> ');
+                            actions.push('<a  class="' + hechaFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000">撤回</a> ');
                             if (hechaFlag !== 'hidden')
                                 actions.push('<br>')
                             // actions.push('<a  class="btn btn-success btn-xs ' + downloadFlag + '" href="javascript:void(0)" onclick="downloadFiles(\'' +row.id+'\')"><i class="fa fa-edit"></i>下载文件</a> ');
@@ -1001,14 +1003,6 @@
                     align: 'center',
                     title: '课题名称'
                 },
-                // {
-                //     field: 'topType',
-                //     title: '课题类型',
-                //     formatter: function(value, row, index) {
-                //        return $.table.selectDictLabel(topTypeDatas, value);
-                //     }
-                // },
-
                 {
                     field: 'signingData',
                     align: 'center',
@@ -1088,7 +1082,7 @@
 
                         }else if(row.state ==  8){
                             if(row.ynameId == row.userynameId || row.uid == 1)
-                                actions.push('<a  class="' + DeptFlag + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id +'/DeptOVER'+ '\')">学院批阅结项&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
+                                actions.push('<a  class="' + DeptFlag + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id +'/DeptOVER'+ '\')">批阅结项&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                             if (row.dnameId == row.userdnameId || row.uid == 1)
                                 actions.push('<a  class="' + proFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000">撤回&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                             if(proFlag !== "hidden" || DeptFlag !== "hidden")
@@ -1230,7 +1224,7 @@
                             //     actions.push('<a   class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.reid + '\')"><i class="fa fa-edit"></i>更新</a> ');
                             // }
                             if(row.dnameId == row.userdnameId || row.uid == 1)
-                                actions.push('<a  class="' + proFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.reid+'/pro' + '\')">教研室批阅</a> ');
+                                actions.push('<a  class="' + proFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.reid+'/pro' + '\')">批阅</a> ');
                             if(proFlag !== "hidden")
                                 actions.push('<br>')
                             actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.reid +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
@@ -1409,7 +1403,7 @@
             document.getElementById('step-1').classList.add('active');
             document.getElementById('step-1').querySelector('.status-text').classList.add('active');
             progressBar.style.width = '0';
-        } else if (state === 6) {
+        } else if ([6, 4].includes(state)) {
             document.getElementById('step-1').classList.add('completed');
             document.getElementById('step-1').querySelector('.status-text').classList.add('completed');
             document.getElementById('step-2').classList.add('completed');

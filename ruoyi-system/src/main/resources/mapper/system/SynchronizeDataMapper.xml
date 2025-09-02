@@ -16,8 +16,24 @@
             d.dept_name AS deptName
         FROM sys_user u
                  LEFT JOIN sys_dept d ON u.dept_id = d.dept_id
-                 LEFT JOIN sys_dept p ON d.parent_id = p.dept_id;
+                 LEFT JOIN sys_dept p ON d.parent_id = p.dept_id
+        where u.user_id != 1
     </insert>
+    <insert id="SynchronizeUserForScore">
+        REPLACE INTO Alltotle_score (userId, userName, partenId, partenName, deptId, deptName)
+        SELECT
+            u.user_id AS userId,
+            u.user_name AS userName,
+            p.parent_id AS partenId,
+            p.dept_name AS partenName,
+            u.dept_id AS deptId,
+            d.dept_name AS deptName
+        FROM sys_user u
+                 LEFT JOIN sys_dept d ON u.dept_id = d.dept_id
+                 LEFT JOIN sys_dept p ON d.parent_id = p.dept_id
+        where u.user_id != 1
+    </insert>
+
 
 <!--    删除alltotle表中的用户-->
     <delete id="SynchronizeDeleteUser">
@@ -30,7 +46,21 @@
                     user_id
                 FROM
                     sys_user)
+            or userId = 1
     </delete>
+    <delete id="SynchronizeDeleteUserForScore">
+        DELETE
+        FROM
+            Alltotle_score
+        WHERE
+            userId NOT IN (
+                SELECT
+                    user_id
+                FROM
+                    sys_user)
+            or userId = 1
+    </delete>
+
 
 <!--    更新alltotal表的横向课题数据-->
     <update id="SynchronizeHX">
@@ -142,8 +172,25 @@
         a.wsdqswwy = TRIM(TRAILING '，' FROM h.wsdqswwy_formatted),
         a.qswdybwy = TRIM(TRAILING '，' FROM h.qswdybwy_formatted)
     </update>
+<!--    同步横向课题的分数数据-->
+    <update id="SynchronizeScoreHX">
+        -- 更新alltotle_score表中的横向课题总积分
+        UPDATE Alltotle_score a
+            -- 关联积分统计子查询
+            JOIN (
+            -- 计算每个用户的横向课题总积分
+            SELECT
+            ush.user_id,
+            SUM(CAST(ush.change_value AS DECIMAL(10, 2))) AS total_score
+            FROM sci_horizontal_apply sha
+            JOIN sci_user_score_history ush ON sha.id = ush.apply_id
+            GROUP BY ush.user_id
+            ) h ON a.userId = h.user_id
+            SET a.hxkt = h.total_score
+    </update>
 
-<!--    同步纵向课题的数据-->
+
+<!--    同步纵向课题的个数数据-->
     <update id="SynchronizeZX">
         UPDATE Alltotle a
             JOIN (
@@ -243,7 +290,178 @@
                 a.zcsbjzxkyxm = TRIM(TRAILING '，' FROM v.zcsbjzxkyxm_formatted),
                 a.zctjjxhjkyxm = TRIM(TRAILING '，' FROM v.zctjjxhjkyxm_formatted),
                 a.zcxjjxglxmywyys = TRIM(TRAILING '，' FROM v.zcxjjxglxmywyys_formatted),
-                a.zcxjjxglxmywyyx = TRIM(TRAILING '，' FROM v.zcxjjxglxmywyyx_formatted);
+                a.zcxjjxglxmywyyx = TRIM(TRAILING '，' FROM v.zcxjjxglxmywyyx_formatted)
+    </update>
+<!--    同步纵向课题校级以上的分数数据-->
+    <update id="SynchronizeScoreZXXJYS">
+        -- 更新alltotle_score表中的纵向课题-校级以上总积分
+        UPDATE
+            Alltotle_score a
+            JOIN (
+                SELECT
+                ush.user_id,
+                SUM(CAST(ush.change_value AS DECIMAL(10, 2))) AS total_score
+                FROM
+                sci_user_score_vertical ush
+                left join
+                sci_horizontal_apply_vertical shav
+                on
+                ush.vertical_id = shav .id
+                where
+                shav.top_type not in (6,7)
+                GROUP BY ush.user_id
+            ) h
+            ON
+                a.userId = h.user_id
+            SET
+                a.zxktxj = h.total_score
+    </update>
+    <update id="SynchronizeScoreZXXJ">
+        -- 更新alltotle_score表中的纵向课题-校级以上总积分
+        UPDATE
+            Alltotle_score a
+            JOIN (
+            SELECT
+            ush.user_id,
+            SUM(CAST(ush.change_value AS DECIMAL(10, 2))) AS total_score
+            FROM
+            sci_user_score_vertical ush
+            left join
+            sci_horizontal_apply_vertical shav
+            on
+            ush.vertical_id = shav .id
+            where
+            shav.top_type in (6,7)
+            GROUP BY ush.user_id
+            ) h
+        ON
+            a.userId = h.user_id
+        SET
+            a.zxktxj = h.total_score
+    </update>
+
+
+<!--    /**-->
+<!--    * 同步专利软著数据-->
+<!--    */-->
+    <update id="synchronizeZLRZ">
+        UPDATE Alltotle a
+            JOIN (
+            SELECT
+            user_id,
+            CONCAT(SUM(CASE WHEN fenlei = 1 THEN 1 ELSE 0 END), '个') AS count_fenlei_1,
+            CONCAT(SUM(CASE WHEN fenlei = 2 THEN 1 ELSE 0 END), '个') AS count_fenlei_2,
+            CONCAT(SUM(CASE WHEN fenlei = 3 THEN 1 ELSE 0 END), '个') AS count_fenlei_3,
+            CONCAT(SUM(CASE WHEN fenlei = 4 THEN 1 ELSE 0 END), '个') AS count_fenlei_4
+            FROM sci_zhuanliruanzhu
+            WHERE state = 6
+            GROUP BY user_id
+            ) b ON a.userId = b.user_id
+            SET
+                a.sqfmzl = COALESCE(b.count_fenlei_1, 0),
+                a.syxxzl = COALESCE(b.count_fenlei_2, 0),
+                a.wxsjzl = COALESCE(b.count_fenlei_3, 0),
+                a.jsjrjzzq = COALESCE(b.count_fenlei_4, 0)
+    </update>
+
+
+
+<!--    /**-->
+<!--    * 同步教材软著数据-->
+<!--    */-->
+    <update id="synchronizeJCRZ">
+        UPDATE Alltotle a
+            JOIN (
+            SELECT
+            user_id,
+            CONCAT(SUM(CASE WHEN fenlei = 1 THEN 1 ELSE 0 END), '个') AS fenlei_1,
+            CONCAT(SUM(CASE WHEN fenlei = 2 THEN 1 ELSE 0 END), '个') AS fenlei_2,
+            CONCAT(SUM(CASE WHEN fenlei = 3 THEN 1 ELSE 0 END), '个') AS fenlei_3,
+            CONCAT(SUM(CASE WHEN fenlei = 4 THEN 1 ELSE 0 END), '个') AS fenlei_4,
+            CONCAT(SUM(CASE WHEN fenlei = 5 THEN 1 ELSE 0 END), '个') AS fenlei_5,
+            CONCAT(SUM(CASE WHEN fenlei = 6 THEN 1 ELSE 0 END), '个') AS fenlei_6,
+            CONCAT(SUM(CASE WHEN fenlei = 7 THEN 1 ELSE 0 END), '个') AS fenlei_7
+            FROM sci_jiaocairuanzhu
+            WHERE state = 6
+            GROUP BY user_id
+            ) AS stats ON a.userId = stats.user_id
+            SET
+                a.cbzz1 = COALESCE(stats.fenlei_1, 0),
+                a.cbzz2 = COALESCE(stats.fenlei_2, 0),
+                a.cbyz1 = COALESCE(stats.fenlei_3, 0),
+                a.cbyz2 = COALESCE(stats.fenlei_4, 0),
+                a.cbjc1 = COALESCE(stats.fenlei_5, 0),
+                a.cbjc2 = COALESCE(stats.fenlei_6, 0),
+                a.zbjc = COALESCE(stats.fenlei_7, 0)
+    </update>
+
+
+<!--    /**-->
+<!--    * 同步奖励数据-->
+<!--    */-->
+    <update id="Reward">
+        UPDATE Alltotle a
+            JOIN (
+            SELECT
+            user_id,
+            CONCAT(SUM(CASE WHEN reward_fenlei = 1 THEN 1 ELSE 0 END), '个') AS fenlei_1,
+            CONCAT(SUM(CASE WHEN reward_fenlei = 2 THEN 1 ELSE 0 END), '个') AS fenlei_2,
+            CONCAT(SUM(CASE WHEN reward_fenlei = 3 THEN 1 ELSE 0 END), '个') AS fenlei_3,
+            CONCAT(SUM(CASE WHEN reward_fenlei = 4 THEN 1 ELSE 0 END), '个') AS fenlei_4,
+            CONCAT(SUM(CASE WHEN reward_fenlei = 5 THEN 1 ELSE 0 END), '个') AS fenlei_5,
+            CONCAT(SUM(CASE WHEN reward_fenlei = 6 THEN 1 ELSE 0 END), '个') AS fenlei_6,
+            CONCAT(SUM(CASE WHEN reward_fenlei = 7 THEN 1 ELSE 0 END), '个') AS fenlei_7,
+            CONCAT(SUM(CASE WHEN reward_fenlei = 8 THEN 1 ELSE 0 END), '个') AS fenlei_8
+            FROM sys_reward
+            WHERE state = 6
+            GROUP BY user_id
+            ) AS stats ON a.userId = stats.user_id
+            SET
+                a.sjjxcgj = COALESCE(stats.fenlei_1, 0),
+                a.sjkxjsj = COALESCE(stats.fenlei_2, 0),
+                a.sjyljpkpb = COALESCE(stats.fenlei_3, 0),
+                a.stjjzrkxlpj = COALESCE(stats.fenlei_4, 0),
+                a.stjjsklpj = COALESCE(stats.fenlei_5, 0),
+                a.xjjxcgj = COALESCE(stats.fenlei_6, 0),
+                a.yyxkyxjcgj = COALESCE(stats.fenlei_7, 0),
+                a.xjjpkpb = COALESCE(stats.fenlei_8, 0)
+    </update>
+
+
+<!--    /**-->
+<!--    * 同步论文-->
+<!--    */-->
+    <update id="syncronzedFlow">
+        UPDATE Alltotle a
+            JOIN (
+            SELECT
+            p.user_id,
+            p.teacher_name,
+            CONCAT(SUM(CASE WHEN d.dict_label IN ('SCI分区Ⅰ区', 'SCI分区Ⅱ区', 'SCI分区Ⅲ区', 'SCI分区Ⅳ区') THEN 1 ELSE 0 END), '个') AS `SCI`,
+            CONCAT(SUM(CASE WHEN d.dict_label = 'EI期刊论文' THEN 1 ELSE 0 END), '个') AS `EI`,
+            CONCAT(SUM(CASE WHEN d.dict_label = '核心期刊文章（北大、 南大核心；社科类）' THEN 1 ELSE 0 END), '个') AS `hx`,
+            CONCAT(SUM(CASE WHEN d.dict_label = '三网收录论文' THEN 1 ELSE 0 END), '个') AS `sw`,
+            CONCAT(SUM(CASE WHEN d.dict_label = '普通期刊' THEN 1 ELSE 0 END), '个') AS `pt`,
+            CONCAT(SUM(CASE WHEN d.dict_label = '校办期刊' THEN 1 ELSE 0 END), '个') AS `xb`
+            FROM
+            sci_paper_a p
+            LEFT JOIN sys_dict_data d ON d.dict_type = 'sci_paper_k'
+            AND p.paper_category = d.dict_value
+            WHERE
+            p.state = 8
+            GROUP BY
+            p.user_id,
+            p.teacher_name
+            ORDER BY
+            p.user_id
+            ) sp ON a.userId = sp.user_id
+            SET
+                a.SCI = COALESCE(sp.SCI, 0),
+                a.EI = COALESCE(sp.EI, 0),
+                a.hx = COALESCE(sp.hx, 0),
+                a.sw = COALESCE(sp.sw, 0),
+                a.pt = COALESCE(sp.pt, 0),
+                a.xb = COALESCE(sp.xb, 0)
     </update>
 
 
@@ -253,16 +471,16 @@
             JOIN (
             SELECT
             user_id,
-            -- 统计举办国际（假设 state 等条件需结合业务调整，这里先简单示例）
-            SUM(CASE WHEN report_classify = 11 THEN 1 ELSE 0 END) AS jbgj_count,
+            -- 统计举办国际
+            CONCAT(SUM(CASE WHEN report_classify = 11 THEN 1 ELSE 0 END), '个') AS jbgj_count,
             -- 统计举办国内
-            SUM(CASE WHEN report_classify = 12 THEN 1 ELSE 0 END) AS jbgn_count,
+            CONCAT(SUM(CASE WHEN report_classify = 12 THEN 1 ELSE 0 END), '个') AS jbgn_count,
             -- 统计参加国际
-            SUM(CASE WHEN report_classify = 13 THEN 1 ELSE 0 END) AS cjgj_count,
+            CONCAT(SUM(CASE WHEN report_classify = 13 THEN 1 ELSE 0 END), '个') AS cjgj_count,
             -- 统计参加国内
-            SUM(CASE WHEN report_classify = 14 THEN 1 ELSE 0 END) AS cjgn_count,
+            CONCAT(SUM(CASE WHEN report_classify = 14 THEN 1 ELSE 0 END), '个') AS cjgn_count,
             -- 统计校级学术
-            SUM(CASE WHEN report_classify = 15 THEN 1 ELSE 0 END) AS xjxs_count
+            CONCAT(SUM(CASE WHEN report_classify = 15 THEN 1 ELSE 0 END), '个') AS xjxs_count
             FROM sci_lecture_report
             WHERE state = '6'
             GROUP BY user_id
