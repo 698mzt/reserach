@@ -266,7 +266,9 @@ public class SciHorizontalApplyVerticalController extends BaseController {
     @GetMapping("/add")
     public String add( ModelMap mmap)
     {
-        List<SysUser> userList =  userService.selectAllUser();
+        SysUser user1=getSysUser();
+        Integer deptId = user1.getDeptId().intValue();
+        List<SysUser> userList =  userService.selectUser(deptId);
         System.out.println(getUserId());
         for (int a = 0; a<userList.size();a++) {
             if(userList.get(a).getUserId().equals(getUserId())){
@@ -307,7 +309,9 @@ public class SciHorizontalApplyVerticalController extends BaseController {
     public AjaxResult push(SciHorizontalApplyVertical sciHorizontalApplyVertical)
     {
         sciHorizontalApplyVertical.setUserId(Integer.valueOf(getSysUser().getUserId().toString()));
-        sciHorizontalApplyVertical.setNewsql("1");
+        sciHorizontalApplyVertical.setNewsql("99");
+        String state = "1";
+        sciHorizontalApplyVertical.setState(state);
         return toAjax(sciHorizontalApplyVerticalService.updateSciHorizontalApplyVertical(sciHorizontalApplyVertical));
     }
 
@@ -470,6 +474,8 @@ public class SciHorizontalApplyVerticalController extends BaseController {
         mmap.put("sciHorizontalApplyVertical", sciHorizontalApplyVertical);
         return prefix + "/overdetail";
     }
+
+
     @RequiresPermissions(value={"system:apply_vertical:JYS","system:apply_vertical:KYC","system:apply_vertical:Dept"},logical= Logical.OR)
     @Log(title = "纵向课题申请通过", businessType = BusinessType.UPDATE)
     @PostMapping( "/overPass")
@@ -497,12 +503,7 @@ public class SciHorizontalApplyVerticalController extends BaseController {
         if (sciHorizontalApplyVertical.getFourthPersonId() != null && !sciHorizontalApplyVertical.getFourthPersonId().isEmpty()) {
             persion.add(sciHorizontalApplyVertical.getFourthPersonId());
         }
-        int result = sciHorizontalApplyVerticalService.overPass(id, getUserId(), urlFlag, null, null, id);
-        if (result == -1) {
-            return AjaxResult.error("请选择有效的结项日期");
-        } else if (result == -2) {
-            return AjaxResult.error("日期格式错误");
-        }
+        int result = sciHorizontalApplyVerticalService.overPass(id, getUserId(), urlFlag, score, persion, id);
         return toAjax(result);
     }
 

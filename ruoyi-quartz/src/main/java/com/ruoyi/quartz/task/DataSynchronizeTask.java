@@ -73,7 +73,7 @@ public class DataSynchronizeTask {
 
 
   /**
-   * 同步横向课题数据
+   * 同步用户数据
    */
   public void SynchronizeUser() {
     System.out.println("用户数据开始同步");
@@ -97,6 +97,8 @@ public class DataSynchronizeTask {
     System.out.println("横向课题数据开始同步");
 //    个数
     synchronizeDataMapper.SynchronizeHX();
+//    积分
+    synchronizeDataMapper.SynchronizeScoreHX();
     System.out.println("横向课题数据同步完成");
   }
 

@@ -172,7 +172,7 @@
         a.qswdybwy = TRIM(TRAILING '，' FROM h.qswdybwy_formatted)
     </update>
 
-<!--    同步纵向课题的数据-->
+<!--    同步纵向课题的个数数据-->
     <update id="SynchronizeZX">
         UPDATE Alltotle a
             JOIN (
@@ -273,6 +273,21 @@
                 a.zctjjxhjkyxm = TRIM(TRAILING '，' FROM v.zctjjxhjkyxm_formatted),
                 a.zcxjjxglxmywyys = TRIM(TRAILING '，' FROM v.zcxjjxglxmywyys_formatted),
                 a.zcxjjxglxmywyyx = TRIM(TRAILING '，' FROM v.zcxjjxglxmywyyx_formatted);
+    </update>
+    <update id="SynchronizeScoreHX">
+        -- 更新alltotle_score表中的横向课题总积分
+        UPDATE Alltotle_score a
+        -- 关联积分统计子查询
+            JOIN (
+            -- 计算每个用户的横向课题总积分
+            SELECT
+            ush.user_id,
+            SUM(CAST(ush.change_value AS DECIMAL(10, 2))) AS total_score
+            FROM sci_horizontal_apply sha
+            JOIN sci_user_score_history ush ON sha.id = ush.apply_id
+            GROUP BY ush.user_id
+            ) h ON a.userId = h.user_id
+            SET a.hxkt = h.total_score;
     </update>
 
 

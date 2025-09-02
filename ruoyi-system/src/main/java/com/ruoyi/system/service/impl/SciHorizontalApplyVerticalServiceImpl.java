@@ -100,7 +100,7 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
         SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
         sciHorizontalPiyue.setUid(Long.valueOf(sciHorizontalApplyVertical.getUserId()));
         sciHorizontalPiyue.setVerticalId(Integer.valueOf(id));
-        sciHorizontalPiyue.setConcate("新增");
+        sciHorizontalPiyue.setConcate("新增数据");
         sciHorizontalPiyue.setState("新增");
         sciHorizontalPiyueMapper.insertVerticalPiyue(sciHorizontalPiyue);
         return id;
@@ -125,60 +125,53 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
      */
     @Override
     public int updateSciHorizontalApplyVertical(SciHorizontalApplyVertical sciHorizontalApplyVertical) {
-        // 查重逻辑
-        SciHorizontalApplyVertical query = new SciHorizontalApplyVertical();
-        query.setTopName(sciHorizontalApplyVertical.getTopName());
-        query.setTopNumber(sciHorizontalApplyVertical.getTopNumber());
-        List<SciHorizontalApplyVertical> existList = sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalList(query);
-        // 排除自己
-        existList.removeIf(item -> item.getId().equals(sciHorizontalApplyVertical.getId()));
-        if (existList != null && !existList.isEmpty()) {
-            return -1;
-        }
-
         SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
         sciHorizontalPiyue.setUid(getSysUser().getUserId());
         sciHorizontalPiyue.setVerticalId(sciHorizontalApplyVertical.getId());
-        if (sciHorizontalApplyVertical.getNewsql().equals("11")){
-            sciHorizontalPiyue.setConcate("提交");
-            sciHorizontalPiyue.setState("结项");
-            sciHorizontalApplyVertical.setState("11");
-        }else if (sciHorizontalApplyVertical.getNewsql().equals("1")){
-            sciHorizontalPiyue.setConcate("提交");
-            sciHorizontalPiyue.setState("新增");
-            sciHorizontalApplyVertical.setState("1");
-        }else if (sciHorizontalApplyVertical.getNewsql().equals("111")){
-            String newState = sciHorizontalApplyVertical.getState();
-            switch (newState){
-//            教研室
-                case "33":
-                    newState = "11";
-                    break;
-                case "3":
-                    newState = "1";
-                    break;
-//                学院
-                case "5":
-                    newState = "2";
-                    break;
-                case "55":
-                    newState = "22";
-                    break;
-//                科研处
-                case "77":
-                    newState = "44";
-                    break;
-                case "7":
-                    newState = "4";
-                    break;
-//                教师
-                case "99":
-                    newState = "99";
-                    break;
-            }
-            sciHorizontalApplyVertical.setState(newState);
-            sciHorizontalPiyue.setConcate("修改");
-            sciHorizontalPiyue.setState("修改");
+        switch (sciHorizontalApplyVertical.getNewsql()) {
+//            草稿箱提交时的记录
+            case "99":
+                sciHorizontalPiyue.setConcate("提交申请");
+                sciHorizontalPiyue.setState("提交");
+                break;
+//                申请结项的记录
+            case "11":
+                sciHorizontalPiyue.setConcate("申请结项");
+                sciHorizontalPiyue.setState("提交");
+                break;
+//            default:
+//                String newState = sciHorizontalApplyVertical.getState();
+//                switch (newState) {
+////            教研室
+//                    case "33":
+//                        newState = "11";
+//                        break;
+//                    case "3":
+//                        newState = "1";
+//                        break;
+////                学院
+//                    case "5":
+//                        newState = "2";
+//                        break;
+//                    case "55":
+//                        newState = "22";
+//                        break;
+////                科研处
+//                    case "77":
+//                        newState = "44";
+//                        break;
+//                    case "7":
+//                        newState = "4";
+//                        break;
+////                教师
+//                    case "99":
+//                        newState = "99";
+//                        break;
+//                }
+//                sciHorizontalApplyVertical.setState(newState);
+//                sciHorizontalPiyue.setConcate("修改");
+//                sciHorizontalPiyue.setState("修改");
+//                break;
         }
         sciHorizontalPiyueMapper.insertVerticalPiyue(sciHorizontalPiyue);
          return sciHorizontalApplyVerticalMapper.updateSciHorizontalApplyVertical(sciHorizontalApplyVertical);
@@ -246,22 +239,6 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
 
     @Override
     public int overPass(String id, Long userId, String urlFlag,List score,List persion,String verticalId) {
-        // 校验结项日期必须在立项日期后
-        SciHorizontalApplyVertical apply = sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalById(Integer.valueOf(id));
-        String signingData = apply.getSigningData();
-        String validityDate = apply.getOverfile(); // 这里假设overfile存储结项日期，实际如有validityDate字段应用validityDate
-        if (signingData != null && validityDate != null) {
-            try {
-                java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd");
-                java.util.Date start = sdf.parse(signingData);
-                java.util.Date end = sdf.parse(validityDate);
-                if (!end.after(start)) {
-                    return -1;
-                }
-            } catch (Exception e) {
-                return -2;
-            }
-        }
         String state = "0";
         SciUserScore sciUserScore = new SciUserScore();
         sciUserScore.setVerticalId(verticalId);
