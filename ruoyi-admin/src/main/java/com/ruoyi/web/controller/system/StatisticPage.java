@@ -33,7 +33,7 @@ public class StatisticPage extends BaseController {
     @GetMapping()
     public String apply()
     {
-        return prefix + "/kygzrwJYS.html";
+        return prefix + "/kygzrwJYS";
     }
 
     @PostMapping("/list")

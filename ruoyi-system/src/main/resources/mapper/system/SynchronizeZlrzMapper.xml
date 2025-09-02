@@ -8,10 +8,10 @@
             JOIN (
             SELECT
             user_id,
-            SUM(CASE WHEN fenlei = 1 THEN 1 ELSE 0 END) AS count_fenlei_1,
-            SUM(CASE WHEN fenlei = 2 THEN 1 ELSE 0 END) AS count_fenlei_2,
-            SUM(CASE WHEN fenlei = 3 THEN 1 ELSE 0 END) AS count_fenlei_3,
-            SUM(CASE WHEN fenlei = 4 THEN 1 ELSE 0 END) AS count_fenlei_4
+            CONCAT(SUM(CASE WHEN fenlei = 1 THEN 1 ELSE 0 END), '个') AS count_fenlei_1,
+            CONCAT(SUM(CASE WHEN fenlei = 2 THEN 1 ELSE 0 END), '个') AS count_fenlei_2,
+            CONCAT(SUM(CASE WHEN fenlei = 3 THEN 1 ELSE 0 END), '个') AS count_fenlei_3,
+            CONCAT(SUM(CASE WHEN fenlei = 4 THEN 1 ELSE 0 END), '个') AS count_fenlei_4
             FROM sci_zhuanliruanzhu
             WHERE state = 6
             GROUP BY user_id

@@ -8,14 +8,14 @@
             JOIN (
             SELECT
             user_id,
-            SUM(CASE WHEN reward_fenlei = 1 THEN 1 ELSE 0 END) AS fenlei_1,
-            SUM(CASE WHEN reward_fenlei = 2 THEN 1 ELSE 0 END) AS fenlei_2,
-            SUM(CASE WHEN reward_fenlei = 3 THEN 1 ELSE 0 END) AS fenlei_3,
-            SUM(CASE WHEN reward_fenlei = 4 THEN 1 ELSE 0 END) AS fenlei_4,
-            SUM(CASE WHEN reward_fenlei = 5 THEN 1 ELSE 0 END) AS fenlei_5,
-            SUM(CASE WHEN reward_fenlei = 6 THEN 1 ELSE 0 END) AS fenlei_6,
-            SUM(CASE WHEN reward_fenlei = 7 THEN 1 ELSE 0 END) AS fenlei_7,
-            SUM(CASE WHEN reward_fenlei = 8 THEN 1 ELSE 0 END) AS fenlei_8
+            CONCAT(SUM(CASE WHEN reward_fenlei = 1 THEN 1 ELSE 0 END), '个') AS fenlei_1,
+            CONCAT(SUM(CASE WHEN reward_fenlei = 2 THEN 1 ELSE 0 END), '个') AS fenlei_2,
+            CONCAT(SUM(CASE WHEN reward_fenlei = 3 THEN 1 ELSE 0 END), '个') AS fenlei_3,
+            CONCAT(SUM(CASE WHEN reward_fenlei = 4 THEN 1 ELSE 0 END), '个') AS fenlei_4,
+            CONCAT(SUM(CASE WHEN reward_fenlei = 5 THEN 1 ELSE 0 END), '个') AS fenlei_5,
+            CONCAT(SUM(CASE WHEN reward_fenlei = 6 THEN 1 ELSE 0 END), '个') AS fenlei_6,
+            CONCAT(SUM(CASE WHEN reward_fenlei = 7 THEN 1 ELSE 0 END), '个') AS fenlei_7,
+            CONCAT(SUM(CASE WHEN reward_fenlei = 8 THEN 1 ELSE 0 END), '个') AS fenlei_8
             FROM sys_reward
             WHERE state = 6
             GROUP BY user_id

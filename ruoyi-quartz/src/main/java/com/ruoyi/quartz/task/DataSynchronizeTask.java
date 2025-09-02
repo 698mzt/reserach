@@ -77,10 +77,16 @@ public class DataSynchronizeTask {
    */
   public void SynchronizeUser() {
     System.out.println("用户数据开始同步");
+//    个数表
     synchronizeDataMapper.SynchronizeUser();
+//    积分表
+    synchronizeDataMapper.SynchronizeUserForScore();
   }
   public void SynchronizeDeleteUser() {
+//    个数表
     synchronizeDataMapper.SynchronizeDeleteUser();
+//    积分表
+    synchronizeDataMapper.SynchronizeDeleteUserForScore();
     System.out.println("用户数据同步完成");
   }
 
@@ -89,6 +95,7 @@ public class DataSynchronizeTask {
    */
   public void synchronizeHX() {
     System.out.println("横向课题数据开始同步");
+//    个数
     synchronizeDataMapper.SynchronizeHX();
     System.out.println("横向课题数据同步完成");
   }
@@ -98,6 +105,7 @@ public class DataSynchronizeTask {
    */
   public void synchronizeZX() {
     System.out.println("纵向课题数据开始同步");
+//    个数
     synchronizeDataMapper.SynchronizeZX();
     System.out.println("纵向课题数据同步完成");
   }
@@ -107,6 +115,7 @@ public class DataSynchronizeTask {
    */
   private void synchronousAlltotle() {
     System.out.println("成果转化数据开始同步");
+//    todo：这个同步数据 是否为同步个数
     synchronousAlltotle.synchronousAlltotle();
     System.out.println("成果转化数据同步完成");
   }
@@ -117,15 +126,18 @@ public class DataSynchronizeTask {
    */
   private void synchronizeZLRZ() {
     System.out.println("专利软著数据开始同步");
+//    个数
     synchronizeZlrzMapper.synchronizeZLRZ();
     System.out.println("专利软著数据同步完成");
 
   }
+
   /**
    * 同步教材软著数据
    */
   private void synchronizeJCRZ() {
     System.out.println("教材软著数据开始同步");
+//    个数
     synchronizeJcrzMapper.synchronizeJCRZ();
     System.out.println("教材软著数据同步完成");
   }
@@ -136,6 +148,7 @@ public class DataSynchronizeTask {
    */
   private void Reward() {
     System.out.println("奖励数据开始同步");
+//    个数
     synrewardDataMapper.Reward();
     System.out.println("奖励数据同步完成");
   }
@@ -145,6 +158,7 @@ public class DataSynchronizeTask {
    */
   private void syncronzedFlow() {
     System.out.println("论文数据开始同步");
+//    个数
     synchronizedFlowMapper.syncronzedFlow();
     System.out.println("论文数据同步完成");
   }
@@ -154,6 +168,7 @@ public class DataSynchronizeTask {
    */
   private void SynchronizeReport() {
     System.out.println("讲座报告数据开始同步");
+//    个数
     synchronizeDataMapper.SynchronizeReport();
     System.out.println("讲座报告数据同步完成");
   }

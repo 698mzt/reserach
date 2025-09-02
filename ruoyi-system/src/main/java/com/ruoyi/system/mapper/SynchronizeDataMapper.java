@@ -31,6 +31,7 @@ public interface SynchronizeDataMapper {
      * @return 更新记录数
      */
     int SynchronizeUser();
+    int SynchronizeUserForScore();
 
     /**
      * 删除不存在的用户数据
@@ -39,6 +40,7 @@ public interface SynchronizeDataMapper {
      * @return 更新记录数
      */
     int SynchronizeDeleteUser();
+    int SynchronizeDeleteUserForScore();
 
     /**
      * 同步讲座报告数据
