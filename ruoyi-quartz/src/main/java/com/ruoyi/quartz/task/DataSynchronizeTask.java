@@ -127,6 +127,8 @@ public class DataSynchronizeTask {
     System.out.println("专利软著数据开始同步");
 //    个数
     synchronizeDataMapper.synchronizeZLRZ();
+//    积分
+    synchronizeDataMapper.SynchronizeScoreZLRZ();
     System.out.println("专利软著数据同步完成");
 
   }
@@ -140,6 +142,8 @@ public class DataSynchronizeTask {
     System.out.println("教材软著数据开始同步");
 //    个数
     synchronizeDataMapper.synchronizeJCRZ();
+//    积分
+    synchronizeDataMapper.SynchronizeScoreJCZZ();
     System.out.println("教材软著数据同步完成");
   }
 
@@ -152,6 +156,8 @@ public class DataSynchronizeTask {
     System.out.println("奖励数据开始同步");
 //    个数
     synchronizeDataMapper.Reward();
+//    积分
+    synchronizeDataMapper.SynchronizeScoreJL();
     System.out.println("奖励数据同步完成");
   }
 
@@ -164,6 +170,8 @@ public class DataSynchronizeTask {
     System.out.println("论文数据开始同步");
 //    个数
     synchronizeDataMapper.syncronzedFlow();
+//    积分
+    synchronizeDataMapper.SynchronizeScoreXSLW();
     System.out.println("论文数据同步完成");
   }
 
@@ -176,6 +184,8 @@ public class DataSynchronizeTask {
     System.out.println("讲座报告数据开始同步");
 //    个数
     synchronizeDataMapper.SynchronizeReport();
+//    积分
+    synchronizeDataMapper.SynchronizeScoreJZBG();
     System.out.println("讲座报告数据同步完成");
   }
 

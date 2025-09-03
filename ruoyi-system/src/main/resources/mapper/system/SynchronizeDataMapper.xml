@@ -184,9 +184,10 @@
             SUM(CAST(ush.change_value AS DECIMAL(10, 2))) AS total_score
             FROM sci_horizontal_apply sha
             JOIN sci_user_score_history ush ON sha.id = ush.apply_id
+            where sha.state  = 6
             GROUP BY ush.user_id
             ) h ON a.userId = h.user_id
-            SET a.hxkt = h.total_score
+            SET a.hxkt = COALESCE(h.total_score, 0)
     </update>
 
 
@@ -308,13 +309,13 @@
                 on
                 ush.vertical_id = shav .id
                 where
-                shav.top_type not in (6,7)
+                shav.top_type not in (6,7) and shav.state = 66
                 GROUP BY ush.user_id
             ) h
             ON
                 a.userId = h.user_id
             SET
-                a.zxktxj = h.total_score
+                a.zxktxjys = COALESCE(h.total_score, 0)
     </update>
     <update id="SynchronizeScoreZXXJ">
         -- 更新alltotle_score表中的纵向课题-校级以上总积分
@@ -331,13 +332,13 @@
             on
             ush.vertical_id = shav .id
             where
-            shav.top_type in (6,7)
+            shav.top_type in (6,7) and shav.state = 66
             GROUP BY ush.user_id
             ) h
         ON
             a.userId = h.user_id
         SET
-            a.zxktxj = h.total_score
+            a.zxktxj = COALESCE(h.total_score, 0)
     </update>
 
 
@@ -362,6 +363,26 @@
                 a.syxxzl = COALESCE(b.count_fenlei_2, 0),
                 a.wxsjzl = COALESCE(b.count_fenlei_3, 0),
                 a.jsjrjzzq = COALESCE(b.count_fenlei_4, 0)
+    </update>
+    <update id="SynchronizeScoreZLRZ">
+        -- 更新alltotle_score表中的专利软著总积分
+        update
+            Alltotle_score a
+            join(
+                SELECT
+                    sz.user_id ,
+                    SUM(sz.jifen) as score
+                FROM
+                    sci_zhuanliruanzhu sz
+                where
+                    state = 6
+                group by
+                    user_id
+            ) s
+            on
+            a.userId = s.user_id
+        set
+            a.zlrz = COALESCE(s.score, 0)
     </update>
 
 
@@ -393,6 +414,26 @@
                 a.cbjc1 = COALESCE(stats.fenlei_5, 0),
                 a.cbjc2 = COALESCE(stats.fenlei_6, 0),
                 a.zbjc = COALESCE(stats.fenlei_7, 0)
+    </update>
+    <update id="SynchronizeScoreJCZZ">
+        -- 更新alltotle_score表中的教材专著总积分
+        update
+            Alltotle_score a
+            join(
+                SELECT
+                    sj.user_id ,
+                    SUM(sj.jifen) as score
+                FROM
+                    sci_jiaocairuanzhu sj
+                where
+                    state = 6
+                group by
+                    user_id
+            )s
+            on
+            a.userId = s.user_id
+        set
+            a.jczz = COALESCE(s.score, 0)
     </update>
 
 
@@ -426,7 +467,26 @@
                 a.yyxkyxjcgj = COALESCE(stats.fenlei_7, 0),
                 a.xjjpkpb = COALESCE(stats.fenlei_8, 0)
     </update>
-
+    <update id="SynchronizeScoreJL">
+        -- 更新alltotle_score表中的奖励总积分
+        update
+            Alltotle_score a
+            join(
+                SELECT
+                    sr.user_id ,
+                    SUM(sr.jifen) as score
+                FROM
+                    sys_reward sr
+                where
+                    state = 6
+                group by
+                    user_id
+                )s
+            on
+            a.userId = s.user_id
+        set
+            a.jl = COALESCE(s.score, 0)
+    </update>
 
 <!--    /**-->
 <!--    * 同步论文-->
@@ -463,6 +523,25 @@
                 a.pt = COALESCE(sp.pt, 0),
                 a.xb = COALESCE(sp.xb, 0)
     </update>
+    <update id="SynchronizeScoreXSLW">
+        -- 更新alltotle_score表中的学术论文总积分
+        update
+            Alltotle_score a
+            join(
+                SELECT
+                    spa.user_id ,
+                    SUM(spa.research_score) as score
+                FROM
+                    sci_paper_a spa
+                where
+                    state = 8
+                group by user_id
+            )sp
+            on
+            a.userId = sp.user_id
+        set
+            a.xslw = COALESCE(sp.score, 0)
+    </update>
 
 
 <!--    同步讲座报告数据-->
@@ -482,7 +561,7 @@
             -- 统计校级学术
             CONCAT(SUM(CASE WHEN report_classify = 15 THEN 1 ELSE 0 END), '个') AS xjxs_count
             FROM sci_lecture_report
-            WHERE state = '6'
+            WHERE state = 6
             GROUP BY user_id
             ) b ON a.userId = b.user_id
             SET
@@ -491,5 +570,25 @@
                 a.cjgj = COALESCE(b.cjgj_count, 0),
                 a.cjgn = COALESCE(b.cjgn_count, 0),
                 a.xjxs = COALESCE(b.xjxs_count, 0)
+    </update>
+    <update id="SynchronizeScoreJZBG">
+        -- 更新alltotle_score表中的讲座报告总积分
+        update
+            Alltotle_score a
+            join(
+                SELECT
+                    slr.user_id ,
+                    SUM(slr.report_keyanfen) as score
+                FROM
+                    sci_lecture_report slr
+                where
+                    state = 6
+                group by
+                    user_id
+            )s
+            on
+            a.userId = s.user_id
+        set
+            a.jzbg = COALESCE(s.score, 0)
     </update>
 </mapper>
