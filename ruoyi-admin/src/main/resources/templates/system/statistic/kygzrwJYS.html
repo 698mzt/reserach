@@ -7,11 +7,8 @@
 	<th:block th:include="include :: header('表格虚拟滚动')" />
 </head>
 <body class="gray-bg">
-     <div class="container-div">
-        <div class="btn-group-sm" id="toolbar" role="group">
-			<span id="total" class="badge badge-success"></span>
-        </div>
-        <div class="row">
+	<div class="container-div">
+		<div class="row">
 			<div class="col-sm-12 select-table table-bordered">
 				<table id="bootstrap-table"></table>
 			</div>
@@ -27,7 +24,6 @@
 			const options = {
 				url: prefix + "/list",
 				modalName: '教研室科研工作任务计划表',
-				height: "100%",
 				sidePagination: "server",
 				pagination: true,
 				showSearch: false,
@@ -74,7 +70,7 @@
 						{
 							title: '奖励类',
 							align: 'center',
-							colspan: 9
+							colspan: 8
 						},
 						{
 							title: '学术报告(讲座类)',
@@ -133,7 +129,7 @@
 						},
 						{
 							field: 'ewyyx',
-							title: '2万元以下',
+							title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2万元以下&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
 							align: 'center'
 						},
 						{
@@ -173,67 +169,67 @@
 						},
 						{
 							field: 'eyxxx',
-							title: '2以下信息',
+							title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2以下信息&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
 							align: 'center'
 						},
 						{
 							field: 'edwxx',
-							title: '2-5信息',
+							title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2-5信息&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
 							align: 'center'
 						},
 						{
 							field: 'wdsxx',
-							title: '5-10信息',
+							title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;5-10信息&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
 							align: 'center'
 						},
 						{
 							field: 'sdesxx',
-							title: '10-20信息',
+							title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;10-20信息&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
 							align: 'center'
 						},
 						{
 							field: 'esdsswxx',
-							title: '20-35信息',
+							title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;20-35信息&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
 							align: 'center'
 						},
 						{
 							field: 'sswdwsxx',
-							title: '35-50信息',
+							title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;35-50信息&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
 							align: 'center'
 						},
 						{
 							field: 'dywsxx',
-							title: '大于50信息',
+							title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;大于50信息&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
 							align: 'center'
 						},
 						{
 							field: 'SCI',
-							title: 'SCI',
+							title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SCI&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
 							align: 'center'
 						},
 						{
 							field: 'EI',
-							title: 'EI',
+							title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EI&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
 							align: 'center'
 						},
 						{
 							field: 'hx',
-							title: '核心',
+							title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;核心&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
 							align: 'center'
 						},
 						{
 							field: 'sw',
-							title: '三网',
+							title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;三网&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
 							align: 'center'
 						},
 						{
 							field: 'pt',
-							title: '普通',
+							title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;普通&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
 							align: 'center'
 						},
 						{
 							field: 'xb',
-							title: '校办',
+							title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;校办&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
 							align: 'center'
 						},
 						{
@@ -263,7 +259,7 @@
 						},
 						{
 							field: 'cbjc2',
-							title: '出版教材',
+							title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;出版教材&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
 							align: 'center'
 						},
 						{
@@ -332,51 +328,49 @@
 							align: 'center'
 						},
 						{
-							field: 'jscjsjdshj',
-							title: '教师参加省级大赛获奖',
-							align: 'center'
-						},
-						{
 							field: 'jbgj',
-							title: '举办国际',
+							title: '&nbsp;&nbsp;&nbsp;&nbsp;举办国际&nbsp;&nbsp;&nbsp;&nbsp;',
 							align: 'center'
 						},
 						{
 							field: 'jbgn',
-							title: '举办国内',
+							title: '&nbsp;&nbsp;&nbsp;&nbsp;举办国内&nbsp;&nbsp;&nbsp;&nbsp;',
 							align: 'center'
 						},
 						{
 							field: 'cjgj',
-							title: '参加国际',
+							title: '&nbsp;&nbsp;&nbsp;&nbsp;参加国际&nbsp;&nbsp;&nbsp;&nbsp;',
 							align: 'center'
 						},
 						{
 							field: 'cjgn',
-							title: '参加国内',
+							title: '&nbsp;&nbsp;&nbsp;&nbsp;参加国内&nbsp;&nbsp;&nbsp;&nbsp;',
 							align: 'center'
 						},
 						{
 							field: 'xjxs',
-							title: '校级学术',
+							title: '&nbsp;&nbsp;&nbsp;&nbsp;校级学术&nbsp;&nbsp;&nbsp;&nbsp;',
 							align: 'center'
 						}]
-				]
+				],
+                responseHandler: function(res) {
+                    // 在前端控制台输出返回的数据
+                    console.log("返回的数据:", res);
+                    
+                    // 如果需要查看rows数据
+                    if (res.rows) {
+                        console.log("rows数据:", res.rows);
+                    }
+                    
+                    return res;
+                }
 			};
 			$.table.init(options);
-
+			console.log(options)
             // 添加表格加载完成后的回调函数
             $('#bootstrap-table').on('load-success.bs.table', function () {
 				const $table = $(this);
 				const $lastRow = $table.find('tbody tr:last');
-
-				if ($lastRow.length > 0) {
-                    // 合并前两个单元格
-                    $lastRow.find('td:eq(0), td:eq(1), td:eq(2)').attr('colspan', '3').addClass('text-center').html('合计');
-
-                    // 删除多余的单元格
-                    $lastRow.find('td:eq(1),td:eq(2)').remove();
-                }
             });
 		});
 

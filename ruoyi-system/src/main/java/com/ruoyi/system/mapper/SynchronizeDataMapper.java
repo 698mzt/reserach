@@ -71,26 +71,41 @@ public interface SynchronizeDataMapper {
      * 同步专利软著数据
      */
     int synchronizeZLRZ();
-
+    /**
+     * 同步教材软著积分
+     */
+    int SynchronizeScoreZLRZ();
 
 
     /**
-     * 同步教材软著数据
+     * 同步教材软著个数
      */
     int synchronizeJCRZ();
+    /**
+     * 同步教材软著积分
+     */
+    int SynchronizeScoreJCZZ();
 
 
 
     /**
-     * 同步奖励数据
+     * 同步奖励个数
      */
     int Reward();
+    /**
+     * 同步奖励积分
+     */
+    int SynchronizeScoreJL();
 
 
     /**
-     * 同步论文
+     * 同步论文个数
      */
     int syncronzedFlow();
+    /**
+     * 同步论文积分
+     */
+    int SynchronizeScoreXSLW();
 
 
 
@@ -101,4 +116,8 @@ public interface SynchronizeDataMapper {
      * @return 更新记录数
      */
     int SynchronizeReport();
+    /**
+     * 同步讲座报告积分
+     */
+    int SynchronizeScoreJZBG();
 }
