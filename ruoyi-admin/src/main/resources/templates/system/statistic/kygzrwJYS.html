@@ -68,7 +68,7 @@
 							colspan: 4
 						},
 						{
-							title: '奖励类',
+							title: '奖励',
 							align: 'center',
 							colspan: 8
 						},
@@ -353,20 +353,9 @@
 							align: 'center'
 						}]
 				],
-                responseHandler: function(res) {
-                    // 在前端控制台输出返回的数据
-                    console.log("返回的数据:", res);
-                    
-                    // 如果需要查看rows数据
-                    if (res.rows) {
-                        console.log("rows数据:", res.rows);
-                    }
-                    
-                    return res;
-                }
 			};
 			$.table.init(options);
-			console.log(options)
+
             // 添加表格加载完成后的回调函数
             $('#bootstrap-table').on('load-success.bs.table', function () {
 				const $table = $(this);
