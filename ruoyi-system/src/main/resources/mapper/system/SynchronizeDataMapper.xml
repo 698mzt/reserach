@@ -10,7 +10,7 @@
         SELECT
             u.user_id AS userId,
             u.user_name AS userName,
-            p.parent_id AS partenId,
+            p.dept_id AS partenId,
             p.dept_name AS partenName,
             u.dept_id AS deptId,
             d.dept_name AS deptName
@@ -24,7 +24,7 @@
         SELECT
             u.user_id AS userId,
             u.user_name AS userName,
-            p.parent_id AS partenId,
+            p.dept_id AS partenId,
             p.dept_name AS partenName,
             u.dept_id AS deptId,
             d.dept_name AS deptName
