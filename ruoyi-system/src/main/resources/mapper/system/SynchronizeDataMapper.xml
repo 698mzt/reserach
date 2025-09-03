@@ -73,7 +73,7 @@
         IFNULL(
         -- 仅拼接符合条件的结果（无符合条件时GROUP_CONCAT返回NULL）
         GROUP_CONCAT(
-        CASE WHEN amount &lt; 2
+        CASE WHEN amount &lt; 2 AND amount != 0
         THEN CONCAT(cnt, '个（', ROUND(amount, 2), '万）')
         END SEPARATOR '，'
         ),

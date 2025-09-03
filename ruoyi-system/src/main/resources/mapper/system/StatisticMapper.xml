@@ -4,66 +4,9 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.system.mapper.StatisticMapper">
+
     <select id="selectAll">
         select * from Alltotle  where deptId=#{deptId}
     </select>
 
-    <select id="selectTotal">
-        SELECT
-            SUM(CAST(zcgjjjkyxm AS DECIMAL)) AS zcgjjjkyxm,
-            SUM(CAST(zcsbjjjkyxm AS DECIMAL)) AS zcsbjjjkyxm,
-            SUM(CAST(zcsbjjgxm AS DECIMAL)) AS zcsbjjgxm,
-            SUM(CAST(zcsbjzxkyxm AS DECIMAL)) AS zcsbjzxkyxm,
-            SUM(CAST(zctjjxhjkyxm AS DECIMAL)) AS zctjjxhjkyxm,
-            SUM(CAST(zcxjjxglxmywyys AS DECIMAL)) AS zcxjjxglxmywyys,
-            SUM(CAST(zcxjjxglxmywyyx AS DECIMAL)) AS zcxjjxglxmywyyx,
-            SUM(CAST(ewyyx AS DECIMAL)) AS ewyyx,
-            SUM(CAST(edwwy AS DECIMAL)) AS edwwy,
-            SUM(CAST(wdswy AS DECIMAL)) AS wdswy,
-            SUM(CAST(sdeswy AS DECIMAL)) AS sdeswy,
-            SUM(CAST(esdsswwy AS DECIMAL)) AS esdsswwy,
-            SUM(CAST(wswwydwswy AS DECIMAL)) AS wswwydwswy,
-            SUM(CAST(wsdqswwy AS DECIMAL)) AS wsdqswwy,
-            SUM(CAST(qswdybwy AS DECIMAL)) AS qswdybwy,
-            SUM(CAST(eyxxx AS DECIMAL)) AS eyxxx,
-            SUM(CAST(edwxx AS DECIMAL)) AS edwxx,
-            SUM(CAST(wdsxx AS DECIMAL)) AS wdsxx,
-            SUM(CAST(sdesxx AS DECIMAL)) AS sdesxx,
-            SUM(CAST(esdsswxx AS DECIMAL)) AS esdsswxx,
-            SUM(CAST(sswdwsxx AS DECIMAL)) AS sswdwsxx,
-            SUM(CAST(dywsxx AS DECIMAL)) AS dywsxx,
-            SUM(CAST(SCI AS DECIMAL)) AS SCI,
-            SUM(CAST(EI AS DECIMAL)) AS EI,
-            SUM(CAST(hx AS DECIMAL)) AS hx,
-            SUM(CAST(sw AS DECIMAL)) AS sw,
-            SUM(CAST(pt AS DECIMAL)) AS pt,
-            SUM(CAST(xb AS DECIMAL)) AS xb,
-            SUM(CAST(cbzz1 AS DECIMAL)) AS cbzz1,
-            SUM(CAST(cbzz2 AS DECIMAL)) AS cbzz2,
-            SUM(CAST(cbyz1 AS DECIMAL)) AS cbyz1,
-            SUM(CAST(cbyz2 AS DECIMAL)) AS cbyz2,
-            SUM(CAST(cbjc1 AS DECIMAL)) AS cbjc1,
-            SUM(CAST(cbjc2 AS DECIMAL)) AS cbjc2,
-            SUM(CAST(zbjc AS DECIMAL)) AS zbjc,
-            SUM(CAST(sqfmzl AS DECIMAL)) AS sqfmzl,
-            SUM(CAST(syxxzl AS DECIMAL)) AS syxxzl,
-            SUM(CAST(wxsjzl AS DECIMAL)) AS wxsjzl,
-            SUM(CAST(jsjrjzzq AS DECIMAL)) AS jsjrjzzq,
-            SUM(CAST(sjjxcgj AS DECIMAL)) AS sjjxcgj,
-            SUM(CAST(sjkxjsj AS DECIMAL)) AS sjkxjsj,
-            SUM(CAST(sjyljpkpb AS DECIMAL)) AS sjyljpkpb,
-            SUM(CAST(stjjzrkxlpj AS DECIMAL)) AS stjjzrkxlpj,
-            SUM(CAST(stjjsklpj AS DECIMAL)) AS stjjsklpj,
-            SUM(CAST(xjjxcgj AS DECIMAL)) AS xjjxcgj,
-            SUM(CAST(yyxkyxjcgj AS DECIMAL)) AS yyxkyxjcgj,
-            SUM(CAST(xjjpkpb AS DECIMAL)) AS xjjpkpb,
-            SUM(CAST(jscjsjdshj AS DECIMAL)) AS jscjsjdshj,
-            SUM(CAST(jbgj AS DECIMAL)) AS jbgj,
-            SUM(CAST(jbgn AS DECIMAL)) AS jbgn,
-            SUM(CAST(cjgj AS DECIMAL)) AS cjgj,
-            SUM(CAST(cjgn AS DECIMAL)) AS cjgn,
-            SUM(CAST(xjxs AS DECIMAL)) AS xjxs
-        FROM `Alltotle`
-        WHERE deptId = #{dept}
-    </select>
 </mapper>

@@ -7,6 +7,7 @@ import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.framework.web.domain.server.Sys;
 import com.ruoyi.system.mapper.StatisticMapper;
 import com.ruoyi.system.mapper.SysDeptMapper;
+import com.ruoyi.system.service.IStatisticService;
 import com.ruoyi.system.service.ISysDeptService;
 import com.ruoyi.system.service.ISysUserService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -28,6 +29,8 @@ public class StatisticPage extends BaseController {
     private ISysUserService userService;
     @Autowired
     private ISysDeptService deptService;
+    @Autowired
+    private IStatisticService statisticService;
 
     private String prefix = "system/statistic";
     @GetMapping()
@@ -39,11 +42,10 @@ public class StatisticPage extends BaseController {
     @PostMapping("/list")
     @ResponseBody
     public TableDataInfo list() {
-        startPage();
         String dept = getSysUser().getDeptId().toString();
-        List<Map<String, Object>> list = statisticMapper.selectAll(dept);
-        List<Map<String, Object>> list1 = statisticMapper.selectTotal(dept);
-        if (list == null || list1 == null || list1.isEmpty()) {
+        startPage();
+        List<Map<String, Object>> list = statisticService.selectAll(dept);
+        if (list == null || list.isEmpty()) {
             throw new IllegalStateException("查询结果为空");
         }
         List<SysUser> users = userService.selectAllUser();
@@ -51,8 +53,8 @@ public class StatisticPage extends BaseController {
                 .collect(Collectors.toMap(SysUser::getUserId, user -> user));
         // 新增: 将用户和部门信息添加到list中
         for (Map<String, Object> map : list) {
-            Long userId = (Long) map.get("教师");
-            Long deptId = (Long) map.get("专业");
+            Long userId = (Long) map.get("userId");
+            Long deptId = (Long) map.get("deptId");
 
             if (userId != null && userMap.containsKey(userId)) {
                 SysUser user = userMap.get(userId);
@@ -78,7 +80,6 @@ public class StatisticPage extends BaseController {
                 return value;
             });
         }
-        list.add(list1.get(0));
         TableDataInfo data = getDataTable(list);
         System.out.println(data);
         return data;
