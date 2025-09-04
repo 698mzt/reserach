@@ -7,6 +7,30 @@
 <html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
 <head>
     <th:block th:include="include :: header('表格虚拟滚动')" />
+    <style>
+        /* 总计行样式 */
+        .total-row {
+            background-color: #f8f9fa !important;
+            font-weight: bold;
+        }
+        
+        .total-row td {
+            border-top: 2px solid #dee2e6 !important;
+        }
+        
+        /* 总计行合并列的样式 */
+        .total-merged-cell {
+            position: relative;
+            text-align: center !important;
+            background-color: #e9ecef !important;
+            font-weight: bold !important;
+        }
+        
+        /* 隐藏总计行的多选框 */
+        .total-row .bs-checkbox {
+            visibility: hidden;
+        }
+    </style>
 </head>
 <body class="gray-bg">
 <div class="container-div">
@@ -33,7 +57,6 @@
         var options = {
             url: prefix + "/listJZ",
             modalName: '教研室业绩成果数',
-            height: "100%",
             sidePagination: "server",
             pagination: true,
             showSearch: false,
@@ -45,12 +68,12 @@
                     },
                     {
                         field: '专业',
-                        title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;专业&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
+                        title: '&nbsp;&nbsp;&nbsp;&nbsp;专业&nbsp;&nbsp;&nbsp;&nbsp;',
                         align: 'center'
                     },
                     {
                         field: '教师',
-                        title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;教师&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
+                        title: '&nbsp;&nbsp;&nbsp;教师&nbsp;&nbsp;&nbsp;',
                         align: 'center'
                     },
                     {
@@ -101,7 +124,7 @@
                     {
                         title: '学术报告(讲座类)',
                         align: 'center',
-                        field: '学术报告'
+                        field: '学术报告(讲座类)'
                     }
                 ],
 
@@ -111,20 +134,48 @@
 
         // 添加表格加载完成后的回调函数
         $('#bootstrap-table').on('load-success.bs.table', function (data) {
-            // console.log('Data loaded successfully:', data);
-            var $table = $(this);
-            var $lastRow = $table.find('tbody tr:last');
-
-            if ($lastRow.length > 0) {
-                // 合并前两个单元格
-                $lastRow.find('td:eq(0)').attr('colspan', 3).addClass('text-center').html('合计');
-
-                // 删除多余的单元格
-
-                $lastRow.find('td:eq(2)').remove();
-                $lastRow.find('td:eq(1)').remove();
-            }
+            // 使用延时确保DOM完全渲染
+            setTimeout(function() {
+                processTotalRow();
+            }, 200);
         });
+
+        // 处理总计行
+        function processTotalRow() {
+            const $tbody = $('#bootstrap-table tbody');
+            
+            // 查找总计行（教师列为"总计"的行）
+            $tbody.find('tr').each(function() {
+                const $row = $(this);
+                const $cells = $row.find('td');
+                
+                // 检查第二列（教师列）是否为"总计"
+                if ($cells.length > 2 && $cells.eq(2).text().trim() === '总计') {
+                    processTotalRowMerge($row, $cells);
+                }
+            });
+        }
+
+        // 处理总计行的合并
+        function processTotalRowMerge($row, $cells) {
+            // 1. 为整行添加总计样式
+            $row.addClass('total-row');
+            
+            // 2. 处理第二、三列的合并（专业和教师列）
+            const $deptCell = $cells.eq(1);      // 专业列
+            const $teacherCell = $cells.eq(2);   // 教师列
+            
+            // 3. 设置合并后的样式和内容
+            $deptCell.addClass('total-merged-cell')
+                     .attr('colspan', '2')
+                     .text('总计');
+            
+            // 4. 隐藏第三列
+            $teacherCell.hide();
+            
+            // 5. 确保多选框被隐藏
+            $cells.eq(0).addClass('bs-checkbox');
+        }
     });
 
 </script>

@@ -5,6 +5,30 @@
 <html lang="zh" xmlns:th="http://www.thymeleaf.org">
 <head>
 	<th:block th:include="include :: header('表格虚拟滚动')" />
+	<style>
+		/* 总计行样式 */
+		.total-row {
+			background-color: #f8f9fa !important;
+			font-weight: bold;
+		}
+		
+		.total-row td {
+			border-top: 2px solid #dee2e6 !important;
+		}
+		
+		/* 总计行合并列的样式 */
+		.total-merged-cell {
+			position: relative;
+			text-align: center !important;
+			background-color: #e9ecef !important;
+			font-weight: bold !important;
+		}
+		
+		/* 隐藏总计行的多选框 */
+		.total-row .bs-checkbox {
+			visibility: hidden;
+		}
+	</style>
 </head>
 <body class="gray-bg">
 	<div class="container-div">
@@ -28,8 +52,8 @@
 				pagination: true,
 				showSearch: false,
 				virtualScroll: true,
-				fixedColumns: true,  // 确保设置了 fixedColumns 选项
-				fixedNumber: 3,      // 确保设置了 fixedNumber 选项
+				// fixedColumns: true,  // 启用固定列功能
+				// fixedNumber: 3,      // 固定前三列（多选框、专业、教师）
 				stickyHeader: true,
 				columns: [
 					[{
@@ -37,330 +61,365 @@
 						align: 'center',
 						colspan: 3
 					},
-						{
-							title: '纵向科研项目',
-							align: 'center',
-							colspan: 7
-						},
-						{
-							title: '横向课题科研项目-校外',
-							align: 'center',
-							colspan: 8
-						},
-						{
-							title: '成果转化',
-							align: 'center',
-							colspan: 7
-						},
-						{
-							title: '学术论文',
-							align: 'center',
-							colspan: 6
-						},
-						{
-							title: '教材著作',
-							align: 'center',
-							colspan: 7
-						},
-						{
-							title: '专利、软著',
-							align: 'center',
-							colspan: 4
-						},
-						{
-							title: '奖励',
-							align: 'center',
-							colspan: 8
-						},
-						{
-							title: '学术报告(讲座类)',
-							align: 'center',
-							colspan: 5
-						}
-					],
-					[
-						{
-							checkbox: true
-						},
-						{
-							field: 'deptName',
-							title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;专业&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
-							align: 'center'
-						},
-						{
-							field: 'userName',
-							title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;教师&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
-							align: 'center'
-						},
-						{
-							field: 'zcgjjjkyxm',
-							title: '主持国家基金科研项目',
-							align: 'center'
-						},
-						{
-							field: 'zcsbjjjkyxm',
-							title: '主持省部级基金科研项目',
-							align: 'center'
-						},
-						{
-							field: 'zcsbjjgxm',
-							title: '主持省部级教改项目',
-							align: 'center'
-						},
-						{
-							field: 'zcsbjzxkyxm',
-							title: '主持省部级纵向科研项目',
-							align: 'center'
-						},
-						{
-							field: 'zctjjxhjkyxm',
-							title: '主持厅局级、学会级科研项目',
-							align: 'center'
-						},
-						{
-							field: 'zcxjjxglxmywyys',
-							title: '主持校级教学管理项目（1万元以上）',
-							align: 'center'
-						},
-						{
-							field: 'zcxjjxglxmywyyx',
-							title: '主持校级教学管理项目（1万元以下）',
-							align: 'center'
-						},
-						{
-							field: 'ewyyx',
-							title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2万元以下&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
-							align: 'center'
-						},
-						{
-							field: 'edwwy',
-							title: '2-5万元（含2）',
-							align: 'center'
-						},
-						{
-							field: 'wdswy',
-							title: '5-10万元（含5）',
-							align: 'center'
-						},
-						{
-							field: 'sdeswy',
-							title: '10-20万元（含10）',
-							align: 'center'
-						},
-						{
-							field: 'esdsswwy',
-							title: '20-35万元（含20）',
-							align: 'center'
-						},
-						{
-							field: 'wswwydwswy',
-							title: '35-50万元（含35）',
-							align: 'center'
-						},
-						{
-							field: 'wsdqswwy',
-							title: '50-75万元（含50）',
-							align: 'center'
-						},
-						{
-							field: 'qswdybwy',
-							title: '75-100万元（含75）',
-							align: 'center'
-						},
-						{
-							field: 'eyxxx',
-							title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2以下信息&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
-							align: 'center'
-						},
-						{
-							field: 'edwxx',
-							title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2-5信息&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
-							align: 'center'
-						},
-						{
-							field: 'wdsxx',
-							title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;5-10信息&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
-							align: 'center'
-						},
-						{
-							field: 'sdesxx',
-							title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;10-20信息&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
-							align: 'center'
-						},
-						{
-							field: 'esdsswxx',
-							title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;20-35信息&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
-							align: 'center'
-						},
-						{
-							field: 'sswdwsxx',
-							title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;35-50信息&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
-							align: 'center'
-						},
-						{
-							field: 'dywsxx',
-							title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;大于50信息&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
-							align: 'center'
-						},
-						{
-							field: 'SCI',
-							title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SCI&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
-							align: 'center'
-						},
-						{
-							field: 'EI',
-							title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EI&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
-							align: 'center'
-						},
-						{
-							field: 'hx',
-							title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;核心&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
-							align: 'center'
-						},
-						{
-							field: 'sw',
-							title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;三网&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
-							align: 'center'
-						},
-						{
-							field: 'pt',
-							title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;普通&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
-							align: 'center'
-						},
-						{
-							field: 'xb',
-							title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;校办&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
-							align: 'center'
-						},
-						{
-							field: 'cbzz1',
-							title: '出版专著（一类出版社）',
-							align: 'center'
-						},
-						{
-							field: 'cbzz2',
-							title: '出版专著（二类出版社）',
-							align: 'center'
-						},
-						{
-							field: 'cbyz1',
-							title: '出版译著（一类出版社）',
-							align: 'center'
-						},
-						{
-							field: 'cbyz2',
-							title: '出版译著（二类出版社）',
-							align: 'center'
-						},
-						{
-							field: 'cbjc1',
-							title: '出版教材（国家规划，省级规划教材）',
-							align: 'center'
-						},
-						{
-							field: 'cbjc2',
-							title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;出版教材&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
-							align: 'center'
-						},
-						{
-							field: 'zbjc',
-							title: '自编教材（校内使用）',
-							align: 'center'
-						},
-						{
-							field: 'sqfmzl',
-							title: '授权发明专利',
-							align: 'center'
-						},
-						{
-							field: 'syxxzl',
-							title: '实用新型专利',
-							align: 'center'
-						},
-						{
-							field: 'wxsjzl',
-							title: '外型设计专利',
-							align: 'center'
-						},
-						{
-							field: 'jsjrjzzq',
-							title: '计算机软件著作权',
-							align: 'center'
-						},
-						{
-							field: 'sjjxcgj',
-							title: '省级教学成果奖',
-							align: 'center'
-						},
-						{
-							field: 'sjkxjsj',
-							title: '省级科学技术奖',
-							align: 'center'
-						},
-						{
-							field: 'sjyljpkpb',
-							title: '省级一流精品课评比',
-							align: 'center'
-						},
-						{
-							field: 'stjjzrkxlpj',
-							title: '市、厅局级自然科学类评奖',
-							align: 'center'
-						},
-						{
-							field: 'stjjsklpj',
-							title: '市、厅局级社科类评奖',
-							align: 'center'
-						},
-						{
-							field: 'xjjxcgj',
-							title: '校级教学成果奖',
-							align: 'center'
-						},
-						{
-							field: 'yyxkyxjcgj',
-							title: '应用型科研校级成果奖',
-							align: 'center'
-						},
-						{
-							field: 'xjjpkpb',
-							title: '校级精品课评比',
-							align: 'center'
-						},
-						{
-							field: 'jbgj',
-							title: '&nbsp;&nbsp;&nbsp;&nbsp;举办国际&nbsp;&nbsp;&nbsp;&nbsp;',
-							align: 'center'
-						},
-						{
-							field: 'jbgn',
-							title: '&nbsp;&nbsp;&nbsp;&nbsp;举办国内&nbsp;&nbsp;&nbsp;&nbsp;',
-							align: 'center'
-						},
-						{
-							field: 'cjgj',
-							title: '&nbsp;&nbsp;&nbsp;&nbsp;参加国际&nbsp;&nbsp;&nbsp;&nbsp;',
-							align: 'center'
-						},
-						{
-							field: 'cjgn',
-							title: '&nbsp;&nbsp;&nbsp;&nbsp;参加国内&nbsp;&nbsp;&nbsp;&nbsp;',
-							align: 'center'
-						},
-						{
-							field: 'xjxs',
-							title: '&nbsp;&nbsp;&nbsp;&nbsp;校级学术&nbsp;&nbsp;&nbsp;&nbsp;',
-							align: 'center'
-						}]
+					{
+						title: '纵向科研项目',
+						align: 'center',
+						colspan: 7
+					},
+					{
+						title: '横向课题科研项目-校外',
+						align: 'center',
+						colspan: 8
+					},
+					{
+						title: '成果转化',
+						align: 'center',
+						colspan: 7
+					},
+					{
+						title: '学术论文',
+						align: 'center',
+						colspan: 6
+					},
+					{
+						title: '教材著作',
+						align: 'center',
+						colspan: 7
+					},
+					{
+						title: '专利、软著',
+						align: 'center',
+						colspan: 4
+					},
+					{
+						title: '奖励',
+						align: 'center',
+						colspan: 8
+					},
+					{
+						title: '学术报告(讲座类)',
+						align: 'center',
+						colspan: 5
+					}
 				],
+				[
+					{
+						checkbox: true
+					},
+					{
+						field: 'deptName',
+						title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;专业&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
+						align: 'center'
+					},
+					{
+						field: 'userName',
+						title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;教师&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
+						align: 'center'
+					},
+					{
+						field: 'zcgjjjkyxm',
+						title: '主持国家基金科研项目',
+						align: 'center'
+					},
+					{
+						field: 'zcsbjjjkyxm',
+						title: '主持省部级基金科研项目',
+						align: 'center'
+					},
+					{
+						field: 'zcsbjjgxm',
+						title: '主持省部级教改项目',
+						align: 'center'
+					},
+					{
+						field: 'zcsbjzxkyxm',
+						title: '主持省部级纵向科研项目',
+						align: 'center'
+					},
+					{
+						field: 'zctjjxhjkyxm',
+						title: '主持厅局级、学会级科研项目',
+						align: 'center'
+					},
+					{
+						field: 'zcxjjxglxmywyys',
+						title: '主持校级教学管理项目（1万元以上）',
+						align: 'center'
+					},
+					{
+						field: 'zcxjjxglxmywyyx',
+						title: '主持校级教学管理项目（1万元以下）',
+						align: 'center'
+					},
+					{
+						field: 'ewyyx',
+						title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2万元以下&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
+						align: 'center'
+					},
+					{
+						field: 'edwwy',
+						title: '2-5万元（含2）',
+						align: 'center'
+					},
+					{
+						field: 'wdswy',
+						title: '5-10万元（含5）',
+						align: 'center'
+					},
+					{
+						field: 'sdeswy',
+						title: '10-20万元（含10）',
+						align: 'center'
+					},
+					{
+						field: 'esdsswwy',
+						title: '20-35万元（含20）',
+						align: 'center'
+					},
+					{
+						field: 'wswwydwswy',
+						title: '35-50万元（含35）',
+						align: 'center'
+					},
+					{
+						field: 'wsdqswwy',
+						title: '50-75万元（含50）',
+						align: 'center'
+					},
+					{
+						field: 'qswdybwy',
+						title: '75-100万元（含75）',
+						align: 'center'
+					},
+					{
+						field: 'eyxxx',
+						title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2以下信息&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
+						align: 'center'
+					},
+					{
+						field: 'edwxx',
+						title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2-5信息&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
+						align: 'center'
+					},
+					{
+						field: 'wdsxx',
+						title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;5-10信息&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
+						align: 'center'
+					},
+					{
+						field: 'sdesxx',
+						title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;10-20信息&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
+						align: 'center'
+					},
+					{
+						field: 'esdsswxx',
+						title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;20-35信息&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
+						align: 'center'
+					},
+					{
+						field: 'sswdwsxx',
+						title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;35-50信息&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
+						align: 'center'
+					},
+					{
+						field: 'dywsxx',
+						title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;大于50信息&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
+						align: 'center'
+					},
+					{
+						field: 'SCI',
+						title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SCI&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
+						align: 'center'
+					},
+					{
+						field: 'EI',
+						title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EI&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
+						align: 'center'
+					},
+					{
+						field: 'hx',
+						title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;核心&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
+						align: 'center'
+					},
+					{
+						field: 'sw',
+						title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;三网&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
+						align: 'center'
+					},
+					{
+						field: 'pt',
+						title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;普通&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
+						align: 'center'
+					},
+					{
+						field: 'xb',
+						title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;校办&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
+						align: 'center'
+					},
+					{
+						field: 'cbzz1',
+						title: '出版专著（一类出版社）',
+						align: 'center'
+					},
+					{
+						field: 'cbzz2',
+						title: '出版专著（二类出版社）',
+						align: 'center'
+					},
+					{
+						field: 'cbyz1',
+						title: '出版译著（一类出版社）',
+						align: 'center'
+					},
+					{
+						field: 'cbyz2',
+						title: '出版译著（二类出版社）',
+						align: 'center'
+					},
+					{
+						field: 'cbjc1',
+						title: '出版教材（国家规划，省级规划教材）',
+						align: 'center'
+					},
+					{
+						field: 'cbjc2',
+						title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;出版教材&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
+						align: 'center'
+					},
+					{
+						field: 'zbjc',
+						title: '自编教材（校内使用）',
+						align: 'center'
+					},
+					{
+						field: 'sqfmzl',
+						title: '授权发明专利',
+						align: 'center'
+					},
+					{
+						field: 'syxxzl',
+						title: '实用新型专利',
+						align: 'center'
+					},
+					{
+						field: 'wxsjzl',
+						title: '外型设计专利',
+						align: 'center'
+					},
+					{
+						field: 'jsjrjzzq',
+						title: '计算机软件著作权',
+						align: 'center'
+					},
+					{
+						field: 'sjjxcgj',
+						title: '省级教学成果奖',
+						align: 'center'
+					},
+					{
+						field: 'sjkxjsj',
+						title: '省级科学技术奖',
+						align: 'center'
+					},
+					{
+						field: 'sjyljpkpb',
+						title: '省级一流精品课评比',
+						align: 'center'
+					},
+					{
+						field: 'stjjzrkxlpj',
+						title: '市、厅局级自然科学类评奖',
+						align: 'center'
+					},
+					{
+						field: 'stjjsklpj',
+						title: '市、厅局级社科类评奖',
+						align: 'center'
+					},
+					{
+						field: 'xjjxcgj',
+						title: '校级教学成果奖',
+						align: 'center'
+					},
+					{
+						field: 'yyxkyxjcgj',
+						title: '应用型科研校级成果奖',
+						align: 'center'
+					},
+					{
+						field: 'xjjpkpb',
+						title: '校级精品课评比',
+						align: 'center'
+					},
+					{
+						field: 'jbgj',
+						title: '&nbsp;&nbsp;&nbsp;&nbsp;举办国际&nbsp;&nbsp;&nbsp;&nbsp;',
+						align: 'center'
+					},
+					{
+						field: 'jbgn',
+						title: '&nbsp;&nbsp;&nbsp;&nbsp;举办国内&nbsp;&nbsp;&nbsp;&nbsp;',
+						align: 'center'
+					},
+					{
+						field: 'cjgj',
+						title: '&nbsp;&nbsp;&nbsp;&nbsp;参加国际&nbsp;&nbsp;&nbsp;&nbsp;',
+						align: 'center'
+					},
+					{
+						field: 'cjgn',
+						title: '&nbsp;&nbsp;&nbsp;&nbsp;参加国内&nbsp;&nbsp;&nbsp;&nbsp;',
+						align: 'center'
+					},
+					{
+						field: 'xjxs',
+						title: '&nbsp;&nbsp;&nbsp;&nbsp;校级学术&nbsp;&nbsp;&nbsp;&nbsp;',
+						align: 'center'
+					}]
+			],
 			};
 			$.table.init(options);
 
             // 添加表格加载完成后的回调函数
             $('#bootstrap-table').on('load-success.bs.table', function () {
 				const $table = $(this);
-				const $lastRow = $table.find('tbody tr:last');
+				const $tbody = $table.find('tbody');
+				
+				// 使用延时确保DOM完全渲染
+				setTimeout(function() {
+					// 查找总计行（userName为"总计"的行）
+					$tbody.find('tr').each(function() {
+						const $row = $(this);
+						const $cells = $row.find('td');
+						
+						// 检查第三列（教师列）是否为"总计"
+						if ($cells.length > 2 && $cells.eq(2).text().trim() === '总计') {
+							processTotalRow($row, $cells);
+						}
+					});
+				}, 200);
             });
+
+			// 处理总计行的函数
+			function processTotalRow($row, $cells) {
+				// 1. 为整行添加总计样式
+				$row.addClass('total-row');
+				
+				// 2. 处理第二、三列的合并
+				const $deptCell = $cells.eq(1);  // 专业列
+				const $teacherCell = $cells.eq(2); // 教师列
+				
+				// 3. 设置合并后的样式和内容
+				$deptCell.addClass('total-merged-cell')
+						 .attr('colspan', '2')
+						 .text('总计');
+				
+				// 4. 隐藏第三列
+				$teacherCell.hide();
+				
+				// 5. 确保多选框被隐藏
+				$cells.eq(0).addClass('bs-checkbox');
+			}
 		});
 
 </script>
