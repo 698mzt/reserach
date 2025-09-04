@@ -13,11 +13,11 @@
             background-color: #f8f9fa !important;
             font-weight: bold;
         }
-        
+
         .total-row td {
             border-top: 2px solid #dee2e6 !important;
         }
-        
+
         /* 总计行合并列的样式 */
         .total-merged-cell {
             position: relative;
@@ -25,7 +25,7 @@
             background-color: #e9ecef !important;
             font-weight: bold !important;
         }
-        
+
         /* 隐藏总计行的多选框 */
         .total-row .bs-checkbox {
             visibility: hidden;
@@ -67,12 +67,12 @@
                         checkbox: true
                     },
                     {
-                        field: '专业',
+                        field: 'deptName',
                         title: '&nbsp;&nbsp;&nbsp;&nbsp;专业&nbsp;&nbsp;&nbsp;&nbsp;',
                         align: 'center'
                     },
                     {
-                        field: '教师',
+                        field: 'userName',
                         title: '&nbsp;&nbsp;&nbsp;教师&nbsp;&nbsp;&nbsp;',
                         align: 'center'
                     },
@@ -133,46 +133,42 @@
         $.table.init(options);
 
         // 添加表格加载完成后的回调函数
-        $('#bootstrap-table').on('load-success.bs.table', function (data) {
+        $('#bootstrap-table').on('load-success.bs.table', function () {
+            const $table = $(this);
+            const $tbody = $table.find('tbody');
+
             // 使用延时确保DOM完全渲染
             setTimeout(function() {
-                processTotalRow();
+                // 查找总计行（userName为"总计"的行）
+                $tbody.find('tr').each(function() {
+                    const $row = $(this);
+                    const $cells = $row.find('td');
+
+                    // 检查第三列（教师列）是否为"总计"
+                    if ($cells.length > 2 && $cells.eq(2).text().trim() === '总计') {
+                        processTotalRow($row, $cells);
+                    }
+                });
             }, 200);
         });
 
-        // 处理总计行
-        function processTotalRow() {
-            const $tbody = $('#bootstrap-table tbody');
-            
-            // 查找总计行（教师列为"总计"的行）
-            $tbody.find('tr').each(function() {
-                const $row = $(this);
-                const $cells = $row.find('td');
-                
-                // 检查第二列（教师列）是否为"总计"
-                if ($cells.length > 2 && $cells.eq(2).text().trim() === '总计') {
-                    processTotalRowMerge($row, $cells);
-                }
-            });
-        }
-
-        // 处理总计行的合并
-        function processTotalRowMerge($row, $cells) {
+        // 处理总计行的函数
+        function processTotalRow($row, $cells) {
             // 1. 为整行添加总计样式
             $row.addClass('total-row');
-            
-            // 2. 处理第二、三列的合并（专业和教师列）
-            const $deptCell = $cells.eq(1);      // 专业列
-            const $teacherCell = $cells.eq(2);   // 教师列
-            
+
+            // 2. 处理第二、三列的合并（教研室和教师列）
+            const $deptCell = $cells.eq(1);    // 教研室列
+            const $teacherCell = $cells.eq(2); // 教师列
+
             // 3. 设置合并后的样式和内容
             $deptCell.addClass('total-merged-cell')
-                     .attr('colspan', '2')
-                     .text('总计');
-            
+                .attr('colspan', '2')
+                .text('总计');
+
             // 4. 隐藏第三列
             $teacherCell.hide();
-            
+
             // 5. 确保多选框被隐藏
             $cells.eq(0).addClass('bs-checkbox');
         }

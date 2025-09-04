@@ -82,11 +82,6 @@
                      class: "fixed-column-2",
                  },
                  {
-                     field: 'hxkt',
-                     title: '横向课题科研项目',
-                     align: 'center',
-                 },
-                 {
                      field: 'zxktxjys',
                      title: '纵向课题科研项目-校级以上',
                      align: 'center',
@@ -94,6 +89,11 @@
                  {
                      field: 'zxktxj',
                      title: '纵向课题科研项目-校级',
+                     align: 'center',
+                 },
+                 {
+                     field: 'hxkt',
+                     title: '横向课题科研项目',
                      align: 'center',
                  },
                  {
@@ -133,7 +133,8 @@
              ]
          }
          $.table.init(options);
-// 添加表格加载完成后的回调函数
+
+        // 添加表格加载完成后的回调函数
          $('#bootstrap-table').on('load-success.bs.table', function () {
              const $table = $(this);
              const $tbody = $table.find('tbody');

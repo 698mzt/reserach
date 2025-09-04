@@ -155,7 +155,21 @@ public class IStatisticServiceImpl implements IStatisticService {
             if (i > 0) {
                 result.append("，");
             }
-            result.append(count).append("个（").append(String.format("%.2f", amount)).append("万）");
+            
+            // 当金额为0时，显示"0万"而不是"0.00万"
+            String amountStr;
+            if (amount == 0.0) {
+                amountStr = "0";
+            } else {
+                // 对于非零金额，如果是整数则不显示小数点，否则保留两位小数
+                if (amount == Math.floor(amount)) {
+                    amountStr = String.format("%.0f", amount);
+                } else {
+                    amountStr = String.format("%.2f", amount);
+                }
+            }
+            
+            result.append(count).append("个（").append(amountStr).append("万）");
         }
         
         return result.toString();

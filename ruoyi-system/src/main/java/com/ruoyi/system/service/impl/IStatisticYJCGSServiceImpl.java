@@ -65,18 +65,60 @@ public class IStatisticYJCGSServiceImpl implements IStatisticYJCGSService {
     public List<Map<String, Object>> selectYJCGSJYS(String deptId) {
         // 1. 查询所有小类数据
         List<Map<String, Object>> rawData = statisticJZMapper.selectAllJZ(deptId);
-        
+
+        String page = "jys";
         // 2. 将小类数据合并成大类
         List<Map<String, Object>> mergedData = mergeToCategories(rawData);
         
         // 3. 计算总计行
-        Map<String, Object> totalRow = calculateTotalRow(mergedData);
+        Map<String, Object> totalRow = calculateTotalRow(mergedData, page);
         
         // 4. 将总计行添加到结果中
         mergedData.add(totalRow);
         
         return mergedData;
     }
+
+    @Override
+    public List<Map<String, Object>> selectYJCGSXY(Long parentId) {
+        // 1. 查询该学院下所有教研室的小类数据
+        List<Map<String, Object>> rawData = statisticJZMapper.selectYJCGSXY(parentId);
+
+        // 2. 按教研室分组处理数据
+        Map<String, List<Map<String, Object>>> deptGroupedData = new HashMap<>();
+        
+        // 按教研室分组
+        for (Map<String, Object> row : rawData) {
+            String deptName = (String) row.get("deptName");
+            if (deptName != null && !deptName.isEmpty()) {
+                deptGroupedData.computeIfAbsent(deptName, k -> new ArrayList<>()).add(row);
+            }
+        }
+        
+        // 3. 为每个教研室计算汇总数据
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (Map.Entry<String, List<Map<String, Object>>> entry : deptGroupedData.entrySet()) {
+            String deptName = entry.getKey();
+            List<Map<String, Object>> deptData = entry.getValue();
+            
+            // 合并该教研室的数据
+            List<Map<String, Object>> mergedDeptData = mergeToCategories(deptData);
+            
+            // 计算该教研室的总计
+            Map<String, Object> deptTotalRow = calculateDeptTotalForCollege(mergedDeptData, deptName);
+            result.add(deptTotalRow);
+        }
+
+        // 4. 计算学院总计行
+        String page = "xy";
+        Map<String, Object> collegeTotalRow = calculateTotalRow(result, page);
+
+        // 5. 将学院总计行添加到结果中
+        result.add(collegeTotalRow);
+
+        return result;
+    }
+
 
     /**
      * 将小类数据合并成大类
@@ -90,8 +132,9 @@ public class IStatisticYJCGSServiceImpl implements IStatisticYJCGSService {
             Map<String, Object> mergedRow = new HashMap<>();
             
             // 基本信息
-            mergedRow.put("专业", row.get("deptName"));
-            mergedRow.put("教师", row.get("userName"));
+            mergedRow.put("parentName", row.get("partenName"));
+            mergedRow.put("deptName", row.get("deptName"));
+            mergedRow.put("userName", row.get("userName"));
             
             // 合并横向课题科研项目（特殊计算）
             mergedRow.put("横向课题科研项目", mergeSpecialFields(row, HORIZONTAL_FIELDS));
@@ -125,7 +168,7 @@ public class IStatisticYJCGSServiceImpl implements IStatisticYJCGSService {
             
             // 合并奖励类（普通计算）
             int awardCount = mergeNormalFields(row, AWARD_FIELDS);
-            mergedRow.put("奖励类", awardCount > 0 ? awardCount + "个" : "0个");
+            mergedRow.put("奖励", awardCount > 0 ? awardCount + "个" : "0个");
             
             // 合并学术报告（普通计算）
             int reportCount = mergeNormalFields(row, REPORT_FIELDS);
@@ -176,14 +219,20 @@ public class IStatisticYJCGSServiceImpl implements IStatisticYJCGSService {
     }
 
     /**
-     * 计算总计行
+     * 计算教研室在学院页面的总计行
      * @param mergedData 合并后的数据
-     * @return 总计行
+     * @param deptName 教研室名称
+     * @return 教研室总计行
      */
-    private Map<String, Object> calculateTotalRow(List<Map<String, Object>> mergedData) {
+    private Map<String, Object> calculateDeptTotalForCollege(List<Map<String, Object>> mergedData, String deptName) {
         Map<String, Object> totalRow = new HashMap<>();
-        totalRow.put("专业", "");
-        totalRow.put("教师", "总计");
+        totalRow.put("deptName", deptName);
+        
+        // 从第一行数据中获取parentName
+        if (!mergedData.isEmpty()) {
+            Object parentName = mergedData.get(0).get("parentName");
+            totalRow.put("parentName", parentName);
+        }
         
         // 特殊计算字段
         List<String> specialFields = Arrays.asList("横向课题科研项目", "纵向科研项目-校级以上", "纵向科研项目-校级", "成果转化");
@@ -201,7 +250,60 @@ public class IStatisticYJCGSServiceImpl implements IStatisticYJCGSService {
         }
         
         // 普通计算字段
-        List<String> normalFields = Arrays.asList("学术论文", "教材著作", "专利", "软著", "奖励类", "学术报告(讲座类)");
+        List<String> normalFields = Arrays.asList("学术论文", "教材著作", "专利", "软著", "奖励", "学术报告(讲座类)");
+        for (String field : normalFields) {
+            int total = 0;
+            
+            for (Map<String, Object> row : mergedData) {
+                Object value = row.get(field);
+                if (value instanceof String) {
+                    total += parseNumberFromField((String) value);
+                }
+            }
+            
+            totalRow.put(field, total > 0 ? total + "个" : "0个");
+        }
+        
+        return totalRow;
+    }
+
+    /**
+     * 计算总计行
+     * @param mergedData 合并后的数据
+     * @return 总计行
+     */
+    private Map<String, Object> calculateTotalRow(List<Map<String, Object>> mergedData, String page) {
+        Map<String, Object> totalRow = new HashMap<>();
+        if (page.equals("jys"))
+            totalRow.put("userName", "总计");
+        if (page.equals("xy")) {
+            totalRow.put("deptName", "总计");
+            // 从第一行数据中获取parentName
+            if (!mergedData.isEmpty()) {
+                Object parentName = mergedData.get(0).get("parentName");
+                totalRow.put("parentName", parentName);
+            }
+        }
+        if (page.equals("xx"))
+            totalRow.put("parentName", "总计");
+        
+        // 特殊计算字段
+        List<String> specialFields = Arrays.asList("横向课题科研项目", "纵向科研项目-校级以上", "纵向科研项目-校级", "成果转化");
+        for (String field : specialFields) {
+            Map<Double, Integer> amountCountMap = new HashMap<>();
+            
+            for (Map<String, Object> row : mergedData) {
+                Object value = row.get(field);
+                if (value instanceof String) {
+                    parseAndCountAmounts((String) value, amountCountMap);
+                }
+            }
+            
+            totalRow.put(field, buildResultString(amountCountMap));
+        }
+        
+        // 普通计算字段
+        List<String> normalFields = Arrays.asList("学术论文", "教材著作", "专利", "软著", "奖励", "学术报告(讲座类)");
         for (String field : normalFields) {
             int total = 0;
             
@@ -276,13 +378,8 @@ public class IStatisticYJCGSServiceImpl implements IStatisticYJCGSService {
                 result.append("，");
             }
             
-            // 格式化金额，如果是整数则不显示小数点
-            String amountStr;
-            if (amount == Math.floor(amount)) {
-                amountStr = String.valueOf((int) amount);
-            } else {
-                amountStr = String.format("%.2f", amount);
-            }
+            // 格式化金额
+            String amountStr = String.format("%.2f", amount);
             
             result.append(count).append("个（").append(amountStr).append("万）");
         }

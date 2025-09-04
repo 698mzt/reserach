@@ -7,6 +7,10 @@ import java.util.Map;
 
 public interface StatisticJZMapper {
 
-    @MapKey("userId")
+    @MapKey("deptId")
     List<Map<String, Object>> selectAllJZ(String deptId);
+
+    @MapKey("parentId")
+    List<Map<String, Object>> selectYJCGSXY(Long parentId);
+
 }

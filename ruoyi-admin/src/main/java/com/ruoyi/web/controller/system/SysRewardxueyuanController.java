@@ -5,6 +5,7 @@ package com.ruoyi.web.controller.system;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.system.mapper.SysRewardXueyuanMapper;
+import com.ruoyi.system.service.IStatisticYJCGSService;
 import com.ruoyi.system.service.ISysDeptService;
 import com.ruoyi.system.service.ISysUserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +23,7 @@ import java.util.Map;
 public class SysRewardxueyuanController extends BaseController {
 
     @Autowired
-    private SysRewardXueyuanMapper sysRewardXueyuanMapper;
+    private IStatisticYJCGSService statisticYJCGSService;
     @Autowired
     private ISysUserService userService;
     @Autowired
@@ -32,19 +33,15 @@ public class SysRewardxueyuanController extends BaseController {
     @GetMapping()
     public String apply()
     {
-        return prefix + "/yjcgXY.html";
+        return prefix + "/yjcgXY";
     }
 
     @PostMapping("/list")
     @ResponseBody
     public TableDataInfo list() {
-        startPage();
-        String dept = getSysUser().getParentId().toString();
-        List<Map<String, Object>> list = sysRewardXueyuanMapper.selectAll(dept);
-        List<Map<String, Object>> list1 = sysRewardXueyuanMapper.selectTotal(dept);
-        list.add(list1.get(0));
+        Long parentId = getSysUser().getParentId();
+        List<Map<String, Object>> list = statisticYJCGSService.selectYJCGSXY(parentId);
         TableDataInfo data = getDataTable(list);
-        System.out.println("+++++++++++"+list);
         return data;
     }
 }
