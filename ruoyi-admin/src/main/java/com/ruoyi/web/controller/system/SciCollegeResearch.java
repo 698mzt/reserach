@@ -5,6 +5,7 @@ package com.ruoyi.web.controller.system;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.system.mapper.SciCollegeResearchMapper;
+import com.ruoyi.system.service.IStatisticKYGZLService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,6 +22,8 @@ import java.util.Map;
 public class SciCollegeResearch extends BaseController {
     @Autowired
     private SciCollegeResearchMapper sciCollegeResearchMapper;
+    @Autowired
+    private IStatisticKYGZLService IStatisticKYGZLService;
     private String prefix = "system/statistic";
 
     @GetMapping
@@ -31,26 +34,11 @@ public class SciCollegeResearch extends BaseController {
     @PostMapping("/list")
     @ResponseBody
     public TableDataInfo list() {
-        Long deptId =getSysUser().getDeptId();
-        Long deptId1 = getSysUser().getParentId();
-        System.out.println("deptId = " + deptId);
-        System.out.println("deptId1 = " + deptId1);
-        List<Map<String, Object>> list = sciCollegeResearchMapper.selectCollegeResearch(deptId1);
+        Long parentId = getSysUser().getParentId();
+        startPage();
+        List<Map<String, Object>> list = IStatisticKYGZLService.selectKYGZLXY(parentId);
         TableDataInfo data = getDataTable(list);
-        data.setRows(list); // 数据列表
-        data.setTotal(list.size()); // 总记录数
         return data;
     }
-    @PostMapping("/all_list")
-    @ResponseBody
-    public TableDataInfo all_list() {
-        Long deptId = getSysUser().getDeptId();
-        List<Map<String, Object>> GeneraList = new ArrayList<>();
-        GeneraList = sciCollegeResearchMapper.GeneralCollegeSearcherList();
-        new TableDataInfo();
-        TableDataInfo data;
-        data = getDataTable(GeneraList);data.setRows(GeneraList); // 数据列表;
-        data.setTotal(GeneraList.size()); // 总记录数
-        return data;
-    }
+
 }

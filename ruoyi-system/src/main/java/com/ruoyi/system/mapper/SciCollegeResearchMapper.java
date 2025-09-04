@@ -5,18 +5,13 @@ import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 import java.util.Map;
-
+/**
+ * 科研工作量
+ * */
 public interface SciCollegeResearchMapper {
-    //先查个列表
-    List<Map<String, Object>> selectCollegeResearch(@Param("deptId") Long deptId);
+    /*
+    * 查询学院数据
+    * */
+    List<Map<String, Object>> selectKYGZLXY(@Param("parentId") Long parentId);
 
-    //查个ID
-    List<Map<String, Object>> selectCollegeResearchID(@Param("deptId") Long deptId);
-
-
-    //这个是查所有学院的数据，
-    List<Map<String, Object>> GeneralCollegeSearcherList();
-
-
-    List<SciPA> selectCollegeResearchList(Long deptId);
 }

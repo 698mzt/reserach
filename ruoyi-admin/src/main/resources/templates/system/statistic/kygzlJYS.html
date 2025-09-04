@@ -5,6 +5,30 @@
 <html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
 <head>
     <th:block th:include="include :: header('表格虚拟滚动')" />
+    <style>
+        /* 总计行样式 */
+        .total-row {
+            background-color: #f8f9fa !important;
+            font-weight: bold;
+        }
+        
+        .total-row td {
+            border-top: 2px solid #dee2e6 !important;
+        }
+        
+        /* 总计行合并列的样式 */
+        .total-merged-cell {
+            position: relative;
+            text-align: center !important;
+            background-color: #e9ecef !important;
+            font-weight: bold !important;
+        }
+        
+        /* 隐藏总计行的多选框 */
+        .total-row .bs-checkbox {
+            visibility: hidden;
+        }
+    </style>
 </head>
 <body>
 <div class="container-div">
@@ -25,7 +49,6 @@
             url: prefix + "/list",
             modalName: '教研室科研工作量',
             method: "post",
-            height: "100%",
             sidePagination: "server",
             pagination: true,
             showSearch: false,
@@ -35,68 +58,61 @@
                     checkbox: true, // 添加多选框列
                     align: 'center'
                 },
-                { field: '教研室', title: '教研室1111', align: 'center' },
-                { field: '教师', title: '教师', align: 'center' },
-                { field: '横向课题科研项目', title: '横向课题科研项目', align: 'center' },
-                { field: '纵向课题科研项目-校级以上', title: '纵向课题科研项目-校级以上', align: 'center' },
-                { field: '纵向课题科研项目-校级', title: '纵向课题科研项目-校级', align: 'center' },
-                { field: '讲座报告积分', title: '讲座报告积分', align: 'center' },
-                { field: '奖励积分', title: '奖励积分', align: 'center' },
-                { field: '专利积分', title: '专利积分', align: 'center' },
-                { field: '软著积分', title: '软著积分', align: 'center' },
-                { field: '成果转化积分', title: '成果转化积分', align: 'center' },
-                { field: '教材软著积分', title: '教材软著积分', align: 'center' },
-                { field: '论文积分', title: '论文积分', align: 'center' }
+                { field: 'deptName', title: '教研室', align: 'center' },
+                { field: 'userName', title: '&nbsp;&nbsp;&nbsp;教师&nbsp;&nbsp;&nbsp;', align: 'center' },
+                { field: 'zxktxjys', title: '纵向课题科研项目-校级以上', align: 'center' },
+                { field: 'zxktxj', title: '纵向课题科研项目-校级', align: 'center' },
+                { field: 'hxkt', title: '横向课题科研项目', align: 'center' },
+                { field: 'cgzh', title: '成果转化', align: 'center' },
+                { field: 'xslw', title: '学术论文', align: 'center' },
+                { field: 'jczz', title: '教材著作', align: 'center' },
+                { field: 'zlrz', title: '专利、软著', align: 'center' },
+                { field: 'jl', title: '&nbsp;&nbsp;&nbsp;奖励&nbsp;&nbsp;&nbsp;', align: 'center' },
+                { field: 'jzbg', title: '学术报告(讲座类)', align: 'center' }
             ]
         };
         $.table.init(options);
 
-        $('#bootstrap-table').on('load-success.bs.table', function (data) {
-            var $table = $(this);
-            var dataRows = $table.bootstrapTable('getData'); // 获取表格数据
-
-            if (dataRows.length > 0) {
-                // 初始化合计对象
-                var totals = {
-                    '横向课题科研项目': 0,
-                    '纵向课题科研项目-校级以上': 0,
-                    '纵向课题科研项目-校级': 0,
-                    '讲座报告积分': 0,
-                    '奖励积分': 0,
-                    '专利积分': 0,
-                    '软著积分': 0,
-                    '成果转化积分': 0,
-                    '教材软著积分': 0,
-                    '论文积分': 0
-                };
-
-                // 遍历数据，累加数值
-                dataRows.forEach(function (row) {
-                    for (var key in totals) {
-                        totals[key] += parseFloat(row[key]) || 0; // 确保是数字，避免NaN
+        // 添加表格加载完成后的回调函数
+        $('#bootstrap-table').on('load-success.bs.table', function () {
+            const $table = $(this);
+            const $tbody = $table.find('tbody');
+            
+            // 使用延时确保DOM完全渲染
+            setTimeout(function() {
+                // 查找总计行（userName为"总计"的行）
+                $tbody.find('tr').each(function() {
+                    const $row = $(this);
+                    const $cells = $row.find('td');
+                    
+                    // 检查第三列（教师列）是否为"总计"
+                    if ($cells.length > 2 && $cells.eq(2).text().trim() === '总计') {
+                        processTotalRow($row, $cells);
                     }
                 });
-
-                // 动态生成合计行（跳过多选框列）
-                var totalRow = '<tr class="total-row">';
-                totalRow += '<td></td>'; // 跳过多选框列
-                totalRow += '<td colspan="2" class="text-center"><strong>合计</strong></td>';
-                totalRow += '<td>' + totals['横向课题科研项目'] + '</td>';
-                totalRow += '<td>' + totals['纵向课题科研项目-校级以上'] + '</td>';
-                totalRow += '<td>' + totals['纵向课题科研项目-校级'] + '</td>';
-                totalRow += '<td>' + totals['讲座报告积分'] + '</td>';
-                totalRow += '<td>' + totals['奖励积分'] + '</td>';
-                totalRow += '<td>' + totals['专利积分'] + '</td>';
-                totalRow += '<td>' + totals['软著积分'] + '</td>';
-                totalRow += '<td>' + totals['成果转化积分'] + '</td>';
-                totalRow += '<td>' + totals['教材软著积分'] + '</td>';
-                totalRow += '<td>' + totals['论文积分'] + '</td>';
-                totalRow += '</tr>';
-
-                // 插入合计行
-                $table.find('tbody').append(totalRow);
-            }
+            }, 200);
         });
+
+        // 处理总计行的函数
+        function processTotalRow($row, $cells) {
+            // 1. 为整行添加总计样式
+            $row.addClass('total-row');
+            
+            // 2. 处理第二、三列的合并（教研室和教师列）
+            const $deptCell = $cells.eq(1);    // 教研室列
+            const $teacherCell = $cells.eq(2); // 教师列
+            
+            // 3. 设置合并后的样式和内容
+            $deptCell.addClass('total-merged-cell')
+                     .attr('colspan', '2')
+                     .text('总计');
+            
+            // 4. 隐藏第三列
+            $teacherCell.hide();
+            
+            // 5. 确保多选框被隐藏
+            $cells.eq(0).addClass('bs-checkbox');
+        }
     });
 </script>
 </body>

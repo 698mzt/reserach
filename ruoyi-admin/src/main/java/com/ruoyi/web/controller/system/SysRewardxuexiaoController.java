@@ -5,6 +5,7 @@ package com.ruoyi.web.controller.system;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.system.mapper.SysRewardXueyuanMapper;
+import com.ruoyi.system.service.IStatisticYJCGSService;
 import com.ruoyi.system.service.ISysDeptService;
 import com.ruoyi.system.service.ISysUserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/rewardxuexiao")
@@ -24,9 +26,7 @@ public class SysRewardxuexiaoController extends BaseController {
     @Autowired
     private SysRewardXueyuanMapper sysRewardXueyuanMapper;
     @Autowired
-    private ISysUserService userService;
-    @Autowired
-    private ISysDeptService deptService;
+    private IStatisticYJCGSService statisticYJCGSService;
 
     private String prefix = "system/statistic";
     @GetMapping()
@@ -38,13 +38,9 @@ public class SysRewardxuexiaoController extends BaseController {
 @PostMapping("/list")
 @ResponseBody
 public TableDataInfo list() {
-    String dept = getSysUser().getDeptId().toString();
-    List<LinkedHashMap<String, Object>> list = sysRewardXueyuanMapper.selectXuexiao(dept);
-//    list.add(list.get(0));
+    Long parentId = 100L;
+    List<Map<String, Object>> list = statisticYJCGSService.selectYJCGSXY(parentId);
     TableDataInfo data = getDataTable(list);
-//    data.setRows(list); // 数据列表;
-//    data.setTotal(list.size()); // 总记录数
-    System.out.println("+++++++++++"+list);
     return data;
 
 }

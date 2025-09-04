@@ -181,7 +181,7 @@
             -- 计算每个用户的横向课题总积分
             SELECT
             ush.user_id,
-            SUM(CAST(ush.change_value AS DECIMAL(10, 2))) AS total_score
+            SUM(ush.change_value) AS total_score
             FROM sci_horizontal_apply sha
             JOIN sci_user_score_history ush ON sha.id = ush.apply_id
             where sha.state  = 6
@@ -301,7 +301,7 @@
             JOIN (
                 SELECT
                 ush.user_id,
-                SUM(CAST(ush.change_value AS DECIMAL(10, 2))) AS total_score
+                SUM(ush.change_value) AS total_score
                 FROM
                 sci_user_score_vertical ush
                 left join
@@ -324,7 +324,7 @@
             JOIN (
             SELECT
             ush.user_id,
-            SUM(CAST(ush.change_value AS DECIMAL(10, 2))) AS total_score
+            SUM(ush.change_value) AS total_score
             FROM
             sci_user_score_vertical ush
             left join
