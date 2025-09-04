@@ -18,9 +18,13 @@ import java.util.Map;
 @Controller
 @RequestMapping("/jysky")
 public class SciJYSKY extends BaseController {
+
+    private String prefix = "system/statistic";
+
     @Autowired
     private IStatisticKYGZLService statisticKYGZLService;
-    private String prefix = "system/statistic";
+
+
     @GetMapping
     public String index()
     {

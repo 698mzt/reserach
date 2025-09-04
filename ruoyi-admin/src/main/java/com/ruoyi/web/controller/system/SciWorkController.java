@@ -37,7 +37,7 @@ public class SciWorkController extends BaseController {
         Long deptId = getSysUser().getDeptId();
         List<Map<String, Object>> GeneraList = new ArrayList<>();
 
-        GeneraList = sciCollegeResearchMapper.GeneralCollegeSearcherList();
+//        GeneraList = sciCollegeResearchMapper.GeneralCollegeSearcherList();
         new TableDataInfo();
         TableDataInfo data;
         data = getDataTable(GeneraList);data.setRows(GeneraList); // 数据列表;
