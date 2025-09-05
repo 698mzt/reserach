@@ -128,6 +128,7 @@ public class AlltotleServiceImpl implements IAlltotleService {
   @Override
   public List<Alltotle> selectFourColtotleList(Alltotle alltotle) {
     List<Alltotle> list = alltotleMapper.selectFourColtotleList(alltotle);
+
     List<Alltotle> result = new ArrayList<>();
     if (list.isEmpty()) {
       return result;
@@ -138,11 +139,13 @@ public class AlltotleServiceImpl implements IAlltotleService {
     Alltotle sum_alltotle = new Alltotle();
     sum_alltotle.setDeptName(list.get(0).getDeptName());
     sum_alltotle.setPartenName(list.get(0).getPartenName());
+    sum_alltotle.setPartenId(list.get(0).getPartenId());
     thisDeptName = list.get(0).getDeptName();
     // 父部门统计
     Alltotle sum_alltotle_part = new Alltotle();
     sum_alltotle_part.setDeptName("计");
     sum_alltotle_part.setPartenName("统");
+    sum_alltotle_part.setPartenId(list.get(0).getPartenId());
     thisPartName = list.get(0).getPartenName();
     for (int i = 0; i < list.size(); i++){
 
@@ -152,6 +155,7 @@ public class AlltotleServiceImpl implements IAlltotleService {
         result.add(sum_alltotle);
         sum_alltotle = new Alltotle();
         sum_alltotle.setDeptName(list.get(i).getDeptName());
+        sum_alltotle.setPartenId(list.get(i).getPartenId());
         sum_alltotle.setPartenName(list.get(i).getPartenName());
         thisDeptName = list.get(i).getDeptName();
       }
@@ -162,6 +166,7 @@ public class AlltotleServiceImpl implements IAlltotleService {
         sum_alltotle_part = new Alltotle();
         sum_alltotle_part.setDeptName("计");
         sum_alltotle_part.setPartenName("统");
+        sum_alltotle_part.setPartenId(list.get(i).getPartenId());
         thisPartName = list.get(i).getPartenName();
       }
 
