@@ -1,4 +1,4 @@
-package com.ruoyi.system.controller;
+package com.ruoyi.web.controller.system;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,7 +7,6 @@ import com.ruoyi.common.core.domain.entity.SysRole;
 import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.system.domain.*;
 import com.ruoyi.system.mapper.SciJiaocairuanzhuMapper;
-import com.ruoyi.system.service.ISciHorizontalPiyueService;
 import com.ruoyi.system.service.ISciJiaocairuanzhuPiyueService;
 import com.ruoyi.system.service.ISysUserService;
 import org.apache.shiro.authz.annotation.Logical;
