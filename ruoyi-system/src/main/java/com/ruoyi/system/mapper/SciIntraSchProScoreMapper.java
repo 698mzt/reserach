@@ -21,4 +21,11 @@ public interface SciIntraSchProScoreMapper {
     int set_SchPro_score(@Param("score")int score, @Param("id")Integer id, @Param("useridd")int useridd);
 
     int set_SchPro_JT_score(@Param("score")int score, @Param("id")Integer id, @Param("useridd")int useridd);
+
+    /**
+     * 根据用户id获取这个用户的总积分
+     * @param uid
+     * @return
+     */
+    Long getScoreByUId( @Param("uid")Long uid);
 }

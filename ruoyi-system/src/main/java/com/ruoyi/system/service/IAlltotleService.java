@@ -63,5 +63,7 @@ public interface IAlltotleService
    * @return
    */
   int synchronousAlltotle();
+
+  public List<Alltotle> selectFourColtotleList(Alltotle alltotle);
 }
 

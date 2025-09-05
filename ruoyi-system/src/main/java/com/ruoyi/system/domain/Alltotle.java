@@ -5,6 +5,10 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * Alltotle对象 Alltotle
  *
@@ -15,8 +19,8 @@ public class Alltotle extends BaseEntity
 {
   private static final long serialVersionUID = 1L;
 
-
-
+  public static List<String> ge_wan_list = Arrays.asList("zcgjjjkyxm", "zcsbjjjkyxm","zcsbjjgxm","zcsbjzxkyxm","zctjjxhjkyxm","zcxjjxglxmywyys","zcxjjxglxmywyyx","ewyyx","edwwy","wdswy","sdeswy","esdsswwy","wswwydwswy","wsdqswwy","qswdybwy","eyxxx","edwxx","wdsxx","sdesxx","esdsswxx","sswdwsxx","dywsxx");
+  public static List<String> no_need_add_list = Arrays.asList("userId","userName","partenId","partenName","deptId","deptName");
   /** 用户id */
   @Excel(name = "用户id")
   private Long userId;
@@ -153,14 +157,33 @@ public class Alltotle extends BaseEntity
   @Excel(name = "校办")
   private String xb;
 
-  /** 专著 */
-  @Excel(name = "专著")
-  private String zz;
+  /** 出版专著（一类出版社） */
+  @Excel(name = "出版专著", readConverterExp = "一=类出版社")
+  private String cbzz1;
 
-  /** 教材 */
-  @Excel(name = "教材")
-  private String jc;
+  /** 出版专著（二类出版社） */
+  @Excel(name = "出版专著", readConverterExp = "二=类出版社")
+  private String cbzz2;
 
+  /** 出版译著（一类出版社） */
+  @Excel(name = "出版译著", readConverterExp = "一=类出版社")
+  private String cbyz1;
+
+  /** 出版译著（二类出版社） */
+  @Excel(name = "出版译著", readConverterExp = "二=类出版社")
+  private String cbyz2;
+
+  /** 出版教材（国家规划，省级规划教材） */
+  @Excel(name = "出版教材", readConverterExp = "国=家规划，省级规划教材")
+  private String cbjc1;
+
+  /** 出版教材 */
+  @Excel(name = "出版教材")
+  private String cbjc2;
+
+  /** 自编教材（校内使用） */
+  @Excel(name = "自编教材", readConverterExp = "校=内使用")
+  private String zbjc;
   /** 授权发明专利 */
   @Excel(name = "授权发明专利")
   private String sqfmzl;
@@ -236,7 +259,9 @@ public class Alltotle extends BaseEntity
   public Alltotle(Long userId) {
     this.userId = userId;
   }
+  public Alltotle( ) {
 
+  }
   public void setUserId(Long userId)
   {
     this.userId = userId;
@@ -426,7 +451,36 @@ public class Alltotle extends BaseEntity
   {
     return qswdybwy;
   }
-  public void setEyxxx(String eyxxx,Double amount)
+
+  public void setEyxxx(String eyxxx) {
+    this.eyxxx = eyxxx;
+  }
+
+  public void setEdwxx(String edwxx) {
+    this.edwxx = edwxx;
+  }
+
+  public void setWdsxx(String wdsxx) {
+    this.wdsxx = wdsxx;
+  }
+
+  public void setSdesxx(String sdesxx) {
+    this.sdesxx = sdesxx;
+  }
+
+  public void setEsdsswxx(String esdsswxx) {
+    this.esdsswxx = esdsswxx;
+  }
+
+  public void setSswdwsxx(String sswdwsxx) {
+    this.sswdwsxx = sswdwsxx;
+  }
+
+  public void setDywsxx(String dywsxx) {
+    this.dywsxx = dywsxx;
+  }
+
+  public void setEyxxx(String eyxxx, Double amount)
   {
 
     if (eyxxx== null || eyxxx.equals("")){
@@ -600,24 +654,63 @@ public class Alltotle extends BaseEntity
   {
     return xb;
   }
-  public void setZz(String zz)
-  {
-    this.zz = zz;
+
+  public String getCbzz1() {
+    return cbzz1;
   }
 
-  public String getZz()
-  {
-    return zz;
-  }
-  public void setJc(String jc)
-  {
-    this.jc = jc;
+  public void setCbzz1(String cbzz1) {
+    this.cbzz1 = cbzz1;
   }
 
-  public String getJc()
-  {
-    return jc;
+  public String getCbzz2() {
+    return cbzz2;
   }
+
+  public void setCbzz2(String cbzz2) {
+    this.cbzz2 = cbzz2;
+  }
+
+  public String getCbyz1() {
+    return cbyz1;
+  }
+
+  public void setCbyz1(String cbyz1) {
+    this.cbyz1 = cbyz1;
+  }
+
+  public String getCbyz2() {
+    return cbyz2;
+  }
+
+  public void setCbyz2(String cbyz2) {
+    this.cbyz2 = cbyz2;
+  }
+
+  public String getCbjc1() {
+    return cbjc1;
+  }
+
+  public void setCbjc1(String cbjc1) {
+    this.cbjc1 = cbjc1;
+  }
+
+  public String getCbjc2() {
+    return cbjc2;
+  }
+
+  public void setCbjc2(String cbjc2) {
+    this.cbjc2 = cbjc2;
+  }
+
+  public String getZbjc() {
+    return zbjc;
+  }
+
+  public void setZbjc(String zbjc) {
+    this.zbjc = zbjc;
+  }
+
   public void setSqfmzl(String sqfmzl)
   {
     this.sqfmzl = sqfmzl;
@@ -818,8 +911,13 @@ public class Alltotle extends BaseEntity
       .append("sw", getSw())
       .append("pt", getPt())
       .append("xb", getXb())
-      .append("zz", getZz())
-      .append("jc", getJc())
+      .append("cbzz1", getCbzz1())
+      .append("cbzz2", getCbzz2())
+      .append("cbyz1", getCbyz1())
+      .append("cbyz2", getCbyz2())
+      .append("cbjc1", getCbjc1())
+      .append("cbjc2", getCbjc2())
+      .append("zbjc", getZbjc())
       .append("sqfmzl", getSqfmzl())
       .append("syxxzl", getSyxxzl())
       .append("wxsjzl", getWxsjzl())
@@ -832,7 +930,6 @@ public class Alltotle extends BaseEntity
       .append("xjjxcgj", getXjjxcgj())
       .append("yyxkyxjcgj", getYyxkyxjcgj())
       .append("xjjpkpb", getXjjpkpb())
-      .append("jscjsjdshj", getJscjsjdshj())
       .append("jbgj", getJbgj())
       .append("jbgn", getJbgn())
       .append("cjgj", getCjgj())

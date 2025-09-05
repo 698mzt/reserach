@@ -122,7 +122,7 @@ public class SciIntraSchoolPro extends BaseEntity {
     //结项备案表
     private String overFiling;
 
-    //第一负责人获得积分
+    //第一负责人获得积分  这几个字段没有用到
     private String firstPoints;
     private String secondPoints;
     private String thirdPoints;

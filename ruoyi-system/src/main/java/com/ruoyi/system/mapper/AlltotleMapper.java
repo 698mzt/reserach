@@ -58,4 +58,6 @@ public interface AlltotleMapper
    * @return 结果
    */
   public int deleteAlltotleByUserIds(String[] userIds);
+
+  List<Alltotle> selectFourColtotleList(Alltotle alltotle);
 }

@@ -1,6 +1,7 @@
 package com.ruoyi.quartz.task;
 
 import com.ruoyi.system.mapper.SynchronizeDataMapper;
+import com.ruoyi.system.service.IAlltotleScoreService;
 import com.ruoyi.system.service.IAlltotleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -19,6 +20,9 @@ public class DataSynchronizeTask {
   @Autowired
   private IAlltotleService synchronousAlltotle;
 
+
+  @Autowired
+  private IAlltotleScoreService alltotleScoreService;
   /**
    * 同步所有数据
    * 包括横向课题和纵向课题数据
@@ -115,6 +119,7 @@ public class DataSynchronizeTask {
 //    todo：这个同步数据 是否为同步个数
     synchronousAlltotle.synchronousAlltotle();
 //    todo：需要同步积分
+    alltotleScoreService.synchronousAlltotleScore();
     System.out.println("成果转化数据同步完成");
   }
 
