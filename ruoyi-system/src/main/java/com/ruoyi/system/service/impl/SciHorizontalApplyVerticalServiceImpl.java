@@ -139,39 +139,39 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
                 sciHorizontalPiyue.setConcate("申请结项");
                 sciHorizontalPiyue.setState("提交");
                 break;
-//            default:
-//                String newState = sciHorizontalApplyVertical.getState();
-//                switch (newState) {
-////            教研室
-//                    case "33":
-//                        newState = "11";
-//                        break;
-//                    case "3":
-//                        newState = "1";
-//                        break;
-////                学院
-//                    case "5":
-//                        newState = "2";
-//                        break;
-//                    case "55":
-//                        newState = "22";
-//                        break;
-////                科研处
-//                    case "77":
-//                        newState = "44";
-//                        break;
-//                    case "7":
-//                        newState = "4";
-//                        break;
-////                教师
-//                    case "99":
-//                        newState = "99";
-//                        break;
-//                }
-//                sciHorizontalApplyVertical.setState(newState);
-//                sciHorizontalPiyue.setConcate("修改");
-//                sciHorizontalPiyue.setState("修改");
-//                break;
+            case "111":
+                String newState = sciHorizontalApplyVertical.getState();
+                switch (newState) {
+//            教研室
+                    case "33":
+                        newState = "11";
+                        break;
+                    case "3":
+                        newState = "1";
+                        break;
+//                学院
+                    case "5":
+                        newState = "2";
+                        break;
+                    case "55":
+                        newState = "22";
+                        break;
+//                科研处
+                    case "77":
+                        newState = "44";
+                        break;
+                    case "7":
+                        newState = "4";
+                        break;
+//                教师
+                    case "99":
+                        newState = "99";
+                        break;
+                }
+                sciHorizontalApplyVertical.setState(newState);
+                sciHorizontalPiyue.setConcate("修改");
+                sciHorizontalPiyue.setState("修改");
+                break;
         }
         sciHorizontalPiyueMapper.insertVerticalPiyue(sciHorizontalPiyue);
          return sciHorizontalApplyVerticalMapper.updateSciHorizontalApplyVertical(sciHorizontalApplyVertical);
@@ -361,11 +361,10 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
         sciHorizontalPiyue.setUid(userId);
         sciHorizontalPiyue.setVerticalId(id);
         sciHorizontalPiyue.setConcate(remark);
-        sciHorizontalPiyue.setState("撤回上一条操作");
+        sciHorizontalPiyue.setState("撤回");
         sciHorizontalPiyueMapper.insertVerticalPiyue(sciHorizontalPiyue);
-//        设置状态
-        int a =sciHorizontalApplyVerticalMapper.applyPass(id.toString(),newState);
-        return a;
+
+        return sciHorizontalApplyVerticalMapper.applyPass(id.toString(),newState);
     }
 
 

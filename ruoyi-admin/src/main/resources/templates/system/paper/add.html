@@ -194,6 +194,7 @@
 
         $(".file-upload").fileinput({
             uploadUrl: ctx + 'common/upload/lw',
+            initialPreviewAsData: true,
             maxFileCount: 1,
             autoReplace: true,
             allowedFileExtensions: ["pdf"],
@@ -219,6 +220,7 @@
 
         $(".file-wupload").fileinput({
             uploadUrl: ctx + 'common/upload/lw',
+            initialPreviewAsData: true,
             maxFileCount: 1,
             autoReplace: true,
             allowedFileExtensions: ["docx","doc"],

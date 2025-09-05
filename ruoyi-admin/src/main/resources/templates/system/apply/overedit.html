@@ -89,7 +89,7 @@
                     <label class="col-sm-4 control-label is-required">第一负责人：</label>
                     <div class="col-sm-8">
                         <!--                        <input name="firstPersonId" th:field="*{firstPersonId}" class="form-control" type="text" required>-->
-                        <select name="firstPersonId" class="form-control m-b" >
+                        <select name="firstPersonId" class="form-control m-b" disabled>
                             <option value="">无</option>
                             <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ #strings.toString(user.userId) == sciHorizontalApply.firstPersonId}"></option>
                         </select>
@@ -296,12 +296,27 @@
 
     $(".file-uploada").each(function (i) {
         var val = $("input[name='" + this.id + "']").val()
+        var initialPreview = [];
+        var initialPreviewConfig = [];
+        
+        if (val && val.trim() !== '') {
+            initialPreview = [val];
+            initialPreviewConfig = [{
+                type: "pdf",
+                caption: val.split('/').pop(),
+                url: ctx + "common/delete",
+                key: val
+            }];
+        }
+        
         $(this).fileinput({
             'uploadUrl': ctx + 'common/upload/hxkt',
             initialPreviewAsData: true,
-            initialPreview: [val],
+            initialPreview: initialPreview,
+            initialPreviewConfig: initialPreviewConfig,
             maxFileCount: 1,
             autoReplace: true,
+            overwriteInitial: true,
             allowedFileExtensions: ["pdf"],
             slugCallback: function(filename) {
                 if ($("input[name='topName']").val()===""){
@@ -316,20 +331,38 @@
                 return newName;
             },
         }).on('fileuploaded', function (event, data, previewId, index) {
-            $("input[name='" + event.currentTarget.id + "']").val(data.response.url)
+            if (data.response && data.response.url) {
+                $("input[name='" + event.currentTarget.id + "']").val(data.response.url);
+            }
         }).on('fileremoved', function (event, id, index) {
-            $("input[name='" + event.currentTarget.id + "']").val('')
-        })
-        $(this).fileinput('_initFileActions');
+            $("input[name='" + event.currentTarget.id + "']").val('');
+        }).on('fileclear', function (event) {
+            $("input[name='" + event.currentTarget.id + "']").val('');
+        });
     });
     $(".file-uploadb").each(function (i) {
         var val = $("input[name='" + this.id + "']").val()
+        var initialPreview = [];
+        var initialPreviewConfig = [];
+        
+        if (val && val.trim() !== '') {
+            initialPreview = [val];
+            initialPreviewConfig = [{
+                type: "pdf",
+                caption: val.split('/').pop(),
+                url: ctx + "common/delete",
+                key: val
+            }];
+        }
+        
         $(this).fileinput({
             'uploadUrl': ctx + 'common/upload/hxkt',
             initialPreviewAsData: true,
-            initialPreview: [val],
+            initialPreview: initialPreview,
+            initialPreviewConfig: initialPreviewConfig,
             maxFileCount: 1,
             autoReplace: true,
+            overwriteInitial: true,
             allowedFileExtensions: ["pdf"],
             slugCallback: function(filename) {
                 if ($("input[name='topName']").val()===""){
@@ -344,11 +377,14 @@
                 return newName;
             },
         }).on('fileuploaded', function (event, data, previewId, index) {
-            $("input[name='" + event.currentTarget.id + "']").val(data.response.url)
+            if (data.response && data.response.url) {
+                $("input[name='" + event.currentTarget.id + "']").val(data.response.url);
+            }
         }).on('fileremoved', function (event, id, index) {
-            $("input[name='" + event.currentTarget.id + "']").val('')
-        })
-        $(this).fileinput('_initFileActions');
+            $("input[name='" + event.currentTarget.id + "']").val('');
+        }).on('fileclear', function (event) {
+            $("input[name='" + event.currentTarget.id + "']").val('');
+        });
     });
 </script>
 </body>

@@ -647,10 +647,6 @@
 
                             }
                             huanhang = true;
-                            // actions.push('<br>')
-                            // actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan' + '\')"><i class=""></i>查看&nbsp;&nbsp;&nbsp;&nbsp;</a>');
-                            // actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
-
                         } else if (row.state == 1) {
                             actions.push('<a class="' + proFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro' + '\')"><i class=""></i>批阅</a>');
                             huanhang = true;
@@ -661,26 +657,13 @@
                         } else if ((row.state == 3 || row.state == 5 || row.state == 7) && row.userId == row.uid) {
                             actions.push('<a class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class=""></i>更新</a>');
                             huanhang = true;
-                            // actions.push('<br>')
-                            // actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan' + '\')"><i class=""></i>查看&nbsp;&nbsp;&nbsp;&nbsp;</a>');
-                            // actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
-
                         }
-                            // else if (row.state == 3 || row.state == 5 || row.state == 7) {
-                            //
-                            //     actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan' + '\')"><i class=""></i>查看&nbsp;&nbsp;&nbsp;&nbsp;</a>');
-                            //     actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
-                        // }
                         else if (row.state == 2) {
                             actions.push('<a class="' + proFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000"><i class=""></i>撤回</a>');
                             if (hechaFlag != 'hidden') {
                                 actions.push('<a class="' + hechaFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/hecha' + '\')"><i class=""></i>核查</a>');
                             }
                             huanhang = true;
-                            // actions.push('<br>')
-                            // actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan' + '\')"><i class=""></i>查看&nbsp;&nbsp;&nbsp;&nbsp;</a>');
-                            // actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
-
                         } else if (row.state == 4) {
 
                             actions.push('<a class="' + hechaFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000"><i class=""></i>撤回</a>');
@@ -688,23 +671,14 @@
                                 actions.push('<a class="' + chayueFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chayue' + '\')"><i class=""></i>查阅</a>');
                             }
                             huanhang = true;
-                            // actions.push('<br>')
-                            // actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan' + '\')"><i class=""></i>查看&nbsp;&nbsp;&nbsp;&nbsp;</a>');
-                            // actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
-
                         } else if (row.state == 6) {
                             if (chayueFlag != 'hidden') {
                                 actions.push('<a class="' + chayueFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000"><i class=""></i>撤回</a>');
                                 huanhang = true;
                             }
-
-                            // actions.push('<br>')
-                            // actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan' + '\')"><i class=""></i>查看&nbsp;&nbsp;&nbsp;&nbsp;</a>');
-                            // actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
-
                         }
 
-                        if (huanhang) {
+                        if (huanhang ===  true) {
                             actions.push('<br>'); // 只有前面有按钮时才换行
 
                         }

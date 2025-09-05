@@ -39,7 +39,7 @@
             <div class="form-group">
                 <label class="col-sm-4 control-label is-required">课题名称：</label>
                 <div class="col-sm-8">
-                    <input name="topName" class="form-control" type="text" required  maxlength="20">
+                    <input name="topName" class="form-control" type="text" required  maxlength="50">
                 </div>
             </div>
         </div>
@@ -236,6 +236,7 @@
 
     $(".file-upload").fileinput({
         uploadUrl: ctx + 'common/upload/zxkt',
+        initialPreviewAsData: true,
         maxFileCount: 1,
         autoReplace: true,
         allowedFileExtensions: ["pdf"],
