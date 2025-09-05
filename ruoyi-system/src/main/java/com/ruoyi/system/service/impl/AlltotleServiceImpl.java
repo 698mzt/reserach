@@ -23,7 +23,6 @@ import com.ruoyi.common.core.text.Convert;
 public class AlltotleServiceImpl implements IAlltotleService {
   @Autowired
   private AlltotleMapper alltotleMapper;
-
   @Autowired
   private SciIntraSchProApplyMapper sciIntraSchProApplyMapper;
 
@@ -96,6 +95,7 @@ public class AlltotleServiceImpl implements IAlltotleService {
     return alltotleMapper.deleteAlltotleByUserId(userId);
   }
 
+  // 自动同步成果转化 alltotle表
   @Override
   public int synchronousAlltotle() {
     //获取现在alltotle的所有信息
@@ -112,23 +112,137 @@ public class AlltotleServiceImpl implements IAlltotleService {
     //System.out.println("synchronousAlltotle:allOverSchProToAlltotles = " + alltotle);
     // 修改alltotle表
     int updaterows = 0;
-    for (int i = 0; i < alltotle.size(); i++){
-       int updaterow = alltotleMapper.updateAlltotle(alltotle.get(i));
+    for (int i = 0; i < alltotle.size(); i++) {
+      int updaterow = alltotleMapper.updateAlltotle(alltotle.get(i));
       updaterows += updaterow;
     }
     // 获取全部然后统一改全部     获取全部改变化的
-    if (updaterows==alltotle.size()){
+    if (updaterows == alltotle.size()) {
       return 1;
-    }else{
+    } else {
       return 0;
     }
 
   }
 
+  @Override
+  public List<Alltotle> selectFourColtotleList(Alltotle alltotle) {
+    List<Alltotle> list = alltotleMapper.selectFourColtotleList(alltotle);
+    List<Alltotle> result = new ArrayList<>();
+    if (list.isEmpty()) {
+      return result;
+    }
+    String thisPartName = list.get(0).getPartenName();
+    String thisDeptName = list.get(0).getDeptName();
+    Alltotle sum_alltotle = new Alltotle();
+    // 父部门统计
+    Alltotle sum_alltotle_part = new Alltotle();
+    for (int i = 0; i < list.size(); i++){
+      // 插入返回值，如果是最后一个 或者 当前部门名称和上一部门名称不一致 就说明这个部门计算完毕 先插入返回值
+      if (i == list.size() - 1 || !list.get(i).getDeptName().equals(thisDeptName)){
+        result.add(sum_alltotle);
+      }
+      if (i == list.size() - 1 || !list.get(i).getPartenName().equals(thisPartName)){
+        result.add(sum_alltotle_part);
+      }
+      if (i == 0 || !list.get(i).getPartenName().equals(thisPartName)){
+        sum_alltotle_part = new Alltotle();
+        sum_alltotle_part.setDeptName("计");
+        sum_alltotle_part.setPartenName("统");
+        thisPartName = list.get(i).getPartenName();
+      }
+
+      // 初始化 如果是第一个，或者当前部门名称和上一部门名称不一致 就说明这个部门计算完毕
+      if (i==0 || !list.get(i).getDeptName().equals(thisDeptName)){
+        sum_alltotle = new Alltotle();
+        sum_alltotle.setDeptName(list.get(i).getDeptName());
+        sum_alltotle.setPartenName(list.get(i).getPartenName());
+        thisDeptName = list.get(i).getDeptName();
+      }
+
+
+      //是否只显示按照部门总计的数据
+      //result.add(list.get(i));
+      sum_alltotle = AlltotleSet(sum_alltotle, list.get(i));
+      sum_alltotle_part = AlltotleSet(sum_alltotle_part, list.get(i));
+    }
+    // 添加最后一个分组的总和
+    result.add(sum_alltotle);
+    return result;
+  }
+
+  private Alltotle AlltotleSet(Alltotle sum_alltotle, Alltotle alltotle) {
+    // 使用反射简化求和操作
+    //getDeclaredFields()方法返回一个包含Field对象的数组，每个Field对象代表类中
+    java.lang.reflect.Field[] fields = Alltotle.class.getDeclaredFields();
+    for (java.lang.reflect.Field field : fields) {
+      if (java.lang.reflect.Modifier.isStatic(field.getModifiers())) {
+        continue; // 跳过静态字段
+      }
+
+      field.setAccessible(true);
+      try {
+        String fieldName = field.getName();
+        if (Alltotle.no_need_add_list.contains(fieldName)){
+          continue;
+        }
+        // 获取字段值
+        Object value1 = field.get(sum_alltotle);
+        Object value2 = field.get(alltotle);
+
+        String str1 = (String) value1;
+        String str2 = (String) value2;
+
+        // 判断应该使用哪个求和方法
+        if (str1 != null && str2 != null && !str1.isEmpty() && !str2.isEmpty()) {
+          String result;
+          if (!Alltotle.ge_wan_list.contains(fieldName)) {
+            result = sum_ge(str1, str2);
+          } else {
+            result = sum_ge_wan(str1, str2);
+          }
+          field.set(sum_alltotle, result);
+        } else if ((str1 == null || str1.isEmpty()) && str2 != null && !str2.isEmpty()) {
+          field.set(sum_alltotle, str2);
+        }
+        // 如果str1不为空而str2为空，则保持str1的值不变，不需要额外操作
+      } catch (IllegalAccessException e) {
+        // 处理异常
+        e.printStackTrace();
+      }
+    }
+
+    return sum_alltotle;
+  }
+
+  private String sum_ge_wan(String str1, String str2) {
+    if (str1.contains("个 (") && str1.contains("万)")&&str2.contains("个 (") && str2.contains("万)")) {
+      Integer num1 = Integer.parseInt(str1.split("个")[0]);
+      Integer num2 = Integer.parseInt(str2.split("个")[0]);
+      Integer num3 = Integer.parseInt(str1.split("万")[0].split("\\(")[1]);
+      Integer num4 = Integer.parseInt(str2.split("万")[0].split("\\(")[1]);
+      Integer sum1= num1+num2;
+      Integer sum2= num3+num4;
+      return sum1+"个 ("+sum2+"万)";
+    }else {
+      throw new RuntimeException("格式错误1"+str1+"/"+str2);
+    }
+  }
+  private String sum_ge (String str1, String str2) {
+    if (str1.contains("个") && str2.contains("个")){
+      Integer num1 = Integer.parseInt(str1.split("个")[0]);
+      Integer num2 = Integer.parseInt(str2.split("个")[0]);
+      Integer sum= num1+num2;
+      return sum+"个";
+    }else{
+      throw new RuntimeException("格式错误2"+str1+"/"+str2);
+    }
+  }
   /**
    * 找到这个项目需要统计负责人
+   *
    * @param allOverSchProToAlltotle 单个项目
-   * @param alltotle 已经统计过的负责人
+   * @param alltotle                已经统计过的负责人
    * @return 添加完成的负责人合集
    */
   private List<Alltotle> judgeLeaderInalltotle(Map<String, Object> allOverSchProToAlltotle, List<Alltotle> alltotle) {
@@ -145,7 +259,7 @@ public class AlltotleServiceImpl implements IAlltotleService {
         // 如果这个人已经在 alltotle 中
         if (alltotle.get(j).getUserId().equals(userId)) {
           // 增加成果转化金额，增加个数
-          judgeInalltole= true;
+          judgeInalltole = true;
           alltotle = AddMount_count(alltotle, j, mount);
           break;
         }
@@ -154,7 +268,7 @@ public class AlltotleServiceImpl implements IAlltotleService {
       if (!judgeInalltole) {
         // 没找到就添加 然后增加成果转化金额，增加个数
         alltotle.add(new Alltotle(userId));
-        alltotle = AddMount_count(alltotle, alltotle.size()-1, mount);
+        alltotle = AddMount_count(alltotle, alltotle.size() - 1, mount);
       }
 
     }
@@ -163,9 +277,10 @@ public class AlltotleServiceImpl implements IAlltotleService {
 
   /**
    * 添加金额和个数 处理成  x个（y万） 的格式
+   *
    * @param alltotle 需要添加的 alltotle
    * @param j        需要添加的索引
-   * @param amount    需要添加的金额
+   * @param amount   需要添加的金额
    * @return
    */
   private List<Alltotle> AddMount_count(List<Alltotle> alltotle, int j, Double amount) {
@@ -228,6 +343,5 @@ public class AlltotleServiceImpl implements IAlltotleService {
     }
     return alltotle;
   }
-
 
 }

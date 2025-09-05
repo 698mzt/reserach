@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.AlltotleScoreMapper">
+
+    <resultMap type="AlltotleScore" id="AlltotleScoreResult">
+        <result property="userId"    column="userId"    />
+        <result property="userName"    column="userName"    />
+        <result property="partenId"    column="partenId"    />
+        <result property="partenName"    column="partenName"    />
+        <result property="deptId"    column="deptId"    />
+        <result property="deptName"    column="deptName"    />
+        <result property="hxkt"    column="hxkt"    />
+        <result property="zxktxj"    column="zxktxj"    />
+        <result property="zxktxjys"    column="zxktxjys"    />
+        <result property="cgzh"    column="cgzh"    />
+        <result property="xslw"    column="xslw"    />
+        <result property="jczz"    column="jczz"    />
+        <result property="zlrz"    column="zlrz"    />
+        <result property="jl"    column="jl"    />
+        <result property="jzbg"    column="jzbg"    />
+    </resultMap>
+
+    <sql id="selectAlltotleScoreVo">
+        select userId, userName, partenId, partenName, deptId, deptName, hxkt, zxktxj, zxktxjys, cgzh, xslw, jczz, zlrz, jl, jzbg from Alltotle_score
+    </sql>
+
+    <select id="selectAlltotleScoreList" parameterType="AlltotleScore" resultMap="AlltotleScoreResult">
+        <include refid="selectAlltotleScoreVo"/>
+        <where>
+            <if test="userName != null  and userName != ''"> and userName like concat('%', #{userName}, '%')</if>
+            <if test="partenId != null "> and partenId = #{partenId}</if>
+            <if test="partenName != null  and partenName != ''"> and partenName like concat('%', #{partenName}, '%')</if>
+            <if test="deptId != null "> and deptId = #{deptId}</if>
+            <if test="deptName != null  and deptName != ''"> and deptName like concat('%', #{deptName}, '%')</if>
+            <if test="hxkt != null  and hxkt != ''"> and hxkt = #{hxkt}</if>
+            <if test="zxktxj != null  and zxktxj != ''"> and zxktxj = #{zxktxj}</if>
+            <if test="zxktxjys != null  and zxktxjys != ''"> and zxktxjys = #{zxktxjys}</if>
+            <if test="cgzh != null  and cgzh != ''"> and cgzh = #{cgzh}</if>
+            <if test="xslw != null  and xslw != ''"> and xslw = #{xslw}</if>
+            <if test="jczz != null  and jczz != ''"> and jczz = #{jczz}</if>
+            <if test="zlrz != null  and zlrz != ''"> and zlrz = #{zlrz}</if>
+            <if test="jl != null  and jl != ''"> and jl = #{jl}</if>
+            <if test="jzbg != null  and jzbg != ''"> and jzbg = #{jzbg}</if>
+        </where>
+    </select>
+
+    <select id="selectAlltotleScoreByUserId" parameterType="Long" resultMap="AlltotleScoreResult">
+        <include refid="selectAlltotleScoreVo"/>
+        where userId = #{userId}
+    </select>
+
+    <insert id="insertAlltotleScore" parameterType="AlltotleScore">
+        insert into Alltotle_score
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">userId,</if>
+            <if test="userName != null">userName,</if>
+            <if test="partenId != null">partenId,</if>
+            <if test="partenName != null">partenName,</if>
+            <if test="deptId != null">deptId,</if>
+            <if test="deptName != null">deptName,</if>
+            <if test="hxkt != null">hxkt,</if>
+            <if test="zxktxj != null">zxktxj,</if>
+            <if test="zxktxjys != null">zxktxjys,</if>
+            <if test="cgzh != null">cgzh,</if>
+            <if test="xslw != null">xslw,</if>
+            <if test="jczz != null">jczz,</if>
+            <if test="zlrz != null">zlrz,</if>
+            <if test="jl != null">jl,</if>
+            <if test="jzbg != null">jzbg,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">#{userId},</if>
+            <if test="userName != null">#{userName},</if>
+            <if test="partenId != null">#{partenId},</if>
+            <if test="partenName != null">#{partenName},</if>
+            <if test="deptId != null">#{deptId},</if>
+            <if test="deptName != null">#{deptName},</if>
+            <if test="hxkt != null">#{hxkt},</if>
+            <if test="zxktxj != null">#{zxktxj},</if>
+            <if test="zxktxjys != null">#{zxktxjys},</if>
+            <if test="cgzh != null">#{cgzh},</if>
+            <if test="xslw != null">#{xslw},</if>
+            <if test="jczz != null">#{jczz},</if>
+            <if test="zlrz != null">#{zlrz},</if>
+            <if test="jl != null">#{jl},</if>
+            <if test="jzbg != null">#{jzbg},</if>
+         </trim>
+    </insert>
+
+    <update id="updateAlltotleScore" parameterType="AlltotleScore">
+        update Alltotle_score
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userName != null">userName = #{userName},</if>
+            <if test="partenId != null">partenId = #{partenId},</if>
+            <if test="partenName != null">partenName = #{partenName},</if>
+            <if test="deptId != null">deptId = #{deptId},</if>
+            <if test="deptName != null">deptName = #{deptName},</if>
+            <if test="hxkt != null">hxkt = #{hxkt},</if>
+            <if test="zxktxj != null">zxktxj = #{zxktxj},</if>
+            <if test="zxktxjys != null">zxktxjys = #{zxktxjys},</if>
+            <if test="cgzh != null">cgzh = #{cgzh},</if>
+            <if test="xslw != null">xslw = #{xslw},</if>
+            <if test="jczz != null">jczz = #{jczz},</if>
+            <if test="zlrz != null">zlrz = #{zlrz},</if>
+            <if test="jl != null">jl = #{jl},</if>
+            <if test="jzbg != null">jzbg = #{jzbg},</if>
+        </trim>
+        where userId = #{userId}
+    </update>
+
+    <delete id="deleteAlltotleScoreByUserId" parameterType="Long">
+        delete from Alltotle_score where userId = #{userId}
+    </delete>
+
+    <delete id="deleteAlltotleScoreByUserIds" parameterType="String">
+        delete from Alltotle_score where userId in
+        <foreach item="userId" collection="array" open="(" separator="," close=")">
+            #{userId}
+        </foreach>
+    </delete>
+
+</mapper>

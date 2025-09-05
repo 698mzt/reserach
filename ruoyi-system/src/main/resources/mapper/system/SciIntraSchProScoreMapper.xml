@@ -82,11 +82,21 @@
           AND userid =#{uid}
     </select>
 
-    <update id="update_SchPro_score" >
+
+  <update id="update_SchPro_score" >
         update sci_IntraSchPro_score
         set earned_Points=0
         where sciIntraSch_Id = #{sciIntraSch_Id} and userid = #{userid}
     </update>
+  <select id="getScoreByUId" resultType="java.lang.Long">
+    select
+      sum(earnedALL_Points)
+    from
+      sci_IntraSchPro_score sisps
+    where
+      userid = #{uid}
+      and earnedjt_points != 0
 
+  </select>
 
 </mapper>

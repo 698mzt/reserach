@@ -2,6 +2,8 @@ package com.ruoyi.web.controller.IntraSchoolProject;
 
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.entity.SysUser;
+import com.ruoyi.system.domain.Alltotle;
+import com.ruoyi.system.service.IAlltotleService;
 import com.ruoyi.system.service.ICollegeProjectService;
 import com.zaxxer.hikari.util.FastList;
 import io.swagger.models.auth.In;
@@ -18,12 +20,14 @@ import java.util.*;
 
 import static com.ruoyi.common.config.datasource.DynamicDataSourceContextHolder.log;
 
+// 学院科研工作任务计划表
 @Controller
 @RequestMapping("/CollegeProject")
 public class CollegeProjectController extends BaseController {
     private String prefix = "system/CollegeProject";
     final private static List<Long> colleges = Arrays.asList(1149L, 1150L, 1139L, 1140L, 1143L, 1145L, 1147L, 1155L);
-
+    @Autowired
+    private IAlltotleService alltotleService;
     @Autowired
     private ICollegeProjectService collegeProjectService;
     @GetMapping("")
@@ -56,7 +60,7 @@ public class CollegeProjectController extends BaseController {
 
     //加上总计这一行
     private List<Map<String, Object>> processProjects(List<Map<String, Object>> projects) {
-        projects = convertByteArraysToString(projects);
+        //projects = convertByteArraysToString(projects);
         Map<String, Object> result = add_total(projects);
         result.put("cgzhdeptId", "总计");
         projects.add(result);
@@ -95,8 +99,6 @@ public class CollegeProjectController extends BaseController {
 //                }
 //            }
             for (Map.Entry<String, Object> entry : currentMap.entrySet()) {
-
-
                 String key = entry.getKey();
                 if (key.equals("parent_deptid")){
                     continue;
@@ -137,5 +139,14 @@ public class CollegeProjectController extends BaseController {
         return result;
 
     }
+  // 查询alltotal 列表
+  @PostMapping("/getAlltotallists")
+  @ResponseBody
+  public List<Alltotle> getAlltotallists() {
+      // 新写一个sql查询四个学院的，如果是 其他 登陆的话，查询所有，如果是四个学院的则查询自己学院
+      // 在每个学院下面插入提条统计，遍历列表，
+      List<Alltotle> lists = alltotleService.selectFourColtotleList(null);
 
+      return  lists;
+  }
 }

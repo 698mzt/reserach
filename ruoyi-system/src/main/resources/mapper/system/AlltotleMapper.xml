@@ -39,8 +39,13 @@
     <result property="sw"    column="sw"    />
     <result property="pt"    column="pt"    />
     <result property="xb"    column="xb"    />
-    <result property="zz"    column="zz"    />
-    <result property="jc"    column="jc"    />
+    <result property="cbzz1"    column="cbzz1"    />
+    <result property="cbzz2"    column="cbzz2"    />
+    <result property="cbyz1"    column="cbyz1"    />
+    <result property="cbyz2"    column="cbyz2"    />
+    <result property="cbjc1"    column="cbjc1"    />
+    <result property="cbjc2"    column="cbjc2"    />
+    <result property="zbjc"    column="zbjc"    />
     <result property="sqfmzl"    column="sqfmzl"    />
     <result property="syxxzl"    column="syxxzl"    />
     <result property="wxsjzl"    column="wxsjzl"    />
@@ -53,7 +58,6 @@
     <result property="xjjxcgj"    column="xjjxcgj"    />
     <result property="yyxkyxjcgj"    column="yyxkyxjcgj"    />
     <result property="xjjpkpb"    column="xjjpkpb"    />
-    <result property="jscjsjdshj"    column="jscjsjdshj"    />
     <result property="jbgj"    column="jbgj"    />
     <result property="jbgn"    column="jbgn"    />
     <result property="cjgj"    column="cjgj"    />
@@ -62,13 +66,12 @@
   </resultMap>
 
   <sql id="selectAlltotleVo">
-    select userId, userName, partenId, partenName, deptId, deptName, zcgjjjkyxm, zcsbjjjkyxm, zcsbjjgxm, zcsbjzxkyxm, zctjjxhjkyxm, zcxjjxglxmywyys, zcxjjxglxmywyyx, ewyyx, edwwy, wdswy, sdeswy, esdsswwy, wswwydwswy, wsdqswwy, qswdybwy, eyxxx, edwxx, wdsxx, sdesxx, esdsswxx, sswdwsxx, dywsxx, SCI, EI, hx, sw, pt, xb, zz, jc, sqfmzl, syxxzl, wxsjzl, jsjrjzzq, sjjxcgj, sjkxjsj, sjyljpkpb, stjjzrkxlpj, stjjsklpj, xjjxcgj, yyxkyxjcgj, xjjpkpb, jscjsjdshj, jbgj, jbgn, cjgj, cjgn, xjxs from Alltotle
+    select userId, userName, partenId, partenName, deptId, deptName, zcgjjjkyxm, zcsbjjjkyxm, zcsbjjgxm, zcsbjzxkyxm, zctjjxhjkyxm, zcxjjxglxmywyys, zcxjjxglxmywyyx, ewyyx, edwwy, wdswy, sdeswy, esdsswwy, wswwydwswy, wsdqswwy, qswdybwy, eyxxx, edwxx, wdsxx, sdesxx, esdsswxx, sswdwsxx, dywsxx, SCI, EI, hx, sw, pt, xb, cbzz1, cbzz2, cbyz1, cbyz2, cbjc1, cbjc2, zbjc, sqfmzl, syxxzl, wxsjzl, jsjrjzzq, sjjxcgj, sjkxjsj, sjyljpkpb, stjjzrkxlpj, stjjsklpj, xjjxcgj, yyxkyxjcgj, xjjpkpb, jbgj, jbgn, cjgj, cjgn, xjxs from Alltotle
   </sql>
 
   <select id="selectAlltotleList" parameterType="Alltotle" resultMap="AlltotleResult">
     <include refid="selectAlltotleVo"/>
     <where>
-      <if test="userId != null "> and userId = #{userId}</if>
       <if test="userName != null  and userName != ''"> and userName like concat('%', #{userName}, '%')</if>
       <if test="partenId != null "> and partenId = #{partenId}</if>
       <if test="partenName != null  and partenName != ''"> and partenName like concat('%', #{partenName}, '%')</if>
@@ -102,8 +105,13 @@
       <if test="sw != null  and sw != ''"> and sw = #{sw}</if>
       <if test="pt != null  and pt != ''"> and pt = #{pt}</if>
       <if test="xb != null  and xb != ''"> and xb = #{xb}</if>
-      <if test="zz != null  and zz != ''"> and zz = #{zz}</if>
-      <if test="jc != null  and jc != ''"> and jc = #{jc}</if>
+      <if test="cbzz1 != null  and cbzz1 != ''"> and cbzz1 = #{cbzz1}</if>
+      <if test="cbzz2 != null  and cbzz2 != ''"> and cbzz2 = #{cbzz2}</if>
+      <if test="cbyz1 != null  and cbyz1 != ''"> and cbyz1 = #{cbyz1}</if>
+      <if test="cbyz2 != null  and cbyz2 != ''"> and cbyz2 = #{cbyz2}</if>
+      <if test="cbjc1 != null  and cbjc1 != ''"> and cbjc1 = #{cbjc1}</if>
+      <if test="cbjc2 != null  and cbjc2 != ''"> and cbjc2 = #{cbjc2}</if>
+      <if test="zbjc != null  and zbjc != ''"> and zbjc = #{zbjc}</if>
       <if test="sqfmzl != null  and sqfmzl != ''"> and sqfmzl = #{sqfmzl}</if>
       <if test="syxxzl != null  and syxxzl != ''"> and syxxzl = #{syxxzl}</if>
       <if test="wxsjzl != null  and wxsjzl != ''"> and wxsjzl = #{wxsjzl}</if>
@@ -116,7 +124,6 @@
       <if test="xjjxcgj != null  and xjjxcgj != ''"> and xjjxcgj = #{xjjxcgj}</if>
       <if test="yyxkyxjcgj != null  and yyxkyxjcgj != ''"> and yyxkyxjcgj = #{yyxkyxjcgj}</if>
       <if test="xjjpkpb != null  and xjjpkpb != ''"> and xjjpkpb = #{xjjpkpb}</if>
-      <if test="jscjsjdshj != null  and jscjsjdshj != ''"> and jscjsjdshj = #{jscjsjdshj}</if>
       <if test="jbgj != null  and jbgj != ''"> and jbgj = #{jbgj}</if>
       <if test="jbgn != null  and jbgn != ''"> and jbgn = #{jbgn}</if>
       <if test="cjgj != null  and cjgj != ''"> and cjgj = #{cjgj}</if>
@@ -167,8 +174,13 @@
       <if test="sw != null">sw,</if>
       <if test="pt != null">pt,</if>
       <if test="xb != null">xb,</if>
-      <if test="zz != null">zz,</if>
-      <if test="jc != null">jc,</if>
+      <if test="cbzz1 != null">cbzz1,</if>
+      <if test="cbzz2 != null">cbzz2,</if>
+      <if test="cbyz1 != null">cbyz1,</if>
+      <if test="cbyz2 != null">cbyz2,</if>
+      <if test="cbjc1 != null">cbjc1,</if>
+      <if test="cbjc2 != null">cbjc2,</if>
+      <if test="zbjc != null">zbjc,</if>
       <if test="sqfmzl != null">sqfmzl,</if>
       <if test="syxxzl != null">syxxzl,</if>
       <if test="wxsjzl != null">wxsjzl,</if>
@@ -181,7 +193,6 @@
       <if test="xjjxcgj != null">xjjxcgj,</if>
       <if test="yyxkyxjcgj != null">yyxkyxjcgj,</if>
       <if test="xjjpkpb != null">xjjpkpb,</if>
-      <if test="jscjsjdshj != null">jscjsjdshj,</if>
       <if test="jbgj != null">jbgj,</if>
       <if test="jbgn != null">jbgn,</if>
       <if test="cjgj != null">cjgj,</if>
@@ -223,8 +234,13 @@
       <if test="sw != null">#{sw},</if>
       <if test="pt != null">#{pt},</if>
       <if test="xb != null">#{xb},</if>
-      <if test="zz != null">#{zz},</if>
-      <if test="jc != null">#{jc},</if>
+      <if test="cbzz1 != null">#{cbzz1},</if>
+      <if test="cbzz2 != null">#{cbzz2},</if>
+      <if test="cbyz1 != null">#{cbyz1},</if>
+      <if test="cbyz2 != null">#{cbyz2},</if>
+      <if test="cbjc1 != null">#{cbjc1},</if>
+      <if test="cbjc2 != null">#{cbjc2},</if>
+      <if test="zbjc != null">#{zbjc},</if>
       <if test="sqfmzl != null">#{sqfmzl},</if>
       <if test="syxxzl != null">#{syxxzl},</if>
       <if test="wxsjzl != null">#{wxsjzl},</if>
@@ -237,7 +253,6 @@
       <if test="xjjxcgj != null">#{xjjxcgj},</if>
       <if test="yyxkyxjcgj != null">#{yyxkyxjcgj},</if>
       <if test="xjjpkpb != null">#{xjjpkpb},</if>
-      <if test="jscjsjdshj != null">#{jscjsjdshj},</if>
       <if test="jbgj != null">#{jbgj},</if>
       <if test="jbgn != null">#{jbgn},</if>
       <if test="cjgj != null">#{cjgj},</if>
@@ -282,8 +297,13 @@
       <if test="sw != null">sw = #{sw},</if>
       <if test="pt != null">pt = #{pt},</if>
       <if test="xb != null">xb = #{xb},</if>
-      <if test="zz != null">zz = #{zz},</if>
-      <if test="jc != null">jc = #{jc},</if>
+      <if test="cbzz1 != null">cbzz1 = #{cbzz1},</if>
+      <if test="cbzz2 != null">cbzz2 = #{cbzz2},</if>
+      <if test="cbyz1 != null">cbyz1 = #{cbyz1},</if>
+      <if test="cbyz2 != null">cbyz2 = #{cbyz2},</if>
+      <if test="cbjc1 != null">cbjc1 = #{cbjc1},</if>
+      <if test="cbjc2 != null">cbjc2 = #{cbjc2},</if>
+      <if test="zbjc != null">zbjc = #{zbjc},</if>
       <if test="sqfmzl != null">sqfmzl = #{sqfmzl},</if>
       <if test="syxxzl != null">syxxzl = #{syxxzl},</if>
       <if test="wxsjzl != null">wxsjzl = #{wxsjzl},</if>
@@ -296,7 +316,6 @@
       <if test="xjjxcgj != null">xjjxcgj = #{xjjxcgj},</if>
       <if test="yyxkyxjcgj != null">yyxkyxjcgj = #{yyxkyxjcgj},</if>
       <if test="xjjpkpb != null">xjjpkpb = #{xjjpkpb},</if>
-      <if test="jscjsjdshj != null">jscjsjdshj = #{jscjsjdshj},</if>
       <if test="jbgj != null">jbgj = #{jbgj},</if>
       <if test="jbgn != null">jbgn = #{jbgn},</if>
       <if test="cjgj != null">cjgj = #{cjgj},</if>
@@ -316,5 +335,13 @@
       #{userId}
     </foreach>
   </delete>
+
+<!--  '软件学院','商学院','艺术设计学院','电子工程学院'-->
+  <select id="selectFourColtotleList"  resultMap="AlltotleResult">
+    <include refid="selectAlltotleVo"/>
+    where partenid in ('1139','1140','1145','1147')
+    order by partenid, deptid
+  </select>
+
 
 </mapper>
