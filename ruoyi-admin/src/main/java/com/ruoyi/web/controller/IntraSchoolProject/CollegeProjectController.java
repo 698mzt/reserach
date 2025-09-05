@@ -143,9 +143,9 @@ public class CollegeProjectController extends BaseController {
   @PostMapping("/getAlltotallists")
   @ResponseBody
   public List<Alltotle> getAlltotallists() {
-      // 新写一个sql查询四个学院的，如果是 其他 登陆的话，查询所有，如果是四个学院的则查询自己学院
-      // 在每个学院下面插入提条统计，遍历列表，
-      List<Alltotle> lists = alltotleService.selectFourColtotleList(null);
+      Alltotle alltotle = new Alltotle();
+      //alltotle.setUserId(getUserId());
+      List<Alltotle> lists = alltotleService.selectFourColtotleList(alltotle);
 
       return  lists;
   }

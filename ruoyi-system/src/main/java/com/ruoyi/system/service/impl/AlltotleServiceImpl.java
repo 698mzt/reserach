@@ -134,40 +134,45 @@ public class AlltotleServiceImpl implements IAlltotleService {
     }
     String thisPartName = list.get(0).getPartenName();
     String thisDeptName = list.get(0).getDeptName();
+    // 部门
     Alltotle sum_alltotle = new Alltotle();
+    sum_alltotle.setDeptName(list.get(0).getDeptName());
+    sum_alltotle.setPartenName(list.get(0).getPartenName());
+    thisDeptName = list.get(0).getDeptName();
     // 父部门统计
     Alltotle sum_alltotle_part = new Alltotle();
+    sum_alltotle_part.setDeptName("计");
+    sum_alltotle_part.setPartenName("统");
+    thisPartName = list.get(0).getPartenName();
     for (int i = 0; i < list.size(); i++){
+
       // 插入返回值，如果是最后一个 或者 当前部门名称和上一部门名称不一致 就说明这个部门计算完毕 先插入返回值
-      if (i == list.size() - 1 || !list.get(i).getDeptName().equals(thisDeptName)){
+      if ( !list.get(i).getDeptName().equals(thisDeptName)){
+        //把上一个部门统计的添加到返回值中
         result.add(sum_alltotle);
+        sum_alltotle = new Alltotle();
+        sum_alltotle.setDeptName(list.get(i).getDeptName());
+        sum_alltotle.setPartenName(list.get(i).getPartenName());
+        thisDeptName = list.get(i).getDeptName();
       }
-      if (i == list.size() - 1 || !list.get(i).getPartenName().equals(thisPartName)){
+      // 父部门统计插入
+      if (!list.get(i).getPartenName().equals(thisPartName)){
+        //把上一个父部门统计的添加到返回值中
         result.add(sum_alltotle_part);
-      }
-      if (i == 0 || !list.get(i).getPartenName().equals(thisPartName)){
         sum_alltotle_part = new Alltotle();
         sum_alltotle_part.setDeptName("计");
         sum_alltotle_part.setPartenName("统");
         thisPartName = list.get(i).getPartenName();
       }
 
-      // 初始化 如果是第一个，或者当前部门名称和上一部门名称不一致 就说明这个部门计算完毕
-      if (i==0 || !list.get(i).getDeptName().equals(thisDeptName)){
-        sum_alltotle = new Alltotle();
-        sum_alltotle.setDeptName(list.get(i).getDeptName());
-        sum_alltotle.setPartenName(list.get(i).getPartenName());
-        thisDeptName = list.get(i).getDeptName();
-      }
-
-
-      //是否只显示按照部门总计的数据
-      //result.add(list.get(i));
       sum_alltotle = AlltotleSet(sum_alltotle, list.get(i));
       sum_alltotle_part = AlltotleSet(sum_alltotle_part, list.get(i));
+      // 如果是最后一个就插入返回值
+      if (i == list.size() - 1 ){
+        result.add(sum_alltotle);
+        result.add(sum_alltotle_part);
+      }
     }
-    // 添加最后一个分组的总和
-    result.add(sum_alltotle);
     return result;
   }
 
