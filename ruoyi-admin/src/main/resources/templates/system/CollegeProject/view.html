@@ -98,9 +98,9 @@
           // 选择框
           formatter: function (value, row, index) {
             var totalRows = $('#bootstrap-table').bootstrapTable('getData').length;
-            if (index === totalRows - 1) {
-              return '';
-            }
+            // if (index === totalRows - 1) {
+            //   return '';
+            // }
             return '<input type="checkbox" name="btSelectItem" value="' + row.id + '">';
           }
         },
@@ -109,9 +109,9 @@
             title: '学&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;院',
             formatter: function (value, row, index) {
               var totalRows = $('#bootstrap-table').bootstrapTable('getData').length;
-              if (index === totalRows - 1) {
-                return '';
-              }
+              // if (index === totalRows - 1) {
+              //   return '';
+              // }
               return $.table.selectDictLabel(datas, value);
             }
           },
