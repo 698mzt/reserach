@@ -1,10 +1,15 @@
 package com.ruoyi.quartz.task;
 
+import com.ruoyi.common.constant.ShiroConstants;
+import com.ruoyi.common.utils.CacheUtils;
+import com.ruoyi.system.domain.Alltotle;
 import com.ruoyi.system.mapper.SynchronizeDataMapper;
 import com.ruoyi.system.service.IAlltotleScoreService;
 import com.ruoyi.system.service.IAlltotleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 /**
  * 数据同步定时任务
@@ -23,6 +28,9 @@ public class DataSynchronizeTask {
 
   @Autowired
   private IAlltotleScoreService alltotleScoreService;
+
+  @Autowired
+  private IAlltotleService alltotleService;
   /**
    * 同步所有数据
    * 包括横向课题和纵向课题数据
@@ -121,6 +129,12 @@ public class DataSynchronizeTask {
 //    todo：需要同步积分
     alltotleScoreService.synchronousAlltotleScore();
     System.out.println("成果转化数据同步完成");
+    //todo：缓存
+//    Alltotle alltotle = new Alltotle();
+//    List<Alltotle> lists = alltotleService.selectFourColtotleList(alltotle);
+//    CacheUtils.put(ShiroConstants.SYS_COL_PROJ_PLAN_CACHE,lists);
+//    System.out.println("缓存同步完成");
+
   }
 
 

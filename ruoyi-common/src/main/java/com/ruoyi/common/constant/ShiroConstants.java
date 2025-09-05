@@ -2,7 +2,7 @@ package com.ruoyi.common.constant;
 
 /**
  * Shiro通用常量
- * 
+ *
  * @author ruoyi
  */
 public class ShiroConstants
@@ -76,4 +76,9 @@ public class ShiroConstants
      * 系统活跃用户缓存
      */
     public static final String SYS_USERCACHE = "sys-userCache";
+
+  /**
+   * 学院科研工作任务计划表缓存
+   */
+  public static final String SYS_COL_PROJ_PLAN_CACHE = "sys-col-proj-planCache";
 }
