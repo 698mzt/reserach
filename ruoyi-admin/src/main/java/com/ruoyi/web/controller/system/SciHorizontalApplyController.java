@@ -478,8 +478,9 @@ public class SciHorizontalApplyController extends BaseController
     public AjaxResult editSave(SciHorizontalApply sciHorizontalApply,SciHorizontalReamount sciHorizontalReamount)
     {
         sciHorizontalApply.setUserId(Integer.valueOf(getSysUser().getUserId().toString()));
-        if (sciHorizontalApply.getState().equals("3") || sciHorizontalApply.getState().equals("5") || sciHorizontalApply.getState().equals("22") ||  sciHorizontalApply.getState().equals("99")){
-            sciHorizontalApply.setNewsql("99");
+        sciHorizontalApply.setNewsql("");
+        if (sciHorizontalApply.getState().equals("3") || sciHorizontalApply.getState().equals("5") || sciHorizontalApply.getState().equals("22")){
+            sciHorizontalApply.setNewsql("");
             sciHorizontalApply.setState("99");
         }
         if (!sciHorizontalReamount.getReAmount().isEmpty())
