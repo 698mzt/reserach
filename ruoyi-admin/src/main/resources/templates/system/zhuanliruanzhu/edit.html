@@ -168,28 +168,34 @@
         }
 
 
-        $(".file-upload").fileinput({
-            uploadUrl: ctx + 'common/upload/zlrz',
-            maxFileCount: 1,
-            autoReplace: true,
-            allowedFileExtensions: ["pdf"],
-            slugCallback: function(filename) {
-                if ($("input[name='topName']").val()===""){
-                    $(".amountfile-upload").fileinput('clear');
-                    $.modal.alertError("请先输入课题名称");
-                    return false;
-                }
-                // 自定义文件名生成规则
-                fileExtension = filename.split('.').pop();
-                const year = new Date().getFullYear();
-                const newName = year +"-"+ $("input[name='topName']").val() +"-"+ "合同"+ "." + fileExtension;
-                return newName;
-            },
-        }).on('fileuploaded', function (event, data, previewId, index) {
-            $("input[name='" + event.currentTarget.id + "']").val(data.response.url)
-        }).on('fileremoved', function (event, id, index) {
-            $("input[name='" + event.currentTarget.id + "']").val('')
-        })
+        $(".file-upload").each(function (i) {
+            var val = $("input[name='" + this.id + "']").val()
+            $(this).fileinput({
+                'uploadUrl': ctx + 'common/upload/zlrz',
+                initialPreviewAsData: true,
+                initialPreview: [val],
+                maxFileCount: 1,
+                autoReplace: true,
+                allowedFileExtensions: ["pdf"],
+                slugCallback: function(filename) {
+                    if ($("input[name='mingcheng']").val()===""){
+                        $(".file-upload").fileinput('clear');
+                        $.modal.alertError("请先输入专利名称");
+                        return false;
+                    }
+                    // 自定义文件名生成规则
+                    fileExtension = filename.split('.').pop();
+                    const year = new Date().getFullYear();
+                    const newName = year +"-"+ $("input[name='mingcheng']").val() +"-"+ "专利软著"+ "." + fileExtension;
+                    return newName;
+                },
+            }).on('fileuploaded', function (event, data, previewId, index) {
+                $("input[name='" + event.currentTarget.id + "']").val(data.response.url)
+            }).on('fileremoved', function (event, id, index) {
+                $("input[name='" + event.currentTarget.id + "']").val('')
+            })
+            $(this).fileinput('_initFileActions');
+        });
 
 
         $("input[name='huopishijain']").datetimepicker({
