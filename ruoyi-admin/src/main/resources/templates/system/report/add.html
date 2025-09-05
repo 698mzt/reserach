@@ -207,6 +207,7 @@
 
     $(".file-upload").fileinput({
         uploadUrl: ctx + 'common/upload/jzbg', // 文件上传的URL
+        initialPreviewAsData: true,
         maxFileCount: 1, // 最多允许上传1个文件
         autoReplace: true, // 自动替换已上传的文件
         allowedFileExtensions: ["pdf"], // 只允许上传PDF文件

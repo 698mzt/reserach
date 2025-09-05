@@ -20,7 +20,7 @@
                     <label class="col-sm-4 control-label is-required">申请人：</label>
                     <div class="col-sm-8">
 <!--                        <input name="userId" th:field="*{userId}" class="form-control" type="text" required>-->
-                        <select name="userId" class="form-control m-b" >
+                        <select name="userId" class="form-control m-b" disabled>
                             <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ user.userId == sciHorizontalApplyVertical.userId}"></option>
                         </select>
                     </div>
@@ -80,7 +80,7 @@
                     <label class="col-sm-4 control-label is-required">第一负责人：</label>
                     <div class="col-sm-8">
 <!--                        <input name="firstPersonId" th:field="*{firstPersonId}" class="form-control" type="text" required>-->
-                        <select name="firstPersonId" class="form-control m-b" >
+                        <select name="firstPersonId" class="form-control m-b" disabled>
                             <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ #strings.toString(user.userId) == sciHorizontalApplyVertical.firstPersonId}"></option>
                         </select>
                     </div>
@@ -123,29 +123,39 @@
                 </div>
             </div>
 
-
-
-            <div class="col-xs-6">
+            <div class="col-xs-4">
                 <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">立项文件上传：</label>
+                    <label class="col-sm-4 control-label is-required">立项文件：</label>
                     <div class="col-sm-8">
-                        <input type="hidden" name="filing" th:field="*{filing}">
+                        <input type="hidden" name="openfile" th:field="*{openfile}">
                         <div class="file-loading">
-                            <input class="form-control file-upload" id="filing" name="file" type="file">
+                            <input class="form-control file-upload1" id="openfile" name="file" type="file">
                         </div>
                     </div>
                 </div>
             </div>
+            <div class="col-xs-4">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">中期文件：</label>
+                    <div class="col-sm-8">
+                        <input type="hidden" name="midfile" th:field="*{midfile}">
+                        <div class="file-loading">
+                            <input class="form-control file-upload2" id="midfile" name="file" type="file">
+                        </div>
+                    </div>
+                </div>
             </div>
-
-<!--            <h4 class="form-header h4">退回原因</h4>-->
-<!--            <div class="row">-->
-<!--                <div class="col-sm-12">-->
-<!--                    <div class="form-group">-->
-<!--                        <table id="bootstrap-table"></table>-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--            </div>-->
+            <div class="col-xs-4">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">结项文件：</label>
+                    <div class="col-sm-8">
+                        <input type="hidden" name="overfile" th:field="*{overfile}">
+                        <div class="file-loading">
+                            <input class="form-control file-upload3" id="overfile" name="file" type="file">
+                        </div>
+                    </div>
+                </div>
+            </div>
         </form>
     </div>
     <div class="row">
@@ -214,10 +224,11 @@
 
         function submitHandler() {
             if ($.validate.form()) {
-                var filing = $("input[name='filing']").val();
-                console.log(filing);
+                var openfile = $("input[name='openfile']").val();
+                var midfile = $("input[name='midfile']").val();
+                var overfile = $("input[name='overfile']").val();
                 if ($.validate.form()) {
-                    if (filing == "") {
+                    if (openfile == "" || midfile == "" || overfile == "") {
                         $.modal.alertWarning("请上传文件");
                         return;
                 }
@@ -234,21 +245,128 @@
 
 
 
-        $(".file-upload").each(function (i) {
+        $(".file-upload1").each(function (i) {
             var val = $("input[name='" + this.id + "']").val()
+            var initialPreview = [];
+            var initialPreviewConfig = [];
+            
+            if (val && val.trim() !== '') {
+                initialPreview = [val];
+                initialPreviewConfig = [{
+                    type: "pdf",
+                    caption: val.split('/').pop(),
+                    url: ctx + "common/delete",
+                    key: val
+                }];
+            }
+            
             $(this).fileinput({
-                uploadUrl: ctx + 'common/upload',
+                uploadUrl: ctx + 'common/upload/zxkt',
                 initialPreviewAsData: true,
-                initialPreview: [val],
+                initialPreview: initialPreview,
+                initialPreviewConfig: initialPreviewConfig,
                 maxFileCount: 1,
                 autoReplace: true,
-                allowedFileExtensions: ["pdf"]
+                allowedFileExtensions: ["pdf"],
+                overwriteInitial: true,
+                slugCallback: function(filename) {
+                    var fileExtension = filename.split('.').pop();
+                    const year = new Date().getFullYear();
+                    const topName = $("input[name='topName']").val() || "未命名";
+                    const newName = year +"-"+ topName +"-"+ "文件1"+ "." + fileExtension;
+                    return newName;
+                },
             }).on('fileuploaded', function (event, data, previewId, index) {
-                $("input[name='" + event.currentTarget.id + "']").val(data.response.url)
+                if (data.response && data.response.url) {
+                    $("input[name='" + event.currentTarget.id + "']").val(data.response.url);
+                }
             }).on('fileremoved', function (event, id, index) {
-                $("input[name='" + event.currentTarget.id + "']").val('')
-            })
-            $(this).fileinput('_initFileActions');
+                $("input[name='" + event.currentTarget.id + "']").val('');
+            }).on('fileclear', function (event) {
+                $("input[name='" + event.currentTarget.id + "']").val('');
+            });
+        });
+        $(".file-upload2").each(function (i) {
+            var val = $("input[name='" + this.id + "']").val()
+            var initialPreview = [];
+            var initialPreviewConfig = [];
+            
+            if (val && val.trim() !== '') {
+                initialPreview = [val];
+                initialPreviewConfig = [{
+                    type: "pdf",
+                    caption: val.split('/').pop(),
+                    url: ctx + "common/delete",
+                    key: val
+                }];
+            }
+            
+            $(this).fileinput({
+                uploadUrl: ctx + 'common/upload/zxkt',
+                initialPreviewAsData: true,
+                initialPreview: initialPreview,
+                initialPreviewConfig: initialPreviewConfig,
+                maxFileCount: 1,
+                autoReplace: true,
+                allowedFileExtensions: ["pdf"],
+                overwriteInitial: true,
+                slugCallback: function(filename) {
+                    var fileExtension = filename.split('.').pop();
+                    const year = new Date().getFullYear();
+                    const topName = $("input[name='topName']").val() || "未命名";
+                    const newName = year +"-"+ topName +"-"+ "文件2"+ "." + fileExtension;
+                    return newName;
+                },
+            }).on('fileuploaded', function (event, data, previewId, index) {
+                if (data.response && data.response.url) {
+                    $("input[name='" + event.currentTarget.id + "']").val(data.response.url);
+                }
+            }).on('fileremoved', function (event, id, index) {
+                $("input[name='" + event.currentTarget.id + "']").val('');
+            }).on('fileclear', function (event) {
+                $("input[name='" + event.currentTarget.id + "']").val('');
+            });
+        });
+        $(".file-upload3").each(function (i) {
+            var val = $("input[name='" + this.id + "']").val()
+            var initialPreview = [];
+            var initialPreviewConfig = [];
+            
+            if (val && val.trim() !== '') {
+                initialPreview = [val];
+                initialPreviewConfig = [{
+                    type: "pdf",
+                    caption: val.split('/').pop(),
+                    url: ctx + "common/delete",
+                    key: val
+                }];
+            }
+            
+            $(this).fileinput({
+                uploadUrl: ctx + 'common/upload/zxkt',
+                initialPreviewAsData: true,
+                initialPreview: initialPreview,
+                initialPreviewConfig: initialPreviewConfig,
+                maxFileCount: 1,
+                autoReplace: true,
+                allowedFileExtensions: ["pdf"],
+                overwriteInitial: true,
+                slugCallback: function(filename) {
+                    var fileExtension = filename.split('.').pop();
+                    const year = new Date().getFullYear();
+                    const topName = $("input[name='topName']").val() || "未命名";
+                    const newName = year +"-"+ topName +"-"+ "文件3"+ "." + fileExtension;
+                    return newName;
+                },
+            }).on('fileuploaded', function (event, data, previewId, index) {
+                if (data.response && data.response.url) {
+                    $("input[name='" + event.currentTarget.id + "']").val(data.response.url);
+                }
+            }).on('fileremoved', function (event, id, index) {
+                $("input[name='" + event.currentTarget.id + "']").val('');
+            }).on('fileclear', function (event) {
+                $("input[name='" + event.currentTarget.id + "']").val('');
+            });
         });
     </script>
 </body>
