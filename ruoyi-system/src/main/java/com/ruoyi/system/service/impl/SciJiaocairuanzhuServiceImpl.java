@@ -293,7 +293,7 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService
         switch (state){
 //            教研室
             case "2":
-                newState = "1";
+                newState = "0";
                 break;
             //            学院
             case "4":
@@ -314,7 +314,7 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService
         sciJiaocairuanzhuPiyue.setUid(uid);
         sciJiaocairuanzhuPiyue.setJiaocai_id(id);
         sciJiaocairuanzhuPiyue.setConcate(remark);
-        sciJiaocairuanzhuPiyue.setState("撤回上一条操作");
+        sciJiaocairuanzhuPiyue.setState("撤回了一条通过操作");
         sciJiaocairuanzhuPiyueMapper.insertSciJiaocairuanzhuPiyue(sciJiaocairuanzhuPiyue);
         return a;
     }
