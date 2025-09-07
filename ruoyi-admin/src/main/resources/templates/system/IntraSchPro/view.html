@@ -6,7 +6,7 @@
       xmlns:padding="http://www.w3.org/1999/xhtml">
 
 <head>
-  <th:block th:include="include :: header('横向课题列表')"/>
+  <th:block th:include="include :: header('成果转化列表')"/>
 </head>
 <style>
   .btn-group-sm > .btn, .btn-sm {
@@ -137,7 +137,7 @@
     height: 3px;
     left: 16.665%;
     right: 16.665%;
-    background: #1dc33c;
+    background: #E0E0E0;
     position: absolute;
     top: 12px;
     z-index: -1;
@@ -151,6 +151,7 @@
     width: 0;
     transition: width 0.6s ease;
   }
+
 
   .status-text {
     color: #9E9E9E;
@@ -267,7 +268,7 @@
 
   .track-list li .node-icon {
     position: absolute;
-    left: -7px;
+    left: -6px;
     top: 18px;
     width: 8px; /* 调圆点*/
     height: 8px;
@@ -581,23 +582,22 @@
 
                   <!-- 原有的流程进度条部分 -->
                   <div>
-                    <div class='progress_inner'>
-                      <div class='progress_inner__step active' id='step-1'>
-                        <label for='step-1'><span class="status-text ">待提交</span></label>
-                      </div>
-                      <div class='progress_inner__step ' id='step-2'>
-                        <label for='step-2'><span class="status-text">待审核</span></label>
-                      </div>
-                      <div class='progress_inner__step ' id='step-3'>
-                        <label for='step-3'><span class="status-text">已完成</span></label>
-                      </div>
-                      <div class='progress_inner__bar' style="z-index: 10">
-                        <div class='progress_inner__bar--progress' id='progress-bar'></div>
-                      </div>
+                  <div class='progress_inner'>
+                    <div class='progress_inner__step active' id='step-1'>
+                      <label for='step-1'><span class="status-text active">待提交</span></label>
+                    </div>
+                    <div class='progress_inner__step pending' id='step-2'>
+                      <label for='step-2'><span class="status-text">审核中</span></label>
+                    </div>
+                    <div class='progress_inner__step pending' id='step-3'>
+                      <label for='step-3'><span class="status-text">已完成</span></label>
+                    </div>
+                    <div class='progress_inner__bar' style="z-index: 10">
+                      <div class='progress_inner__bar--progress' id='progress-bar'></div>
                     </div>
                   </div>
                 </div>
-
+                </div>
                 <div class="modal-body">
                   <!-- 流程记录标题 - 放在左上角 -->
                   <!-- 流程记录内容 - 放在流程图下方 -->
@@ -984,9 +984,26 @@
                 actions.push('<a  class="link-button' + XYPY + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/dept_teacher' + '\')"> 撤回</a> ');
                 actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"> 查看</a> ');
               } else {
-                //审批过的
-                actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"> 查看</a> ');
-
+                //自己的项目
+                if (row.userId == row.uid) {
+                  if (row.state == '1') {
+                    actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> 更新</a> ');
+                    actions.push('<a class="del-link-button ' + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"> </i>删除</a>');
+                  }
+                  //待申请结题
+                  else if (row.state == '4') {
+                    actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.overTab(\'' + row.id + '\')"> 申请结项</a> ');
+                  } else if (row.state == '3' || row.state == '12' || row.state == '5') {
+                    //被三方驳回
+                    actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> 更新</a> ');
+                    //actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick=""submitto(\'' + row.id + '\', \'' + row.state + '\')"> 提交</a> ');
+                  } else {
+                    actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"> 查看</a> ');
+                  }
+                } else {
+                  //不是自己项目，审批过的
+                  actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"> 查看</a> ');
+                }
               }
 
             }
@@ -1185,8 +1202,8 @@
                   actions.push('<a  class="link-button ' + JYPY + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/JYSOVER' + '\')"> 撤回</a> ');
                 }
               }
-                //上面的这个else是为了保证批阅的时候没有查看
-                //自己的项目
+              //上面的这个else是为了保证批阅的时候没有查看
+              //自己的项目
               if (row.userId == row.uid) {
                 if (row.state == '7') {
                   actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> 更新</a> ');
@@ -1465,34 +1482,43 @@
 
   //显示模态框上面的进度
   function updateProgress(state) {
-    let step = 0;
-    if ([6].includes(state)) {
-      // 完结
-      step = "3";
-    } else if ([15, 4, 3, 5, 12, 9, 10, 14].includes(state)) {
-      // 草稿 被驳回
-      step = "1";
-    } else if ([1, 2, 11, 7, 8, 13].includes(state)) {
-      // 审核中
-      step = "2";
-    }
-    console.log("step=", step)
-    const progressSteps = document.querySelectorAll('.progress_inner__step');
-    console.log("progressSteps=", progressSteps)
-    progressSteps.forEach((stepElement, index) => {
-      if (index < step) {
-        stepElement.classList.add('completed');
-      } else if (index === step) {
-        stepElement.classList.add('active');
-      } else {
-        stepElement.classList.remove('completed', 'active');
-      }
+    // 获取所有步骤元素
+    const steps = document.querySelectorAll('.progress_inner__step');
+    const progressBar = document.querySelector('.progress_inner__bar--progress');
+
+    // 遍历所有步骤，重置样式
+    steps.forEach(step => {
+      step.classList.remove('active', 'completed', 'pending');
+      step.querySelector('.status-text').classList.remove('active', 'completed');
     });
-    const progressBar = document.querySelector('.progress_inner__bar');
-    console.log("progressBar=", progressBar)
-    if (progressBar) {
-      const progressPercentage = (step - 1) / (progressSteps.length - 1) * 100 - 15;
-      progressBar.style.width = `${progressPercentage}%`;
+    // 重置进度条
+    progressBar.style.width = '0';
+
+    // 根据 state 设置相应的步骤颜色
+    if ([15,16,4].includes(state)) {
+      document.getElementById('step-1').classList.add('active');
+      document.getElementById('step-1').querySelector('.status-text').classList.add('active');
+      progressBar.style.width = '0';
+    } else if (state === 6) {
+      document.getElementById('step-1').classList.add('completed');
+      document.getElementById('step-1').querySelector('.status-text').classList.add('completed');
+      document.getElementById('step-2').classList.add('completed');
+      document.getElementById('step-2').querySelector('.status-text').classList.add('completed');
+      document.getElementById('step-3').classList.add('completed');
+      document.getElementById('step-3').querySelector('.status-text').classList.add('completed');
+      progressBar.style.width = '100%';
+    } else if ([1, 2, 7,8,11,13].includes(state)) {
+      document.getElementById('step-1').classList.add('completed');
+      document.getElementById('step-1').querySelector('.status-text').classList.add('completed');
+      document.getElementById('step-2').classList.add('completed');
+      document.getElementById('step-2').querySelector('.status-text').classList.add('completed');
+      progressBar.style.width = '50%';
+    } else {
+      // 默认情况下，所有步骤为灰色
+      steps.forEach(step => {
+        step.classList.add('pending');
+        step.querySelector('.status-text').classList.add('pending');
+      });
     }
   }
 

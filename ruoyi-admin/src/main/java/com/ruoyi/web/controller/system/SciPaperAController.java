@@ -1,9 +1,6 @@
 package com.ruoyi.web.controller.system;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 import com.ruoyi.common.config.RuoYiConfig;
@@ -46,7 +43,7 @@ import javax.annotation.Resource;
 
 /**
  * 论文Controller
- * 
+ *
  * @author ruoyi
  * @date 2024-11-07
  */
