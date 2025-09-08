@@ -138,14 +138,14 @@
             </div>
             </div>
 
-<!--            <h4 class="form-header h4">退回原因</h4>-->
-<!--            <div class="row">-->
-<!--                <div class="col-sm-12">-->
-<!--                    <div class="form-group">-->
-<!--                        <table id="bootstrap-table"></table>-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--            </div>-->
+            <h4 class="form-header h4">退回原因</h4>
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        <table id="bootstrap-table"></table>
+                    </div>
+                </div>
+            </div>
         </form>
     </div>
     <div class="row">
@@ -160,6 +160,43 @@
     <th:block th:include="include :: select2-js" />
     <script type="text/javascript">
         $(function(){
+
+            var kid = $("#ktid").val();
+            var options = {
+                url: prefix + "/abhyy/"+kid,
+                showSearch: false,
+                showRefresh: false,
+                showToggle: false,
+                showColumns: false,
+                pagination:false,
+                sortName: "createTime",
+                sortOrder: "desc",
+                columns: [
+
+                    {
+                        field : 'createTime',
+                        title : '批阅时间',
+                        width: 200
+
+                    } ,
+                    {
+                        field : 'uname',
+                        title : '批阅人',
+                        width: 100
+                    },
+                    {
+                        field : 'concate',
+                        title : '内容',
+                        width: 500
+                    },
+                    {
+                        field : 'state',
+                        title : '审核状态',
+                        width: 100
+                    } ]
+            };
+            $.table.init(options);
+
             <!-- laydate示例 -->
             layui.use('laydate', function(){
                 var laydate = layui.laydate;
@@ -273,12 +310,27 @@
 
         $(".file-upload").each(function (i) {
             var val = $("input[name='" + this.id + "']").val()
+            var initialPreview = [];
+            var initialPreviewConfig = [];
+            
+            if (val && val.trim() !== '') {
+                initialPreview = [val];
+                initialPreviewConfig = [{
+                    type: "pdf",
+                    caption: val.split('/').pop(),
+                    url: ctx + "common/delete",
+                    key: val
+                }];
+            }
+            
             $(this).fileinput({
                 'uploadUrl': ctx + 'common/upload/zxkt',
                 initialPreviewAsData: true,
-                initialPreview: [val],
+                initialPreview: initialPreview,
+                initialPreviewConfig: initialPreviewConfig,
                 maxFileCount: 1,
                 autoReplace: true,
+                overwriteInitial: true,
                 allowedFileExtensions: ["pdf"],
                 slugCallback: function(filename) {
                     if ($("input[name='topName']").val()===""){
@@ -293,10 +345,14 @@
                     return newName;
                 },
             }).on('fileuploaded', function (event, data, previewId, index) {
-                $("input[name='" + event.currentTarget.id + "']").val(data.response.url)
+                if (data.response && data.response.url) {
+                    $("input[name='" + event.currentTarget.id + "']").val(data.response.url);
+                }
             }).on('fileremoved', function (event, id, index) {
-                $("input[name='" + event.currentTarget.id + "']").val('')
-            })
+                $("input[name='" + event.currentTarget.id + "']").val('');
+            }).on('fileclear', function (event) {
+                $("input[name='" + event.currentTarget.id + "']").val('');
+            });
             $(this).fileinput('_initFileActions');
         });
     </script>

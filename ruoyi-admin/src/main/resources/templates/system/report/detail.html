@@ -142,7 +142,7 @@
     <div class="row">
         <div class="col-sm-offset-5 col-sm-10">
             <button type="button" style="display:none;" id="btn1" class="btn btn-sm btn-primary" onclick="submitHandler()"><i class="fa fa-check"></i>通 过</button>&nbsp;
-            <button type="button" style="display:none;" id="btn2" class="btn btn-sm btn-danger" onclick="submitHandlerBH()"><i class="fa fa-check"></i>驳 回</button>&nbsp;
+            <button type="button" style="display:none;" id="btn2" class="btn btn-sm btn-danger" onclick="submitHandlerBH()"><i class="fa fa-check"></i><span id="rejectBtnText">驳 回</button>&nbsp;
             <button type="button" style="display:none;" id="btn3" class="btn btn-sm btn-warning" onclick="closeItem()"><i class="fa fa-reply-all"></i>关 闭 </button>
         </div>
     </div>
@@ -199,8 +199,6 @@
 
                 var a =$("#state").val();
                 var b =$("#urlFlag").val();
-                console.log("当前路径为:"+b)
-                // alert("状态为:"+a)
                 // 当状态是“2待科研室处理”、“1待处理”、“6待学院处理”时，显示退回原因和退回记录以及功能按钮
                 if(a == 2 || a == 1 || a == 6 || a == 0){
                     if(name.rows.length > 0){
@@ -227,6 +225,15 @@
                 $("#btn3").show();
             });
         })
+
+        $(document).ready(function() {
+            var state = $("#state").val();
+            if ((state == 6 && b == "tuihui") || (state == 2 && b == "xytuihui") || (state == 4)) {
+                $("#rejectBtnText").text("撤 回");
+            } else {
+                $("#rejectBtnText").text("驳 回");
+            }
+        });
 
         // 批阅通过保存方法
         function submitHandler() {
@@ -273,7 +280,7 @@
                 const dotParts = fileName.split('.'); // 按点分割
                 const lastPart = dotParts[dotParts.length - 1]; // 点后的部分
 
-                fileNameSpan.textContent = `${firstPart}.${lastPart}`; // 组合并显示
+                fileNameSpan.textContent = `${firstPart}`; // 组合并显示
             } else {
                 fileNameSpan.textContent = '';
             }

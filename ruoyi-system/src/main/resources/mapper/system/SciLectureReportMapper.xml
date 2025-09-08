@@ -54,19 +54,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <include refid="selectSciLectureReportVo"/>
         where state in <foreach item="item" collection="statelist" open="(" separator="," close=")">#{item}</foreach>
         <if test="reportTheme != null  and reportTheme != ''"> and report_theme like concat('%', #{reportTheme}, '%')</if>
-<!--        <if test="hostUnit != null  and hostUnit != ''"> and host_unit like concat('%', #{hostUnit}, '%')</if>-->
-<!--        <if test="reportPlace != null  and reportPlace != ''"> and report_place like concat('%', #{reportPlace}, '%')</if>-->
         <if test="keyanshi != null  and keyanshi != ''"> and d.dept_name like concat('%', #{keyanshi}, '%')</if>
         <if test="teacherName != null  and teacherName != ''"> and u.user_name like concat('%', #{teacherName}, '%')</if>
         <if test="userId != null and userId != ''">and user_id = #{userId}</if>
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(report_time,INTERVAL 1 MONTH)) = #{year}</if>
-<!--        <if test="state != null and state !='' and uid != null and uid != '' and tab != null and tab != '' and tab == 'bootstrap-table1'">-->
-<!--            and (state != #{state} or (state = #{state} and s.user_id != #{uid}))-->
-<!--        </if>-->
-<!--        <if test="state != null and state !='' and uid != null and uid != '' and tab != null and tab != '' and tab == 'bootstrap-table2'">-->
-<!--            and (state != #{state} or (state = #{state} and s.user_id = #{uid}))-->
-<!--        </if>-->
-        <!-- 数据范围过滤 -->
     ${params.dataScope}
         <!-- 没有搜索条件时执行 -->
         <if test="uid != null and uid != '' and year != null  and year != ''

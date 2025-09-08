@@ -352,9 +352,7 @@
           //获取 URLflag
           var a = $("#urlFlag").val();
           var type = getSelectValue("topType")
-        //if ($.validate.form()) {
             $.operate.saveTab(prefix + "/applyPass", {"id":$("#ktid").val(),"urlFlag":a,"type":type});
-       // }
     }
     function submitHandlerBH() {
         var a = $("#urlFlag").val();

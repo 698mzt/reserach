@@ -283,10 +283,6 @@ public class SciZhuanliruanzhuController extends BaseController
     {
         SciZhuanliruanzhu sciZhuanliruanzhu = sciZhuanliruanzhuService.selectSciZhuanliruanzhuById(id);
         mmap.put("sciZhuanliruanzhu", sciZhuanliruanzhu);
-
-        // 获取用户列表并添加到模型中
-//        List<SysUser> sysUsers = userService.selectUserList(null);
-//        mmap.put("sysUsers", sysUsers);
         List<SysUser> userList1 =  userService.selectAllUser();
         mmap.put("sysUsers1",userList1);
 
@@ -302,6 +298,7 @@ public class SciZhuanliruanzhuController extends BaseController
     @ResponseBody
     public AjaxResult editSave(SciZhuanliruanzhu sciZhuanliruanzhu)
     {
+        sciZhuanliruanzhu.setUserId(Integer.valueOf(getSysUser().getUserId().toString()));
         return toAjax(sciZhuanliruanzhuService.updateSciZhuanliruanzhu(sciZhuanliruanzhu));
     }
 

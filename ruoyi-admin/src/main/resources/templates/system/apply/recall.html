@@ -140,13 +140,13 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">立项合同：</label>
                     <div class="col-sm-8">
-                        <input th:field="*{filing}" hidden id="filing" type="text" >
+                        <input th:field="*{contract}" hidden id="filing" type="text" >
                         <div style="display: inline-block;">
                             <div id="filingFileName" style="display: inline; margin-right: 5px;"></div>
                         </div>
                         <div>
-                            <button onclick="chakan()" class="btn btn-sm btn-primary color">预览</button>
-                            <button onclick="downloadFile('filing')" class="btn btn-sm btn-primary color">下载</button>
+                            <button onclick="chakan('contract')" class="btn btn-sm btn-primary color">预览</button>
+                            <button onclick="downloadFile('contract')" class="btn btn-sm btn-primary color">下载</button>
                         </div>
                     </div>
                 </div>
@@ -155,13 +155,13 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">立项备案表：</label>
                     <div class="col-sm-8">
-                        <input th:field="*{contract}" hidden id="contract" type="text" >
+                        <input th:field="*{filing}" hidden id="contract" type="text" >
                         <div style="display: inline-block;">
                             <div id="contractFileName" style="display: inline; margin-right: 5px;"></div>
                         </div>
                         <div>
-                            <button onclick="beian()"  class="btn btn-sm btn-primary color">预览</button>
-                            <button onclick="downloadFile('contract')" class="btn btn-sm btn-primary color">下载</button>
+                            <button onclick="beian('filing')"  class="btn btn-sm btn-primary color">预览</button>
+                            <button onclick="downloadFile('filing')" class="btn btn-sm btn-primary color">下载</button>
                         </div>
                     </div>
                 </div>
@@ -175,8 +175,8 @@
                             <div id="filingurlFileName" style="display: inline; margin-right: 5px;"></div>
                         </div>
                         <div>
-                            <button onclick="chakan()" class="btn btn-sm btn-primary color">预览</button>
-                            <button onclick="downloadFile('filing')" class="btn btn-sm btn-primary color">下载</button>
+                            <button onclick="chakan('filingurl')" class="btn btn-sm btn-primary color">预览</button>
+                            <button onclick="downloadFile('filingurl')" class="btn btn-sm btn-primary color">下载</button>
                         </div>
                     </div>
                 </div>
@@ -190,8 +190,8 @@
                         <div id="agreeurlFileName" style="display: inline; margin-right: 5px;"></div>
                     </div>
                     <div>
-                        <button onclick="beian()"  class="btn btn-sm btn-primary color">预览</button>
-                        <button onclick="downloadFile('contract')" class="btn btn-sm btn-primary color">下载</button>
+                        <button onclick="beian('agreeurl')"  class="btn btn-sm btn-primary color">预览</button>
+                        <button onclick="downloadFile('agreeurl')" class="btn btn-sm btn-primary color">下载</button>
                     </div>
                 </div>
             </div>
@@ -253,13 +253,13 @@
             fileNameSpan.textContent = '';
         }
     }
-    function chakan(){
-        var c = $("#filing").val();
-        window.open("查看合同" ,c );
+    function chakan(type){
+        var c = $("#"+type).val();
+        window.open(c ,'_blank');
     }
-    function beian(){
-        var c = $("#contract").val();
-        window.open("查看备案表" ,c );
+    function beian(type){
+        var c = $("#"+type).val();
+        window.open(c ,'_blank' );
     }
     function downloadFile(type){
         var c = $("#"+type).val();

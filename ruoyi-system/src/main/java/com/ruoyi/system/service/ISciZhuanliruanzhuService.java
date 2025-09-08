@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.system.domain.SciZhuanliruanzhu;
+import org.apache.ibatis.annotations.Options;
 
 /**
  * 专利软著Service接口
@@ -35,6 +36,7 @@ public interface ISciZhuanliruanzhuService
      * @param sciZhuanliruanzhu 专利软著
      * @return 结果
      */
+    @Options(useGeneratedKeys = true, keyProperty = "id")
     public int insertSciZhuanliruanzhu(SciZhuanliruanzhu sciZhuanliruanzhu);
 
     /**

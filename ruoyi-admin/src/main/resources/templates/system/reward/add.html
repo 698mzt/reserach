@@ -13,14 +13,8 @@
                     <div class="form-group">
                         <label class="col-sm-4 control-label is-required">申请人：</label>
                         <div class="col-sm-8">
-                            <!--                        <select name="userId" class="form-control m-b" disabled>-->
-                            <!--                            <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${user.flag}"></option>-->
-                            <!--                        </select>-->
-<!--                            <select name="userId" class="form-control m-b" >-->
-<!--                                <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${user.flag}"></option>-->
-<!--                            </select>-->
                             <div th:each="user : ${sysUsers}" th:if="${user.flag}">
-                                <input  class="form-control" type="text" th:value="${user.userName}" readonly>
+                                <input  class="form-control" type="text" th:value="${user.userName}" >
                                 <input name="userId" class="form-control" type="hidden" th:value="${user.userId}">
                             </div>
                         </div>
@@ -61,7 +55,7 @@
                     <label class="col-sm-4 control-label is-required">颁发时间：</label>
                     <div class="col-sm-8">
                         <div class="input-group date">
-                            <input name="rewardTime" class="form-control" placeholder="yyyy-MM-dd" type="text" required>
+                            <input autocomplete="off" name="rewardTime" class="form-control" placeholder="yyyy-MM-dd" type="text" required>
                             <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
                         </div>
                     </div>
@@ -73,40 +67,17 @@
                     <label class="col-sm-4 control-label is-required">分类：</label>
                     <div class="col-sm-8">
                         <select name="rewardFenlei" class="form-control"  type="text" th:with="type=${@dict.getType('sys_reward_fenlei')}" required >
-<!--                            <option value="省级教学成果奖">省级教学成果奖</option>-->
-<!--                            <option value="省级科学技术奖">省级科学技术奖</option>-->
-<!--                            <option value="省级一流精品课评比">省级一流精品课评比</option>-->
-<!--                            <option value="市、厅局级自然科学类评奖">市、厅局级自然科学类评奖</option>-->
-<!--                            <option value="市、厅局级社科类评奖">市、厅局级社科类评奖</option>-->
-<!--                            <option value="校级教学成果奖">校级教学成果奖</option>-->
-<!--                            <option value="应用型科研校级成果奖">应用型科研校级成果奖</option>-->
-<!--                            <option value="校级精品课评比">校级精品课评比</option>-->
-<!--                            <option value="指导学生参加国家科创大赛且获得名次">指导学生参加国家科创大赛且获得名次</option>-->
                             <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
                         </select>
                     </div>
                 </div>
                 </div>
 
-
-<!--                <div class="col-sm-6">-->
-<!--                    <label class="col-sm-4 control-label is-required">分类：</label>-->
-<!--                    <div class="col-sm-8">-->
-<!--                        <select name="fenlei" class="form-control" th:with="type=${@dict.getType('sys_zhuanli_fenlei')}" required>-->
-<!--                            <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>-->
-<!--                        </select>-->
-<!--                    </div>-->
-<!--                </div>-->
-                    <div class="col-xs-6">
+                <div class="col-xs-6">
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">排名：</label>
                     <div class="col-sm-8">
                         <select name="rewardPaiming"  class="form-control" type="text" th:with="type=${@dict.getType('sys_reward_paiming')}" required >
-<!--                            <option value="一">一</option>-->
-<!--                            <option value="二">二</option>-->
-<!--                            <option value="三">三</option>-->
-<!--                            <option value="四">四</option>-->
-<!--                            <option value="五">五</option>-->
                             <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
                         </select>
                     </div>
@@ -142,10 +113,6 @@
                    <label class="col-sm-4 control-label is-required">等级：</label>
                     <div class="col-sm-8">
                         <select id="rewarDengji"  name="rewardDengji" class="form-control" type="text" th:with="type=${@dict.getType('sys_reward_dengji')}" required>
-<!--                            <option>一等奖</option>-->
-<!--                            <option>二等奖</option>-->
-<!--                            <option>三等奖</option>-->
-<!--                            <option>四等奖</option>-->
                             <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
                         </select>
                     </div>

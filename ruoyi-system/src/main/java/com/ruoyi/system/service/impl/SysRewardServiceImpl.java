@@ -114,7 +114,15 @@ public class SysRewardServiceImpl implements ISysRewardService
     @Override
     public int insertSysReward(SysReward sysReward)
     {
-        return sysRewardMapper.insertSysReward(sysReward);
+        int a = sysRewardMapper.insertSysReward(sysReward);
+        int id = Integer.parseInt(sysReward.getId().toString());
+        SysRewardPiyue sysRewardPiyue = new SysRewardPiyue();
+        sysRewardPiyue.setUid(sysReward.getUserId());
+        sysRewardPiyue.setRewardId(id);
+        sysRewardPiyue.setConcate("新增");
+        sysRewardPiyue.setState("新增");
+        sysRewardPiyueMapper.insertSysRewardPiyue(sysRewardPiyue);
+        return a;
     }
 
     /**
@@ -231,7 +239,7 @@ public class SysRewardServiceImpl implements ISysRewardService
         sysRewardPiyue.setUid(uid);
         sysRewardPiyue.setRewardId(Integer.valueOf(id));
         sysRewardPiyue.setConcate(remark);
-        sysRewardPiyue.setState("被驳回");
+        sysRewardPiyue.setState("驳回");
         sysRewardPiyueMapper.insertSysRewardPiyue(sysRewardPiyue);
         return a;
     }
@@ -268,26 +276,9 @@ public class SysRewardServiceImpl implements ISysRewardService
         sysRewardPiyue.setUid(uid);
         sysRewardPiyue.setRewardId(Integer.valueOf(id));
         sysRewardPiyue.setConcate(remark);
-        sysRewardPiyue.setState("撤回上一条操作");
+        sysRewardPiyue.setState("撤回");
         sysRewardPiyueMapper.insertSysRewardPiyue(sysRewardPiyue);
         return a;
 
-//    @Override
-//    public int hxoverBh(String id, Long userId, String remark, String urlFlag) {
-//        String state = "0";
-//        if(urlFlag.equals("JYSOVER")){
-//            state ="9";
-//        }else if(urlFlag.equals("KYCOVER")){
-//            state ="10";
-//        }
-//
-//        int a =  sysRewardMapper.hxPass(id,state);
-//        SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
-//        sciHorizontalPiyue.setUid(uid);
-//        sciHorizontalPiyue.setHxktId(Integer.valueOf(id));
-//        sciHorizontalPiyue.setConcate(remark);
-//        sciHorizontalPiyue.setState("被驳回");
-//        sciHorizontalPiyueMapper.insertSciHorizontalPiyue(sciHorizontalPiyue);
-//        return a;
     }
 }

@@ -1186,9 +1186,15 @@ var table = {
             },
             push: function(id) {
                 table.set();
-                var url = $.common.isEmpty(id) ? table.options.pushUrl.replace("{id}", "") : table.options.pushUrl.replace("{id}", id);
-                var data = { "id": id };
-                $.operate.submit(url, "post", "json", data);
+                $.modal.confirm("确定提交该条" + table.options.modalName + "信息吗？提交后将进入审批阶段", function() {
+                    var url = $.common.isEmpty(id) ? table.options.pushUrl.replace("{id}", "") : table.options.pushUrl.replace("{id}", id);
+                    if (table.options.type == table_type.bootstrapTreeTable) {
+                        $.operate.get(url);
+                    } else {
+                        var data = { "id": id };
+                        $.operate.submit(url, "post", "json", data);
+                    }
+                });
             },
             // 批量删除信息
             removeAll: function() {
@@ -1279,7 +1285,7 @@ var table = {
             // 追加到账信息，以tab页展现
             reamountTab: function(id) {
                 table.set();
-                $.modal.openTab("修改" + table.options.modalName, $.operate.reamountUrl(id));
+                $.modal.openTab("追加金额" + table.options.modalName, $.operate.reamountUrl(id));
             },
             // 撤回操作
             recallTab: function(id) {
