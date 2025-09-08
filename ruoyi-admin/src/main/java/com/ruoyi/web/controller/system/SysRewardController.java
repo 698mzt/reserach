@@ -272,6 +272,8 @@ public class SysRewardController extends BaseController
     public String edit(@PathVariable("id") Long id, ModelMap mmap)
     {
         SysReward sysReward = sysRewardService.selectSysRewardById(id);
+        List<SysUser> userList1 =  userService.selectAllUser();
+        mmap.put("sysUsers1",userList1);
         mmap.put("sysReward", sysReward);
         return prefix + "/edit";
     }
@@ -286,6 +288,7 @@ public class SysRewardController extends BaseController
     public AjaxResult editSave(SysReward sysReward)
     {
         sysReward.setState("11");
+        sysReward.setUserId(getSysUser().getUserId());
         return toAjax(sysRewardService.updateSysReward(sysReward));
     }
 

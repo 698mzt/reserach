@@ -1,6 +1,7 @@
 package com.ruoyi.system.service;
 
 import com.ruoyi.system.domain.SysReward;
+import org.apache.ibatis.annotations.Options;
 
 import java.util.List;
 
@@ -33,6 +34,7 @@ public interface ISysRewardService
      * @param sysReward 奖励
      * @return 结果
      */
+    @Options(useGeneratedKeys = true, keyProperty = "id")
     public int insertSysReward(SysReward sysReward);
 
     /**

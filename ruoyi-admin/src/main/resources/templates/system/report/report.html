@@ -589,72 +589,48 @@
                     title: '操作',
                     align: 'center',
                     formatter: function (value, row, index) {
-                        // console.log(row)
                         var actions = [];
                         var hasPreviousButtons = false; // 标记前面是否有按钮
 
                         if (row.state == 0) {
                             if (row.userId == row.uid) {
-                                // actions.push('<a  class="btn btn-success btn-xs ' + submitFlag + '" href="javascript:void(0)" onclick="$.operate.tijiao(\'' + row.id + '\')"><i class="fa fa-edit"></i>提交</a> ');
-                                // actions.push('<a   class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>修改</a> ');
-                                // actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-remove"></i>删除</a>');
                                 actions.push('<a  class="btn  btn-xs ' + submitFlag + '" href="javascript:void(0)" onclick="$.operate.tijiao(\'' + row.id + '\')">提交</a> ');
                                 actions.push('<a   class="btn  btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '/xiugai' + '\')">修改</a> ');
                                 actions.push('<a style="color: red" class="btn  btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')">删除</a>');
                                 hasPreviousButtons = true; // 设置前面有按钮的标志为true
                             }
-
-                            // actions.push('<a  class="btn btn-success btn-xs ' + proFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro' + '\')"><i class="fa fa-edit"></i>批阅</a> ');
-                            // actions.push('<a  class="btn btn-success btn-xs ' + proFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '\')"><i class="fa fa-edit"></i>批阅</a> ');
-
                         }else if (row.state == 1) {
-                            // actions.push('<a  class="btn btn-success btn-xs ' + proFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro' + '\')"><i class="fa fa-edit"></i>批阅</a> ');
                             actions.push('<a  class="btn btn-xs ' + proFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro' + '\')">批阅</a> ');
                             if (proFlag != 'hidden')
                                 hasPreviousButtons = true; // 设置前面有按钮的标志为true
                         }
                         else if (row.state == 6){
-                                // actions.push('<a  class="btn btn-success btn-xs ' + xyproFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/xypro' + '\')"><i class="fa fa-edit"></i>批阅</a> ');
-                                // actions.push('<a  class="btn btn-danger btn-xs ' + tuihuiFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/tuihui' + '\')"><i class="fa fa-edit"></i>撤销</a> ');
-                            actions.push('<a  class="btn btn-xs ' + xyproFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/xypro' + '\')">批阅</a> ');
+                              actions.push('<a  class="btn btn-xs ' + xyproFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/xypro' + '\')">批阅</a> ');
                             actions.push('<a style="color: red" class="btn btn-xs ' + tuihuiFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/tuihui' + '\')">撤销</a> ');
                             if (tuihuiFlag != 'hidden' || xyproFlag != 'hidden')
                                 hasPreviousButtons = true; // 设置前面有按钮的标志为true
 
                         } else if ((row.state == 3 || row.state == 5 || row.state == 7) && row.userId == row.uid) {
-                            // actions.push('<a   class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> <i class="fa fa-edit"></i>更新</a> ');
-                            actions.push('<a class="btn btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '/gengxin' +'\')">修改</a> ');
+                            actions.push('<a class="btn btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '/gengxin' +'\')">编辑</a> ');
                             hasPreviousButtons = true; // 设置前面有按钮的标志为true
                         }
                         else if (row.state == 2) {
-                            // actions.push('<a  class="btn btn-success btn-xs ' + checkFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/check' + '\')"><i class="fa fa-edit"></i>核查</a> ');
-                            // actions.push('<a  class="btn btn-danger btn-xs ' + chexiaoFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/xytuihui' + '\')"><i class="fa fa-edit"></i>撤销</a> ');
-                            actions.push('<a  class="btn btn-xs ' + checkFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/check' + '\')">核查</a> ');
+                              actions.push('<a  class="btn btn-xs ' + checkFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/check' + '\')">核查</a> ');
                             actions.push('<a style="color: red" class="btn btn-xs ' + chexiaoFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/xytuihui' + '\')">撤销</a> ');
                             if (checkFlag != 'hidden' || chexiaoFlag != 'hidden')
                                 hasPreviousButtons = true; // 设置前面有按钮的标志为true
-                            // actions.push('<a  class="btn btn-success btn-xs ' + checkFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/check' + '\')"><i class="fa fa-edit"></i>核查</a> ');
-                        }
+                              }
                         else if (row.state == 4) {
                             actions.push('<a style="color: red" class="btn btn-xs ' + zgqxtuihuiFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/zgqxtuihui' + '\')">撤销</a> ');
                             if (zgqxtuihuiFlag != 'hidden')
                                 hasPreviousButtons = true;
                         }
-                        // else if (row.state != 1) {
-                        //     actions.push('<a  class="btn btn-success btn-xs ' + infoFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/info' + '\')"><i class="fa fa-edit"></i>查看</a> ');
-                        //     if (row.state == 4){
-                        //         actions.push('<a  class="btn btn-danger btn-xs ' + zgqxtuihuiFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/zgqxtuihui' + '\')"><i class="fa fa-edit"></i>撤销</a> ');
-                        //     }
-                        // }
-                        // 动态添加换行符
                         if (hasPreviousButtons) {
                             actions.push('<br>'); // 只有前面有按钮时才换行
                         }
                         actions.push('<a  class="btn btn-xs ' + infoFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/info' + '\')">查看</a> ');
-                        // actions.push('<a class="btn btn-xs" data-toggle="modal" data-target="#lcjl_Moda" onclick="autoProgressBar()" >流程记录</a> ');
                         actions.push('<a class="btn btn-xs" data-toggle="modal" data-target="#lcjl_Moda" onclick="controlProgressBar(\'' + row.id + '\', ' + row.state + ')">流程记录</a>');
-                        // actions.push('<a class="btn btn-xs ' + infoFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/info' + '\')">流程记录</a> ');
-                        return actions.join('');
+                         return actions.join('');
                     }
                 }
             ]
