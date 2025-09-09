@@ -123,7 +123,7 @@
 <!--                        </select>-->
 <!--                    </div>-->
                   <div class="col-sm-8">
-                    <select  readonly class="form-control" th:with="type=${@dict.getType('sci_paper_qwer')}" required disabled>
+                    <select id="paperRanking"  readonly class="form-control" th:with="type=${@dict.getType('sci_paper_qwer')}" required disabled>
                       <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}" th:field="*{paperRanking}"></option>
                     </select>
                   </div>
@@ -359,8 +359,8 @@
         var urlFlag = $("#urlFlag").val();
         var paperCategory = $("#paperCategory").val();
         var paperRanking = $("#paperRanking").val();
-
-
+        console.log("paperCategory:", paperCategory);
+        console.log("paperRanking:", paperRanking);
         // 构建完整的URL
         var Url = prefix + "/pytg/" + encodeURIComponent($("#pid").val());
 
@@ -374,10 +374,11 @@
             var urlFlag = $("#urlFlag").val();
             console.log("Submitting with urlFlag:", urlFlag);
             var remark = $('#remark').val();  // 直接获取textarea的值
-
-            var url = prefix + "/pybh/" + encodeURIComponent($("#pid").val());;
-            $.operate.saveTab(url, {"urlFlag": urlFlag, "remark": remark})
             console.log("urlFlagBH:", urlFlag)
+            console.log("remark:", remark)
+            var url = prefix + "/pybh/" + encodeURIComponent($("#pid").val());
+            $.operate.saveTab(url, {"urlFlag": urlFlag, "remark": remark})
+
 
         } else {
             console.error("Form validation failed");
