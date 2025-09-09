@@ -41,17 +41,41 @@
     </resultMap>
 
     <sql id="selectSciPaperAVo">
-        select  #{uid} uid,p.id ,r.role_id,r.role_name,r.role_key,u.login_name employee_id,
-                p.text_paper,p.word_paper,p.search_web,pt.dept_name research_room,p.user_id,
-                d.dept_name dname,pt.dept_name college, p.teacher_name,u.tea_zhicheng on_campus_title,
-                p.paper_title, p.paper_category, p.published_journal,p.publication_time, p.is_industry_collaborative,
-                p.is_local_collaborative, p.is_international_collaborative, p.is_cross_discipline, p.paper_ranking, p.research_score, p.remarks,p.state,r.data_scope
-        from sci_paper_a p
-                 left join sys_user u on  p.user_id=u.user_id
-                 left join sys_dept d on u.dept_id = d.dept_id
-                 left join sys_dept pt on d.parent_id =pt.dept_id
-                 left join sys_user_role ur on u.user_id = ur.user_id
-                 left join sys_role r on r.role_id = ur.role_id
+      select
+        #{uid} uid,
+        p.id ,
+        u.login_name employee_id,
+        p.text_paper,
+        p.word_paper,
+        p.search_web,
+        pt.dept_name research_room,
+        p.user_id,
+        d.dept_name dname,
+        pt.dept_name college,
+        p.teacher_name,
+        u.tea_zhicheng on_campus_title,
+        p.paper_title,
+        p.paper_category,
+        p.published_journal,
+        p.publication_time,
+        p.is_industry_collaborative,
+        p.is_local_collaborative,
+        p.is_international_collaborative,
+        p.is_cross_discipline,
+        p.paper_ranking,
+        p.research_score,
+        p.remarks,
+        p.state
+      from
+        sci_paper_a p
+          left join sys_user u on
+          p.user_id = u.user_id
+          left join sys_dept d on
+          u.dept_id = d.dept_id
+          left join sys_dept pt on
+          d.parent_id = pt.dept_id
+
+
     </sql>
 
     <select id="selectSciPaperAList" parameterType="SciPaperA" resultMap="SciPaperAResult">
@@ -81,7 +105,7 @@
     <select id="selectSciPaperAListKY" parameterType="SciPaperA" resultMap="SciPaperAResult">
         <include refid="selectSciPaperAVo"/>
         <where>
-            p.state in (4,8) and r.data_scope = '5'
+            p.state in (4,8)
             ${params.dataScope}
             <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
             <if test="teacherName != null  and teacherName != ''"> and teacher_name like concat('%', #{teacherName}, '%')</if>
@@ -106,7 +130,7 @@
     <select id="selectSciPaperAListXY" parameterType="SciPaperA" resultMap="SciPaperAResult">
         <include refid="selectSciPaperAVo"/>
         <where>
-            p.state in (2,4,8)and r.data_scope = '5'
+            p.state in (2,4,8)
             ${params.dataScope}
             <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
             <if test="teacherName != null  and teacherName != ''"> and teacher_name like concat('%', #{teacherName}, '%')</if>
@@ -130,20 +154,15 @@
     </select>
 
     <select id="selectSciPaperAListCxList" parameterType="SciPaperA" resultMap="SciPaperAResult">
-        select  #{uid} uid,p.id ,r.role_id,r.role_name,r.role_key,u.login_name employee_id,
-        p.text_paper,p.word_paper,p.search_web,pt.dept_name research_room,p.user_id,
-        d.dept_name dname,pt.dept_name college, p.teacher_name,u.tea_zhicheng on_campus_title,
+        select  #{uid} uid,p.id,
+        p.text_paper,p.word_paper,p.search_web,p.user_id,
+        p.teacher_name,
         p.paper_title, p.paper_category, p.published_journal,p.publication_time, p.is_industry_collaborative,
-        p.is_local_collaborative, p.is_international_collaborative, p.is_cross_discipline, p.paper_ranking, p.research_score, p.remarks,p.state,r.data_scope
+        p.is_local_collaborative, p.is_international_collaborative, p.is_cross_discipline, p.paper_ranking, p.research_score, p.remarks,p.state
         from sci_paper_a p
-        left join sys_user u on  p.user_id=u.user_id
-        left join sys_dept d on u.dept_id = d.dept_id
-        left join sys_dept pt on d.parent_id =pt.dept_id
-        left join sys_user_role ur on u.user_id = ur.user_id
-        left join sys_role r on r.role_id = ur.role_id
         <where>
-           ( p.state in (1,2,8) and r.data_scope = '5') or ( p.state = 99 and p.teacher_name = #{teacherName} and r.data_scope = '5')
-            ${params.dataScope}
+           p.state in (1,2,8) or(p.state in (3,5,7,99) and p.user_id = #{uid})
+            /*${params.dataScope}*/
 <!--            <if test="userId != null  and userId != ''"> and p.user_id = #{userId}</if>-->
             <if test="teacherName != null  and teacherName != ''"> and teacher_name like concat('%', #{teacherName}, '%')</if>
             <if test="college != null  and college != ''"> and pt.dept_name like concat('%', #{college}, '%')</if>
@@ -201,7 +220,7 @@
 
     <select id="selectSciPaperAById" parameterType="Long" resultMap="SciPaperAResult">
         <include refid="selectSciPaperAVo"/>
-        where id = #{id} AND r.data_scope !=3
+        where id = #{id}
     </select>
 
     <select id="selectSciPaperAExport"  resultMap="SciPaperAResult">

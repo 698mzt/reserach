@@ -115,7 +115,7 @@
           <div class="form-group">
             <label class="col-sm-3 control-label">排名：</label>
             <div class="col-sm-8">
-              <select  name="paperRanking" id="paperRanking" class="form-control m-b" th:with="type=${@dict.getType('sci_paper_qwer')}" required>
+              <select id="paperRanking"  name="paperRanking" class="form-control m-b" th:with="type=${@dict.getType('sci_paper_qwer')}" required>
                 <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
               </select>
             </div>
