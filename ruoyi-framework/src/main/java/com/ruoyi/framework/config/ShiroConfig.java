@@ -33,7 +33,7 @@ import com.ruoyi.framework.shiro.session.OnlineSessionFactory;
 import com.ruoyi.framework.shiro.web.CustomShiroFilterFactoryBean;
 import com.ruoyi.framework.shiro.web.filter.LogoutFilter;
 import com.ruoyi.framework.shiro.web.filter.captcha.CaptchaValidateFilter;
-import com.ruoyi.framework.shiro.web.filter.kickout.ImprovedKickoutSessionFilter;
+import com.ruoyi.framework.shiro.web.filter.kickout.KickoutSessionFilter;
 import com.ruoyi.framework.shiro.web.filter.online.OnlineSessionFilter;
 import com.ruoyi.framework.shiro.web.filter.sync.SyncOnlineSessionFilter;
 import com.ruoyi.framework.shiro.web.session.OnlineWebSessionManager;
@@ -388,9 +388,9 @@ public class ShiroConfig
     /**
      * 同一个用户多设备登录限制 - 使用改进版本
      */
-    public ImprovedKickoutSessionFilter kickoutSessionFilter()
+    public KickoutSessionFilter kickoutSessionFilter()
     {
-        ImprovedKickoutSessionFilter kickoutSessionFilter = new ImprovedKickoutSessionFilter();
+        KickoutSessionFilter kickoutSessionFilter = new KickoutSessionFilter();
         kickoutSessionFilter.setCacheManager(getEhCacheManager());
         kickoutSessionFilter.setSessionManager(sessionManager());
         // 同一个用户最大的会话数，默认-1无限制；比如2的意思是同一个用户允许最多同时两个人登录
