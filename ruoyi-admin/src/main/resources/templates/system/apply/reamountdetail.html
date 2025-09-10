@@ -196,16 +196,10 @@
         const input = document.getElementById(inputId);
         const fileNameSpan = document.getElementById(fileNameId);
         if (input.value) {
-            const fileName = input.value.split('/').pop(); // 获取文件名
-            const parts = fileName.split('_'); // 按下划线分割
-            const firstPart = parts[0]; // 下划线前的部分
-
-            const dotParts = fileName.split('.'); // 按点分割
-            const lastPart = dotParts[dotParts.length - 1]; // 点后的部分
-
-            fileNameSpan.textContent = `${firstPart}`; // 组合并显示
+            const fileName = input.value.split('/').pop(); // 获取最后一个'/'后的文件名
+            fileNameSpan.textContent = fileName; // 直接显示完整文件名
         } else {
-            fileNameSpan.textContent = '';
+            fileNameSpan.textContent = '无效文件';
         }
     }
     function chakan(){
