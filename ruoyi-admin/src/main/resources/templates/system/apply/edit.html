@@ -332,7 +332,7 @@
                     // 自定义文件名生成规则
                     fileExtension = filename.split('.').pop();
                     const year = new Date().getFullYear();
-                    const newName = year +"-"+ $("input[name='topName']").val() +"-"+ "合同"+ "." + fileExtension;
+                    const newName = year +"-"+ $("input[name='topName']").val() +"-"+ "立项合同"+ "." + fileExtension;
                     return newName;
                 },
             }).on('fileuploaded', function (event, data, previewId, index) {
@@ -378,7 +378,7 @@
                     // 自定义文件名生成规则
                     fileExtension = filename.split('.').pop();
                     const year = new Date().getFullYear();
-                    const newName = year +"-"+ $("input[name='topName']").val() +"-"+ "备案表"+ "." + fileExtension;
+                    const newName = year +"-"+ $("input[name='topName']").val() +"-"+ "立项备案表"+ "." + fileExtension;
                     return newName;
                 },
             }).on('fileuploaded', function (event, data, previewId, index) {

@@ -192,16 +192,10 @@
         const input = document.getElementById(inputId);
         const fileNameSpan = document.getElementById(fileNameId);
         if (input.value) {
-            const fileName = input.value.split('/').pop(); // 获取文件名
-            const parts = fileName.split('_'); // 按下划线分割
-            const firstPart = parts[0]; // 下划线前的部分
-
-            const dotParts = fileName.split('.'); // 按点分割
-            const lastPart = dotParts[dotParts.length - 1]; // 点后的部分
-
-            fileNameSpan.textContent = `${firstPart}.${lastPart}`; // 组合并显示
+            const fileName = input.value.split('/').pop(); // 获取最后一个'/'后的文件名
+            fileNameSpan.textContent = fileName; // 直接显示完整文件名
         } else {
-            fileNameSpan.textContent = '';
+            fileNameSpan.textContent = '无效文件';
         }
     }
 
@@ -306,12 +300,7 @@
     function submitHandler() {
         //获取 URLflag
         var a = $("#urlFlag").val();
-        console.log('Value of a:', a);
-
-        // if ($.validate.form()) {
         $.operate.saveTab(prefix + "/hxPass", {"id":$("#ktid").val(),"urlFlag":a,"amount":$("#amount").val()});
-        // $.operate.saveTab(prefix + "/hxPass", {"id":$("#ktid").val(),"urlFlag":a});
-        // }
     }
     function submitHandlerBH() {
         var a = $("#urlFlag").val();
@@ -321,28 +310,8 @@
     }
 
 
-
-
-    // $(".file-upload").each(function (i) {
-    //     var val = $("input[name='" + this.id + "']").val()
-    //     $(this).fileinput({
-    //         'uploadUrl': ctx + 'common/upload',
-    //         initialPreviewAsData: true,
-    //         initialPreview: [val],
-    //         maxFileCount: 1,
-    //         autoReplace: true
-    //     }).on('fileuploaded', function (event, data, previewId, index) {
-    //         $("input[name='" + event.currentTarget.id + "']").val(data.response.url)
-    //     }).on('fileremoved', function (event, id, index) {
-    //         $("input[name='" + event.currentTarget.id + "']").val('')
-    //     })
-    //     $(this).fileinput('_initFileActions');
-    // });
-
-
     // 页面加载时显示文件名
     window.onload = function() {
-        // displayFileName('contract', 'contractFileName');
         displayFileName('wenjian', 'wenjianFileName');
     };
 </script>

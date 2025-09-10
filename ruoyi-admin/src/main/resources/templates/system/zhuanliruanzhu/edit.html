@@ -95,7 +95,7 @@
 
             <div class="form-group row">
                 <div class="col-sm-6">
-                    <label class="col-sm-4 control-label is-required">专利文件：</label>
+                    <label class="col-sm-4 control-label is-required">专利软著文件：</label>
                     <div class="col-sm-8">
                         <input type="hidden" name="wenjian" th:field="*{wenjian}">
                         <div class="file-loading">
@@ -182,9 +182,6 @@
                 if ($("input[name='wenjian']").val() == "")
                     return $.modal.alertError("请上传专利文件");
                 $.operate.saveTab(prefix + "/edit", $('#form-zhuanliruanzhu-edit').serialize());
-                // if ($.validate.form()) {
-                //     $.operate.save(prefix + "/add", $('#form-zhuanliruanzhu-add').serialize());
-                // }
             }
         }
 
@@ -222,7 +219,7 @@
                     // 自定义文件名生成规则
                     fileExtension = filename.split('.').pop();
                     const year = new Date().getFullYear();
-                    const newName = year +"-"+ $("input[name='mingcheng']").val() +"-"+ "专利软著"+ "." + fileExtension;
+                    const newName = year +"-"+ $("input[name='mingcheng']").val() +"-"+ "专利软著文件"+ "." + fileExtension;
                     return newName;
                 },
             }).on('fileuploaded', function (event, data, previewId, index) {
