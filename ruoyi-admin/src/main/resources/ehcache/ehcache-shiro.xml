@@ -31,14 +31,15 @@
            statistics="false">
     </cache>
 
-    <!-- 系统活跃用户缓存 -->
+    <!-- 系统活跃用户缓存 - 优化并发性能 -->
     <cache name="sys-userCache"
            maxEntriesLocalHeap="10000"
            overflowToDisk="false"
            eternal="false"
            diskPersistent="false"
-           timeToLiveSeconds="0"
-           timeToIdleSeconds="0"
+           timeToLiveSeconds="1800"
+           timeToIdleSeconds="600"
+           memoryStoreEvictionPolicy="LRU"
            statistics="false">
     </cache>
     
@@ -77,14 +78,15 @@
            statistics="false">
     </cache>
     
-    <!-- 系统会话缓存 -->
+    <!-- 系统会话缓存 - 优化会话管理 -->
     <cache name="shiro-activeSessionCache"
            maxEntriesLocalHeap="10000"
            overflowToDisk="false"
            eternal="false"
            diskPersistent="false"
-           timeToLiveSeconds="0"
-           timeToIdleSeconds="0"
+           timeToLiveSeconds="1800"
+           timeToIdleSeconds="600"
+           memoryStoreEvictionPolicy="LRU"
            statistics="false"/>
     
 </ehcache>

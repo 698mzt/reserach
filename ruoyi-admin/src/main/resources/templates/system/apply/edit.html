@@ -12,7 +12,6 @@
             <input type="hidden" id="reAmount" name="reAmount">
             <input type="hidden" id="accountData" name="accountData">
             <input type="hidden" id="reamountUrl" name="reamountUrl">
-<!--            <input name="amountType" id="amountType" type="hidden" value="立项">-->
             <input name="id" id="ktid" th:field="*{id}" type="hidden">
             <input type="hidden" id="applyId" name = "applyId"  >
             <input name="state" id="state" th:field="*{state}" type="hidden">
@@ -22,8 +21,7 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">申请人：</label>
                     <div class="col-sm-8">
-<!--                        <input name="userId" th:field="*{userId}" class="form-control" type="text" required>-->
-                        <select name="userId" class="form-control m-b" disabled="true">
+                            <select name="userId" class="form-control m-b" disabled="true">
                             <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ user.userId == sciHorizontalApply.userId}"></option>
                         </select>
                     </div>
@@ -154,7 +152,7 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">开题报告：</label>
                     <div class="col-sm-8">
-                        <input type="hidden" name="contract" th:field="*{filing}">
+                        <input type="hidden" name="contract" th:field="*{contract}">
                        <div class="file-loading">
                             <input class="form-control file-uploada" id="contract" name="file" type="file">
                         </div>
@@ -165,7 +163,7 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">开题备案表：</label>
                     <div class="col-sm-8">
-                        <input type="hidden" name="filing" th:field="*{contract}">
+                        <input type="hidden" name="filing" th:field="*{filing}">
                        <div class="file-loading">
                             <input class="form-control file-uploadb" id="filing" name="file" type="file">
                         </div>
@@ -276,15 +274,6 @@
                         title : '审核状态',
                         width: 100
                     }
-                    //
-                    // {
-                    //     field: 'status',
-                    //     title: '批阅状态',
-                    //     align: 'center',
-                    //     formatter: function(value, row, index) {
-                    //         return $.table.selectDictLabel(datas, value);
-                    //     }
-                    // }
                 ]
             };
             $.table.init(options);
@@ -343,7 +332,7 @@
                     // 自定义文件名生成规则
                     fileExtension = filename.split('.').pop();
                     const year = new Date().getFullYear();
-                    const newName = year +"-"+ $("input[name='topName']").val() +"-"+ "合同"+ "." + fileExtension;
+                    const newName = year +"-"+ $("input[name='topName']").val() +"-"+ "立项合同"+ "." + fileExtension;
                     return newName;
                 },
             }).on('fileuploaded', function (event, data, previewId, index) {
@@ -389,7 +378,7 @@
                     // 自定义文件名生成规则
                     fileExtension = filename.split('.').pop();
                     const year = new Date().getFullYear();
-                    const newName = year +"-"+ $("input[name='topName']").val() +"-"+ "备案表"+ "." + fileExtension;
+                    const newName = year +"-"+ $("input[name='topName']").val() +"-"+ "立项备案表"+ "." + fileExtension;
                     return newName;
                 },
             }).on('fileuploaded', function (event, data, previewId, index) {

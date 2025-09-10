@@ -12,16 +12,12 @@
             <div class="row">
 
                 <div class="col-xs-6">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">申请人：</label>
-                    <div class="col-sm-8">
-                        <input th:field="*{userName}" class="form-control" type="text" required>
-                        <input name="userId" th:field="*{userId}" class="form-control" type="hidden" required>
-<!--                        <select name="userId" class="form-control m-b" >-->
-<!--                            <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ user.userId == sysReward.userId}"></option>-->
-<!--                        </select>-->
-                    </div>
-                </div>
+                        <label class="col-sm-4 control-label is-required">申请人：</label>
+                        <div class="col-sm-8">
+                            <select name="userId" class="form-control m-b" disabled="true">
+                                <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ user.userId == sysReward.userId}"></option>
+                            </select>
+                        </div>
                 </div>
 
                 <div class="col-xs-6">
@@ -41,7 +37,6 @@
                     </div>
                 </div>
                 </div>
-
 
                 <div class="col-xs-6">
                 <div class="form-group">
@@ -124,10 +119,6 @@
                         <div style="display: inline-block;">
                             <div  style="display: inline; margin-right: 5px;"></div>
                         </div>
-                        <div>
-                            <button onclick="chakan()" class="btn btn-sm btn-primary color">预览</button>
-                            <button onclick="downloadFile('rewardWenjian')" class="btn btn-sm btn-primary color">下载</button>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -137,10 +128,6 @@
                 <label class="col-sm-4 control-label is-required">等级：</label>
                 <div class="col-sm-8">
                     <select id="rewarDengji"  th:field="*{rewardDengji}" class="form-control" type="text" th:with="type=${@dict.getType('sys_reward_dengji')}" required>
-<!--                        <option value="一等奖">一等奖</option>-->
-<!--                        <option value="二等奖">二等奖</option>-->
-<!--                        <option value="三等奖">三等奖</option>-->
-<!--                        <option value="四等奖">四等奖</option>-->
                         <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
                     </select>
                 </div>
@@ -201,15 +188,6 @@
                         title : '审核状态',
                         width: 100
                     }
-                    //
-                    // {
-                    //     field: 'status',
-                    //     title: '批阅状态',
-                    //     align: 'center',
-                    //     formatter: function(value, row, index) {
-                    //         return $.table.selectDictLabel(datas, value);
-                    //     }
-                    // }
                 ]
             };
             $.table.init(options);
@@ -255,17 +233,49 @@
 
         $(".file-upload").each(function (i) {
             var val = $("input[name='" + this.id + "']").val()
+            var initialPreview = [];
+            var initialPreviewConfig = [];
+            
+            if (val && val.trim() !== '') {
+                initialPreview = [val];
+                initialPreviewConfig = [{
+                    type: "pdf",
+                    caption: val.split('/').pop(),
+                    url: ctx + "common/delete",
+                    key: val
+                }];
+            }
+            
             $(this).fileinput({
                 'uploadUrl': ctx + 'common/upload/jl',
                 initialPreviewAsData: true,
-                initialPreview: [val],
+                initialPreview: initialPreview,
+                initialPreviewConfig: initialPreviewConfig,
                 maxFileCount: 1,
-                autoReplace: true
+                autoReplace: true,
+                overwriteInitial: true,
+                allowedFileExtensions: ["pdf", "jpg", "jpeg", "png", "doc", "docx"],
+                slugCallback: function(filename) {
+                    if ($("input[name='topName']").val()===""){
+                        $(".file-uploadb").fileinput('clear');
+                        $.modal.alertError("请先输入课题名称");
+                        return false;
+                    }
+                    // 自定义文件名生成规则
+                    fileExtension = filename.split('.').pop();
+                    const year = new Date().getFullYear();
+                    const newName = year +"-"+ $("input[name='rewardName']").val() +"-"+ "证书文件"+ "." + fileExtension;
+                    return newName;
+                },
             }).on('fileuploaded', function (event, data, previewId, index) {
-                $("input[name='" + event.currentTarget.id + "']").val(data.response.url)
+                if (data.response && data.response.url) {
+                    $("input[name='" + event.currentTarget.id + "']").val(data.response.url);
+                }
             }).on('fileremoved', function (event, id, index) {
-                $("input[name='" + event.currentTarget.id + "']").val('')
-            })
+                $("input[name='" + event.currentTarget.id + "']").val('');
+            }).on('fileclear', function (event) {
+                $("input[name='" + event.currentTarget.id + "']").val('');
+            });
             $(this).fileinput('_initFileActions');
         });
     </script>

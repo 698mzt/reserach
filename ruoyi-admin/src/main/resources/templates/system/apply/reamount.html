@@ -247,7 +247,6 @@
             showToggle: false,
             showColumns: false,
             pagination:false,
-
             columns: [
 
                 {
@@ -311,18 +310,37 @@
 
     $(".file-upload").each(function (i) {
         var val = $("input[name='" + this.id + "']").val()
+        var initialPreview = [];
+        var initialPreviewConfig = [];
+        
+        if (val && val.trim() !== '') {
+            initialPreview = [val];
+            initialPreviewConfig = [{
+                type: "pdf",
+                caption: val.split('/').pop(),
+                url: ctx + "common/delete",
+                key: val
+            }];
+        }
+        
         $(this).fileinput({
             'uploadUrl': ctx + 'common/upload/hxkt',
             initialPreviewAsData: true,
-            initialPreview: [val],
+            initialPreview: initialPreview,
+            initialPreviewConfig: initialPreviewConfig,
             maxFileCount: 1,
             autoReplace: true,
+            overwriteInitial: true,
             allowedFileExtensions: ["pdf"]
         }).on('fileuploaded', function (event, data, previewId, index) {
-            $("input[name='" + event.currentTarget.id + "']").val(data.response.url)
+            if (data.response && data.response.url) {
+                $("input[name='" + event.currentTarget.id + "']").val(data.response.url);
+            }
         }).on('fileremoved', function (event, id, index) {
-            $("input[name='" + event.currentTarget.id + "']").val('')
-        })
+            $("input[name='" + event.currentTarget.id + "']").val('');
+        }).on('fileclear', function (event) {
+            $("input[name='" + event.currentTarget.id + "']").val('');
+        });
         $(this).fileinput('_initFileActions');
     });
 </script>
@@ -431,28 +449,55 @@
         minView: "month",
         autoclose: true
     });
-    $(".amountfile-upload").fileinput({
-        uploadUrl: ctx + 'common/upload/hxkt',
-        maxFileCount: 1,
-        autoReplace: true,
-        allowedFileExtensions: ["pdf"],
-        slugCallback: function(filename) {
-            if ($("input[name='topName']").val()===""){
-                $(".amountfile-upload").fileinput('clear');
-                $.modal.alertError("请先输入课题名称");
-                return false;
+    // 为 .amountfile-upload 组件配置预览
+    $(".amountfile-upload").each(function() {
+        var $this = $(this);
+        var val = $("input[name='" + this.id + "']").val();
+        
+        var initialPreview = [];
+        var initialPreviewConfig = [];
+        
+        if (val && val.trim() !== '') {
+            initialPreview = [val];
+            initialPreviewConfig = [{
+                type: "pdf",
+                caption: val.split('/').pop(),
+                url: ctx + "common/delete", 
+                key: val
+            }];
+        }
+        
+        $this.fileinput({
+            uploadUrl: ctx + 'common/upload/hxkt',
+            maxFileCount: 1,
+            autoReplace: true,
+            allowedFileExtensions: ["pdf"],
+            initialPreview: initialPreview,
+            initialPreviewAsData: true,
+            initialPreviewConfig: initialPreviewConfig,
+            deleteUrl: ctx + "common/delete",
+            slugCallback: function(filename) {
+                if ($("input[name='topName']").val()===""){
+                    $this.fileinput('clear');
+                    $.modal.alertError("请先输入课题名称");
+                    return false;
+                }
+                // 自定义文件名生成规则
+                fileExtension = filename.split('.').pop();
+                const year = new Date().getFullYear();
+                const newName = year +"-"+ $("input[name='topName']").val() +"-"+ "金额佐证材料"+ "." + fileExtension;
+                return newName;
+            },
+        }).on('fileuploaded', function (event, data, previewId, index) {
+            if (data.response && data.response.url) {
+                $("input[name='" + event.currentTarget.id + "']").val(data.response.url);
             }
-            // 自定义文件名生成规则
-            fileExtension = filename.split('.').pop();
-            const year = new Date().getFullYear();
-            const newName = year +"-"+ $("input[name='topName']").val() +"-"+ "金额佐证材料"+ "." + fileExtension;
-            return newName;
-        },
-    }).on('fileuploaded', function (event, data, previewId, index) {
-        $("input[name='" + event.currentTarget.id + "']").val(data.response.url)
-    }).on('fileremoved', function (event, id, index) {
-        $("input[name='" + event.currentTarget.id + "']").val('')
-    })
+        }).on('fileremoved', function (event, id, index) {
+            $("input[name='" + event.currentTarget.id + "']").val('');
+        }).on('fileclear', function(event) {
+            $("input[name='" + event.currentTarget.id + "']").val('');
+        });
+    });
 
 </script>
 </body>

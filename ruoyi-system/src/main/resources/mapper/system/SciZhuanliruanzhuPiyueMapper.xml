@@ -26,6 +26,7 @@
             <if test="concate != null  and concate != ''"> and concate = #{concate}</if>
             <if test="uid != null "> and uid = #{uid}</if>
         </where>
+            order by create_time desc
     </select>
 
     <select id="selectSciZhuanliruanzhuPiyueById" parameterType="Integer" resultMap="SciZhuanliruanzhuPiyueResult">

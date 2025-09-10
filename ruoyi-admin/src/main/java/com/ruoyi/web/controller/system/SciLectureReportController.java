@@ -95,10 +95,6 @@ public class SciLectureReportController extends BaseController
             }else if (r.getRoleKey().equals("admin")){
                 role="admin";
                 break;
-//            }else if (r.getRoleKey().equals("dept_teacher") ||  r.getRoleKey().equals("discuss_college") || r.getRoleKey().equals("dzgc_college") || r.getRoleKey().equals("art_design_college") || r.getRoleKey().equals("cxcy_college") || r.getRoleKey().equals("marxism_college")){
-//                role="dept_teacher";
-//                break;
-//            }
             } else if (TEACHER_ROLES.contains(r.getRoleKey())) {
                 role = "dept_teacher";
                 break;
@@ -106,104 +102,25 @@ public class SciLectureReportController extends BaseController
         }
         sciLectureReport.setRole(role);
         List<SciLectureReport> list = new ArrayList<>();
-//        sciLectureReport.setStatelist(Arrays.asList(1, 2, 3, 5,4,6,7)); // 查询时状态设置
-//        list = sciLectureReportService.selectSciLectureReportList(sciLectureReport);
 
         // ====》 调整
         // 科研室
         if(role.equals("sci_tesearch")){
-            sciLectureReport.setStatelist(Arrays.asList(2,5,4)); // 查询时状态设置
+            sciLectureReport.setStatelist(Arrays.asList(2,4)); // 查询时状态设置
         }
         // 教研室
         else if(role.equals("research")){
-            sciLectureReport.setStatelist(Arrays.asList(1,6, 3, 4,5,7)); // 查询时状态设置
-//            sciLectureReport.setStatelist(Arrays.asList(1, 2, 3, 5,4,6,7)); // 查询时状态设置
+            sciLectureReport.setStatelist(Arrays.asList(1,6)); // 查询时状态设置
         }
         // 学院
         else if(role.equals("dept_teacher")){
-            sciLectureReport.setStatelist(Arrays.asList(2,4,6,7,5)); // 查询时状态设置
+            sciLectureReport.setStatelist(Arrays.asList(6,2)); // 查询时状态设置
         }
         // 普通用户以及管理员
         else{
-            sciLectureReport.setStatelist(Arrays.asList(0,1, 2, 3, 5,4,6,7)); // 查询时状态设置
+            sciLectureReport.setStatelist(Arrays.asList(0, 1, 2, 3, 5, 4, 6, 7)); // 查询时状态设置
         }
         list = sciLectureReportService.selectSciLectureReportList(sciLectureReport);
-        // === 》 结束
-
-//        // 科研室
-//        if(role.equals("sci_tesearch")){
-//            switch (tableId){
-//                case "bootstrap-table0":  // 也完结
-//
-//                    break;
-//                case "bootstrap-table1": // 项目申请
-//                    sciLectureReport.setStatelist(Arrays.asList(1,2, 3,4,5));
-//                    sciLectureReport.setState("4");  // 设置状态为4的并且是当前用户的项目不查询
-//                    sciLectureReport.setTab("bootstrap-table1");
-//                    list = sciLectureReportService.selectSciLectureReportListKYS_Tab1(sciLectureReport);
-//                    break;
-////                case "bootstrap-table2":  // 结项申请
-////                    sciLectureReport.setStatelist(Arrays.asList(4,6,7,8,10));
-////                    sciLectureReport.setState("4");
-////                    sciLectureReport.setTab("bootstrap-table2");
-////                    list = sciLectureReportService.selectSciLectureReportListKYS_Tab2(sciLectureReport);
-////                    break;
-//            }
-//        }
-//        // 教研室
-//        else if(role.equals("research")){
-//            switch (tableId){
-//                case "bootstrap-table0":  // 也完结
-////                    sciLectureReport.setStatelist(Arrays.asList(9));
-////                    list = sciLectureReportService.selectSciLectureReportListJYS_Tab0(sciLectureReport);
-//                    break;
-//                case "bootstrap-table1": // 项目申请
-//                    sciLectureReport.setStatelist(Arrays.asList(1,2,3,4,5));
-//                    sciLectureReport.setState("4");  // 设置状态为4的并且是当前用户的项目不查询
-//                    sciLectureReport.setTab("bootstrap-table1");
-//                    list = sciLectureReportService.selectSciLectureReportListJYS_Tab1(sciLectureReport);
-//                    break;
-////                case "bootstrap-table2":  // 结项申请
-////                    sciLectureReport.setStatelist(Arrays.asList(4,6,7,8,10));
-////                    sciLectureReport.setState("4");
-////                    sciLectureReport.setTab("bootstrap-table2");
-////                    list = sciLectureReportService.selectSciLectureReportListJYS_Tab2(sciLectureReport);
-////                    break;
-//            }
-//        }
-//        // 管理员
-//        else if(role.equals("admin")){
-//            switch (tableId){
-//                case "bootstrap-table0":  // 也完结
-//
-//                    break;
-//                case "bootstrap-table1": // 项目申请
-//                    sciLectureReport.setStatelist(Arrays.asList(1, 2, 3, 4, 5));
-//                    list = sciLectureReportService.selectSciLectureReportList(sciLectureReport);
-//                    break;
-////                case "bootstrap-table2":  // 结项申请
-////                    sciLectureReport.setStatelist(Arrays.asList(6,7,8,10)); // 讲座报告状态
-////                    list = sciLectureReportService.selectSciLectureReportList(sciLectureReport);
-////                    break;
-//            }
-//        }
-//        // 普通用户
-//        else{
-//            switch (tableId){
-//                case "bootstrap-table0":  // 也完结
-//
-//                    break;
-//                case "bootstrap-table1": // 项目申请
-////                    sciLectureReport.setStatelist(Arrays.asList(1, 2, 3, 5)); // 也完结和申请分开时的状态
-//                    sciLectureReport.setStatelist(Arrays.asList(1, 2, 3, 5,4));
-//                    list = sciLectureReportService.selectSciLectureReportList(sciLectureReport);
-//                    break;
-////                case "bootstrap-table2":  // 结项申请
-////                    sciLectureReport.setStatelist(Arrays.asList(4,6,7,8,10)); // 讲座报告状态
-////                    list = sciLectureReportService.selectSciLectureReportList(sciLectureReport);
-////                    break;
-//            }
-//        }
 
         return getDataTable(list);
     }
@@ -258,16 +175,6 @@ public class SciLectureReportController extends BaseController
         // 获取当前的用户信息
         SysUser currentUser = ShiroUtils.getSysUser();
 
-//        List<SysUser> userList =  userService.selectAllUser();
-//        for (int a = 0; a<userList.size();a++) {
-//            if(userList.get(a).getUserId() == getUserId()){
-//                SysUser user = userList.get(a);
-//                user.setFlag(true);
-//                userList.set(a,user);
-//                break;
-//            }
-//        }
-//        mmap.put("sysUsers",userList);
         List<SciLectureReportIntegral> reportIntegralList = sciLectureReportIntegralService.selectSciLectureReportIntegralList(sciLectureReportIntegral);
         mmap.put("reportIntegralList",reportIntegralList);
         mmap.put("sysUsers",currentUser);
@@ -397,7 +304,6 @@ public class SciLectureReportController extends BaseController
     @ResponseBody
     public AjaxResult reject(Integer id,String remark,String urlFlag)
     {
-        System.out.println(remark);
         return toAjax(sciLectureReportService.reject(id,getUserId(),remark,urlFlag));
     }
 

@@ -192,10 +192,10 @@
         const input = document.getElementById(inputId);
         const fileNameSpan = document.getElementById(fileNameId);
         if (input.value) {
-            const fileName = input.value.split('/').pop(); // 获取文件名
-            fileNameSpan.textContent = fileName; // 组合并显示
+            const fileName = input.value.split('/').pop(); // 获取最后一个'/'后的文件名
+            fileNameSpan.textContent = fileName; // 直接显示完整文件名
         } else {
-            fileNameSpan.textContent = '';
+            fileNameSpan.textContent = '无效文件';
         }
     }
 
@@ -352,9 +352,7 @@
           //获取 URLflag
           var a = $("#urlFlag").val();
           var type = getSelectValue("topType")
-        //if ($.validate.form()) {
             $.operate.saveTab(prefix + "/applyPass", {"id":$("#ktid").val(),"urlFlag":a,"type":type});
-       // }
     }
     function submitHandlerBH() {
         var a = $("#urlFlag").val();

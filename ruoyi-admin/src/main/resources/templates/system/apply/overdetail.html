@@ -61,18 +61,6 @@
                 </div>
             </div>
         </div>
-
-<!--        <div class="col-xs-6">-->
-<!--            <div class="form-group">-->
-<!--                <label class="col-sm-4 control-label is-required">申请日期：</label>-->
-<!--                <div class="col-sm-8">-->
-<!--                    <div class="input-group date">-->
-<!--                        <input  readonly th:field="*{signingData}" th:value="${#dates.format(signingData, 'yyyy-MM-dd')}" class="form-control" placeholder="yyyy-MM-dd" type="text" required>-->
-<!--                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--            </div>-->
-<!--        </div>-->
         <div class="col-xs-6">
             <div class="form-group">
                 <label class="col-sm-4 control-label is-required">结项日期：</label>
@@ -88,8 +76,6 @@
             <div class="form-group">
                 <label class="col-sm-4 control-label is-required">第一负责人：</label>
                 <div class="col-sm-8">
-
-                    <!--                        <input name="firstPersonId" th:field="*{firstPersonId}" class="form-control" type="text" required>-->
                     <select name="firstPersonId" class="form-control m-b" disabled>
                         <option value="">无</option>
                         <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ #strings.toString(user.userId) == sciHorizontalApply.firstPersonId}"></option>
@@ -213,16 +199,10 @@
         const input = document.getElementById(inputId);
         const fileNameSpan = document.getElementById(fileNameId);
         if (input.value) {
-            const fileName = input.value.split('/').pop(); // 获取文件名
-            const parts = fileName.split('_'); // 按下划线分割
-            const firstPart = parts[0]; // 下划线前的部分
-
-            const dotParts = fileName.split('.'); // 按点分割
-            const lastPart = dotParts[dotParts.length - 1]; // 点后的部分
-
-            fileNameSpan.textContent = `${firstPart}`; // 组合并显示
+            const fileName = input.value.split('/').pop(); // 获取最后一个'/'后的文件名
+            fileNameSpan.textContent = fileName; // 直接显示完整文件名
         } else {
-            fileNameSpan.textContent = '';
+            fileNameSpan.textContent = '无效文件';
         }
     }
     function chakan() {

@@ -140,13 +140,13 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">立项合同：</label>
                     <div class="col-sm-8">
-                        <input th:field="*{filing}" hidden id="filing" type="text" >
+                        <input th:field="*{contract}" hidden id="filing" type="text" >
                         <div style="display: inline-block;">
                             <div id="filingFileName" style="display: inline; margin-right: 5px;"></div>
                         </div>
                         <div>
-                            <button onclick="chakan()" class="btn btn-sm btn-primary color">预览</button>
-                            <button onclick="downloadFile('filing')" class="btn btn-sm btn-primary color">下载</button>
+                            <button onclick="chakan('contract')" class="btn btn-sm btn-primary color">预览</button>
+                            <button onclick="downloadFile('contract')" class="btn btn-sm btn-primary color">下载</button>
                         </div>
                     </div>
                 </div>
@@ -155,13 +155,13 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">立项备案表：</label>
                     <div class="col-sm-8">
-                        <input th:field="*{contract}" hidden id="contract" type="text" >
+                        <input th:field="*{filing}" hidden id="contract" type="text" >
                         <div style="display: inline-block;">
                             <div id="contractFileName" style="display: inline; margin-right: 5px;"></div>
                         </div>
                         <div>
-                            <button onclick="beian()"  class="btn btn-sm btn-primary color">预览</button>
-                            <button onclick="downloadFile('contract')" class="btn btn-sm btn-primary color">下载</button>
+                            <button onclick="beian('filing')"  class="btn btn-sm btn-primary color">预览</button>
+                            <button onclick="downloadFile('filing')" class="btn btn-sm btn-primary color">下载</button>
                         </div>
                     </div>
                 </div>
@@ -175,8 +175,8 @@
                             <div id="filingurlFileName" style="display: inline; margin-right: 5px;"></div>
                         </div>
                         <div>
-                            <button onclick="chakan()" class="btn btn-sm btn-primary color">预览</button>
-                            <button onclick="downloadFile('filing')" class="btn btn-sm btn-primary color">下载</button>
+                            <button onclick="chakan('filingurl')" class="btn btn-sm btn-primary color">预览</button>
+                            <button onclick="downloadFile('filingurl')" class="btn btn-sm btn-primary color">下载</button>
                         </div>
                     </div>
                 </div>
@@ -190,8 +190,8 @@
                         <div id="agreeurlFileName" style="display: inline; margin-right: 5px;"></div>
                     </div>
                     <div>
-                        <button onclick="beian()"  class="btn btn-sm btn-primary color">预览</button>
-                        <button onclick="downloadFile('contract')" class="btn btn-sm btn-primary color">下载</button>
+                        <button onclick="beian('agreeurl')"  class="btn btn-sm btn-primary color">预览</button>
+                        <button onclick="downloadFile('agreeurl')" class="btn btn-sm btn-primary color">下载</button>
                     </div>
                 </div>
             </div>
@@ -241,25 +241,19 @@
         const input = document.getElementById(inputId);
         const fileNameSpan = document.getElementById(fileNameId);
         if (input.value) {
-            const fileName = input.value.split('/').pop(); // 获取文件名
-            const parts = fileName.split('_'); // 按下划线分割
-            const firstPart = parts[0]; // 下划线前的部分
-
-            const dotParts = fileName.split('.'); // 按点分割
-            const lastPart = dotParts[dotParts.length - 1]; // 点后的部分
-
-            fileNameSpan.textContent = `${firstPart}.${lastPart}`; // 组合并显示
+            const fileName = input.value.split('/').pop(); // 获取最后一个'/'后的文件名
+            fileNameSpan.textContent = fileName; // 直接显示完整文件名
         } else {
-            fileNameSpan.textContent = '';
+            fileNameSpan.textContent = '无效文件';
         }
     }
-    function chakan(){
-        var c = $("#filing").val();
-        window.open("查看合同" ,c );
+    function chakan(type){
+        var c = $("#"+type).val();
+        window.open(c ,'_blank');
     }
-    function beian(){
-        var c = $("#contract").val();
-        window.open("查看备案表" ,c );
+    function beian(type){
+        var c = $("#"+type).val();
+        window.open(c ,'_blank' );
     }
     function downloadFile(type){
         var c = $("#"+type).val();

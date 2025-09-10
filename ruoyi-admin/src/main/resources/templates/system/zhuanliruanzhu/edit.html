@@ -35,14 +35,6 @@
                         <input name="mingcheng" th:field="*{mingcheng}" class="form-control" type="text" required>
                     </div>
                 </div>
-<!--                <div class="col-sm-6">-->
-<!--                    <label class="col-sm-4 control-label is-required">类型：</label>-->
-<!--                    <div class="col-sm-8">-->
-<!--                        <select name="leixing" class="form-control" th:with="type=${@dict.getType('sys_zhuanli_leibie')}" required>-->
-<!--                            <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}" th:field="*{leixing}"></option>-->
-<!--                        </select>-->
-<!--                    </div>-->
-<!--                </div>-->
                 <div class="col-sm-6">
                     <label class="col-sm-4 control-label is-required">分类：</label>
                     <div class="col-sm-8">
@@ -69,16 +61,6 @@
                         </div>
                     </div>
                 </div>
-
-<!--                <div class="col-sm-6">-->
-<!--                    <label class="col-sm-4 control-label is-required">获批时间：</label>-->
-<!--                    <div class="col-sm-8">-->
-<!--                        <div class="input-group date">-->
-<!--                            <input name="huopishijain" class="form-control" placeholder="yyyy-MM-dd" type="text" required autocomplete="off">-->
-<!--                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>-->
-<!--                        </div>-->
-<!--                    </div>-->
-<!--                </div>-->
             </div>
 
             <div class="form-group row">
@@ -101,14 +83,6 @@
             </div>
 
             <div class="form-group row">
-<!--                <div class="col-sm-6">-->
-<!--                    <label class="col-sm-4 control-label is-required">分类：</label>-->
-<!--                    <div class="col-sm-8">-->
-<!--                        <select name="fenlei" class="form-control" th:with="type=${@dict.getType('sys_zhuanli_fenlei')}" required>-->
-<!--                            <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}" th:field="*{fenlei}"></option>-->
-<!--                        </select>-->
-<!--                    </div>-->
-<!--                </div>-->
                 <div class="col-sm-6">
                     <label class="col-sm-4 control-label is-required">排名：</label>
                     <div class="col-sm-8">
@@ -121,7 +95,7 @@
 
             <div class="form-group row">
                 <div class="col-sm-6">
-                    <label class="col-sm-4 control-label is-required">专利文件：</label>
+                    <label class="col-sm-4 control-label is-required">专利软著文件：</label>
                     <div class="col-sm-8">
                         <input type="hidden" name="wenjian" th:field="*{wenjian}">
                         <div class="file-loading">
@@ -136,6 +110,15 @@
             </div>
 
         </form>
+
+        <h4 class="form-header h4">退回原因</h4>
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <table id="bootstrap-table"></table>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="row">
@@ -149,6 +132,44 @@
     <th:block th:include="include :: bootstrap-fileinput-js"/>
     <script th:inline="javascript">
         var prefix = ctx + "system/zhuanliruanzhu";
+
+        $(document).ready(function() {
+            var kid = $("#id").val();
+            var options = {
+                url: prefix + "/bhyy/" + kid,
+                showSearch: false,
+                showRefresh: false,
+                showToggle: false,
+                showColumns: false,
+                pagination: false,
+                columns: [
+
+                    {
+                        field: 'createTime',
+                        title: '批阅时间',
+                        width: 200
+
+                    },
+                    {
+                        field: 'uname',
+                        title: '批阅人',
+                        width: 100
+                    },
+                    {
+                        field: 'concate',
+                        title: '内容',
+                        width: 500
+                    },
+                    {
+                        field: 'state',
+                        title: '审核状态',
+                        width: 100
+                    }]
+            };
+
+            $.table.init(options);
+        });
+
         $("#form-zhuanliruanzhu-edit").validate({
             focusCleanup: true
         });
@@ -161,21 +182,33 @@
                 if ($("input[name='wenjian']").val() == "")
                     return $.modal.alertError("请上传专利文件");
                 $.operate.saveTab(prefix + "/edit", $('#form-zhuanliruanzhu-edit').serialize());
-                // if ($.validate.form()) {
-                //     $.operate.save(prefix + "/add", $('#form-zhuanliruanzhu-add').serialize());
-                // }
             }
         }
 
 
         $(".file-upload").each(function (i) {
             var val = $("input[name='" + this.id + "']").val()
+            var initialPreview = [];
+            var initialPreviewConfig = [];
+            
+            if (val && val.trim() !== '') {
+                initialPreview = [val];
+                initialPreviewConfig = [{
+                    type: "pdf",
+                    caption: val.split('/').pop(),
+                    url: ctx + "common/delete",
+                    key: val
+                }];
+            }
+            
             $(this).fileinput({
                 'uploadUrl': ctx + 'common/upload/zlrz',
                 initialPreviewAsData: true,
-                initialPreview: [val],
+                initialPreview: initialPreview,
+                initialPreviewConfig: initialPreviewConfig,
                 maxFileCount: 1,
                 autoReplace: true,
+                overwriteInitial: true,
                 allowedFileExtensions: ["pdf"],
                 slugCallback: function(filename) {
                     if ($("input[name='mingcheng']").val()===""){
@@ -186,14 +219,18 @@
                     // 自定义文件名生成规则
                     fileExtension = filename.split('.').pop();
                     const year = new Date().getFullYear();
-                    const newName = year +"-"+ $("input[name='mingcheng']").val() +"-"+ "专利软著"+ "." + fileExtension;
+                    const newName = year +"-"+ $("input[name='mingcheng']").val() +"-"+ "专利软著文件"+ "." + fileExtension;
                     return newName;
                 },
             }).on('fileuploaded', function (event, data, previewId, index) {
-                $("input[name='" + event.currentTarget.id + "']").val(data.response.url)
+                if (data.response && data.response.url) {
+                    $("input[name='" + event.currentTarget.id + "']").val(data.response.url);
+                }
             }).on('fileremoved', function (event, id, index) {
-                $("input[name='" + event.currentTarget.id + "']").val('')
-            })
+                $("input[name='" + event.currentTarget.id + "']").val('');
+            }).on('fileclear', function (event) {
+                $("input[name='" + event.currentTarget.id + "']").val('');
+            });
             $(this).fileinput('_initFileActions');
         });
 

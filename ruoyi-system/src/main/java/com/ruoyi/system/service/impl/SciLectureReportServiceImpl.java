@@ -383,17 +383,6 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService
         // 批阅记录实例
         SciLectureReportOpinion sciLectureReportOpinion = new SciLectureReportOpinion();
         String state;
-//        if (urlFlag.equals("pro") || urlFlag.equals("tuihui")){
-//            state = "3"; // 教研室驳回
-//        }else if (urlFlag.equals("check") || urlFlag.equals("zgqxtuihui")){
-//            state = "5"; // 科研室驳回
-//            int kyf = sciLectureReportMapper.reportKeyanfen(id,"0");
-//        }else if(urlFlag.equals("xypro") || urlFlag.equals("xytuihui")){
-//            state = "7"; // 学院驳回
-//        }
-//        else {
-//            return 0;
-//        }
         // 根据不同的操作设计讲座报告数据表中数据的状态，并将驳回原因插入讲座报告批阅记录表中，其中3为教研室驳回，5为科研室驳回，7为学院驳回
         switch (urlFlag) {
             case "pro": // 教研室驳回操作
@@ -402,7 +391,7 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService
                 break;
             case "tuihui": // 教研室撤回操作
                 sciLectureReportOpinion.setState("撤回");
-                state = "3";
+                state = "1";
                 break;
             case "check": // 科研室驳回操作
                 sciLectureReportOpinion.setState("驳回");
@@ -411,7 +400,7 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService
                 break;
             case "zgqxtuihui": // 科研室撤回操作
                 sciLectureReportOpinion.setState("撤回");
-                state = "5";
+                state = "2";
                 sciLectureReportMapper.reportKeyanfen(id, "0");
                 break;
             case "xypro": // 学院驳回操作
@@ -420,7 +409,7 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService
                 break;
             case "xytuihui": // 学院撤回操作
                 sciLectureReportOpinion.setState("撤回");
-                state = "7";
+                state = "6";
                 break;
             default:
                 return 0;

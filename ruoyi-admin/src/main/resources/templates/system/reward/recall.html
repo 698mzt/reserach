@@ -138,10 +138,6 @@
                 <label class="col-sm-4 control-label is-required">等级：</label>
                 <div class="col-sm-8">
                     <select id="rewarDengji"  th:field="*{rewardDengji}" class="form-control" type="text" th:with="type=${@dict.getType('sys_reward_dengji')}" required disabled>
-<!--                        <option value="一等奖">一等奖</option>-->
-<!--                        <option value="二等奖">二等奖</option>-->
-<!--                        <option value="三等奖">三等奖</option>-->
-<!--                        <option value="四等奖">四等奖</option>-->
                         <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
                     </select>
                 </div>
@@ -222,15 +218,6 @@
                         title : '审核状态',
                         width: 100
                     }
-                    //
-                    // {
-                    //     field: 'status',
-                    //     title: '批阅状态',
-                    //     align: 'center',
-                    //     formatter: function(value, row, index) {
-                    //         return $.table.selectDictLabel(datas, value);
-                    //     }
-                    // }
                 ]
             };
             $.table.init(options);
@@ -239,21 +226,12 @@
 
                     var a =$("#state").val();
                     console.log('Value of a:', a);
-                    // if ($("#urlFlag").val() == 'chakan'){
-                    //     $("#btn3").show();
-                    //     // $(".tdiv2").show()
-                    // }else {
-                    //     if(a == 2 ||a == 1 || a == 4){
-                    //
                     $(".tdiv2").show();
 
                     $(".tdiv1").show();
                     $("#btn1").show();
                     $("#btn2").show();
                     $("#btn3").show();
-                    // }
-
-                    // }
                 }
             );
         });
@@ -295,9 +273,19 @@
             })
             $(this).fileinput('_initFileActions');
         });
+
+        function displayFileName(inputId, fileNameId) {
+            const input = document.getElementById(inputId);
+            const fileNameSpan = document.getElementById(fileNameId);
+            if (input.value) {
+                const fileName = input.value.split('/').pop(); // 获取最后一个'/'后的文件名
+                fileNameSpan.textContent = fileName; // 直接显示完整文件名
+            } else {
+                fileNameSpan.textContent = '无效文件';
+            }
+        }
         // 页面加载时显示文件名
         window.onload = function() {
-            // displayFileName('contract', 'contractFileName');
             displayFileName('rewardWenjian', 'rewardWenjianFileName');
         };
     </script>
