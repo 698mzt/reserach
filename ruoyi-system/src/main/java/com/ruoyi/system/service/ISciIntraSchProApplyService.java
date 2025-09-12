@@ -34,7 +34,7 @@ public interface ISciIntraSchProApplyService {
 
     int updateIntraSchoolApply(SciIntraSchoolPro sciIntraSchoolPro);
 
-    int overApply(String id, String state);
+    int overApply(String id, String state,Long userId);
 
     int update_IntraSchPro_OverApply(SciIntraSchoolPro sciIntraSchoolPro);
 

@@ -31,7 +31,7 @@ public class SciIntraSchProScoreServiceImpl implements SciIntraSchProScoreServic
     } catch (NumberFormatException e) {
       System.out.println("set_SchPro_score:无法转换为整数：" + amount);
     }
-    //查询积分配置表拿到积分配置
+    //查询积分配置表拿到这个金额的积分配置（开题，结题）
     List<SciProjectScoreCfg> List = sciIntraSchProScoreMapper.getUserScoreList(amountt);
     System.out.println("List = " + List);
 
@@ -106,6 +106,13 @@ public class SciIntraSchProScoreServiceImpl implements SciIntraSchProScoreServic
   }
 
 
+  /**
+   *
+   * @param sciIntraSchResponTierId 责任层级
+   * @param List  积分列表
+   * @param key  开题还是结题 0 开题 1 结题
+   * @return
+   */
   private int getScore(int sciIntraSchResponTierId, List<SciProjectScoreCfg> List, int key) {
     int return_score = 0;
     if (key == 0) {

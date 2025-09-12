@@ -9,6 +9,17 @@
   <th:block th:include="include :: header('成果转化列表')"/>
 </head>
 <style>
+  .track-rcol {
+    width: 100%;
+    max-width: 500px;
+    margin: 20px auto;
+    /*width: 450px;*/
+    /*!*border: 1px solid #eee;*!*/
+    /*margin: 20px auto;*/
+    /*background: transparent;*/
+    max-height: 400px;
+    overflow-y: auto;
+  }
   .btn-group-sm > .btn, .btn-sm {
     padding: 9px 10px;
     font-size: 12px;
@@ -1481,7 +1492,7 @@
           const li = document.createElement('li');
           li.innerHTML = '<i class="node-icon"></i>' +
             '<span class="time">' + row.createTime + '</span>' +
-            '<span class="txt">' + row.concate + '</span>';
+            '<span class="txt">' + row.state + '</span>';
           eventList.insertBefore(li, eventList.firstChild);
         });
       },
@@ -1506,7 +1517,7 @@
     progressBar.style.width = '0';
 
     // 根据 state 设置相应的步骤颜色
-    if ([15,16,4].includes(state)) {
+    if ([15,9,4].includes(state)) {
       document.getElementById('step-1').classList.add('active');
       document.getElementById('step-1').querySelector('.status-text').classList.add('active');
       progressBar.style.width = '0';

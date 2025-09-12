@@ -116,12 +116,13 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
             sciIntraSchProPiyue.setConcate("学院：开题同意");
             sciIntraSchProPiyue.setState("学院：开题同意");
         }
+        // 状态修改
         int a =  sciIntraSchProApplyMapper.sch_hxPass(id,state);
-
+        // 补全批阅记录
         sciIntraSchProPiyue.setUid(uid);
         sciIntraSchProPiyue.setSchxktId(Integer.valueOf(id));
 
-
+        // 插入批阅记录
         sciIntraSchProPiyueMapper.insertIntraSchProPiyue(sciIntraSchProPiyue);
         return a;
     }
@@ -250,7 +251,7 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
 
         }else if(urlFlag.equals("dept_teacher")){
             sciIntraSchProPiyue.setState("开题：学院驳回（撤回）");
-            sciIntraSchProPiyue.setConcate("开题：科研驳回（撤回）");
+            sciIntraSchProPiyue.setConcate("开题：学院驳回（撤回）");
             state ="12";
 
         }
@@ -315,8 +316,14 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
     }
 
     @Override
-    public int overApply(String id, String state) {
-        return sciIntraSchProApplyMapper.overApply(id,state);
+    public int overApply(String id, String state, Long userId) {
+      SciIntraSchProPiyue sciIntraSchProPiyue = new SciIntraSchProPiyue();
+      sciIntraSchProPiyue.setState("申请结项");
+      sciIntraSchProPiyue.setConcate("申请结项");
+      sciIntraSchProPiyue.setId(Integer.valueOf(id));
+      sciIntraSchProPiyue.setUid(userId);
+      sciIntraSchProPiyueMapper.insertIntraSchProPiyue(sciIntraSchProPiyue);
+      return sciIntraSchProApplyMapper.overApply(id,state);
     }
 
     @Override
@@ -397,7 +404,13 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
         SciIntraSchProPiyue sciIntraSchProPiyue = new SciIntraSchProPiyue();
         sciIntraSchProPiyue.setUid(userid);
         sciIntraSchProPiyue.setSchxktId(Integer.valueOf(id));
-        sciIntraSchProPiyue.setState("草稿提交到教研室");
+        if(state.equals("1")){
+          sciIntraSchProPiyue.setState("开题：提交草稿");
+          sciIntraSchProPiyue.setConcate("开题：提交草稿");
+        }else if(state.equals("7")){
+          sciIntraSchProPiyue.setState("结题：提交草稿");
+          sciIntraSchProPiyue.setConcate("结题：提交草稿");
+        }
         sciIntraSchProPiyueMapper.insertIntraSchProPiyue(sciIntraSchProPiyue);
         return 1;
     }

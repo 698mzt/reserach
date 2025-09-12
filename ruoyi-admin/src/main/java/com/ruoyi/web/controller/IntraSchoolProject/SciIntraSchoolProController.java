@@ -262,10 +262,10 @@ public class SciIntraSchoolProController extends BaseController {
   }
 
   /**
-   * 新增保存横向课题
+   * 新增保存成果转化
    */
 
-  @Log(title = "申请校内横向课题", businessType = BusinessType.INSERT)
+  @Log(title = "申请成果转化", businessType = BusinessType.INSERT)
   @PostMapping("/add")
   @ResponseBody
   public AjaxResult addSave(SciIntraSchoolPro sciIntraSchoolPro) throws IOException {
@@ -274,7 +274,7 @@ public class SciIntraSchoolProController extends BaseController {
 
     //数据库里面这个的默认值是15 草稿
     //System.out.println("addSave:"+sciIntraSchoolPro.getState());
-    //插入这个课题，并插入
+    //插入这个课题
     sciIntraSchoolPro.setUid(getUserId());
     int id = sciIntraSchProApplyService.insert_SchPro_Apply(sciIntraSchoolPro);
 
@@ -387,7 +387,7 @@ public class SciIntraSchoolProController extends BaseController {
 
   /**
    * 更改自己的草稿状态，提交到教研室，加入操作记录
-   *
+   *只用在view页面点击确认就可以直接提交草稿  view.html
    * @param id
    * @return
    */
@@ -434,12 +434,13 @@ public class SciIntraSchoolProController extends BaseController {
   @PostMapping("/sch_hxPass")
   @ResponseBody
   public AjaxResult hxPass(String id, String urlFlag) {
-    //如果时科研室通过，就设置积分
+    //如果是科研室通过，就设置积分
     if (urlFlag.equals("hecha")) {
       SciIntraSchoolPro sciIntraSchoolPro1 = sciIntraSchProApplyService.sel_IntraSchPro_by_id(Integer.valueOf(id));
-      //0 是开题
+      //key=0 代表开题
       sciIntraSchProScoreService.set_SchPro_score(sciIntraSchoolPro1, 0);
     }
+    // 通过，修改状态
     return toAjax(sciIntraSchProApplyService.sch_hxPass(id, getUserId(), urlFlag));
   }
 
@@ -539,7 +540,7 @@ public class SciIntraSchoolProController extends BaseController {
   }
 
   /**
-   * 结项校内横向课题
+   * 结项成果转化
    */
   @GetMapping("/overadd")
   public String overadd(Integer id, ModelMap mmap) {
@@ -550,15 +551,17 @@ public class SciIntraSchoolProController extends BaseController {
     return prefix + "/overadd";
   }
 
+  // 第一次申请结项的时候调用（要上传文件）  overadd.html
   @PostMapping("/sch_overadd")
   @ResponseBody
   public AjaxResult sch_overaddSave(SciIntraSchoolPro sciIntraSchoolPro) {
     //前端页面写死的7
     String state = sciIntraSchoolPro.getState();
-    System.out.println("state = " + state);
+    //System.out.println("state = " + state);
     String id = String.valueOf(sciIntraSchoolPro.getId());
-    //todo:这里可以优化，把overApply合并到update_IntraSchPro_OverApply
-    sciIntraSchProApplyService.overApply(id, state);
+    // 修改课题状态，插入流程记录
+    sciIntraSchProApplyService.overApply(id, state,getUserId());
+    //增加结题文件等新的字段
     return toAjax(sciIntraSchProApplyService.update_IntraSchPro_OverApply(sciIntraSchoolPro));
   }
 
