@@ -81,7 +81,6 @@
     <select id="selectSciPaperAList" parameterType="SciPaperA" resultMap="SciPaperAResult">
         <include refid="selectSciPaperAVo"/>
         <where>
-            p.state in (1,2,8)
             ${params.dataScope}
             <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
             <if test="teacherName != null  and teacherName != ''"> and teacher_name like concat('%', #{teacherName}, '%')</if>
@@ -99,14 +98,13 @@
             <if test="remarks != null  and remarks != ''"> and remarks = #{remarks}</if>
             <if test="year != null  and year != ''"> and YEAR(publication_time) = #{year}</if>
         </where>
-        order  by publication_time desc
+      order  by p.state
     </select>
-
+<!--待科研处审核，完成-->
     <select id="selectSciPaperAListKY" parameterType="SciPaperA" resultMap="SciPaperAResult">
         <include refid="selectSciPaperAVo"/>
         <where>
-            p.state in (4,8)
-            ${params.dataScope}
+            p.state in (4,8)  or( p.user_id = #{uid})
             <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
             <if test="teacherName != null  and teacherName != ''"> and teacher_name like concat('%', #{teacherName}, '%')</if>
             <if test="paperTitle != null  and paperTitle != ''"> and paper_title = #{paperTitle}</if>
@@ -124,13 +122,13 @@
             <if test="year != null  and year != ''"> and YEAR(publication_time) = #{year}</if>
 
         </where>
-        order  by publication_time desc
+        order  by p.state
     </select>
-
+  <!--待学院审核，完成-->
     <select id="selectSciPaperAListXY" parameterType="SciPaperA" resultMap="SciPaperAResult">
         <include refid="selectSciPaperAVo"/>
         <where>
-            p.state in (2,4,8)
+            p.state in (2,4,8) or( p.user_id = #{uid})
             ${params.dataScope}
             <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
             <if test="teacherName != null  and teacherName != ''"> and teacher_name like concat('%', #{teacherName}, '%')</if>
@@ -150,18 +148,21 @@
             <if test="remarks != null  and remarks != ''"> and remarks = #{remarks}</if>
             <if test="year != null  and year != ''"> and YEAR(publication_time) = #{year}</if>
         </where>
-        order  by publication_time desc
+      order  by p.state
     </select>
 
     <select id="selectSciPaperAListCxList" parameterType="SciPaperA" resultMap="SciPaperAResult">
-        select  #{uid} uid,p.id,
+        select  #{uid} uid,p.id,ptt.dept_name as college,
         p.text_paper,p.word_paper,p.search_web,p.user_id,
         p.teacher_name,
         p.paper_title, p.paper_category, p.published_journal,p.publication_time, p.is_industry_collaborative,
         p.is_local_collaborative, p.is_international_collaborative, p.is_cross_discipline, p.paper_ranking, p.research_score, p.remarks,p.state
         from sci_paper_a p
+        left join sys_user u on u.user_id = p.user_id
+        left join sys_dept pt on u.dept_id = pt.dept_id
+        left join sys_dept ptt on pt.parent_id = ptt.dept_id
         <where>
-           p.state in (1,2,8) or(p.state in (3,5,7,99) and p.user_id = #{uid})
+           p.state in (1,2,8) or( p.user_id = #{uid})
             /*${params.dataScope}*/
 <!--            <if test="userId != null  and userId != ''"> and p.user_id = #{userId}</if>-->
             <if test="teacherName != null  and teacherName != ''"> and teacher_name like concat('%', #{teacherName}, '%')</if>
@@ -181,8 +182,8 @@
             <if test="remarks != null  and remarks != ''"> and remarks = #{remarks}</if>
             <if test="year != null  and year != ''"> and YEAR(publication_time) = #{year}</if>
         </where>
-        order  by publication_time desc
-    </select>
+      order  by p.state
+</select>
 
     <select id="selectSciPaperArole" parameterType="SciPaperA" resultMap="SciPaperAResult">
         select r.role_id role_id,r.role_name role_name,r.role_key role_key,s.user_name from sys_user s
@@ -192,17 +193,37 @@
     </select>
 
     <select id="selectSciPaperAListCx" parameterType="SciPaperA" resultMap="SciPaperAResult">
-        select  #{uid} uid,p.id,p.user_id,  u.login_name employee_id, p.teacher_name,p.text_paper,pt.dept_name college,
-               d.dept_name dname,p.paper_title, p.paper_category, p.published_journal,p.publication_time,p.word_paper,p.search_web, p.is_industry_collaborative,
-               p.is_local_collaborative, p.is_international_collaborative, p.is_cross_discipline, p.paper_ranking, p.research_score, p.remarks,p.state
-        from sci_paper_a p
-                 left join sys_user u on  p.user_id=u.user_id
-                 left join sys_dept d on u.dept_id = d.dept_id
-                 left join sys_dept pt on d.parent_id =pt.dept_id
-                 left join sys_user_role ur on u.user_id = ur.user_id
-                 left join sys_role r on r.role_id = ur.role_id
-         where p.user_id = #{uid}
-        order  by publication_time desc
+      select  #{uid} uid,p.id,ptt.dept_name as college,
+      p.text_paper,p.word_paper,p.search_web,p.user_id,
+      p.teacher_name,
+      p.paper_title, p.paper_category, p.published_journal,p.publication_time, p.is_industry_collaborative,
+      p.is_local_collaborative, p.is_international_collaborative, p.is_cross_discipline, p.paper_ranking, p.research_score, p.remarks,p.state
+      from sci_paper_a p
+      left join sys_user u on u.user_id = p.user_id
+      left join sys_dept pt on u.dept_id = pt.dept_id
+      left join sys_dept ptt on pt.parent_id = ptt.dept_id
+      <where>
+         p.user_id = #{uid}
+        /*${params.dataScope}*/
+        <!--            <if test="userId != null  and userId != ''"> and p.user_id = #{userId}</if>-->
+        <if test="teacherName != null  and teacherName != ''"> and teacher_name like concat('%', #{teacherName}, '%')</if>
+        <if test="college != null  and college != ''"> and pt.dept_name like concat('%', #{college}, '%')</if>
+        <if test="roleName != null  and roleName != ''"> and d.dept_name like concat('%', #{roleName}, '%')</if>
+        <if test="paperTitle != null  and paperTitle != ''"> and paper_title = #{paperTitle}</if>
+        <if test="paperCategory != null  and paperCategory != ''"> and paper_category = #{paperCategory}</if>
+        <if test="publishedJournal != null  and publishedJournal != ''"> and published_journal = #{publishedJournal}</if>
+        <if test="inclusionStatus != null  and inclusionStatus != ''"> and inclusion_status = #{inclusionStatus}</if>
+        <if test="publicationTime != null "> and publication_time = #{publicationTime}</if>
+        <if test="isIndustryCollaborative != null  and isIndustryCollaborative != ''"> and is_industry_collaborative = #{isIndustryCollaborative}</if>
+        <if test="isLocalCollaborative != null  and isLocalCollaborative != ''"> and is_local_collaborative = #{isLocalCollaborative}</if>
+        <if test="isInternationalCollaborative != null  and isInternationalCollaborative != ''"> and is_international_collaborative = #{isInternationalCollaborative}</if>
+        <if test="isCrossDiscipline != null  and isCrossDiscipline != ''"> and is_cross_discipline = #{isCrossDiscipline}</if>
+        <if test="paperRanking != null  and paperRanking != ''"> and paper_ranking = #{paperRanking}</if>
+        <if test="researchScore != null  and researchScore != ''"> and research_score = #{researchScore}</if>
+        <if test="remarks != null  and remarks != ''"> and remarks = #{remarks}</if>
+        <if test="year != null  and year != ''"> and YEAR(publication_time) = #{year}</if>
+      </where>
+      order  by p.state
     </select>
 
     <select id="selectSciPaperAByroleId" >
