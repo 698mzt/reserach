@@ -506,7 +506,7 @@
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
         LEFT JOIN sci_IntraSchPro_score sc ON sc.sciIntraSch_Id = s.id
-        where s.state in (8,10,7,9,13,14,6)
+        where s.state in (8,10,7,9,13,14,6,16)
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
 
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>

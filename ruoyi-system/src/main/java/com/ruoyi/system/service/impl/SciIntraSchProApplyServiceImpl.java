@@ -76,7 +76,13 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
 
     @Override
     public int insert_SchPro_Apply(SciIntraSchoolPro sciIntraSchoolPro) {
-        return sciIntraSchProApplyMapper.insert_SchPro_Apply(sciIntraSchoolPro);
+        sciIntraSchProApplyMapper.insert_SchPro_Apply(sciIntraSchoolPro);
+        SciIntraSchProPiyue sciIntraSchProPiyue = new SciIntraSchProPiyue();
+        sciIntraSchProPiyue.setConcate("新建草稿");
+        sciIntraSchProPiyue.setUid(sciIntraSchoolPro.getUid());
+        sciIntraSchProPiyue.setSchxktId(sciIntraSchoolPro.getId());
+        sciIntraSchProPiyue.setState("新建草稿");
+        return sciIntraSchProPiyueMapper.insertIntraSchProPiyue(sciIntraSchProPiyue);
     }
 
     @Override
@@ -100,19 +106,22 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
         if(urlFlag.equals("hecha")){
             state ="4";
             sciIntraSchProPiyue.setConcate("科研：开题同意");
+            sciIntraSchProPiyue.setState("科研：开题同意");
         }else if(urlFlag.equals("pro")){
             state ="11";
             sciIntraSchProPiyue.setConcate("教研：开题同意");
+            sciIntraSchProPiyue.setState("教研：开题同意");
         }else if(urlFlag.equals("dept_teacher")){
             state ="2";
             sciIntraSchProPiyue.setConcate("学院：开题同意");
+            sciIntraSchProPiyue.setState("学院：开题同意");
         }
         int a =  sciIntraSchProApplyMapper.sch_hxPass(id,state);
 
         sciIntraSchProPiyue.setUid(uid);
         sciIntraSchProPiyue.setSchxktId(Integer.valueOf(id));
 
-        sciIntraSchProPiyue.setState("通过");
+
         sciIntraSchProPiyueMapper.insertIntraSchProPiyue(sciIntraSchProPiyue);
         return a;
     }
@@ -132,12 +141,17 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
         if(urlFlag.equals("JYSOVER")){
             state ="13";
             sciIntraSchProPiyue.setConcate("教研：结题同意");
+          sciIntraSchProPiyue.setState("教研：结题同意");
         }else if(urlFlag.equals("KYCOVER")){
             state ="6";
             sciIntraSchProPiyue.setConcate("科研：结题同意");
+          sciIntraSchProPiyue.setState("科研：结题同意");
+
         }else if(urlFlag.equals("dept_teacher")){
             state ="8";
             sciIntraSchProPiyue.setConcate("学院：结题同意");
+          sciIntraSchProPiyue.setState("学院：结题同意");
+
         }
         //int b =  sciIntraSchProApplyMapper.sch_hxover(id,state);
         int a =  sciIntraSchProApplyMapper.sch_hxPass(id,state);
@@ -146,7 +160,7 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
         sciIntraSchProPiyue.setUid(userId);
         sciIntraSchProPiyue.setSchxktId(Integer.valueOf(id));
 
-        sciIntraSchProPiyue.setState("通过");
+
         sciIntraSchProPiyueMapper.insertIntraSchProPiyue(sciIntraSchProPiyue);
         return a;
     }
@@ -164,10 +178,13 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
         SciIntraSchProPiyue sciIntraSchProPiyue = new SciIntraSchProPiyue();
         //科研
         if(urlFlag.equals("hecha")){
+          sciIntraSchProPiyue.setState("科研：开题驳回");
             state ="5";
         }else if(urlFlag.equals("pro")){
+          sciIntraSchProPiyue.setState("教研：开题驳回");
             state ="3";
         }else if (urlFlag.equals("dept_teacher")){
+          sciIntraSchProPiyue.setState("学院：开题驳回");
             state ="12";
         }
         int a = sciIntraSchProApplyMapper.sch_hxPass(id,state);
@@ -175,7 +192,7 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
         sciIntraSchProPiyue.setUid(uid);
         sciIntraSchProPiyue.setSchxktId(Integer.valueOf(id));
         sciIntraSchProPiyue.setConcate(remark);
-        sciIntraSchProPiyue.setState("驳回");
+
         sciIntraSchProPiyueMapper.insertIntraSchProPiyue(sciIntraSchProPiyue);
         return a;
     }
@@ -192,10 +209,13 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
         String state = "0";
         SciIntraSchProPiyue sciIntraSchProPiyue = new SciIntraSchProPiyue();
         if(urlFlag.equals("JYSOVER")){
+          sciIntraSchProPiyue.setState("结题：教研驳回");
             state ="9";
         }else if(urlFlag.equals("KYCOVER")){
+          sciIntraSchProPiyue.setState("结题：科研驳回");
             state ="10";
         }else if(urlFlag.equals("dept_teacher")){
+          sciIntraSchProPiyue.setState("结题：学院驳回");
             state ="14";
         }
         int a =  sciIntraSchProApplyMapper.sch_hxPass(id,state);
@@ -203,7 +223,6 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
         sciIntraSchProPiyue.setUid(userId);
         sciIntraSchProPiyue.setSchxktId(Integer.valueOf(id));
         sciIntraSchProPiyue.setConcate(remark);
-        sciIntraSchProPiyue.setState("驳回");
         sciIntraSchProPiyueMapper.insertIntraSchProPiyue(sciIntraSchProPiyue);
         return a;
     }
@@ -221,14 +240,17 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
         SciIntraSchProPiyue sciIntraSchProPiyue = new SciIntraSchProPiyue();
         if(urlFlag.equals("pro")){
             sciIntraSchProPiyue.setState("开题：教研驳回（撤回）");
+            sciIntraSchProPiyue.setConcate("开题：教研驳回（撤回）");
             state ="3";
 
         }else if(urlFlag.equals("hecha")){
             sciIntraSchProPiyue.setState("开题：科研驳回（撤回）");
+            sciIntraSchProPiyue.setConcate("开题：科研驳回（撤回）");
             state ="5";
 
         }else if(urlFlag.equals("dept_teacher")){
             sciIntraSchProPiyue.setState("开题：学院驳回（撤回）");
+            sciIntraSchProPiyue.setConcate("开题：科研驳回（撤回）");
             state ="12";
 
         }
@@ -368,9 +390,9 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public int subDraft(String id, Long userid) {
+    public int subDraft(String id, Long userid,String state) {
         //1.更改草稿状态
-        sciIntraSchProApplyMapper.sch_hxPass(id,"1");
+        sciIntraSchProApplyMapper.sch_hxPass(id,state);
         //2.插入操作记录
         SciIntraSchProPiyue sciIntraSchProPiyue = new SciIntraSchProPiyue();
         sciIntraSchProPiyue.setUid(userid);
@@ -381,3 +403,5 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
     }
 
 }
+
+

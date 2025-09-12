@@ -325,6 +325,8 @@
             var role_str = $("#role").val();
             var deptNamekey = $("#deptNamekey").val();
             console.log("deptNamekey=", deptNamekey)
+            console.log("a=", a)
+            console.log("role_str=", role_str)
             //如果是科研
             if (role_str == "sci_tesearch") {
                 //批阅记录
@@ -367,8 +369,10 @@
                     }
                 }
 
-            } else if (role_str == "teacher") {
+            }
+            else if (role_str == "teacher") {
                 //批阅记录
+                $("#btn3").show();
                 if (name.rows.length > 0) {
                     $(".tdiv2").show();
                 }
@@ -383,7 +387,8 @@
                 //     $("#btn4").show();
                 //     $("#btn3").show();
                 // }
-            } else if (role_str == "dept_teacher") {
+            }
+            else if (role_str == "dept_teacher") {
                 if (name.rows.length > 0) {
                     $(".tdiv2").show();
                 }

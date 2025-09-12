@@ -154,8 +154,11 @@ public class SciPaperAController extends BaseController {
       System.out.println("list = " + list);
     } else if (roleId.contains("100") && roleId.size() == 1) {
       System.out.println("单个老师进入方法");
-      System.out.println(" sciPaperA=" + sciPaperA);
+      //System.out.println(" sciPaperA=" + sciPaperAService.selectSciPaperAListCx(sciPaperA));
       list.addAll(sciPaperAService.selectSciPaperAListCx(sciPaperA));
+    } else if (userId==1L) {
+      //admin进入
+      list.addAll(sciPaperAService.selectSciPaperAList(sciPaperA));
     }
 
 
@@ -309,9 +312,9 @@ public class SciPaperAController extends BaseController {
   @RequiresPermissions("system:apply:edit")
   @PostMapping("/bhxs/{kid}")//驳回显示
   @ResponseBody
-  public TableDataInfo bhxs(@PathVariable("kid") Integer arid) {
+  public TableDataInfo bhxs(@PathVariable("kid") String arid) {
     SciPaperAr sciPaperAr = new SciPaperAr();
-    sciPaperAr.setAr_id(arid);
+    sciPaperAr.setAr_id(Integer.valueOf(arid));
     List<SciPaperAr> list = sciPaperAService.selectSciPaperArList(sciPaperAr);
     System.out.println("list = " + list);
     return getDataTable(list);
