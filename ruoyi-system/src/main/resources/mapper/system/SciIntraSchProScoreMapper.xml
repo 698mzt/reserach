@@ -90,13 +90,12 @@
     </update>
   <select id="getScoreByUId" resultType="java.lang.Long">
     select
-      sum(earnedALL_Points)
+      COALESCE(sum(earnedALL_Points), 0)
     from
       sci_IntraSchPro_score sisps
     where
       userid = #{uid}
       and earnedALL_Points != 0
-
   </select>
 
 </mapper>
