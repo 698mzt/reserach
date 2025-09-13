@@ -106,8 +106,11 @@ public class AlltotleScoreServiceImpl implements IAlltotleScoreService
     for (AlltotleScore alltotleScore : alltotleScores) {
       Long userid = alltotleScore.getUserId() ;
       Long scoreByUId = sciIntraSchProScoreMapper.getScoreByUId(userid);
+      if (scoreByUId == 0){
+        continue;
+      }
       alltotleScore.setCgzh(scoreByUId.toString());
-      alltotleScoreService.insertAlltotleScore(alltotleScore);
+      alltotleScoreService.updateAlltotleScore(alltotleScore);
       row += 1;
     }
     if (row == size){
