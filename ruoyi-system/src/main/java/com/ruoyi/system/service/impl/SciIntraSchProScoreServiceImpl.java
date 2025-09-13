@@ -1,17 +1,13 @@
 package com.ruoyi.system.service.impl;
 
-import com.ruoyi.system.domain.AlltotleScore;
 import com.ruoyi.system.domain.SciIntraSchoolPro;
 import com.ruoyi.system.domain.SciIntraSchoolScore;
 import com.ruoyi.system.domain.SciProjectScoreCfg;
 import com.ruoyi.system.mapper.SciIntraSchProScoreMapper;
-import com.ruoyi.system.mapper.SciProjectScoreCfgMapper;
-import com.ruoyi.system.service.IAlltotleScoreService;
 import com.ruoyi.system.service.SciIntraSchProScoreService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -61,7 +57,7 @@ public class SciIntraSchProScoreServiceImpl implements SciIntraSchProScoreServic
   }
 
   /**
-   * 撤回时积分
+   * 开题撤回时积分
    *
    * @param sciIntraSchoolPro1
    * @return
@@ -78,6 +74,27 @@ public class SciIntraSchProScoreServiceImpl implements SciIntraSchProScoreServic
         System.out.println("update_SchPro_score:无法转换为整数：" + userid);
       }
       re = sciIntraSchProScoreMapper.update_SchPro_score(sciIntraSchoolPro1.getId(), useridd);
+    }
+    return re;
+  }
+  /**
+   * 结题撤回时积分
+   *
+   * @param sciIntraSchoolPro1
+   * @return
+   */
+  @Override
+  public Integer update_SchPro_score_jt(SciIntraSchoolPro sciIntraSchoolPro1) {
+    int re = 0;
+    for (int i = 1; i <= 4; i++) {
+      String userid = i == 1 ? sciIntraSchoolPro1.getFirstPersonId() : i == 2 ? sciIntraSchoolPro1.getSecondPersonId() : i == 3 ? sciIntraSchoolPro1.getThirdPersonId() : sciIntraSchoolPro1.getFourthPersonId();
+      int useridd = 0;
+      try {
+        useridd = Integer.parseInt(userid);
+      } catch (NumberFormatException e) {
+        System.out.println("update_SchPro_score:无法转换为整数：" + userid);
+      }
+      re = sciIntraSchProScoreMapper.update_SchPro_score_jt(sciIntraSchoolPro1.getId(), useridd);
     }
     return re;
   }

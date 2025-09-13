@@ -14,4 +14,5 @@ public interface SciIntraSchProScoreService {
 
     int set_SchPro_score_noScore(SciIntraSchoolPro sciIntraSchoolPro);
 
+    Integer update_SchPro_score_jt(SciIntraSchoolPro sciIntraSchoolPro1);
 }

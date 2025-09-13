@@ -225,7 +225,16 @@ public class SciPaperAController extends BaseController {
         String user_name = userService.selectUserByLoginName(getLoginName()).getUserName();
         sciPaperA.setTeacherName(user_name);
         sciPaperA.setState("99");
-        return toAjax(sciPaperAService.insertSciPaperA(sciPaperA));
+        sciPaperAService.insertSciPaperA(sciPaperA);
+
+        SciPaperAr sciPaperAr = new SciPaperAr();
+        sciPaperAr.setUid(getUserId());
+        sciPaperAr.setAr_id(Math.toIntExact(sciPaperA.getId()));
+        sciPaperAr.setConcate("提交草稿");
+        sciPaperAr.setState("提交草稿");
+
+        //增加批阅记录
+        return toAjax(sciPaperAMapper.insertSciPaperAr(sciPaperAr));
       }
 
     } catch (Exception e) {
@@ -269,7 +278,7 @@ public class SciPaperAController extends BaseController {
   @PostMapping("/edit")
   @ResponseBody
   public AjaxResult editSave(SciPaperA sciPaperA) {
-    sciPaperA.setState("1");
+    //sciPaperA.setState("1");
     return toAjax(sciPaperAService.updateSciPaperA(sciPaperA));
   }
 
@@ -329,8 +338,8 @@ public class SciPaperAController extends BaseController {
     SciPaperAr sciPaperAr = new SciPaperAr();
     sciPaperAr.setAr_id(id);
     sciPaperAr.setUid(getUserId());
-    sciPaperAr.setConcate("提交");
-    sciPaperAr.setState("提交");
+    sciPaperAr.setConcate("草稿提交");
+    sciPaperAr.setState("草稿提交");
     sciPaperAMapper.insertSciPaperAr(sciPaperAr);
     return toAjax(sciPaperAService.updateSciPaperAState(id));
   }

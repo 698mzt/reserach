@@ -28,4 +28,6 @@ public interface SciIntraSchProScoreMapper {
      * @return
      */
     Long getScoreByUId( @Param("uid")Long uid);
+
+  int update_SchPro_score_jt(@Param("sciIntraSch_Id")Integer sciIntraSch_Id, @Param("userid") int userid);
 }

@@ -18,7 +18,6 @@ import com.ruoyi.system.service.ISciJiaocairuanzhuService;
 import com.ruoyi.common.core.text.Convert;
 
 
-
 /**
  * 教材软著Service业务层处理
  *
@@ -26,59 +25,55 @@ import com.ruoyi.common.core.text.Convert;
  * @date 2024-11-21
  */
 @Service
-public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService
-{
-    @Autowired
-    private SciJiaocairuanzhuMapper sciJiaocairuanzhuMapper;
+public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
+  @Autowired
+  private SciJiaocairuanzhuMapper sciJiaocairuanzhuMapper;
 
-    @Autowired
-    private SciJiaocairuanzhuPiyueMapper sciJiaocairuanzhuPiyueMapper;
+  @Autowired
+  private SciJiaocairuanzhuPiyueMapper sciJiaocairuanzhuPiyueMapper;
 
 
-    @Autowired
-    private SciJiaocairuanzhuScoreCfgMapper sciJiaocairuanzhuScoreCfgMapper;
+  @Autowired
+  private SciJiaocairuanzhuScoreCfgMapper sciJiaocairuanzhuScoreCfgMapper;
 
 
 //    @Autowired
 //    private SciJiaocairuanzhuMapper sciJiaocairuanzhuMapper;
 
-    @Autowired
-    private ISysUserService userService;
+  @Autowired
+  private ISysUserService userService;
 
 
-    /**
-     * 查询教材软著
-     *
-     * @param id 教材软著主键
-     * @return 教材软著
-     */
-    @Override
-    public SciJiaocairuanzhu selectSciJiaocairuanzhuById(Integer id)
-    {
-        return sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuById(id);
-    }
+  /**
+   * 查询教材软著
+   *
+   * @param id 教材软著主键
+   * @return 教材软著
+   */
+  @Override
+  public SciJiaocairuanzhu selectSciJiaocairuanzhuById(Integer id) {
+    return sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuById(id);
+  }
 
-    /**
-     * 查询教材软著列表
-     *
-     * @param sciJiaocairuanzhu 教材软著
-     * @return 教材软著
-     */
-    @Override
-    public List<SciJiaocairuanzhu> selectSciJiaocairuanzhuList(SciJiaocairuanzhu sciJiaocairuanzhu)
-    {
-        return sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuList(sciJiaocairuanzhu);
-    }
+  /**
+   * 查询教材软著列表
+   *
+   * @param sciJiaocairuanzhu 教材软著
+   * @return 教材软著
+   */
+  @Override
+  public List<SciJiaocairuanzhu> selectSciJiaocairuanzhuList(SciJiaocairuanzhu sciJiaocairuanzhu) {
+    return sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuList(sciJiaocairuanzhu);
+  }
 
-    /**
-     * 新增教材软著
-     *
-     * @param sciJiaocairuanzhu 教材软著
-     * @return 结果
-     */
-    @Override
-    public int insertSciJiaocairuanzhu(SciJiaocairuanzhu sciJiaocairuanzhu)
-    {
+  /**
+   * 新增教材软著
+   *
+   * @param sciJiaocairuanzhu 教材软著
+   * @return 结果
+   */
+  @Override
+  public int insertSciJiaocairuanzhu(SciJiaocairuanzhu sciJiaocairuanzhu) {
 //        try {
 //            // 获取当前用户信息
 //            SysUser currentUser = userService.selectUserById(getUserId());
@@ -126,205 +121,201 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService
 //            e.printStackTrace();
 //            return AjaxResult.error("保存失败");
 //        }
-        return sciJiaocairuanzhuMapper.insertSciJiaocairuanzhu(sciJiaocairuanzhu);
-    }
+    return sciJiaocairuanzhuMapper.insertSciJiaocairuanzhu(sciJiaocairuanzhu);
+  }
 
-    /**
-     * 修改教材软著
-     *
-     * @param sciJiaocairuanzhu 教材软著
-     * @return 结果
-     */
-    @Override
-    public int updateSciJiaocairuanzhu(SciJiaocairuanzhu sciJiaocairuanzhu)
-    {
-        return sciJiaocairuanzhuMapper.updateSciJiaocairuanzhu(sciJiaocairuanzhu);
-    }
+  /**
+   * 修改教材软著
+   *
+   * @param sciJiaocairuanzhu 教材软著
+   * @return 结果
+   */
+  @Override
+  public int updateSciJiaocairuanzhu(SciJiaocairuanzhu sciJiaocairuanzhu) {
+    return sciJiaocairuanzhuMapper.updateSciJiaocairuanzhu(sciJiaocairuanzhu);
+  }
 
-    /**
-     * 批量删除教材软著
-     *
-     * @param ids 需要删除的教材软著主键
-     * @return 结果
-     */
-    @Override
-    public int deleteSciJiaocairuanzhuByIds(String ids)
-    {
-        return sciJiaocairuanzhuMapper.deleteSciJiaocairuanzhuByIds(Convert.toStrArray(ids));
-    }
+  /**
+   * 批量删除教材软著
+   *
+   * @param ids 需要删除的教材软著主键
+   * @return 结果
+   */
+  @Override
+  public int deleteSciJiaocairuanzhuByIds(String ids) {
+    return sciJiaocairuanzhuMapper.deleteSciJiaocairuanzhuByIds(Convert.toStrArray(ids));
+  }
 
-    /**
-     * 删除教材软著信息
-     *
-     * @param id 教材软著主键
-     * @return 结果
-     */
-    @Override
-    public int deleteSciJiaocairuanzhuById(Integer id)
-    {
-        return sciJiaocairuanzhuMapper.deleteSciJiaocairuanzhuById(id);
-    }
+  /**
+   * 删除教材软著信息
+   *
+   * @param id 教材软著主键
+   * @return 结果
+   */
+  @Override
+  public int deleteSciJiaocairuanzhuById(Integer id) {
+    return sciJiaocairuanzhuMapper.deleteSciJiaocairuanzhuById(id);
+  }
 
 
-    @Override
-    public int updateJifen(Long id, int jifen) {
-        return sciJiaocairuanzhuMapper.updateJifen(id, jifen);
-    }
+  @Override
+  public int updateJifen(Long id, int jifen) {
+    return sciJiaocairuanzhuMapper.updateJifen(id, jifen);
+  }
 
 
-    @Override
+  @Override
 
-    public int hxPass(String id,Long uid,String urlFlag) {
-        String state = "8";
+  public int hxPass(String id, Long uid, String urlFlag) {
+    String state = "8";
 //        SciJiaocairuanzhu sciJiaocairuanzhu = new SciJiaocairuanzhu();
 
-        if(urlFlag.equals("hecha")){
-            state ="4";
-        }
-        else if(urlFlag.equals("tijiao")){
-            state ="1";
+    if (urlFlag.equals("hecha")) {
+      state = "4";
+    } else if (urlFlag.equals("tijiao")) {
+      state = "1";
 
-        }else if(urlFlag.equals("pro")){
-            state ="2";
-        }
-        else if(urlFlag.equals("chayue")) {
-            state = "6";
-            SciJiaocairuanzhu sciJiaocairuanzhu = sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuById(Integer.valueOf(id));
-            String a = sciJiaocairuanzhu.getFenlei();
-            String b = sciJiaocairuanzhu.getPaiming();
-            SciJiaocairuanzhuScoreCfg sciJiaocairuanzhuScoreCfg = new SciJiaocairuanzhuScoreCfg();
-            sciJiaocairuanzhuScoreCfg.setFenLei(a);
-            sciJiaocairuanzhuScoreCfg.setPaiMing(b);
-            List<SciJiaocairuanzhuScoreCfg> c = sciJiaocairuanzhuScoreCfgMapper.selectSciJiaocairuanzhuScoreCfgList(sciJiaocairuanzhuScoreCfg);
+    } else if (urlFlag.equals("pro")) {
+      state = "2";
+    } else if (urlFlag.equals("chayue")) {
+      state = "6";
+      SciJiaocairuanzhu sciJiaocairuanzhu = sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuById(Integer.valueOf(id));
+      String a = sciJiaocairuanzhu.getFenlei();
+      String b = sciJiaocairuanzhu.getPaiming();
+      SciJiaocairuanzhuScoreCfg sciJiaocairuanzhuScoreCfg = new SciJiaocairuanzhuScoreCfg();
+      sciJiaocairuanzhuScoreCfg.setFenLei(a);
+      sciJiaocairuanzhuScoreCfg.setPaiMing(b);
+      List<SciJiaocairuanzhuScoreCfg> c = sciJiaocairuanzhuScoreCfgMapper.selectSciJiaocairuanzhuScoreCfgList(sciJiaocairuanzhuScoreCfg);
 
-            int jifen = 0;
-            for (SciJiaocairuanzhuScoreCfg cfg : c) {
-                jifen = Integer.parseInt(cfg.getTotalScore());
-                System.out.println("Jifen: " + jifen);
-            }
-            sciJiaocairuanzhuMapper.updateJifen(Long.valueOf(id), jifen);
+      int jifen = 0;
+      for (SciJiaocairuanzhuScoreCfg cfg : c) {
+        jifen = Integer.parseInt(cfg.getTotalScore());
+        System.out.println("Jifen: " + jifen);
+      }
+      sciJiaocairuanzhuMapper.updateJifen(Long.valueOf(id), jifen);
 
 
-        }
-
-        int a =  sciJiaocairuanzhuMapper.hxPass(id,state);
-
-        if (urlFlag.equals("tijiao")){
-            SciJiaocairuanzhuPiyue sciJiaocairuanzhuPiyue = new SciJiaocairuanzhuPiyue();
-            sciJiaocairuanzhuPiyue.setUid(uid);
-            sciJiaocairuanzhuPiyue.setJiaocai_id(Integer.valueOf(id));
-            sciJiaocairuanzhuPiyue.setConcate("提交申请");
-            sciJiaocairuanzhuPiyue.setState("提交");
-            sciJiaocairuanzhuPiyueMapper.insertSciJiaocairuanzhuPiyue(sciJiaocairuanzhuPiyue);
-        }
-        else if (urlFlag.equals("pro") || urlFlag.equals("hecha") || urlFlag.equals("chayue")) {
-
-            SciJiaocairuanzhuPiyue sciJiaocairuanzhuPiyue = new SciJiaocairuanzhuPiyue();
-            sciJiaocairuanzhuPiyue.setUid(uid);
-            sciJiaocairuanzhuPiyue.setJiaocai_id(Integer.valueOf(id));
-            sciJiaocairuanzhuPiyue.setConcate("同意");
-            sciJiaocairuanzhuPiyue.setState("通过");
-            sciJiaocairuanzhuPiyueMapper.insertSciJiaocairuanzhuPiyue(sciJiaocairuanzhuPiyue);}
-        return a;
     }
 
+    int a = sciJiaocairuanzhuMapper.hxPass(id, state);
 
-    @Override
-    public int hxBh(String id,Long uid, String remark,String urlFlag) {
-        String state = "8";
+    if (urlFlag.equals("tijiao")) {
+      SciJiaocairuanzhuPiyue sciJiaocairuanzhuPiyue = new SciJiaocairuanzhuPiyue();
+      sciJiaocairuanzhuPiyue.setUid(uid);
+      sciJiaocairuanzhuPiyue.setJiaocai_id(Integer.valueOf(id));
+      sciJiaocairuanzhuPiyue.setConcate("提交申请");
+      sciJiaocairuanzhuPiyue.setState("提交");
+      sciJiaocairuanzhuPiyueMapper.insertSciJiaocairuanzhuPiyue(sciJiaocairuanzhuPiyue);
+    } else if (urlFlag.equals("pro") || urlFlag.equals("hecha") || urlFlag.equals("chayue")) {
 
-        if(urlFlag.equals("hecha")){
-            state ="5";
-        }
-        else if(urlFlag.equals("pro")){
-            state ="3";
-        }else if(urlFlag.equals("chayue")){
-            state ="7";
-        }
-        int a = sciJiaocairuanzhuMapper.hxPass(id,state);
-        SciJiaocairuanzhuPiyue sciJiaocairuanzhuPiyue = new SciJiaocairuanzhuPiyue();
-        sciJiaocairuanzhuPiyue.setUid(uid);
-        sciJiaocairuanzhuPiyue.setJiaocai_id(Integer.valueOf(id));
-        sciJiaocairuanzhuPiyue.setConcate(remark);
-        sciJiaocairuanzhuPiyue.setState("被驳回");
-        sciJiaocairuanzhuPiyueMapper.insertSciJiaocairuanzhuPiyue(sciJiaocairuanzhuPiyue);
-        return a;
+      SciJiaocairuanzhuPiyue sciJiaocairuanzhuPiyue = new SciJiaocairuanzhuPiyue();
+      sciJiaocairuanzhuPiyue.setUid(uid);
+      sciJiaocairuanzhuPiyue.setJiaocai_id(Integer.valueOf(id));
+      sciJiaocairuanzhuPiyue.setConcate("同意");
+      sciJiaocairuanzhuPiyue.setState("通过");
+      sciJiaocairuanzhuPiyueMapper.insertSciJiaocairuanzhuPiyue(sciJiaocairuanzhuPiyue);
     }
+    return a;
+  }
 
 
-
-
-    @Override
-    public List<SciJiaocairuanzhu> selectSciJiaocairuanzhuList4(SciJiaocairuanzhu sciJiaocairuanzhu)
-    {
-        return sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuList4(sciJiaocairuanzhu);
+  @Override
+  public int hxBh(String id, Long uid, String remark, String urlFlag) {
+    String state = "8";
+    SciJiaocairuanzhuPiyue sciJiaocairuanzhuPiyue = new SciJiaocairuanzhuPiyue();
+    if (urlFlag.equals("hecha")) {
+      state = "5";
+      sciJiaocairuanzhuPiyue.setState("被学院驳回");
+    } else if (urlFlag.equals("pro")) {
+      state = "3";
+      sciJiaocairuanzhuPiyue.setState("被教研室驳回");
+    } else if (urlFlag.equals("chayue")) {
+      state = "7";
+      sciJiaocairuanzhuPiyue.setState("被科研室驳回");
     }
-    @Override
-    public List<SciJiaocairuanzhu> selectSciJiaocairuanzhuList3(SciJiaocairuanzhu sciJiaocairuanzhu)
-    {
-        return sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuList3(sciJiaocairuanzhu);
-    }
-    @Override
-    public List<SciJiaocairuanzhu> selectSciJiaocairuanzhuList2(SciJiaocairuanzhu sciJiaocairuanzhu)
-    {
-        return sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuList2(sciJiaocairuanzhu);
-    }
-    @Override
-    public List<SciJiaocairuanzhu> selectSciJiaocairuanzhuList1(SciJiaocairuanzhu sciJiaocairuanzhu)
-    {
-        return sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuList1(sciJiaocairuanzhu);
-    }
+    int a = sciJiaocairuanzhuMapper.hxPass(id, state);
+
+    sciJiaocairuanzhuPiyue.setUid(uid);
+    sciJiaocairuanzhuPiyue.setJiaocai_id(Integer.valueOf(id));
+    sciJiaocairuanzhuPiyue.setConcate(remark);
+
+    sciJiaocairuanzhuPiyueMapper.insertSciJiaocairuanzhuPiyue(sciJiaocairuanzhuPiyue);
+    return a;
+  }
 
 
-    @Override
-    public List<SciJiaocairuanzhu> selectSciJiaocairuanzhuList31(SciJiaocairuanzhu sciJiaocairuanzhu)
-    {
-        return sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuList31(sciJiaocairuanzhu);
-    }
-    @Override
-    public List<SciJiaocairuanzhu> selectSciJiaocairuanzhuList21(SciJiaocairuanzhu sciJiaocairuanzhu)
-    {
-        return sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuList21(sciJiaocairuanzhu);
-    }
+  @Override
+  public List<SciJiaocairuanzhu> selectSciJiaocairuanzhuList4(SciJiaocairuanzhu sciJiaocairuanzhu) {
+    return sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuList4(sciJiaocairuanzhu);
+  }
 
-    @Override
-    public int recall(Integer id, String state,Long uid, String remark, String urlFlag) {
-        String newState = state;
-        switch (state){
+  @Override
+  public List<SciJiaocairuanzhu> selectSciJiaocairuanzhuList3(SciJiaocairuanzhu sciJiaocairuanzhu) {
+    return sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuList3(sciJiaocairuanzhu);
+  }
+
+  @Override
+  public List<SciJiaocairuanzhu> selectSciJiaocairuanzhuList2(SciJiaocairuanzhu sciJiaocairuanzhu) {
+    return sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuList2(sciJiaocairuanzhu);
+  }
+
+  @Override
+  public List<SciJiaocairuanzhu> selectSciJiaocairuanzhuList1(SciJiaocairuanzhu sciJiaocairuanzhu) {
+    return sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuList1(sciJiaocairuanzhu);
+  }
+
+
+  @Override
+  public List<SciJiaocairuanzhu> selectSciJiaocairuanzhuList31(SciJiaocairuanzhu sciJiaocairuanzhu) {
+    return sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuList31(sciJiaocairuanzhu);
+  }
+
+  @Override
+  public List<SciJiaocairuanzhu> selectSciJiaocairuanzhuList21(SciJiaocairuanzhu sciJiaocairuanzhu) {
+    return sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuList21(sciJiaocairuanzhu);
+  }
+
+  @Override
+  public int recall(Integer id, String state, Long uid, String remark, String urlFlag) {
+    String newState = state;
+    SciJiaocairuanzhuPiyue sciJiaocairuanzhuPiyue = new SciJiaocairuanzhuPiyue();
+
+    switch (state) {
 //            教研室
-            case "2":
-                newState = "0";
-                break;
-            //            学院
-            case "4":
-                newState = "2";
-                break;
-            //            科研处
-            case "6":
-                newState = "4";
-                sciJiaocairuanzhuMapper.updateJifen(Long.valueOf(id),0);
-                break;
-        }
+      case "2":
+        newState = "0";
+        sciJiaocairuanzhuPiyue.setState("教研室撤回");
+        break;
+      //            学院
+      case "4":
+        newState = "0";
+        sciJiaocairuanzhuPiyue.setState("学院撤回");
+        break;
+      //            科研处
+      case "6":
+        newState = "0";
+        sciJiaocairuanzhuPiyue.setState("科研处撤回");
+        sciJiaocairuanzhuMapper.updateJifen(Long.valueOf(id), 0);
+        break;
+    }
 
 
 //        设置状态
-        int a =sciJiaocairuanzhuMapper.hxPass(id.toString(),newState);
+    int a = sciJiaocairuanzhuMapper.hxPass(id.toString(), newState);
 //        插入日志
-        SciJiaocairuanzhuPiyue sciJiaocairuanzhuPiyue = new SciJiaocairuanzhuPiyue();
-        sciJiaocairuanzhuPiyue.setUid(uid);
-        sciJiaocairuanzhuPiyue.setJiaocai_id(id);
-        sciJiaocairuanzhuPiyue.setConcate(remark);
-        sciJiaocairuanzhuPiyue.setState("撤回了一条通过操作");
-        sciJiaocairuanzhuPiyueMapper.insertSciJiaocairuanzhuPiyue(sciJiaocairuanzhuPiyue);
-        return a;
-    }
+    sciJiaocairuanzhuPiyue.setUid(uid);
+    sciJiaocairuanzhuPiyue.setJiaocai_id(id);
+    sciJiaocairuanzhuPiyue.setConcate(remark);
+
+    sciJiaocairuanzhuPiyueMapper.insertSciJiaocairuanzhuPiyue(sciJiaocairuanzhuPiyue);
+    return a;
+  }
 
 
-
-    @Override
-    public boolean checkExist(String mingcheng, String paiming) {
-        return sciJiaocairuanzhuMapper.checkExist(mingcheng, paiming) > 0;
-    }
+  @Override
+  public boolean checkExist(String mingcheng, String paiming) {
+    return sciJiaocairuanzhuMapper.checkExist(mingcheng, paiming) > 0;
+  }
 
 
 }
