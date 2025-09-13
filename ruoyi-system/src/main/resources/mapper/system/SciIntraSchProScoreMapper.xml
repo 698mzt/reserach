@@ -95,7 +95,7 @@
       sci_IntraSchPro_score sisps
     where
       userid = #{uid}
-      and earnedjt_points != 0
+      and earnedALL_Points != 0
 
   </select>
 
