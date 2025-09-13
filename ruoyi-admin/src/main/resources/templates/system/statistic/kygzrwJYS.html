@@ -11,11 +11,11 @@
 			background-color: #f8f9fa !important;
 			font-weight: bold;
 		}
-		
+
 		.total-row td {
 			border-top: 2px solid #dee2e6 !important;
 		}
-		
+
 		/* 总计行合并列的样式 */
 		.total-merged-cell {
 			position: relative;
@@ -23,7 +23,7 @@
 			background-color: #e9ecef !important;
 			font-weight: bold !important;
 		}
-		
+
 		/* 隐藏总计行的多选框 */
 		.total-row .bs-checkbox {
 			visibility: hidden;
@@ -74,7 +74,7 @@
 					{
 						title: '成果转化',
 						align: 'center',
-						colspan: 7
+						colspan: 6
 					},
 					{
 						title: '学术论文',
@@ -221,11 +221,11 @@
 						title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;35-50信息&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
 						align: 'center'
 					},
-					{
-						field: 'dywsxx',
-						title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;大于50信息&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
-						align: 'center'
-					},
+					// {
+					// 	field: 'dywsxx',
+					// 	title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;大于50信息&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
+					// 	align: 'center'
+					// },
 					{
 						field: 'SCI',
 						title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SCI&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
@@ -384,14 +384,14 @@
             $('#bootstrap-table').on('load-success.bs.table', function () {
 				const $table = $(this);
 				const $tbody = $table.find('tbody');
-				
+
 				// 使用延时确保DOM完全渲染
 				setTimeout(function() {
 					// 查找总计行（userName为"总计"的行）
 					$tbody.find('tr').each(function() {
 						const $row = $(this);
 						const $cells = $row.find('td');
-						
+
 						// 检查第三列（教师列）是否为"总计"
 						if ($cells.length > 2 && $cells.eq(2).text().trim() === '总计') {
 							processTotalRow($row, $cells);
@@ -404,19 +404,19 @@
 			function processTotalRow($row, $cells) {
 				// 1. 为整行添加总计样式
 				$row.addClass('total-row');
-				
+
 				// 2. 处理第二、三列的合并
 				const $deptCell = $cells.eq(1);  // 专业列
 				const $teacherCell = $cells.eq(2); // 教师列
-				
+
 				// 3. 设置合并后的样式和内容
 				$deptCell.addClass('total-merged-cell')
 						 .attr('colspan', '2')
 						 .text('总计');
-				
+
 				// 4. 隐藏第三列
 				$teacherCell.hide();
-				
+
 				// 5. 确保多选框被隐藏
 				$cells.eq(0).addClass('bs-checkbox');
 			}

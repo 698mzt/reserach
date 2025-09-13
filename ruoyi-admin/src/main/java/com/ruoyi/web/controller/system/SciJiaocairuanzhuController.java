@@ -270,7 +270,13 @@ public class SciJiaocairuanzhuController extends BaseController
     @ResponseBody
     public AjaxResult addSave(SciJiaocairuanzhu sciJiaocairuanzhu)
     {
-        return toAjax(sciJiaocairuanzhuService.insertSciJiaocairuanzhu(sciJiaocairuanzhu));
+        sciJiaocairuanzhuService.insertSciJiaocairuanzhu(sciJiaocairuanzhu);
+        SciJiaocairuanzhuPiyue sciJiaocairuanzhuPiyue = new SciJiaocairuanzhuPiyue();
+        sciJiaocairuanzhuPiyue.setJiaocai_id(sciJiaocairuanzhu.getId());
+        sciJiaocairuanzhuPiyue.setConcate("新增教材专著草稿");
+        sciJiaocairuanzhuPiyue.setState("新增教材专著草稿");
+        sciJiaocairuanzhuPiyue.setUid(getUserId());
+        return toAjax(piyueService.insertSciJiaocairuanzhuPiyue(sciJiaocairuanzhuPiyue));
     }
 
     /**

@@ -529,6 +529,9 @@ public class SciIntraSchoolProController extends BaseController {
 //        String idString = (String) data.get("id");
 //        Integer id = Integer.parseInt(idString);
 //        sciIntraSchoolPro.setId(id);
+    //更改积分
+    SciIntraSchoolPro sciIntraSchoolPro1 = sciIntraSchProApplyService.sel_IntraSchPro_by_id(Integer.valueOf(id));
+    int i = sciIntraSchProScoreService.update_SchPro_score_jt(sciIntraSchoolPro1);
     return toAjax(sciIntraSchProApplyService.sch_hxOverCH(id, getUserId(), remark, urlFlag));
   }
 

@@ -1,868 +1,868 @@
-<!DOCTYPE html>
-<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro"
-      xmlns="http://www.w3.org/1999/html">
-<head>
-    <th:block th:include="include :: header('论文列表')" />
-</head>
-<style>
-    .modal-dialog.modal-right {
-        width: 50%; /* 或者根据需要调整宽度 */
-        max-width: 600px; /* 确保有足够的宽度 */
-    }
+<!--<!DOCTYPE html>-->
+<!--<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro"-->
+<!--      xmlns="http://www.w3.org/1999/html">-->
+<!--<head>-->
+<!--    <th:block th:include="include :: header('论文列表')" />-->
+<!--</head>-->
+<!--<style>-->
+<!--    .modal-dialog.modal-right {-->
+<!--        width: 50%; /* 或者根据需要调整宽度 */-->
+<!--        max-width: 600px; /* 确保有足够的宽度 */-->
+<!--    }-->
 
-    .modal-right {
-        position: fixed;
-        right: 0;
-        margin: 0;
-        height: 100%;
-        display: flex;
-        align-items: stretch;
-    }
+<!--    .modal-right {-->
+<!--        position: fixed;-->
+<!--        right: 0;-->
+<!--        margin: 0;-->
+<!--        height: 100%;-->
+<!--        display: flex;-->
+<!--        align-items: stretch;-->
+<!--    }-->
 
-    .modal-right .modal-content {
-        height: 100%;
-        width: 100%;
-    }
-    .modal-right .but{
-        position: absolute;
-        right: 2%;
-        bottom: 1.3%;
-        background: red;
-        color: white;
-        border: none;
-        border-radius: 4px;
-    }
+<!--    .modal-right .modal-content {-->
+<!--        height: 100%;-->
+<!--        width: 100%;-->
+<!--    }-->
+<!--    .modal-right .but{-->
+<!--        position: absolute;-->
+<!--        right: 2%;-->
+<!--        bottom: 1.3%;-->
+<!--        background: red;-->
+<!--        color: white;-->
+<!--        border: none;-->
+<!--        border-radius: 4px;-->
+<!--    }-->
 
-    .progress_inner {
-        height: 80px;
-        width: 100%;
-        position: relative;
-    }
+<!--    .progress_inner {-->
+<!--        height: 80px;-->
+<!--        width: 100%;-->
+<!--        position: relative;-->
+<!--    }-->
 
-    .progress_inner__step {
-        width: 33.33%;
-        font-size: 12px;
-        padding: 0 5px;
-        transition: all 0.4s;
-        float: left;
-        text-align: center;
-        position: relative;
-    }
+<!--    .progress_inner__step {-->
+<!--        width: 33.33%;-->
+<!--        font-size: 12px;-->
+<!--        padding: 0 5px;-->
+<!--        transition: all 0.4s;-->
+<!--        float: left;-->
+<!--        text-align: center;-->
+<!--        position: relative;-->
+<!--    }-->
 
-    .progress_inner__step label {
-        padding-top: 30px;
-        display: block;
-        position: relative;
-        cursor: pointer;
-    }
+<!--    .progress_inner__step label {-->
+<!--        padding-top: 30px;-->
+<!--        display: block;-->
+<!--        position: relative;-->
+<!--        cursor: pointer;-->
+<!--    }-->
 
-    .progress_inner__step:before {
-        content: "1";
-        width: 24px;
-        height: 24px;
-        color: #2196F3;
-        background: white;
-        line-height: 22px;
-        border: 2px solid #2196F3;
-        font-size: 12px;
-        top: 0;
-        border-radius: 50%;
-        transition: all 0.4s;
-        position: absolute;
-        left: 0;
-        right: 0;
-        margin: auto;
-        font-weight: bold;
-        z-index: 11;
-    }
+<!--    .progress_inner__step:before {-->
+<!--        content: "1";-->
+<!--        width: 24px;-->
+<!--        height: 24px;-->
+<!--        color: #2196F3;-->
+<!--        background: white;-->
+<!--        line-height: 22px;-->
+<!--        border: 2px solid #2196F3;-->
+<!--        font-size: 12px;-->
+<!--        top: 0;-->
+<!--        border-radius: 50%;-->
+<!--        transition: all 0.4s;-->
+<!--        position: absolute;-->
+<!--        left: 0;-->
+<!--        right: 0;-->
+<!--        margin: auto;-->
+<!--        font-weight: bold;-->
+<!--        z-index: 11;-->
+<!--    }-->
 
-    .progress_inner__step:nth-of-type(2):before {
-        content: "2";
-        color: #9E9E9E;
-        border-color: #9E9E9E;
-    }
+<!--    .progress_inner__step:nth-of-type(2):before {-->
+<!--        content: "2";-->
+<!--        color: #9E9E9E;-->
+<!--        border-color: #9E9E9E;-->
+<!--    }-->
 
-    .progress_inner__step:nth-of-type(3):before {
-        content: "3";
-        color: #9E9E9E;
-        border-color: #9E9E9E;
-    }
+<!--    .progress_inner__step:nth-of-type(3):before {-->
+<!--        content: "3";-->
+<!--        color: #9E9E9E;-->
+<!--        border-color: #9E9E9E;-->
+<!--    }-->
 
-    .progress_inner__step.completed:before {
-        content: "✓";
-        color: #4CAF50;
-        border-color: #4CAF50;
-        line-height: 22px;
-        font-size: 14px;
-    }
+<!--    .progress_inner__step.completed:before {-->
+<!--        content: "✓";-->
+<!--        color: #4CAF50;-->
+<!--        border-color: #4CAF50;-->
+<!--        line-height: 22px;-->
+<!--        font-size: 14px;-->
+<!--    }-->
 
-    .progress_inner__step.active:before {
-        color: #2196F3;
-        border-color: #2196F3;
-        background: white;
-    }
+<!--    .progress_inner__step.active:before {-->
+<!--        color: #2196F3;-->
+<!--        border-color: #2196F3;-->
+<!--        background: white;-->
+<!--    }-->
 
-    .progress_inner__step.pending:before {
-        color: #9E9E9E;
-        border-color: #9E9E9E;
-        background: white;
-    }
+<!--    .progress_inner__step.pending:before {-->
+<!--        color: #9E9E9E;-->
+<!--        border-color: #9E9E9E;-->
+<!--        background: white;-->
+<!--    }-->
 
-    .progress_inner__bar {
-        height: 3px;
-        left: 16.665%;
-        right: 16.665%;
-        background: #E0E0E0;
-        position: absolute;
-        top: 12px;
-        z-index: -1;
-        border-radius: 3px;
-        overflow: hidden;
-    }
+<!--    .progress_inner__bar {-->
+<!--        height: 3px;-->
+<!--        left: 16.665%;-->
+<!--        right: 16.665%;-->
+<!--        background: #E0E0E0;-->
+<!--        position: absolute;-->
+<!--        top: 12px;-->
+<!--        z-index: -1;-->
+<!--        border-radius: 3px;-->
+<!--        overflow: hidden;-->
+<!--    }-->
 
-    .progress_inner__bar--progress {
-        height: 100%;
-        background: #4CAF50;
-        width: 0;
-        transition: width 0.6s ease;
-    }
+<!--    .progress_inner__bar&#45;&#45;progress {-->
+<!--        height: 100%;-->
+<!--        background: #4CAF50;-->
+<!--        width: 0;-->
+<!--        transition: width 0.6s ease;-->
+<!--    }-->
 
-    /* 分段高亮连接线 */
-    .progress_inner__bar .segment {
-        position: absolute;
-        height: 100%;
-        width: 50%;
-        background: transparent;
-        transition: background 0.4s ease;
-    }
+<!--    /* 分段高亮连接线 */-->
+<!--    .progress_inner__bar .segment {-->
+<!--        position: absolute;-->
+<!--        height: 100%;-->
+<!--        width: 50%;-->
+<!--        background: transparent;-->
+<!--        transition: background 0.4s ease;-->
+<!--    }-->
 
-    .progress_inner__bar .segment.first {
-        left: 0;
-    }
+<!--    .progress_inner__bar .segment.first {-->
+<!--        left: 0;-->
+<!--    }-->
 
-    .progress_inner__bar .segment.second {
-        right: 0;
-    }
+<!--    .progress_inner__bar .segment.second {-->
+<!--        right: 0;-->
+<!--    }-->
 
-    .progress_inner__bar .segment.highlight {
-        background: #4CAF50;
-        box-shadow: 0 0 8px rgba(10, 225, 19, 0.7);
-    }
+<!--    .progress_inner__bar .segment.highlight {-->
+<!--        background: #4CAF50;-->
+<!--        box-shadow: 0 0 8px rgba(10, 225, 19, 0.7);-->
+<!--    }-->
 
-    .status-text {
-        color: #9E9E9E;
-        font-weight: normal;
-        transition: all 0.4s;
-        font-size: 12px;
-    }
+<!--    .status-text {-->
+<!--        color: #9E9E9E;-->
+<!--        font-weight: normal;-->
+<!--        transition: all 0.4s;-->
+<!--        font-size: 12px;-->
+<!--    }-->
 
-    .status-text.active {
-        color: #2196F3;
-        font-weight: bold;
-    }
+<!--    .status-text.active {-->
+<!--        color: #2196F3;-->
+<!--        font-weight: bold;-->
+<!--    }-->
 
-    .status-text.completed {
-        color: #4CAF50;
-        font-weight: bold;
-    }
+<!--    .status-text.completed {-->
+<!--        color: #4CAF50;-->
+<!--        font-weight: bold;-->
+<!--    }-->
 
 
-    button {
-        background: #2196F3;
-        color: white;
-        border: none;
-        padding: 6px 12px;
-        border-radius: 3px;
-        margin: 0 8px;
-        cursor: pointer;
-        font-weight: bold;
-        transition: all 0.3s;
-        font-size: 12px;
-    }
+<!--    button {-->
+<!--        background: #2196F3;-->
+<!--        color: white;-->
+<!--        border: none;-->
+<!--        padding: 6px 12px;-->
+<!--        border-radius: 3px;-->
+<!--        margin: 0 8px;-->
+<!--        cursor: pointer;-->
+<!--        font-weight: bold;-->
+<!--        transition: all 0.3s;-->
+<!--        font-size: 12px;-->
+<!--    }-->
 
-    button:hover {
-        background: #1976D2;
-    }
+<!--    button:hover {-->
+<!--        background: #1976D2;-->
+<!--    }-->
 
-    button:last-child {
-        background: #9E9E9E;
-    }
+<!--    button:last-child {-->
+<!--        background: #9E9E9E;-->
+<!--    }-->
 
-    button:last-child:hover {
-        background: #757575;
-    }
+<!--    button:last-child:hover {-->
+<!--        background: #757575;-->
+<!--    }-->
 
-    /* 新增的流程记录样式 */
-    .timeline-title {
-        font-weight: bold;
-        font-size: 14px;
-        color: #333;
-        text-align: left;
-        margin: 0 0 25px 20px;
-        max-width: 500px;
-        margin-left: auto;
-        margin-right: auto;
-        position: relative;
-        padding-bottom: 15px;
-    }
+<!--    /* 新增的流程记录样式 */-->
+<!--    .timeline-title {-->
+<!--        font-weight: bold;-->
+<!--        font-size: 14px;-->
+<!--        color: #333;-->
+<!--        text-align: left;-->
+<!--        margin: 0 0 25px 20px;-->
+<!--        max-width: 500px;-->
+<!--        margin-left: auto;-->
+<!--        margin-right: auto;-->
+<!--        position: relative;-->
+<!--        padding-bottom: 15px;-->
+<!--    }-->
 
-    .timeline-title::after {
-        content: "";
-        position: absolute;
-        left: 0;
-        bottom: 0;
-        width: 100%;
-        height: 0.5px;
-        background: linear-gradient(to right,
-        rgba(224,224,224,0.8),
-        rgba(224,224,224,0.8),
-        rgba(224,224,224,0.8)); /* 添加透明度使线条更柔和 */
-        box-shadow: 0 0.5px 1px rgba(0,0,0,0.07);
-    }
+<!--    .timeline-title::after {-->
+<!--        content: "";-->
+<!--        position: absolute;-->
+<!--        left: 0;-->
+<!--        bottom: 0;-->
+<!--        width: 100%;-->
+<!--        height: 0.5px;-->
+<!--        background: linear-gradient(to right,-->
+<!--        rgba(224,224,224,0.8),-->
+<!--        rgba(224,224,224,0.8),-->
+<!--        rgba(224,224,224,0.8)); /* 添加透明度使线条更柔和 */-->
+<!--        box-shadow: 0 0.5px 1px rgba(0,0,0,0.07);-->
+<!--    }-->
 
-    .track-rcol {
-        width: 100%;
-        max-width: 500px;
-        margin: 20px auto;
-    }
-    .track-list {
-        margin: 20px;
-        padding-left: 5px;
-        position: relative;
-    }
-    .track-list ul {
-        padding-left: 0;
-    }
-    .track-list li {
-        position: relative;
-        padding: 5px 0 10px 25px;
-        line-height: 1.4;
-        border-left: 2px solid #d9d9d9;
-        color: #666;
-        list-style: none;
-        transition: all 0.4s ease; /* 添加过渡效果 */
-    }
-    .track-list li.first {
-        color: #666;
-        padding-top: 0;
-    }
-    .track-list li .node-icon {
-        position: absolute;
-        left: -7px;
-        top: 18px;
-        width: 8px; /* 调圆点*/
-        height: 8px;
-        background: #C0C0C0;
-        border-radius: 50%;
-        transition: all 0.4s ease; /* 添加过渡效果 */
-        border: 2px solid #E0E0E0;
-        box-sizing: content-box;
-    }
-    .track-list li.first .node-icon {
-        background: #C0C0C0; /* 天蓝色 */
-        width: 8px;
-        height: 8px;
-        left: -8px;
-    }
-    .track-list li .time {
-        display: block;
-        margin-bottom: 3px;
-        font-size: 11px;
-        color: #888;
-        transition: all 0.4s ease; /* 添加过渡效果 */
-    }
-    .track-list li .txt {
-        display: block;
-        font-size: 12px;
-        transition: all 0.4s ease; /* 添加过渡效果 */
-    }
+<!--    .track-rcol {-->
+<!--        width: 100%;-->
+<!--        max-width: 500px;-->
+<!--        margin: 20px auto;-->
+<!--    }-->
+<!--    .track-list {-->
+<!--        margin: 20px;-->
+<!--        padding-left: 5px;-->
+<!--        position: relative;-->
+<!--    }-->
+<!--    .track-list ul {-->
+<!--        padding-left: 0;-->
+<!--    }-->
+<!--    .track-list li {-->
+<!--        position: relative;-->
+<!--        padding: 5px 0 10px 25px;-->
+<!--        line-height: 1.4;-->
+<!--        border-left: 2px solid #d9d9d9;-->
+<!--        color: #666;-->
+<!--        list-style: none;-->
+<!--        transition: all 0.4s ease; /* 添加过渡效果 */-->
+<!--    }-->
+<!--    .track-list li.first {-->
+<!--        color: #666;-->
+<!--        padding-top: 0;-->
+<!--    }-->
+<!--    .track-list li .node-icon {-->
+<!--        position: absolute;-->
+<!--        left: -7px;-->
+<!--        top: 18px;-->
+<!--        width: 8px; /* 调圆点*/-->
+<!--        height: 8px;-->
+<!--        background: #C0C0C0;-->
+<!--        border-radius: 50%;-->
+<!--        transition: all 0.4s ease; /* 添加过渡效果 */-->
+<!--        border: 2px solid #E0E0E0;-->
+<!--        box-sizing: content-box;-->
+<!--    }-->
+<!--    .track-list li.first .node-icon {-->
+<!--        background: #C0C0C0; /* 天蓝色 */-->
+<!--        width: 8px;-->
+<!--        height: 8px;-->
+<!--        left: -8px;-->
+<!--    }-->
+<!--    .track-list li .time {-->
+<!--        display: block;-->
+<!--        margin-bottom: 3px;-->
+<!--        font-size: 11px;-->
+<!--        color: #888;-->
+<!--        transition: all 0.4s ease; /* 添加过渡效果 */-->
+<!--    }-->
+<!--    .track-list li .txt {-->
+<!--        display: block;-->
+<!--        font-size: 12px;-->
+<!--        transition: all 0.4s ease; /* 添加过渡效果 */-->
+<!--    }-->
 
-    /* 悬停效果 */
-    .track-list li:hover {
-        color: #333;
-    }
-    .track-list li:hover .node-icon {
-        transform: scale(1.3);
-        background: #ed8088;
-    }
-    .track-list li:hover .time {
-        color: #666;
-    }
+<!--    /* 悬停效果 */-->
+<!--    .track-list li:hover {-->
+<!--        color: #333;-->
+<!--    }-->
+<!--    .track-list li:hover .node-icon {-->
+<!--        transform: scale(1.3);-->
+<!--        background: #ed8088;-->
+<!--    }-->
+<!--    .track-list li:hover .time {-->
+<!--        color: #666;-->
+<!--    }-->
 
-    /* 新增审核状态样式 */
-    .approve-status {
-        margin-top: 10px;
-        text-align: center;
-    }
-    .approve-status label {
-        margin: 0 10px;
-        cursor: pointer;
-    }
-    .approve-status input {
-        margin-right: 5px;
-    }
-</style>
-<div class="wrapper wrapper-content fadeInRight" style="position: absolute; left: -9999px;">
-    <div class="row">
-        <div class="col-sm-4">
-            <div class="ibox ">
-                <div class="ibox-content">
-                    <div class="modal inmodal" id="myModal1111" tabindex="-1" role="dialog" aria-hidden="true">
-                        <div class="modal-dialog modal-right" >
-                            <div class="modal-content animated bounceInRight">
-                                <div class="modal-header">
-                                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span
-                                            class="sr-only">关闭</span>
-                                    </button>
-                                </div>
-                                <div class="modal-body">
-                                    <!-- 流程记录标题 - 放在左上角 -->
-                                    <div class="timeline-title">流程记录</div>
+<!--    /* 新增审核状态样式 */-->
+<!--    .approve-status {-->
+<!--        margin-top: 10px;-->
+<!--        text-align: center;-->
+<!--    }-->
+<!--    .approve-status label {-->
+<!--        margin: 0 10px;-->
+<!--        cursor: pointer;-->
+<!--    }-->
+<!--    .approve-status input {-->
+<!--        margin-right: 5px;-->
+<!--    }-->
+<!--</style>-->
+<!--<div class="wrapper wrapper-content fadeInRight" style="position: absolute; left: -9999px;">-->
+<!--    <div class="row">-->
+<!--        <div class="col-sm-4">-->
+<!--            <div class="ibox ">-->
+<!--                <div class="ibox-content">-->
+<!--                    <div class="modal inmodal" id="myModal1111" tabindex="-1" role="dialog" aria-hidden="true">-->
+<!--                        <div class="modal-dialog modal-right" >-->
+<!--                            <div class="modal-content animated bounceInRight">-->
+<!--                                <div class="modal-header">-->
+<!--                                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span-->
+<!--                                            class="sr-only">关闭</span>-->
+<!--                                    </button>-->
+<!--                                </div>-->
+<!--                                <div class="modal-body">-->
+<!--                                    &lt;!&ndash; 流程记录标题 - 放在左上角 &ndash;&gt;-->
+<!--                                    <div class="timeline-title">流程记录</div>-->
 
-                                    <!-- 原有的流程进度条部分 -->
-                                    <div>
-                                        <div class='progress_inner'>
-                                            <div class='progress_inner__step active' id='step-1'>
-                                                <label for='step-1'><span class="status-text active">待提交</span></label>
-                                            </div>
-                                            <div class='progress_inner__step pending' id='step-2'>
-                                                <label for='step-2'><span class="status-text">待审核</span></label>
-                                            </div>
-                                            <div class='progress_inner__step pending' id='step-3'>
-                                                <label for='step-3'><span class="status-text">已完成</span></label>
-                                            </div>
-                                            <div class='progress_inner__bar' style="z-index: 10">
-                                                <div class='progress_inner__bar--progress' id='progress-bar'></div>
-                                            </div>
-                                        </div>
-                                    </div>
+<!--                                    &lt;!&ndash; 原有的流程进度条部分 &ndash;&gt;-->
+<!--                                    <div>-->
+<!--                                        <div class='progress_inner'>-->
+<!--                                            <div class='progress_inner__step active' id='step-1'>-->
+<!--                                                <label for='step-1'><span class="status-text active">待提交</span></label>-->
+<!--                                            </div>-->
+<!--                                            <div class='progress_inner__step pending' id='step-2'>-->
+<!--                                                <label for='step-2'><span class="status-text">待审核</span></label>-->
+<!--                                            </div>-->
+<!--                                            <div class='progress_inner__step pending' id='step-3'>-->
+<!--                                                <label for='step-3'><span class="status-text">已完成</span></label>-->
+<!--                                            </div>-->
+<!--                                            <div class='progress_inner__bar' style="z-index: 10">-->
+<!--                                                <div class='progress_inner__bar&#45;&#45;progress' id='progress-bar'></div>-->
+<!--                                            </div>-->
+<!--                                        </div>-->
+<!--                                    </div>-->
 
-                                    <!-- 流程记录内容 - 放在流程图下方 -->
-                                    <div class="track-rcol">
-                                        <div class="track-list">
-                                            <ul id="event-list">
-                                                <li class="first">
-                                                    <i class="node-icon"></i>
-                                                    <span class="time" id="current-time"></span>
-                                                    <span class="txt" id="current"></span>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-white but" data-dismiss="modal">关闭</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+<!--                                    &lt;!&ndash; 流程记录内容 - 放在流程图下方 &ndash;&gt;-->
+<!--                                    <div class="track-rcol">-->
+<!--                                        <div class="track-list">-->
+<!--                                            <ul id="event-list">-->
+<!--                                                <li class="first">-->
+<!--                                                    <i class="node-icon"></i>-->
+<!--                                                    <span class="time" id="current-time"></span>-->
+<!--                                                    <span class="txt" id="current"></span>-->
+<!--                                                </li>-->
+<!--                                            </ul>-->
+<!--                                        </div>-->
+<!--                                    </div>-->
+<!--                                </div>-->
+<!--                                <div class="modal-footer">-->
+<!--                                    <button type="button" class="btn btn-white but" data-dismiss="modal">关闭</button>-->
+<!--                                </div>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </div>-->
 
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<body class="gray-bg">
-<div class="container-div">
-    <div class="row">
-<!--        <div class="col-sm-12 search-collapse" shiro:hasPermission="system:paper:chaxun">-->
-<!--            <form id="formId">-->
-<!--                <div class="select-list" >-->
-<!--                    <ul>-->
-<!--                        <li>-->
-<!--                            <label>学院：</label>-->
-<!--                            <input type="text" name="college"/>-->
-<!--                        </li>-->
-<!--                        <li>-->
-<!--                            <label>教师姓名：</label>-->
-<!--                            <input type="text" name="teacherName"/>-->
-<!--                        </li>-->
-<!--                        <li>-->
-<!--                            <label>教研室：</label>-->
-<!--                            <input type="text" name="roleName"/>-->
-<!--                        </li>-->
-<!--                        <li>-->
-<!--                            <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>-->
-<!--                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>-->
-<!--                        </li>-->
-<!--                    </ul>-->
 <!--                </div>-->
-<!--            </form>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--</div>-->
+
+<!--<body class="gray-bg">-->
+<!--<div class="container-div">-->
+<!--    <div class="row">-->
+<!--&lt;!&ndash;        <div class="col-sm-12 search-collapse" shiro:hasPermission="system:paper:chaxun">&ndash;&gt;-->
+<!--&lt;!&ndash;            <form id="formId">&ndash;&gt;-->
+<!--&lt;!&ndash;                <div class="select-list" >&ndash;&gt;-->
+<!--&lt;!&ndash;                    <ul>&ndash;&gt;-->
+<!--&lt;!&ndash;                        <li>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <label>学院：</label>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <input type="text" name="college"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                        </li>&ndash;&gt;-->
+<!--&lt;!&ndash;                        <li>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <label>教师姓名：</label>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <input type="text" name="teacherName"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                        </li>&ndash;&gt;-->
+<!--&lt;!&ndash;                        <li>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <label>教研室：</label>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <input type="text" name="roleName"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                        </li>&ndash;&gt;-->
+<!--&lt;!&ndash;                        <li>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>&ndash;&gt;-->
+<!--&lt;!&ndash;                        </li>&ndash;&gt;-->
+<!--&lt;!&ndash;                    </ul>&ndash;&gt;-->
+<!--&lt;!&ndash;                </div>&ndash;&gt;-->
+<!--&lt;!&ndash;            </form>&ndash;&gt;-->
+<!--&lt;!&ndash;        </div>&ndash;&gt;-->
+
+<!--        <div class="btn-group-sm" id="toolbar" role="group">-->
+<!--            <a class="btn btn-success" onclick="$.operate.addTab()" shiro:hasPermission="system:paper:add">-->
+<!--                <i class="fa fa-plus"></i> 添加-->
+<!--            </a>-->
+<!--            &lt;!&ndash;                <a class="btn btn-primary single disabled" onclick="$.operate.editTab()" shiro:hasPermission="system:paper:edit">&ndash;&gt;-->
+<!--            &lt;!&ndash;                    <i class="fa fa-edit"></i> 修改&ndash;&gt;-->
+<!--            &lt;!&ndash;                </a>&ndash;&gt;-->
+<!--            &lt;!&ndash;                <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()" shiro:hasPermission="system:paper:remove">&ndash;&gt;-->
+<!--            &lt;!&ndash;                    <i class="fa fa-remove"></i> 删除&ndash;&gt;-->
+<!--            &lt;!&ndash;                </a>&ndash;&gt;-->
+<!--            <a class="btn btn-warning" onclick="exportExcel('formId',ListRowId)" shiro:hasPermission="system:paper:export">-->
+<!--                <i class="fa fa-download"></i> 导出-->
+<!--            </a>-->
+<!--          <div-->
+<!--            style="display: flex; align-items: center; gap: 15px; background: #f8f9fa; padding: 6px 12px; border-radius: 4px;">-->
+<!--            <th:block th:replace="include :: status-circles"/>-->
+<!--          </div>-->
 <!--        </div>-->
 
-        <div class="btn-group-sm" id="toolbar" role="group">
-            <a class="btn btn-success" onclick="$.operate.addTab()" shiro:hasPermission="system:paper:add">
-                <i class="fa fa-plus"></i> 添加
-            </a>
-            <!--                <a class="btn btn-primary single disabled" onclick="$.operate.editTab()" shiro:hasPermission="system:paper:edit">-->
-            <!--                    <i class="fa fa-edit"></i> 修改-->
-            <!--                </a>-->
-            <!--                <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()" shiro:hasPermission="system:paper:remove">-->
-            <!--                    <i class="fa fa-remove"></i> 删除-->
-            <!--                </a>-->
-            <a class="btn btn-warning" onclick="exportExcel('formId',ListRowId)" shiro:hasPermission="system:paper:export">
-                <i class="fa fa-download"></i> 导出
-            </a>
-          <div
-            style="display: flex; align-items: center; gap: 15px; background: #f8f9fa; padding: 6px 12px; border-radius: 4px;">
-            <th:block th:replace="include :: status-circles"/>
-          </div>
-        </div>
+<!--        <div class="col-sm-12 select-table table-striped">-->
+<!--            <table id="bootstrap-table"></table>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--</div>-->
+<!--<th:block th:include="include :: footer"/>-->
+<!--<script th:inline="javascript">-->
+<!--    var editFlag = [[${@permission.hasPermi('system:paper:edit')}]];-->
+<!--    var removeFlag = [[${@permission.hasPermi('system:paper:remove')}]];-->
+<!--    var editInfo = [[${@permission.hasPermi('system:paper:info')}]];-->
+<!--    var revokeInfo = [[${@permission.hasPermi('system:paper:revoke')}]];-->
+<!--    var XYPYFlag = [[${@permission.hasPermi('system:paper:xypy')}]];-->
+<!--    var KYPYFlag = [[${@permission.hasPermi('system:paper:kypy')}]];-->
 
-        <div class="col-sm-12 select-table table-striped">
-            <table id="bootstrap-table"></table>
-        </div>
-    </div>
-</div>
-<th:block th:include="include :: footer"/>
-<script th:inline="javascript">
-    var editFlag = [[${@permission.hasPermi('system:paper:edit')}]];
-    var removeFlag = [[${@permission.hasPermi('system:paper:remove')}]];
-    var editInfo = [[${@permission.hasPermi('system:paper:info')}]];
-    var revokeInfo = [[${@permission.hasPermi('system:paper:revoke')}]];
-    var XYPYFlag = [[${@permission.hasPermi('system:paper:xypy')}]];
-    var KYPYFlag = [[${@permission.hasPermi('system:paper:kypy')}]];
+<!--    var proFlag = [[${@permission.hasPermi('system:paper:process')}]];-->
+<!--    var XyRevoke = [[${@permission.hasPermi('system:paper:xyrevoke')}]];-->
+<!--    var KyRevoke = [[${@permission.hasPermi('system:paper:kyrevoke')}]];-->
+<!--    var QWERDates = [[${@dict.getType('sci_paper_qwer')}]];-->
 
-    var proFlag = [[${@permission.hasPermi('system:paper:process')}]];
-    var XyRevoke = [[${@permission.hasPermi('system:paper:xyrevoke')}]];
-    var KyRevoke = [[${@permission.hasPermi('system:paper:kyrevoke')}]];
-    var QWERDates = [[${@dict.getType('sci_paper_qwer')}]];
+<!--    var PaperDates = [[${@dict.getType('sci_paper_ar')}]];-->
+<!--    var KDates = [[${@dict.getType('sci_paper_k')}]];-->
 
-    var PaperDates = [[${@dict.getType('sci_paper_ar')}]];
-    var KDates = [[${@dict.getType('sci_paper_k')}]];
-
-    var prefix = ctx + "system/paper";
+<!--    var prefix = ctx + "system/paper";-->
 
 
-    var rowSelected=$("#bootstrap-table").bootstrapTable('getSelections');
-    console.log(rowSelected);
-    var ListRowId = [];
-    function getUrl() {
-        var year = localStorage.getItem("year");
-        return prefix+"/list/?year="+year;
-    }
-    function initTable(options) {
-        options.url = getUrl();
-        $.table.init(options);
-    }
+<!--    var rowSelected=$("#bootstrap-table").bootstrapTable('getSelections');-->
+<!--    console.log(rowSelected);-->
+<!--    var ListRowId = [];-->
+<!--    function getUrl() {-->
+<!--        var year = localStorage.getItem("year");-->
+<!--        return prefix+"/list/?year="+year;-->
+<!--    }-->
+<!--    function initTable(options) {-->
+<!--        options.url = getUrl();-->
+<!--        $.table.init(options);-->
+<!--    }-->
 
-    $(function() {
-        var options = {
-            // url:getUrl($('table').attr('id')),
-            createUrl: prefix + "/add",
-            detailUrl: prefix + "/detail/{id}",
-            updateUrl: prefix + "/edit/{id}",
-            removeUrl: prefix + "/remove",
-            exportUrl: prefix + "/export",
-            modalName: "论文",
-            clickToSelect: true,
-            rowStyle: rowStyle0,
-            pagination:true,
-            pageSize: 10,
-            onCheck: function(row) {
-                ListRowId.push(row.id);
-                console.log(ListRowId);
-            },
-            onUncheck:function (row){
-                var index = ListRowId.indexOf(row.id);
-                if (index > -1) {
-                    ListRowId.splice(index, 1);
-                }
-                console.log(ListRowId);
-            },
-            columns: [{
-                checkbox: true,
-            },
-                {
-                    field: 'id',
-                    title: '序号',
-                    visible: false
-                },
-                {
-                    field: 'college',
-                    title: '学院',
-                },
-                {
-                    field: 'researchRoom',
-                    title: '专业',
-                    visible: false
-                },
-                {
-                    field: 'teacherName',
-                    title: '教师姓名',
-                    align: 'center',
-                },
+<!--    $(function() {-->
+<!--        var options = {-->
+<!--            // url:getUrl($('table').attr('id')),-->
+<!--            createUrl: prefix + "/add",-->
+<!--            detailUrl: prefix + "/detail/{id}",-->
+<!--            updateUrl: prefix + "/edit/{id}",-->
+<!--            removeUrl: prefix + "/remove",-->
+<!--            exportUrl: prefix + "/export",-->
+<!--            modalName: "论文",-->
+<!--            clickToSelect: true,-->
+<!--            rowStyle: rowStyle0,-->
+<!--            pagination:true,-->
+<!--            pageSize: 10,-->
+<!--            onCheck: function(row) {-->
+<!--                ListRowId.push(row.id);-->
+<!--                console.log(ListRowId);-->
+<!--            },-->
+<!--            onUncheck:function (row){-->
+<!--                var index = ListRowId.indexOf(row.id);-->
+<!--                if (index > -1) {-->
+<!--                    ListRowId.splice(index, 1);-->
+<!--                }-->
+<!--                console.log(ListRowId);-->
+<!--            },-->
+<!--            columns: [{-->
+<!--                checkbox: true,-->
+<!--            },-->
+<!--                {-->
+<!--                    field: 'id',-->
+<!--                    title: '序号',-->
+<!--                    visible: false-->
+<!--                },-->
+<!--                {-->
+<!--                    field: 'college',-->
+<!--                    title: '学院',-->
+<!--                },-->
+<!--                {-->
+<!--                    field: 'researchRoom',-->
+<!--                    title: '专业',-->
+<!--                    visible: false-->
+<!--                },-->
+<!--                {-->
+<!--                    field: 'teacherName',-->
+<!--                    title: '教师姓名',-->
+<!--                    align: 'center',-->
+<!--                },-->
 
-                {
-                    field: 'paperTitle',
-                    title: '论文名称',
-                    align: 'center',
-                },
-                {
-                    field: 'paperCategory',
-                    title: '论文类别',
-                    align: 'center',
-                    formatter: function(value, row, index) {
-                        return $.table.selectDictLabel(KDates, value);
-                    }
-                },
-                {
-                    field: 'publishedJournal',
-                    title: '发表期刊',
-                    align: 'center',
-                },
-                {
-                    field: 'inclusionStatus',
-                    title: '收录情况',
-                    align: 'center',
-                    visible: false,
-                },
-                {
-                    field: 'search_web',
-                    title: '收录网站',
-                    align: 'center',
-                    visible: false,
-                },
-                {
-                    field: 'publicationTime',
-                    title: '发表时间',
-                    align: 'center',
-                    formatter: function(value, row, index) {
-                        var date = new Date(value);
-                        var year = date.getFullYear();
-                        var month = (date.getMonth() + 1).toString().padStart(2, '0'); // 月份从0开始，所以要加1
-                        var day = date.getDate().toString().padStart(2, '0');
-                        return year + '-' + month + '-' + day;
-                    }
-                },
-                {
-                    field: 'isIndustryCollaborative',
-                    title: '是否与行业联合发表',
-                    align: 'center',
-                    visible: false,
-                },
-                {
-                    field: 'isLocalCollaborative',
-                    title: '是否与地方联合发表',
-                    align: 'center',
-                    visible: false,
-                },
-                {
-                    field: 'isInternationalCollaborative',
-                    title: '是否与国际联合发表',
-                    align: 'center',
-                    visible: false,
-                },
-                {
-                    field: 'isCrossDiscipline',
-                    title: '是否是跨学科论文',
-                    align: 'center',
-                    visible: false,
-                },
-                {
-                    field: 'paperRanking',
-                    title: '作者排名',
-                    formatter: function(value, row, index) {
-                        console.log( $.table.selectDictLabels(QWERDates, value))
-                        return $.table.selectDictLabel(QWERDates, value);
-                    }
-                },
-                {
-                    field: 'researchScore',
-                    title: '科研分'
-                },
-                {
-                    title: '操作',
-                    align: 'center',
-                    width: '150px',
-                    formatter: function(value, row, index) {
-                        // console.log("row.roleId:",row.roleId)
-                        // console.log("row.rolekey:",row.rolekey)
-                        //
-                        // console.log("row.state:",row.state)
-                        // console.log("row.userId:",row.userId) // 角色自己ID
-                        // console.log("row.uid:",row.uid) //登录人的ID
+<!--                {-->
+<!--                    field: 'paperTitle',-->
+<!--                    title: '论文名称',-->
+<!--                    align: 'center',-->
+<!--                },-->
+<!--                {-->
+<!--                    field: 'paperCategory',-->
+<!--                    title: '论文类别',-->
+<!--                    align: 'center',-->
+<!--                    formatter: function(value, row, index) {-->
+<!--                        return $.table.selectDictLabel(KDates, value);-->
+<!--                    }-->
+<!--                },-->
+<!--                {-->
+<!--                    field: 'publishedJournal',-->
+<!--                    title: '发表期刊',-->
+<!--                    align: 'center',-->
+<!--                },-->
+<!--                {-->
+<!--                    field: 'inclusionStatus',-->
+<!--                    title: '收录情况',-->
+<!--                    align: 'center',-->
+<!--                    visible: false,-->
+<!--                },-->
+<!--                {-->
+<!--                    field: 'search_web',-->
+<!--                    title: '收录网站',-->
+<!--                    align: 'center',-->
+<!--                    visible: false,-->
+<!--                },-->
+<!--                {-->
+<!--                    field: 'publicationTime',-->
+<!--                    title: '发表时间',-->
+<!--                    align: 'center',-->
+<!--                    formatter: function(value, row, index) {-->
+<!--                        var date = new Date(value);-->
+<!--                        var year = date.getFullYear();-->
+<!--                        var month = (date.getMonth() + 1).toString().padStart(2, '0'); // 月份从0开始，所以要加1-->
+<!--                        var day = date.getDate().toString().padStart(2, '0');-->
+<!--                        return year + '-' + month + '-' + day;-->
+<!--                    }-->
+<!--                },-->
+<!--                {-->
+<!--                    field: 'isIndustryCollaborative',-->
+<!--                    title: '是否与行业联合发表',-->
+<!--                    align: 'center',-->
+<!--                    visible: false,-->
+<!--                },-->
+<!--                {-->
+<!--                    field: 'isLocalCollaborative',-->
+<!--                    title: '是否与地方联合发表',-->
+<!--                    align: 'center',-->
+<!--                    visible: false,-->
+<!--                },-->
+<!--                {-->
+<!--                    field: 'isInternationalCollaborative',-->
+<!--                    title: '是否与国际联合发表',-->
+<!--                    align: 'center',-->
+<!--                    visible: false,-->
+<!--                },-->
+<!--                {-->
+<!--                    field: 'isCrossDiscipline',-->
+<!--                    title: '是否是跨学科论文',-->
+<!--                    align: 'center',-->
+<!--                    visible: false,-->
+<!--                },-->
+<!--                {-->
+<!--                    field: 'paperRanking',-->
+<!--                    title: '作者排名',-->
+<!--                    formatter: function(value, row, index) {-->
+<!--                        console.log( $.table.selectDictLabels(QWERDates, value))-->
+<!--                        return $.table.selectDictLabel(QWERDates, value);-->
+<!--                    }-->
+<!--                },-->
+<!--                {-->
+<!--                    field: 'researchScore',-->
+<!--                    title: '科研分'-->
+<!--                },-->
+<!--                {-->
+<!--                    title: '操作',-->
+<!--                    align: 'center',-->
+<!--                    width: '150px',-->
+<!--                    formatter: function(value, row, index) {-->
+<!--                        // console.log("row.roleId:",row.roleId)-->
+<!--                        // console.log("row.rolekey:",row.rolekey)-->
+<!--                        //-->
+<!--                        // console.log("row.state:",row.state)-->
+<!--                        // console.log("row.userId:",row.userId) // 角色自己ID-->
+<!--                        // console.log("row.uid:",row.uid) //登录人的ID-->
 
-                        $(document).ready(function () {
-                            // 点击按钮时显示模态框
-                            $('#showModalButton').on('click', function () {
-                                $('#myModal1111').modal('show'); // 使用 Bootstrap 的 modal 方法显示模态框
-                            });
-                        });
-                        var actions = [];
-                        actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="viewProcess(\'' + row.id +','+row.state+ '\')"><i class=""></i>查看流程</a><br>');
+<!--                        $(document).ready(function () {-->
+<!--                            // 点击按钮时显示模态框-->
+<!--                            $('#showModalButton').on('click', function () {-->
+<!--                                $('#myModal1111').modal('show'); // 使用 Bootstrap 的 modal 方法显示模态框-->
+<!--                            });-->
+<!--                        });-->
+<!--                        var actions = [];-->
+<!--                        actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="viewProcess(\'' + row.id +','+row.state+ '\')"><i class=""></i>查看流程</a><br>');-->
 
-                      if(row.state == 99){
-                            actions.push('<a class="' + editFlag + '" href="javascript:void(0)" onclick="pushTh(\'' + row.id + '\')"><i class=""></i>提交</a>&nbsp;&nbsp;&nbsp;');
-                            actions.push('<a class="' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"><i class=""></i>删除</a><br>&nbsp;&nbsp;&nbsp;');
-                            actions.push('<a class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class=""></i>编辑</a>&nbsp;&nbsp;&nbsp;');
-                        }
-                        if (row.state == 1) { // 待处理
-                            if (row.userId == row.uid) {
-                                actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="viewProcess(\'' + row.id +','+row.state+ '\')"><i class=""></i>查看流程</a><br>');
-                            }
-                            actions.push('<a class="' + proFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro\')"><i class=""></i>教研室批阅</a>');
-                        } else if (row.state == 2) { // 教研室通过
-                            actions.push('<a  class="' + revokeInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/proth\')"><i class=""></i>撤回</a><br>');
-                            actions.push('<a class="' + XYPYFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/xytg\')"><i class=""></i>学院核查</a>');
-                            if (row.userId == row.uid) {
-                                actions.push('<a class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan\')"><i class=""></i>查看</a><br>');
-                                actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="viewProcess(\'' + row.id +','+row.state+ '\')"><i class=""></i>查看流程</a>');
-                            }
-                        } else if (row.state == 3 ||row.state == 7||row.state == 5) { //退回
-                            actions.push('<a class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan\')"><i class=""></i>查看</a>&nbsp;');
-                            if (row.userId == row.uid) {
-                                actions.push('<a class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class=""></i>更新</a><br>');
-                                actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="viewProcess(\'' + row.id +','+row.state+ '\')"><i class=""></i>查看流程</a>');
-                            }
-                        } else if (row.state == 4) { // 学院通过
-                            actions.push('<a  class="' + XyRevoke + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/xyth\')"><i class=""></i>撤回</a><br>');
-                            actions.push('<a class="' + KYPYFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/kytg\')"><i class=""></i>科研核查</a>');
-                            if (row.userId == row.uid) {
-                                actions.push('<a class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan\')"><i class=""></i>查看</a><br>');
-                                actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="viewProcess(\'' + row.id +','+row.state+ '\')"><i class=""></i>查看流程</a>');
-                            }
-                            // }  else if (row.state == 6) { // 科研处通过
-                            //     actions.push('<a class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan\')"><i class=""></i>查看</a>');
-                            //     if (row.userId == row.uid) {
-                            //         actions.push('<a class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan\')"><i class=""></i>查看</a>');
-                            //     }
-                        }  else if (row.state == 8) { // 完成
-                            actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan\')"><i class=""></i>查看</a><br>');
-                            actions.push('<a  class="' + KyRevoke + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/kyth\')"><i class=""></i>撤回</a> ');
-                            if (row.userId == row.uid) {
-                                actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="viewProcess(\'' + row.id +','+row.state+ '\')"><i class=""></i>查看流程</a>');
-                            }
-                        }
-                        return actions.join('');
-                    }
-                }]
-        };
-        initTable(options);
+<!--                      if(row.state == 99){-->
+<!--                            actions.push('<a class="' + editFlag + '" href="javascript:void(0)" onclick="pushTh(\'' + row.id + '\')"><i class=""></i>提交</a>&nbsp;&nbsp;&nbsp;');-->
+<!--                            actions.push('<a class="' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"><i class=""></i>删除</a><br>&nbsp;&nbsp;&nbsp;');-->
+<!--                            actions.push('<a class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class=""></i>编辑</a>&nbsp;&nbsp;&nbsp;');-->
+<!--                        }-->
+<!--                        if (row.state == 1) { // 待处理-->
+<!--                            if (row.userId == row.uid) {-->
+<!--                                actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="viewProcess(\'' + row.id +','+row.state+ '\')"><i class=""></i>查看流程</a><br>');-->
+<!--                            }-->
+<!--                            actions.push('<a class="' + proFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro\')"><i class=""></i>教研室批阅</a>');-->
+<!--                        } else if (row.state == 2) { // 教研室通过-->
+<!--                            actions.push('<a  class="' + revokeInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/proth\')"><i class=""></i>撤回</a><br>');-->
+<!--                            actions.push('<a class="' + XYPYFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/xytg\')"><i class=""></i>学院核查</a>');-->
+<!--                            if (row.userId == row.uid) {-->
+<!--                                actions.push('<a class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan\')"><i class=""></i>查看</a><br>');-->
+<!--                                actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="viewProcess(\'' + row.id +','+row.state+ '\')"><i class=""></i>查看流程</a>');-->
+<!--                            }-->
+<!--                        } else if (row.state == 3 ||row.state == 7||row.state == 5) { //退回-->
+<!--                            actions.push('<a class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan\')"><i class=""></i>查看</a>&nbsp;');-->
+<!--                            if (row.userId == row.uid) {-->
+<!--                                actions.push('<a class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"><i class=""></i>更新</a><br>');-->
+<!--                                actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="viewProcess(\'' + row.id +','+row.state+ '\')"><i class=""></i>查看流程</a>');-->
+<!--                            }-->
+<!--                        } else if (row.state == 4) { // 学院通过-->
+<!--                            actions.push('<a  class="' + XyRevoke + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/xyth\')"><i class=""></i>撤回</a><br>');-->
+<!--                            actions.push('<a class="' + KYPYFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/kytg\')"><i class=""></i>科研核查</a>');-->
+<!--                            if (row.userId == row.uid) {-->
+<!--                                actions.push('<a class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan\')"><i class=""></i>查看</a><br>');-->
+<!--                                actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="viewProcess(\'' + row.id +','+row.state+ '\')"><i class=""></i>查看流程</a>');-->
+<!--                            }-->
+<!--                            // }  else if (row.state == 6) { // 科研处通过-->
+<!--                            //     actions.push('<a class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan\')"><i class=""></i>查看</a>');-->
+<!--                            //     if (row.userId == row.uid) {-->
+<!--                            //         actions.push('<a class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan\')"><i class=""></i>查看</a>');-->
+<!--                            //     }-->
+<!--                        }  else if (row.state == 8) { // 完成-->
+<!--                            actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan\')"><i class=""></i>查看</a><br>');-->
+<!--                            actions.push('<a  class="' + KyRevoke + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/kyth\')"><i class=""></i>撤回</a> ');-->
+<!--                            if (row.userId == row.uid) {-->
+<!--                                actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="viewProcess(\'' + row.id +','+row.state+ '\')"><i class=""></i>查看流程</a>');-->
+<!--                            }-->
+<!--                        }-->
+<!--                        return actions.join('');-->
+<!--                    }-->
+<!--                }]-->
+<!--        };-->
+<!--        initTable(options);-->
 
-        window.addEventListener("storage",function (event) {
-            if (event.key === "year") {
-                $('#bootstrap-table').bootstrapTable("destroy")
-                initTable(options);
-            }
-        })
-    });
-
-
-</script>
-<script>
-    function pushTh(id) {
-        $.modal.confirm("确认要提交吗?", function () {
-            var url = prefix + "/tj/" + id;
-            $.ajax({
-                url: prefix + "/tj/" + id,
-                type: "post",
-                success: function (data) {
-                    //alert("提交成功")
-                    $("#bootstrap-table").bootstrapTable('refresh');
-                }
-            })
-        });
-    }
-    function  exportExcel(formId,ListRowId) {
-        console.log('typeof formId:', typeof formId);
-        table.set();
-        $.modal.confirm("确定导出" + table.options.modalName + "吗？", function() {
-            var currentId = $.common.isEmpty(formId) ? $('form').attr('id') : formId;
-            var params = $("#" + table.options.id).bootstrapTable('getOptions');
-            var dataParam = $("#" + currentId).serializeArray();
-            dataParam.push({ "name": "orderByColumn", "value": params.sortName });
-            dataParam.push({ "name": "isAsc", "value": params.sortOrder });
-            console.log("dataParam:1:",dataParam);
-            // 添加选中行的ID到参数中
-            if (ListRowId.length > 0) {
-                dataParam.push({ "name": "ListRowId", "value": ListRowId.join(',') });
-            }
-            $.modal.loading("正在导出数据，请稍候...");
-            $.post(table.options.exportUrl, dataParam, function(result) {
-                if (result.code == web_status.SUCCESS) {
-                    window.location.href = ctx + "common/download?fileName=" + encodeURI(result.msg) + "&delete=" + true;
-                } else if (result.code == web_status.WARNING) {
-                    $.modal.alertWarning(result.msg)
-                } else {
-                    $.modal.alertError(result.msg);
-                }
-                $.modal.closeLoading();
-            });
-        });
-    }
-    function viewProcess(kidd) {
-        const kid = kidd.split(",")[0];   //id
-        const state = kidd.split(",")[1]; //状态
-        // console.log(kid)
-        // console.log(state)
-        $('#myModal1111').modal('show');
-        function updateEventData(rows) {
-            $("#event-list").empty();
-            rows.forEach(function (item, index) {
-                const newLi = `
-                <li class="time">
-                    <i class="node-icon"></i>
-                    <span class="time">${item.create_time}</span>
-                    <span class="txt">[${item.state}]:${item.uname}</span>
-                </li>
-            `;
-                $("#event-list").append(newLi);
-            });
-            const steps = document.querySelectorAll('.progress_inner__step');
-            console.log("steps:"+steps.values())
-        }
+<!--        window.addEventListener("storage",function (event) {-->
+<!--            if (event.key === "year") {-->
+<!--                $('#bootstrap-table').bootstrapTable("destroy")-->
+<!--                initTable(options);-->
+<!--            }-->
+<!--        })-->
+<!--    });-->
 
 
-        function updateProgressState(state) {
-            // 获取所有步骤元素
-            const steps = document.querySelectorAll('.progress_inner__step');
-            const progressBar = document.querySelector('.progress_inner__bar');
+<!--</script>-->
+<!--<script>-->
+<!--    function pushTh(id) {-->
+<!--        $.modal.confirm("确认要提交吗?", function () {-->
+<!--            var url = prefix + "/tj/" + id;-->
+<!--            $.ajax({-->
+<!--                url: prefix + "/tj/" + id,-->
+<!--                type: "post",-->
+<!--                success: function (data) {-->
+<!--                    //alert("提交成功")-->
+<!--                    $("#bootstrap-table").bootstrapTable('refresh');-->
+<!--                }-->
+<!--            })-->
+<!--        });-->
+<!--    }-->
+<!--    function  exportExcel(formId,ListRowId) {-->
+<!--        console.log('typeof formId:', typeof formId);-->
+<!--        table.set();-->
+<!--        $.modal.confirm("确定导出" + table.options.modalName + "吗？", function() {-->
+<!--            var currentId = $.common.isEmpty(formId) ? $('form').attr('id') : formId;-->
+<!--            var params = $("#" + table.options.id).bootstrapTable('getOptions');-->
+<!--            var dataParam = $("#" + currentId).serializeArray();-->
+<!--            dataParam.push({ "name": "orderByColumn", "value": params.sortName });-->
+<!--            dataParam.push({ "name": "isAsc", "value": params.sortOrder });-->
+<!--            console.log("dataParam:1:",dataParam);-->
+<!--            // 添加选中行的ID到参数中-->
+<!--            if (ListRowId.length > 0) {-->
+<!--                dataParam.push({ "name": "ListRowId", "value": ListRowId.join(',') });-->
+<!--            }-->
+<!--            $.modal.loading("正在导出数据，请稍候...");-->
+<!--            $.post(table.options.exportUrl, dataParam, function(result) {-->
+<!--                if (result.code == web_status.SUCCESS) {-->
+<!--                    window.location.href = ctx + "common/download?fileName=" + encodeURI(result.msg) + "&delete=" + true;-->
+<!--                } else if (result.code == web_status.WARNING) {-->
+<!--                    $.modal.alertWarning(result.msg)-->
+<!--                } else {-->
+<!--                    $.modal.alertError(result.msg);-->
+<!--                }-->
+<!--                $.modal.closeLoading();-->
+<!--            });-->
+<!--        });-->
+<!--    }-->
+<!--    function viewProcess(kidd) {-->
+<!--        const kid = kidd.split(",")[0];   //id-->
+<!--        const state = kidd.split(",")[1]; //状态-->
+<!--        // console.log(kid)-->
+<!--        // console.log(state)-->
+<!--        $('#myModal1111').modal('show');-->
+<!--        function updateEventData(rows) {-->
+<!--            $("#event-list").empty();-->
+<!--            rows.forEach(function (item, index) {-->
+<!--                const newLi = `-->
+<!--                <li class="time">-->
+<!--                    <i class="node-icon"></i>-->
+<!--                    <span class="time">${item.create_time}</span>-->
+<!--                    <span class="txt">[${item.state}]:${item.uname}</span>-->
+<!--                </li>-->
+<!--            `;-->
+<!--                $("#event-list").append(newLi);-->
+<!--            });-->
+<!--            const steps = document.querySelectorAll('.progress_inner__step');-->
+<!--            console.log("steps:"+steps.values())-->
+<!--        }-->
 
-            // 清除所有步骤的状态
-            steps.forEach((step, index) => {
-                step.classList.remove('active', 'completed');
-                step.classList.add('pending'); // 默认为 pending 状态
 
-                // 更新文本状态
-                const statusText = step.querySelector('.status-text');
-                if (statusText) {
-                    statusText.classList.remove('active');
-                }
-            });
+<!--        function updateProgressState(state) {-->
+<!--            // 获取所有步骤元素-->
+<!--            const steps = document.querySelectorAll('.progress_inner__step');-->
+<!--            const progressBar = document.querySelector('.progress_inner__bar');-->
 
-            // 创建分段元素（如果尚未创建）
-            if (progressBar && !progressBar.querySelector('.segment')) {
-                const firstSegment = document.createElement('div');
-                firstSegment.className = 'segment first';
-                const secondSegment = document.createElement('div');
-                secondSegment.className = 'segment second';
-                progressBar.appendChild(firstSegment);
-                progressBar.appendChild(secondSegment);
-            }
+<!--            // 清除所有步骤的状态-->
+<!--            steps.forEach((step, index) => {-->
+<!--                step.classList.remove('active', 'completed');-->
+<!--                step.classList.add('pending'); // 默认为 pending 状态-->
 
-            // 移除所有分段高亮
-            const segments = progressBar ? progressBar.querySelectorAll('.segment') : [];
-            segments.forEach(segment => {
-                segment.classList.remove('highlight');
-            });
+<!--                // 更新文本状态-->
+<!--                const statusText = step.querySelector('.status-text');-->
+<!--                if (statusText) {-->
+<!--                    statusText.classList.remove('active');-->
+<!--                }-->
+<!--            });-->
 
-            console.log("state$:"+state)
+<!--            // 创建分段元素（如果尚未创建）-->
+<!--            if (progressBar && !progressBar.querySelector('.segment')) {-->
+<!--                const firstSegment = document.createElement('div');-->
+<!--                firstSegment.className = 'segment first';-->
+<!--                const secondSegment = document.createElement('div');-->
+<!--                secondSegment.className = 'segment second';-->
+<!--                progressBar.appendChild(firstSegment);-->
+<!--                progressBar.appendChild(secondSegment);-->
+<!--            }-->
 
-            switch (state) { // 根据 state 更新状态
+<!--            // 移除所有分段高亮-->
+<!--            const segments = progressBar ? progressBar.querySelectorAll('.segment') : [];-->
+<!--            segments.forEach(segment => {-->
+<!--                segment.classList.remove('highlight');-->
+<!--            });-->
 
-                case "3":
-                case "5":
-                    // 当前步骤为 step-1
-                    highlightStep(0); // 高亮第一个步骤
-                    break;
-                case "1":
-                case "2":
-                case "4":
-                case "6":
-                case "7":
-                case "9":
-                case "10":
-                    // 当前步骤为 step-2，step-1 完成
-                    markCompleted(0); // step-1 完成
-                    highlightStep(1); // 高亮第二个步骤
+<!--            console.log("state$:"+state)-->
 
-                    // 高亮第一段连接线
-                    if (segments[0]) {
-                        segments[0].classList.add('highlight');
-                    }
-                    break;
+<!--            switch (state) { // 根据 state 更新状态-->
 
-                case "8":
-                    // 所有步骤完成
-                    markCompleted(0); // step-1 完成
-                    markCompleted(1); // step-2 完成
-                    highlightStep(2); // 高亮第三个步骤
-                    markCompleted(2) // step-3 完成
-                    // 高亮所有连接线
-                    segments.forEach(segment => {
-                        segment.classList.add('highlight');
-                    });
-                    break;
+<!--                case "3":-->
+<!--                case "5":-->
+<!--                    // 当前步骤为 step-1-->
+<!--                    highlightStep(0); // 高亮第一个步骤-->
+<!--                    break;-->
+<!--                case "1":-->
+<!--                case "2":-->
+<!--                case "4":-->
+<!--                case "6":-->
+<!--                case "7":-->
+<!--                case "9":-->
+<!--                case "10":-->
+<!--                    // 当前步骤为 step-2，step-1 完成-->
+<!--                    markCompleted(0); // step-1 完成-->
+<!--                    highlightStep(1); // 高亮第二个步骤-->
 
-                default:
-                    console.error('未知状态:', state);
-            }
-        }
-        function highlightStep(index) { // 高亮指定步骤
-            const step = document.querySelectorAll('.progress_inner__step')[index];
-            if (step) {
-                step.classList.add('active');
-                step.classList.remove('pending');
+<!--                    // 高亮第一段连接线-->
+<!--                    if (segments[0]) {-->
+<!--                        segments[0].classList.add('highlight');-->
+<!--                    }-->
+<!--                    break;-->
 
-                // 高亮文本
-                const statusText = step.querySelector('.status-text');
-                if (statusText) {
-                    statusText.classList.add('active');
-                }
-            }
-        }
-        // 标记指定步骤为已完成(获取索引)
-        function markCompleted(index) {
-            const step = document.querySelectorAll('.progress_inner__step')[index];
-            if (step) {
-                step.classList.add('completed');
-                step.classList.remove('pending', 'active');
-            }
-        }
+<!--                case "8":-->
+<!--                    // 所有步骤完成-->
+<!--                    markCompleted(0); // step-1 完成-->
+<!--                    markCompleted(1); // step-2 完成-->
+<!--                    highlightStep(2); // 高亮第三个步骤-->
+<!--                    markCompleted(2) // step-3 完成-->
+<!--                    // 高亮所有连接线-->
+<!--                    segments.forEach(segment => {-->
+<!--                        segment.classList.add('highlight');-->
+<!--                    });-->
+<!--                    break;-->
 
-        // 使用 $.ajax 发起请求
-        $.ajax({
-            url: prefix + '/bhxs/' + kid,
-            method: 'POST',
-            dataType: 'json',
-            success: function (data) {
-                console.log(data);
-                // 检查返回的数据是否有效
-                if (data && Array.isArray(data.rows)) {
-                    // 更新页面上的数据
-                    updateEventData(data.rows);
-                    updateProgressState(state);
-                } else {
-                    console.error("返回的数据格式不正确");
-                    updateEventData([]); // 清空列表
-                }
-            },
-            error: function (xhr, status, error) {
-                console.error('请求失败:', error);
-                updateEventData([]); // 清空列表
-            }
-        });
-    }
+<!--                default:-->
+<!--                    console.error('未知状态:', state);-->
+<!--            }-->
+<!--        }-->
+<!--        function highlightStep(index) { // 高亮指定步骤-->
+<!--            const step = document.querySelectorAll('.progress_inner__step')[index];-->
+<!--            if (step) {-->
+<!--                step.classList.add('active');-->
+<!--                step.classList.remove('pending');-->
 
-    function downloadFiles(id) {
-        window.location.href = ctx + 'common/HXdownloadZip?id='+id;
-    }
+<!--                // 高亮文本-->
+<!--                const statusText = step.querySelector('.status-text');-->
+<!--                if (statusText) {-->
+<!--                    statusText.classList.add('active');-->
+<!--                }-->
+<!--            }-->
+<!--        }-->
+<!--        // 标记指定步骤为已完成(获取索引)-->
+<!--        function markCompleted(index) {-->
+<!--            const step = document.querySelectorAll('.progress_inner__step')[index];-->
+<!--            if (step) {-->
+<!--                step.classList.add('completed');-->
+<!--                step.classList.remove('pending', 'active');-->
+<!--            }-->
+<!--        }-->
 
-    function rowStyle0(row, index) {
-        // 定义状态值与颜色的映射关系
-        const stateColorMap = {
-            8: '#67c23a', // 完结 绿色
-            3: '#e6a344', 5: '#e6a344', 7: '#e6a344', 9: '#e6a344', 10: '#e6a344', 22: '#e6a344', 44: '#e6a344',99: '#e6a344', // 被驳回，草稿 黄色
-            1: '#2c99ff',2: '#2c99ff', 4: '#2c99ff', 6: '#2c99ff', 11: '#2c99ff', 33: '#2c99ff' // 审核中 蓝色
-        };
+<!--        // 使用 $.ajax 发起请求-->
+<!--        $.ajax({-->
+<!--            url: prefix + '/bhxs/' + kid,-->
+<!--            method: 'POST',-->
+<!--            dataType: 'json',-->
+<!--            success: function (data) {-->
+<!--                console.log(data);-->
+<!--                // 检查返回的数据是否有效-->
+<!--                if (data && Array.isArray(data.rows)) {-->
+<!--                    // 更新页面上的数据-->
+<!--                    updateEventData(data.rows);-->
+<!--                    updateProgressState(state);-->
+<!--                } else {-->
+<!--                    console.error("返回的数据格式不正确");-->
+<!--                    updateEventData([]); // 清空列表-->
+<!--                }-->
+<!--            },-->
+<!--            error: function (xhr, status, error) {-->
+<!--                console.error('请求失败:', error);-->
+<!--                updateEventData([]); // 清空列表-->
+<!--            }-->
+<!--        });-->
+<!--    }-->
 
-        // 统一将 row.state 转换为字符串进行查找
-        const state = String(row.state);
+<!--    function downloadFiles(id) {-->
+<!--        window.location.href = ctx + 'common/HXdownloadZip?id='+id;-->
+<!--    }-->
 
-        // 根据状态值查找对应的颜色
-        if (state in stateColorMap) {
-            return {
-                css: { color: stateColorMap[state] }
-            };
-        }
+<!--    function rowStyle0(row, index) {-->
+<!--        // 定义状态值与颜色的映射关系-->
+<!--        const stateColorMap = {-->
+<!--            8: '#67c23a', // 完结 绿色-->
+<!--            3: '#e6a344', 5: '#e6a344', 7: '#e6a344', 9: '#e6a344', 10: '#e6a344', 22: '#e6a344', 44: '#e6a344',99: '#e6a344', // 被驳回，草稿 黄色-->
+<!--            1: '#2c99ff',2: '#2c99ff', 4: '#2c99ff', 6: '#2c99ff', 11: '#2c99ff', 33: '#2c99ff' // 审核中 蓝色-->
+<!--        };-->
 
-        // 默认样式（可自定义）
-        return {
-            css: { color: '#000000' } // 默认黑色
-        };
-    }
-</script>
-</body>
-</html>
+<!--        // 统一将 row.state 转换为字符串进行查找-->
+<!--        const state = String(row.state);-->
+
+<!--        // 根据状态值查找对应的颜色-->
+<!--        if (state in stateColorMap) {-->
+<!--            return {-->
+<!--                css: { color: stateColorMap[state] }-->
+<!--            };-->
+<!--        }-->
+
+<!--        // 默认样式（可自定义）-->
+<!--        return {-->
+<!--            css: { color: '#000000' } // 默认黑色-->
+<!--        };-->
+<!--    }-->
+<!--</script>-->
+<!--</body>-->
+<!--</html>-->

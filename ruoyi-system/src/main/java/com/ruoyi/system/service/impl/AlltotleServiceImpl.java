@@ -226,13 +226,16 @@ public class AlltotleServiceImpl implements IAlltotleService {
   }
 
   private String sum_ge_wan(String str1, String str2) {
-    if (str1.contains("个 (") && str1.contains("万)")&&str2.contains("个 (") && str2.contains("万)")) {
-      Integer num1 = Integer.parseInt(str1.split("个")[0]);
-      Integer num2 = Integer.parseInt(str2.split("个")[0]);
-      Integer num3 = Integer.parseInt(str1.split("万")[0].split("\\(")[1]);
-      Integer num4 = Integer.parseInt(str2.split("万")[0].split("\\(")[1]);
-      Integer sum1= num1+num2;
-      Integer sum2= num3+num4;
+    str1 = str1.replace("（", "(").replace("）", ")").replaceAll("\\s+", "");
+    str2 = str2.replace("（", "(").replace("）", ")").replaceAll("\\s+", "");
+    if (str1.contains("个(") && str1.contains("万)")&&str2.contains("个(") && str2.contains("万)")) {
+      Double num1 = Double.parseDouble(str1.split("个")[0]);
+      Double num2 = Double.parseDouble(str2.split("个")[0]);
+      Double num3 = Double.parseDouble(str1.split("万")[0].split("\\(")[1]);
+      Double num4 = Double.parseDouble(str2.split("万")[0].split("\\(")[1]);
+      Integer sum1 = num1.intValue() + num2.intValue();
+      Integer sum2 = num3.intValue() + num4.intValue();
+
       return sum1+"个 ("+sum2+"万)";
     }else {
       throw new RuntimeException("格式错误1"+str1+"/"+str2);

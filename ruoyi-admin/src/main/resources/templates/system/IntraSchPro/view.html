@@ -766,14 +766,14 @@
           align: 'center',
           title: '乙方'
         },
-        {
-          field: 'state',
-          title: '申请状态',
-          align: 'center',
-          formatter: function (value, row, index) {
-            return $.table.selectDictLabel(datas, value);
-          }
-        },
+        // {
+        //   field: 'state',
+        //   title: '申请状态',
+        //   align: 'center',
+        //   formatter: function (value, row, index) {
+        //     return $.table.selectDictLabel(datas, value);
+        //   }
+        // },
         {
           field: 'responsibilityTier',
           title: '责任层级',
@@ -897,16 +897,16 @@
           align: 'center',
           title: '乙方'
         },
-        {
-          field: 'state',
-          title: '申请状态',
-          align: 'center',
-          formatter: function (value, row, index) {
-            //console.log("val=",value)
-            //console.log("row.state=",row.state)
-            return $.table.selectDictLabel(datas, value);
-          }
-        },
+        // {
+        //   field: 'state',
+        //   title: '申请状态',
+        //   align: 'center',
+        //   formatter: function (value, row, index) {
+        //     //console.log("val=",value)
+        //     //console.log("row.state=",row.state)
+        //     return $.table.selectDictLabel(datas, value);
+        //   }
+        // },
         {
           field: 'responsibilityTier',
           title: '责任层级',
@@ -941,7 +941,7 @@
             if (row.state == '15') {
               actions.push('<a   class="link-button' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')">更新</a>');
               actions.push('<a   class="link-button' + '" href="javascript:void(0)" onclick="subDraft(\'' + row.id + '\')">提交草稿</a> &nbsp;');
-              actions.push('<a class="del-link-button ' + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"> </i>删除</a>');
+              actions.push('<a class="del-link-button' + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"> </i>删除</a>');
             }
             //这个role字段是在sql里面写死
             //教研<!-- Update the button to use the new CSS class -->
@@ -1173,14 +1173,14 @@
           align: 'center',
           title: '乙方'
         },
-        {
-          field: 'state',
-          title: '申请状态',
-          align: 'center',
-          formatter: function (value, row, index) {
-            return $.table.selectDictLabel(datas, value);
-          }
-        },
+        // {
+        //   field: 'state',
+        //   title: '申请状态',
+        //   align: 'center',
+        //   formatter: function (value, row, index) {
+        //     return $.table.selectDictLabel(datas, value);
+        //   }
+        // },
         {
           field: 'responsibilityTier',
           title: '责任层级',
