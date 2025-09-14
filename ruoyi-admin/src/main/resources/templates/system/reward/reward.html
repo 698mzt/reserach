@@ -327,53 +327,10 @@
                             <label>申请人：</label>
                             <input type="text" name="userName"/>
                         </li>
-                        <!--                            <li>-->
-                        <!--                                <label>荣誉名称：</label>-->
-                        <!--                                <input type="text" name="rewardName"/>-->
-                        <!--                            </li>-->
-                        <!--                            <li>-->
-                        <!--                                <label>颁发单位：</label>-->
-                        <!--                                <input type="text" name="rewardDanwei"/>-->
-                        <!--                            </li>-->
-                        <!--                            <li>-->
-                        <!--                                <label>奖励类型：</label>-->
-                        <!--                                <input type="text" name="rewardLeixing"/>-->
-                        <!--                            </li>-->
-                        <!--                            <li>-->
-                        <!--                                <label>证书文件：</label>-->
-                        <!--                                <input type="text" name="rewardWenjian"/>-->
-                        <!--                            </li>-->
-                        <!--                            <li>-->
-                        <!--                                <label>颁发时间：</label>-->
-                        <!--                                <input type="text" class="time-input" placeholder="请选择颁发时间" name="rewardTime"/>-->
-                        <!--                            </li>-->
-                        <!--                            <li>-->
-                        <!--                                <label>分类：</label>-->
-                        <!--                                <input type="text" name="rewardFenlei"/>-->
-                        <!--                            </li>-->
                         <li>
                             <label>专业：</label>
                             <input type="text" name="dname" oninput="$.table.search()" />
                         </li>
-<!--                        <li>-->
-<!--                            <label>等级：</label>-->
-<!--                            <input type="text" name="rewardDengji"/>-->
-<!--                        </li>-->
-                        <!--                            <li>-->
-                        <!--                                <label>排名：</label>-->
-                        <!--                                <input type="text" name="rewardPaiming"/>-->
-                        <!--                            </li>-->
-<!--                        <li>-->
-<!--                            <label>级别：</label>-->
-<!--                            <input type="text" name="rewardJibie"/>-->
-<!--                        </li>-->
-<!--                        <li>-->
-<!--                            <label>状态：</label>-->
-<!--                            <select name="state" th:with="type=${@dict.getType('sci_crosswise_tasks')}">-->
-<!--                                <option value="">所有</option>-->
-<!--                                <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>-->
-<!--                            </select>-->
-<!--                        </li>-->
                         <li>
                             <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
                             <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
@@ -389,12 +346,6 @@
             <a class="btn btn-success" onclick="$.operate.addTab()" shiro:hasPermission="system:reward:add">
                 <i class="fa fa-plus"></i> 添加
             </a>
-            <!--                <a class="btn btn-primary single disabled" onclick="$.operate.edit()" shiro:hasPermission="system:reward:edit">-->
-            <!--                    <i class="fa fa-edit"></i> 修改-->
-            <!--                </a>-->
-            <!--                <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()" shiro:hasPermission="system:reward:remove">-->
-            <!--                    <i class="fa fa-remove"></i> 删除-->
-            <!--                </a>-->
                 <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:reward:export">
                     <i class="fa fa-download"></i> 导出
                 </a>
@@ -557,22 +508,6 @@
                         field: 'rewardName',
                         title: '荣誉名称'
                     },
-                    // {
-                    //     field: 'rewardDanwei',
-                    //     title: '颁发单位'
-                    // },
-                    // {
-                    //     field: 'rewardLeixing',
-                    //     title: '奖励类型'
-                    // },
-                    // {
-                    //     field: 'rewardWenjian',
-                    //     title: '证书文件'
-                    // },
-                    // {
-                    //     field: 'rewardTime',
-                    //     title: '颁发时间'
-                    // },
                     {
                         field: 'rewardFenlei',
                         title: '分类',
@@ -594,22 +529,10 @@
                             return $.table.selectDictLabel(paimingDatas, value);
                         }
                     },
-                    // {
-                    //     field: 'rewardJibie',
-                    //     title: '级别'
-                    // },
                     {
                         field: 'jifen',
                         title: '积分'
                     },
-                    // {
-                    //     field: 'state',
-                    //     title: '状态',
-                    //     align: 'center',
-                    //     formatter: function(value, row, index) {
-                    //         return $.table.selectDictLabel(datas, value);
-                    //     }
-                    // }  ,
                     {
                         title: '操作',
                         align: 'center',
