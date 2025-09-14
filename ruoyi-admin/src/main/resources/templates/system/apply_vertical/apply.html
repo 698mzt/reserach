@@ -654,16 +654,16 @@
                     formatter: function(value, row, index) {
                         var ranking = [];
                         if(row.firstPersonId == row.uid){
-                            ranking.push("1");
+                            ranking.push("第一负责人");
                         }else
                         if(row.secondPersonId == row.uid){
-                            ranking.push("2");
+                            ranking.push("第二负责人");
                         }else
                         if(row.thirdPersonId == row.uid){
-                            ranking.push("3");
+                            ranking.push("第三负责人");
                         }else
                         if(row.fourthPersonId == row.uid){
-                            ranking.push("4");
+                            ranking.push("第四负责人");
                         }else{
                             ranking.push("无");
                         }
@@ -673,7 +673,7 @@
                 {
                     field: 'score',
                     align: 'center',
-                    title: '已获积分',
+                    title: '积分',
                     formatter: function(value, row, index) {
                         if(row.score == null){
                             row.score = 0;
