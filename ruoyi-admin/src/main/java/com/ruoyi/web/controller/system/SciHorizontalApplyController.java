@@ -704,4 +704,16 @@ public class SciHorizontalApplyController extends BaseController
         sciHorizontalReamount.setState("1");
         return toAjax(sciHorizontalReamountService.amountedit(sciHorizontalReamount));
     }
+
+    /**
+     * 删除金额
+     */
+    @RequiresPermissions("system:apply:remove")
+    @Log(title = "删除横向课题", businessType = BusinessType.DELETE)
+    @PostMapping( "/reamountremove/{id}")
+    @ResponseBody
+    public AjaxResult reamountremove(@PathVariable("id") Integer id)
+    {
+        return toAjax(sciHorizontalReamountService.reamountremove(id));
+    }
 }

@@ -1097,7 +1097,7 @@
             createUrl: prefix + "/add",
             detailUrl: prefix + "/reamountdetail/{id}",
             updateUrl: prefix + "/reamountedit/{id}",
-            removeUrl: prefix + "/remove",
+            removeUrl: prefix + "/reamountremove/{id}",
             exportUrl: prefix + "/export",
             recallUrl: prefix + "/recall/{id}",
             modalName: "追加金额",
@@ -1183,11 +1183,11 @@
                         var actions = [];
                         if(row.state == 99 ){
                             if (row.userId == row.uid){
-                                actions.push('<a class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')">编辑&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                                actions.push('<a class="' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')" style="color : #c90000">删除</a>');
+                                actions.push('<a class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.reid + '\')">编辑&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
+                                actions.push('<a class="' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.reid + '\')" style="color : #c90000">删除</a>');
                                 actions.push('<br>')
                             }
-                            actions.push('<a class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
+                            actions.push('<a class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.reid +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                             actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory1(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
                         }else
                         if(row.state == 1 ){
