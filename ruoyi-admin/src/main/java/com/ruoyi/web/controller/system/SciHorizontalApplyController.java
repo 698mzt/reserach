@@ -37,6 +37,9 @@ import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.common.core.page.TableDataInfo;
 
+import javax.servlet.http.HttpServletResponse;
+import java.util.Map;
+
 /**
  * 横向课题Controller
  *
@@ -715,5 +718,55 @@ public class SciHorizontalApplyController extends BaseController
     public AjaxResult reamountremove(@PathVariable("id") Integer id)
     {
         return toAjax(sciHorizontalReamountService.reamountremove(id));
+    }
+
+    @RequiresPermissions("system:apply:view")
+    @GetMapping("/todoCount")
+    @ResponseBody
+    public AjaxResult getTodoCount() {
+        SysUser currentUser = getSysUser();
+        Map<String, Integer> counts = sciHorizontalApplyService.getTodoCount(currentUser);
+
+        // 添加纵向课题统计 - 使用正确的统计方法
+        counts.put("vertical_apply", sciHorizontalApplyService.countVerticalApply(currentUser));
+        counts.put("vertical_audit", sciHorizontalApplyService.countVerticalAudit(currentUser));
+        counts.put("vertical_complete", sciHorizontalApplyService.countVerticalComplete(currentUser));
+
+        // 添加横向课题统计
+        counts.put("horizontal_apply", sciHorizontalApplyService.countHorizontalApply(currentUser));
+        counts.put("horizontal_audit", sciHorizontalApplyService.countHorizontalAudit(currentUser));
+        counts.put("horizontal_complete", sciHorizontalApplyService.countHorizontalComplete(currentUser));
+
+        // 添加成果转化统计
+        counts.put("achievement_apply", sciHorizontalApplyService.countAchievementApply(currentUser));
+        counts.put("achievement_audit", sciHorizontalApplyService.countAchievementAudit(currentUser));
+        counts.put("achievement_complete", sciHorizontalApplyService.countAchievementComplete(currentUser));
+
+        // 添加论文统计
+        counts.put("paper_apply", sciHorizontalApplyService.countPaperApply(currentUser));
+        counts.put("paper_audit", sciHorizontalApplyService.countPaperAudit(currentUser));
+        counts.put("paper_complete", sciHorizontalApplyService.countPaperComplete(currentUser));
+
+        // 添加教材软著统计
+        counts.put("textbook_apply", sciHorizontalApplyService.countTextbookApply(currentUser));
+        counts.put("textbook_audit", sciHorizontalApplyService.countTextbookAudit(currentUser));
+        counts.put("textbook_complete", sciHorizontalApplyService.countTextbookComplete(currentUser));
+
+        // 添加专利软著统计
+        counts.put("patent_apply", sciHorizontalApplyService.countPatentApply(currentUser));
+        counts.put("patent_audit", sciHorizontalApplyService.countPatentAudit(currentUser));
+        counts.put("patent_complete", sciHorizontalApplyService.countPatentComplete(currentUser));
+
+        // 添加奖励统计
+        counts.put("reward_apply", sciHorizontalApplyService.countRewardApply(currentUser));
+        counts.put("reward_audit", sciHorizontalApplyService.countRewardAudit(currentUser));
+        counts.put("reward_complete", sciHorizontalApplyService.countRewardComplete(currentUser));
+
+        // 添加讲座报告统计
+        counts.put("lecture_apply", sciHorizontalApplyService.countLectureApply(currentUser));
+        counts.put("lecture_audit", sciHorizontalApplyService.countLectureAudit(currentUser));
+        counts.put("lecture_complete", sciHorizontalApplyService.countLectureComplete(currentUser));
+
+        return AjaxResult.success(counts);
     }
 }
