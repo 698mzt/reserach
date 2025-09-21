@@ -2,6 +2,8 @@
 <html lang="zh">
 <head>
     <th:block th:include="include :: header('首页')" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- 避免IE使用兼容模式 -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <link th:href="@{favicon.ico}" rel="shortcut icon"/>
@@ -12,340 +14,2011 @@
     <link th:href="@{/css/style.min.css}" rel="stylesheet"/>
     <link th:href="@{/css/skins.css}" rel="stylesheet"/>
     <link th:href="@{/ruoyi/css/ry-ui.css?v=4.7.8}" rel="stylesheet"/>
-    <style>
-        .welcome-header {
-            background: linear-gradient(135deg, #1ab394 0%, #1c84c6 100%);
-            color: white;
-            padding: 60px 0;
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+</head>
+<body class="gray-bg" >
+<!-- 错误提示框 -->
+<div class="error-toast" id="errorToast">
+    <i class="fa fa-exclamation-circle"></i>
+    <span id="errorMessage"></span>
+</div>
+
+<!-- 加载指示器 -->
+<div class="loading-indicator" id="loadingIndicator">
+    <div class="spinner"></div>
+    <div>加载中...</div>
+</div>
+<div class="dashboard-scroll-wrapper">
+    <div class="dashboard">
+        <!-- 第一排 -->
+        <div class="card row-1 glass-effect" style="--x: 100px; --y: 80px">
+            <h3 class="card-title">快捷方式</h3>
+            <!-- 内容 -->
+            <div class="quick-links">
+                <!-- 第一行 -->
+                <div class="link-item" data-url="/Keyan/system/apply_vertical">
+                    <div class="icon-wrapper">
+                        <i class="fa fa-cube fa-2x"></i>
+                    </div>
+                    <span>纵向课题</span>
+                </div>
+                <div class="link-item" data-url="/Keyan/system/apply">
+                    <div class="icon-wrapper">
+                        <i class="fa fa-handshake-o fa-2x"></i>
+                    </div>
+                    <span>横向课题</span>
+                </div>
+                <div class="link-item" data-url="/Keyan/IntraSchPro">
+                    <div class="icon-wrapper">
+                        <i class="fa fa-refresh fa-2x"></i>
+                    </div>
+                    <span>成果转换</span>
+                </div>
+                <div class="link-item" data-url="/Keyan/system/paper">
+                    <div class="icon-wrapper">
+                        <i class="fa fa-file-text fa-2x"></i>
+                    </div>
+                    <span>论文</span>
+                </div>
+
+                <!-- 第二行 -->
+                <div class="link-item" data-url="/Keyan/system/jiaocairuanzhu">
+                    <div class="icon-wrapper">
+                        <i class="fa fa-book fa-2x"></i>
+                    </div>
+                    <span>教材专著</span>
+                </div>
+                <div class="link-item" data-url="/Keyan/system/zhuanliruanzhu">
+                    <div class="icon-wrapper">
+                        <i class="fa fa-shield fa-2x"></i>
+                    </div>
+                    <span>专利软著</span>
+                </div>
+                <div class="link-item" data-url="/Keyan/system/reward">
+                    <div class="icon-wrapper">
+                        <i class="fa fa-trophy fa-2x"></i>
+                    </div>
+                    <span>奖励</span>
+                </div>
+                <div class="link-item" data-url="/Keyan/system/report">
+                    <div class="icon-wrapper">
+                        <i class="fa fa-line-chart fa-2x"></i>
+                    </div>
+                    <span>讲座报告</span>
+                </div>
+            </div>
+        </div>
+        <div class="card row-1 glass-effect" style="--x: 150px; --y: 120px">
+            <h3 class="card-title">待办事项</h3>
+            <div class="todo-scroll-container">
+                <div class="todo-grid">
+                    <div class="todo-item">
+                        <i class="todo-icon fa fa-pencil-square-o"></i>
+                        <div class="todo-title">纵向课题</div>
+                        <div class="todo-count" data-module="vertical">0</div>
+                    </div>
+                    <div class="todo-item">
+                        <i class="todo-icon fa fa-pencil-square-o"></i>
+                        <div class="todo-title">横向课题</div>
+                        <div class="todo-count" data-module="horizontal">0</div>
+                    </div>
+                    <div class="todo-item">
+                        <i class="todo-icon fa fa-pencil-square-o"></i>
+                        <div class="todo-title">成果转换</div>
+                        <div class="todo-count" data-module="achievement">0</div>
+                    </div>
+                    <div class="todo-item">
+                        <i class="todo-icon fa fa-pencil-square-o"></i>
+                        <div class="todo-title">论文</div>
+                        <div class="todo-count" data-module="paper">0</div>
+                    </div>
+                    <div class="todo-item">
+                        <i class="todo-icon fa fa-pencil-square-o"></i>
+                        <div class="todo-title">教材专著</div>
+                        <div class="todo-count" data-module="textbook">0</div>
+                    </div>
+                    <div class="todo-item">
+                        <i class="todo-icon fa fa-pencil-square-o"></i>
+                        <div class="todo-title">专利软著</div>
+                        <div class="todo-count" data-module="patent">0</div>
+                    </div>
+                    <div class="todo-item">
+                        <i class="todo-icon fa fa-pencil-square-o"></i>
+                        <div class="todo-title">奖励</div>
+                        <div class="todo-count" data-module="reward">0</div>
+                    </div>
+                    <div class="todo-item">
+                        <i class="todo-icon fa fa-pencil-square-o"></i>
+                        <div class="todo-title">讲座报告</div>
+                        <div class="todo-count" data-module="lecture">0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card row-1 glass-effect" style="--x: 200px; --y: 80; grid-column: 3; grid-row: span 5; min-height: 630px">
+            <h3 class="card-title">事项信息</h3>
+            <!-- 内容 -->
+            <div class="info-flow">
+                <!-- 纵向课题 -->
+                <div class="flow-card" data-status="processing">
+                    <div class="flow-header">
+                        <i class="flow-icon fa fa-cube"></i>
+                        <h4>纵向课题</h4>
+                        <div class="flow-progress"></div>
+                    </div>
+                    <div class="flow-stats">
+                        <div class="stat-item">
+                            <span class="stat-label">申报</span>
+                            <span class="stat-value" data-module="vertical_apply">0</span>
+                        </div>
+                        <div class="stat-item active">
+                            <span class="stat-label">审核</span>
+                            <span class="stat-value" data-module="vertical_audit">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">完成</span>
+                            <span class="stat-value" data-module="vertical_complete">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 横向课题 -->
+                <div class="flow-card" data-status="processing">
+                    <div class="flow-header">
+                        <i class="flow-icon fa fa-cube"></i>
+                        <h4>横向课题</h4>
+                        <div class="flow-progress"></div>
+                    </div>
+                    <div class="flow-stats">
+                        <div class="stat-item">
+                            <span class="stat-label">申报</span>
+                            <span class="stat-value" data-module="horizontal_apply">0</span>
+                        </div>
+                        <div class="stat-item active">
+                            <span class="stat-label">审核</span>
+                            <span class="stat-value" data-module="horizontal_audit">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">完成</span>
+                            <span class="stat-value" data-module="horizontal_complete">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 成果转化 -->
+                <div class="flow-card" data-status="processing">
+                    <div class="flow-header">
+                        <i class="flow-icon fa fa-cube"></i>
+                        <h4>成果转化</h4>
+                        <div class="flow-progress"></div>
+                    </div>
+                    <div class="flow-stats">
+                        <div class="stat-item">
+                            <span class="stat-label">申报</span>
+                            <span class="stat-value" data-module="achievement_apply">0</span>
+                        </div>
+                        <div class="stat-item active">
+                            <span class="stat-label">审核</span>
+                            <span class="stat-value" data-module="achievement_audit">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">完成</span>
+                            <span class="stat-value" data-module="achievement_complete">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 论文 -->
+                <div class="flow-card" data-status="processing">
+                    <div class="flow-header">
+                        <i class="flow-icon fa fa-cube"></i>
+                        <h4>论文</h4>
+                        <div class="flow-progress"></div>
+                    </div>
+                    <div class="flow-stats">
+                        <div class="stat-item">
+                            <span class="stat-label">申报</span>
+                            <span class="stat-value" data-module="paper_apply">0</span>
+                        </div>
+                        <div class="stat-item active">
+                            <span class="stat-label">审核</span>
+                            <span class="stat-value" data-module="paper_audit">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">完成</span>
+                            <span class="stat-value" data-module="paper_complete">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 教材软著 -->
+                <div class="flow-card" data-status="processing">
+                    <div class="flow-header">
+                        <i class="flow-icon fa fa-cube"></i>
+                        <h4>教材软著</h4>
+                        <div class="flow-progress"></div>
+                    </div>
+                    <div class="flow-stats">
+                        <div class="stat-item">
+                            <span class="stat-label">申报</span>
+                            <span class="stat-value" data-module="textbook_apply">0</span>
+                        </div>
+                        <div class="stat-item active">
+                            <span class="stat-label">审核</span>
+                            <span class="stat-value" data-module="textbook_audit">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">完成</span>
+                            <span class="stat-value" data-module="textbook_complete">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 专利软著 -->
+                <div class="flow-card" data-status="processing">
+                    <div class="flow-header">
+                        <i class="flow-icon fa fa-cube"></i>
+                        <h4>专利软著</h4>
+                        <div class="flow-progress"></div>
+                    </div>
+                    <div class="flow-stats">
+                        <div class="stat-item">
+                            <span class="stat-label">申报</span>
+                            <span class="stat-value" data-module="patent_apply">0</span>
+                        </div>
+                        <div class="stat-item active">
+                            <span class="stat-label">审核</span>
+                            <span class="stat-value" data-module="patent_audit">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">完成</span>
+                            <span class="stat-value" data-module="patent_complete">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 奖励 -->
+                <div class="flow-card" data-status="processing">
+                    <div class="flow-header">
+                        <i class="flow-icon fa fa-cube"></i>
+                        <h4>奖励</h4>
+                        <div class="flow-progress"></div>
+                    </div>
+                    <div class="flow-stats">
+                        <div class="stat-item">
+                            <span class="stat-label">申报</span>
+                            <span class="stat-value" data-module="reward_apply">0</span>
+                        </div>
+                        <div class="stat-item active">
+                            <span class="stat-label">审核</span>
+                            <span class="stat-value" data-module="reward_audit">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">完成</span>
+                            <span class="stat-value" data-module="reward_complete">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 讲座报告 -->
+                <div class="flow-card" data-status="processing">
+                    <div class="flow-header">
+                        <i class="flow-icon fa fa-cube"></i>
+                        <h4>讲座报告</h4>
+                        <div class="flow-progress"></div>
+                    </div>
+                    <div class="flow-stats">
+                        <div class="stat-item">
+                            <span class="stat-label">申报</span>
+                            <span class="stat-value" data-module="lecture_apply">0</span>
+                        </div>
+                        <div class="stat-item active">
+                            <span class="stat-label">审核</span>
+                            <span class="stat-value" data-module="lecture_audit">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">完成</span>
+                            <span class="stat-value" data-module="lecture_complete">0</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- 其他7个模块结构相同 -->
+            </div>
+        </div>
+
+        <!-- 修改后的第二排 -->
+        <div class="card merged row-2 glass-effect">
+            <h3 class="card-title">数据概括</h3>
+            <div class="data-summary">
+                <div class="tab-container">
+                    <div class="tab active" data-tab="todo">待办事项展示</div>
+                    <div class="tab" data-tab="info">事项信息展示</div>
+                </div>
+
+                <div class="chart-type-selector">
+                    <button class="chart-type-btn active" data-type="pie">扇形图</button>
+                    <button class="chart-type-btn" data-type="line">折线图</button>
+                    <button class="chart-type-btn" data-type="bar">柱状图</button>
+                </div>
+
+                <div class="chart-container">
+                    <div id="summaryChart"></div>
+                </div>
+            </div>
+        </div>
+
+        <!--        <div class="split-container">-->
+        <!--            <div class="card glass-effect">-->
+        <!--                <h3 class="card-title">效果报告</h3>-->
+        <!--            </div>-->
+        <!--            <div class="card glass-effect">-->
+        <!--                <h3 class="card-title">实时监控</h3>-->
+        <!--            </div>-->
+        <!--        </div>-->
+    </div>
+</div>
+</body>
+<style>
+    :root {
+        --grid-gap: 1rem;
+        --card-radius: 1.5rem;
+        --accent-color: #6366f1;
+        --text-primary: #1e293b;
+        --base-scale: 1;
+        --glass-bg: rgba(255, 255, 255, 0.9);
+        --glass-border: rgba(255, 255, 255, 0.2);
+    }
+
+    body {
+        min-height: 100vh;
+        /*padding: 2rem;*/
+        background: #f8fafc;
+        font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        margin: 0;
+        padding: 0 2rem 2rem;
+    }
+
+    .dashboard {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr); /* 最小列宽280px */
+        grid-template-rows:
+            repeat(2, minmax(100px, 2fr))
+            var(--grid-gap)
+            repeat(3, minmax(150px, 3fr))
+            var(--grid-gap)
+            auto;
+        gap: var(--grid-gap);
+        height: 100vh;
+        padding: 2rem;
+        transform: scale(var(--base-scale)); /* 整体缩放 */
+        transform-origin: top left;
+        width: calc(100% / var(--base-scale)); /* 补偿缩放后的宽度 */
+        will-change: transform;
+    }
+
+    .card {
+        position: relative;
+        background: white;
+        border-radius: var(--card-radius);
+        padding: 1.5rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+    }
+
+    .glass-effect {
+        background: var(--glass-bg);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--glass-border);
+    }
+
+    /* 合并区域 */
+    .merged {
+        grid-column: span 2;
+        grid-row: 3 / span 3;
+        min-height: 410px;
+    }
+
+
+    /* 数据概括区域样式 */
+    .data-summary {
+        height: calc(100% - 3.5rem);
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* 标签页样式 */
+    .tab-container {
+        display: flex;
+        margin-bottom: 1rem;
+        border-bottom: 1px solid rgba(99, 102, 241, 0.1);
+    }
+
+    .tab {
+        padding: 0.75rem 1.5rem;
+        cursor: pointer;
+        font-weight: 500;
+        color: #64748b;
+        position: relative;
+        transition: all 0.3s ease;
+    }
+
+    .tab.active {
+        color: var(--accent-color);
+    }
+
+    .tab.active::after {
+        content: '';
+        position: absolute;
+        bottom: -1px;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: var(--accent-color);
+        border-radius: 2px 2px 0 0;
+    }
+
+    /* 图表类型切换 */
+    .chart-type-selector {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.75rem;
+        margin-bottom: 0.7rem;
+    }
+
+    .chart-type-btn {
+        padding: 0.5rem 1rem;
+        background: rgba(99, 102, 241, 0.1);
+        border: none;
+        border-radius: 8px;
+        color: #64748b;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .chart-type-btn.active {
+        background: var(--accent-color);
+        color: white;
+        box-shadow: 0 4px 6px rgba(99, 102, 241, 0.3);
+    }
+
+    /* 图表容器 */
+    .chart-container {
+        flex: 1;
+        min-height: 300px;
+        position: relative;
+        margin-top: -0.5rem;
+    }
+
+    #summaryChart {
+        width: 100%;
+        height: 100%;
+    }
+
+    /* 响应式调整 */
+    @media (max-width: 1024px) {
+        :root {
+            --base-scale: 0.9;
+        }
+    }
+
+    @media (max-width: 768px) {
+        :root {
+            --base-scale: 0.8;
+        }
+
+        .tab {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+
+        .chart-type-btn {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.75rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .dashboard {
+            grid-template-rows:
+                    repeat(2, minmax(150px, 2fr))
+                    var(--grid-gap)
+                    repeat(3, minmax(400px, 4fr))
+                    var(--grid-gap)
+                    auto;
+        }
+
+        .tab-container {
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            flex: 1;
             text-align: center;
-            margin-bottom: 30px;
         }
-        .welcome-title {
-            font-size: 48px;
-            font-weight: 300;
-            margin-bottom: 20px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-        }
-        .welcome-subtitle {
-            font-size: 20px;
-            opacity: 0.9;
-            margin-bottom: 30px;
-        }
-        .feature-card {
-            background: white;
-            border-radius: 8px;
-            padding: 30px;
-            margin-bottom: 30px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            text-align: center;
-            height: 200px;
-            display: flex;
-            flex-direction: column;
+
+        .chart-type-selector {
+            flex-wrap: wrap;
             justify-content: center;
         }
-        .feature-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
-        }
-        .feature-icon {
-            font-size: 48px;
-            margin-bottom: 20px;
-            color: #1ab394;
-        }
-        .feature-title {
-            font-size: 20px;
-            font-weight: 600;
-            margin-bottom: 10px;
-            color: #2f4050;
-        }
-        .feature-desc {
-            color: #676a6c;
-            font-size: 14px;
-            line-height: 1.6;
-        }
-        .stats-section {
-            background: white;
-            border-radius: 8px;
-            padding: 40px;
-            margin: 30px 0;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        .stat-item {
-            text-align: center;
-            padding: 20px;
-        }
-        .stat-number {
-            font-size: 36px;
-            font-weight: 700;
-            color: #1ab394;
-            margin-bottom: 10px;
-        }
-        .stat-label {
-            color: #676a6c;
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        .quick-actions {
-            background: white;
-            border-radius: 8px;
-            padding: 30px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        .action-btn {
-            display: block;
-            width: 100%;
-            padding: 15px;
-            margin-bottom: 15px;
-            background: #f8f9fa;
-            border: 1px solid #e9ecef;
-            border-radius: 6px;
-            color: #2f4050;
-            text-decoration: none;
-            transition: all 0.3s ease;
-        }
-        .action-btn:hover {
-            background: #1ab394;
-            color: white;
-            text-decoration: none;
-            border-color: #1ab394;
-        }
-        .action-btn i {
-            margin-right: 10px;
-            width: 20px;
-        }
-        .section-title {
-            font-size: 24px;
-            font-weight: 600;
-            color: #2f4050;
-            margin-bottom: 30px;
-            text-align: center;
-        }
-        .welcome-footer {
-            text-align: center;
-            padding: 40px 0;
-            color: #676a6c;
-            font-size: 14px;
-        }
-    </style>
-</head>
-<body class="gray-bg">
-<div class="wrapper wrapper-content animated fadeIn" style="padding-top: 0px;padding-bottom: 20px">
-    
-    <!-- 欢迎横幅 -->
-    <div class="welcome-header">
-        <div class="container-fluid">
-            <h1 class="welcome-title">欢迎使用哈信息科研管理系统</h1>
-            <p class="welcome-subtitle">科研项目管理 · 学术成果统计 · 数据分析决策</p>
-            <p style="opacity: 0.8; font-size: 16px;">
-                <i class="fa fa-user"></i> 欢迎您，<span th:text="${user.userName}">用户</span>
-                <span style="margin: 0 20px;">|</span>
-                <i class="fa fa-calendar"></i> <span id="currentDate"></span>
-            </p>
-        </div>
-    </div>
-
-    <!-- 功能特色区域 -->
-    <div class="row" style="margin: 0 15px;">
-        <div class="col-md-3 col-sm-6">
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="fa fa-flask"></i>
-                </div>
-                <div class="feature-title">科研项目管理</div>
-                <div class="feature-desc">横向纵向项目申报、进度跟踪、经费管理一站式服务</div>
-            </div>
-        </div>
-        <div class="col-md-3 col-sm-6">
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="fa fa-file-text-o"></i>
-                </div>
-                <div class="feature-title">学术成果统计</div>
-                <div class="feature-desc">论文发表、专利申请、获奖情况全面记录与统计</div>
-            </div>
-        </div>
-        <div class="col-md-3 col-sm-6">
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="fa fa-bar-chart"></i>
-                </div>
-                <div class="feature-title">数据分析报告</div>
-                <div class="feature-desc">多维度数据分析，为科研决策提供有力支撑</div>
-            </div>
-        </div>
-        <div class="col-md-3 col-sm-6">
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="fa fa-users"></i>
-                </div>
-                <div class="feature-title">团队协作管理</div>
-                <div class="feature-desc">科研团队管理、权限分配、协同工作高效便捷</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 统计数据区域 -->
-    <div class="row" style="margin: 0 15px;">
-        <div class="col-md-8">
-            <div class="stats-section">
-                <h3 class="section-title">系统概览</h3>
-                <div class="row">
-                    <div class="col-md-3 col-sm-6">
-                        <div class="stat-item">
-                            <div class="stat-number">156</div>
-                            <div class="stat-label">在研项目</div>
-                        </div>
-                    </div>
-                    <div class="col-md-3 col-sm-6">
-                        <div class="stat-item">
-                            <div class="stat-number">342</div>
-                            <div class="stat-label">发表论文</div>
-                        </div>
-                    </div>
-                    <div class="col-md-3 col-sm-6">
-                        <div class="stat-item">
-                            <div class="stat-number">89</div>
-                            <div class="stat-label">专利申请</div>
-                        </div>
-                    </div>
-                    <div class="col-md-3 col-sm-6">
-                        <div class="stat-item">
-                            <div class="stat-number">23</div>
-                            <div class="stat-label">获奖项目</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- 快捷操作区域 -->
-        <div class="col-md-4">
-            <div class="quick-actions">
-                <h3 class="section-title">快捷操作</h3>
-                <a href="#" class="action-btn" >
-                    <i class="fa fa-plus-circle"></i>项目申报
-<!--                </a>-->
-                <a href="#" class="action-btn" >
-                    <i class="fa fa-file-text"></i>论文管理
-                </a>
-                <a href="#" class="action-btn" >
-                    <i class="fa fa-lightbulb-o"></i>专利管理
-                </a>
-                <a href="#" class="action-btn" >
-                    <i class="fa fa-trophy"></i>奖励管理
-                </a>
-                <a href="#" class="action-btn" >
-                    <i class="fa fa-pie-chart"></i>统计报表
-                </a>
-            </div>
-        </div>
-    </div>
-
-    <!-- 系统公告区域 -->
-    <div class="row" style="margin: 0 15px;">
-        <div class="col-md-12">
-            <div class="stats-section">
-                <h3 class="section-title">系统公告</h3>
-                <div class="row">
-                    <div class="col-md-6">
-                        <div style="padding: 20px; background: #f8f9fa; border-radius: 6px; margin-bottom: 20px;">
-                            <h5 style="color: #1ab394; margin-bottom: 10px;">
-                                <i class="fa fa-bullhorn"></i> 系统升级通知
-                            </h5>
-                            <p style="color: #676a6c; margin-bottom: 5px;">系统将于本周末进行功能升级，届时可能会有短暂的服务中断...</p>
-                            <small style="color: #999;">2025-09-15</small>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div style="padding: 20px; background: #f8f9fa; border-radius: 6px; margin-bottom: 20px;">
-                            <h5 style="color: #1c84c6; margin-bottom: 10px;">
-                                <i class="fa fa-calendar"></i> 项目申报截止提醒
-                            </h5>
-                            <p style="color: #676a6c; margin-bottom: 5px;">2025年度国家自然科学基金项目申报即将截止，请及时提交...</p>
-                            <small style="color: #999;">2024-01-12</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 页脚信息 -->
-    <div class="welcome-footer">
-        <p>哈尔滨信息工程学院科研管理系统 | 技术支持：信息技术中心</p>
-        <p style="margin-top: 10px; font-size: 12px; opacity: 0.7;">
-            系统版本：v<span th:text="${version}">4.7.8</span> | 
-            当前用户：<span th:text="${user.userName}">管理员</span>
-        </p>
-    </div>
-
-</div>
-
-<th:block th:include="include :: footer" />
-
-<script>
-    // 显示当前日期
-    function updateCurrentDate() {
-        const now = new Date();
-        const options = { 
-            year: 'numeric', 
-            month: 'long', 
-            day: 'numeric',
-            weekday: 'long'
-        };
-        document.getElementById('currentDate').textContent = now.toLocaleDateString('zh-CN', options);
     }
-    
-    // 打开菜单项
-    function openMenu(url) {
-        try {
-            // 如果在iframe中，尝试调用父窗口的菜单点击方法
-            if (parent && parent.window && parent.window !== window) {
-                // 尝试找到对应的菜单链接并点击
-                var parentDoc = parent.document;
-                var menuLink = parentDoc.querySelector('a[href="' + url + '"]');
-                if (menuLink) {
-                    menuLink.click();
-                } else {
-                    // 如果找不到菜单链接，直接在父窗口中导航
-                    parent.window.location.href = url;
-                }
-            } else {
-                window.location.href = url;
-            }
-        } catch (e) {
-            // 如果跨域访问失败，尝试直接导航
-            console.log('跨域访问限制，直接导航到：' + url);
-            window.location.href = url;
-        }
+
+    /* 动画效果 */
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
     }
-    
-    // 页面加载完成后执行
-    $(document).ready(function() {
-        updateCurrentDate();
-        
-        // 添加卡片悬停效果
-        $('.feature-card').hover(
-            function() {
-                $(this).addClass('animated pulse');
-            },
-            function() {
-                $(this).removeClass('animated pulse');
-            }
+
+    .chart-container {
+        animation: fadeIn 0.5s ease;
+    }
+
+    /* 科技感元素 */
+    .cyber-glow {
+        box-shadow: 0 0 15px rgba(99, 102, 241, 0.4);
+    }
+
+    .holographic-effect {
+        background: linear-gradient(
+                125deg,
+                rgba(99, 102, 241, 0.1) 0%,
+                rgba(199, 210, 254, 0.2) 50%,
+                rgba(99, 102, 241, 0.1) 100%
         );
-    });
-</script>
-
-</body>
-</html>
-</div>
-<th:block th:include="include :: footer" />
-</body>
-<script>
-    function show() {
-      window.location.href="/system/apply"
     }
+
+    /* 拆分容器 */
+    .split-container {
+        grid-column: 3;
+        grid-row: 3 / span 3;
+        display: flex; /*grid*/
+        flex-direction: column;
+        gap: var(--grid-gap);
+        /*grid-template-rows: 1fr var(--grid-gap) 1fr;*/
+        height: 100%;
+    }
+
+    .split-container > .card {
+        /*height: 100%;
+        /*box-sizing: border-box;*/
+        flex: 1;
+        min-height: 200px;
+    }
+
+    /* 第一卡片定位 */
+    .split-container > :first-child {
+        grid-row: 1;
+    }
+
+    /* 第二卡片定位 */
+    .split-container > :last-child {
+        grid-row: 3;
+    }
+
+    /* 行高设置 */
+    .row-1 { grid-row: span 2; }
+    .row-2 { grid-row: span 3; }
+
+    .card:hover {
+        /*transform: translateY(-4px);*/
+    }
+
+    .card::after {
+        content: '';
+        position: absolute;
+        top: 3.5rem;
+        left: 1.5rem;
+        right: 1.5rem;
+        height: 1px;
+        background: linear-gradient(90deg, transparent 0%, var(--accent-color) 50%, transparent 100%);
+    }
+
+    .card-title {
+        font: 600 1.25rem/1.5 'Inter', sans-serif;
+        color: var(--text-primary);
+        margin-bottom: 1rem;
+        position: relative;
+        padding-left: 1.75rem;
+        font-size: clamp(0.875rem, 2vw, 1.25rem);
+    }
+
+    .card-title::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 6px;
+        height: 1.25rem;
+        background: var(--accent-color);
+        border-radius: 3px;
+    }
+
+    /* 动态缩放控制 */
+    @media (max-width: 1024px) {
+        :root {
+            --base-scale: 0.9; /* 小于1024时整体缩小到90% */
+        }
+    }
+    @media (max-width: 768px) {
+        :root {
+            --base-scale: 0.8; /* 进一步缩小 */
+        }
+    }
+
+    /* 现代玻璃拟态效果 */
+    .glass-effect {
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    /* 动态背景装饰 */
+    .card::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: var(--card-radius);
+        background: radial-gradient(circle at var(--x) var(--y),
+        rgba(99, 102, 241, 0.1) 0%,
+        transparent 60%);
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+
+    .card:hover::before {
+        opacity: 1;
+    }
+
+    /*11.28 新增样式*/
+    .quick-links {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        grid-auto-rows: minmax(80px, 1fr);
+        gap: 1rem;
+        padding: 0.5rem 0;
+        height: calc(100% - 3.5rem); /* 新增高度控制 */
+        align-content: center; /* 新增垂直居中 */
+    }
+
+    .card.row-1 {
+        display: flex !important;
+        flex-direction: column;
+    }
+
+    .link-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        transition: transform 0.3s ease;
+    }
+
+    .icon-wrapper {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        background: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 6px rgba(99, 102, 241, 0.1);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .link-item:hover .icon-wrapper {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 12px rgba(99, 102, 241, 0.25);
+    }
+
+    .link-item span {
+        margin-top: 0.8rem;
+        font-size: 0.9rem;
+        color: #475569;
+        font-weight: 500;
+        text-align: center;
+        line-height: 1.2;
+    }
+
+    .link-item i {
+        font-size: 1.25rem !important;
+        /*color: var(--accent-color);*/
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    /* 新增响应式调整 */
+    @media (max-width: 1400px) {
+        .quick-links {
+            height: calc(100% - 3rem);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .quick-links {
+            grid-template-columns: repeat(4, 1fr) !important; /* 保持4列布局 */
+            grid-auto-rows: minmax(60px, 1fr);
+            gap: 0.5rem;
+            overflow: hidden; /* 防止溢出 */
+        }
+
+        .icon-wrapper {
+            width: 36px !important;
+            height: 36px !important;
+        }
+
+        .link-item i {
+            font-size: 1rem !important;
+        }
+
+        .link-item span {
+            font-size: 0.7rem !important;
+            margin-top: 0.3rem !important;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .quick-links {
+            grid-template-columns: repeat(2, 1fr) !important;
+            grid-auto-rows: minmax(50px, 1fr);
+        }
+
+        .dashboard {
+            grid-template-rows:
+            repeat(2, minmax(150px, 2fr)) /* 增加行高 */
+            var(--grid-gap)
+            repeat(3, minmax(400px, 4fr))
+            var(--grid-gap)
+            auto;
+        }
+    }
+
+    /*    11.29新增样式：待办事项*/
+    .todo-scroll-container {
+        height: calc(100% - 3.5rem);
+        overflow-y: auto; /* 更现代的滚动条模式 */
+        /*padding-right: 8px; !* 预留给滚动条的空间 *!*/
+    }
+
+    .fa-book,
+    .fa-shield,
+    .fa-trophy,
+    .fa-line-chart {
+        color: #6366f1;
+        background: none !important;
+        -webkit-text-fill-color: unset !important;
+    }
+
+    /*!* 统一滚动条样式 *!*/
+    /*.todo-scroll-container::-webkit-scrollbar {*/
+    /*    width: 8px;*/
+    /*    background: transparent;*/
+    /*}*/
+
+    /*.todo-scroll-container::-webkit-scrollbar-thumb {*/
+    /*    background: rgba(99, 102, 241, 0.4);*/
+    /*    border-radius: 4px;*/
+    /*    border: 2px solid transparent;*/
+    /*    background-clip: content-box;*/
+    /*}*/
+
+    /*.todo-scroll-container::-webkit-scrollbar-thumb:hover {*/
+    /*    background: rgba(99, 102, 241, 0.6);*/
+    /*}*/
+
+    /* 新增待办事项样式 */
+    .todo-grid {
+        display: grid;
+        /*grid-template-columns: repeat(2, 1fr);*/
+        /*grid-auto-rows: 1fr;*/
+        grid-template-columns: repeat(2, minmax(0, 1fr)); /* 防止溢出 */
+        gap: 1rem;
+        padding: 0.5rem 2px 0.5rem 0; /* 右侧留白 */
+        /*height: calc(100% - 3.5rem);*/
+        /*padding: 0.5rem 0;*/
+    }
+
+    .todo-item {
+        /*position: relative;*/
+        /*background: rgba(255, 255, 255, 0.15);*/
+        /*border-radius: 12px;*/
+        /*padding: 1rem;*/
+        /*backdrop-filter: blur(4px);*/
+        /*border: 1px solid rgba(255, 255, 255, 0.2);*/
+        /*transition: transform 0.3s ease;*/
+        min-height: 63px; /* 保证最小高度 */
+        position: relative;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 16px;
+        padding: 1.5rem;
+        transition: all 0.4s cubic-bezier(0.215, 0.61, 0.355, 1);
+        cursor: pointer;
+        overflow: hidden;
+        /*border: 1px solid rgba(255, 255, 255, 0.1);*/
+        border: 1px solid rgba(255, 255, 255, 0.2); /* 调整边框颜色 */
+        backdrop-filter: blur(12px);
+    }
+
+    /* 全息投影边框 */
+    .todo-item::before {
+        content: '';
+        position: absolute;
+        inset: -2px;
+        background: linear-gradient(
+                45deg,
+                    /*#6366f1 0%,*/
+                    /*#8b5cf6 30%,*/
+                    /*#ec4899 70%,*/
+                    /*#f59e0b 100%*/
+                rgba(99, 102, 241, 0.3) 0%,
+                rgba(140, 158, 255, 0.2) 30%,
+                rgba(236, 72, 153, 0.2) 70%,
+                rgba(245, 158, 11, 0.2) 100%
+        );
+        z-index: -1;
+        animation: hologram 6s linear infinite;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    @keyframes hologram {
+        100% { background-position: 200% 200%; }
+    }
+
+    /* 悬浮激活全息边框 */
+    .todo-item:hover::before {
+        opacity: 1;
+    }
+
+    /* 动态网格背景 */
+    .todo-item::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        /*background:*/
+        /*        linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),*/
+        /*        linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);*/
+        background:
+                linear-gradient(rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+        background-size: 20px 20px;
+        mask: linear-gradient(black, black) content-box,
+        linear-gradient(black, black);
+        mask-composite: exclude;
+        padding: 1px;
+        opacity: 0.3;
+    }
+
+    .todo-item:nth-child(3) {
+        /*grid-column: span 2;*/
+    }
+
+    /*.card-title {*/
+    /*    font: 600 clamp(1rem, 1.2vw + 0.5rem, 1.5rem)/1.5 'Inter', sans-serif;*/
+    /*    padding-left: 1.75rem;*/
+    /*    margin-bottom: 1.5rem; !* 增加标题下边距 *!*/
+    /*}*/
+
+    .todo-title {
+        /*font-size: clamp(1rem, 0.8vw + 0.5rem, 1.1rem);*/
+        /*line-height: 1.5;*/
+        /*color: var(--text-primary);*/
+        /*padding-right: 2rem;*/
+        font-size: 1.1rem;
+        /*color: #e2e8f0;*/
+        color: var(--text-primary);
+        text-shadow: none;
+        /*text-shadow: 0 0 8px rgba(99, 102, 241, 0.3);*/
+        position: relative;
+        z-index: 2;
+        transition: all 0.3s ease;
+    }
+
+    .todo-icon {
+        position: absolute;
+        right: 1.5rem;
+        top: 1rem;
+        font-size: 1.4rem;
+        color: var(--accent-color);
+        transform: translateY(30%); /* 与数字垂直对齐 */
+        z-index: 2;
+    }
+
+    .todo-count {
+        /*position: absolute;*/
+        /*left: 1rem;*/
+        /*bottom: 1rem;*/
+        /*font-size: clamp(1.6rem, 2vw + 0.5rem, 2rem);*/
+        /*font-weight: 700;*/
+        /*color: var(--accent-color);*/
+        /*opacity: 0.8;*/
+        position: absolute;
+        right: 1.5rem;
+        bottom: 1rem;
+        font-size: 2rem;
+        font-weight: 700;
+        color: #6366f1;
+        /*display: flex;*/
+        align-items: center;
+        gap: 0.5rem;
+        min-width: 24px;
+        display: inline-block;
+        text-align: right;
+        transition: all 0.3s ease;
+    }
+
+    .todo-count::after {
+        content: '';
+        width: 8px;
+        height: 8px;
+        background: #6366f1;
+        border-radius: 50%;
+        /*box-shadow: 0 0 12px #10b981;*/
+        box-shadow: 0 0 12px rgba(99, 102, 241, 0.3);
+        animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(0.8); opacity: 0.8; }
+        50% { transform: scale(1.2); opacity: 1; }
+        100% { transform: scale(0.8); opacity: 0.8; }
+    }
+
+    /* 悬浮立体效果 */
+    .todo-item:hover {
+        transform: perspective(800px) rotateX(5deg) rotateY(-2deg) translateZ(20px);
+        background: rgba(16, 18, 27, 0.8);
+    }
+
+    /* 粒子轨迹特效 */
+    .todo-item {
+        --particle-color: #6366f1;
+    }
+
+    .todo-item:hover .particle-trail {
+        opacity: 1;
+    }
+
+    .particle-trail {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .particle {
+        position: absolute;
+        width: 2px;
+        height: 2px;
+        background: var(--particle-color);
+        border-radius: 50%;
+        animation: particleMove 1.5s linear infinite;
+    }
+
+    @keyframes particleMove {
+        to { transform: translate(calc(var(--dx)*100px), calc(var(--dy)*100px)); }
+    }
+
+    /* 大屏幕专属优化 */
+    @media (min-width: 1920px) {
+        :root {
+            --base-scale: 1.1; /* 大屏适当放大 */
+        }
+
+        .card-title {
+            margin-bottom: 1.5rem;
+        }
+
+        .todo-item {
+            min-height: 100px; /* 增加内容区域高度 */
+        }
+    }
+
+    /* 4K屏幕优化 */
+    @media (min-width: 2560px) {
+        :root {
+            --base-scale: 1.2;
+        }
+
+        .todo-title {
+            font-size: 1.2rem;
+        }
+
+        .todo-count {
+            font-size: 2.2rem;
+        }
+    }
+
+    /* 响应式调整 */
+    @media (max-width: 1400px) {
+        .todo-title {
+            font-size: 0.95rem;
+        }
+        .todo-count {
+            font-size: 1.3rem;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .todo-grid {
+            gap: 0.75rem;
+            height: calc(100% - 2.5rem);
+            padding-right: 0;
+        }
+        .todo-scroll-container {
+            padding-right: 4px;
+        }
+        .todo-scroll-container::-webkit-scrollbar {
+            width: 4px;
+        }
+        .todo-item {
+            padding: 0.75rem;
+            min-height: 63px;
+        }
+        .todo-title {
+            font-size: 0.85rem;
+        }
+        .todo-count {
+            font-size: 1.1rem;
+        }
+        .todo-item:hover {
+            transform: none;
+        }
+        .todo-count::after {
+            width: 6px;
+            height: 6px;
+        }
+        .todo-icon {
+            right: 1rem;
+            top: 0.8rem;
+            font-size: 1.1rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .todo-grid {
+            grid-template-columns: 1fr;
+        }
+        .todo-item:nth-child(3) {
+            grid-column: unset;
+        }
+        .todo-title {
+            font-size: 0.80rem;
+        }
+        .todo-count {
+            font-size: 1rem;
+        }
+    }
+
+    /*5.2 事项信息 新增流动卡片样式 */
+    .info-flow {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 1.2rem;
+        height: calc(100% - 3.5rem);
+        padding: 1rem 0;
+        overflow-y: auto;
+    }
+
+    .flow-card {
+        position: relative;
+        background: rgba(255, 255, 255, 0.85);
+        border-radius: 16px;
+        padding: 1.5rem;
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+        min-height: 120px;
+        overflow: hidden;
+    }
+
+    .flow-card::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(
+                300px circle at var(--mouse-x) var(--mouse-y),
+                rgba(99, 102, 241, 0.1) 0%,
+                transparent 80%
+        );
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+
+    .flow-card:hover::before {
+        opacity: 0.6;
+    }
+
+    .flow-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1.2rem;
+        position: relative;
+    }
+
+    .flow-icon {
+        width: 36px;
+        height: 36px;
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        margin-right: 1rem;
+    }
+
+    .flow-card h4 {
+        font-size: 1.1rem;
+        color: var(--text-primary);
+        margin: 0;
+        font-weight: 600;
+    }
+
+    .flow-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.8rem;
+    }
+
+    .stat-item {
+        text-align: center;
+        padding: 0.8rem;
+        background: rgba(99, 102, 241, 0.08);
+        border-radius: 12px;
+        position: relative;
+        transition: all 0.3s ease;
+    }
+
+    .stat-item.active {
+        background: rgba(99, 102, 241, 0.15);
+        box-shadow: inset 0 0 12px rgba(99, 102, 241, 0.1);
+    }
+
+    .stat-label {
+        display: block;
+        font-size: 0.8rem;
+        color: #64748b;
+        margin-bottom: 0.4rem;
+    }
+
+    .stat-value {
+        font-size: 1.2rem;
+        font-weight: 700;
+        background: linear-gradient(45deg, #6366f1, #8b5cf6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    /* 动态进度条 */
+    .flow-progress {
+        position: absolute;
+        right: 1.5rem;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 60px;
+        height: 60px;
+    }
+
+    .flow-progress::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        border: 3px solid rgba(99, 102, 241, 0.2);
+    }
+
+    .flow-progress::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        border: 3px solid #6366f1;
+        border-left-color: transparent;
+        transform: rotate(45deg);
+        animation: progressSpin 1.8s linear infinite;
+    }
+
+    @keyframes progressSpin {
+        100% { transform: rotate(405deg); }
+    }
+
+    /* 响应式调整 */
+    @media (max-width: 1400px) {
+        .info-flow {
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        }
+        .stat-value { font-size: 1.1rem; }
+    }
+
+    @media (max-width: 768px) {
+        .info-flow {
+            grid-template-columns: repeat(1, 1fr);
+        }
+        .flow-card { padding: 1.2rem; }
+    }
+
+    @media (max-width: 480px) {
+        .info-flow {
+            grid-template-columns: 1fr;
+        }
+        .flow-stats { gap: 0.5rem; }
+        .stat-item { padding: 0.6rem; }
+    }
+
+    /* 新增错误提示样式 */
+    .error-toast {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #ef4444;
+        color: white;
+        padding: 12px 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        transform: translateY(-100px);
+        opacity: 0;
+        transition: all 0.3s ease;
+    }
+
+    .error-toast.show {
+        transform: translateY(0);
+        opacity: 1;
+    }
+
+    .error-toast i {
+        font-size: 1.2rem;
+    }
+
+    .loading-indicator {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(255, 255, 255, 0.9);
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        z-index: 10000;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        display: none;
+    }
+
+    .loading-indicator.show {
+        display: flex;
+    }
+
+    .spinner {
+        width: 30px;
+        height: 30px;
+        border: 3px solid #e5e7eb;
+        border-top: 3px solid #6366f1;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+</style>
+<script>
+    // 获取上下文路径
+    function getContextPath() {
+        // 从当前URL解析上下文路径
+        const pathname = window.location.pathname;
+        if (pathname.startsWith('/Keyan')) {
+            return '/Keyan';
+        }
+        return '';
+    }
+
+    // 数字动画函数
+    function animateNumber(element, target) {
+        const start = parseInt(element.textContent) || 0;
+        const duration = 500; // 动画持续时间（毫秒）
+        const startTime = Date.now();
+
+        function update() {
+            const elapsed = Date.now() - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            const current = Math.floor(start + (target - start) * progress);
+            element.textContent = current;
+
+            if (progress < 1) {
+                requestAnimationFrame(update);
+            } else {
+                element.textContent = target; // 确保最终值准确
+            }
+        }
+
+        requestAnimationFrame(update);
+    }
+
+    document.querySelectorAll('.link-item').forEach(item => {
+        // 点击事件处理
+        item.addEventListener('click', function() {
+            const url = this.dataset.url;
+            console.log('跳转URL:', url); // 调试用
+            if (url) window.location.href = url;
+        });
+
+        // 动态背景处理（修正作用域）
+        const card = item.closest('.card');
+        if (card) {
+            item.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                card.style.setProperty('--x', `${e.clientX - rect.left}px`);
+                card.style.setProperty('--y', `${e.clientY - rect.top}px`);
+            });
+        }
+    });
+
+    // 保留原始卡片背景效果（新增）
+    document.querySelectorAll('.card').forEach(card => {
+        card.addEventListener('mousemove', (e) => {
+            const rect = card.getBoundingClientRect();
+            card.style.setProperty('--x', `${e.clientX - rect.left}px`);
+            card.style.setProperty('--y', `${e.clientY - rect.top}px`);
+        });
+    });
+
+    // 动态生成粒子轨迹
+    document.querySelectorAll('.todo-item').forEach(item => {
+        const trail = document.createElement('div');
+        trail.className = 'particle-trail';
+
+        // 生成12个粒子
+        for(let i=0; i<12; i++){
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            const angle = (i * 30) * Math.PI / 180;
+            particle.style.cssText = `
+            --dx: ${Math.cos(angle)};
+            --dy: ${Math.sin(angle)};
+            left: 50%;
+            top: 50%;
+            animation-delay: ${i*0.1}s;
+        `;
+            trail.appendChild(particle);
+        }
+        item.appendChild(trail);
+    });
+
+    // 动态鼠标追踪
+    document.querySelectorAll('.flow-card').forEach(card => {
+        card.addEventListener('mousemove', (e) => {
+            const rect = card.getBoundingClientRect();
+            card.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
+            card.style.setProperty('--mouse-y', `${e.clientY - rect.top}px`);
+        });
+    });
+
+
+
+
+    // 带指数退避的重试机制5.7
+    // const MAX_RETRIES = 3;
+    // let retryCount = 0;
+    //
+    // function fetchTodoCount() {
+    //     return fetch('/system/apply/todoCount')
+    //         .then(response => {
+    //             if (!response.ok) throw new Error('网络响应异常');
+    //             return response.json();
+    //         });
+    // }
+    //
+    // function updateTodo() {
+    //     fetchTodoCount()
+    //         .then(response => {
+    //             const data = response.data; // 从响应中提取 data 字段
+    //             retryCount = 0;
+    //             document.querySelectorAll('.todo-count[data-module]').forEach(el => {
+    //                 const module = el.dataset.module;
+    //                 const count = data[module] || 0;
+    //                 animateNumber(el, count);
+    //             });
+    //         })
+    //             .catch(err => {
+    //             if (retryCount < MAX_RETRIES) {
+    //                 retryCount++;
+    //                 const delay = Math.pow(2, retryCount) * 1000;
+    //                 setTimeout(updateTodo, delay);
+    //             } else {
+    //                 showErrorToast('待办数据更新失败');
+    //             }
+    //         });
+    // }
+    // 配置常量
+    const MAX_DELAY = 30000;
+    let retryCount = 0;
+    let abortController = null;
+
+    // 核心函数：带退避策略的数据获取
+    async function fetchDataWithRetry() {
+        abortController?.abort();
+        abortController = new AbortController();
+
+        try {
+            // // 修改点1：直接返回 response.json()
+            // const response = await fetch('/system/apply/todoCount', {
+            //     signal: abortController.signal
+            // });
+            // 使用正确的上下文路径构造URL
+            const response = await fetch(`${contextPath}/system/apply/todoCount`, {
+                signal: abortController.signal
+            });
+
+            if (!response.ok) {
+                throw new Error(`网络响应异常: ${response.status} ${response.statusText}`);
+            }
+
+            retryCount = 0;
+            return await response.json(); // 直接解析JSON数据
+
+        } catch (err) {
+            if (err.name === 'AbortError') return;
+
+            if (retryCount < MAX_RETRIES) {
+                retryCount++;
+                const delay = Math.min(Math.pow(2, retryCount) * 1000, 30000);
+
+                await new Promise(resolve => setTimeout(resolve, delay));
+                return fetchDataWithRetry();
+            } else {
+                throw new Error('超过最大重试次数');
+            }
+        }
+    }
+
+    // 修复版渲染函数
+    function renderTodoItems(data) {
+        // 修改点2：直接更新现有元素而非克隆
+        document.querySelectorAll('.todo-count[data-module]').forEach(el => {
+            const module = el.dataset.module;
+            const count = data[module] || 0;
+            animateNumber(el, count);
+        });
+        document.querySelectorAll('.stat-value[data-module]').forEach(el => {
+            const module = el.dataset.module;
+            const count = data[module] || 0;
+            animateNumber(el, count);
+        });
+    }
+
+    // 入口函数
+    async function updateTodo() {
+        try {
+            showLoadingIndicator();
+
+            // 修改点3：直接使用接口返回数据
+            const rawData = await fetchDataWithRetry();
+
+            // 调试输出
+            console.log('原始数据:', rawData);
+
+            // 如果后端返回的是 { code:200, data:{...} }
+            const data = rawData.data || rawData; // 兼容两种格式
+
+            renderTodoItems(data);
+
+        } catch (err) {
+            console.error('数据获取失败:', err);
+            showErrorToast(`数据加载失败: ${err.message}`);
+        } finally {
+            hideLoadingIndicator();
+        }
+    }
+
+    // 辅助函数示例
+    // 显示加载指示器
+    function showLoadingIndicator() {
+        document.getElementById('loadingIndicator').classList.add('show');
+    }
+
+    // 隐藏加载指示器
+    function hideLoadingIndicator() {
+        document.getElementById('loadingIndicator').classList.remove('show');
+    }
+
+    // 显示错误提示
+    function showErrorToast(message) {
+        const toast = document.getElementById('errorToast');
+        const messageEl = document.getElementById('errorMessage');
+
+        messageEl.textContent = message;
+        toast.classList.add('show');
+
+        // 初始化监听
+        document.addEventListener('DOMContentLoaded', () => {
+            // 初始化页面交互
+            document.querySelectorAll('.link-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const url = this.dataset.url;
+                    if (url) window.location.href = url;
+                });
+            });
+
+            // 初始化鼠标移动效果
+            document.querySelectorAll('.card').forEach(card => {
+                card.addEventListener('mousemove', (e) => {
+                    const rect = card.getBoundingClientRect();
+                    card.style.setProperty('--x', `${e.clientX - rect.left}px`);
+                    card.style.setProperty('--y', `${e.clientY - rect.top}px`);
+                });
+            });
+
+            // 初始加载数据
+            updateTodo();
+
+        // 当页面恢复可见时立即更新
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) updateTodo();
+        });
+    });
+
+        // 3秒后自动隐藏
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 3000);
+    }
+
+    // 初始化ECharts实例 9.21
+    // 数据可视化功能
+    document.addEventListener('DOMContentLoaded', function() {
+        // 初始化ECharts实例
+        const chartDom = document.getElementById('summaryChart');
+        if (!chartDom) return;
+
+        const myChart = echarts.init(chartDom);
+
+        // 图表配置和数据
+        let chartData = {
+            todo: {
+                pie: null,
+                line: null,
+                bar: null
+            },
+            info: {
+                pie: null,
+                line: null,
+                bar: null
+            }
+        };
+
+        let currentTab = 'todo';
+        let currentChartType = 'pie';
+
+        // 模块名称映射
+        const moduleNameMap = {
+            'vertical': '纵向课题',
+            'horizontal': '横向课题',
+            'achievement': '成果转化',
+            'paper': '论文',
+            'textbook': '教材软著',
+            'patent': '专利软著',
+            'reward': '奖励',
+            'lecture': '讲座报告'
+        };
+
+        // 从页面获取实时数据
+        function getRealData() {
+            // 获取待办事项数据
+            const todoData = [];
+            document.querySelectorAll('.todo-item').forEach(item => {
+                const title = item.querySelector('.todo-title').textContent;
+                const count = parseInt(item.querySelector('.todo-count').textContent) || 0;
+                // 获取模块英文名称
+                const module = item.querySelector('.todo-count').dataset.module;
+                todoData.push({
+                    name: title,
+                    value: count,
+                    module: module
+                });
+            });
+
+            // 获取事项信息数据
+            const infoData = [];
+            const modules = ['vertical', 'horizontal', 'achievement', 'paper', 'textbook', 'patent', 'reward', 'lecture'];
+            const statusTypes = ['apply', 'audit', 'complete'];
+
+            modules.forEach(module => {
+                const itemData = {
+                    category: moduleNameMap[module] || module,
+                    module: module
+                };
+                statusTypes.forEach(status => {
+                    const element = document.querySelector(`.stat-value[data-module="${module}_${status}"]`);
+                    itemData[status] = element ? parseInt(element.textContent) || 0 : 0;
+                });
+                infoData.push(itemData);
+            });
+
+            return { todoData, infoData };
+        }
+
+        // 初始化图表
+        function initChart() {
+            const { todoData, infoData } = getRealData();
+
+            console.log("待办数据:", todoData);
+            console.log("事项信息数据:", infoData);
+
+            // 准备待办事项图表数据
+            chartData.todo.pie = {
+                tooltip: {
+                    trigger: 'item',
+                    formatter: '{a} <br/>{b}: {c} ({d}%)'
+                },
+                legend: {
+                    orient: 'horizontal',
+                    bottom: 10,
+                    data: todoData.map(item => item.name),
+                    textStyle: {
+                        color: '#64748b'
+                    }
+                },
+                series: [{
+                    name: '待办事项',
+                    type: 'pie',
+                    radius: ['50%', '70%'],
+                    avoidLabelOverlap: false,
+                    itemStyle: {
+                        borderColor: '#fff',
+                        borderWidth: 2,
+                        borderRadius: 5,
+                        borderCap: 'round'
+                    },
+                    label: {
+                        show: false,
+                        position: 'center'
+                    },
+                    emphasis: {
+                        label: {
+                            show: true,
+                            fontSize: '14',
+                            fontWeight: 'bold'
+                        }
+                    },
+                    labelLine: {
+                        show: false
+                    },
+                    data: todoData.map(item => ({
+                        name: item.name,
+                        value: item.value
+                    }))
+                }]
+            };
+
+            chartData.todo.bar = {
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'shadow'
+                    }
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '15%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: todoData.map(item => item.name),
+                    axisLabel: {
+                        interval: 0,
+                        rotate: 30,
+                        textStyle: {
+                            color: '#64748b'
+                        }
+                    }
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLabel: {
+                        textStyle: {
+                            color: '#64748b'
+                        }
+                    }
+                },
+                series: [{
+                    name: '待办数量',
+                    type: 'bar',
+                    data: todoData.map(item => item.value),
+                    itemStyle: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            { offset: 0, color: '#6366f1' },
+                            { offset: 1, color: '#8b5cf6' }
+                        ])
+                    }
+                }]
+            };
+
+            chartData.todo.line = {
+                tooltip: {
+                    trigger: 'axis'
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '15%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: todoData.map(item => item.name),
+                    axisLabel: {
+                        interval: 0,
+                        rotate: 30,
+                        textStyle: {
+                            color: '#64748b'
+                        }
+                    }
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLabel: {
+                        textStyle: {
+                            color: '#64748b'
+                        }
+                    }
+                },
+                series: [{
+                    name: '待办数量',
+                    type: 'line',
+                    data: todoData.map(item => item.value),
+                    smooth: true,
+                    symbol: 'circle',
+                    symbolSize: 8,
+                    itemStyle: {
+                        color: '#6366f1'
+                    },
+                    lineStyle: {
+                        width: 3,
+                        color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
+                            { offset: 0, color: '#6366f1' },
+                            { offset: 1, color: '#8b5cf6' }
+                        ])
+                    },
+                    areaStyle: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            { offset: 0, color: 'rgba(99, 102, 241, 0.3)' },
+                            { offset: 1, color: 'rgba(139, 92, 246, 0.1)' }
+                        ])
+                    }
+                }]
+            };
+
+            // 准备事项信息图表数据
+            chartData.info.pie = {
+                tooltip: {
+                    trigger: 'item',
+                    formatter: '{a} <br/>{b}: {c} ({d}%)'
+                },
+                legend: {
+                    orient: 'horizontal',
+                    bottom: 10,
+                    data: ['申报', '审核', '完成'],
+                    textStyle: {
+                        color: '#64748b'
+                    }
+                },
+                series: [{
+                    name: '事项状态',
+                    type: 'pie',
+                    radius: ['50%', '70%'],
+                    avoidLabelOverlap: false,
+                    itemStyle: {
+                        borderColor: '#fff',
+                        borderWidth: 2
+                    },
+                    label: {
+                        show: false,
+                        position: 'center'
+                    },
+                    emphasis: {
+                        label: {
+                            show: true,
+                            fontSize: '14',
+                            fontWeight: 'bold'
+                        }
+                    },
+                    labelLine: {
+                        show: false
+                    },
+                    data: [
+                        { value: infoData.reduce((sum, item) => sum + item.apply, 0), name: '申报' },
+                        { value: infoData.reduce((sum, item) => sum + item.audit, 0), name: '审核' },
+                        { value: infoData.reduce((sum, item) => sum + item.complete, 0), name: '完成' }
+                    ]
+                }]
+            };
+
+            chartData.info.bar = {
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'shadow'
+                    }
+                },
+                legend: {
+                    data: ['申报', '审核', '完成'],
+                    bottom: 10,
+                    textStyle: {
+                        color: '#64748b'
+                    }
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '15%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: infoData.map(item => item.category),
+                    axisLabel: {
+                        interval: 0,
+                        rotate: 30,
+                        textStyle: {
+                            color: '#64748b'
+                        }
+                    }
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLabel: {
+                        textStyle: {
+                            color: '#64748b'
+                        }
+                    }
+                },
+                series: [
+                    {
+                        name: '申报',
+                        type: 'bar',
+                        data: infoData.map(item => item.apply)
+                    },
+                    {
+                        name: '审核',
+                        type: 'bar',
+                        data: infoData.map(item => item.audit)
+                    },
+                    {
+                        name: '完成',
+                        type: 'bar',
+                        data: infoData.map(item => item.complete)
+                    }
+                ]
+            };
+
+            chartData.info.line = {
+                tooltip: {
+                    trigger: 'axis'
+                },
+                legend: {
+                    data: ['申报', '审核', '完成'],
+                    bottom: 10,
+                    textStyle: {
+                        color: '#64748b'
+                    }
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '15%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: infoData.map(item => item.category),
+                    axisLabel: {
+                        interval: 0,
+                        rotate: 30,
+                        textStyle: {
+                            color: '#64748b'
+                        }
+                    }
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLabel: {
+                        textStyle: {
+                            color: '#64748b'
+                        }
+                    }
+                },
+                series: [
+                    {
+                        name: '申报',
+                        type: 'line',
+                        data: infoData.map(item => item.apply),
+                        smooth: true,
+                        symbol: 'circle',
+                        symbolSize: 8
+                    },
+                    {
+                        name: '审核',
+                        type: 'line',
+                        data: infoData.map(item => item.audit),
+                        smooth: true,
+                        symbol: 'circle',
+                        symbolSize: 8
+                    },
+                    {
+                        name: '完成',
+                        type: 'line',
+                        data: infoData.map(item => item.complete),
+                        smooth: true,
+                        symbol: 'circle',
+                        symbolSize: 8
+                    }
+                ]
+            };
+
+            // 设置初始图表
+            updateChart();
+        }
+
+        // 更新图表显示
+        function updateChart() {
+            const option = chartData[currentTab][currentChartType];
+            if (option) {
+                myChart.setOption(option, true);
+            }
+        }
+
+        // 标签切换事件
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                currentTab = this.dataset.tab;
+                initChart(); // 重新初始化图表以获取最新数据
+            });
+        });
+
+        // 图表类型切换事件
+        document.querySelectorAll('.chart-type-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.chart-type-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentChartType = this.dataset.type;
+                updateChart();
+            });
+        });
+
+        // 窗口大小变化时调整图表
+        window.addEventListener('resize', function() {
+            myChart.resize();
+        });
+
+        // 初始化图表 - 延迟执行以确保数据已加载
+        setTimeout(() => {
+            initChart();
+        }, 1000);
+
+        // 监听数据更新，当待办事项和事项信息更新时，重新初始化图表
+        const originalUpdateTodo = updateTodo;
+        window.updateTodo = async function() {
+            await originalUpdateTodo.apply(this, arguments);
+            // 添加延迟以确保DOM已更新
+            setTimeout(() => {
+                initChart();
+            }, 100);
+        };
+    });
 </script>
 </html>
