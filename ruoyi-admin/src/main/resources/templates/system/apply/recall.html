@@ -248,12 +248,28 @@
         }
     }
     function chakan(type){
-        var c = $("#"+type).val();
-        window.open(c ,'_blank');
+        var relativePath = $("#"+type).val();
+        if (!relativePath) {
+            alert("没有可预览的文件！");
+            return;
+        }
+        // 获取当前页面的上下文路径
+        var contextPath = '/' + window.location.pathname.split('/')[1];
+        // 拼接完整 URL
+        var fullPath = window.location.origin + contextPath + relativePath;
+        window.open(fullPath ,'_blank');
     }
     function beian(type){
-        var c = $("#"+type).val();
-        window.open(c ,'_blank' );
+        var relativePath = $("#"+type).val();
+        if (!relativePath) {
+            alert("没有可预览的文件！");
+            return;
+        }
+        // 获取当前页面的上下文路径
+        var contextPath = '/' + window.location.pathname.split('/')[1];
+        // 拼接完整 URL
+        var fullPath = window.location.origin + contextPath + relativePath;
+        window.open(fullPath ,'_blank');
     }
     function downloadFile(type){
         var c = $("#"+type).val();
