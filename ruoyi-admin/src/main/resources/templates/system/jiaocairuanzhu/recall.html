@@ -192,19 +192,24 @@
             const parts = fileName.split('_'); // 按下划线分割
             const firstPart = parts[0]; // 下划线前的部分
 
-            const dotParts = fileName.split('.'); // 按点分割
-            const lastPart = dotParts[dotParts.length - 1]; // 点后的部分
-
-            fileNameSpan.textContent = `${firstPart}.${lastPart}`; // 组合并显示
+            fileNameSpan.textContent = `${firstPart}`; // 组合并显示
         } else {
             fileNameSpan.textContent = '';
         }
     }
 
     function chakan(){
-        event.preventDefault();          // 阻止默认行为
-        var c = $("#wenjian").val();
-        $.modal.openTab("查看合同" ,c );
+        var relativePath = $("#wenjian").val();
+        if (!relativePath) {
+            alert("没有可预览的文件！");
+            return;
+        }
+        // 获取当前页面的上下文路径
+        var contextPath = '/' + window.location.pathname.split('/')[1];
+        // 拼接完整 URL
+        var fullPath = window.location.origin + contextPath + relativePath;
+        // 打开新窗口预览
+        window.open(fullPath, '_blank');
     }
 
     function downloadFile(type){
