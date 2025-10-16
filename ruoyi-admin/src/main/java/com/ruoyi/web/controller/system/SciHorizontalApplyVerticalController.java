@@ -564,8 +564,4 @@ public class SciHorizontalApplyVerticalController extends BaseController {
     {
         return toAjax(sciHorizontalApplyVerticalService.recall(id,state,getUserId(),remark,urlFlag));
     }
-
-
-
-
 }
