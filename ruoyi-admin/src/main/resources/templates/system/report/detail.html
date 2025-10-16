@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh" xmlns:th="http://www.thymeleaf.org" >
 <head>
-    <th:block th:include="include :: header('申请批阅')" />
+    <th:block th:include="include :: header('讲座报告批阅')" />
     <th:block th:include="include :: datetimepicker-css" />
     <style>
         .form-group{
@@ -142,7 +142,7 @@
     <div class="row">
         <div class="col-sm-offset-5 col-sm-10">
             <button type="button" style="display:none;" id="btn1" class="btn btn-sm btn-primary" onclick="submitHandler()"><i class="fa fa-check"></i>通 过</button>&nbsp;
-            <button type="button" style="display:none;" id="btn2" class="btn btn-sm btn-danger" onclick="submitHandlerBH()"><i class="fa fa-check"></i><span id="rejectBtnText">驳 回</button>&nbsp;
+            <button type="button" style="display:none;" id="btn2" class="btn btn-sm btn-danger" onclick="submitHandlerBH()"><i class="fa fa-check"></i><span id="rejectBtnText">驳 回</span></button>&nbsp;
             <button type="button" style="display:none;" id="btn3" class="btn btn-sm btn-warning" onclick="closeItem()"><i class="fa fa-reply-all"></i>关 闭 </button>
         </div>
     </div>
@@ -228,7 +228,8 @@
 
         $(document).ready(function() {
             var state = $("#state").val();
-            if ((state == 6 && b == "tuihui") || (state == 2 && b == "xytuihui") || (state == 4)) {
+            var stateNum = parseInt(state);
+            if ((stateNum === 6) || (stateNum === 2) || (stateNum === 4)) {
                 $("#rejectBtnText").text("撤 回");
             } else {
                 $("#rejectBtnText").text("驳 回");
@@ -244,6 +245,15 @@
         }
         // 讲座报告驳回保存方法
         function submitHandlerBH() {
+            // 根据按钮文字判断当前动作：撤回 or 驳回
+            var isWithdraw = $("#rejectBtnText").text().trim() === "撤 回";
+
+            // 撤回：取消必填；驳回：启用必填
+            if (isWithdraw) {
+                $('textarea[name="remark"]').removeAttr('required');
+            } else {
+                $('textarea[name="remark"]').attr('required', 'required');
+            }
 
             if ($.validate.form()) {
                 // reject ===> 驳回
