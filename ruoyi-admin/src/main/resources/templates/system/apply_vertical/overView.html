@@ -134,7 +134,7 @@
         <div class="form-group">
           <label class="col-sm-4 control-label is-required">立项文件：</label>
           <div class="col-sm-8">
-            <input th:field="*{filing}" hidden id="filing0" type="text" >
+            <input th:field="*{file}" hidden id="filing0" type="text" >
             <div style="display: inline-block;">
               <div id="filingFileName0" style="display: inline; margin-right: 5px;"></div>
             </div>
@@ -258,8 +258,10 @@
       alert("没有可预览的文件！");
       return;
     }
+    // 获取当前页面的上下文路径
+    var contextPath = '/' + window.location.pathname.split('/')[1];
     // 拼接完整 URL
-    var fullPath = window.location.origin + relativePath;
+    var fullPath = window.location.origin + contextPath + relativePath;
     // 打开新窗口预览
     window.open(fullPath, '_blank');
   }

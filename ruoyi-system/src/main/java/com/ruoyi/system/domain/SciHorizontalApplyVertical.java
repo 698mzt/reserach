@@ -60,7 +60,7 @@ public class SciHorizontalApplyVertical extends BaseEntity {
     @Excel(name = "项目金额")
     private String amount;
     /** 申请文件 */
-    private String filing;
+    private String file;
     /** 开题文件 */
     private String openfile;
     /** 中期文件 */
@@ -265,12 +265,12 @@ public class SciHorizontalApplyVertical extends BaseEntity {
         this.amount = amount;
     }
 
-    public String getFiling() {
-        return filing;
+    public String getFile() {
+        return file;
     }
 
-    public void setFiling(String filing) {
-        this.filing = filing;
+    public void setFile(String file) {
+        this.file = file;
     }
 
     public String getState() {

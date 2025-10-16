@@ -15,7 +15,7 @@
         <result property="secondPersonId"    column="second_person_id"    />
         <result property="thirdPersonId"    column="third_person_id"    />
         <result property="fourthPersonId"    column="fourth_person_id"    />
-        <result property="filing"    column="file"    />
+        <result property="file"    column="file"    />
         <result property="openfile"    column="open_file"    />
         <result property="midfile"    column="mid_file"    />
         <result property="overfile"    column="over_file"    />
@@ -187,7 +187,7 @@
             <if test="thirdPersonId != null and thirdPersonId != ''">third_person_id,</if>
             <if test="fourthPersonId != null and fourthPersonId != ''">fourth_person_id,</if>
             <if test="amount != null and amount != ''">amount,</if>
-            <if test="filing != null and filing != ''">file,</if>
+            <if test="file != null and file != ''">file,</if>
             <if test="state != null and state != ''">state,</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -201,7 +201,7 @@
             <if test="thirdPersonId != null and thirdPersonId != ''">#{thirdPersonId},</if>
             <if test="fourthPersonId != null and fourthPersonId != ''">#{fourthPersonId},</if>
             <if test="amount != null and amount != ''">#{amount},</if>
-            <if test="filing != null and filing != ''">#{filing},</if>
+            <if test="file != null and file != ''">#{file},</if>
             <if test="state != null and state != ''">#{state},</if>
         </trim>
     </insert>
@@ -227,7 +227,7 @@
             <if test="thirdPersonId != null and thirdPersonId != ''">third_person_id = #{thirdPersonId},</if>
             <if test="fourthPersonId != null and fourthPersonId != ''">fourth_person_id = #{fourthPersonId},</if>
             <if test="amount != null and amount != ''">amount = #{amount},</if>
-            <if test="filing != null and filing != ''">file = #{filing},</if>
+            <if test="file != null and file != ''">file = #{file},</if>
             <if test="openfile != null and openfile != ''">open_file = #{openfile},</if>
             <if test="midfile != null and midfile != ''">mid_file = #{midfile},</if>
             <if test="overfile != null and overfile != ''">over_file = #{overfile},</if>

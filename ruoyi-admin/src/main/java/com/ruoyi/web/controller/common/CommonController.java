@@ -192,7 +192,7 @@ public class CommonController extends BaseController
     public void doGet(@RequestParam("id") String id, HttpServletRequest request, HttpServletResponse response)  throws ServletException, IOException {
         List<String> list = new ArrayList<>();
         SciHorizontalApplyVertical sciHorizontalApplyVertical = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalById(Integer.parseInt(id));
-        list.add(getFileName(sciHorizontalApplyVertical.getFiling()));
+        list.add(getFileName(sciHorizontalApplyVertical.getFile()));
         list.add(getFileName(sciHorizontalApplyVertical.getOpenfile()));
         list.add(getFileName(sciHorizontalApplyVertical.getMidfile()));
         list.add(getFileName(sciHorizontalApplyVertical.getOverfile()));

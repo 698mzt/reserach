@@ -134,9 +134,9 @@
             <div class="form-group">
                 <label class="col-sm-4 control-label is-required">立项文件：</label>
                 <div class="col-sm-8">
-                    <input type="hidden" name="filing">
+                    <input type="hidden" name="file">
                     <div class="file-loading">
-                        <input class="form-control file-upload" id="filing" name="file" type="file">
+                        <input class="form-control file-upload" id="file" name="file" type="file">
                     </div>
                 </div>
             </div>
@@ -186,7 +186,7 @@
                 return $.modal.alertError("项目金额小数点后最多4位");
             }
 
-            if ($("input[name='filing']").val() === "")
+            if ($("input[name='file']").val() === "")
                 return $.modal.alertError("请上传文件");
 
             // 校验课题名称不能包含特殊字符
