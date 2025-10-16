@@ -142,30 +142,23 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
             case "111":
                 String newState = sciHorizontalApplyVertical.getState();
                 switch (newState) {
-//            教研室
+                    // 教研室
                     case "33":
-                        newState = "11";
-                        break;
                     case "3":
-                        newState = "1";
-                        break;
-//                学院
-                    case "5":
-                        newState = "1";
-                        break;
-                    case "55":
-                        newState = "11";
-                        break;
-//                科研处
-                    case "77":
-                        newState = "11";
-                        break;
-                    case "7":
-                        newState = "1";
-                        break;
-//                教师
-                    case "99":
                         newState = "99";
+                        break;
+                    // 学院
+                    case "5":
+                    case "55":
+                        newState = "99";
+                        break;
+                    // 科研处
+                    case "77":
+                    case "7":
+                        newState = "99";
+                        break;
+                    // 教师
+                    case "99":
                         break;
                 }
                 sciHorizontalApplyVertical.setState(newState);
