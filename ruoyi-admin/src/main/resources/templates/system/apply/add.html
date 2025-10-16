@@ -29,7 +29,7 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">课题编号：</label>
                     <div class="col-sm-8">
-                        <input name="topNumber" class="form-control" type="text" required  maxlength="20">
+                        <input name="topNumber" class="form-control" type="text"  maxlength="20">
                     </div>
                 </div>
             </div>
@@ -254,12 +254,6 @@
                 }
                 if (partyB && partyB.length > 20) {
                     return $.modal.alertError("乙方不能超过20个字符");
-                }
-
-                // 课题编号只能输入字母、数字和下划线，不能有中文和特殊字符
-                var topNumberPattern = /^[A-Za-z0-9_]+$/;
-                if (!topNumberPattern.test(topNumber)) {
-                    return $.modal.alertError("课题编号只能输入字母、数字和下划线，不能包含中文或特殊字符");
                 }
                 $.operate.saveTab(prefix + "/add", $('#form-apply-add').serialize());
             }
