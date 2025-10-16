@@ -147,7 +147,7 @@
                 <div class="form-group"  >
                     <label class="col-xs-2 control-label">批注：</label>
                     <div class="col-xs-10">
-                        <textarea name="remark" required maxlength="500" class="form-control" rows="3"></textarea>
+                        <textarea name="remark" maxlength="500" class="form-control" rows="3"></textarea>
                     </div>
                 </div>
 
@@ -209,9 +209,17 @@
     }
 
     function chakan(){
-        event.preventDefault();          // 阻止默认行为
-        var c = $("#wenjian").val();
-        $.modal.openTab("查看合同" ,c );
+        var relativePath = $("#wenjian").val();
+        if (!relativePath) {
+            alert("没有可预览的文件！");
+            return;
+        }
+        // 获取当前页面的上下文路径
+        var contextPath = '/' + window.location.pathname.split('/')[1];
+        // 拼接完整 URL
+        var fullPath = window.location.origin + contextPath + relativePath;
+        // 打开新窗口预览
+        window.open(fullPath, '_blank');
     }
 
     function downloadFile(type){

@@ -308,10 +308,13 @@ public class SciHorizontalApplyVerticalController extends BaseController {
     @Transactional
     public AjaxResult push(SciHorizontalApplyVertical sciHorizontalApplyVertical)
     {
+        SciHorizontalApplyVertical sciHorizontalApplyVertical1 = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalById(sciHorizontalApplyVertical.getId());
         sciHorizontalApplyVertical.setUserId(Integer.valueOf(getSysUser().getUserId().toString()));
         sciHorizontalApplyVertical.setNewsql("99");
-        String state = "1";
-        sciHorizontalApplyVertical.setState(state);
+        if (!sciHorizontalApplyVertical1.getValidityData().isEmpty() && sciHorizontalApplyVertical1.getValidityData() !=  null)
+            sciHorizontalApplyVertical.setState("11");
+        else
+            sciHorizontalApplyVertical.setState("1");
         return toAjax(sciHorizontalApplyVerticalService.updateSciHorizontalApplyVertical(sciHorizontalApplyVertical));
     }
 
@@ -564,8 +567,4 @@ public class SciHorizontalApplyVerticalController extends BaseController {
     {
         return toAjax(sciHorizontalApplyVerticalService.recall(id,state,getUserId(),remark,urlFlag));
     }
-
-
-
-
 }

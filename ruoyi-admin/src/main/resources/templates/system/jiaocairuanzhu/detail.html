@@ -114,16 +114,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-sm-6">
-                    <!-- 可以在这里添加另一个输入框，如果没有则留空 -->
-                </div>
             </div>
-
-
-
-
-
-
             <h4 class="form-header h4 tdiv1" style="display:none;">退回原因</h4>
             <div class="row tdiv1" style="display:none;">
                 <div class="col-sm-12">
@@ -166,12 +157,6 @@
         focusCleanup: true
     });
 
-    // function submitHandler() {
-    //     if ($.validate.form()) {
-    //         $.operate.save(prefix + "/edit", $('#form-jiaocairuanzhu-edit').serialize());
-    //     }
-    // }
-
     $("input[name='chubanshijian']").datetimepicker({
         format: "yyyy-mm-dd",
         minView: "month",
@@ -186,19 +171,24 @@
             const parts = fileName.split('_'); // 按下划线分割
             const firstPart = parts[0]; // 下划线前的部分
 
-            const dotParts = fileName.split('.'); // 按点分割
-            const lastPart = dotParts[dotParts.length - 1]; // 点后的部分
-
-            fileNameSpan.textContent = `${firstPart}.${lastPart}`; // 组合并显示
+            fileNameSpan.textContent = `${firstPart}`; // 组合并显示
         } else {
             fileNameSpan.textContent = '';
         }
     }
 
     function chakan(){
-        event.preventDefault();
-        var c = $("#wenjian").val();
-        $.modal.openTab("查看合同" ,c );
+        var relativePath = $("#wenjian").val();
+        if (!relativePath) {
+            alert("没有可预览的文件！");
+            return;
+        }
+        // 获取当前页面的上下文路径
+        var contextPath = '/' + window.location.pathname.split('/')[1];
+        // 拼接完整 URL
+        var fullPath = window.location.origin + contextPath + relativePath;
+        // 打开新窗口预览
+        window.open(fullPath, '_blank');
     }
 
     function downloadFile(type){

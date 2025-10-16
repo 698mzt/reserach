@@ -61,10 +61,10 @@
 
             <div class="col-xs-6">
                 <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">申请日期：</label>
+                    <label class="col-sm-4 control-label is-required">结项日期：</label>
                     <div class="col-sm-8">
                         <div class="input-group date">
-                            <input  readonly th:field="*{signingData}" th:value="${#dates.format(signingData, 'yyyy-MM-dd')}" class="form-control" placeholder="yyyy-MM-dd" type="text" required>
+                            <input  readonly th:field="*{validityData}" th:value="${#dates.format(validityData, 'yyyy-MM-dd')}" class="form-control" placeholder="yyyy-MM-dd" type="text" required>
                             <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
                         </div>
                     </div>
@@ -233,8 +233,10 @@
             alert("没有可预览的文件！");
             return;
         }
+        // 获取当前页面的上下文路径
+        var contextPath = '/' + window.location.pathname.split('/')[1];
         // 拼接完整 URL
-        var fullPath = window.location.origin + relativePath;
+        var fullPath = window.location.origin + contextPath + relativePath;
         // 打开新窗口预览
         window.open(fullPath, '_blank');
     }

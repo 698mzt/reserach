@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh" xmlns:th="http://www.thymeleaf.org" >
 <head>
-    <th:block th:include="include :: header('结项课题申请')" />
+    <th:block th:include="include :: header('课题结项申请')" />
     <th:block th:include="include :: datetimepicker-css" />
     <th:block th:include="include :: bootstrap-fileinput-css"/>
     <th:block th:include="include :: select2-css" />
@@ -31,7 +31,7 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">课题编号：</label>
                     <div class="col-sm-8">
-                        <input  readonly th:field="*{topNumber}" class="form-control" type="text" required>
+                        <input  readonly th:field="*{topNumber}" class="form-control" type="text">
                     </div>
                 </div>
             </div>
@@ -144,7 +144,7 @@
 
             <div class="col-xs-6">
                 <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">结题报告：</label>
+                    <label class="col-sm-4 control-label is-required">结题合同：</label>
                     <div class="col-sm-8">
                         <input type="hidden" name="filingurl">
                         <div class="file-loading">

@@ -185,7 +185,7 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
       sciPaperAr.setState("教研室驳回");
     } else if (urlFlag.equals("kyth")) {
       state = "7";
-      sciPaperAr.setState("科研室驳回");
+      sciPaperAr.setState("科研处驳回");
       int points = 0;
       int b = sciPaperAMapper.updateSciPaperArs(id, points);
     }

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh" xmlns:th="http://www.thymeleaf.org" >
 <head>
-    <th:block th:include="include :: header('课题撤回')" />
+    <th:block th:include="include :: header('课题数据撤回')" />
     <th:block th:include="include :: datetimepicker-css" />
     <th:block th:include="include :: bootstrap-fileinput-css"/>
     <th:block th:include="include :: select2-css" />
@@ -72,23 +72,10 @@
                     </div>
                 </div>
             </div>
-<!--            <div class="col-xs-6">-->
-<!--                <div class="form-group">-->
-<!--                    <label class="col-sm-4 control-label is-required">合同有效日期：</label>-->
-<!--                    <div class="col-sm-8">-->
-<!--                        <div class="input-group date">-->
-<!--                            <input  readonly th:field="*{validityDate}" th:value="${#dates.format(validityDate, 'yyyy-MM-dd')}" class="form-control" id="laydate-demo-4" placeholder="yyyy-MM-dd" type="text">-->
-<!--                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>-->
-<!--                        </div>-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--            </div>-->
             <div class="col-xs-6">
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">第一负责人：</label>
                     <div class="col-sm-8">
-
-                        <!--                        <input name="firstPersonId" th:field="*{firstPersonId}" class="form-control" type="text" required>-->
                         <select name="firstPersonId" class="form-control m-b" disabled>
                             <option value="">无</option>
                             <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ #strings.toString(user.userId) == sciHorizontalApply.firstPersonId}"></option>
@@ -101,7 +88,6 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">第二负责人：</label>
                     <div class="col-sm-8">
-                        <!--                        <input name="secondPersonTask" th:field="*{secondPersonTask}" class="form-control" type="text" required>-->
                         <select name="secondPersonId" class="form-control m-b" disabled >
                             <option value="">无</option>
                             <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ #strings.toString(user.userId) == sciHorizontalApply.secondPersonId}" ></option>
@@ -114,7 +100,6 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">第三负责人：</label>
                     <div class="col-sm-8">
-                        <!--                        <input name="thirdPersonId" th:field="*{thirdPersonId}" class="form-control" type="text" required>-->
                         <select  class="form-control m-b" disabled>
                             <option value="">无</option>
                             <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ #strings.toString(user.userId) == sciHorizontalApply.thirdPersonId}"  ></option>
@@ -207,10 +192,9 @@
                 <div class="form-group"  >
                     <label class="col-xs-2 control-label">批注：</label>
                     <div class="col-xs-10">
-                        <textarea name="remark" required maxlength="500" class="form-control" rows="3"></textarea>
+                        <textarea name="remark" maxlength="500" class="form-control" rows="3"></textarea>
                     </div>
                 </div>
-
             </div>
         </div>
         <h4 class="form-header h4 tdiv2"  style="display:none;">批阅记录</h4>
@@ -248,12 +232,28 @@
         }
     }
     function chakan(type){
-        var c = $("#"+type).val();
-        window.open(c ,'_blank');
+        var relativePath = $("#"+type).val();
+        if (!relativePath) {
+            alert("没有可预览的文件！");
+            return;
+        }
+        // 获取当前页面的上下文路径
+        var contextPath = '/' + window.location.pathname.split('/')[1];
+        // 拼接完整 URL
+        var fullPath = window.location.origin + contextPath + relativePath;
+        window.open(fullPath ,'_blank');
     }
     function beian(type){
-        var c = $("#"+type).val();
-        window.open(c ,'_blank' );
+        var relativePath = $("#"+type).val();
+        if (!relativePath) {
+            alert("没有可预览的文件！");
+            return;
+        }
+        // 获取当前页面的上下文路径
+        var contextPath = '/' + window.location.pathname.split('/')[1];
+        // 拼接完整 URL
+        var fullPath = window.location.origin + contextPath + relativePath;
+        window.open(fullPath ,'_blank');
     }
     function downloadFile(type){
         var c = $("#"+type).val();

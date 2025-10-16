@@ -313,7 +313,6 @@ public class SciPaperAController extends BaseController {
   @PostMapping("/pybh/{id}")
   @ResponseBody
   public AjaxResult pybh(@PathVariable("id") String id, String remark, String urlFlag) {
-    System.out.println("remark = " + remark);
     return toAjax(sciPaperAService.pybh(id, getUserId(), remark, urlFlag));
   }
 
