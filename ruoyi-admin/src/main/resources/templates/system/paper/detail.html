@@ -25,6 +25,17 @@
             </div>
             <div class="col-md-6">
                 <div class="form-group">
+                    <label class="col-sm-4 control-label">论文类型：</label>
+                    <div class="col-sm-8">
+                        <select disabled name="paperType" id="paperType" class="form-control" th:with="type=${@dict.getType('sci_paper_type')}" required>
+                            <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"
+                                    th:field="*{paperType}"></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
                     <label class="col-sm-4 control-label">论文类别：</label>
                     <div class="col-sm-8">
                         <select disabled name="topType" id="paperCategory" class="form-control" th:with="type=${@dict.getType('sci_paper_k')}" required>
