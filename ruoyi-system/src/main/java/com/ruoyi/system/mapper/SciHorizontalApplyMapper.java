@@ -3,6 +3,7 @@ package com.ruoyi.system.mapper;
 import java.util.List;
 import com.ruoyi.system.domain.SciHorizontalApply;
 import com.ruoyi.system.domain.SciHorizontalPersion;
+import com.ruoyi.system.domain.creditedAmount;
 import org.apache.ibatis.annotations.Param;
 
 /**
@@ -103,6 +104,11 @@ public interface SciHorizontalApplyMapper
     List<SciHorizontalApply> selectSciHorizontalApplyListByOverDept(SciHorizontalApply sciHorizontalApply);
 
     int sci_horizontal_piyue(Integer id);
+
+    /**
+     * 查询到账金额
+     * */
+    List<creditedAmount> selectCreditedAmount();
 
     // 科研处审批统计
     int countByStates(@Param("states") List<String> states,

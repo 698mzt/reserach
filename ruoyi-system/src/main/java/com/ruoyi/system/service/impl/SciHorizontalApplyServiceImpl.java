@@ -9,9 +9,7 @@ import com.ruoyi.common.annotation.DataScope;
 import com.ruoyi.common.core.domain.entity.SysRole;
 import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.common.utils.StringUtils;
-import com.ruoyi.system.domain.SciHorizontalPersion;
-import com.ruoyi.system.domain.SciHorizontalPiyue;
-import com.ruoyi.system.domain.SciUserScore;
+import com.ruoyi.system.domain.*;
 import com.ruoyi.system.mapper.SciHorizontalPiyueMapper;
 import com.ruoyi.system.mapper.SciProjectScoreCfgMapper;
 import com.ruoyi.system.mapper.SciUserScoreMapper;
@@ -19,7 +17,6 @@ import com.ruoyi.system.service.SciHorizontalReamountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.ruoyi.system.mapper.SciHorizontalApplyMapper;
-import com.ruoyi.system.domain.SciHorizontalApply;
 import com.ruoyi.system.service.ISciHorizontalApplyService;
 import com.ruoyi.common.core.text.Convert;
 import org.springframework.transaction.annotation.Transactional;
@@ -577,6 +574,11 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
         sciHorizontalPiyue.setState("被驳回");
         sciHorizontalPiyueMapper.insertHorizontalAmountPiyue(sciHorizontalPiyue);
         return a;
+    }
+
+    @Override
+    public List<creditedAmount> selectCreditedAmount() {
+        return sciHorizontalApplyMapper.selectCreditedAmount();
     }
 
     /**
