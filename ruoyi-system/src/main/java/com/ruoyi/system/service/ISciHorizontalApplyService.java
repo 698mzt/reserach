@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.system.domain.SciHorizontalApply;
+import com.ruoyi.system.domain.creditedAmount;
 import org.apache.ibatis.annotations.Options;
 
 /**
@@ -119,6 +120,11 @@ public interface ISciHorizontalApplyService
 
 
     int amountBh(String id, String reid, Long userId, String remark, String urlFlag);
+
+    /**
+     * 查询到账金额
+     * */
+    List<creditedAmount> selectCreditedAmount();
 
     Map<String, Integer> getTodoCount(SysUser user);
     //*******************************************************************************************************

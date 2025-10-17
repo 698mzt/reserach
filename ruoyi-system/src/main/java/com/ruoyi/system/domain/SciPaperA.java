@@ -1,5 +1,6 @@
 package com.ruoyi.system.domain;
 
+import lombok.Data;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.ruoyi.common.annotation.Excel;
@@ -11,6 +12,7 @@ import com.ruoyi.common.core.domain.BaseEntity;
  * @author ruoyi
  * @date 2024-11-07
  */
+@Data
 public class SciPaperA extends BaseEntity {
     private static final long serialVersionUID = 1L;
 
@@ -89,6 +91,12 @@ public class SciPaperA extends BaseEntity {
      */
     @Excel(name = "论文名称")
     private String paperTitle;
+
+    /**
+     * 论文类型
+     */
+    @Excel(name = "论文类型")
+    private String paperType;
 
     /**
      * 论文类别

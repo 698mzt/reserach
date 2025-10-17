@@ -182,8 +182,7 @@ public class SciHorizontalApplyController extends BaseController
                 break;
         }
 
-        List<SciHorizontalApply> list1 = new ArrayList<>();
-        list1 = sciHorizontalApplyService.selectOtherListByUid(sciHorizontalApply);
+        List<SciHorizontalApply> list1 = sciHorizontalApplyService.selectOtherListByUid(sciHorizontalApply);
         list.addAll(list1);
         SysUser  sysUser =getSysUser();
 
@@ -202,6 +201,19 @@ public class SciHorizontalApplyController extends BaseController
         Integer did = sysUser.getDeptId().intValue();
         Integer yid = sysUser.getParentId().intValue();
         distinctList.addAll(Alist);
+
+//        计算到账金额
+        List<creditedAmount> creditedAmount = sciHorizontalApplyService.selectCreditedAmount();
+        for (SciHorizontalApply apply : distinctList) {
+            for (creditedAmount amount: creditedAmount){
+                if (Objects.equals(apply.getId(), amount.getApplyId())){
+                    apply.setCreditedAmount(amount.getCreditedAmount());
+                }
+            }
+        }
+
+
+//        计算分
         if(!distinctList.isEmpty()){
             for (SciHorizontalApply apply: distinctList){
                 apply.setUserdnameId(did);
