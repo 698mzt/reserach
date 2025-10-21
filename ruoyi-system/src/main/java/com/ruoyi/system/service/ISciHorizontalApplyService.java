@@ -127,6 +127,15 @@ public interface ISciHorizontalApplyService
     List<creditedAmount> selectCreditedAmount();
 
     Map<String, Integer> getTodoCount(SysUser user);
+
+    /**
+     * 按顺序保存成员到 sci_persion（先清空再插入，ranking 从1开始）
+     */
+    void saveApplyPersons(Integer applyId, java.util.List<String> personIds);
+    /**
+     * 查询指定申请的全部成员ID（来自 sci_persion，按排名升序）
+     */
+    java.util.List<String> selectPersionIdsByApplyId(Integer applyId);
     //*******************************************************************************************************
     // 纵向课题统计方法
     int countVerticalApply(SysUser user);

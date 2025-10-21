@@ -15,6 +15,10 @@ import org.apache.ibatis.annotations.Param;
 public interface SciHorizontalApplyMapper
 {
     /**
+     * 根据申请ID按排名查询成员ID列表
+     */
+    List<String> selectPersionIdsByApplyId(@Param("applyId") Integer applyId);
+    /**
      * 查询横向课题
      *
      * @param id 横向课题主键

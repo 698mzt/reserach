@@ -316,6 +316,14 @@
         </trim>
     </insert>
 
+    <!-- 按申请ID查询 sci_persion 成员ID，按排名升序 -->
+    <select id="selectPersionIdsByApplyId" parameterType="int" resultType="string">
+        SELECT persion_id
+        FROM sci_persion
+        WHERE apply_id = #{applyId}
+        ORDER BY ranking ASC
+    </select>
+
 
 
     <update id="updateSciHorizontalApply" parameterType="SciHorizontalApply">
