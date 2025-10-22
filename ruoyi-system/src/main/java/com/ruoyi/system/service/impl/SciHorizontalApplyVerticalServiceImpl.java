@@ -12,10 +12,7 @@ import com.ruoyi.system.service.SciHorizontalReamountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.List;
+import java.util.*;
 
 import static com.ruoyi.common.utils.ShiroUtils.getSysUser;
 
@@ -486,6 +483,8 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
         // 校验通过，执行更新
         return sciHorizontalApplyVerticalMapper.updateSciHorizontalApplyVertical(sciHorizontalApplyVertical);
     }
-
-
+    @Override
+    public List<SciHorizontalApplyVertical> getStatsQuery(Map<String, String> params) {
+        return sciHorizontalApplyVerticalMapper.getStatsQuery(params);
+    }
 }

@@ -414,7 +414,10 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
         sciIntraSchProPiyueMapper.insertIntraSchProPiyue(sciIntraSchProPiyue);
         return 1;
     }
-
+    @Override
+    public List<SciIntraSchoolPro> getStatsQuery(Map<String, String> params) {
+        return sciIntraSchProApplyMapper.getStatsQuery(params);
+    }
 }
 
 

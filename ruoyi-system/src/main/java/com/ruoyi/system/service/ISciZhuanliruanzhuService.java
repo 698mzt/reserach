@@ -1,8 +1,10 @@
 package com.ruoyi.system.service;
 
 import java.util.List;
+import java.util.Map;
 
 import com.ruoyi.common.core.domain.entity.SysUser;
+import com.ruoyi.system.domain.SciJiaocairuanzhu;
 import com.ruoyi.system.domain.SciZhuanliruanzhu;
 import org.apache.ibatis.annotations.Options;
 
@@ -99,6 +101,14 @@ public interface ISciZhuanliruanzhuService
      * @return 是否存在
      */
     boolean checkExist(String mingcheng, String paiming);
+
+    /**
+     * 统计查询教材专著数据
+     *
+     * @param params 查询参数
+     * @return 教材专著集合
+     */
+    List<SciZhuanliruanzhu> getStatsQuery(Map<String, String> params);
 
 
 }

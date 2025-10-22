@@ -175,4 +175,12 @@ public interface ISciHorizontalApplyService
     int countLectureApply(SysUser user);
     int countLectureAudit(SysUser user);
     int countLectureComplete(SysUser user);
+
+    /**
+     * 统计查询横向课题数据
+     *
+     * @param params 查询参数
+     * @return 横向课题集合
+     */
+    List<SciHorizontalApply> getStatsQuery(Map<String, String> params);
 }

@@ -306,4 +306,40 @@
         delete from sci_persion_vertical where vertical_id = #{verticalId}
     </delete>
 
+    <select id="getStatsQuery" parameterType="map" resultMap="SciHorizontalApplyVerticalResult">
+        select s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,s.top_number, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file,s.open_file,s.mid_file,s.over_file,s.createtime
+        from  sci_horizontal_apply_vertical s left join sys_user u on  s.user_id=u.user_id
+        left join sys_dept d on u.dept_id = d.dept_id
+        left join sys_dept p on d.parent_id =p.dept_id
+        where 1=1
+        <if test="startTime != null and startTime != ''">
+            and s.createtime >= #{startTime}
+        </if>
+        <if test="endTime != null and endTime != ''">
+            and s.createtime &lt;= #{endTime}
+        </if>
+        <if test="college != null and college != '' and college!='null' ">
+            AND p.dept_id = #{college}
+        </if>
+        <if test="major != null and major != '' and major!='null'">
+            AND d.dept_id = #{major}
+        </if>
+        <if test="jobTitle != null and jobTitle != '' and jobTitle != 'null'">
+            and u.user_name like concat('%', #{jobTitle}, '%')
+        </if>
+        <if test="topicName != null and topicName != ''">
+            and s.top_name like concat('%', #{topicName}, '%')
+        </if>
+        <if test="state != null and state != '' and state != 'null' and state != '1' ">
+            and s.state in (3,5,7,33,55,77,99,6)
+        </if>
+        <if test="state != null and state != '' and state != 'null' and state != '2' ">
+            and s.state in (1,2,4,11,22,44)
+        </if>
+        <if test="state != null and state != '' and state != 'null' and state != '3' ">
+            and s.state in (66)
+        </if>
+        order by s.createtime desc
+    </select>
+
 </mapper>

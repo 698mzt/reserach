@@ -1,0 +1,1008 @@
+<!--校内横向课题管理的页面，包含已完结，立项申请，结项申请的三个tab页面-->
+<!DOCTYPE html>
+<!--<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">-->
+<html lang="zh" xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="https://github.com/theborakompanioni/thymeleaf-extras-shiro"
+      xmlns:padding="http://www.w3.org/1999/xhtml">
+
+<head>
+    <th:block th:include="include :: header('成果转化列表')"/>
+    <th:block th:include="include :: datetimepicker-css"/>
+
+</head>
+<style>
+    @media (min-width: 768px) {
+        .col-sm-3 {
+            width: 38% !important;
+        }
+    }
+
+    .input-daterange {
+        float: left;
+    }
+
+    .track-rcol {
+        width: 100%;
+        max-width: 500px;
+        margin: 20px auto;
+        /*width: 450px;*/
+        /*!*border: 1px solid #eee;*!*/
+        /*margin: 20px auto;*/
+        /*background: transparent;*/
+        max-height: 400px;
+        overflow-y: auto;
+    }
+
+    .btn-group-sm > .btn, .btn-sm {
+        padding: 9px 10px;
+        font-size: 12px;
+        line-height: 1.5;
+        border-radius: 3px;
+    }
+
+    .link-button {
+        background: none;
+        border: none;
+        color: #2c99ff;
+        cursor: pointer;
+        font-size: inherit;
+    }
+
+    .del-link-button {
+        background: none;
+        border: none;
+        color: #ff0000;
+        cursor: pointer;
+        font-size: inherit;
+    }
+
+
+    .modal-right {
+        position: fixed;
+        right: 0;
+        margin: 0;
+        height: 100%;
+        display: flex;
+        align-items: stretch;
+    }
+
+    .modal-right .modal-content {
+        height: 100%;
+        width: 70%;
+        margin-left: auto;
+    }
+
+    .modal-right .but {
+        position: absolute;
+        right: 2%;
+        bottom: 1.3%;
+        background: red;
+        color: white;
+        border: none;
+        border-radius: 4px;
+    }
+
+    .progress_inner {
+        height: 80px;
+        width: 100%;
+        position: relative;
+    }
+
+    .progress_inner__step {
+        width: 33.33%;
+        font-size: 12px;
+        padding: 0 5px;
+        transition: all 0.4s;
+        float: left;
+        text-align: center;
+        position: relative;
+    }
+
+    .progress_inner__step label {
+        padding-top: 30px;
+        display: block;
+        position: relative;
+        cursor: pointer;
+    }
+
+    .progress_inner__step:before {
+        content: "1";
+        width: 24px;
+        height: 24px;
+        color: #2196F3;
+        background: white;
+        line-height: 22px;
+        border: 2px solid #2196F3;
+        font-size: 12px;
+        top: 0;
+        border-radius: 50%;
+        transition: all 0.4s;
+        position: absolute;
+        left: 0;
+        right: 0;
+        margin: auto;
+        font-weight: bold;
+        z-index: 11;
+    }
+
+    .progress_inner__step:nth-of-type(2):before {
+        content: "2";
+        color: #9E9E9E;
+        border-color: #9E9E9E;
+    }
+
+    .progress_inner__step:nth-of-type(3):before {
+        content: "3";
+        color: #9E9E9E;
+        border-color: #9E9E9E;
+    }
+
+    .progress_inner__step.completed:before {
+        content: "✓";
+        color: #4CAF50;
+        border-color: #4CAF50;
+        line-height: 22px;
+        font-size: 14px;
+    }
+
+    .progress_inner__step.active:before {
+        color: #2196F3;
+        border-color: #2196F3;
+        background: white;
+    }
+
+    .progress_inner__step.pending:before {
+        color: #9E9E9E;
+        border-color: #9E9E9E;
+        background: white;
+    }
+
+    .progress_inner__bar {
+        height: 3px;
+        left: 16.665%;
+        right: 16.665%;
+        background: #E0E0E0;
+        position: absolute;
+        top: 12px;
+        z-index: -1;
+        border-radius: 3px;
+        overflow: hidden;
+    }
+
+    .progress_inner__bar--progress {
+        height: 100%;
+        background: #4CAF50;
+        width: 0;
+        transition: width 0.6s ease;
+    }
+
+
+    .status-text {
+        color: #9E9E9E;
+        font-weight: normal;
+        transition: all 0.4s;
+        font-size: 12px;
+    }
+
+    .status-text.active {
+        color: #2196F3;
+        font-weight: bold;
+    }
+
+    .status-text.completed {
+        color: #4CAF50;
+        font-weight: bold;
+    }
+
+    .buttons {
+        margin-top: 20px;
+        text-align: center;
+    }
+
+    button {
+        background: #2196F3;
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 3px;
+        margin: 0 8px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: all 0.3s;
+        font-size: 12px;
+    }
+
+    button:hover {
+        background: #1976D2;
+    }
+
+    button:last-child {
+        background: #9E9E9E;
+    }
+
+    button:last-child:hover {
+        background: #757575;
+    }
+
+    /* 新增的流程记录样式 */
+    .timeline-title {
+        font-weight: bold;
+        font-size: 14px;
+        color: #333;
+        text-align: left;
+        margin: 0 0 25px 20px;
+        max-width: 500px;
+        margin-left: auto;
+        margin-right: auto;
+        position: relative;
+        padding-bottom: 15px;
+    }
+
+    .timeline-title::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        height: 0.5px;
+        /*background: linear-gradient(to right, #e0e0e0, #a0a0a0, #e0e0e0);*/
+        background: linear-gradient(to right,
+        rgba(224, 224, 224, 0.8),
+        rgba(224, 224, 224, 0.8),
+        rgba(224, 224, 224, 0.8)); /* 添加透明度使线条更柔和 */
+        box-shadow: 0 0.5px 1px rgba(0, 0, 0, 0.07);
+    }
+
+    .track-rcol {
+        width: 100%;
+        max-width: 500px;
+        margin: 20px auto;
+        /*width: 450px;*/
+        /*!*border: 1px solid #eee;*!*/
+        /*margin: 20px auto;*/
+        /*background: transparent;*/
+    }
+
+    .track-list {
+        margin: 20px;
+        padding-left: 5px;
+        position: relative;
+    }
+
+    .track-list ul {
+        padding-left: 0;
+    }
+
+    .track-list li {
+        position: relative;
+        padding: 5px 0 10px 25px;
+        line-height: 1.4;
+        border-left: 2px solid #d9d9d9;
+        color: #666;
+        list-style: none;
+        /*text-align: left;*/
+        transition: all 0.4s ease; /* 添加过渡效果 */
+    }
+
+    .track-list li.first {
+        color: #666;
+        padding-top: 0;
+        /*border-left-color: #fff;*/
+    }
+
+    .track-list li .node-icon {
+        position: absolute;
+        left: -6px;
+        top: 18px;
+        width: 8px; /* 调圆点*/
+        height: 8px;
+        background: #C0C0C0;
+        border-radius: 50%;
+        transition: all 0.4s ease; /* 添加过渡效果 */
+        border: 2px solid #E0E0E0;
+        box-sizing: content-box;
+    }
+
+    .track-list li.first .node-icon {
+        background: #C0C0C0; /* 天蓝色 */
+        width: 8px;
+        height: 8px;
+        left: -8px;
+    }
+
+    .track-list li .time {
+        display: block;
+        margin-bottom: 3px;
+        font-size: 11px;
+        color: #888;
+        transition: all 0.4s ease; /* 添加过渡效果 */
+    }
+
+    .track-list li .txt {
+        display: block;
+        font-size: 12px;
+        transition: all 0.4s ease; /* 添加过渡效果 */
+    }
+
+    /* 悬停效果 */
+    .track-list li:hover {
+        color: #333;
+    }
+
+    .track-list li:hover .node-icon {
+        transform: scale(1.3);
+        background: #ed8088;
+    }
+
+    .track-list li:hover .time {
+        color: #666;
+    }
+
+    /* 新增审核状态样式 */
+    .approve-status {
+        margin-top: 10px;
+        text-align: center;
+    }
+
+    .approve-status label {
+        margin: 0 10px;
+        cursor: pointer;
+    }
+
+    .approve-status input {
+        margin-right: 5px;
+    }
+
+
+</style>
+<body class="gray-bg">
+<div class="wrapper wrapper-content animated fadeIn">
+
+    <div class="row">
+
+        <div class="tabs-container">
+            <div class="tab-content">
+                <div id="tab-0" class="tab-pane active">
+                    <div class="panel-body">
+                        <div class="container-div">
+                            <div class="row">
+                                <div class="col-sm-12 search-collapse">
+                                    <form id="formId0">
+                                        <div class="select-list">
+                                            <ul>
+                                                <li>
+                                                    <label>项目类别：</label>
+                                                    <select name="remark" class="form-control"
+                                                            th:with="type=${@dict.getType('sys_mold_name')}">
+                                                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}"
+                                                                th:value="${dict.dictValue}"></option>
+                                                    </select>
+                                                </li>
+                                                <li>
+                                                    <label>状态：</label>
+                                                    <select name="state" class="form-control"
+                                                            th:with="type=${@dict.getType('sys_module_item_state')}">
+                                                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}"
+                                                                th:value="${dict.dictValue}"></option>
+                                                    </select>
+                                                </li>
+                                                <li>
+                                                    <label class="font-noraml">日期范围选择</label>
+                                                    <div class="input-group input-daterange">
+                                                        <input type="text" class="input-sm form-control"
+                                                               id="datetimepicker-startTime" placeholder="yyyy-MM-dd"/>
+                                                        <span class="input-group-addon"
+                                                              style="width: auto; padding: 0 10px;">到</span>
+                                                        <input type="text" class="input-sm form-control"
+                                                               id="datetimepicker-endTime" placeholder="yyyy-MM-dd"/>
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <div id="element2" class="row">
+                                                        <label>学院专业：</label>
+                                                        <div class="col-sm-3">
+                                                            <select class="first form-control m-b"></select>
+                                                        </div>
+                                                        <div class="col-sm-3">
+                                                            <select class="second form-control m-b"></select>
+                                                        </div>
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <label>职称：</label>
+                                                    <select name="job_title" class="form-control"
+                                                            th:with="type=${@dict.getType('sys_job_title')}">
+                                                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}"
+                                                                th:value="${dict.dictValue}"></option>
+                                                    </select>
+                                                </li>
+                                                <li>
+                                                    <label>课题名称</label>
+                                                    <input type="text" class="input-sm form-control" id="topicName"
+                                                           name='topicName'/>
+                                                </li>
+
+                                                <li>
+                                                    <a class="btn btn-primary btn-rounded btn-sm"
+                                                       id="searchBtn"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                                                    <a class="btn btn-warning btn-rounded btn-sm"
+                                                       id="resetBtn"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                                                </li>
+
+                                            </ul>
+
+
+                                        </div>
+                                    </form>
+                                </div>
+
+                                <div class="btn-group-sm" id="toolbar0" role="group"
+                                     style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                                    <a class="btn btn-warning" onclick="$.table.exportExcel()"
+                                       shiro:hasPermission="system:apply:list">
+                                        <i class="fa fa-download"></i> 导出
+                                    </a>
+                                    <div
+                                            style="display: flex; align-items: center; gap: 15px; background: #f8f9fa; padding: 6px 12px; border-radius: 4px;">
+                                        <th:block th:replace="include :: status-circles"/>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12 select-table table-striped">
+                                    <table id="bootstrap-table0"></table>
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="wrapper wrapper-content fadeInRight" style="position: absolute; left: -9999px;">
+    <div class="row">
+        <div class="col-sm-4">
+            <div class="ibox ">
+                <div class="ibox-content">
+                    <div class="modal inmodal" id="myModal" tabindex="-1" role="dialog" aria-hidden="true">
+                        <div class="modal-dialog modal-right">
+                            <div class="modal-content animated bounceInRight">
+                                <div class="modal-header">
+                                    <!--                                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span-->
+                                    <!--                                            class="sr-only">关闭</span>-->
+                                    <!--                                    </button>-->
+                                    <div class="timeline-title">流程记录</div>
+
+                                    <!-- 原有的流程进度条部分 -->
+                                    <div>
+                                        <div class='progress_inner'>
+                                            <div class='progress_inner__step active' id='step-1'>
+                                                <label for='step-1'><span
+                                                        class="status-text active">待提交</span></label>
+                                            </div>
+                                            <div class='progress_inner__step pending' id='step-2'>
+                                                <label for='step-2'><span class="status-text">审核中</span></label>
+                                            </div>
+                                            <div class='progress_inner__step pending' id='step-3'>
+                                                <label for='step-3'><span class="status-text">已完成</span></label>
+                                            </div>
+                                            <div class='progress_inner__bar' style="z-index: 10">
+                                                <div class='progress_inner__bar--progress' id='progress-bar'></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-body">
+                                    <!-- 流程记录标题 - 放在左上角 -->
+                                    <!-- 流程记录内容 - 放在流程图下方 -->
+                                    <div class="track-rcol">
+                                        <div class="track-list">
+                                            <ul id="event-list">
+                                                <li class="first">
+                                                    <i class="node-icon"></i>
+                                                    <span class="time" id="current-time">等待操作...</span>
+                                                    <span class="txt">[新增] - 哈尔滨信息工程学院</span>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+
+                                    <!--                                    <div class="approve-status">-->
+                                    <!--                                        <label><input type="radio" name="approve" value="pass" checked> 审核通过</label>-->
+                                    <!--                                        <label><input type="radio" name="approve" value="reject"> 审核未通过</label>-->
+                                    <!--                                    </div>-->
+
+                                    <!--                                    <div class="buttons">-->
+                                    <!--                                        <button onclick="submitForm()">提交</button>-->
+                                    <!--                                        <button onclick="approveForm()">审核</button>-->
+                                    <!--                                        <button onclick="resetForm()">重置</button>-->
+                                    <!--                                    </div>-->
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-white but" data-dismiss="modal">关闭</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<th:block th:include="include :: footer"/>
+<th:block th:include="include :: jquery-cxselect-js"/>
+<th:block th:include="include :: datetimepicker-js"/>
+<script th:inline="javascript">
+    $('#element2').cxSelect({
+        selects: ['first', 'second'],
+        required: true,
+        jsonValue: 'v',
+        data: [
+            {
+                'v': null, 'n': '学院', 's': [
+                    {'v': null, 'n': '专业 >'}
+                ]
+            },
+            {
+                'v': '1139', 'n': '软件学院', 's': [
+                    {'v': 'null', 'n': '空'},
+                    {'v': '1174', 'n': '软件工程教研室'},
+                    {'v': '1179', 'n': '计算机科学与技术教研室'},
+                    {'v': '1191', 'n': '数据科学与大数据技术教研室'},
+                    {'v': '1207', 'n': '智能科学与技术教研室'},
+                    {'v': '1210', 'n': '虚拟现实技术教研室'},
+                ]
+            },
+            {
+                'v': '1139', 'n': '电子工程学院', 's': [
+                    {'v': 'null', 'n': '空'},
+                    {'v': '1184', 'n': '电子信息工程教研室'},
+                    {'v': '1187', 'n': '人工智能教研室'},
+                    {'v': '1223', 'n': '自动化教研室'},
+                    {'v': '1225', 'n': '物理教研室'},
+                ]
+            }
+        ]
+    });
+    var datas = [[${@dict.getType('sys_intraschpro_tasks')}]];
+    var prefix = ctx + "StatsQuery";
+    var hasSearched = false; // 添加搜索状态标志
+    
+    // 定义不同项目类别对应的表格列配置
+    var tableColumnsConfig = {
+        // 默认列配置（可以根据实际项目类别调整）
+        'default': [
+            {
+                field: 'number',
+                title: '序号',
+                width: 5,
+                align: 'center',
+                switchable: false,
+                formatter: function (value, row, index) {
+                    return $.table.serialNumber(index);
+                }
+            },
+            {
+                field: 'id',
+                title: '',
+                visible: false
+            },
+            {
+                field: 'yname',
+                align: 'center',
+                title: '学院'
+            },
+            {
+                field: 'dname',
+                align: 'center',
+                title: '专业'
+            },
+            {
+                field: 'userName',
+                align: 'center',
+                title: '申请人'
+            },
+            {
+                field: 'topName',
+                align: 'center',
+                title: '课题名称'
+            },
+            {
+                field: 'signingData',
+                align: 'center',
+                title: '签订日期'
+            },
+            {
+                field: 'amount',
+                align: 'center',
+                title: '项目金额'
+            },
+            {
+                title: '操作',
+                align: 'center',
+                formatter: function (value, row, index) {
+                    var actions = [];
+                    if (row.state == 6) {
+                        actions.push('<a class="link-button" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')">查看</a> ');
+                    }
+                    return actions.join('');
+                }
+            }
+        ],
+        // 可以根据不同的项目类别添加不同的列配置
+        // 示例：项目类别1的列配置（假设是横向课题）
+        '1': [
+            {
+                field: 'number',
+                title: '序号',
+                width: 5,
+                align: 'center',
+                switchable: false,
+                formatter: function (value, row, index) {
+                    return $.table.serialNumber(index);
+                }
+            },
+            {
+                field: 'id',
+                title: '',
+                visible: false
+            },
+            {
+                field: 'yname',
+                align: 'center',
+                title: '学院'
+            },
+            {
+                field: 'userName',
+                align: 'center',
+                title: '申请人'
+            },
+            {
+                field: 'topName',
+                align: 'center',
+                title: '课题名称'
+            },
+            {
+                field: 'signingData',
+                align: 'center',
+                title: '签订日期'
+            },
+            {
+                field: 'amount',
+                align: 'center',
+                title: '项目金额'
+            },
+            {
+                title: '操作',
+                align: 'center',
+                formatter: function (value, row, index) {
+                    var actions = [];
+                    if (row.state == 6) {
+                        actions.push('<a class="link-button" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')">查看</a> ');
+                    }
+                    return actions.join('');
+                }
+            }
+        ],
+        // 示例：项目类别2的列配置（假设是纵向课题）
+        '2': [
+            {
+                field: 'number',
+                title: '序号',
+                width: 5,
+                align: 'center',
+                switchable: false,
+                formatter: function (value, row, index) {
+                    return $.table.serialNumber(index);
+                }
+            },
+            {
+                field: 'id',
+                title: '',
+                visible: false
+            },
+            {
+                field: 'dname',
+                align: 'center',
+                title: '专业'
+            },
+            {
+                field: 'userName',
+                align: 'center',
+                title: '申请人'
+            },
+            {
+                field: 'topName',
+                align: 'center',
+                title: '课题名称'
+            },
+            {
+                field: 'responsibilityTier',
+                title: '责任层级',
+                align: 'center',
+                formatter: function (value, row, index) {
+                    return row.firstPersonId == row.uid ? '第一负责人' : row.secondPersonId == row.uid ? '第二负责人' : row.thirdPersonId == row.uid ? "第三负责人" : row.fourthPersonId == row.uid ? "第四负责人" : "不是负责人";
+                }
+            },
+            {
+                field: 'responsibilityTier',
+                title: '积分',
+                align: 'center',
+                formatter: function (value, row, index) {
+                    if (row.state == 6) {
+                        return row.firstPersonId == row.uid ? row.firstPoints : row.secondPersonId == row.uid ? row.secondPoints : row.thirdPersonId == row.uid ? row.thirdPoints : row.fourthPersonId == row.uid ? row.forthPoints : 0;
+                    } else {
+                        return 0;
+                    }
+                }
+            },
+            {
+                title: '操作',
+                align: 'center',
+                formatter: function (value, row, index) {
+                    var actions = [];
+                    if (row.state == 6) {
+                        actions.push('<a class="link-button" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')">查看</a> ');
+                    }
+                    return actions.join('');
+                }
+            }
+        ]
+    };
+
+    $(function() {
+        // 绑定搜索按钮点击事件
+        $('#searchBtn').on('click', function() {
+            var remark = $("select[name='remark']").val(); // 项目类别
+            var state = $("select[name='state']").val(); // 项目类别
+            var startTime = $("#datetimepicker-startTime").val(); // 开始时间
+            var endTime = $("#datetimepicker-endTime").val(); // 结束时间
+            var college = $(".first").val(); // 学院
+            var major = $(".second").val(); // 专业
+            var jobTitle = $("select[name='job_title']").val(); // 职称
+            var topicName = $("#topicName").val(); // 课题名称
+
+            // 构造查询参数对象
+            var params = {
+                remark: remark,
+                state: state,
+                startTime: startTime,
+                endTime: endTime,
+                college: college,
+                major: major,
+                jobTitle: jobTitle,
+                topicName: topicName
+            };
+            console.log("搜索参数:", params)
+            // 设置搜索状态为true
+            hasSearched = true;
+            
+            // 根据项目类别获取对应的表格列配置
+            var selectedRemark = remark || 'default';
+            var columns = tableColumnsConfig[selectedRemark] || tableColumnsConfig['default'];
+            
+            // 更新表格配置，显示表头并设置列
+            $('#bootstrap-table0').bootstrapTable('refreshOptions', {
+                showHeader: true,
+                columns: columns,
+                queryParams: function(p) {
+                    return $.extend(p, params);
+                }
+            });
+            //$('#bootstrap-table0').bootstrapTable('refresh');
+        });
+        
+        // 绑定重置按钮点击事件
+        $('#resetBtn').on('click', function() {
+            // 重置搜索状态
+            hasSearched = false;
+            // 清空表单
+            $('#formId0')[0].reset();
+            // 清空表格数据，隐藏表头
+            $('#bootstrap-table0').bootstrapTable('refreshOptions', {
+                showHeader: false,
+                columns: [],
+                queryParams: function(p) {
+                    return {
+                        pageNum: 1,
+                        pageSize: 10,
+                        orderByColumn: '',
+                        isAsc: 'asc',
+                        remark: '',
+                        state: '',
+                        startTime: '',
+                        endTime: '',
+                        college: '',
+                        major: '',
+                        jobTitle: '',
+                        topicName: '',
+                        noData: true
+                    };
+                }
+            });
+            $('#bootstrap-table0').bootstrapTable('refresh');
+        });
+    });
+    $(function () {
+        // tab-0
+        var options0 = {
+            id: "bootstrap-table0",
+            toolbar: "toolbar0",
+            url: prefix + "/list",
+            search: prefix + "/list",
+            createUrl: prefix + "/add",
+            detailUrl: prefix + "/overdetail/{id}",
+            updateUrl: prefix + "/edit/{id}",
+            removeUrl: prefix + "/remove",
+            exportUrl: prefix + "/export",
+            rowStyle: rowStyle0,
+            modalName: "成果转化",
+            sortOrder: "asc",
+            showHeader: false, // 初始不显示表头
+            columns: [], // 初始为空列
+            queryParams: function(params) {
+                // 如果还没有搜索过，返回空数据请求
+                if (!hasSearched) {
+                    return {
+                        pageNum: 1,
+                        pageSize: 10,
+                        orderByColumn: '',
+                        isAsc: 'asc',
+                        remark: '',
+                        state: '',
+                        startTime: '',
+                        endTime: '',
+                        college: '',
+                        major: '',
+                        jobTitle: '',
+                        topicName: '',
+                        noData: true // 添加标志告诉后端不返回数据
+                    };
+                }
+                
+                var searchParams = {
+                    pageNum: params.pageNum,
+                    pageSize: params.pageSize,
+                    orderByColumn: params.orderByColumn,
+                    isAsc: params.isAsc,
+                    remark: params.remark || '',
+                    state: params.state || '',
+                    startTime: params.startTime || '',
+                    endTime: params.endTime || '',
+                    college: params.college || '',
+                    major: params.major || '',
+                    jobTitle: params.jobTitle || '',
+                    topicName: params.topicName || ''
+                };
+                return searchParams;
+            }
+        };
+        $.table.init(options0);
+    });
+
+
+    $("#datetimepicker-startTime").datetimepicker({
+        format: 'yyyy-mm-dd',
+        minView: "month",
+        todayBtn: true,
+        autoclose: true,
+        endDate: new Date(),
+    }).on('changeDate', function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+        var startTime = event.date;
+        $('#datetimepicker-endTime').datetimepicker('setStartDate', startTime);
+    });
+
+    $("#datetimepicker-endTime").datetimepicker({
+        format: 'yyyy-mm-dd',
+        minView: "month",
+        todayBtn: true,
+        autoclose: true,
+        endDate: new Date(),
+    }).on('changeDate', function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+        var endTime = event.date;
+        $("#datetimepicker-startTime").datetimepicker('setEndDate', endTime);
+    });
+    var startDate = laydate.render({
+        elem: '#laydate-startTime',
+        max: $('#laydate-endTime').val(),
+        theme: 'molv',
+        trigger: 'click',
+        done: function (value, date) {
+            // 结束时间大于开始时间
+            if (value !== '') {
+                endDate.config.min.year = date.year;
+                endDate.config.min.month = date.month - 1;
+                endDate.config.min.date = date.date;
+            } else {
+                endDate.config.min.year = '';
+                endDate.config.min.month = '';
+                endDate.config.min.date = '';
+            }
+        }
+    });
+    var endDate = laydate.render({
+        elem: '#laydate-endTime',
+        min: $('#laydate-startTime').val(),
+        theme: 'molv',
+        trigger: 'click',
+        done: function (value, date) {
+            // 开始时间小于结束时间
+            if (value !== '') {
+                startDate.config.max.year = date.year;
+                startDate.config.max.month = date.month - 1;
+                startDate.config.max.date = date.date;
+            } else {
+                startDate.config.max.year = '';
+                startDate.config.max.month = '';
+                startDate.config.max.date = '';
+            }
+        }
+    });
+
+    function rowStyle0(row, index) {
+        if (["6", "4"].includes(row.state)) {
+            console.log("row.state is 6", row.state)
+            // 完结 绿色
+            return {
+                css: {"color": '#67c23a'}
+
+            };
+        } else if (["15","4","16"].includes(row.state)) {
+            // 草稿 黄色
+            return {
+                css: {"color": '#c78045'}
+
+            };
+        } else if (["1", "2", "11", "7", "8", "13"].includes(row.state)) {
+            // 审核中 蓝色
+            return {
+                css: {"color": '#2c99ff'}
+
+            };
+        } else if (["3", "5", "12", "9", "10", "14"].includes(row.state)) {
+            // 被驳回
+            return {
+                // css: {"color": '#ff0000'}
+                css: {"color": '#c78045'}
+            };
+        }
+        return {};
+    }
+
+    function loadReviewRecords(Id, state) {
+        updateProgress(state); // 更新进度条
+
+        //批阅记录
+        $.ajax({
+            url: prefix + "/bhyy/" + Id, // 替换为实际的API路径
+            method: 'POST',
+            data: {kid: Id},
+            success: function (response) {
+                const eventList = document.getElementById('event-list');
+                eventList.innerHTML = '';
+
+                response.rows.forEach(function (row) {
+                    const li = document.createElement('li');
+                    li.innerHTML = '<i class="node-icon"></i>' +
+                        '<span class="time">' + row.createTime + '</span>' +
+                        '<span class="txt">' + row.state + '</span>';
+                    eventList.insertBefore(li, eventList.firstChild);
+                });
+            },
+            error: function () {
+                alert('无法获取批阅记录');
+            }
+        });
+    }
+</script>
+</body>
+</html>

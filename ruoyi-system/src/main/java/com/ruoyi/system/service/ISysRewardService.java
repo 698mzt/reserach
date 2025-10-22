@@ -4,6 +4,7 @@ import com.ruoyi.system.domain.SysReward;
 import org.apache.ibatis.annotations.Options;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 奖励Service接口
@@ -85,7 +86,13 @@ public interface ISysRewardService
     int recall(Integer id, String state, Long userId, String remark, String urlFlag);
 
 
-
+    /**
+     * 统计查询奖励数据
+     *
+     * @param params 查询参数
+     * @return 奖励集合
+     */
+    List<SysReward> getStatsQuery(Map<String, String> params);
     //
     //    @Override
     //    public int hxover(String id, Long uid, String urlFlag) {

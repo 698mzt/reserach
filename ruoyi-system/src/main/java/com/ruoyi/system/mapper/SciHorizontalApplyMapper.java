@@ -1,6 +1,8 @@
 package com.ruoyi.system.mapper;
 
 import java.util.List;
+import java.util.Map;
+
 import com.ruoyi.system.domain.SciHorizontalApply;
 import com.ruoyi.system.domain.SciHorizontalPersion;
 import com.ruoyi.system.domain.creditedAmount;
@@ -303,4 +305,12 @@ public interface SciHorizontalApplyMapper
 
     int countLectureReportByUser(@Param("userId") Long userId);
     int countLectureReportByUserAndStates1(@Param("userId") Long userId, @Param("states") List<String> states);
+
+    /**
+     * 统计查询横向课题数据
+     *
+     * @param params 查询参数
+     * @return 横向课题集合
+     */
+    List<SciHorizontalApply> getStatsQuery(Map<String, String> params);
 }
