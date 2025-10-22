@@ -35,20 +35,25 @@
         <result property="ranking"    column="ranking"    />
     </resultMap>
 
+    <resultMap id="creditedAmountResult" type="creditedAmount">
+        <result property="applyId"    column="apply_id"    />
+        <result property="creditedAmount"    column="credited_amount"    />
+    </resultMap>
+
     <sql id="selectSciHorizontalApplyVo">
         select #{uid} uid,s.id,u.user_name userName,s.top_number ,d.dept_id ,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,s.party_A,s.party_B, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, s.signing_data, s.validity_Date,  concat( s.amount,'万') amount, s.contract, s.filing, s.state,s.createtime
         from sci_horizontal_apply s
-                                    left join sys_user u on  s.user_id=u.user_id
-                                    left join sys_dept d on u.dept_id = d.dept_id
-                                    left join sys_dept p on d.parent_id =p.dept_id
+                 left join sys_user u on  s.user_id=u.user_id
+                 left join sys_dept d on u.dept_id = d.dept_id
+                 left join sys_dept p on d.parent_id =p.dept_id
     </sql>
 
     <select id="selectOtherListByUid" parameterType="Long" resultMap="SciHorizontalApplyResult">
         select #{uid} uid,s.id,u.user_name userName,s.top_number ,d.dept_id,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, pe.persion_id,pe.ranking,s.top_type,s.party_A,s.party_B, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, s.signing_data, s.validity_Date,  concat( s.amount,'万') amount, s.contract, s.filing, s.state,s.createtime
         from sci_horizontal_apply s left join sci_persion pe on pe.apply_id = s.id
-                                    left join sys_user u on  s.user_id=u.user_id
-                                    left join sys_dept d on u.dept_id = d.dept_id
-                                    left join sys_dept p on d.parent_id =p.dept_id
+        left join sys_user u on  s.user_id=u.user_id
+        left join sys_dept d on u.dept_id = d.dept_id
+        left join sys_dept p on d.parent_id =p.dept_id
         where pe.persion_id = #{uid}
         <if test="newsql != null  and newsql != '' ">
             <choose>
@@ -70,7 +75,7 @@
         order  by createtime desc
     </select>
 
-<!--    查询申请流程-->
+    <!--    查询申请流程-->
     <select id="selectSciHorizontalApplyList" parameterType="SciHorizontalApply" resultMap="SciHorizontalApplyResult" >
         <include refid="selectSciHorizontalApplyVo"/>
         where state in (1,2,3,4,5,11,22,99)
@@ -83,15 +88,15 @@
         <!-- 数据范围过滤 -->
         ${params.dataScope}
         order  by
-            case
-                when state in (3,5,22) then 1
-                when state = 4 then 2
-                when state in (1,2,11) then 3
-            end,
+        case
+        when state in (3,5,22) then 1
+        when state = 4 then 2
+        when state in (1,2,11) then 3
+        end,
         createtime desc
     </select>
 
-<!--    教研室查询申请审批-->
+    <!--    教研室查询申请审批-->
     <select id="selectSciHorizontalApplyListByJYS" parameterType="SciHorizontalApply" resultMap="SciHorizontalApplyResult">
         select #{uid} uid,s.id,u.user_name userName,s.top_number ,d.dept_id,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,s.party_A,s.party_B, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, s.signing_data, s.validity_Date,  concat( s.amount,'万') amount, s.contract, s.filing, s.state
         from sci_horizontal_apply s
@@ -106,15 +111,15 @@
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
         ${params.dataScope}
         order  by
-            case
-                when state = 2 then 1
-                when state = 1 then 2
-                when state in (4,11) then 3
-            end,
+        case
+        when state = 2 then 1
+        when state = 1 then 2
+        when state in (4,11) then 3
+        end,
         createtime desc
     </select>
 
-<!--    科研处查询申请审批-->
+    <!--    科研处查询申请审批-->
     <select id="selectSciHorizontalApplyListByKYC" parameterType="SciHorizontalApply" resultMap="SciHorizontalApplyResult">
         select #{uid} uid,s.id,u.user_name userName,s.top_number ,d.dept_id, d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,s.party_A,s.party_B, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, s.signing_data, s.validity_Date,  concat( s.amount,'万') amount, s.contract, s.filing, s.state
         from sci_horizontal_apply s
@@ -129,14 +134,14 @@
         <if test="state != null  and state != ''"> and state = #{state}</if>
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
         order  by
-            case
-                when state = 11 then 2
-                when state = 4 then 1
-            end,
+        case
+        when state = 11 then 2
+        when state = 4 then 1
+        end,
         createtime desc
     </select>
 
-<!--    学院查询申请审批-->
+    <!--    学院查询申请审批-->
     <select id="selectSciHorizontalApplyListByDept" parameterType="SciHorizontalApply" resultMap="SciHorizontalApplyResult">
         select #{uid} uid,s.id,u.user_name userName,s.top_number ,d.dept_id,d.dept_name dname,p.dept_id ynameId,p.dept_name yname, s.user_id, s.top_name, s.top_type,s.party_A,s.party_B, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, s.signing_data, s.validity_Date,  concat( s.amount,'万') amount, s.contract, s.filing, s.state
         from sci_horizontal_apply s
@@ -152,14 +157,14 @@
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
         ${params.dataScope}
         order  by
-            case
-                when state in (2,11) then 1
-                when state = 4 then 2
-            end,
+        case
+        when state in (2,11) then 1
+        when state = 4 then 2
+        end,
         createtime desc
     </select>
 
-<!--    查询结项申请流程-->
+    <!--    查询结项申请流程-->
     <select id="selectSciHorizontalApplyListByOverApply" parameterType="SciHorizontalApply" resultMap="SciHorizontalApplyResult">
         select #{uid} uid,s.id,u.user_name userName,s.top_number ,d.dept_id,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,s.party_A,s.party_B,s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, s.signing_data, s.validity_Date,  concat( s.amount,'万') amount, s.contract, s.filing, s.state
         from sci_horizontal_apply s
@@ -177,7 +182,7 @@
         order  by s.createtime desc
     </select>
 
-<!--    教研室查询结项审批-->
+    <!--    教研室查询结项审批-->
     <select id="selectSciHorizontalApplyListByOverApplyJYS" parameterType="SciHorizontalApply" resultMap="SciHorizontalApplyResult">
         select #{uid} uid,s.id,u.user_name userName,s.top_number ,d.dept_id,d.dept_name dname,p.dept_id ynameId,p.dept_name yname, s.user_id, s.top_name, s.top_type,s.party_A,s.party_B,s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, s.signing_data, s.validity_Date,  concat( s.amount,'万') amount, s.contract, s.filing, s.state
         from sci_horizontal_apply s
@@ -194,7 +199,7 @@
         ${params.dataScope}
         order  by s.createtime desc
     </select>
-<!--    科研处查询结项审批-->
+    <!--    科研处查询结项审批-->
     <select id="selectSciHorizontalApplyListByOverApplyKYC" parameterType="SciHorizontalApply" resultMap="SciHorizontalApplyResult">
         select #{uid} uid,s.id,u.user_name userName,s.top_number ,d.dept_id,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type, s.party_A,s.party_B,s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, s.signing_data, s.validity_Date,  concat( s.amount,'万') amount, s.contract, s.filing, s.state
         from sci_horizontal_apply s
@@ -211,7 +216,7 @@
         order  by s.createtime desc
     </select>
 
-<!--    学院查询结项审批-->
+    <!--    学院查询结项审批-->
     <select id="selectSciHorizontalApplyListByOverDept" parameterType="SciHorizontalApply" resultMap="SciHorizontalApplyResult">
         select #{uid} uid,s.id,u.user_name userName,s.top_number ,d.dept_id,d.dept_name dname,p.dept_id ynameId,p.dept_name yname, s.user_id, s.top_name, s.top_type, s.party_A,s.party_B,s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, s.signing_data, s.validity_Date,  concat( s.amount,'万') amount, s.contract, s.filing, s.state
         from sci_horizontal_apply s
@@ -229,7 +234,7 @@
         order  by s.createtime desc
     </select>
 
-<!--查询已结项-->
+    <!--查询已结项-->
     <select id="selectSciHorizontalApplyListByOVER" parameterType="SciHorizontalApply" resultMap="SciHorizontalApplyResult">
         select #{uid} uid,s.id,u.user_name userName,s.top_number ,d.dept_id,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,s.party_A,s.party_B, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, s.signing_data, s.validity_Date,  concat( s.amount,'万') amount, s.contract, s.filing, s.state
         from sci_horizontal_apply s
@@ -311,6 +316,14 @@
         </trim>
     </insert>
 
+    <!-- 按申请ID查询 sci_persion 成员ID，按排名升序 -->
+    <select id="selectPersionIdsByApplyId" parameterType="int" resultType="string">
+        SELECT persion_id
+        FROM sci_persion
+        WHERE apply_id = #{applyId}
+        ORDER BY ranking ASC
+    </select>
+
 
 
     <update id="updateSciHorizontalApply" parameterType="SciHorizontalApply">
@@ -359,7 +372,7 @@
     <update id="overApply" >
         update sci_horizontal_apply set state = #{state} where id = #{id}
     </update>
-    
+
     <insert id="insertPersion" useGeneratedKeys="true" keyProperty="id">
         insert into sci_persion
         <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -411,37 +424,838 @@
         order by create_time desc limit 1
     </delete>
 
-    <select id="getStatsQuery" parameterType="map" resultMap="SciHorizontalApplyResult">
-        <include refid="selectSciHorizontalApplyVo"/>
-        where 1=1
-        <if test="startTime != null and startTime != ''">
-            and s.createtime >= #{startTime}
-        </if>
-        <if test="endTime != null and endTime != ''">
-            and s.createtime &lt;= #{endTime}
-        </if>
-        <if test="college != null and college != '' and college!='null' ">
-            AND p.dept_id = #{college}
-        </if>
-        <if test="major != null and major != '' and major!='null'">
-            AND d.dept_id = #{major}
-        </if>
-        <if test="jobTitle != null and jobTitle != '' and jobTitle != 'null'">
-            and u.user_name like concat('%', #{jobTitle}, '%')
-        </if>
-        <if test="topicName != null and topicName != ''">
-            and s.top_name like concat('%', #{topicName}, '%')
-        </if>
-        <if test="state != null and state != '' and state!='null' and state ==1">
-            AND s.state in (3,5,9,10,22,44,99,4)
-        </if>
-        <if test="state != null and state != '' and state!='null' and state ==2">
-            AND s.state in (1,2,7,8,11,33)
-        </if>
-        <if test="state != null and state != '' and state!='null' and state ==3">
-            AND s.state in (6)
-        </if>
-        order by s.createtime desc
+
+    <!--    我的-->
+    <!-- 通用查询条件 -->
+    <sql id="commonTodoConditions">
+        <where>
+            <!-- 状态过滤 -->
+            <if test="states != null and states.size() > 0">
+                AND state IN
+                <foreach item="state" collection="states" open="(" separator="," close=")">
+                    #{state}
+                </foreach>
+            </if>
+            <!-- 年度过滤 -->
+            <if test="year != null and year != ''">
+                AND YEAR(signing_data) = #{year}
+            </if>
+        </where>
+    </sql>
+
+    <!-- 科研处统计 -->
+    <select id="countByState" resultType="int">
+        SELECT COUNT(*)
+        FROM sci_horizontal_apply
+        WHERE state = #{state}
+                  AND YEAR(signing_data) = #{year}
     </select>
 
+    <select id="countByStates" resultType="int">
+        SELECT COUNT(*) FROM sci_horizontal_apply
+        WHERE state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+        AND YEAR(signing_data) = #{year}
+    </select>
+
+    <select id="selectCreditedAmount" resultMap="creditedAmountResult">
+        select
+            shr.apply_id ,
+            CONCAT(SUM(shr.re_amount),'万') as credited_amount
+        from
+            sci_horizontal_reamount shr
+        group by
+            shr.apply_id
+    </select>
+
+
+
+
+    <!-- 部门统计（嵌套查询） -->
+    <!--    &lt;!&ndash; 新增递归查询 &ndash;&gt;-->
+    <!--    <select id="countByDeptAndStatesWithChildren" resultType="int">-->
+    <!--        WITH RECURSIVE dept_tree AS (-->
+    <!--        SELECT dept_id, parent_id-->
+    <!--        FROM sys_dept-->
+    <!--        WHERE dept_id = #{dept_id}-->
+    <!--        UNION ALL-->
+    <!--        SELECT d.dept_id, d.parent_id-->
+    <!--        FROM sys_dept d-->
+    <!--        INNER JOIN dept_tree dt ON d.dept_id = dt.parent_id-->
+    <!--        )-->
+    <!--        SELECT COUNT(*) FROM sci_horizontal_apply-->
+    <!--        <include refid="commonTodoConditions"/>-->
+    <!--        AND user_id IN (-->
+    <!--        SELECT user_id FROM sys_user-->
+    <!--        WHERE dept_id IN (SELECT dept_id FROM dept_tree)-->
+    <!--        )-->
+    <!--    </select>-->
+    <!--    &lt;!&ndash; 修改原部门查询（增加通用条件） &ndash;&gt;-->
+    <!--    <select id="countByDeptAndStates" resultType="int">-->
+    <!--        SELECT COUNT(*) FROM sci_horizontal_apply-->
+    <!--        <include refid="commonTodoConditions"/>-->
+    <!--        AND user_id IN (-->
+    <!--        SELECT user_id FROM sys_user-->
+    <!--        WHERE dept_id = #{deptId}-->
+    <!--        )-->
+    <!--    </select>-->
+
+    <select id="countByDeptAndStatesWithChildren" resultType="int">
+        WITH RECURSIVE dept_tree AS (
+        SELECT dept_id, parent_id
+        FROM sys_dept
+        WHERE dept_id = #{deptId}
+        UNION ALL
+        SELECT d.dept_id, d.parent_id
+        FROM sys_dept d
+        INNER JOIN dept_tree dt ON d.parent_id = dt.dept_id
+        )
+        SELECT COUNT(*)
+        FROM sci_horizontal_apply a
+        JOIN sys_user u ON a.user_id = u.user_id
+        WHERE u.dept_id IN (SELECT dept_id FROM dept_tree)
+        AND a.state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+        AND YEAR(a.signing_data) = #{year}
+    </select>
+
+
+    <!-- 普通部门查询 -->
+    <select id="countByDeptAndStates" resultType="int">
+        SELECT COUNT(*)
+        FROM sci_horizontal_apply a
+        JOIN sys_user u ON a.user_id = u.user_id
+        WHERE u.dept_id = #{deptId}
+        AND a.state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+        AND YEAR(a.signing_data) = #{year}
+    </select>
+
+    <!--    <select id="countByDeptAndStates" resultType="int">-->
+    <!--        SELECT COUNT(*) FROM sci_horizontal_apply-->
+    <!--        WHERE state IN-->
+    <!--        <foreach item="state" collection="states" open="(" separator="," close=")">-->
+    <!--            #{state}-->
+    <!--        </foreach>-->
+    <!--        AND user_id IN (-->
+    <!--        SELECT user_id FROM sys_user-->
+    <!--        WHERE dept_id = #{deptId}-->
+    <!--        )-->
+    <!--        AND YEAR(signing_data) = #{year}-->
+    <!--    </select>-->
+
+    <!-- 个人待办统计 -->
+    <select id="countByUserAndStates" resultType="int">
+        SELECT COUNT(*) FROM sci_horizontal_apply
+        WHERE user_id = #{userId}
+        AND state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+        AND YEAR(signing_data) = #{year}
+    </select>
+
+
+    <!-- 8.24新加金额审批统计 -->
+    <!-- 通用金额审批查询条件 -->
+    <sql id="commonReamountConditions">
+        <where>
+            <!-- 状态过滤 -->
+            <if test="states != null and states.size() > 0">
+                AND state IN
+                <foreach item="state" collection="states" open="(" separator="," close=")">
+                    #{state}
+                </foreach>
+            </if>
+            <!-- 年度过滤 -->
+            <if test="year != null and year != ''">
+                AND YEAR(account_data) = #{year}
+            </if>
+        </where>
+    </sql>
+
+    <!-- 金额审批状态统计 -->
+    <select id="countReamountByStates" resultType="int">
+        SELECT COUNT(*) FROM sci_horizontal_reamount
+        <include refid="commonReamountConditions"/>
+    </select>
+
+    <!-- 金额审批部门统计（递归查询子部门） -->
+    <select id="countReamountByDeptAndStatesWithChildren" resultType="int">
+        WITH RECURSIVE dept_tree AS (
+        SELECT dept_id, parent_id
+        FROM sys_dept
+        WHERE dept_id = #{deptId}
+        UNION ALL
+        SELECT d.dept_id, d.parent_id
+        FROM sys_dept d
+        INNER JOIN dept_tree dt ON d.parent_id = dt.dept_id
+        )
+        SELECT COUNT(*)
+        FROM sci_horizontal_reamount r
+        JOIN sci_horizontal_apply a ON r.apply_id = a.id
+        JOIN sys_user u ON a.user_id = u.user_id
+        WHERE u.dept_id IN (SELECT dept_id FROM dept_tree)
+        AND r.state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+        AND YEAR(r.account_data) = #{year}
+    </select>
+
+    <!-- 金额审批部门统计 -->
+    <select id="countReamountByDeptAndStates" resultType="int">
+        SELECT COUNT(*)
+        FROM sci_horizontal_reamount r
+        JOIN sci_horizontal_apply a ON r.apply_id = a.id
+        JOIN sys_user u ON a.user_id = u.user_id
+        WHERE u.dept_id = #{deptId}
+        AND r.state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+        AND YEAR(r.account_data) = #{year}
+    </select>
+
+    <!-- 金额审批个人待办统计 -->
+    <select id="countReamountByUserAndStates" resultType="int">
+        SELECT COUNT(*)
+        FROM sci_horizontal_reamount r
+        JOIN sci_horizontal_apply a ON r.apply_id = a.id
+        WHERE a.user_id = #{userId}
+        AND r.state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+        AND YEAR(r.account_data) = #{year}
+    </select>
+
+
+
+    <!--    //8.31纵向课题待办-->
+    <!--    // 添加纵向课题统计方法-->
+    <!-- 通用查询条件 -->
+    <sql id="commonVerticalTodoConditions">
+        <where>
+            <!-- 状态过滤 -->
+            <if test="states != null and states.size() > 0">
+                AND state IN
+                <foreach item="state" collection="states" open="(" separator="," close=")">
+                    #{state}
+                </foreach>
+            </if>
+            <!-- 年度过滤 -->
+            <if test="year != null and year != ''">
+                AND YEAR(signing_data) = #{year}
+            </if>
+        </where>
+    </sql>
+
+    <!-- 纵向课题状态统计 -->
+    <select id="countVerticalByStates" resultType="int">
+        SELECT COUNT(*) FROM sci_horizontal_apply_vertical
+        <include refid="commonVerticalTodoConditions"/>
+    </select>
+
+    <!-- 纵向课题部门统计（递归查询子部门） -->
+    <select id="countVerticalByDeptAndStatesWithChildren" resultType="int">
+        WITH RECURSIVE dept_tree AS (
+        SELECT dept_id, parent_id
+        FROM sys_dept
+        WHERE dept_id = #{deptId}
+        UNION ALL
+        SELECT d.dept_id, d.parent_id
+        FROM sys_dept d
+        INNER JOIN dept_tree dt ON d.parent_id = dt.dept_id
+        )
+        SELECT COUNT(*)
+        FROM sci_horizontal_apply_vertical a
+        JOIN sys_user u ON a.user_id = u.user_id
+        WHERE u.dept_id IN (SELECT dept_id FROM dept_tree)
+        AND a.state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+        AND YEAR(a.signing_data) = #{year}
+    </select>
+
+    <!-- 纵向课题部门统计 -->
+    <select id="countVerticalByDeptAndStates" resultType="int">
+        SELECT COUNT(*)
+        FROM sci_horizontal_apply_vertical a
+        JOIN sys_user u ON a.user_id = u.user_id
+        WHERE u.dept_id = #{deptId}
+        AND a.state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+        AND YEAR(a.signing_data) = #{year}
+    </select>
+
+    <!-- 纵向课题个人待办统计 -->
+    <select id="countVerticalByUserAndStates" resultType="int">
+        SELECT COUNT(*) FROM sci_horizontal_apply_vertical
+        WHERE user_id = #{userId}
+        AND state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+        AND YEAR(signing_data) = #{year}
+    </select>
+
+    <!--    //8.31纵向课题待办-->
+    <!-- 通用论文查询条件 -->
+    <sql id="commonPaperConditions">
+        <where>
+            <!-- 状态过滤 -->
+            <if test="states != null and states.size() > 0">
+                AND state IN
+                <foreach item="state" collection="states" open="(" separator="," close=")">
+                    #{state}
+                </foreach>
+            </if>
+            <!-- 年度过滤 -->
+            <if test="year != null and year != ''">
+                AND YEAR(publication_time) = #{year}
+            </if>
+        </where>
+    </sql>
+
+    <!-- 论文状态统计 -->
+    <select id="countPaperByStates" resultType="int">
+        SELECT COUNT(*) FROM sci_paper_a
+        <include refid="commonPaperConditions"/>
+    </select>
+
+    <!-- 论文部门统计（递归查询子部门） -->
+    <select id="countPaperByDeptAndStatesWithChildren" resultType="int">
+        WITH RECURSIVE dept_tree AS (
+        SELECT dept_id, parent_id
+        FROM sys_dept
+        WHERE dept_id = #{deptId}
+        UNION ALL
+        SELECT d.dept_id, d.parent_id
+        FROM sys_dept d
+        INNER JOIN dept_tree dt ON d.parent_id = dt.dept_id
+        )
+        SELECT COUNT(*)
+        FROM sci_paper_a a
+        JOIN sys_user u ON a.user_id = u.user_id
+        WHERE u.dept_id IN (SELECT dept_id FROM dept_tree)
+        AND a.state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+        AND YEAR(a.publication_time) = #{year}
+    </select>
+
+    <!-- 论文部门统计 -->
+    <select id="countPaperByDeptAndStates" resultType="int">
+        SELECT COUNT(*)
+        FROM sci_paper_a a
+        JOIN sys_user u ON a.user_id = u.user_id
+        WHERE u.dept_id = #{deptId}
+        AND a.state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+        AND YEAR(a.publication_time) = #{year}
+    </select>
+
+    <!-- 论文个人待办统计 -->
+    <select id="countPaperByUserAndStates" resultType="int">
+        SELECT COUNT(*) FROM sci_paper_a
+        WHERE user_id = #{userId}
+        AND state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+        AND YEAR(publication_time) = #{year}
+    </select>
+
+
+    <!-- 9.6成果转化统计 -->
+    <!-- 通用成果转化查询条件 -->
+    <sql id="commonAchievementConditions">
+        <where>
+            <!-- 状态过滤 -->
+            <if test="states != null and states.size() > 0">
+                AND state IN
+                <foreach item="state" collection="states" open="(" separator="," close=")">
+                    #{state}
+                </foreach>
+            </if>
+            <!-- 年度过滤 -->
+            <if test="year != null and year != ''">
+                AND YEAR(signing_data) = #{year}
+            </if>
+        </where>
+    </sql>
+
+    <!-- 成果转化状态统计 -->
+    <select id="countAchievementByStates" resultType="int">
+        SELECT COUNT(*) FROM sci_IntraSchPro_apply
+        <include refid="commonAchievementConditions"/>
+    </select>
+
+    <!-- 成果转化部门统计（递归查询子部门） -->
+    <select id="countAchievementByDeptAndStatesWithChildren" resultType="int">
+        WITH RECURSIVE dept_tree AS (
+        SELECT dept_id, parent_id
+        FROM sys_dept
+        WHERE dept_id = #{deptId}
+        UNION ALL
+        SELECT d.dept_id, d.parent_id
+        FROM sys_dept d
+        INNER JOIN dept_tree dt ON d.parent_id = dt.dept_id
+        )
+        SELECT COUNT(*)
+        FROM sci_IntraSchPro_apply a
+        JOIN sys_user u ON a.user_id = u.user_id
+        WHERE u.dept_id IN (SELECT dept_id FROM dept_tree)
+        AND a.state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+        AND YEAR(a.signing_data) = #{year}
+    </select>
+
+    <!-- 成果转化部门统计 -->
+    <select id="countAchievementByDeptAndStates" resultType="int">
+        SELECT COUNT(*)
+        FROM sci_IntraSchPro_apply a
+        JOIN sys_user u ON a.user_id = u.user_id
+        WHERE u.dept_id = #{deptId}
+        AND a.state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+        AND YEAR(a.signing_data) = #{year}
+    </select>
+
+    <!-- 成果转化个人待办统计 -->
+    <select id="countAchievementByUserAndStates" resultType="int">
+        SELECT COUNT(*) FROM sci_IntraSchPro_apply
+        WHERE user_id = #{userId}
+        AND state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+        AND YEAR(signing_data) = #{year}
+    </select>
+
+    <!-- 9.14教材软著统计 -->
+    <!-- 教材软著统计 -->
+
+    <!-- 通用教材软著查询条件 -->
+    <sql id="commonTextbookConditions">
+        <where>
+            <!-- 状态过滤 -->
+            <if test="states != null and states.size() > 0">
+                AND state IN
+                <foreach item="state" collection="states" open="(" separator="," close=")">
+                    #{state}
+                </foreach>
+            </if>
+            <!-- 年度过滤 -->
+            <if test="year != null and year != ''">
+                AND YEAR(chubanshijian) = #{year}
+            </if>
+        </where>
+    </sql>
+
+    <!-- 教材软著状态统计 -->
+    <select id="countTextbookByStates" resultType="int">
+        SELECT COUNT(*) FROM sci_jiaocairuanzhu
+        <include refid="commonTextbookConditions"/>
+    </select>
+
+    <!-- 教材软著部门统计（递归查询子部门） -->
+    <select id="countTextbookByDeptAndStatesWithChildren" resultType="int">
+        WITH RECURSIVE dept_tree AS (
+        SELECT dept_id, parent_id
+        FROM sys_dept
+        WHERE dept_id = #{deptId}
+        UNION ALL
+        SELECT d.dept_id, d.parent_id
+        FROM sys_dept d
+        INNER JOIN dept_tree dt ON d.parent_id = dt.dept_id
+        )
+        SELECT COUNT(*)
+        FROM sci_jiaocairuanzhu a
+        JOIN sys_user u ON a.user_id = u.user_id
+        WHERE u.dept_id IN (SELECT dept_id FROM dept_tree)
+        AND a.state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+        AND YEAR(a.chubanshijian) = #{year}
+    </select>
+
+    <!-- 教材软著部门统计 -->
+    <select id="countTextbookByDeptAndStates" resultType="int">
+        SELECT COUNT(*)
+        FROM sci_jiaocairuanzhu a
+        JOIN sys_user u ON a.user_id = u.user_id
+        WHERE u.dept_id = #{deptId}
+        AND a.state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+        AND YEAR(a.chubanshijian) = #{year}
+    </select>
+
+    <!-- 教材软著个人待办统计 -->
+    <select id="countTextbookByUserAndStates" resultType="int">
+        SELECT COUNT(*) FROM sci_jiaocairuanzhu
+        WHERE user_id = #{userId}
+        AND state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+        AND YEAR(chubanshijian) = #{year}
+    </select>
+
+    <!-- 9.14教材软著统计 -->
+    <!-- 专利软著统计 -->
+
+    <!-- 通用专利软著查询条件 -->
+    <sql id="commonPatentConditions">
+        <where>
+            <!-- 状态过滤 -->
+            <if test="states != null and states.size() > 0">
+                AND state IN
+                <foreach item="state" collection="states" open="(" separator="," close=")">
+                    #{state}
+                </foreach>
+            </if>
+            <!-- 年度过滤 -->
+            <if test="year != null and year != ''">
+                AND YEAR(huopishijain) = #{year}
+            </if>
+        </where>
+    </sql>
+
+    <!-- 专利软著状态统计 -->
+    <select id="countPatentByStates" resultType="int">
+        SELECT COUNT(*) FROM sci_zhuanliruanzhu
+        <include refid="commonPatentConditions"/>
+    </select>
+
+    <!-- 专利软著部门统计（递归查询子部门） -->
+    <select id="countPatentByDeptAndStatesWithChildren" resultType="int">
+        WITH RECURSIVE dept_tree AS (
+        SELECT dept_id, parent_id
+        FROM sys_dept
+        WHERE dept_id = #{deptId}
+        UNION ALL
+        SELECT d.dept_id, d.parent_id
+        FROM sys_dept d
+        INNER JOIN dept_tree dt ON d.parent_id = dt.dept_id
+        )
+        SELECT COUNT(*)
+        FROM sci_zhuanliruanzhu a
+        JOIN sys_user u ON a.user_id = u.user_id
+        WHERE u.dept_id IN (SELECT dept_id FROM dept_tree)
+        AND a.state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+        AND YEAR(a.huopishijain) = #{year}
+    </select>
+
+    <!-- 专利软著部门统计 -->
+    <select id="countPatentByDeptAndStates" resultType="int">
+        SELECT COUNT(*)
+        FROM sci_zhuanliruanzhu a
+        JOIN sys_user u ON a.user_id = u.user_id
+        WHERE u.dept_id = #{deptId}
+        AND a.state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+        AND YEAR(a.huopishijain) = #{year}
+    </select>
+
+    <!-- 专利软著个人待办统计 -->
+    <select id="countPatentByUserAndStates" resultType="int">
+        SELECT COUNT(*) FROM sci_zhuanliruanzhu
+        WHERE user_id = #{userId}
+        AND state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+        AND YEAR(huopishijain) = #{year}
+    </select>
+
+    <!-- 9.14奖励统计 -->
+    <!-- 奖励统计 -->
+
+    <!-- 通用奖励查询条件 -->
+    <sql id="commonRewardConditions">
+        <where>
+            <!-- 状态过滤 -->
+            <if test="states != null and states.size() > 0">
+                AND state IN
+                <foreach item="state" collection="states" open="(" separator="," close=")">
+                    #{state}
+                </foreach>
+            </if>
+            <!-- 年度过滤 -->
+            <if test="year != null and year != ''">
+                AND YEAR(reward_time) = #{year}
+            </if>
+        </where>
+    </sql>
+
+    <!-- 奖励状态统计 -->
+    <select id="countRewardByStates" resultType="int">
+        SELECT COUNT(*) FROM sys_reward
+        <include refid="commonRewardConditions"/>
+    </select>
+
+    <!-- 奖励部门统计（递归查询子部门） -->
+    <select id="countRewardByDeptAndStatesWithChildren" resultType="int">
+        WITH RECURSIVE dept_tree AS (
+        SELECT dept_id, parent_id
+        FROM sys_dept
+        WHERE dept_id = #{deptId}
+        UNION ALL
+        SELECT d.dept_id, d.parent_id
+        FROM sys_dept d
+        INNER JOIN dept_tree dt ON d.parent_id = dt.dept_id
+        )
+        SELECT COUNT(*)
+        FROM sys_reward a
+        JOIN sys_user u ON a.user_id = u.user_id
+        WHERE u.dept_id IN (SELECT dept_id FROM dept_tree)
+        AND a.state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+        AND YEAR(a.reward_time) = #{year}
+    </select>
+
+    <!-- 奖励部门统计 -->
+    <select id="countRewardByDeptAndStates" resultType="int">
+        SELECT COUNT(*)
+        FROM sys_reward a
+        JOIN sys_user u ON a.user_id = u.user_id
+        WHERE u.dept_id = #{deptId}
+        AND a.state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+        AND YEAR(a.reward_time) = #{year}
+    </select>
+
+    <!-- 奖励个人待办统计 -->
+    <select id="countRewardByUserAndStates" resultType="int">
+        SELECT COUNT(*) FROM sys_reward
+        WHERE user_id = #{userId}
+        AND state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+        AND YEAR(reward_time) = #{year}
+    </select>
+
+    <!-- 9.14 讲座报告统计 -->
+    <!-- 讲座报告统计 -->
+
+    <!-- 通用讲座报告查询条件 -->
+    <sql id="commonLectureConditions">
+        <where>
+            <!-- 状态过滤 -->
+            <if test="states != null and states.size() > 0">
+                AND state IN
+                <foreach item="state" collection="states" open="(" separator="," close=")">
+                    #{state}
+                </foreach>
+            </if>
+            <!-- 年度过滤 -->
+            <if test="year != null and year != ''">
+                AND YEAR(report_time) = #{year}
+            </if>
+        </where>
+    </sql>
+
+    <!-- 讲座报告状态统计 -->
+    <select id="countLectureByStates" resultType="int">
+        SELECT COUNT(*) FROM sci_lecture_report
+        <include refid="commonLectureConditions"/>
+    </select>
+
+    <!-- 讲座报告部门统计（递归查询子部门） -->
+    <select id="countLectureByDeptAndStatesWithChildren" resultType="int">
+        WITH RECURSIVE dept_tree AS (
+        SELECT dept_id, parent_id
+        FROM sys_dept
+        WHERE dept_id = #{deptId}
+        UNION ALL
+        SELECT d.dept_id, d.parent_id
+        FROM sys_dept d
+        INNER JOIN dept_tree dt ON d.parent_id = dt.dept_id
+        )
+        SELECT COUNT(*)
+        FROM sci_lecture_report a
+        JOIN sys_user u ON a.user_id = u.user_id
+        WHERE u.dept_id IN (SELECT dept_id FROM dept_tree)
+        AND a.state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+        AND YEAR(a.report_time) = #{year}
+    </select>
+
+    <!-- 讲座报告部门统计 -->
+    <select id="countLectureByDeptAndStates" resultType="int">
+        SELECT COUNT(*)
+        FROM sci_lecture_report a
+        JOIN sys_user u ON a.user_id = u.user_id
+        WHERE u.dept_id = #{deptId}
+        AND a.state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+        AND YEAR(a.report_time) = #{year}
+    </select>
+
+    <!-- 讲座报告个人待办统计 -->
+    <select id="countLectureByUserAndStates" resultType="int">
+        SELECT COUNT(*) FROM sci_lecture_report
+        WHERE user_id = #{userId}
+        AND state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+        AND YEAR(report_time) = #{year}
+    </select>
+
+    <!--********************************************************************************************************-->
+    <!-- 纵向课题统计 -->
+    <select id="countVerticalApplyByUser" resultType="int">
+        SELECT COUNT(*) FROM sci_horizontal_apply_vertical
+        WHERE user_id = #{userId}
+    </select>
+
+    <select id="countVerticalApplyByUserAndStates" resultType="int">
+        SELECT COUNT(*) FROM sci_horizontal_apply_vertical
+        WHERE user_id = #{userId}
+        AND state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+    </select>
+
+    <select id="countVerticalApplyByUserAndState" resultType="int">
+        SELECT COUNT(*) FROM sci_horizontal_apply_vertical
+        WHERE user_id = #{userId} AND state = #{state}
+    </select>
+
+    <!--    ****************************************************************************************************-->
+    <!-- 横向课题统计 -->
+    <select id="countHorizontalApplyByUser" resultType="int">
+        SELECT COUNT(*) FROM sci_horizontal_apply
+        WHERE user_id = #{userId}
+    </select>
+
+    <select id="countHorizontalApplyByUserAndStates1" resultType="int">
+        SELECT COUNT(*) FROM sci_horizontal_apply
+        WHERE user_id = #{userId}
+        AND state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+    </select>
+
+    <select id="countIntraschproApplyByUser" resultType="int">
+        SELECT COUNT(*) FROM sci_IntraSchPro_apply
+        WHERE user_id = #{userId}
+    </select>
+
+    <select id="countIntraschproApplyByUserAndStates1" resultType="int">
+        SELECT COUNT(*) FROM sci_IntraSchPro_apply
+        WHERE user_id = #{userId}
+        AND state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+    </select>
+
+    <select id="countPaperAByUser" resultType="int">
+        SELECT COUNT(*) FROM sci_paper_a
+        WHERE user_id = #{userId}
+    </select>
+
+    <select id="countPaperAByUserAndStates1" resultType="int">
+        SELECT COUNT(*) FROM sci_paper_a
+        WHERE user_id = #{userId}
+        AND state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+    </select>
+
+    <select id="countJiaocairuanzhuByUser" resultType="int">
+        SELECT COUNT(*) FROM sci_jiaocairuanzhu
+        WHERE user_id = #{userId}
+    </select>
+
+    <select id="countJiaocairuanzhuByUserAndStates1" resultType="int">
+        SELECT COUNT(*) FROM sci_jiaocairuanzhu
+        WHERE user_id = #{userId}
+        AND state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+    </select>
+
+    <select id="countZhuanliruanzhuByUser" resultType="int">
+        SELECT COUNT(*) FROM sci_zhuanliruanzhu
+        WHERE user_id = #{userId}
+    </select>
+
+    <select id="countZhuanliruanzhuByUserAndStates1" resultType="int">
+        SELECT COUNT(*) FROM sci_zhuanliruanzhu
+        WHERE user_id = #{userId}
+        AND state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+    </select>
+
+    <select id="countRewardByUser" resultType="int">
+        SELECT COUNT(*) FROM sys_reward
+        WHERE user_id = #{userId}
+    </select>
+
+    <select id="countRewardByUserAndStates1" resultType="int">
+        SELECT COUNT(*) FROM sys_reward
+        WHERE user_id = #{userId}
+        AND state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+    </select>
+
+    <select id="countLectureReportByUser" resultType="int">
+        SELECT COUNT(*) FROM sci_lecture_report
+        WHERE user_id = #{userId}
+    </select>
+
+    <select id="countLectureReportByUserAndStates1" resultType="int">
+        SELECT COUNT(*) FROM sci_lecture_report
+        WHERE user_id = #{userId}
+        AND state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+    </select>
 </mapper>

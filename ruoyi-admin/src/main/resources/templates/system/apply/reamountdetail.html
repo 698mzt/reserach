@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh" xmlns:th="http://www.thymeleaf.org" >
 <head>
-    <th:block th:include="include :: header('审批金额')" />
+    <th:block th:include="include :: header('课题金额审批')" />
     <th:block th:include="include :: datetimepicker-css" />
     <th:block th:include="include :: bootstrap-fileinput-css"/>
     <th:block th:include="include :: select2-css" />
@@ -223,8 +223,10 @@
             alert("没有可预览的文件！");
             return;
         }
+        // 获取当前页面的上下文路径
+        var contextPath = '/' + window.location.pathname.split('/')[1];
         // 拼接完整 URL
-        var fullPath = window.location.origin + relativePath;
+        var fullPath = window.location.origin + contextPath + relativePath;
         // 打开新窗口预览
         window.open(fullPath, '_blank');
     }

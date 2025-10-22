@@ -21,6 +21,7 @@
         <result property="wenjian"    column="wenjian"    />
         <result property="createtime" column="createtime" />
         <result property="year" column="year" /> <!-- 确保映射正确 -->
+        <result property="year" column="year" /> <!-- 确保映射正确 -->
         <result  property="parentId" column="parent_id" />
         
     </resultMap>
@@ -244,33 +245,6 @@
         SELECT COUNT(*) FROM sci_jiaocairuanzhu
         WHERE mingcheng = #{mingcheng}
           AND paiming = #{paiming}
-    </select>
-
-    <select id="getStatsQuery" parameterType="map" resultMap="SciJiaocairuanzhuResult">
-        <include refid="selectSciJiaocairuanzhuVo"/>
-        where s.state in (1,2,3,4,5,6,7)
-        <if test="startTime != null and startTime != ''">
-            and s.createtime >= #{startTime}
-        </if>
-        <if test="endTime != null and endTime != ''">
-            and s.createtime &lt;= #{endTime}
-        </if>
-        <if test="college != null and college != '' and college != 'null'">
-            and p.dept_name like concat('%', #{college}, '%')
-        </if>
-        <if test="major != null and major != '' and major != 'null'">
-            and d.dept_name like concat('%', #{major}, '%')
-        </if>
-        <if test="jobTitle != null and jobTitle != '' and jobTitle != 'null'">
-            and u.user_name like concat('%', #{jobTitle}, '%')
-        </if>
-        <if test="topicName != null and topicName != ''">
-            and s.mingcheng like concat('%', #{topicName}, '%')
-        </if>
-        <if test="state != null and state != '' and state != 'null'">
-            and s.state = #{state}
-        </if>
-        order by s.createtime desc
     </select>
 
 </mapper>

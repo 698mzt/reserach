@@ -4,7 +4,6 @@ import com.ruoyi.system.domain.SysReward;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * 奖励Mapper接口
@@ -83,12 +82,4 @@ public interface SysRewardMapper
 
     void updateJifen(@Param("id")  Long id,@Param("jifen") int jifen);
     void resetJifenById(@Param("id") Long id);
-
-    /**
-     * 统计查询奖励数据
-     *
-     * @param params 查询参数
-     * @return 奖励集合
-     */
-    List<SysReward> getStatsQuery(Map<String, String> params);
 }

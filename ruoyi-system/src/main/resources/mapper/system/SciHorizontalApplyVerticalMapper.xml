@@ -11,11 +11,12 @@
         <result property="topNumber"    column="top_number"    />
         <result property="topType"    column="top_type"    />
         <result property="signingData"    column="signing_data"    />
+        <result property="validityData"    column="validity_data"    />
         <result property="firstPersonId"    column="first_person_id"    />
         <result property="secondPersonId"    column="second_person_id"    />
         <result property="thirdPersonId"    column="third_person_id"    />
         <result property="fourthPersonId"    column="fourth_person_id"    />
-        <result property="filing"    column="file"    />
+        <result property="file"    column="file"    />
         <result property="openfile"    column="open_file"    />
         <result property="midfile"    column="mid_file"    />
         <result property="overfile"    column="over_file"    />
@@ -187,7 +188,7 @@
             <if test="thirdPersonId != null and thirdPersonId != ''">third_person_id,</if>
             <if test="fourthPersonId != null and fourthPersonId != ''">fourth_person_id,</if>
             <if test="amount != null and amount != ''">amount,</if>
-            <if test="filing != null and filing != ''">file,</if>
+            <if test="file != null and file != ''">file,</if>
             <if test="state != null and state != ''">state,</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -201,13 +202,13 @@
             <if test="thirdPersonId != null and thirdPersonId != ''">#{thirdPersonId},</if>
             <if test="fourthPersonId != null and fourthPersonId != ''">#{fourthPersonId},</if>
             <if test="amount != null and amount != ''">#{amount},</if>
-            <if test="filing != null and filing != ''">#{filing},</if>
+            <if test="file != null and file != ''">#{file},</if>
             <if test="state != null and state != ''">#{state},</if>
         </trim>
     </insert>
 
     <select id="selectSciHorizontalApplyVerticalById" resultMap="SciHorizontalApplyVerticalResult" parameterType="Integer">
-        select s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,s.top_number, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, s.fourth_person_id, s.amount, s.state,s.file,s.open_file,s.mid_file,s.over_file
+        select s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,s.top_number, s.top_type,  s.signing_data, s.validity_data,  s.first_person_id,  s.second_person_id, s.third_person_id, s.fourth_person_id, s.amount, s.state,s.file,s.open_file,s.mid_file,s.over_file
         from  sci_horizontal_apply_vertical s left join sys_user u on  s.user_id=u.user_id
                                               left join sys_dept d on u.dept_id = d.dept_id
                                               left join sys_dept p on d.parent_id =p.dept_id
@@ -222,12 +223,13 @@
             <if test="topNumber != null and topNumber != ''">top_number = #{topNumber},</if>
             <if test="topType != null and topType != ''">top_type = #{topType},</if>
             <if test="signingData != null and signingData != ''">signing_data = #{signingData},</if>
+            <if test="validityData != null and validityData != ''">validity_data = #{validityData},</if>
             <if test="firstPersonId != null and firstPersonId != ''">first_person_id = #{firstPersonId},</if>
             <if test="secondPersonId != null and secondPersonId != ''">second_person_id = #{secondPersonId},</if>
             <if test="thirdPersonId != null and thirdPersonId != ''">third_person_id = #{thirdPersonId},</if>
             <if test="fourthPersonId != null and fourthPersonId != ''">fourth_person_id = #{fourthPersonId},</if>
             <if test="amount != null and amount != ''">amount = #{amount},</if>
-            <if test="filing != null and filing != ''">file = #{filing},</if>
+            <if test="file != null and file != ''">file = #{file},</if>
             <if test="openfile != null and openfile != ''">open_file = #{openfile},</if>
             <if test="midfile != null and midfile != ''">mid_file = #{midfile},</if>
             <if test="overfile != null and overfile != ''">over_file = #{overfile},</if>
@@ -292,40 +294,16 @@
         order  by createtime desc
     </select>
 
-    <select id="getStatsQuery" parameterType="map" resultMap="SciHorizontalApplyVerticalResult">
-        select s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,s.top_number, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file,s.open_file,s.mid_file,s.over_file,s.createtime
-        from  sci_horizontal_apply_vertical s left join sys_user u on  s.user_id=u.user_id
-                                              left join sys_dept d on u.dept_id = d.dept_id
-                                              left join sys_dept p on d.parent_id =p.dept_id
-        where 1=1
-        <if test="startTime != null and startTime != ''">
-            and s.createtime >= #{startTime}
-        </if>
-        <if test="endTime != null and endTime != ''">
-            and s.createtime &lt;= #{endTime}
-        </if>
-        <if test="college != null and college != '' and college!='null' ">
-            AND p.dept_id = #{college}
-        </if>
-        <if test="major != null and major != '' and major!='null'">
-            AND d.dept_id = #{major}
-        </if>
-        <if test="jobTitle != null and jobTitle != '' and jobTitle != 'null'">
-            and u.user_name like concat('%', #{jobTitle}, '%')
-        </if>
-        <if test="topicName != null and topicName != ''">
-            and s.top_name like concat('%', #{topicName}, '%')
-        </if>
-        <if test="state != null and state != '' and state != 'null' and state != '1' ">
-            and s.state in (3,5,7,33,55,77,99,6)
-        </if>
-        <if test="state != null and state != '' and state != 'null' and state != '2' ">
-            and s.state in (1,2,4,11,22,44)
-        </if>
-        <if test="state != null and state != '' and state != 'null' and state != '3' ">
-            and s.state in (66)
-        </if>
-        order by s.createtime desc
+    <!-- 按纵向申请ID查询 sci_persion_vertical 的全部成员ID，按排名升序 -->
+    <select id="selectPersionIdsByVerticalId" parameterType="int" resultType="string">
+        SELECT persion_id
+        FROM sci_persion_vertical
+        WHERE vertical_id = #{verticalId}
+        ORDER BY ranking ASC
     </select>
+
+    <delete id="deletePersionVerticalByVerticalId" parameterType="int">
+        delete from sci_persion_vertical where vertical_id = #{verticalId}
+    </delete>
 
 </mapper>

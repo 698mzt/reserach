@@ -67,6 +67,4 @@ public interface SciIntraSchProApplyMapper {
     List<Map<String, Object>> getfilekey(@Param("userId")Long userId);
 
     List<Map<String, Object>> getAllOverSchProToAlltotle();
-
-    List<SciIntraSchoolPro> getStatsQuery(Map<String, String> params);
 }

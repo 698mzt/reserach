@@ -1,7 +1,6 @@
 package com.ruoyi.system.mapper;
 
 import java.util.List;
-import java.util.Map;
 
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.system.domain.SciHorizontalPiyue;
@@ -93,12 +92,4 @@ public interface SciPaperAMapper {
     Integer selectSciPaperA(SciPaperA paper);
 
     List<SciPaperA> selectSciPaperAExport(@Param("ListRowId") List<String> ListRowId,SciPaperA sciPaperA);
-
-    /**
-     * 统计查询论文数据
-     *
-     * @param params 查询参数
-     * @return 论文集合
-     */
-    List<SciPaperA> getStatsQuery(Map<String, String> params);
 }

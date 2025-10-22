@@ -1,7 +1,6 @@
 package com.ruoyi.system.service;
 
 import java.util.List;
-import java.util.Map;
 
 import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.system.domain.SciZhuanliruanzhu;
@@ -101,12 +100,5 @@ public interface ISciZhuanliruanzhuService
      */
     boolean checkExist(String mingcheng, String paiming);
 
-    /**
-     * 统计查询专利软著数据
-     *
-     * @param params 查询参数
-     * @return 专利软著集合
-     */
-    List<SciZhuanliruanzhu> getStatsQuery(Map<String, String> params);
 
 }

@@ -28,6 +28,8 @@ public interface SciHorizontalReamountMapper {
 
     int amountedit(SciHorizontalReamount sciHorizontalReamount);
 
+    int reamountremove(Integer id);
+
     List<SciHorizontalReamount> selectAmountListById(Integer id);
 
     List<SciHorizontalApplyVertical> selectVerticalAmountListKYC(SciHorizontalApplyVertical sciHorizontalApplyVertical);

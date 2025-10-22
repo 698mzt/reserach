@@ -66,6 +66,4 @@ public interface ISciIntraSchProApplyService {
     List<Map<String, Object>> getfilekey(Long userId);
 
     int subDraft(String id,Long userid, String state);
-
-    List<SciIntraSchoolPro> getStatsQuery(Map<String, String> params);
 }

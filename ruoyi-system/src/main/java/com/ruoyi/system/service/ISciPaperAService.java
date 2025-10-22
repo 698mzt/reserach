@@ -2,7 +2,6 @@ package com.ruoyi.system.service;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.system.domain.SciPaperA;
@@ -88,12 +87,4 @@ public interface ISciPaperAService
     public List<SciPaperA> selectSciPaperAListCxList(SciPaperA sciPaperA);
 
     public Integer selectSciPaperA(SciPaperA paper);
-
-    /**
-     * 统计查询论文数据
-     *
-     * @param params 查询参数
-     * @return 论文集合
-     */
-    List<SciPaperA> getStatsQuery(Map<String, String> params);
 }

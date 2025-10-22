@@ -1,7 +1,6 @@
 package com.ruoyi.system.service.impl;
 
 import java.util.List;
-import java.util.Map;
 
 import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.system.domain.SciHorizontalPiyue;
@@ -296,9 +295,5 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
         return sciZhuanliruanzhuMapper.checkExist(mingcheng, paiming) > 0;
     }
 
-    @Override
-    public List<SciZhuanliruanzhu> getStatsQuery(Map<String, String> params) {
-        return sciZhuanliruanzhuMapper.getStatsQuery(params);
-    }
 
 }

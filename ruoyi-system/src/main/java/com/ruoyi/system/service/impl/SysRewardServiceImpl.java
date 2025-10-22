@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * 奖励Service业务层处理
@@ -281,10 +280,5 @@ public class SysRewardServiceImpl implements ISysRewardService
         sysRewardPiyueMapper.insertSysRewardPiyue(sysRewardPiyue);
         return a;
 
-    }
-
-    @Override
-    public List<SysReward> getStatsQuery(Map<String, String> params) {
-        return sysRewardMapper.getStatsQuery(params);
     }
 }

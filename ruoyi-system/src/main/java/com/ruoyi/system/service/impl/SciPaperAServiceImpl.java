@@ -1,7 +1,6 @@
 package com.ruoyi.system.service.impl;
 
 import java.util.List;
-import java.util.Map;
 
 import com.ruoyi.common.annotation.DataScope;
 import com.ruoyi.common.core.domain.AjaxResult;
@@ -186,7 +185,7 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
       sciPaperAr.setState("教研室驳回");
     } else if (urlFlag.equals("kyth")) {
       state = "7";
-      sciPaperAr.setState("科研室驳回");
+      sciPaperAr.setState("科研处驳回");
       int points = 0;
       int b = sciPaperAMapper.updateSciPaperArs(id, points);
     }
@@ -219,10 +218,5 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
     Integer a = sciPaperAMapper.selectSciPaperA(paper);
     System.out.println("a = " + a);
     return a;
-  }
-
-  @Override
-  public List<SciPaperA> getStatsQuery(Map<String, String> params) {
-    return sciPaperAMapper.getStatsQuery(params);
   }
 }

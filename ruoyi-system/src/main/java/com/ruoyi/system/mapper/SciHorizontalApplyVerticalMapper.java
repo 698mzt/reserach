@@ -6,7 +6,6 @@ import com.ruoyi.system.domain.SciHorizontalPersion;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * 纵向课题Mapper接口
@@ -101,10 +100,9 @@ public interface SciHorizontalApplyVerticalMapper {
     List<SciHorizontalApplyVertical> selectOtherListByUid(SciHorizontalApplyVertical sciHorizontalApplyVertical);
 
     /**
-     * 统计查询纵向课题数据
-     *
-     * @param params 查询参数
-     * @return 纵向课题集合
+     * 查询指定纵向申请的全部成员ID（来自 sci_persion_vertical，按排名升序）
      */
-    List<SciHorizontalApplyVertical> getStatsQuery(Map<String, String> params);
+    java.util.List<String> selectPersionIdsByVerticalId(@Param("verticalId") Integer verticalId);
+
+    int deletePersionVerticalByVerticalId(@Param("verticalId") Integer verticalId);
 }

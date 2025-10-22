@@ -25,6 +25,7 @@
         <result property="signingData"    column="signing_data"    />
         <result property="paperTitle"    column="paper_title"    />
         <result property="paperCategory"    column="paper_category"    />
+        <result property="paperType"    column="paper_type"    />
         <result property="publishedJournal"    column="published_journal"    />
         <result property="inclusionStatus"    column="inclusion_status"    />
         <result property="publicationTime"    column="publication_time"    />
@@ -55,6 +56,7 @@
         p.teacher_name,
         u.tea_zhicheng on_campus_title,
         p.paper_title,
+        p.paper_type,
         p.paper_category,
         p.published_journal,
         p.publication_time,
@@ -303,6 +305,7 @@
             <if test="userId != null">user_id,</if>
             <if test="teacherName != null">teacher_name,</if>
             <if test="paperTitle != null">paper_title,</if>
+            <if test="paperType != null">paper_type,</if>
             <if test="paperCategory != null">paper_category,</if>
             <if test="publishedJournal != null">published_journal,</if>
             <if test="inclusionStatus != null">inclusion_status,</if>
@@ -322,6 +325,7 @@
             <if test="userId != null">#{userId},</if>
             <if test="teacherName != null">#{teacherName},</if>
             <if test="paperTitle != null">#{paperTitle},</if>
+            <if test="paperType != null">#{paperType},</if>
             <if test="paperCategory != null">#{paperCategory},</if>
             <if test="publishedJournal != null">#{publishedJournal},</if>
             <if test="inclusionStatus != null">#{inclusionStatus},</if>
@@ -392,6 +396,7 @@
         <trim prefix="SET" suffixOverrides=",">
             <if test="teacherName != null">teacher_name = #{teacherName},</if>
             <if test="paperTitle != null">paper_title = #{paperTitle},</if>
+            <if test="paperType != null">paper_Type = #{paperType},</if>
             <if test="paperCategory != null">paper_category = #{paperCategory},</if>
             <if test="publishedJournal != null">published_journal = #{publishedJournal},</if>
             <if test="inclusionStatus != null">inclusion_status = #{inclusionStatus},</if>
@@ -430,32 +435,5 @@
             #{id}
         </foreach>
     </delete>
-
-    <select id="getStatsQuery" parameterType="map" resultMap="SciPaperAResult">
-        <include refid="selectSciPaperAVo"/>
-        where p.state in (1,2,3,4,5,6,7)
-        <if test="startTime != null and startTime != ''">
-            and p.createtime >= #{startTime}
-        </if>
-        <if test="endTime != null and endTime != ''">
-            and p.createtime &lt;= #{endTime}
-        </if>
-        <if test="college != null and college != '' and college != 'null'">
-            and p.college like concat('%', #{college}, '%')
-        </if>
-        <if test="major != null and major != '' and major != 'null'">
-            and d.dept_name like concat('%', #{major}, '%')
-        </if>
-        <if test="jobTitle != null and jobTitle != '' and jobTitle != 'null'">
-            and u.user_name like concat('%', #{jobTitle}, '%')
-        </if>
-        <if test="topicName != null and topicName != ''">
-            and p.paper_title like concat('%', #{topicName}, '%')
-        </if>
-        <if test="state != null and state != '' and state != 'null'">
-            and p.state = #{state}
-        </if>
-        order by p.createtime desc
-    </select>
 
 </mapper>
