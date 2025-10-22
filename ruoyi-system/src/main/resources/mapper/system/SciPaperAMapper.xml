@@ -436,4 +436,32 @@
         </foreach>
     </delete>
 
+
+    <select id="getStatsQuery" parameterType="map" resultMap="SciPaperAResult">
+        <include refid="selectSciPaperAVo"/>
+        where p.state in (1,2,3,4,5,6,7)
+        <if test="startTime != null and startTime != ''">
+            and p.createtime >= #{startTime}
+        </if>
+        <if test="endTime != null and endTime != ''">
+            and p.createtime &lt;= #{endTime}
+        </if>
+        <if test="college != null and college != '' and college != 'null'">
+            and p.college like concat('%', #{college}, '%')
+        </if>
+        <if test="major != null and major != '' and major != 'null'">
+            and d.dept_name like concat('%', #{major}, '%')
+        </if>
+        <if test="jobTitle != null and jobTitle != '' and jobTitle != 'null'">
+            and u.user_name like concat('%', #{jobTitle}, '%')
+        </if>
+        <if test="topicName != null and topicName != ''">
+            and p.paper_title like concat('%', #{topicName}, '%')
+        </if>
+        <if test="state != null and state != '' and state != 'null'">
+            and p.state = #{state}
+        </if>
+        order by p.createtime desc
+    </select>
+
 </mapper>

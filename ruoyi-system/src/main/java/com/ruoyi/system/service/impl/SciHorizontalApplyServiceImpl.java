@@ -1313,4 +1313,15 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
         List<String> completeStates = Arrays.asList("4");
         return sciLectureReportMapper.countLectureReportByUserAndStates1(user.getUserId(), completeStates);
     }
+    /**
+     * 提交课题
+     *
+     * @param sciHorizontalApply 横向课题
+     * @return 结果
+     */
+
+    @Override
+    public List<SciHorizontalApply> getStatsQuery(Map<String, String> params) {
+        return sciHorizontalApplyMapper.getStatsQuery(params);
+    }
 }

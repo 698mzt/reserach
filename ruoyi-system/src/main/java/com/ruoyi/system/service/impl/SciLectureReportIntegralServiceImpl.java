@@ -1,6 +1,8 @@
 package com.ruoyi.system.service.impl;
 
 import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.ruoyi.system.mapper.SciLectureReportIntegralMapper;
@@ -90,5 +92,10 @@ public class SciLectureReportIntegralServiceImpl implements ISciLectureReportInt
     public int deleteSciLectureReportIntegralById(Integer id)
     {
         return sciLectureReportIntegralMapper.deleteSciLectureReportIntegralById(id);
+    }
+
+    @Override
+    public List<SciLectureReportIntegral> getStatsQuery(Map<String, String> params) {
+        return sciLectureReportIntegralMapper.getStatsQuery(params);
     }
 }

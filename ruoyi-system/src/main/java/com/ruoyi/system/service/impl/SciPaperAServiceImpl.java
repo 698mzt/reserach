@@ -1,6 +1,7 @@
 package com.ruoyi.system.service.impl;
 
 import java.util.List;
+import java.util.Map;
 
 import com.ruoyi.common.annotation.DataScope;
 import com.ruoyi.common.core.domain.AjaxResult;
@@ -219,4 +220,8 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
     System.out.println("a = " + a);
     return a;
   }
+    @Override
+    public List<SciPaperA> getStatsQuery(Map<String, String> params) {
+        return sciPaperAMapper.getStatsQuery(params);
+    }
 }

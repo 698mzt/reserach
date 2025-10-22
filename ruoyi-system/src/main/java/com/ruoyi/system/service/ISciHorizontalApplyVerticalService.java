@@ -4,6 +4,7 @@ import com.ruoyi.system.domain.SciHorizontalApply;
 import com.ruoyi.system.domain.SciHorizontalApplyVertical;
 
 import java.util.List;
+import java.util.Map;
 
 public interface ISciHorizontalApplyVerticalService {
     /**
@@ -96,4 +97,11 @@ public interface ISciHorizontalApplyVerticalService {
     List<String> selectPersionIdsByVerticalId(Integer id);
 
     void resetVerticalPersons(Integer id, List<String> all);
+    /**
+     * 统计查询纵向课题数据
+     *
+     * @param params 查询参数
+     * @return 纵向课题集合
+     */
+    List<SciHorizontalApplyVertical> getStatsQuery(Map<String, String> params);
 }

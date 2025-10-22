@@ -1,6 +1,8 @@
 package com.ruoyi.system.service;
 
 import java.util.List;
+import java.util.Map;
+
 import com.ruoyi.system.domain.SciLectureReportIntegral;
 
 /**
@@ -59,4 +61,12 @@ public interface ISciLectureReportIntegralService
      * @return 结果
      */
     public int deleteSciLectureReportIntegralById(Integer id);
+
+    /**
+     * 统计查询讲座报告数据
+     *
+     * @param params 查询参数
+     * @return 讲座报告集合
+     */
+    List<SciLectureReportIntegral> getStatsQuery(Map<String, String> params);
 }
