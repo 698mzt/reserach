@@ -24,7 +24,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="wenjian"    column="wenjian"    />
         <result property="createtime" column="createtime" /> <!-- 确保映射正确 -->
         <result property="year" column="year" /> <!-- 确保映射正确 -->
-        <result property="year" column="year" /> <!-- 确保映射正确 -->
         <result  property="parentId" column="parent_id" />
 
 
@@ -251,6 +250,39 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         SELECT COUNT(*) FROM sci_zhuanliruanzhu
         WHERE mingcheng = #{mingcheng}
           AND paiming = #{paiming}
+    </select>
+
+    <select id="getStatsQuery" parameterType="map" resultMap="SciZhuanliruanzhuResult">
+        <include refid="selectSciZhuanliruanzhuVo"/>
+        where state in (1,2,3,4,5,6,7)
+        <if test="startYear != null and startYear != ''">
+            and YEAR(DATE_ADD(createtime,INTERVAL 1 MONTH)) >= #{startYear}
+        </if>
+        <if test="endYear != null and endYear != ''">
+            and YEAR(DATE_ADD(createtime,INTERVAL 1 MONTH)) &lt;= #{endYear}
+        </if>
+        <if test="xueyuan != null and xueyuan != '' and xueyuan != 'null'">
+            and p.dept_name like concat('%', #{xueyuan}, '%')
+        </if>
+        <if test="jiaoyanshi != null and jiaoyanshi != '' and jiaoyanshi != 'null'">
+            and d.dept_name like concat('%', #{jiaoyanshi}, '%')
+        </if>
+        <if test="xingming != null and xingming != '' and xingming != 'null'">
+            and u.user_name like concat('%', #{xingming}, '%')
+        </if>
+        <if test="mingcheng != null and mingcheng != ''">
+            and s.mingcheng like concat('%', #{mingcheng}, '%')
+        </if>
+        <if test="fenlei != null and fenlei != ''">
+            and s.fenlei = #{fenlei}
+        </if>
+        <if test="leixing != null and leixing != ''">
+            and s.leixing = #{leixing}
+        </if>
+        <if test="state != null and state != '' and state != 'null'">
+            and s.state = #{state}
+        </if>
+        order by s.createtime desc
     </select>
 
 </mapper>

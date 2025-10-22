@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh" xmlns:th="http://www.thymeleaf.org" >
 <head>
-    <th:block th:include="include :: header('课题结项修改')" />
+    <th:block th:include="include :: header('修改横向课题')" />
     <th:block th:include="include :: datetimepicker-css" />
     <th:block th:include="include :: bootstrap-fileinput-css"/>
     <th:block th:include="include :: select2-css" />
@@ -30,7 +30,7 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">课题编号：</label>
                     <div class="col-sm-8">
-                        <input   th:field="*{topNumber}" class="form-control" type="text">
+                        <input   th:field="*{topNumber}" class="form-control" type="text" required>
                     </div>
                 </div>
             </div>
@@ -61,6 +61,17 @@
                 </div>
             </div>
 
+<!--                <div class="col-xs-6">-->
+<!--                    <div class="form-group">-->
+<!--                        <label class="col-sm-4 control-label is-required">申请日期：</label>-->
+<!--                        <div class="col-sm-8">-->
+<!--                            <div class="input-group date">-->
+<!--                                <input name="signingData" autocomplete="off" th:field="*{signingData}" th:value="${#dates.format(signingData, 'yyyy-MM-dd')}" class="form-control" placeholder="yyyy-MM-dd" type="text" required>-->
+<!--                                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
 
             <div class="col-xs-6">
                 <div class="form-group">
@@ -77,6 +88,7 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">第一负责人：</label>
                     <div class="col-sm-8">
+                        <!--                        <input name="firstPersonId" th:field="*{firstPersonId}" class="form-control" type="text" required>-->
                         <select name="firstPersonId" class="form-control m-b" disabled>
                             <option value="">无</option>
                             <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ #strings.toString(user.userId) == sciHorizontalApply.firstPersonId}"></option>
@@ -89,6 +101,7 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">第二负责人：</label>
                     <div class="col-sm-8">
+                        <!--                        <input name="secondPersonTask" th:field="*{secondPersonTask}" class="form-control" type="text" required>-->
                         <select name="secondPersonId" class="form-control m-b" >
                             <option value="">无</option>
                             <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ #strings.toString(user.userId) == sciHorizontalApply.secondPersonId}" ></option>
@@ -101,6 +114,7 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">第三负责人：</label>
                     <div class="col-sm-8">
+                        <!--                        <input name="thirdPersonId" th:field="*{thirdPersonId}" class="form-control" type="text" required>-->
                         <select name="thirdPersonId" class="form-control m-b" >
                             <option value="">无</option>
                             <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ #strings.toString(user.userId) == sciHorizontalApply.thirdPersonId}"  ></option>
@@ -113,6 +127,7 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">第四负责人：</label>
                     <div class="col-sm-8">
+                        <!--                        <input name="fourthPersonId" th:field="*{fourthPersonId}" class="form-control" type="text" required>-->
                         <select name="fourthPersonId" class="form-control m-b" >
                             <option value="">无</option>
                             <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ #strings.toString(user.userId) == sciHorizontalApply.fourthPersonId}"  ></option>
@@ -121,23 +136,10 @@
                 </div>
             </div>
 
-            <!-- 第5位及以后：可动态添加与编辑 -->
-            <div class="col-xs-12">
-                <div class="form-group">
-                    <label class="col-sm-2 control-label">更多成员：</label>
-                    <div class="col-sm-10">
-                        <div id="memberContainer" class="row" th:data-extra-members="${extraMembers}"></div>
-                        <button type="button" id="addMemberBtn" class="btn btn-white btn-sm" title="新增成员">
-                            <i class="fa fa-plus"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
 
             <div class="col-xs-6">
                 <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">结题合同：</label>
+                    <label class="col-sm-4 control-label is-required">合同：</label>
                     <div class="col-sm-8">
                         <input type="hidden" name="filingurl" th:field="*{filingurl}">
                         <div class="file-loading">
@@ -148,7 +150,7 @@
             </div>
             <div class="col-xs-6">
                 <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">结题备案表：</label>
+                    <label class="col-sm-4 control-label is-required">备案表：</label>
                     <div class="col-sm-8">
                         <input type="hidden" name="agreeurl" th:field="*{agreeurl}">
                         <div class="file-loading">
@@ -179,71 +181,6 @@
 <th:block th:include="include :: datetimepicker-js" />
 <th:block th:include="include :: bootstrap-fileinput-js"/>
 <th:block th:include="include :: select2-js" />
-
-<script type="text/javascript">
-/**
- * overedit 其他成员动态编辑与检索
- * - 预渲染 extraMembers（第5位及以后）
- * - 点击 + 新增一项；点击 - 移除一项
- * - 所有下拉启用 Select2 输入检索
- */
-(function($){
-    // 追加一项成员下拉
-    function appendMemberSelect(selectedVal) {
-        var optionsHtml = $('select[name="secondPersonId"]').html(); // 复用第二负责人的选项
-        var $tpl = $('<div class="col-xs-3 m-b-xs member-item">\
-            <div class="input-group">\
-                <select name="members" class="form-control m-b member-select"></select>\
-                <span class="input-group-btn">\
-                    <button class="btn btn-danger btn-sm remove-member" type="button" title="移除"><i class="fa fa-minus"></i></button>\
-                </span>\
-            </div>\
-        </div>');
-        var $select = $tpl.find('select.member-select');
-        $select.html(optionsHtml);
-        $('#memberContainer').append($tpl);
-        // 初始化 Select2，支持输入检索
-        $select.select2({
-            width: '100%',
-            placeholder: '输入检索成员',
-            allowClear: true
-        });
-        if (selectedVal) {
-            $select.val(String(selectedVal)).trigger('change');
-        }
-    }
-
-    $(function(){
-        // 初始化前四位下拉的检索体验（第二/第三/第四）
-        $('select[name="secondPersonId"], select[name="thirdPersonId"], select[name="fourthPersonId"]').each(function(){
-            $(this).select2({
-                width: '100%',
-                placeholder: '输入检索成员',
-                allowClear: true
-            });
-        });
-
-        // 预渲染已有的第5位及以后成员
-        var extraMembers = $('#memberContainer').data('extra-members');
-        if (Array.isArray(extraMembers)) {
-            extraMembers.forEach(function(mid){ appendMemberSelect(mid); });
-        } else if (extraMembers) {
-            try {
-                var arr = JSON.parse(extraMembers);
-                if (Array.isArray(arr)) arr.forEach(function(mid){ appendMemberSelect(mid); });
-            } catch(e) {}
-        }
-
-        // 新增/移除
-        $('#addMemberBtn').on('click', function(){
-            appendMemberSelect(null);
-        });
-        $(document).on('click', '.remove-member', function(){
-            $(this).closest('.member-item').remove();
-        });
-    });
-})(jQuery);
-</script>
 <script type="text/javascript">
     $(function(){
         <!-- laydate示例 -->

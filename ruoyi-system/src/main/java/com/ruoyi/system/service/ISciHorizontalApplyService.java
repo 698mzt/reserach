@@ -2,10 +2,8 @@ package com.ruoyi.system.service;
 
 import java.util.List;
 import java.util.Map;
-
-import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.system.domain.SciHorizontalApply;
-import com.ruoyi.system.domain.creditedAmount;
+import com.ruoyi.system.domain.SciHorizontalPersion;
 import org.apache.ibatis.annotations.Options;
 
 /**
@@ -122,57 +120,10 @@ public interface ISciHorizontalApplyService
     int amountBh(String id, String reid, Long userId, String remark, String urlFlag);
 
     /**
-     * 查询到账金额
-     * */
-    List<creditedAmount> selectCreditedAmount();
-
-    Map<String, Integer> getTodoCount(SysUser user);
-
-    /**
-     * 按顺序保存成员到 sci_persion（先清空再插入，ranking 从1开始）
+     * 统计查询横向课题数据
+     *
+     * @param params 查询参数
+     * @return 横向课题集合
      */
-    void saveApplyPersons(Integer applyId, java.util.List<String> personIds);
-    /**
-     * 查询指定申请的全部成员ID（来自 sci_persion，按排名升序）
-     */
-    java.util.List<String> selectPersionIdsByApplyId(Integer applyId);
-    //*******************************************************************************************************
-    // 纵向课题统计方法
-    int countVerticalApply(SysUser user);
-    int countVerticalAudit(SysUser user);
-    int countVerticalComplete(SysUser user);
-    // 横向课题统计方法
-    int countHorizontalApply(SysUser user);
-    int countHorizontalAudit(SysUser user);
-    int countHorizontalComplete(SysUser user);
-
-    // 成果转化统计方法
-    int countAchievementApply(SysUser user);
-    int countAchievementAudit(SysUser user);
-    int countAchievementComplete(SysUser user);
-
-    // 论文统计方法
-    int countPaperApply(SysUser user);
-    int countPaperAudit(SysUser user);
-    int countPaperComplete(SysUser user);
-
-    // 教材软著统计方法
-    int countTextbookApply(SysUser user);
-    int countTextbookAudit(SysUser user);
-    int countTextbookComplete(SysUser user);
-
-    // 专利软著统计方法
-    int countPatentApply(SysUser user);
-    int countPatentAudit(SysUser user);
-    int countPatentComplete(SysUser user);
-
-    // 奖励统计方法
-    int countRewardApply(SysUser user);
-    int countRewardAudit(SysUser user);
-    int countRewardComplete(SysUser user);
-
-    // 讲座报告统计方法
-    int countLectureApply(SysUser user);
-    int countLectureAudit(SysUser user);
-    int countLectureComplete(SysUser user);
+    List<SciHorizontalApply> getStatsQuery(Map<String, String> params);
 }

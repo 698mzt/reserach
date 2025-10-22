@@ -1,6 +1,5 @@
 package com.ruoyi.system.domain;
 
-import lombok.Data;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.ruoyi.common.annotation.Excel;
@@ -12,7 +11,6 @@ import com.ruoyi.common.core.domain.BaseEntity;
  * @author zhansan
  * @date 2024-08-16
  */
-@Data
 public class SciHorizontalApply extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
@@ -69,10 +67,6 @@ public class SciHorizontalApply extends BaseEntity
     /** 项目金额 */
     @Excel(name = "项目金额")
     private String amount;
-
-    /** 到账金额 */
-    private String creditedAmount;
-
     /** 课题类型 */
     // @Excel(name = "课题类型")
     private String topType;

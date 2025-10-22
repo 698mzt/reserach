@@ -205,19 +205,9 @@
         }
     }
     function chakan(){
-        var relativePath = $("#rewardWenjian").val();
-        if (!relativePath) {
-            alert("没有可预览的文件！");
-            return;
-        }
-        // 获取当前页面的上下文路径
-        var contextPath = '/' + window.location.pathname.split('/')[1];
-        // 拼接完整 URL
-        var fullPath = window.location.origin + contextPath + relativePath;
-        // 打开新窗口预览
-        window.open(fullPath, '_blank');
+        var c = $("#rewardWenjian").val();
+        $.modal.openTab("查看证书文件" ,c );
     }
-
     function downloadFile(type){
         var c = $("#"+type).val();
         if(c){

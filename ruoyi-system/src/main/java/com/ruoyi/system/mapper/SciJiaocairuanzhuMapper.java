@@ -1,6 +1,7 @@
 package com.ruoyi.system.mapper;
 
 import java.util.List;
+import java.util.Map;
 
 import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.system.domain.SciJiaocairuanzhu;
@@ -93,5 +94,13 @@ public interface SciJiaocairuanzhuMapper
      * 查询是否存在相同专利名称和负责人级别
      */
     int checkExist(@Param("mingcheng") String mingcheng, @Param("paiming") String paiming);
+
+    /**
+     * 统计查询教材专著数据
+     *
+     * @param params 查询参数
+     * @return 教材专著集合
+     */
+    List<SciJiaocairuanzhu> getStatsQuery(Map<String, String> params);
 
 }
