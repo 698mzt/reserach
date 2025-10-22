@@ -288,13 +288,26 @@ public class SciHorizontalApplyVerticalController extends BaseController {
     @Log(title = "立项申请", businessType = BusinessType.INSERT)
     @PostMapping("/add")
     @ResponseBody
-    public AjaxResult addSave(SciHorizontalApplyVertical sciHorizontalApplyVertical)
+    public AjaxResult addSave(SciHorizontalApplyVertical sciHorizontalApplyVertical, javax.servlet.http.HttpServletRequest request)
     {
         sciHorizontalApplyVertical.setState("99");
         int result = sciHorizontalApplyVerticalService.insertSciHorizontalApplyVertical(sciHorizontalApplyVertical);
         if (result == -1) {
             return AjaxResult.error("课题名称或课题编号已存在");
         }
+        // 追加保存“其他成员”（第5位及以后）到 sci_persion_vertical
+        try {
+            String[] members = request.getParameterValues("members");
+            if (members != null && members.length > 0) {
+                java.util.List<String> extra = new java.util.ArrayList<>();
+                for (String m : members) {
+                    if (m != null && !m.isEmpty()) extra.add(m);
+                }
+                if (!extra.isEmpty()) {
+                    sciHorizontalApplyVerticalService.saveVerticalPersons(sciHorizontalApplyVertical.getId(), extra);
+                }
+            }
+        } catch (Exception ignore) {}
         return toAjax(result);
     }
 
@@ -311,7 +324,7 @@ public class SciHorizontalApplyVerticalController extends BaseController {
         SciHorizontalApplyVertical sciHorizontalApplyVertical1 = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalById(sciHorizontalApplyVertical.getId());
         sciHorizontalApplyVertical.setUserId(Integer.valueOf(getSysUser().getUserId().toString()));
         sciHorizontalApplyVertical.setNewsql("99");
-        if (!sciHorizontalApplyVertical1.getValidityData().isEmpty() && sciHorizontalApplyVertical1.getValidityData() !=  null)
+        if (sciHorizontalApplyVertical1.getValidityData() !=  null && !sciHorizontalApplyVertical1.getValidityData().isEmpty())
             sciHorizontalApplyVertical.setState("11");
         else
             sciHorizontalApplyVertical.setState("1");
@@ -329,6 +342,13 @@ public class SciHorizontalApplyVerticalController extends BaseController {
         List<SysUser> userList =  userService.selectAllUser();
         mmap.put("sysUsers",userList);
         mmap.put("sciHorizontalApplyVertical", sciHorizontalApplyVertical);
+        // 查询 sci_persion_vertical 全部成员，供页面预渲染第5位及以后
+        java.util.List<String> allMemberIds = sciHorizontalApplyVerticalService.selectPersionIdsByVerticalId(id);
+        java.util.List<String> extraMembers = new java.util.ArrayList<>();
+        if (allMemberIds != null && allMemberIds.size() > 4) {
+            extraMembers = allMemberIds.subList(4, allMemberIds.size());
+        }
+        mmap.put("extraMembers", extraMembers);
         return prefix + "/overadd";
     }
     @RequiresPermissions("system:apply_vertical:add")
@@ -355,6 +375,13 @@ public class SciHorizontalApplyVerticalController extends BaseController {
         List<SysUser> userList1 =  userService.selectAllUser();
         mmap.put("sysUsers1",userList1);
         mmap.put("sciHorizontalApplyVertical", sciHorizontalApplyVertical);
+        // 查询 sci_persion_vertical 全部成员，供页面预渲染第5位及以后
+        java.util.List<String> allMemberIds = sciHorizontalApplyVerticalService.selectPersionIdsByVerticalId(id);
+        java.util.List<String> extraMembers = new java.util.ArrayList<>();
+        if (allMemberIds != null && allMemberIds.size() > 4) {
+            extraMembers = allMemberIds.subList(4, allMemberIds.size());
+        }
+        mmap.put("extraMembers", extraMembers);
         return prefix + "/edit";
     }
 
@@ -365,9 +392,31 @@ public class SciHorizontalApplyVerticalController extends BaseController {
     @Log(title = "更新立项申请", businessType = BusinessType.UPDATE)
     @PostMapping("/edit")
     @ResponseBody
-    public AjaxResult editSave(SciHorizontalApplyVertical sciHorizontalApplyVertical)
+    public AjaxResult editSave(SciHorizontalApplyVertical sciHorizontalApplyVertical, javax.servlet.http.HttpServletRequest request)
     {
         sciHorizontalApplyVertical.setNewsql("111");
+        // 合并编辑页成员（前四位 + 动态 members[]），保序去重并写入 sci_persion_vertical（ranking 从1开始）
+        String first = String.valueOf(getUserId());
+        String second = request.getParameter("secondPersonId");
+        String third = request.getParameter("thirdPersonId");
+        String fourth = request.getParameter("fourthPersonId");
+        String[] members = request.getParameterValues("members");
+        java.util.List<String> all = new java.util.ArrayList<>();
+        if (first != null && !first.isEmpty()) all.add(first);
+        if (second != null && !second.isEmpty()) all.add(second);
+        if (third != null && !third.isEmpty()) all.add(third);
+        if (fourth != null && !fourth.isEmpty()) all.add(fourth);
+        if (members != null) {
+            for (String m : members) {
+                if (m != null && !m.isEmpty()) all.add(m);
+            }
+        }
+        all = new java.util.ArrayList<>(new java.util.LinkedHashSet<>(all));
+        try {
+            sciHorizontalApplyVerticalService.resetVerticalPersons(sciHorizontalApplyVertical.getId(), all);
+        } catch (Exception e) {
+            return AjaxResult.error("成员信息保存失败");
+        }
         int result = sciHorizontalApplyVerticalService.updateSciHorizontalApplyVertical(sciHorizontalApplyVertical);
         if (result == -1) {
             return AjaxResult.error("课题名称或课题编号已存在");
@@ -386,6 +435,13 @@ public class SciHorizontalApplyVerticalController extends BaseController {
         List<SysUser> userList1 =  userService.selectAllUser();
         mmap.put("sysUsers1",userList1);
         mmap.put("sciHorizontalApplyVertical", sciHorizontalApplyVertical);
+        // 查询 sci_persion_vertical 全部成员，供页面预渲染第5位及以后
+        java.util.List<String> allMemberIds = sciHorizontalApplyVerticalService.selectPersionIdsByVerticalId(id);
+        java.util.List<String> extraMembers = new java.util.ArrayList<>();
+        if (allMemberIds != null && allMemberIds.size() > 4) {
+            extraMembers = allMemberIds.subList(4, allMemberIds.size());
+        }
+        mmap.put("extraMembers", extraMembers);
         return prefix + "/overedit";
     }
     /**
@@ -395,10 +451,36 @@ public class SciHorizontalApplyVerticalController extends BaseController {
     @Log(title = "更新立项申请", businessType = BusinessType.UPDATE)
     @PostMapping("/overedit")
     @ResponseBody
-    public AjaxResult overeditSave(SciHorizontalApplyVertical sciHorizontalApplyVertical)
+    public AjaxResult overeditSave(SciHorizontalApplyVertical sciHorizontalApplyVertical, javax.servlet.http.HttpServletRequest request)
     {
         sciHorizontalApplyVertical.setNewsql("111");
-        return toAjax(sciHorizontalApplyVerticalService.updateSciHorizontalApplyVertical(sciHorizontalApplyVertical));
+        // 合并编辑页成员（前四位 + 动态 members[]），保序去重并写入 sci_persion_vertical（ranking 从1开始）
+        String first = String.valueOf(getUserId());
+        String second = request.getParameter("secondPersonId");
+        String third = request.getParameter("thirdPersonId");
+        String fourth = request.getParameter("fourthPersonId");
+        String[] members = request.getParameterValues("members");
+        java.util.List<String> all = new java.util.ArrayList<>();
+        if (first != null && !first.isEmpty()) all.add(first);
+        if (second != null && !second.isEmpty()) all.add(second);
+        if (third != null && !third.isEmpty()) all.add(third);
+        if (fourth != null && !fourth.isEmpty()) all.add(fourth);
+        if (members != null) {
+            for (String m : members) {
+                if (m != null && !m.isEmpty()) all.add(m);
+            }
+        }
+        all = new java.util.ArrayList<>(new java.util.LinkedHashSet<>(all));
+        try {
+            sciHorizontalApplyVerticalService.resetVerticalPersons(sciHorizontalApplyVertical.getId(), all);
+        } catch (Exception e) {
+            return AjaxResult.error("成员信息保存失败");
+        }
+        int result = sciHorizontalApplyVerticalService.updateSciHorizontalApplyVertical(sciHorizontalApplyVertical);
+        if (result == -1) {
+            return AjaxResult.error("课题名称或课题编号已存在");
+        }
+        return toAjax(result);
     }
 
 
@@ -423,6 +505,13 @@ public class SciHorizontalApplyVerticalController extends BaseController {
         sciHorizontalApplyVertical.setUrlFlag(urlFlag);
         mmap.put("sysUsers1",userList1);
         mmap.put("sciHorizontalApplyVertical", sciHorizontalApplyVertical);
+        // 查询全部成员并注入第5位及以后
+        java.util.List<String> allMemberIds = sciHorizontalApplyVerticalService.selectPersionIdsByVerticalId(id);
+        java.util.List<String> extraMembers = new java.util.ArrayList<>();
+        if (allMemberIds != null && allMemberIds.size() > 4) {
+            extraMembers = allMemberIds.subList(4, allMemberIds.size());
+        }
+        mmap.put("extraMembers", extraMembers);
         return prefix + "/detail";
     }
     @RequiresPermissions(value={"system:apply_vertical:JYS","system:apply_vertical:KYC","system:apply_vertical:Dept"},logical= Logical.OR)
@@ -475,6 +564,13 @@ public class SciHorizontalApplyVerticalController extends BaseController {
         sciHorizontalApplyVertical.setUrlFlag(urlFlag);
         mmap.put("sysUsers1",userList1);
         mmap.put("sciHorizontalApplyVertical", sciHorizontalApplyVertical);
+        // 查询 sci_persion_vertical 全部成员，供页面预渲染第5位及以后
+        java.util.List<String> allMemberIds = sciHorizontalApplyVerticalService.selectPersionIdsByVerticalId(id);
+        java.util.List<String> extraMembers = new java.util.ArrayList<>();
+        if (allMemberIds != null && allMemberIds.size() > 4) {
+            extraMembers = allMemberIds.subList(4, allMemberIds.size());
+        }
+        mmap.put("extraMembers", extraMembers);
         return prefix + "/overdetail";
     }
 
@@ -528,6 +624,13 @@ public class SciHorizontalApplyVerticalController extends BaseController {
         List<SysUser> userList1 =  userService.selectAllUser();
         mmap.put("sysUsers1",userList1);
         mmap.put("sciHorizontalApplyVertical", sciHorizontalApplyVertical);
+        // 查询 sci_persion_vertical 全部成员，供页面预渲染第5位及以后
+        java.util.List<String> allMemberIds = sciHorizontalApplyVerticalService.selectPersionIdsByVerticalId(id);
+        java.util.List<String> extraMembers = new java.util.ArrayList<>();
+        if (allMemberIds != null && allMemberIds.size() > 4) {
+            extraMembers = allMemberIds.subList(4, allMemberIds.size());
+        }
+        mmap.put("extraMembers", extraMembers);
         return prefix + "/overView";
     }
 
@@ -554,6 +657,13 @@ public class SciHorizontalApplyVerticalController extends BaseController {
         List<SysUser> userList1 =  userService.selectAllUser();
         mmap.put("sysUsers1",userList1);
         mmap.put("sciHorizontalApplyVertical", sciHorizontalApplyVertical);
+        // 查询 sci_persion_vertical 全部成员，供页面预渲染第5位及以后
+        java.util.List<String> allMemberIds = sciHorizontalApplyVerticalService.selectPersionIdsByVerticalId(id);
+        java.util.List<String> extraMembers = new java.util.ArrayList<>();
+        if (allMemberIds != null && allMemberIds.size() > 4) {
+            extraMembers = allMemberIds.subList(4, allMemberIds.size());
+        }
+        mmap.put("extraMembers", extraMembers);
         return prefix + "/recall";
     }
     /**

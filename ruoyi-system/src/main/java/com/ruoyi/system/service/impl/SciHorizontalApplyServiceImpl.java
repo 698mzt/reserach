@@ -490,6 +490,43 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
     }
 
     @Override
+    @Transactional
+    public void saveApplyPersons(Integer applyId, List<String> personIds) {
+        if (applyId == null) {
+            return;
+        }
+        // 去重并保持顺序
+        LinkedHashSet<String> orderedSet = new LinkedHashSet<>();
+        if (personIds != null) {
+            for (String pid : personIds) {
+                if (StringUtils.isNotEmpty(pid)) {
+                    orderedSet.add(pid);
+                }
+            }
+        }
+        List<String> ordered = new ArrayList<>(orderedSet);
+
+        // 先清空原有成员
+        SciHorizontalPersion del = new SciHorizontalPersion();
+        del.setApplyid(applyId);
+        sciHorizontalApplyMapper.deletePersion(del);
+
+        // 按顺序插入，ranking 从 1 开始
+        SciHorizontalPersion rec = new SciHorizontalPersion();
+        rec.setApplyid(applyId);
+        for (int i = 0; i < ordered.size(); i++) {
+            rec.setRanking(String.valueOf(i + 1));
+            rec.setPersionid(ordered.get(i));
+            sciHorizontalApplyMapper.insertPersion(rec);
+        }
+    }
+
+    @Override
+    public java.util.List<String> selectPersionIdsByApplyId(Integer applyId) {
+        return sciHorizontalApplyMapper.selectPersionIdsByApplyId(applyId);
+    }
+
+    @Override
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciHorizontalApply> selectSciHorizontalApplyListByDept(SciHorizontalApply sciHorizontalApply) {
         return sciHorizontalApplyMapper.selectSciHorizontalApplyListByDept(sciHorizontalApply);

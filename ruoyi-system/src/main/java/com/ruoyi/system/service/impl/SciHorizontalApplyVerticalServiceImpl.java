@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 import static com.ruoyi.common.utils.ShiroUtils.getSysUser;
@@ -106,6 +107,47 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
         return id;
     }
 
+    @Override
+    public void saveVerticalPersons(Integer verticalId, java.util.List<String> personIds) {
+        if (verticalId == null || personIds == null || personIds.isEmpty()) return;
+        SciHorizontalPersion rec = new SciHorizontalPersion();
+        rec.setVerticalid(verticalId);
+        int startRank = 5; // 从第5位开始
+        for (int i = 0; i < personIds.size(); i++) {
+            String pid = personIds.get(i);
+            if (StringUtils.isEmpty(pid)) continue;
+            rec.setRanking(String.valueOf(startRank + i));
+            rec.setPersionid(pid);
+            sciHorizontalApplyVerticalMapper.insertPersionVertical(rec);
+        }
+    }
+
+    @Override
+    public void resetVerticalPersons(Integer verticalId, java.util.List<String> personIds) {
+        if (verticalId == null) {
+            return;
+        }
+        // 去重并保持顺序
+        LinkedHashSet<String> orderedSet = new LinkedHashSet<>();
+        if (personIds != null) {
+            for (String pid : personIds) {
+                if (StringUtils.isNotEmpty(pid)) {
+                    orderedSet.add(pid);
+                }
+            }
+        }
+        List<String> ordered = new ArrayList<>(orderedSet);
+        sciHorizontalApplyVerticalMapper.deletePersionVerticalByVerticalId(verticalId);
+        // 按顺序插入，ranking 从 1 开始
+        SciHorizontalPersion rec = new SciHorizontalPersion();
+        rec.setVerticalid(verticalId);
+        for (int i = 0; i < ordered.size(); i++) {
+            rec.setRanking(String.valueOf(i + 1));
+            rec.setPersionid(ordered.get(i));
+            sciHorizontalApplyVerticalMapper.insertPersionVertical(rec);
+        }
+    }
+
     /**
      * id查询立项申请
      *
@@ -117,12 +159,12 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
         return sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalById(id);
     }
 
-    /**
-     * 保存修改立项申请
-     *
-     * @param sciHorizontalApplyVertical 纵向课题
-     * @return 结果
-     */
+
+    @Override
+    public java.util.List<String> selectPersionIdsByVerticalId(Integer verticalId) {
+        return sciHorizontalApplyVerticalMapper.selectPersionIdsByVerticalId(verticalId);
+    }
+
     @Override
     public int updateSciHorizontalApplyVertical(SciHorizontalApplyVertical sciHorizontalApplyVertical) {
         SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();

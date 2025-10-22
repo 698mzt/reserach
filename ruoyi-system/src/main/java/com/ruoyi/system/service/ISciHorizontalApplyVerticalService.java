@@ -85,4 +85,15 @@ public interface ISciHorizontalApplyVerticalService {
 
     List<SciHorizontalApplyVertical> selectOtherListByUid(SciHorizontalApplyVertical sciHorizontalApplyVertical);
 
+    /**
+     * 按顺序保存“其他成员”（第5位开始）到 sci_persion_vertical
+     */
+    void saveVerticalPersons(Integer verticalId, java.util.List<String> personIds);
+
+    /**
+     * 查询纵向课题的“其他成员”
+     * */
+    List<String> selectPersionIdsByVerticalId(Integer id);
+
+    void resetVerticalPersons(Integer id, List<String> all);
 }

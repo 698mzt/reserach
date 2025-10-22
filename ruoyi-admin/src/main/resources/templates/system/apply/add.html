@@ -138,7 +138,6 @@
                     </div>
                 </div>
             </div>
-
             <div class="col-xs-6">
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">成员3：</label>
@@ -147,6 +146,18 @@
                             <option value="">--请选择--</option>
                             <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}" th:if="${user.userId} != 1 and ${user.flag != true}"></option>
                         </select>
+                    </div>
+                </div>
+            </div>
+            <!-- 第5位及以后：可动态添加 -->
+            <div class="col-xs-12">
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">更多成员：</label>
+                    <div class="col-sm-10">
+                        <div id="memberContainer" class="row"></div>
+                        <button type="button" id="addMemberBtn" class="btn btn-white btn-sm" title="新增成员">
+                            <i class="fa fa-plus"></i>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -200,7 +211,15 @@
                 var secondPersonId = document.querySelector('select[name="secondPersonId"]').value;
                 var thirdPersonId = document.querySelector('select[name="thirdPersonId"]').value;
                 var fourthPersonId = document.querySelector('select[name="fourthPersonId"]').value;
+
+                // 先收集前四位（主持人 + 成员1/2/3）
                 var personIds = [firstPersonId, secondPersonId, thirdPersonId, fourthPersonId];
+
+                // 再收集第5位及以后的动态成员（过滤空）
+                $('.member-select').each(function(){
+                    var val = $(this).val();
+                    if (val) personIds.push(val);
+                });
 
                 // 校验项目金额不能为负数
                 var projectAmount = $("input[name='amount']").val();
@@ -216,9 +235,16 @@
                 // 检查是否有重复的值
                 var uniqueIds = new Set(personIds);
                 if (uniqueIds.size !== personIds.length) {
-                    alert("成员不能有重复的值");
-                    return false;
+                    return $.modal.alertError("成员不能有重复的值");
                 }
+                // 至少保证有主持人 + 1 名成员
+                if (personIds.length < 2) {
+                    return $.modal.alertError("请至少选择一名成员");
+                }
+
+                // 将成员数组写入隐藏域，便于后端接收
+                // 若后端用 RequestParam 接收，可使用逗号拼接；若用数组接收，也可直接 form 序列化多个 name=members
+                // 这里采用 name="members" 多值方式，无需额外隐藏域
 
                 if($("input[name='contract']").val()==="")
                     return $.modal.alertError("请上传合同");
@@ -231,7 +257,6 @@
                 var topName = $("input[name='topName']").val();
                 var partyA = $("input[name='partyA']").val();
                 var partyB = $("input[name='partyB']").val();
-                var topNumber = $("input[name='topNumber']").val();
                 var specialCharPattern = /[@#￥%&*$!]/;
 
                 if (specialCharPattern.test(topName)) {
@@ -318,6 +343,27 @@
         }).on('fileremoved', function (event, id, index) {
             $("input[name='" + event.currentTarget.id + "']").val('')
         })
+        // 动态新增成员下拉（第5位起）
+        $('#addMemberBtn').on('click', function(){
+            var optionsHtml = $('select[name="secondPersonId"]').html(); // 复用固定下拉的选项
+            var tpl = '\
+            <div class="col-xs-3 m-b-xs member-item">\
+                <div class="input-group">\
+                    <select name="members" class="form-control m-b member-select">\
+                        ' + optionsHtml + '\
+                    </select>\
+                    <span class="input-group-btn">\
+                        <button class="btn btn-danger btn-sm remove-member" type="button" title="移除"><i class="fa fa-minus"></i></button>\
+                    </span>\
+                </div>\
+            </div>';
+            $('#memberContainer').append(tpl);
+        });
+
+        // 移除成员项
+        $(document).on('click', '.remove-member', function(){
+            $(this).closest('.member-item').remove();
+        });
     </script>
 </body>
 <body>

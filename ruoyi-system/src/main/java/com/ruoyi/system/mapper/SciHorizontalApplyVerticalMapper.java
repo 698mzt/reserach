@@ -98,4 +98,11 @@ public interface SciHorizontalApplyVerticalMapper {
 
 
     List<SciHorizontalApplyVertical> selectOtherListByUid(SciHorizontalApplyVertical sciHorizontalApplyVertical);
+
+    /**
+     * 查询指定纵向申请的全部成员ID（来自 sci_persion_vertical，按排名升序）
+     */
+    java.util.List<String> selectPersionIdsByVerticalId(@Param("verticalId") Integer verticalId);
+
+    int deletePersionVerticalByVerticalId(@Param("verticalId") Integer verticalId);
 }
