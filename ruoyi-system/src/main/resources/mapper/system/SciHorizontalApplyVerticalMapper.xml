@@ -294,4 +294,16 @@
         order  by createtime desc
     </select>
 
+    <!-- 按纵向申请ID查询 sci_persion_vertical 的全部成员ID，按排名升序 -->
+    <select id="selectPersionIdsByVerticalId" parameterType="int" resultType="string">
+        SELECT persion_id
+        FROM sci_persion_vertical
+        WHERE vertical_id = #{verticalId}
+        ORDER BY ranking ASC
+    </select>
+
+    <delete id="deletePersionVerticalByVerticalId" parameterType="int">
+        delete from sci_persion_vertical where vertical_id = #{verticalId}
+    </delete>
+
 </mapper>
