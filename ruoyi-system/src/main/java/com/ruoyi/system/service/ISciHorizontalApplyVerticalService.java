@@ -4,6 +4,7 @@ import com.ruoyi.system.domain.SciHorizontalApply;
 import com.ruoyi.system.domain.SciHorizontalApplyVertical;
 
 import java.util.List;
+import java.util.Map;
 
 public interface ISciHorizontalApplyVerticalService {
     /**
@@ -86,14 +87,11 @@ public interface ISciHorizontalApplyVerticalService {
     List<SciHorizontalApplyVertical> selectOtherListByUid(SciHorizontalApplyVertical sciHorizontalApplyVertical);
 
     /**
-     * 按顺序保存“其他成员”（第5位开始）到 sci_persion_vertical
+     * 统计查询纵向课题数据
+     *
+     * @param params 查询参数
+     * @return 纵向课题集合
      */
-    void saveVerticalPersons(Integer verticalId, java.util.List<String> personIds);
+    List<SciHorizontalApplyVertical> getStatsQuery(Map<String, String> params);
 
-    /**
-     * 查询纵向课题的“其他成员”
-     * */
-    List<String> selectPersionIdsByVerticalId(Integer id);
-
-    void resetVerticalPersons(Integer id, List<String> all);
 }

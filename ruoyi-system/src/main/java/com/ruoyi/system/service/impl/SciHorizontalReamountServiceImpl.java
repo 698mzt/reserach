@@ -65,11 +65,6 @@ public class SciHorizontalReamountServiceImpl implements SciHorizontalReamountSe
     }
 
     @Override
-    public int reamountremove(Integer id) {
-        return sciHorizontalReamountMapper.reamountremove(id);
-    }
-
-    @Override
     public List<SciHorizontalReamount> selectAmountListById(Integer id) {
         return sciHorizontalReamountMapper.selectAmountListById(id);
     }

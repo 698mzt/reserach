@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh" xmlns:th="http://www.thymeleaf.org" >
 <head>
-    <th:block th:include="include :: header('课题金额修改')" />
+    <th:block th:include="include :: header('修改横向课题')" />
     <th:block th:include="include :: datetimepicker-css" />
     <th:block th:include="include :: bootstrap-fileinput-css"/>
     <th:block th:include="include :: select2-css" />
@@ -90,6 +90,31 @@
                     </div>
                 </div>
             </div>
+
+<!--            <div class="row">-->
+<!--                    <div class="col-xs-6">-->
+<!--                        <div class="form-group">-->
+<!--                            <label class="col-sm-4 control-label is-required">申请日期：</label>-->
+<!--                            <div class="col-sm-8">-->
+<!--                                <div class="input-group date">-->
+<!--                                   <input name="signingData" autocomplete="off" th:field="*{signingData}" th:value="${#dates.format(signingData, 'yyyy-MM-dd')}" class="form-control" placeholder="yyyy-MM-dd" type="text" required>-->
+<!--                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>-->
+<!--                                </div>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--            </div>-->
+<!--            <div class="col-xs-6">-->
+<!--                <div class="form-group">-->
+<!--                    <label class="col-sm-4 control-label is-required">结束日期：</label>-->
+<!--                    <div class="col-sm-8">-->
+<!--                        <div class="input-group date">-->
+<!--                            <input  autocomplete="off" name="validityDate" th:field="*{validityDate}" th:value="${#dates.format(validityDate, 'yyyy-MM-dd - yyyy-MM-dd')}" class="form-control" id="laydate-demo-4" placeholder="yyyy-MM-dd - yyyy-MM-dd" type="text" required>-->
+<!--                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
             <div class="col-xs-6">
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">主持人：</label>
@@ -270,6 +295,15 @@
                         title : '审核状态',
                         width: 100
                     }
+                    //
+                    // {
+                    //     field: 'status',
+                    //     title: '批阅状态',
+                    //     align: 'center',
+                    //     formatter: function(value, row, index) {
+                    //         return $.table.selectDictLabel(datas, value);
+                    //     }
+                    // }
                 ]
             };
             $.table.init(options);
@@ -302,34 +336,17 @@
 
 
         $(".file-upload").each(function (i) {
-            var val = $("input[name='" + this.id + "']").val();
-            var initialPreview = [];
-            var initialPreviewConfig = [];
-            
-            // 如果有已上传的文件，配置预览
-            if (val && val.trim() !== '') {
-                initialPreview = [val];
-                initialPreviewConfig = [{
-                    type: "pdf",
-                    caption: val.split('/').pop(),
-                    url: ctx + "common/delete",
-                    key: val
-                }];
-            }
-            
+            var val = $("input[name='" + this.id + "']").val()
             $(this).fileinput({
                 'uploadUrl': ctx + 'common/upload/hxkt',
                 initialPreviewAsData: true,
-                initialPreview: initialPreview,
-                initialPreviewConfig: initialPreviewConfig,
+                initialPreview: [val],
                 maxFileCount: 1,
                 autoReplace: true,
-                overwriteInitial: true,
                 allowedFileExtensions: ["pdf"],
-                deleteUrl: ctx + "common/delete",
                 slugCallback: function(filename) {
                     if ($("input[name='topName']").val()===""){
-                        $(this).fileinput('clear');
+                        $(".amountfile-upload").fileinput('clear');
                         $.modal.alertError("请先输入课题名称");
                         return false;
                     }
@@ -340,14 +357,11 @@
                     return newName;
                 },
             }).on('fileuploaded', function (event, data, previewId, index) {
-                if (data.response && data.response.url) {
-                    $("input[name='" + event.currentTarget.id + "']").val(data.response.url);
-                }
+                $("input[name='" + event.currentTarget.id + "']").val(data.response.url)
             }).on('fileremoved', function (event, id, index) {
-                $("input[name='" + event.currentTarget.id + "']").val('');
-            }).on('fileclear', function (event) {
-                $("input[name='" + event.currentTarget.id + "']").val('');
-            });
+                $("input[name='" + event.currentTarget.id + "']").val('')
+            })
+            $(this).fileinput('_initFileActions');
         });
     </script>
 </body>

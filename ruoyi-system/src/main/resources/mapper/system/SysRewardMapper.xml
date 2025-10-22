@@ -257,5 +257,31 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         update sys_reward set state = #{state} where id = #{id}
     </update>
 
+    <select id="getStatsQuery" parameterType="map" resultMap="SysRewardResult">
+        <include refid="selectSysRewardVo"/>
+        where s.state in (1,2,3,4,5,6,7)
+        <if test="startTime != null and startTime != ''">
+            and s.reward_time >= #{startTime}
+        </if>
+        <if test="endTime != null and endTime != ''">
+            and s.reward_time &lt;= #{endTime}
+        </if>
+        <if test="college != null and college != '' and college != 'null'">
+            and p.dept_name like concat('%', #{college}, '%')
+        </if>
+        <if test="major != null and major != '' and major != 'null'">
+            and d.dept_name like concat('%', #{major}, '%')
+        </if>
+        <if test="jobTitle != null and jobTitle != '' and jobTitle != 'null'">
+            and u.user_name like concat('%', #{jobTitle}, '%')
+        </if>
+        <if test="topicName != null and topicName != ''">
+            and s.reward_name like concat('%', #{topicName}, '%')
+        </if>
+        <if test="state != null and state != '' and state != 'null'">
+            and s.state = #{state}
+        </if>
+        order by s.reward_time desc
+    </select>
 
 </mapper>

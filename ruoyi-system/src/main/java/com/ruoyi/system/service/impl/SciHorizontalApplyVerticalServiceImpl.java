@@ -14,8 +14,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 
 import static com.ruoyi.common.utils.ShiroUtils.getSysUser;
 
@@ -107,47 +107,6 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
         return id;
     }
 
-    @Override
-    public void saveVerticalPersons(Integer verticalId, java.util.List<String> personIds) {
-        if (verticalId == null || personIds == null || personIds.isEmpty()) return;
-        SciHorizontalPersion rec = new SciHorizontalPersion();
-        rec.setVerticalid(verticalId);
-        int startRank = 5; // 从第5位开始
-        for (int i = 0; i < personIds.size(); i++) {
-            String pid = personIds.get(i);
-            if (StringUtils.isEmpty(pid)) continue;
-            rec.setRanking(String.valueOf(startRank + i));
-            rec.setPersionid(pid);
-            sciHorizontalApplyVerticalMapper.insertPersionVertical(rec);
-        }
-    }
-
-    @Override
-    public void resetVerticalPersons(Integer verticalId, java.util.List<String> personIds) {
-        if (verticalId == null) {
-            return;
-        }
-        // 去重并保持顺序
-        LinkedHashSet<String> orderedSet = new LinkedHashSet<>();
-        if (personIds != null) {
-            for (String pid : personIds) {
-                if (StringUtils.isNotEmpty(pid)) {
-                    orderedSet.add(pid);
-                }
-            }
-        }
-        List<String> ordered = new ArrayList<>(orderedSet);
-        sciHorizontalApplyVerticalMapper.deletePersionVerticalByVerticalId(verticalId);
-        // 按顺序插入，ranking 从 1 开始
-        SciHorizontalPersion rec = new SciHorizontalPersion();
-        rec.setVerticalid(verticalId);
-        for (int i = 0; i < ordered.size(); i++) {
-            rec.setRanking(String.valueOf(i + 1));
-            rec.setPersionid(ordered.get(i));
-            sciHorizontalApplyVerticalMapper.insertPersionVertical(rec);
-        }
-    }
-
     /**
      * id查询立项申请
      *
@@ -159,12 +118,12 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
         return sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalById(id);
     }
 
-
-    @Override
-    public java.util.List<String> selectPersionIdsByVerticalId(Integer verticalId) {
-        return sciHorizontalApplyVerticalMapper.selectPersionIdsByVerticalId(verticalId);
-    }
-
+    /**
+     * 保存修改立项申请
+     *
+     * @param sciHorizontalApplyVertical 纵向课题
+     * @return 结果
+     */
     @Override
     public int updateSciHorizontalApplyVertical(SciHorizontalApplyVertical sciHorizontalApplyVertical) {
         SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
@@ -184,23 +143,30 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
             case "111":
                 String newState = sciHorizontalApplyVertical.getState();
                 switch (newState) {
-                    // 教研室
+//            教研室
                     case "33":
+                        newState = "11";
+                        break;
                     case "3":
-                        newState = "99";
+                        newState = "1";
                         break;
-                    // 学院
+//                学院
                     case "5":
+                        newState = "1";
+                        break;
                     case "55":
-                        newState = "99";
+                        newState = "11";
                         break;
-                    // 科研处
+//                科研处
                     case "77":
-                    case "7":
-                        newState = "99";
+                        newState = "11";
                         break;
-                    // 教师
+                    case "7":
+                        newState = "1";
+                        break;
+//                教师
                     case "99":
+                        newState = "99";
                         break;
                 }
                 sciHorizontalApplyVertical.setState(newState);
@@ -487,5 +453,9 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
         return sciHorizontalApplyVerticalMapper.updateSciHorizontalApplyVertical(sciHorizontalApplyVertical);
     }
 
+    @Override
+    public List<SciHorizontalApplyVertical> getStatsQuery(Map<String, String> params) {
+        return sciHorizontalApplyVerticalMapper.getStatsQuery(params);
+    }
 
 }

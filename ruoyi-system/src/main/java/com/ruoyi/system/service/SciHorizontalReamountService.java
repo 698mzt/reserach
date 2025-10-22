@@ -26,8 +26,6 @@ public interface SciHorizontalReamountService {
 
     int amountedit(SciHorizontalReamount sciHorizontalReamount);
 
-    int reamountremove(Integer id);
-
     List<SciHorizontalReamount> selectAmountListById(Integer id);
 
 

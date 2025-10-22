@@ -26,15 +26,14 @@
         </div>
         <a th:href="@{/index}">
             <li class="logo hidden-xs">
-                <span class="logo-lg">科研信息管理系统</span>
+                <span class="logo-lg">哈信息科研系统</span>
             </li>
          </a>
         <div class="sidebar-collapse">
             <ul class="nav" id="side-menu">
 
                 <li>
-<!--                    <a class="menuItem" th:href="@{/system/main}" ><i class="fa fa-home"></i> <span class="nav-label">首页</span> </a>-->
-					<a class="menuItem" th:href="@{/system/main}" > <span class="nav-label">首页</span> </a>
+                    <a class="menuItem" th:href="@{/system/main}" ><i class="fa fa-home"></i> <span class="nav-label">首页</span> </a>
                 </li>
                 <li th:each="menu : ${menus}">
                 	<a th:class="@{${!#strings.isEmpty(menu.url) && menu.url != '#'} ? ${menu.target}}" th:href="@{${#strings.isEmpty(menu.url)} ? |#| : ${menu.url}}" th:data-refresh="${menu.isRefresh == '0'}">
@@ -59,8 +58,7 @@
 					</ul>
                 </li>
 <!--                <li th:if="${demoEnabled}">-->
-<!--&lt;!&ndash;                    <a href="javascript:;"><i class="fa fa-desktop"></i><span class="nav-label">实例演示</span><span class="fa arrow"></span></a>&ndash;&gt;-->
-<!--					<a href="javascript:;"></i><span class="nav-label">实例演示</span><span class="fa arrow"></span></a>-->
+<!--                    <a href="javascript:;"><i class="fa fa-desktop"></i><span class="nav-label">实例演示</span><span class="fa arrow"></span></a>-->
 <!--                    <ul class="nav nav-second-level collapse">-->
 <!--                        <li> <a>表单<span class="fa arrow"></span></a>-->
 <!--                            <ul class="nav nav-third-level">-->
@@ -191,12 +189,12 @@
 						</ul>
 
 					</li>
-                    <li><a data-toggle="tooltip" data-trigger="hover" data-placement="bottom" title="开发文档" href="http://doc.ruoyi.vip/ruoyi" target="_blank"><i class="fa fa-question-circle"></i> 文档</a></li>
-<!--                    <li><a data-toggle="tooltip" data-trigger="hover" data-placement="bottom" title="锁定屏幕" href="javascript:;" id="lockScreen"><i class="fa fa-lock"></i> 锁屏</a></li>-->
+<!--                    <li><a data-toggle="tooltip" data-trigger="hover" data-placement="bottom" title="开发文档" href="http://doc.ruoyi.vip/ruoyi" target="_blank"><i class="fa fa-question-circle"></i> 文档</a></li>-->
+                    <li><a data-toggle="tooltip" data-trigger="hover" data-placement="bottom" title="锁定屏幕" href="javascript:;" id="lockScreen"><i class="fa fa-lock"></i> 锁屏</a></li>
 	                <li><a data-toggle="tooltip" data-trigger="hover" data-placement="bottom" title="全屏显示" href="javascript:;" id="fullScreen"><i class="fa fa-arrows-alt"></i> 全屏</a></li>
                     <li class="dropdown user-menu">
 						<a href="javascript:void(0)" class="dropdown-toggle" data-hover="dropdown">
-<!--							<img th:src="(${#strings.isEmpty(user.avatar)}) ? @{/img/profile.jpg} : @{${user.avatar}}" th:onerror="this.src='img/profile.jpg'" class="user-image">-->
+							<img th:src="(${#strings.isEmpty(user.avatar)}) ? @{/img/profile.png} : @{${user.avatar}}" th:onerror="this.src='img/profile.png'" class="user-image">
 							<span class="hidden-xs">[[${#strings.defaultString(user.userName, '-')}]]</span>
 						</a>
 						<ul class="dropdown-menu">
@@ -232,7 +230,7 @@
             </button>
             <nav class="page-tabs menuTabs">
                 <div class="page-tabs-content">
-					<a href="javascript:;" class="menuTab" data-id="/system/main">首页</a>
+<!--                    <a th:href="@{/system/main}" target="blank" class="menuTab" >首页</a>-->
                 </div>
             </nav>
             <button class="roll-nav roll-right tabRight">

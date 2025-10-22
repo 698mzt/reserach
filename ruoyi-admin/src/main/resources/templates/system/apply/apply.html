@@ -325,7 +325,7 @@
                 </li>
                 <li class=""><a data-toggle="tab" href="#tab-2" onclick="$.table.refresh('bootstrap-table2')" aria-expanded="false">结项申请</a>
                 </li>
-                <li class=""><a data-toggle="tab" href="#tab-3" onclick="$.table.refresh('bootstrap-table3')" aria-expanded="false">到账金额</a>
+                <li class=""><a data-toggle="tab" href="#tab-3" onclick="$.table.refresh('bootstrap-table3')" aria-expanded="false">追加金额</a>
                 </li>
 
             </ul>
@@ -697,36 +697,39 @@
                     title: '项目金额'
                 },
                 {
-                    field: 'creditedAmount',
-                    align: 'center',
-                    title: '到账金额'
-                },
-                {
                     align: 'center',
                     title: '负责人排名',
                     formatter: function(value, row, index) {
                         var ranking = [];
                         if(row.firstPersonId == row.uid){
-                            ranking.push("第一负责人");
+                            ranking.push("1");
                         }else
                         if(row.secondPersonId == row.uid){
-                            ranking.push("第二负责人");
+                            ranking.push("2");
                         }else
                         if(row.thirdPersonId == row.uid){
-                            ranking.push("第三负责人");
+                            ranking.push("3");
                         }else
                         if(row.fourthPersonId == row.uid){
-                            ranking.push("第四负责人");
+                            ranking.push("4");
                         }else{
                             ranking.push("无");
                         }
                         return ranking.join('');
                     }
                 },
+                // {
+                //     field: 'state',
+                //     title: '申请状态',
+                //     align: 'center',
+                //     formatter: function(value, row, index) {
+                //         return $.table.selectDictLabel(datas, value);
+                //     }
+                // },
                 {
                     field: 'score',
                     align: 'center',
-                    title: '积分'
+                    title: '已获积分'
                 },
                 {
                     title: '操作',
@@ -826,32 +829,35 @@
                     title: '项目金额'
                 },
                 {
-                    field: 'creditedAmount',
-                    align: 'center',
-                    title: '到账金额'
-                },
-                {
                     align: 'center',
                     title: '负责人排名',
                     formatter: function(value, row, index) {
                         var ranking = [];
                         if(row.firstPersonId == row.uid){
-                            ranking.push("第一负责人");
+                            ranking.push("1");
                         }else
                         if(row.secondPersonId == row.uid){
-                            ranking.push("第二负责人");
+                            ranking.push("2");
                         }else
                         if(row.thirdPersonId == row.uid){
-                            ranking.push("第三负责人");
+                            ranking.push("3");
                         }else
                         if(row.fourthPersonId == row.uid){
-                            ranking.push("第四负责人");
+                            ranking.push("4");
                         }else{
                             ranking.push("无");
                         }
                         return ranking.join('');
                     }
                 },
+                // {
+                //     field: 'state',
+                //     title: '申请状态',
+                //     align: 'center',
+                //     formatter: function(value, row, index) {
+                //         return $.table.selectDictLabel(datas, value);
+                //     }
+                // }  ,
                 {
                     field: 'score',
                     align: 'center',
@@ -1009,11 +1015,6 @@
                     title: '项目金额'
                 },
                 {
-                    field: 'creditedAmount',
-                    align: 'center',
-                    title: '到账金额'
-                },
-                {
                     align: 'center',
                     title: '负责人排名',
                     formatter: function(value, row, index) {
@@ -1112,7 +1113,7 @@
             createUrl: prefix + "/add",
             detailUrl: prefix + "/reamountdetail/{id}",
             updateUrl: prefix + "/reamountedit/{id}",
-            removeUrl: prefix + "/reamountremove/{id}",
+            removeUrl: prefix + "/remove",
             exportUrl: prefix + "/export",
             recallUrl: prefix + "/recall/{id}",
             modalName: "追加金额",
@@ -1198,11 +1199,11 @@
                         var actions = [];
                         if(row.state == 99 ){
                             if (row.userId == row.uid){
-                                actions.push('<a class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.reid + '\')">编辑&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                                actions.push('<a class="' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.reid + '\')" style="color : #c90000">删除</a>');
+                                actions.push('<a class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')">编辑&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
+                                actions.push('<a class="' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')" style="color : #c90000">删除</a>');
                                 actions.push('<br>')
                             }
-                            actions.push('<a class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.reid +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
+                            actions.push('<a class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                             actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory1(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
                         }else
                         if(row.state == 1 ){
