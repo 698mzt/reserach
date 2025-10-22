@@ -743,6 +743,13 @@ public class SciHorizontalApplyController extends BaseController
         List<SysUser> userList1 =  userService.selectAllUser();
         mmap.put("sysUsers1",userList1);
         mmap.put("sciHorizontalApply", sciHorizontalApply);
+        // 查询全部成员并注入第5位及以后
+        java.util.List<String> allMemberIds = sciHorizontalApplyService.selectPersionIdsByApplyId(id);
+        java.util.List<String> extraMembers = new java.util.ArrayList<>();
+        if (allMemberIds != null && allMemberIds.size() > 4) {
+            extraMembers = allMemberIds.subList(4, allMemberIds.size());
+        }
+        mmap.put("extraMembers", extraMembers);
         return prefix + "/reamount";
     }
     @RequiresPermissions("system:apply:edit")
@@ -766,6 +773,13 @@ public class SciHorizontalApplyController extends BaseController
         sciHorizontalApply.setUrlFlag(urlFlag);
         mmap.put("sysUsers1",userList1);
         mmap.put("sciHorizontalApply", sciHorizontalApply);
+        // 查询全部成员并注入第5位及以后
+        java.util.List<String> allMemberIds = sciHorizontalApplyService.selectPersionIdsByApplyId(id);
+        java.util.List<String> extraMembers = new java.util.ArrayList<>();
+        if (allMemberIds != null && allMemberIds.size() > 4) {
+            extraMembers = allMemberIds.subList(4, allMemberIds.size());
+        }
+        mmap.put("extraMembers", extraMembers);
         return prefix + "/reamountdetail";
     }
     @RequiresPermissions(value={"system:apply:hecha","system:apply:process","system:apply:Dept"},logical= Logical.OR)
@@ -848,6 +862,13 @@ public class SciHorizontalApplyController extends BaseController
         List<SysUser> userList1 =  userService.selectAllUser();
         mmap.put("sysUsers1",userList1);
         mmap.put("sciHorizontalApply", sciHorizontalApply);
+        // 查询全部成员并注入第5位及以后
+        java.util.List<String> allMemberIds = sciHorizontalApplyService.selectPersionIdsByApplyId(id);
+        java.util.List<String> extraMembers = new java.util.ArrayList<>();
+        if (allMemberIds != null && allMemberIds.size() > 4) {
+            extraMembers = allMemberIds.subList(4, allMemberIds.size());
+        }
+        mmap.put("extraMembers", extraMembers);
         return prefix + "/reamountedit";
     }
     @RequiresPermissions("system:apply:edit")
