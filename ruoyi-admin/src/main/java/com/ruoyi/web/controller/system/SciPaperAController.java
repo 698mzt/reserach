@@ -192,7 +192,7 @@ public class SciPaperAController extends BaseController {
      */
     @GetMapping("/add")
     public String add(ModelMap mmap) {
-        List<SysUser> userList = userService.selectAllUser();
+        List<SysUser> userList = userService.selectAllUserSchPro(getUserId());
         SysUser sysUser = null;
         Long user_id = getUserId();
         for (int a = 0; a < userList.size(); a++) {

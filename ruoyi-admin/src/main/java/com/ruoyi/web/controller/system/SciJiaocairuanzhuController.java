@@ -248,7 +248,7 @@ public class SciJiaocairuanzhuController extends BaseController
     public String add( ModelMap mmap)
     {
 
-        List<SysUser> userList =  userService.selectAllUser();
+        List<SysUser> userList = userService.selectAllUserSchPro(getUserId());
         for (int a = 0; a<userList.size();a++) {
             if(userList.get(a).getUserId().equals(getUserId())){
                 SysUser user = userList.get(a);

@@ -269,4 +269,24 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			end,
 			u.dept_id ,u.user_id
 	</select>
+    <select id="selectAllUserSchPro" resultMap="SysUserResult">
+        SELECT
+            u.user_id,
+            u.user_name,
+            u.dept_id,
+            sd.parent_id
+        FROM sys_user u
+                 JOIN sys_dept sd ON u.dept_id = sd.dept_id
+        ORDER BY
+            -- 核心：目标userid对应的dept_id排在最前面
+            CASE
+                WHEN u.dept_id = (SELECT dept_id FROM sys_user WHERE user_id = #{userId})
+                    THEN 0
+                ELSE 1
+                END,
+            -- 原有排序条件（优先级之后按原规则排）
+            u.dept_id,
+            sd.parent_id    </select>
+
+
 </mapper> 
