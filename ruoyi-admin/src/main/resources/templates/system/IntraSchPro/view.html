@@ -969,6 +969,8 @@
                   //actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> 编辑</a> ');
                   actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro' + '\')"> 批阅</a> ');
                   //actions.push('<a class="del-link-button ' + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"> </i>删除</a>');
+                }else if (row.state == '11') {
+                    actions.push('<a  class="del-link-button ' + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro' + '\')"> 撤回</a> ');
                 }
                 //待申请结题
                 else if (row.state == '4') {
@@ -1207,7 +1209,7 @@
           formatter: function (value, row, index) {
             var actions = [];
             actions.push('<a  class="link-button" data-toggle="modal" data-target="#myModal" onclick="loadReviewRecords(' + row.id + ', ' + row.state + ')">流程记录</a><br> ');
-            actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"> 查看</a>');
+            actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"> 查看</a>&nbsp;');
             //教研
             if (row.role === 'research') {
               //如果这个项目所属的教研室是登陆人的教研室
@@ -1223,13 +1225,14 @@
               //自己的项目
               if (row.userId == row.uid) {
                 if (row.state == '7') {
-                  actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> 编辑</a><br> ');
-                  actions.push('<a class="del-link-button ' + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"> </i>删除</a>');
+                  //actions.push('<a class="del-link-button ' + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"> </i>删除</a>');
                 } else if (row.state == '9' || row.state == '10' || row.state == '14') {
                   //被三方驳回
                   actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> 编辑</a> ');
                   //actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick="submitto(\'' + row.id + '\', \'' + row.state + '\')"> 提交</a> ');
-                } else {
+                } else if (row.state == '16'){
+                    actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> 编辑</a><br> ');
+                    actions.push('<a   class="link-button' + '" href="javascript:void(0)" onclick="subDraft(\'' + row.id + '\')">提交草稿</a> &nbsp;');
                   //actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"> 查看</a> ');
                 }
 

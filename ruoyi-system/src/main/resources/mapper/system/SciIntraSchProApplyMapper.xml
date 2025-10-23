@@ -228,7 +228,7 @@
         <!-- 数据范围过滤 -->
         ${params.dataScope}
         or (
-        s.state in (1,11,2,3,4,12)
+        s.state in (1,11,2,3,4,5,12)
         and
         (
         s.user_id = #{uid}

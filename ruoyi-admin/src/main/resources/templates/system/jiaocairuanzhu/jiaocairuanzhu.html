@@ -856,7 +856,9 @@
   });
 
   function submitDirectly(id) {
-    submitHandler(id, "tijiao");
+      $.modal.confirm("确定提交吗？", function () {
+          submitHandler(id, "tijiao");
+      });
   }
 
   function submitHandler(id, urlFlag) {

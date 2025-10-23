@@ -242,17 +242,17 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
         if(urlFlag.equals("pro")){
             sciIntraSchProPiyue.setState("开题：教研驳回（撤回）");
             sciIntraSchProPiyue.setConcate("开题：教研驳回（撤回）");
-            state ="3";
+            state ="1";
 
         }else if(urlFlag.equals("hecha")){
             sciIntraSchProPiyue.setState("开题：科研驳回（撤回）");
             sciIntraSchProPiyue.setConcate("开题：科研驳回（撤回）");
-            state ="5";
+            state ="2";
 
         }else if(urlFlag.equals("dept_teacher")){
             sciIntraSchProPiyue.setState("开题：学院驳回（撤回）");
             sciIntraSchProPiyue.setConcate("开题：学院驳回（撤回）");
-            state ="12";
+            state ="11";
 
         }
         int a =  sciIntraSchProApplyMapper.sch_hxPass(id,state);
@@ -279,15 +279,15 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
         SciIntraSchProPiyue sciIntraSchProPiyue = new SciIntraSchProPiyue();
         if(urlFlag.equals("JYSOVER")){
             sciIntraSchProPiyue.setState("结题：教研驳回（撤回）");
-            state ="9";
+            state ="7";
 
         }else if(urlFlag.equals("KYCOVER")){
             sciIntraSchProPiyue.setState("结题：科研驳回（撤回）");
-            state ="10";
+            state ="8";
 
         }else if(urlFlag.equals("dept_teacher")){
             sciIntraSchProPiyue.setState("结题：学院驳回（撤回）");
-            state ="14";
+            state ="13";
 
         }
         //改状态
