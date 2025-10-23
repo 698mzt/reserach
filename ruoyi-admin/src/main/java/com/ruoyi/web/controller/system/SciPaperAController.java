@@ -50,307 +50,311 @@ import javax.annotation.Resource;
 @Controller
 @RequestMapping("/system/paper")
 public class SciPaperAController extends BaseController {
-  private String prefix = "system/paper";
+    private String prefix = "system/paper";
 
-  @Resource
-  private ISciPaperAService sciPaperAService;
+    @Resource
+    private ISciPaperAService sciPaperAService;
 
-  @Resource
-  private ServerConfig serverConfig;
+    @Resource
+    private ServerConfig serverConfig;
 
-  @Resource
-  private ISysUserService userService;
+    @Resource
+    private ISysUserService userService;
 
-  @Resource
-  private SciPaperAMapper sciPaperAMapper;
-
-
-  @RequiresPermissions("system:paper:view")
-  @GetMapping()
-  public String paper() {
-    Long userId = getUserId();
-    System.out.println("userId = " + userId);
-    List<String> roleId = sciPaperAService.selectSciPaperAByroleId(userId);
-    //教研室+普通老师身份
-
-    if (roleId.contains("102") && roleId.contains("100")) {
-      return prefix + "/paper_jy";
-    }
-    //单独教研室身份
-    else if (roleId.contains("102")) {
-
-      return prefix + "/paper";
-    }
-    //科研处+普通老师身份
-    else if (roleId.contains("101") && roleId.contains("100")) {
-      return prefix + "/paper_ky";
-    }
-    //学院+普通老师身份
-    else if ((roleId.contains("103") || roleId.contains("104") || roleId.contains("105") || roleId.contains("106") || roleId.contains("107") || roleId.contains("108")) && roleId.contains("100")) {
-      return prefix + "/paper_xy";
-    } else if (roleId.contains("100") && roleId.size() == 1) {
-      return prefix + "/paper_pt";
-    }else{
-      return prefix + "/paper";
-      //return "error/404";
-    }
-
-  }
-
-  @PostMapping("/upload/{model}")
-  @ResponseBody
-  public AjaxResult uploadFile(MultipartFile file, @PathVariable("model") String model) throws Exception {
-    try {
-      // 上传文件路径
-      String filePath = RuoYiConfig.getUploadPath();
-      // 上传并返回新文件名称
-//            String fileName = FileUploadUtils.upload(filePath, file);
-      String fileName = FileUploadUtils.newupload(filePath, file, model);
-      String url = serverConfig.getUrl() + fileName;
-      AjaxResult ajax = AjaxResult.success();
-      ajax.put("url", url);
-      ajax.put("fileName", fileName);
-      ajax.put("newFileName", FileUtils.getName(fileName));
-      ajax.put("originalFilename", file.getOriginalFilename());
-      return ajax;
-    } catch (Exception e) {
-      return AjaxResult.error(e.getMessage());
-    }
-  }
-
-  /**
-   * 查询论文列表
-   */
-  @RequiresPermissions("system:paper:list")
-  @PostMapping("/list")
-  @ResponseBody
-  public TableDataInfo list(SciPaperA sciPaperA, String year) {
-
-    Long userId = getUserId();
-    System.out.println("userId = " + userId);
-    List<String> roleId = sciPaperAService.selectSciPaperAByroleId(userId);
-    System.out.println("roleId = " + roleId);
-    sciPaperA.setUid(userId);
-    sciPaperA.setYear(year);
-
-    List<SciPaperA> list = new ArrayList<>();
-// 所有的审核方都会有普通老师身份，单身份的判断暂时先留着，除非增加审核方的时候少给他加上普通老师身份，否则不会报错
-    //教研室+普通老师身份
-    if (roleId.contains("102") && roleId.contains("100")) {
-      list.addAll(sciPaperAService.selectSciPaperAListCxList(sciPaperA));
-    }
-    //单独教研室身份 暂时不用写
-    else if (roleId.contains("102")) {
-      list.addAll(sciPaperAService.selectSciPaperAList(sciPaperA));
-    }
-    //科研处+普通老师身份
-    else if (roleId.contains("101") && roleId.contains("100")) {
-      System.out.println("roleId = " + roleId);
-      list.addAll(sciPaperAService.selectSciPaperAListKY(sciPaperA));
-    }
-    //学院+普通老师身份
-    else if ((roleId.contains("103") || roleId.contains("104") || roleId.contains("105") || roleId.contains("106") || roleId.contains("107") || roleId.contains("108")) && roleId.contains("100")) {
-      list.addAll(sciPaperAService.selectSciPaperAListXY(sciPaperA));
-      System.out.println("list = " + list);
-    } else if (roleId.contains("100") && roleId.size() == 1) {
-      System.out.println("单个老师进入方法");
-      //System.out.println(" sciPaperA=" + sciPaperAService.selectSciPaperAListCx(sciPaperA));
-      list.addAll(sciPaperAService.selectSciPaperAListCx(sciPaperA));
-    } else if (userId==1L) {
-      //admin进入
-      list.addAll(sciPaperAService.selectSciPaperAList(sciPaperA));
-    }
+    @Resource
+    private SciPaperAMapper sciPaperAMapper;
 
 
-    System.out.println("year = " + year);
-    List<Map<String, Object>> data = new ArrayList<>();
-    startPage();
-
-    return getDataTable(list);
-  }
-
-  /**
-   * 导出论文列表
-   */
-  @RequiresPermissions("system:paper:export")
-  @Log(title = "论文", businessType = BusinessType.EXPORT)
-  @PostMapping("/export")
-  @ResponseBody
-  public AjaxResult export(@RequestParam List<String> ListRowId, SciPaperA sciPaperA) {
-    try {
-      List<SciPaperA> list = sciPaperAService.selectSciPaperAExport(ListRowId, sciPaperA);
-      ExcelUtil<SciPaperA> util = new ExcelUtil<SciPaperA>(SciPaperA.class);
-      return util.exportExcel(list, "论文数据");
-    } catch (Exception e) {
-      return error(e.getMessage());
-    }
-
-  }
-
-  /**
-   * 新增论文
-   */
-  @GetMapping("/add")
-  public String add(ModelMap mmap) {
-    List<SysUser> userList = userService.selectAllUser();
-    SysUser sysUser = null;
-    Long user_id = getUserId();
-    for (int a = 0; a < userList.size(); a++) {
-      if (userList.get(a).getUserId().equals(user_id)) {
-        sysUser = userList.get(a);
-        break;
-      }
-    }
-    mmap.put("user", sysUser);
-    if (sysUser != null) {
-      mmap.addAttribute("user", sysUser.getUserId());
-    }
-    return prefix + "/add";
-  }
-
-  /**
-   * 新增保存论文
-   */
-  @RequiresPermissions("system:paper:add")
-  @Log(title = "论文", businessType = BusinessType.INSERT)
-  @PostMapping("/add")
-  @ResponseBody
-  public AjaxResult addSave(SciPaperA sciPaperA) {
-    try {
-      if (sciPaperAService.selectSciPaperA(sciPaperA) != 0) {
-        return error("该论文已存在");
-      } else {
+    @RequiresPermissions("system:paper:view")
+    @GetMapping()
+    public String paper() {
         Long userId = getUserId();
-        sciPaperA.setUserId(userId);
-        String user_name = userService.selectUserByLoginName(getLoginName()).getUserName();
-        sciPaperA.setTeacherName(user_name);
-        sciPaperA.setState("99");
-        sciPaperAService.insertSciPaperA(sciPaperA);
+        System.out.println("userId = " + userId);
+        List<String> roleId = sciPaperAService.selectSciPaperAByroleId(userId);
+        //教研室+普通老师身份
 
+        if (roleId.contains("102") && roleId.contains("100")&&!roleId.contains("101")) {
+            return prefix + "/paper_jy";
+        }
+        //单独教研室身份
+        else if (roleId.contains("102")&& !roleId.contains("100")&&!roleId.contains("101")) {
+
+            return prefix + "/paper";
+        }
+        //科研处+普通老师身份
+        else if (roleId.contains("101") && roleId.contains("100")) {
+            return prefix + "/paper_ky";
+        }
+        //学院+普通老师身份
+        else if ((roleId.contains("103") || roleId.contains("104") || roleId.contains("105") || roleId.contains("106") || roleId.contains("107") || roleId.contains("108")) && roleId.contains("100")) {
+            return prefix + "/paper_xy";
+        } else if (roleId.contains("100") && roleId.size() == 1) {
+            return prefix + "/paper_pt";
+        } else {
+            return prefix + "/paper";
+            //return "error/404";
+        }
+
+    }
+
+    @PostMapping("/upload/{model}")
+    @ResponseBody
+    public AjaxResult uploadFile(MultipartFile file, @PathVariable("model") String model) throws Exception {
+        try {
+            // 上传文件路径
+            String filePath = RuoYiConfig.getUploadPath();
+            // 上传并返回新文件名称
+//            String fileName = FileUploadUtils.upload(filePath, file);
+            String fileName = FileUploadUtils.newupload(filePath, file, model);
+            String url = serverConfig.getUrl() + fileName;
+            AjaxResult ajax = AjaxResult.success();
+            ajax.put("url", url);
+            ajax.put("fileName", fileName);
+            ajax.put("newFileName", FileUtils.getName(fileName));
+            ajax.put("originalFilename", file.getOriginalFilename());
+            return ajax;
+        } catch (Exception e) {
+            return AjaxResult.error(e.getMessage());
+        }
+    }
+
+    /**
+     * 查询论文列表
+     */
+    @RequiresPermissions("system:paper:list")
+    @PostMapping("/list")
+    @ResponseBody
+    public TableDataInfo list(SciPaperA sciPaperA, String year) {
+
+        Long userId = getUserId();
+        System.out.println("userId = " + userId);
+        List<String> roleId = sciPaperAService.selectSciPaperAByroleId(userId);
+        System.out.println("roleId = " + roleId);
+        sciPaperA.setUid(userId);
+        sciPaperA.setYear(year);
+
+        List<SciPaperA> list = new ArrayList<>();
+// 所有的审核方都会有普通老师身份，单身份的判断暂时先留着，除非增加审核方的时候少给他加上普通老师身份，否则不会报错
+        //教研室+普通老师身份
+        if (roleId.contains("102") && roleId.contains("100")&& !roleId.contains("101")) {
+            list.addAll(sciPaperAService.selectSciPaperAListCxList(sciPaperA));
+        }
+        //单独教研室身份 暂时不用写
+        else if (roleId.contains("102")&& !roleId.contains("100")&& !roleId.contains("101")) {
+            list.addAll(sciPaperAService.selectSciPaperAList(sciPaperA));
+        }
+        //科研处+普通老师身份
+        else if (roleId.contains("101") && roleId.contains("100")) {
+            System.out.println("roleId = " + roleId);
+            list.addAll(sciPaperAService.selectSciPaperAListKY(sciPaperA));
+        }
+        //学院+普通老师身份
+        else if ((roleId.contains("103") || roleId.contains("104") || roleId.contains("105") || roleId.contains("106") || roleId.contains("107") || roleId.contains("108")) && roleId.contains("100")) {
+            list.addAll(sciPaperAService.selectSciPaperAListXY(sciPaperA));
+            System.out.println("list = " + list);
+        } else if (roleId.contains("100") && roleId.size() == 1) {
+            System.out.println("单个老师进入方法");
+            //System.out.println(" sciPaperA=" + sciPaperAService.selectSciPaperAListCx(sciPaperA));
+            list.addAll(sciPaperAService.selectSciPaperAListCx(sciPaperA));
+        } else if (userId == 1L) {
+            //admin进入
+            list.addAll(sciPaperAService.selectSciPaperAList(sciPaperA));
+        }
+
+
+        System.out.println("year = " + year);
+        List<Map<String, Object>> data = new ArrayList<>();
+        startPage();
+
+        return getDataTable(list);
+    }
+
+    /**
+     * 导出论文列表
+     */
+    @RequiresPermissions("system:paper:export")
+    @Log(title = "论文", businessType = BusinessType.EXPORT)
+    @PostMapping("/export")
+    @ResponseBody
+    public AjaxResult export(@RequestParam List<String> ListRowId, SciPaperA sciPaperA) {
+        try {
+            List<SciPaperA> list = sciPaperAService.selectSciPaperAExport(ListRowId, sciPaperA);
+            ExcelUtil<SciPaperA> util = new ExcelUtil<SciPaperA>(SciPaperA.class);
+            return util.exportExcel(list, "论文数据");
+        } catch (Exception e) {
+            return error(e.getMessage());
+        }
+
+    }
+
+    /**
+     * 新增论文
+     */
+    @GetMapping("/add")
+    public String add(ModelMap mmap) {
+        List<SysUser> userList = userService.selectAllUser();
+        SysUser sysUser = null;
+        Long user_id = getUserId();
+        for (int a = 0; a < userList.size(); a++) {
+            if (userList.get(a).getUserId().equals(user_id)) {
+                sysUser = userList.get(a);
+                break;
+            }
+        }
+        mmap.put("user", sysUser);
+        if (sysUser != null) {
+            mmap.addAttribute("user", sysUser.getUserId());
+        }
+        return prefix + "/add";
+    }
+
+    /**
+     * 新增保存论文
+     * todo:论文需要一次新建多个人的数据,... 通讯作者的积分问题
+     * 论文信息和积分在一张表里面
+     */
+    @RequiresPermissions("system:paper:add")
+    @Log(title = "论文", businessType = BusinessType.INSERT)
+    @PostMapping("/add")
+    @ResponseBody
+    public AjaxResult addSave(SciPaperA sciPaperA) {
+        try {
+            if (sciPaperAService.selectSciPaperA(sciPaperA) != 0) {
+                return error("该论文已存在");
+            } else {
+                Long userId = getUserId();
+                sciPaperA.setUserId(userId);
+                String user_name = userService.selectUserByLoginName(getLoginName()).getUserName();
+                sciPaperA.setTeacherName(user_name);
+                sciPaperA.setState("99");
+                //插入论文数据
+                sciPaperAService.insertSciPaperA(sciPaperA);
+
+                SciPaperAr sciPaperAr = new SciPaperAr();
+                sciPaperAr.setUid(getUserId());
+                sciPaperAr.setAr_id(Math.toIntExact(sciPaperA.getId()));
+                sciPaperAr.setConcate("提交草稿");
+                sciPaperAr.setState("提交草稿");
+
+                //增加批阅记录
+                return toAjax(sciPaperAMapper.insertSciPaperAr(sciPaperAr));
+            }
+
+        } catch (Exception e) {
+            return error(e.getMessage());
+        }
+    }
+
+    /**
+     * 修改论文
+     */
+    @RequiresPermissions("system:paper:edit")
+    @GetMapping("/edit/{id}")
+    public String edit(@PathVariable("id") Long id, ModelMap mmap) {
+        SysUser currentUser = ShiroUtils.getSysUser();
+        SciPaperA sciPaperA = sciPaperAService.selectSciPaperAById(id);
+        mmap.put("sysUsers", currentUser);
+        mmap.put("sciPaperA", sciPaperA);
+        return prefix + "/edit";
+    }
+
+    /**
+     * 批阅
+     */
+    @RequiresPermissions(value = {"system:paper:xypy", "system:paper:process", "system:paper:kypy", "system:paper:info"}, logical = Logical.OR)
+    @GetMapping("/detail/{id}/{urlFlag}")
+    public String detail(@PathVariable("id") Long id, @PathVariable("urlFlag") String urlFlag, ModelMap mmap) {
+        System.out.println("urlFlag = " + urlFlag);
+        SciPaperA sciPaperA = sciPaperAService.selectSciPaperAById(id);
+        if (sciPaperA == null) {
+            return prefix + "/paper";
+        }
+        sciPaperA.setUrlFlag(urlFlag);
+        mmap.put("sciPaperA", sciPaperA);
+        return prefix + "/detail";
+    }
+
+    /**
+     * 修改保存论文
+     */
+    @RequiresPermissions("system:paper:edit")
+    @Log(title = "论文", businessType = BusinessType.UPDATE)
+    @PostMapping("/edit")
+    @ResponseBody
+    public AjaxResult editSave(SciPaperA sciPaperA) {
+        //sciPaperA.setState("1");
+        return toAjax(sciPaperAService.updateSciPaperA(sciPaperA));
+    }
+
+    /**
+     * 删除论文
+     */
+    @RequiresPermissions("system:paper:remove")
+    @Log(title = "论文", businessType = BusinessType.DELETE)
+    @PostMapping("/remove")
+    @ResponseBody
+    public AjaxResult remove(String ids) {
+        return toAjax(sciPaperAService.deleteSciPaperAByIds(ids));
+    }
+
+    /**
+     * 论文通过
+     */
+    @RequiresPermissions(value = {"system:paper:xypy", "system:paper:process", "system:paper:kypy"}, logical = Logical.OR)
+    @Log(title = "论文审核通过", businessType = BusinessType.UPDATE)
+    @PostMapping("/pytg/{id}")
+    @ResponseBody
+    public AjaxResult pytg(@PathVariable("id") String id, String urlFlag, String paperCategory, String paperRanking) {
+        String order = paperCategory;
+        //System.out.println("paperCategory = " + paperCategory);
+        String user_order = paperRanking;
+        //System.out.println("paperRanking = " + paperRanking);
+        return toAjax(sciPaperAService.pytg(id, getUserId(), urlFlag, order, user_order));
+    }
+
+    @RequiresPermissions(value = {"system:paper:xypy", "system:paper:process", "system:paper:kypy", "system:paper:xyrevoke", "system:paper:kyrevoke"}, logical = Logical.OR)
+    @Log(title = "论文审核驳回", businessType = BusinessType.UPDATE)
+    @PostMapping("/pybh/{id}")
+    @ResponseBody
+    public AjaxResult pybh(@PathVariable("id") String id, String remark, String urlFlag) {
+        return toAjax(sciPaperAService.pybh(id, getUserId(), remark, urlFlag));
+    }
+
+
+    @RequiresPermissions("system:apply:edit")
+    @PostMapping("/bhxs/{kid}")//驳回显示
+    @ResponseBody
+    public TableDataInfo bhxs(@PathVariable("kid") String arid) {
         SciPaperAr sciPaperAr = new SciPaperAr();
+        sciPaperAr.setAr_id(Integer.valueOf(arid));
+        List<SciPaperAr> list = sciPaperAService.selectSciPaperArList(sciPaperAr);
+        System.out.println("list = " + list);
+        return getDataTable(list);
+    }
+
+    /**
+     * 提交后将state状态设置为1
+     */
+    @PostMapping("/tj/{id}")
+    @ResponseBody
+    public AjaxResult tj(@PathVariable("id") Integer id) {
+        SciPaperAr sciPaperAr = new SciPaperAr();
+        sciPaperAr.setAr_id(id);
         sciPaperAr.setUid(getUserId());
-        sciPaperAr.setAr_id(Math.toIntExact(sciPaperA.getId()));
-        sciPaperAr.setConcate("提交草稿");
-        sciPaperAr.setState("提交草稿");
-
-        //增加批阅记录
-        return toAjax(sciPaperAMapper.insertSciPaperAr(sciPaperAr));
-      }
-
-    } catch (Exception e) {
-      return error(e.getMessage());
+        sciPaperAr.setConcate("草稿提交");
+        sciPaperAr.setState("草稿提交");
+        sciPaperAMapper.insertSciPaperAr(sciPaperAr);
+        return toAjax(sciPaperAService.updateSciPaperAState(id));
     }
-  }
 
-  /**
-   * 修改论文
-   */
-  @RequiresPermissions("system:paper:edit")
-  @GetMapping("/edit/{id}")
-  public String edit(@PathVariable("id") Long id, ModelMap mmap) {
-    SysUser currentUser = ShiroUtils.getSysUser();
-    SciPaperA sciPaperA = sciPaperAService.selectSciPaperAById(id);
-    mmap.put("sysUsers", currentUser);
-    mmap.put("sciPaperA", sciPaperA);
-    return prefix + "/edit";
-  }
-
-  /**
-   * 批阅
-   */
-  @RequiresPermissions(value = {"system:paper:xypy", "system:paper:process", "system:paper:kypy", "system:paper:info"}, logical = Logical.OR)
-  @GetMapping("/detail/{id}/{urlFlag}")
-  public String detail(@PathVariable("id") Long id, @PathVariable("urlFlag") String urlFlag, ModelMap mmap) {
-    SciPaperA sciPaperA = sciPaperAService.selectSciPaperAById(id);
-    if (sciPaperA == null) {
-      return prefix + "/paper";
+    /**
+     * 查询所有的论文名称并需要进行模糊查询
+     */
+    @PostMapping("/queryName/{query}")
+    @ResponseBody
+    public List<SciPaperA> selectAllPaperName(@PathVariable("query") String query) {
+        List<SciPaperA> list = sciPaperAService.selectAllPaperName(query);
+        System.out.println("list = " + list);
+        return list;
     }
-    sciPaperA.setUrlFlag(urlFlag);
-    mmap.put("sciPaperA", sciPaperA);
-    return prefix + "/detail";
-  }
-
-  /**
-   * 修改保存论文
-   */
-  @RequiresPermissions("system:paper:edit")
-  @Log(title = "论文", businessType = BusinessType.UPDATE)
-  @PostMapping("/edit")
-  @ResponseBody
-  public AjaxResult editSave(SciPaperA sciPaperA) {
-    //sciPaperA.setState("1");
-    return toAjax(sciPaperAService.updateSciPaperA(sciPaperA));
-  }
-
-  /**
-   * 删除论文
-   */
-  @RequiresPermissions("system:paper:remove")
-  @Log(title = "论文", businessType = BusinessType.DELETE)
-  @PostMapping("/remove")
-  @ResponseBody
-  public AjaxResult remove(String ids) {
-    return toAjax(sciPaperAService.deleteSciPaperAByIds(ids));
-  }
-
-  /**
-   * 论文通过
-   */
-  @RequiresPermissions(value = {"system:paper:xypy", "system:paper:process", "system:paper:kypy"}, logical = Logical.OR)
-  @Log(title = "论文审核通过", businessType = BusinessType.UPDATE)
-  @PostMapping("/pytg/{id}")
-  @ResponseBody
-  public AjaxResult pytg(@PathVariable("id") String id, String urlFlag, String paperCategory, String paperRanking) {
-    String order = paperCategory;
-    System.out.println("paperCategory = " + paperCategory);
-    String user_order = paperRanking;
-    System.out.println("paperRanking = " + paperRanking);
-    return toAjax(sciPaperAService.pytg(id, getUserId(), urlFlag, order, user_order));
-  }
-
-  @RequiresPermissions(value = {"system:paper:xypy", "system:paper:process", "system:paper:kypy", "system:paper:xyrevoke", "system:paper:kyrevoke"}, logical = Logical.OR)
-  @Log(title = "论文审核驳回", businessType = BusinessType.UPDATE)
-  @PostMapping("/pybh/{id}")
-  @ResponseBody
-  public AjaxResult pybh(@PathVariable("id") String id, String remark, String urlFlag) {
-    return toAjax(sciPaperAService.pybh(id, getUserId(), remark, urlFlag));
-  }
-
-
-  @RequiresPermissions("system:apply:edit")
-  @PostMapping("/bhxs/{kid}")//驳回显示
-  @ResponseBody
-  public TableDataInfo bhxs(@PathVariable("kid") String arid) {
-    SciPaperAr sciPaperAr = new SciPaperAr();
-    sciPaperAr.setAr_id(Integer.valueOf(arid));
-    List<SciPaperAr> list = sciPaperAService.selectSciPaperArList(sciPaperAr);
-    System.out.println("list = " + list);
-    return getDataTable(list);
-  }
-
-  /**
-   * 提交后将state状态设置为1
-   */
-  @PostMapping("/tj/{id}")
-  @ResponseBody
-  public AjaxResult tj(@PathVariable("id") Integer id) {
-    SciPaperAr sciPaperAr = new SciPaperAr();
-    sciPaperAr.setAr_id(id);
-    sciPaperAr.setUid(getUserId());
-    sciPaperAr.setConcate("草稿提交");
-    sciPaperAr.setState("草稿提交");
-    sciPaperAMapper.insertSciPaperAr(sciPaperAr);
-    return toAjax(sciPaperAService.updateSciPaperAState(id));
-  }
-
-  /**
-   * 查询所有的论文名称并需要进行模糊查询
-   */
-  @PostMapping("/queryName/{query}")
-  @ResponseBody
-  public List<SciPaperA> selectAllPaperName(@PathVariable("query") String query) {
-    List<SciPaperA> list = sciPaperAService.selectAllPaperName(query);
-    System.out.println("list = " + list);
-    return list;
-  }
 }

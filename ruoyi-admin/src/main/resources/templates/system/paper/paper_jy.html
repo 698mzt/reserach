@@ -674,8 +674,9 @@
               actions.push('<a class="link-button' + '" href="#" onclick="$.operate.detailTab(\'' + row.id + '/pro\')"><i class=""></i>教研室批阅</a>');
             } else if (row.state == 2) { // 教研室通过
               actions.push('<a class="del-link-button' + '" href="#" onclick="$.operate.detailTab(\'' + row.id + '/proth\')"><i class=""></i>撤回</a><br>');
-            } else if (row.state == 3 ||row.state == 7||row.state == 5) { //退回
-              actions.push('<a class="link-button' + '" href="#" onclick="$.operate.editTab(\'' + row.id + '\')"><i class=""></i>编辑</a><br>');
+            } else if (row.state == 3 ||row.state == 7||row.state == 5) { //被退回
+                actions.push('<a class="link-button' + '" href="#" onclick="$.operate.editTab(\'' + row.id + '\')"><i class=""></i>编辑</a><br>');
+                actions.push('<a class="link-button' + '" href="#" onclick="pushTh(\'' + row.id + '\')"><i class=""></i>提交</a><br>');
             } else if (row.state == 4) { // 学院通过
 
             }  else if (row.state == 8) { // 完成
