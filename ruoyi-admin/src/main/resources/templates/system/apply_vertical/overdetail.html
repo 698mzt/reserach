@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
 <head>
     <th:block th:include="include :: header('课题批阅')" />
     <th:block th:include="include :: datetimepicker-css" />
@@ -134,7 +134,16 @@
                     </div>
                 </div>
             </div>
-
+            <div class="col-xs-6" shiro:hasPermission="system:score:weight">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">积分权重：</label>
+                    <div class="col-sm-8">
+                        <select  readonly id="weight" name="weight" class="form-control" th:with="type=${@dict.getType('sci_score_weight')}" required>
+                            <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
             <div class="col-xs-6">
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">开题文件：</label>
@@ -388,7 +397,8 @@
         var a = $("#urlFlag").val();
         var type = getSelectValue("topType")
         console.log(a);
-        $.operate.saveTab(prefix + "/overPass", {"id":$("#ktid").val(),"urlFlag":a,"type":type});
+        var weight = getSelectValue("weight") || '1';
+        $.operate.saveTab(prefix + "/overPass", {"id":$("#ktid").val(),"urlFlag":a,"type":type,"weight":weight});
     }
     function submitHandlerBH() {
         var a = $("#urlFlag").val();

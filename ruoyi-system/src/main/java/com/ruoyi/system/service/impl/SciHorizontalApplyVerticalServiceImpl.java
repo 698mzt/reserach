@@ -11,6 +11,7 @@ import com.ruoyi.system.service.ISciHorizontalApplyVerticalService;
 import com.ruoyi.system.service.SciHorizontalReamountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -229,6 +230,12 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
             state ="2";
         }else if(urlFlag.equals("KYC")){
             state ="6";
+            if (persion.size() > score.size()) {
+                throw new RuntimeException("积分配置与成员数量不匹配");
+            }
+            String status = "立项";
+            sciUserScoreMapper.deleteVerticalScoreById(id.toString(),status);
+            sciUserScore.setChangeStatus("立项");
             for (int i = 0; i < persion.size(); i++) {
                 sciUserScore.setUserId(persion.get(i).toString());
                 sciUserScore.setChangeValue(score.get(i).toString());
@@ -270,6 +277,7 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
 
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int overPass(String id, Long userId, String urlFlag,List score,List persion,String verticalId) {
         String state = "0";
         SciUserScore sciUserScore = new SciUserScore();
@@ -278,6 +286,12 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
             state ="22";
         }else if(urlFlag.equals("KYC")){
             state ="66";
+            if (persion.size() > score.size()) {
+                throw new RuntimeException("积分配置与成员数量不匹配");
+            }
+            String status = "结项";
+            sciUserScoreMapper.deleteVerticalScoreById(id.toString(),status);
+            sciUserScore.setChangeStatus("结项");
             for (int i = 0; i < persion.size(); i++) {
                 sciUserScore.setUserId(persion.get(i).toString());
                 sciUserScore.setChangeValue(score.get(i).toString());
@@ -381,11 +395,11 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
         }
         if(state.equals("6")){
             String status = "立项";
-//            sciUserScoreMapper.deleteScoreById(id.toString(),status);
+            sciUserScoreMapper.deleteVerticalScoreById(id.toString(),status);
         }else
         if(state.equals("66")){
             String status = "结项";
-//            sciUserScoreMapper.deleteScoreById(id.toString(),status);
+            sciUserScoreMapper.deleteVerticalScoreById(id.toString(),status);
         }
 
 //        插入日志
