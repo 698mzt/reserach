@@ -166,16 +166,26 @@ public class SciPaperA extends BaseEntity {
      */
     @Excel(name = "科研分")
     private String researchScore;
-
-
-
     /**
      * 备注
      */
     @Excel(name = "备注")
     private String remarks;
 //    private String dataScope;
+    /** 一作 */
+    private String firstPersonId;
 
+    /** 二作 */
+    private String secondPersonId;
+
+    /**  三作 */
+    private String thirdPersonId;
+
+    /** 四作 */
+    private String fourthPersonId;
+
+    /**通讯作者 */
+    private String communicationAuthorId;
 
     public String getRoleName() {
         return roleName;
