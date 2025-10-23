@@ -250,8 +250,6 @@
                     return $.modal.alertError("请上传合同");
                 if($("input[name='filing']").val()==="")
                     return $.modal.alertError("请上传备案表");
-                if($("input[name='reAmount']").val()==="")
-                    return $.modal.alertError("请添加到账金额");
 
                 // 校验课题名称、甲方、乙方不能包含特殊字符
                 var topName = $("input[name='topName']").val();
