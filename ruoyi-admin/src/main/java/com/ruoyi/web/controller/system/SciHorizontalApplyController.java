@@ -774,7 +774,7 @@ public class SciHorizontalApplyController extends BaseController
         mmap.put("sysUsers1",userList1);
         mmap.put("sciHorizontalApply", sciHorizontalApply);
         // 查询全部成员并注入第5位及以后
-        java.util.List<String> allMemberIds = sciHorizontalApplyService.selectPersionIdsByApplyId(id);
+        java.util.List<String> allMemberIds = sciHorizontalApplyService.selectPersionIdsByApplyId(sciHorizontalApply.getId());
         java.util.List<String> extraMembers = new java.util.ArrayList<>();
         if (allMemberIds != null && allMemberIds.size() > 4) {
             extraMembers = allMemberIds.subList(4, allMemberIds.size());
@@ -848,7 +848,7 @@ public class SciHorizontalApplyController extends BaseController
     public AjaxResult amountBh(String id,String reid,String remark,String urlFlag)
     {
 
-        return toAjax(sciHorizontalApplyService.amountBh(id,reid,getUserId(),remark,urlFlag));
+        return toAjax(sciHorizontalApplyService.removeAmount(id,reid,getUserId(),remark,urlFlag));
     }
 
     /**

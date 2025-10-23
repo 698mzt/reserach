@@ -10,13 +10,10 @@ import com.ruoyi.common.core.domain.entity.SysRole;
 import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.system.domain.*;
-import com.ruoyi.system.mapper.SciHorizontalPiyueMapper;
-import com.ruoyi.system.mapper.SciProjectScoreCfgMapper;
-import com.ruoyi.system.mapper.SciUserScoreMapper;
+import com.ruoyi.system.mapper.*;
 import com.ruoyi.system.service.SciHorizontalReamountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.ruoyi.system.mapper.SciHorizontalApplyMapper;
 import com.ruoyi.system.service.ISciHorizontalApplyService;
 import com.ruoyi.common.core.text.Convert;
 import org.springframework.transaction.annotation.Transactional;
@@ -52,6 +49,8 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
     private SciHorizontalApplyMapper sysRewardMapper;
     @Autowired
     private SciHorizontalApplyMapper sciLectureReportMapper;
+    @Autowired
+    private SciHorizontalReamountMapper sciHorizontalReamountMapper;
 
     /**
      * 查询横向课题
@@ -1316,12 +1315,19 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
     /**
      * 提交课题
      *
-     * @param sciHorizontalApply 横向课题
      * @return 结果
      */
 
     @Override
     public List<SciHorizontalApply> getStatsQuery(Map<String, String> params) {
         return sciHorizontalApplyMapper.getStatsQuery(params);
+    }
+
+    /**
+     * 删除被驳回的到账金额
+     * */
+    @Override
+    public int removeAmount(String id, String reid, Long userId, String remark, String urlFlag) {
+        return sciHorizontalReamountMapper.reamountremove(Integer.valueOf(reid));
     }
 }
