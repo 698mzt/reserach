@@ -187,6 +187,54 @@ public class SciPaperA extends BaseEntity {
     /**通讯作者 */
     private String communicationAuthorId;
 
+    public String getPaperType() {
+        return paperType;
+    }
+
+    public void setPaperType(String paperType) {
+        this.paperType = paperType;
+    }
+
+    public String getCommunicationAuthorId() {
+        return communicationAuthorId;
+    }
+
+    public void setCommunicationAuthorId(String communicationAuthorId) {
+        this.communicationAuthorId = communicationAuthorId;
+    }
+
+    public String getFourthPersonId() {
+        return fourthPersonId;
+    }
+
+    public void setFourthPersonId(String fourthPersonId) {
+        this.fourthPersonId = fourthPersonId;
+    }
+
+    public String getThirdPersonId() {
+        return thirdPersonId;
+    }
+
+    public void setThirdPersonId(String thirdPersonId) {
+        this.thirdPersonId = thirdPersonId;
+    }
+
+    public String getSecondPersonId() {
+        return secondPersonId;
+    }
+
+    public void setSecondPersonId(String secondPersonId) {
+        this.secondPersonId = secondPersonId;
+    }
+
+    public String getFirstPersonId() {
+        return firstPersonId;
+    }
+
+    public void setFirstPersonId(String firstPersonId) {
+        this.firstPersonId = firstPersonId;
+    }
+
     public String getRoleName() {
         return roleName;
     }
