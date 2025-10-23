@@ -121,6 +121,8 @@ public interface ISciHorizontalApplyService
 
     int amountBh(String id, String reid, Long userId, String remark, String urlFlag);
 
+
+
     /**
      * 查询到账金额
      * */
@@ -183,4 +185,9 @@ public interface ISciHorizontalApplyService
      * @return 横向课题集合
      */
     List<SciHorizontalApply> getStatsQuery(Map<String, String> params);
+
+    /**
+     * 删除被驳回的到账金额
+     * */
+    int removeAmount(String id, String reid, Long userId, String remark, String urlFlag);
 }

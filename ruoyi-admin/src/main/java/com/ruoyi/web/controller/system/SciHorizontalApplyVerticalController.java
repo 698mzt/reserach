@@ -518,16 +518,23 @@ public class SciHorizontalApplyVerticalController extends BaseController {
     @Log(title = "纵向课题申请通过", businessType = BusinessType.UPDATE)
     @PostMapping( "/applyPass")
     @ResponseBody
-    public AjaxResult applyPass(String id,String urlFlag,String type,SciProjectScoreCfg sciProjectScoreCfg)
+    public AjaxResult applyPass(String id,String urlFlag,String type,String weight,SciProjectScoreCfg sciProjectScoreCfg)
     {
         sciProjectScoreCfg.setFundsType(type);
         List<SciProjectScoreCfg> list = sciProjectScoreCfgMapper.selectVerticalScoreCfgList(sciProjectScoreCfg);
         SciHorizontalApplyVertical sciHorizontalApplyVertical = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalById(Integer.valueOf(id));
         String verticalId = String.valueOf(sciHorizontalApplyVertical.getId());
+        java.math.BigDecimal weightVal;
+        try {
+            weightVal = new java.math.BigDecimal(weight);
+        } catch (Exception e) {
+            return AjaxResult.error("审核失败，请联系管理员解决");
+        }
         List score = new ArrayList();
         List persion = new ArrayList();
         for (SciProjectScoreCfg scoreCfg : list) {
-            score.add(scoreCfg.getStartScore());
+            java.math.BigDecimal end = new java.math.BigDecimal(scoreCfg.getStartScore());
+            score.add(end.multiply(weightVal).toPlainString());
         }
         if (sciHorizontalApplyVertical.getFirstPersonId() != null && !sciHorizontalApplyVertical.getFirstPersonId().isEmpty()) {
             persion.add(sciHorizontalApplyVertical.getFirstPersonId());
@@ -579,16 +586,23 @@ public class SciHorizontalApplyVerticalController extends BaseController {
     @Log(title = "纵向课题申请通过", businessType = BusinessType.UPDATE)
     @PostMapping( "/overPass")
     @ResponseBody
-    public AjaxResult overPass(String id,String urlFlag,String type,SciProjectScoreCfg sciProjectScoreCfg)
+    public AjaxResult overPass(String id,String urlFlag,String type,String weight,SciProjectScoreCfg sciProjectScoreCfg)
     {
         sciProjectScoreCfg.setFundsType(type);
         List<SciProjectScoreCfg> list = sciProjectScoreCfgMapper.selectVerticalScoreCfgList(sciProjectScoreCfg);
         SciHorizontalApplyVertical sciHorizontalApplyVertical = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalById(Integer.valueOf(id));
         String verticalId = String.valueOf(sciHorizontalApplyVertical.getId());
+        java.math.BigDecimal weightVal;
+        try {
+            weightVal = new java.math.BigDecimal(weight);
+        } catch (Exception e) {
+            return AjaxResult.error("审核失败，请联系管理员解决");
+        }
         List score = new ArrayList();
         List persion = new ArrayList();
         for (SciProjectScoreCfg scoreCfg : list) {
-            score.add(scoreCfg.getEndScore());
+            java.math.BigDecimal end = new java.math.BigDecimal(scoreCfg.getEndScore());
+            score.add(end.multiply(weightVal).toPlainString());
         }
         if (sciHorizontalApplyVertical.getFirstPersonId() != null && !sciHorizontalApplyVertical.getFirstPersonId().isEmpty()) {
             persion.add(sciHorizontalApplyVertical.getFirstPersonId());
@@ -602,7 +616,7 @@ public class SciHorizontalApplyVerticalController extends BaseController {
         if (sciHorizontalApplyVertical.getFourthPersonId() != null && !sciHorizontalApplyVertical.getFourthPersonId().isEmpty()) {
             persion.add(sciHorizontalApplyVertical.getFourthPersonId());
         }
-        int result = sciHorizontalApplyVerticalService.overPass(id, getUserId(), urlFlag, score, persion, id);
+        int result = sciHorizontalApplyVerticalService.overPass(id, getUserId(), urlFlag, score, persion, verticalId);
         return toAjax(result);
     }
 

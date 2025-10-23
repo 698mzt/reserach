@@ -61,6 +61,6 @@
     </delete>
 
     <delete id="deleteVerticalScoreById">
-        delete from sci_user_score_history where vertical_id = #{id} and change_status = #{status}
+        delete from sci_user_score_vertical where vertical_id = #{id} and change_status = #{status}
     </delete>
 </mapper>

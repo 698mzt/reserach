@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro" >
 <head>
     <th:block th:include="include :: header('课题批阅')" />
     <th:block th:include="include :: datetimepicker-css" />
@@ -147,22 +147,33 @@
             </div>
         </div>
 
-            <div class="col-xs-6">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">立项文件：</label>
-                    <div class="col-sm-8">
-                        <input th:field="*{file}" hidden id="filing" type="text" >
-                        <div style="display: inline-block;">
-                            <div id="filingFileName" style="display: inline; margin-right: 5px;"></div>
-                        </div>
-                        <div>
-                            <button onclick="chakan()" class="btn btn-sm btn-primary color">预览</button>
-                            <button onclick="downloadFile('filing')" class="btn btn-sm btn-primary color">下载</button>
-                        </div>
+        <div class="col-xs-6" shiro:hasPermission="system:score:weight">
+            <div class="form-group">
+                <label class="col-sm-4 control-label is-required">积分权重：</label>
+                <div class="col-sm-8">
+                    <select  readonly id="weight" name="weight" class="form-control" th:with="type=${@dict.getType('sci_score_weight')}" required>
+                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xs-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label is-required">立项文件：</label>
+                <div class="col-sm-8">
+                    <input th:field="*{file}" hidden id="filing" type="text" >
+                    <div style="display: inline-block;">
+                        <div id="filingFileName" style="display: inline; margin-right: 5px;"></div>
+                    </div>
+                    <div>
+                        <button onclick="chakan()" class="btn btn-sm btn-primary color">预览</button>
+                        <button onclick="downloadFile('filing')" class="btn btn-sm btn-primary color">下载</button>
                     </div>
                 </div>
             </div>
         </div>
+
 
 
 
@@ -367,9 +378,10 @@
 
     function submitHandler() {
           //获取 URLflag
-          var a = $("#urlFlag").val();
-          var type = getSelectValue("topType")
-            $.operate.saveTab(prefix + "/applyPass", {"id":$("#ktid").val(),"urlFlag":a,"type":type});
+        var a = $("#urlFlag").val();
+        var type = getSelectValue("topType")
+        var weight = getSelectValue("weight") || '1';
+            $.operate.saveTab(prefix + "/applyPass", {"id":$("#ktid").val(),"urlFlag":a,"type":type,"weight": weight});
     }
     function submitHandlerBH() {
         var a = $("#urlFlag").val();
