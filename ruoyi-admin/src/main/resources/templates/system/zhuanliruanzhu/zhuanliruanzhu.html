@@ -403,49 +403,49 @@
 <body class="gray-bg">
 <div class="container-div">
     <div class="row">
-        <div class="col-sm-12 search-collapse" shiro:hasAnyPermissions="system:zhuanliruanzhu:hecha, system:zhuanliruanzhu:chayue">
-            <form id="formId"  >
-                <div class="select-list">
-                    <ul>
-                        <li>
-                            <label>教研室：</label>
-                            <input type="text" name="jiaoyanshi"/>
-                        </li>
-                        <li>
-                            <label>姓名：</label>
-                            <input type="text" name="xingming"/>
-                        </li>
-                        <li>
-                            <label>专利名称：</label>
-                            <input type="text" name="mingcheng"/>
-                        </li>
+<!--        <div class="col-sm-12 search-collapse" shiro:hasAnyPermissions="system:zhuanliruanzhu:hecha, system:zhuanliruanzhu:chayue">-->
+<!--            <form id="formId"  >-->
+<!--                <div class="select-list">-->
+<!--                    <ul>-->
 <!--                        <li>-->
-<!--                            <label>授权号：</label>-->
-<!--                            <input type="text" name="shoquanhao"/>-->
+<!--                            <label>教研室：</label>-->
+<!--                            <input type="text" name="jiaoyanshi"/>-->
 <!--                        </li>-->
 <!--                        <li>-->
-<!--                            <label>获批时间：</label>-->
-<!--                            <input type="text" class="time-input" placeholder="请选择获批时间" name="huopishijain"/>-->
+<!--                            <label>姓名：</label>-->
+<!--                            <input type="text" name="xingming"/>-->
 <!--                        </li>-->
 <!--                        <li>-->
-<!--                            <label>分类：</label>-->
-<!--                            <select name="fenlei" th:with="type=${@dict.getType('sys_zhuanli_fenlei')}">-->
-<!--                                <option value="">所有</option>-->
-<!--                                <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>-->
-<!--                            </select>-->
+<!--                            <label>专利名称：</label>-->
+<!--                            <input type="text" name="mingcheng"/>-->
 <!--                        </li>-->
+<!--&lt;!&ndash;                        <li>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <label>授权号：</label>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <input type="text" name="shoquanhao"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                        </li>&ndash;&gt;-->
+<!--&lt;!&ndash;                        <li>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <label>获批时间：</label>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <input type="text" class="time-input" placeholder="请选择获批时间" name="huopishijain"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                        </li>&ndash;&gt;-->
+<!--&lt;!&ndash;                        <li>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <label>分类：</label>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <select name="fenlei" th:with="type=${@dict.getType('sys_zhuanli_fenlei')}">&ndash;&gt;-->
+<!--&lt;!&ndash;                                <option value="">所有</option>&ndash;&gt;-->
+<!--&lt;!&ndash;                                <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>&ndash;&gt;-->
+<!--&lt;!&ndash;                            </select>&ndash;&gt;-->
+<!--&lt;!&ndash;                        </li>&ndash;&gt;-->
+<!--&lt;!&ndash;                        <li>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <label>排名：</label>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <input type="text" name="paiming"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                        </li>&ndash;&gt;-->
 <!--                        <li>-->
-<!--                            <label>排名：</label>-->
-<!--                            <input type="text" name="paiming"/>-->
+<!--                            <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>-->
+<!--                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>-->
 <!--                        </li>-->
-                        <li>
-                            <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
-                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
-                        </li>
-                    </ul>
-                </div>
-            </form>
-        </div>
+<!--                    </ul>-->
+<!--                </div>-->
+<!--            </form>-->
+<!--        </div>-->
 
         <div id="toolbar"  style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
             <div class="btn-group-sm" role="group" style="display: inline-flex; gap: 4px;">

@@ -110,7 +110,6 @@ public class SciHorizontalApplyController extends BaseController
         sciHorizontalApply.setRole(role);
         sciHorizontalApply.setTableId(tableId);
         List<SciHorizontalApply> list = new ArrayList<>();
-        List<SciHorizontalApply> list2 = new ArrayList<>();
         List<SciHorizontalApply> Alist = new ArrayList<>();
 //        科研处
         switch (role) {
@@ -137,7 +136,7 @@ public class SciHorizontalApplyController extends BaseController
                         list = sciHorizontalApplyService.selectSciHorizontalApplyListByOVER(sciHorizontalApply);
                         break;
                     case "bootstrap-table1":
-                        list2 = sciHorizontalApplyService.selectSciHorizontalApplyListByJYS(sciHorizontalApply);
+                        list = sciHorizontalApplyService.selectSciHorizontalApplyListByJYS(sciHorizontalApply);
                         break;
                     case "bootstrap-table2":
                         list = sciHorizontalApplyService.selectSciHorizontalApplyListByOverApplyJYS(sciHorizontalApply);
@@ -171,7 +170,7 @@ public class SciHorizontalApplyController extends BaseController
                         list = sciHorizontalApplyService.selectSciHorizontalApplyListByOVER(sciHorizontalApply);
                         break;
                     case "bootstrap-table1":
-                        list2 = sciHorizontalApplyService.selectSciHorizontalApplyList(sciHorizontalApply);
+                        list = sciHorizontalApplyService.selectSciHorizontalApplyList(sciHorizontalApply);
                         break;
                     case "bootstrap-table2":
                         list = sciHorizontalApplyService.selectSciHorizontalApplyListByOverApply(sciHorizontalApply);
@@ -191,7 +190,7 @@ public class SciHorizontalApplyController extends BaseController
         List<SciHorizontalApply> distinctList = list.stream()
                 .collect(Collectors.collectingAndThen(
                         Collectors.toMap(
-                                SciHorizontalApply::getTopNumber, // 使用 topName 作为键
+                                SciHorizontalApply::getTopName, // 使用 topName 作为键
                                 Function.identity(), // 值为原对象
                                 (existing, replacement) -> existing, // 如果有重复，保留第一个出现的对象
                                 LinkedHashMap::new // 保持插入顺序
@@ -371,7 +370,10 @@ public class SciHorizontalApplyController extends BaseController
 
         sciHorizontalReamount.setApplyId(id.toString());
         sciHorizontalReamount.setState("99");
-        return toAjax(sciHorizontalReamountService.insertAmount(sciHorizontalReamount));
+        if (sciHorizontalReamount.getReAmount() != null && !sciHorizontalReamount.getReAmount().isEmpty()){
+            sciHorizontalReamountService.insertAmount(sciHorizontalReamount);
+        }
+        return toAjax(id);
     }
 
     /**
@@ -437,7 +439,10 @@ public class SciHorizontalApplyController extends BaseController
         } else if (result == -2) {
             return AjaxResult.error("日期格式错误");
         }
-        return toAjax(sciHorizontalReamountService.insertAmount(sciHorizontalReamount));
+        if (sciHorizontalReamount.getReAmount() != null && !sciHorizontalReamount.getReAmount().isEmpty()) {
+            sciHorizontalReamountService.insertAmount(sciHorizontalReamount);
+        }
+        return toAjax(result);
     }
 
 //detail 审批
