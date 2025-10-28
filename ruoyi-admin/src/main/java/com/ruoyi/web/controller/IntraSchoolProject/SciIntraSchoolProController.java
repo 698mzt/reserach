@@ -248,7 +248,7 @@ public class SciIntraSchoolProController extends BaseController {
   public String add(ModelMap mmap) {
     // SysUser user=getSysUser();
     //获取角色列表给添加页面的负责人下拉框
-    List<SysUser> userList = userService.selectAllUser();
+    List<SysUser> userList = userService.selectAllUserSchPro(getUserId());
     for (int a = 0; a < userList.size(); a++) {
       if (userList.get(a).getUserId() == getUserId()) {
         SysUser user = userList.get(a);
@@ -548,7 +548,7 @@ public class SciIntraSchoolProController extends BaseController {
   @GetMapping("/overadd")
   public String overadd(Integer id, ModelMap mmap) {
     SciIntraSchoolPro sciIntraSchoolPro = sciIntraSchProApplyService.sel_IntraSchPro_by_id(id);
-    List<SysUser> userList = userService.selectAllUser();
+    List<SysUser> userList = userService.selectAllUserSchPro(getUserId());
     mmap.put("sysUsers", userList);
     mmap.put("sciIntraSchoolPro", sciIntraSchoolPro);
     return prefix + "/overadd";

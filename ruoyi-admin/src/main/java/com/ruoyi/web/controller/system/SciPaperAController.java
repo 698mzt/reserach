@@ -13,6 +13,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import com.ruoyi.common.core.domain.entity.SysRole;
@@ -21,6 +22,7 @@ import com.ruoyi.common.utils.ShiroUtils;
 import com.ruoyi.system.domain.SciHorizontalApply;
 import com.ruoyi.system.domain.SciHorizontalPiyue;
 import com.ruoyi.system.domain.SciPaperAr;
+import com.ruoyi.system.domain.Paper_user_score;
 import com.ruoyi.system.service.*;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -63,6 +65,9 @@ public class SciPaperAController extends BaseController {
 
     @Resource
     private SciPaperAMapper sciPaperAMapper;
+
+    @Resource
+    private IPaperUserScoreService paperUserScoreService;
 
 
     @RequiresPermissions("system:paper:view")
@@ -136,6 +141,7 @@ public class SciPaperAController extends BaseController {
         List<SciPaperA> list = new ArrayList<>();
 // 所有的审核方都会有普通老师身份，单身份的判断暂时先留着，除非增加审核方的时候少给他加上普通老师身份，否则不会报错
         //教研室+普通老师身份
+        // or((pa1.user_id = #{uid} or  pa2.user_id = #{uid}) or pa3.user_id = #{uid}  or pa4.user_id = #{uid} or pac.user_id = #{uid})
         if (roleId.contains("102") && roleId.contains("100")&& !roleId.contains("101")) {
             list.addAll(sciPaperAService.selectSciPaperAListCxList(sciPaperA));
         }
@@ -192,31 +198,28 @@ public class SciPaperAController extends BaseController {
      */
     @GetMapping("/add")
     public String add(ModelMap mmap) {
-        List<SysUser> userList = userService.selectAllUser();
-        SysUser sysUser = null;
-        Long user_id = getUserId();
+        List<SysUser> userList = userService.selectAllUserSchPro(getUserId());
         for (int a = 0; a < userList.size(); a++) {
-            if (userList.get(a).getUserId().equals(user_id)) {
-                sysUser = userList.get(a);
+            if (userList.get(a).getUserId() == getUserId()) {
+                SysUser user = userList.get(a);
+                user.setFlag(true);
+                userList.set(a, user);
                 break;
             }
         }
-        mmap.put("user", sysUser);
-        if (sysUser != null) {
-            mmap.addAttribute("user", sysUser.getUserId());
-        }
+        mmap.put("sysUsers", userList);
         return prefix + "/add";
     }
 
     /**
      * 新增保存论文
-     * todo:论文需要一次新建多个人的数据,... 通讯作者的积分问题
      * 论文信息和积分在一张表里面
      */
     @RequiresPermissions("system:paper:add")
     @Log(title = "论文", businessType = BusinessType.INSERT)
     @PostMapping("/add")
     @ResponseBody
+    @Transactional
     public AjaxResult addSave(SciPaperA sciPaperA) {
         try {
             if (sciPaperAService.selectSciPaperA(sciPaperA) != 0) {
@@ -229,6 +232,14 @@ public class SciPaperAController extends BaseController {
                 sciPaperA.setState("99");
                 //插入论文数据
                 sciPaperAService.insertSciPaperA(sciPaperA);
+
+                // 保存1-4作信息到Paper_user_score表
+                int i = savePaperAuthorsToScoreTable(sciPaperA);
+                if (i ==0) {
+                    return error("保存作者信息失败");
+                }else if (i == -1) {
+                    return error("你不能添加自己不是作者的论文");
+                }
 
                 SciPaperAr sciPaperAr = new SciPaperAr();
                 sciPaperAr.setUid(getUserId());
@@ -246,14 +257,165 @@ public class SciPaperAController extends BaseController {
     }
 
     /**
+     * 保存1-4作信息到Paper_user_score表
+     */
+    private int savePaperAuthorsToScoreTable(SciPaperA sciPaperA) {
+        // 如果作者没有当前登录人，返回失败
+        if (!sciPaperA.getAuthorIds().contains(getUserId().toString())) {
+            return -1;
+        }
+//        if (SciPaperA.TWO_AUTHORS .contains(sciPaperA.getPaperCategory())){
+//            // todo:根据论文类别限制作者人数
+//        }
+
+        List<Paper_user_score> paperUserScoreList = new ArrayList<>();
+        int res = 0;
+        // 获取当前时间
+        Date now = new Date();
+        String currentUser = getLoginName();
+        
+        // 处理一作
+        if (sciPaperA.getFirstPersonId() != null && !sciPaperA.getFirstPersonId().isEmpty()) {
+            Paper_user_score firstAuthor = new Paper_user_score();
+            firstAuthor.setPaperId(sciPaperA.getId());
+            firstAuthor.setUserId(Long.valueOf(sciPaperA.getFirstPersonId()));
+            firstAuthor.setAuthorOrder("1");
+            firstAuthor.setAuthorLevel("1");
+            firstAuthor.setScore("0"); // 初始分数为0，后续根据规则计算
+            firstAuthor.setCreateBy(currentUser);
+            firstAuthor.setCreateTime(now);
+            firstAuthor.setUpdateBy(currentUser);
+            firstAuthor.setUpdateTime(now);
+            paperUserScoreList.add(firstAuthor);
+            res+=1;
+        }
+        
+        // 处理二作
+        if (sciPaperA.getSecondPersonId() != null && !sciPaperA.getSecondPersonId().isEmpty()) {
+            Paper_user_score secondAuthor = new Paper_user_score();
+            secondAuthor.setPaperId(sciPaperA.getId());
+            secondAuthor.setUserId(Long.valueOf(sciPaperA.getSecondPersonId()));
+            secondAuthor.setAuthorOrder("2");
+            secondAuthor.setAuthorLevel("2");
+            secondAuthor.setScore("0");
+            secondAuthor.setCreateBy(currentUser);
+            secondAuthor.setCreateTime(now);
+            secondAuthor.setUpdateBy(currentUser);
+            secondAuthor.setUpdateTime(now);
+            paperUserScoreList.add(secondAuthor);
+            res+=1;
+        }
+        
+        // 处理三作
+        if (sciPaperA.getThirdPersonId() != null && !sciPaperA.getThirdPersonId().isEmpty()) {
+            Paper_user_score thirdAuthor = new Paper_user_score();
+            thirdAuthor.setPaperId(sciPaperA.getId());
+            thirdAuthor.setUserId(Long.valueOf(sciPaperA.getThirdPersonId()));
+            thirdAuthor.setAuthorOrder("3");
+            thirdAuthor.setAuthorLevel("3");
+            thirdAuthor.setScore("0");
+            thirdAuthor.setCreateBy(currentUser);
+            thirdAuthor.setCreateTime(now);
+            thirdAuthor.setUpdateBy(currentUser);
+            thirdAuthor.setUpdateTime(now);
+            paperUserScoreList.add(thirdAuthor);
+            res+=1;
+        }
+        
+        // 处理四作
+        if (sciPaperA.getFourthPersonId() != null && !sciPaperA.getFourthPersonId().isEmpty()) {
+            Paper_user_score fourthAuthor = new Paper_user_score();
+            fourthAuthor.setPaperId(sciPaperA.getId());
+            fourthAuthor.setUserId(Long.valueOf(sciPaperA.getFourthPersonId()));
+            fourthAuthor.setAuthorOrder("4");
+            fourthAuthor.setAuthorLevel("4");
+            fourthAuthor.setScore("0");
+            fourthAuthor.setCreateBy(currentUser);
+            fourthAuthor.setCreateTime(now);
+            fourthAuthor.setUpdateBy(currentUser);
+            fourthAuthor.setUpdateTime(now);
+            paperUserScoreList.add(fourthAuthor);
+            res+=1;
+        }
+        
+        // 处理通讯作者
+        if (sciPaperA.getCommunicationAuthorId() != null && !sciPaperA.getCommunicationAuthorId().isEmpty()) {
+            // 检查通讯作者是否已经在1-4作中
+            boolean isAlreadyInList = paperUserScoreList.stream()
+                .anyMatch(author -> author.getUserId().equals(Long.valueOf(sciPaperA.getCommunicationAuthorId())));
+            
+            if (!isAlreadyInList) {
+                // 通讯作者不在1-4作中，添加新的通讯作者记录
+//                Paper_user_score correspondingAuthor = new Paper_user_score();
+//                correspondingAuthor.setPaperId(sciPaperA.getId());
+//                correspondingAuthor.setUserId(Long.valueOf(sciPaperA.getCommunicationAuthorId()));
+//                correspondingAuthor.setAuthorOrder("通讯作者");
+//                correspondingAuthor.setAuthorLevel("通讯作者");
+//                correspondingAuthor.setScore("0");
+//                correspondingAuthor.setCreateBy(currentUser);
+//                correspondingAuthor.setCreateTime(now);
+//                correspondingAuthor.setUpdateBy(currentUser);
+//                correspondingAuthor.setUpdateTime(now);
+//                paperUserScoreList.add(correspondingAuthor);
+                return 0;
+            } else {
+                // 通讯作者在1-4作中，更新对应的authorLevel为"0"
+                paperUserScoreList.stream()
+                    .filter(author -> author.getUserId().equals(Long.valueOf(sciPaperA.getCommunicationAuthorId())))
+                    .findFirst()
+                    .ifPresent(author -> author.setAuthorLevel("0"));
+                res+=1;
+            }
+        }
+        
+        // 批量插入到Paper_user_score表
+        if (!paperUserScoreList.isEmpty()) {
+            paperUserScoreService.batchInsertPaperUserScore(paperUserScoreList);
+        }
+        return res;
+    }
+
+    /**
      * 修改论文
      */
     @RequiresPermissions("system:paper:edit")
     @GetMapping("/edit/{id}")
     public String edit(@PathVariable("id") Long id, ModelMap mmap) {
-        SysUser currentUser = ShiroUtils.getSysUser();
+        List<SysUser> userList = userService.selectAllUserSchPro(getUserId());
+        for (int a = 0; a < userList.size(); a++) {
+            if (userList.get(a).getUserId() == getUserId()) {
+                SysUser user = userList.get(a);
+                user.setFlag(true);
+                userList.set(a, user);
+                break;
+            }
+        }
         SciPaperA sciPaperA = sciPaperAService.selectSciPaperAById(id);
-        mmap.put("sysUsers", currentUser);
+        
+        // 获取作者信息
+        List<Paper_user_score> authorList = paperUserScoreService.getPaperUserScoreListByPaperId(id);
+        if (authorList != null && !authorList.isEmpty()) {
+            for (Paper_user_score author : authorList) {
+                // 根据author_order设置1-4作
+                String authorOrder = author.getAuthorOrder();
+                if ("1".equals(authorOrder)) {
+                    sciPaperA.setFirstPersonId(String.valueOf(author.getUserId()));
+                } else if ("2".equals(authorOrder)) {
+                    sciPaperA.setSecondPersonId(String.valueOf(author.getUserId()));
+                } else if ("3".equals(authorOrder)) {
+                    sciPaperA.setThirdPersonId(String.valueOf(author.getUserId()));
+                } else if ("4".equals(authorOrder)) {
+                    sciPaperA.setFourthPersonId(String.valueOf(author.getUserId()));
+                }
+                
+                // 根据author_level判断是否是通讯作者（author_level='0'表示通讯作者）
+                if ("0".equals(author.getAuthorLevel())) {
+                    sciPaperA.setCommunicationAuthorId(String.valueOf(author.getUserId()));
+                }
+            }
+        }
+        
+        mmap.put("sysUsers", userList);
         mmap.put("sciPaperA", sciPaperA);
         return prefix + "/edit";
     }
@@ -281,9 +443,29 @@ public class SciPaperAController extends BaseController {
     @Log(title = "论文", businessType = BusinessType.UPDATE)
     @PostMapping("/edit")
     @ResponseBody
+    @Transactional
     public AjaxResult editSave(SciPaperA sciPaperA) {
-        //sciPaperA.setState("1");
-        return toAjax(sciPaperAService.updateSciPaperA(sciPaperA));
+        try {
+            // 更新论文基本信息
+            int result = sciPaperAService.updateSciPaperA(sciPaperA);
+            
+            if (result > 0) {
+                // 删除旧作者信息
+                paperUserScoreService.deletePaperUserScoreByPaperId(sciPaperA.getId());
+                
+                // 保存新的作者信息
+                int authorResult = savePaperAuthorsToScoreTable(sciPaperA);
+                if (authorResult == 0) {
+                    return error("保存作者信息失败");
+                } else if (authorResult == -1) {
+                    return error("你不能添加自己不是作者的论文");
+                }
+            }
+            
+            return toAjax(result);
+        } catch (Exception e) {
+            return error(e.getMessage());
+        }
     }
 
     /**

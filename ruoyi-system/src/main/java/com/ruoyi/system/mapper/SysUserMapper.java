@@ -125,4 +125,6 @@ public interface SysUserMapper
     List<SysUser> selectAllUser();
 
     List<SysUser> selectUser(Integer deptId );
+
+    List<SysUser> selectAllUserSchPro(Long userId);
 }

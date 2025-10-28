@@ -6,6 +6,8 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
 
+import java.util.List;
+
 /**
  * 论文对象 sci_paper_a
  *
@@ -15,6 +17,8 @@ import com.ruoyi.common.core.domain.BaseEntity;
 @Data
 public class SciPaperA extends BaseEntity {
     private static final long serialVersionUID = 1L;
+    public static final List<String> TWO_AUTHORS = List.of("11", "12", "10");
+    public  final List<String> ONE_AUTHORS = List.of("8", "9");
 
     /**
      * 序号
@@ -166,16 +170,90 @@ public class SciPaperA extends BaseEntity {
      */
     @Excel(name = "科研分")
     private String researchScore;
-
-
-
     /**
      * 备注
      */
     @Excel(name = "备注")
     private String remarks;
 //    private String dataScope;
+    /** 一作 */
+    private String firstPersonId;
 
+    /** 二作 */
+    private String secondPersonId;
+
+    /**  三作 */
+    private String thirdPersonId;
+
+    /** 四作 */
+    private String fourthPersonId;
+
+    /**通讯作者 */
+    private String communicationAuthorId;
+    
+    /** 一作姓名 */
+    private String firstAuthorName;
+    
+    /** 二作姓名 */
+    private String secondAuthorName;
+    
+    /** 三作姓名 */
+    private String thirdAuthorName;
+    
+    /** 四作姓名 */
+    private String fourthAuthorName;
+    
+    /** 通讯作者姓名 */
+    private String correspondingAuthorName;
+
+
+    public String getPaperType() {
+        return paperType;
+    }
+
+    public void setPaperType(String paperType) {
+        this.paperType = paperType;
+    }
+
+    public String getCommunicationAuthorId() {
+        return communicationAuthorId;
+    }
+
+    public void setCommunicationAuthorId(String communicationAuthorId) {
+        this.communicationAuthorId = communicationAuthorId;
+    }
+
+    public String getFourthPersonId() {
+        return fourthPersonId;
+    }
+
+    public void setFourthPersonId(String fourthPersonId) {
+        this.fourthPersonId = fourthPersonId;
+    }
+
+    public String getThirdPersonId() {
+        return thirdPersonId;
+    }
+
+    public void setThirdPersonId(String thirdPersonId) {
+        this.thirdPersonId = thirdPersonId;
+    }
+
+    public String getSecondPersonId() {
+        return secondPersonId;
+    }
+
+    public void setSecondPersonId(String secondPersonId) {
+        this.secondPersonId = secondPersonId;
+    }
+
+    public String getFirstPersonId() {
+        return firstPersonId;
+    }
+
+    public void setFirstPersonId(String firstPersonId) {
+        this.firstPersonId = firstPersonId;
+    }
 
     public String getRoleName() {
         return roleName;
@@ -477,4 +555,10 @@ public class SciPaperA extends BaseEntity {
                 ", remarks='" + remarks + '\'' +
                 '}';
     }
+
+    public String getAuthorIds() {
+        return this.getFirstPersonId() + "," + this.getSecondPersonId() + "," + this.getThirdPersonId() + "," + this.getFourthPersonId()+ ","+ this.getCommunicationAuthorId();
+    }
+
+
 }

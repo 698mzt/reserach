@@ -2,10 +2,13 @@ package com.ruoyi.system.service.impl;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import com.ruoyi.common.annotation.DataScope;
 import com.ruoyi.common.core.domain.AjaxResult;
+import com.ruoyi.system.domain.Paper_user_score;
 import com.ruoyi.system.domain.SciPaperAr;
+import com.ruoyi.system.mapper.PaperUserScoreServiceMapper;
 import com.ruoyi.system.mapper.SciPaperACfgMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,6 +16,7 @@ import com.ruoyi.system.mapper.SciPaperAMapper;
 import com.ruoyi.system.domain.SciPaperA;
 import com.ruoyi.system.service.ISciPaperAService;
 import com.ruoyi.common.core.text.Convert;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * 论文Service业务层处理
@@ -26,8 +30,8 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
     private SciPaperAMapper sciPaperAMapper;
     @Autowired
     private SciPaperACfgMapper sciPaperACfgMapper;
-
-    /**
+    @Autowired
+    private PaperUserScoreServiceMapper paperUserScoreServiceImplMapper;    /**
      * 查询论文
      *
      * @param id 论文主键
@@ -100,7 +104,9 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
      * @return 结果
      */
     @Override
+    @Transactional
     public int deleteSciPaperAByIds(String ids) {
+        paperUserScoreServiceImplMapper.deletePaperUserScoreByPaperId(Long.valueOf(ids));
         return sciPaperAMapper.deleteSciPaperAByIds(Convert.toStrArray(ids));
     }
 
@@ -168,11 +174,18 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
         } else if (urlFlag.equals("kytg")) {
             state = "8"; //科研处通过
             sciPaperAr.setConcate("科研处通过");
-            //todo:通过之后设置积分 ,
-            int points = sciPaperACfgMapper.selectSciPaperACfgPoints(order, user_order);
+            // 原来积分设置
+            //int points = sciPaperACfgMapper.selectSciPaperACfgPoints(order, user_order);
             //System.out.println("points = " + points);
-            int b = sciPaperAMapper.updateSciPaperArs(id, points);
-            System.out.println("b = " + b);
+            //int b = sciPaperAMapper.updateSciPaperArs(id, points);
+
+            // 通过之后设置积分
+            List<Integer> point_list = sciPaperACfgMapper.selectSciPaperACfgPointList(order);
+            int res = setPaperUserScore(id, point_list);
+            if (res < 1 || res >4){
+                return -1;
+            }
+
         }
         int a = sciPaperAMapper.pytg(id, state);
 
@@ -182,7 +195,54 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
         sciPaperAMapper.insertSciPaperAr(sciPaperAr);
         return a;
     }
+    public int setPaperUserScore (String id, List<Integer> point_list){
+        List<Paper_user_score> paperUserScores = paperUserScoreServiceImplMapper.getpaperUserScoreListByPaperId(Long.valueOf(id));
 
+        // 检查是否存在第一作者（author_order = 1）
+        boolean hasFirstAuthor = paperUserScores.stream()
+                .anyMatch(score -> "1".equals(score.getAuthorOrder()));
+        AtomicInteger res = new AtomicInteger(0); // 使用 AtomicInteger 替代 int
+        paperUserScores.forEach(score -> {
+            try {
+                // 如果是通讯作者 (author_level = 0)
+                //System.out.println("score.getAuthorLevel() = " + score.getAuthorLevel() + score.getAuthorLevel().equals("0"));
+                if ("0".equals(score.getAuthorLevel())) {
+                    // 如果没有第一作者，通讯作者按第一作者分数计算
+                    if (!hasFirstAuthor && !point_list.isEmpty()) {
+                        Integer points = point_list.get(0); // 第一作者分数
+                        //System.out.println("通讯作者按第一作者计算, 分数: " + points);
+                        int i = paperUserScoreServiceImplMapper.updateScoreById(score.getPusId(), points);
+                        res.addAndGet(i); // 累加更新结果
+                    } else {
+                        // 有第一作者的情况下，通讯作者按正常顺序计算
+                        int levelIndex = Integer.parseInt(score.getAuthorLevel());
+                        if (levelIndex >= 0 && levelIndex < point_list.size()) {
+                            Integer points = point_list.get(levelIndex);
+                            //System.out.println("通讯作者, 对应分数: " + points);
+                            int i =paperUserScoreServiceImplMapper.updateScoreById(score.getPusId(), points);
+                            res.addAndGet(i); // 累加更新结果
+                        }
+                    }
+                } else {
+                    // 普通作者按原有逻辑处理
+                    String authorLevel = score.getAuthorLevel();
+                    int levelIndex = Integer.parseInt(authorLevel) - 1;
+
+                    if (levelIndex >= 0 && levelIndex < point_list.size()) {
+                        Integer points = point_list.get(levelIndex);
+                        //System.out.println("作者等级: " + authorLevel + ", 对应分数: " + points);
+                        int i =paperUserScoreServiceImplMapper.updateScoreById(score.getPusId(), points);
+                        res.addAndGet(i);
+                    } else {
+                        System.out.println("作者等级 " + authorLevel + " 超出point_list范围");
+                    }
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("author_level不是有效数字: " + score.getAuthorLevel());
+            }
+        });
+        return res.get();
+    }
     /**
      * 通过批阅点击驳回 , 或者通过撤回点击驳回
      * @param id
