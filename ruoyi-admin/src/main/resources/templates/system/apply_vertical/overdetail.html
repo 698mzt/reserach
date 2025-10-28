@@ -135,11 +135,11 @@
                 </div>
             </div>
             <!-- “积分权重”下拉，样式限制三行 -->
-            <div class="col-xs-6" shiro:hasPermission="system:score:weight" id="score-weight2-wrapper">
+            <div class="col-xs-6" shiro:hasPermission="system:score:weight" id="score-weight-wrapper">
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">积分权重：</label>
                     <div class="col-sm-8">
-                        <select readonly id="weight2" name="weight2" class="form-control" th:with="type=${@dict.getType('sci_score_weight')}" required>
+                        <select readonly id="weight" name="weight" class="form-control" th:with="type=${@dict.getType('sci_score_weight')}" required>
                             <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
                         </select>
                     </div>
@@ -233,7 +233,7 @@
 <th:block th:include="include :: select2-js" />
 <style>
     /* 仅限制第二个权重下拉三行高度 */
-    #score-weight2-wrapper .select2-results__options { max-height: 90px; overflow-y: auto; }
+    #score-weight-wrapper .select2-results__options { max-height: 90px; overflow-y: auto; }
 </style>
 <script type="text/javascript">
     function displayFileName(inputId, fileNameId) {
@@ -249,9 +249,9 @@
 
     $(function(){
         // 初始化第二个下拉的 Select2，使其有下拉面板并应用限高样式
-        $('#weight2').select2({
+        $('#weight').select2({
             width: '100%',
-            dropdownParent: $('#score-weight2-wrapper')
+            dropdownParent: $('#score-weight-wrapper')
         });
     });
 
