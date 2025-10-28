@@ -275,7 +275,7 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
             sciPaperAr.setState("科研处撤回");
             state = "4";
             int points = 0;
-            int b = sciPaperAMapper.updateSciPaperArs(id, points);
+            int b = paperUserScoreServiceImplMapper.updateScoreByPaperId(Long.valueOf(id), points);
         }
         int a = sciPaperAMapper.pytg(id, state);
 

@@ -44,6 +44,18 @@
         <result property="thirdAuthorName"    column="third_author_name"    />
         <result property="fourthAuthorName"    column="fourth_author_name"    />
         <result property="correspondingAuthorName"    column="corresponding_author_name"    />
+
+        <result property="firstPersonId"    column="first_author_id"    />
+        <result property="secondPersonId"    column="second_author_id"    />
+        <result property="thirdPersonId"    column="third_author_id"    />
+        <result property="fourthPersonId"    column="fourth_author_id"    />
+        <result property="communicationAuthorId"    column="corresponding_author_id"    />
+
+        <result property="firstAuthorScore"    column="first_author_score"    />
+        <result property="secondAuthorScore"    column="second_author_score"    />
+        <result property="thirdAuthorScore"    column="third_author_score"    />
+        <result property="fourthAuthorScore"    column="fourth_author_score"    />
+        <result property="correspondingAuthorScore"    column="corresponding_author_score"    />
     </resultMap>
 
     <sql id="selectSciPaperAVo">
@@ -74,10 +86,20 @@
         p.remarks,
         p.state,
         pa1.user_name as first_author_name,
+        pa1.user_id as first_author_id,
+        pa1.score as first_author_score,
         pa2.user_name as second_author_name,
+        pa2.user_id as second_author_id,
+        pa2.score as second_author_score,
         pa3.user_name as third_author_name,
+        pa3.user_id as third_author_id,
+        pa3.score as third_author_score,
         pa4.user_name as fourth_author_name,
-        pac.user_name as corresponding_author_name
+        pa4.user_id as fourth_author_id,
+        pa4.score as fourth_author_score,
+        pac.user_name as corresponding_author_name,
+        pac.user_id as corresponding_author_id,
+        pac.score as corresponding_author_score
       from
         sci_paper_a p
           left join sys_user u on
@@ -87,37 +109,35 @@
           left join sys_dept pt on
           d.parent_id = pt.dept_id
           left join (
-            select pa.paper_id, su.user_name 
-            from paper_author pa 
-            left join sys_user su on pa.user_id = su.user_id 
+            select pa.paper_id, su.user_name ,su.user_id ,pa.score
+            from paper_author pa
+                     left join sys_user su on pa.user_id = su.user_id
             where pa.author_level = '1'
-          ) pa1 on p.id = pa1.paper_id
+        ) pa1 on p.id = pa1.paper_id
           left join (
-            select pa.paper_id, su.user_name 
-            from paper_author pa 
-            left join sys_user su on pa.user_id = su.user_id 
+            select pa.paper_id, su.user_name ,su.user_id ,pa.score
+            from paper_author pa
+                     left join sys_user su on pa.user_id = su.user_id
             where pa.author_level = '2'
-          ) pa2 on p.id = pa2.paper_id
+        ) pa2 on p.id = pa2.paper_id
           left join (
-            select pa.paper_id, su.user_name 
-            from paper_author pa 
-            left join sys_user su on pa.user_id = su.user_id 
+            select pa.paper_id, su.user_name ,su.user_id,pa.score
+            from paper_author pa
+                     left join sys_user su on pa.user_id = su.user_id
             where pa.author_level = '3'
-          ) pa3 on p.id = pa3.paper_id
+        ) pa3 on p.id = pa3.paper_id
           left join (
-            select pa.paper_id, su.user_name 
-            from paper_author pa 
-            left join sys_user su on pa.user_id = su.user_id 
+            select pa.paper_id, su.user_name ,su.user_id,pa.score
+            from paper_author pa
+                     left join sys_user su on pa.user_id = su.user_id
             where pa.author_level = '4'
-          ) pa4 on p.id = pa4.paper_id
+        ) pa4 on p.id = pa4.paper_id
           left join (
-            select pa.paper_id, su.user_name 
-            from paper_author pa 
-            left join sys_user su on pa.user_id = su.user_id 
+            select pa.paper_id, su.user_name ,su.user_id,pa.score
+            from paper_author pa
+                     left join sys_user su on pa.user_id = su.user_id
             where pa.author_level = '0'
-          ) pac on p.id = pac.paper_id
-
-
+        ) pac on p.id = pac.paper_id
     </sql>
 
     <select id="selectSciPaperAList" parameterType="SciPaperA" resultMap="SciPaperAResult">
@@ -170,7 +190,7 @@
     <select id="selectSciPaperAListXY" parameterType="SciPaperA" resultMap="SciPaperAResult">
         <include refid="selectSciPaperAVo"/>
         <where>
-            p.state in (2,4,8) or( p.user_id = #{uid})
+            p.state in (2,4,8) or ((pa1.user_id = #{uid} or  pa2.user_id = #{uid}) or pa3.user_id = #{uid}  or pa4.user_id = #{uid} or pac.user_id = #{uid} or pac.user_id = #{uid})
             ${params.dataScope}
             <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
             <if test="teacherName != null  and teacherName != ''"> and teacher_name like concat('%', #{teacherName}, '%')</if>
@@ -250,7 +270,7 @@
             where pa.author_level = '0'
         ) pac on p.id = pac.paper_id
         <where>
-           p.state in (1,2,8) or((pa1.user_id = #{uid} or  pa2.user_id = #{uid}) or pa3.user_id = #{uid}  or pa4.user_id = #{uid} or pac.user_id = #{uid})
+           p.state in (1,2,8) or((pa1.user_id = #{uid} or  pa2.user_id = #{uid}) or pa3.user_id = #{uid}  or pa4.user_id = #{uid} or pac.user_id = #{uid} or pac.user_id = #{uid})
             /*${params.dataScope}*/
 <!--            <if test="userId != null  and userId != ''"> and p.user_id = #{userId}</if>-->
             <if test="teacherName != null  and teacherName != ''"> and teacher_name like concat('%', #{teacherName}, '%')</if>
@@ -280,43 +300,51 @@
             r.role_key role_key,
             s.user_name,
             pa1.user_name as first_author_name,
+            pa1.user_id as first_author_id,
+            pa1.score as first_author_score,
             pa2.user_name as second_author_name,
+            pa2.user_id as second_author_id,
+            pa2.score as second_author_score,
             pa3.user_name as third_author_name,
+            pa3.user_id as third_author_id,
+            pa3.score as third_author_score,
             pa4.user_name as fourth_author_name,
-            pac.user_name as corresponding_author_name
+            pa4.user_id as fourth_author_id,
+            pa4.score as fourth_author_score,
+            pac.user_name as corresponding_author_name,
+            pac.user_id as corresponding_author_id,
+            pac.score as corresponding_author_score
         from sys_user s
-            left join sys_user_role ur on s.user_id = ur.user_id
-            left join sys_role r on r.role_id = ur.role_id
-            left join (
-                select pa.paper_id, su.user_name 
-                from paper_author pa 
-                left join sys_user su on pa.user_id = su.user_id 
-                where pa.author_level = '1'
-            ) pa1 on s.user_id = #{user_id}
-            left join (
-                select pa.paper_id, su.user_name 
-                from paper_author pa 
-                left join sys_user su on pa.user_id = su.user_id 
-                where pa.author_level = '2'
-            ) pa2 on s.user_id = #{user_id}
-            left join (
-                select pa.paper_id, su.user_name 
-                from paper_author pa 
-                left join sys_user su on pa.user_id = su.user_id 
-                where pa.author_level = '3'
-            ) pa3 on s.user_id = #{user_id}
-            left join (
-                select pa.paper_id, su.user_name 
-                from paper_author pa 
-                left join sys_user su on pa.user_id = su.user_id 
-                where pa.author_level = '4'
-            ) pa4 on s.user_id = #{user_id}
-            left join (
-                select pa.paper_id, su.user_name 
-                from paper_author pa 
-                left join sys_user su on pa.user_id = su.user_id 
-                where pa.author_level = '0'
-            ) pac on s.user_id = #{user_id}
+                 left join (
+            select pa.paper_id, su.user_name ,su.user_id ,pa.score
+            from paper_author pa
+                     left join sys_user su on pa.user_id = su.user_id
+            where pa.author_level = '1'
+        ) pa1 on p.id = pa1.paper_id
+                 left join (
+            select pa.paper_id, su.user_name ,su.user_id ,pa.score
+            from paper_author pa
+                     left join sys_user su on pa.user_id = su.user_id
+            where pa.author_level = '2'
+        ) pa2 on p.id = pa2.paper_id
+                 left join (
+            select pa.paper_id, su.user_name ,su.user_id,pa.score
+            from paper_author pa
+                     left join sys_user su on pa.user_id = su.user_id
+            where pa.author_level = '3'
+        ) pa3 on p.id = pa3.paper_id
+                 left join (
+            select pa.paper_id, su.user_name ,su.user_id,pa.score
+            from paper_author pa
+                     left join sys_user su on pa.user_id = su.user_id
+            where pa.author_level = '4'
+        ) pa4 on p.id = pa4.paper_id
+                 left join (
+            select pa.paper_id, su.user_name ,su.user_id,pa.score
+            from paper_author pa
+                     left join sys_user su on pa.user_id = su.user_id
+            where pa.author_level = '0'
+        ) pac on p.id = pac.paper_id
         where s.user_id = #{user_id}
     </select>
 
@@ -325,11 +353,56 @@
       p.text_paper,p.word_paper,p.search_web,p.user_id,
       p.teacher_name,
       p.paper_title, p.paper_category, p.published_journal,p.publication_time, p.is_industry_collaborative,
-      p.is_local_collaborative, p.is_international_collaborative, p.is_cross_discipline, p.paper_ranking, p.research_score, p.remarks,p.state
+      p.is_local_collaborative, p.is_international_collaborative, p.is_cross_discipline, p.paper_ranking, p.research_score, p.remarks,p.state,
+        pa1.user_name as first_author_name,
+        pa1.user_id as first_author_id,
+        pa1.score as first_author_score,
+        pa2.user_name as second_author_name,
+        pa2.user_id as second_author_id,
+        pa2.score as second_author_score,
+        pa3.user_name as third_author_name,
+        pa3.user_id as third_author_id,
+        pa3.score as third_author_score,
+        pa4.user_name as fourth_author_name,
+        pa4.user_id as fourth_author_id,
+        pa4.score as fourth_author_score,
+        pac.user_name as corresponding_author_name,
+        pac.user_id as corresponding_author_id,
+        pac.score as corresponding_author_score
       from sci_paper_a p
       left join sys_user u on u.user_id = p.user_id
       left join sys_dept pt on u.dept_id = pt.dept_id
       left join sys_dept ptt on pt.parent_id = ptt.dept_id
+        left join (
+        select pa.paper_id, su.user_name ,su.user_id ,pa.score
+        from paper_author pa
+        left join sys_user su on pa.user_id = su.user_id
+        where pa.author_level = '1'
+        ) pa1 on p.id = pa1.paper_id
+        left join (
+        select pa.paper_id, su.user_name ,su.user_id ,pa.score
+        from paper_author pa
+        left join sys_user su on pa.user_id = su.user_id
+        where pa.author_level = '2'
+        ) pa2 on p.id = pa2.paper_id
+        left join (
+        select pa.paper_id, su.user_name ,su.user_id,pa.score
+        from paper_author pa
+        left join sys_user su on pa.user_id = su.user_id
+        where pa.author_level = '3'
+        ) pa3 on p.id = pa3.paper_id
+        left join (
+        select pa.paper_id, su.user_name ,su.user_id,pa.score
+        from paper_author pa
+        left join sys_user su on pa.user_id = su.user_id
+        where pa.author_level = '4'
+        ) pa4 on p.id = pa4.paper_id
+        left join (
+        select pa.paper_id, su.user_name ,su.user_id,pa.score
+        from paper_author pa
+        left join sys_user su on pa.user_id = su.user_id
+        where pa.author_level = '0'
+        ) pac on p.id = pac.paper_id
       <where>
           (pa1.user_id = #{uid} or  pa2.user_id = #{uid}) or pa3.user_id = #{uid}  or pa4.user_id = #{uid} or pac.user_id = #{uid}
           /*${params.dataScope}*/
@@ -398,17 +471,6 @@
         SELECT count(*) FROM `sci_paper_a`
         <where>
             <if test="paperTitle != null  and paperTitle != ''"> AND paper_title = #{paperTitle}</if>
-            <if test="paperCategory != null  and paperCategory != ''"> AND paper_category = #{paperCategory}</if>
-            <if test="publishedJournal != null  and publishedJournal != ''"> AND published_journal = #{publishedJournal}</if>
-            <if test="inclusionStatus != null  and inclusionStatus != ''"> AND inclusion_status = #{inclusionStatus}</if>
-            <if test="publicationTime != null "> AND publication_time = #{publicationTime}</if>
-            <if test="isIndustryCollaborative != null  and isIndustryCollaborative != ''"> AND is_industry_collaborative = #{isIndustryCollaborative}</if>
-            <if test="isLocalCollaborative != null  and isLocalCollaborative != ''"> AND is_local_collaborative = #{isLocalCollaborative}</if>
-            <if test="isInternationalCollaborative != null  and isInternationalCollaborative != ''"> AND is_international_collaborative = #{isInternationalCollaborative}</if>
-            <if test="isCrossDiscipline != null  and isCrossDiscipline != ''"> AND is_cross_discipline = #{isCrossDiscipline}</if>
-            <if test="paperRanking != null  and paperRanking != ''"> AND paper_ranking = #{paperRanking}</if>
-            <if test="researchScore != null  and researchScore != ''"> AND research_score = #{researchScore}</if>
-            <if test="remarks != null  and remarks != ''"> AND remarks = #{remarks}</if>
         </where>
     </select>
 
@@ -513,7 +575,8 @@
             <if test="concate != null  and concate != ''"> and concate = #{concate}</if>
             <if test="uid != null "> and uid = #{uid}</if>
         </where>
-        order  by create_time
+--         order  by create_time desc
+         order  by create_time
     </select>
 
 
@@ -549,7 +612,7 @@
         update sci_paper_a set state = #{state} where id = #{id}
     </update>
     <update id="updateSciPaperArs" >
-        update sci_paper_a set research_score = #{points} where id = #{id}
+        update sci_paper_a set research_score = #{points} where paper_id = #{id}
     </update>
     <delete id="deleteSciPaperAById" parameterType="Long">
         delete from sci_paper_a where id = #{id}

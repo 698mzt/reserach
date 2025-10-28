@@ -71,4 +71,8 @@
     <update id="updateScoreById" >
         update paper_author set score = #{points} where pus_id = #{pusId}
     </update>
+
+    <update id="updateScoreByPaperId" >
+        update paper_author set score = #{points} where paper_id = #{paperId}
+    </update>
 </mapper>

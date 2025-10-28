@@ -19,4 +19,6 @@ public interface PaperUserScoreServiceMapper {
     List<Paper_user_score> getpaperUserScoreListByPaperId(Long paperId);
 
     int updateScoreById(@Param("pusId")Long pusId, @Param("points")Integer points);
+
+    int updateScoreByPaperId(@Param("paperId")Long paperId, @Param("points")int points);
 }
