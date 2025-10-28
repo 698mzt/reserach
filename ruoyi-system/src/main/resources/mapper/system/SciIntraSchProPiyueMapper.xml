@@ -26,6 +26,8 @@
             <if test="concate != null  and concate != ''"> and concate = #{concate}</if>
             <if test="uid != null "> and uid = #{uid}</if>
         </where>
+        order by create_time
+--         order by create_time DESC
     </select>
 
     <insert id="insertIntraSchProPiyue" parameterType="SciIntraSchProPiyue" useGeneratedKeys="true" keyProperty="id">
