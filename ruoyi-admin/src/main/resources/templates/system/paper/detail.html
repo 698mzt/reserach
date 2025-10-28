@@ -271,6 +271,7 @@
     <div class="col-sm-offset-5 col-sm-10">
         <button type="button" id="btn1" class="btn btn-sm btn-primary" onclick="submitHandler()"><i class="fa fa-check"></i>通 过</button>&nbsp;
         <button type="button" id="btn2" class="btn btn-sm btn-danger" onclick="submitHandlerBH()"><i class="fa fa-reply-all"></i>驳 回</button>
+        <button type="button" id="btn4" class="btn btn-sm btn-danger" onclick="submitHandlerBH()"><i class="fa fa-reply-all"></i>撤 回</button>
         <button type="button" id="btn3" class="btn btn-sm btn-warning" onclick="closeItem()"><i class="fa fa-reply-all"></i>关 闭 </button>
     </div>
 </div>
@@ -366,52 +367,75 @@
             const urlFlag = $("#urlFlag").val();
 
             console.log("State:", state);
-
+            //关闭
+            $("#btn3").show();
             if (urlFlag === 'chakan') {
-                handleChakanView();
+                //handleChakanView();
+                $("#btn1").hide();
+                $("#btn2").hide();
+                // 批阅记录
+                $(".tdiv2").show();
+                $("#btn4").hide();
+
+
             } else {
                 if ([1, 2, 4].includes(parseInt(state))) {
-                    handleStandardView(rows);
+                    //handleStandardView(rows);
+                    if (rows.length > 0) {
+                        $(".tdiv2").show();
+                    }
+                    $(".tdiv1").show();
+                    $("#btn1").show();
+                    $("#btn2").show();
+                    $("#btn4").hide();
+
+
                 }
             }
 
             if ([8, 3].includes(parseInt(state))) {
                 $("#btn1").hide();
                 $("#btn2").hide();
+                $("#btn4").hide();
             }
 
             if (['kyth', 'xyth', 'proth'].includes(urlFlag)) {
-                handleSpecialView();
+                //handleSpecialView();
+                $(".tdiv1").show();
+                $(".tdiv2").show();
+                $("#btn1").hide();
+                $("#btn2").hide();
+                $("#btn4").show();
             }
         });
 
-        // 处理'chakan'视图
-        function handleChakanView() {
-            $("#btn1").hide();
-            $("#btn2").hide();
-            $(".tdiv2").show();
-            $("#btn3").show();
-        }
-
-        // 处理标准视图（state为1, 2, 或4）
-        function handleStandardView(rows) {
-            if (rows.length > 0) {
-                $(".tdiv2").show();
-            }
-            $(".tdiv1").show();
-            $("#btn1").show();
-            $("#btn2").show();
-            $("#btn3").show();
-        }
-
-        // 处理特殊视图（urlFlag为'kyth', 'xyth', 或'proth'）
-        function handleSpecialView() {
-            $(".tdiv1").show();
-            $(".tdiv2").show();
-            $("#btn1").hide();
-            $("#btn2").show();
-            $("#btn3").show();
-        }
+        // // 处理'chakan'视图
+        // function handleChakanView() {
+        //     $("#btn1").hide();
+        //     $("#btn2").hide();
+        //     $(".tdiv2").show();
+        //     $("#btn3").show();
+        // }
+        //
+        // // 处理标准视图（state为1, 2, 或4）
+        // function handleStandardView(rows) {
+        //     if (rows.length > 0) {
+        //         $(".tdiv2").show();
+        //     }
+        //     $(".tdiv1").show();
+        //     $("#btn1").show();
+        //     $("#btn2").show();
+        //     $("#btn3").show();
+        // }
+        //
+        // // 处理特殊视图（urlFlag为'kyth', 'xyth', 或'proth'）
+        // function handleSpecialView() {
+        //     $(".tdiv1").show();
+        //     $(".tdiv2").show();
+        //     $("#btn1").hide();
+        //     $("#btn2").show();
+        //     $("#btn3").show();
+        // }
     })
 
     function submitHandler() {
@@ -444,7 +468,15 @@
             //console.log("urlFlagBH:", urlFlag)
             //console.log("remark:", remark)
             var url = prefix + "/pybh/" + encodeURIComponent($("#pid").val());
-            $.operate.saveTab(url, {"urlFlag": urlFlag, "remark": remark})
+            if (!$('#remark').val().trim()) {
+                $.modal.confirm("确定 撤回 吗" ,function() {
+
+                    $.operate.saveTab(url, {"urlFlag": urlFlag, "remark": remark});
+                });
+
+
+            }
+
 
 
         } else {

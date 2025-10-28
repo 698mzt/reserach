@@ -206,6 +206,100 @@ public class SciPaperA extends BaseEntity {
     /** 通讯作者姓名 */
     private String correspondingAuthorName;
 
+    /** 一作分数 */
+    private String firstAuthorScore;
+
+    /** 二作分数 */
+    private String secondAuthorScore;
+
+    /** 三作分数 */
+    private String thirdAuthorScore;
+
+    /** 四作分数 */
+    private String fourthAuthorScore;
+
+    /** 通讯作者分数 */
+    private String correspondingAuthorScore;
+
+    public String getFirstAuthorName() {
+        return firstAuthorName;
+    }
+
+    public void setFirstAuthorName(String firstAuthorName) {
+        this.firstAuthorName = firstAuthorName;
+    }
+
+    public String getSecondAuthorName() {
+        return secondAuthorName;
+    }
+
+    public void setSecondAuthorName(String secondAuthorName) {
+        this.secondAuthorName = secondAuthorName;
+    }
+
+    public String getThirdAuthorName() {
+        return thirdAuthorName;
+    }
+
+    public void setThirdAuthorName(String thirdAuthorName) {
+        this.thirdAuthorName = thirdAuthorName;
+    }
+
+    public String getFourthAuthorName() {
+        return fourthAuthorName;
+    }
+
+    public void setFourthAuthorName(String fourthAuthorName) {
+        this.fourthAuthorName = fourthAuthorName;
+    }
+
+    public String getCorrespondingAuthorName() {
+        return correspondingAuthorName;
+    }
+
+    public void setCorrespondingAuthorName(String correspondingAuthorName) {
+        this.correspondingAuthorName = correspondingAuthorName;
+    }
+
+    public String getFirstAuthorScore() {
+        return firstAuthorScore;
+    }
+
+    public void setFirstAuthorScore(String firstAuthorScore) {
+        this.firstAuthorScore = firstAuthorScore;
+    }
+
+    public String getSecondAuthorScore() {
+        return secondAuthorScore;
+    }
+
+    public void setSecondAuthorScore(String secondAuthorScore) {
+        this.secondAuthorScore = secondAuthorScore;
+    }
+
+    public String getThirdAuthorScore() {
+        return thirdAuthorScore;
+    }
+
+    public void setThirdAuthorScore(String thirdAuthorScore) {
+        this.thirdAuthorScore = thirdAuthorScore;
+    }
+
+    public String getFourthAuthorScore() {
+        return fourthAuthorScore;
+    }
+
+    public void setFourthAuthorScore(String fourthAuthorScore) {
+        this.fourthAuthorScore = fourthAuthorScore;
+    }
+
+    public String getCorrespondingAuthorScore() {
+        return correspondingAuthorScore;
+    }
+
+    public void setCorrespondingAuthorScore(String correspondingAuthorScore) {
+        this.correspondingAuthorScore = correspondingAuthorScore;
+    }
 
     public String getPaperType() {
         return paperType;

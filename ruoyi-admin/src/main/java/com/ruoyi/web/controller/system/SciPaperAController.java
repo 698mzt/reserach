@@ -79,21 +79,27 @@ public class SciPaperAController extends BaseController {
         //教研室+普通老师身份
 
         if (roleId.contains("102") && roleId.contains("100")&&!roleId.contains("101")) {
+            System.out.println("教研室+普通老师身份");
             return prefix + "/paper_jy";
         }
         //单独教研室身份
         else if (roleId.contains("102")&& !roleId.contains("100")&&!roleId.contains("101")) {
+            System.out.println("单独教研室身份");
 
             return prefix + "/paper";
         }
         //科研处+普通老师身份
         else if (roleId.contains("101") && roleId.contains("100")) {
+            System.out.println("科研处+普通老师身份");
+
             return prefix + "/paper_ky";
         }
         //学院+普通老师身份
         else if ((roleId.contains("103") || roleId.contains("104") || roleId.contains("105") || roleId.contains("106") || roleId.contains("107") || roleId.contains("108")) && roleId.contains("100")) {
+            System.out.println("学院+普通老师身份");
             return prefix + "/paper_xy";
         } else if (roleId.contains("100") && roleId.size() == 1) {
+            System.out.println("普通老师身份");
             return prefix + "/paper_pt";
         } else {
             return prefix + "/paper";
@@ -239,6 +245,12 @@ public class SciPaperAController extends BaseController {
                     return error("保存作者信息失败");
                 }else if (i == -1) {
                     return error("你不能添加自己不是作者的论文");
+                }else if (i == -2) {
+                    return error("不能添加作者不存在的论文");
+                } else if (i==-3) {
+                    return error("一作只能是自己");
+                } else if (i==-4) {
+                    return error("未找到论文类型");
                 }
 
                 SciPaperAr sciPaperAr = new SciPaperAr();
@@ -264,9 +276,24 @@ public class SciPaperAController extends BaseController {
         if (!sciPaperA.getAuthorIds().contains(getUserId().toString())) {
             return -1;
         }
-//        if (SciPaperA.TWO_AUTHORS .contains(sciPaperA.getPaperCategory())){
-//            // todo:根据论文类别限制作者人数
-//        }
+        // 这里只是限制了人数 ,没有详细限制是第几作者
+        int key = (sciPaperA.getFirstPersonId()==null?0:1 )+ (sciPaperA.getSecondPersonId()==null?0:1) + (sciPaperA.getThirdPersonId()==null?0:1) + (sciPaperA.getFourthPersonId()==null?0:1);
+        if (sciPaperA.getPaperCategory()!=null){
+            if (sciPaperA.getPaperCategory().equals("11") || sciPaperA.getPaperCategory().equals("12") || sciPaperA.getPaperCategory().equals("10")){
+                if (key!=2){
+                    return -2;
+                }
+            } else if (sciPaperA.getPaperCategory().equals("8") || sciPaperA.getPaperCategory().equals("9")) {
+                if (key!=1){
+                    return -2;
+                }
+                if (!sciPaperA.getCommunicationAuthorId().equals(getUserId()) || !sciPaperA.getFirstPersonId().equals(getUserId())){
+                    return -3 ;
+                }
+            }
+        }else{
+            return -4;
+        }
 
         List<Paper_user_score> paperUserScoreList = new ArrayList<>();
         int res = 0;
@@ -494,6 +521,13 @@ public class SciPaperAController extends BaseController {
         return toAjax(sciPaperAService.pytg(id, getUserId(), urlFlag, order, user_order));
     }
 
+    /**
+     * 驳回+撤回
+     * @param id
+     * @param remark
+     * @param urlFlag
+     * @return
+     */
     @RequiresPermissions(value = {"system:paper:xypy", "system:paper:process", "system:paper:kypy", "system:paper:xyrevoke", "system:paper:kyrevoke"}, logical = Logical.OR)
     @Log(title = "论文审核驳回", businessType = BusinessType.UPDATE)
     @PostMapping("/pybh/{id}")
