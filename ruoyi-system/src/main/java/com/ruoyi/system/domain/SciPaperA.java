@@ -6,6 +6,8 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
 
+import java.util.List;
+
 /**
  * 论文对象 sci_paper_a
  *
@@ -15,6 +17,8 @@ import com.ruoyi.common.core.domain.BaseEntity;
 @Data
 public class SciPaperA extends BaseEntity {
     private static final long serialVersionUID = 1L;
+    public static final List<String> TWO_AUTHORS = List.of("11", "12", "10");
+    public  final List<String> ONE_AUTHORS = List.of("8", "9");
 
     /**
      * 序号
@@ -186,6 +190,22 @@ public class SciPaperA extends BaseEntity {
 
     /**通讯作者 */
     private String communicationAuthorId;
+    
+    /** 一作姓名 */
+    private String firstAuthorName;
+    
+    /** 二作姓名 */
+    private String secondAuthorName;
+    
+    /** 三作姓名 */
+    private String thirdAuthorName;
+    
+    /** 四作姓名 */
+    private String fourthAuthorName;
+    
+    /** 通讯作者姓名 */
+    private String correspondingAuthorName;
+
 
     public String getPaperType() {
         return paperType;
@@ -535,4 +555,10 @@ public class SciPaperA extends BaseEntity {
                 ", remarks='" + remarks + '\'' +
                 '}';
     }
+
+    public String getAuthorIds() {
+        return this.getFirstPersonId() + "," + this.getSecondPersonId() + "," + this.getThirdPersonId() + "," + this.getFourthPersonId()+ ","+ this.getCommunicationAuthorId();
+    }
+
+
 }

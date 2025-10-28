@@ -28,7 +28,13 @@
         </where>
     </select>
 
-
+    <select id="selectSciPaperACfgPointList"  parameterType="SciPaperCfg">
+        select points from sci_paper_cfg
+        <where>
+            <if test="order != null and order != ''">AND `order` = #{order}</if>
+        </where>
+        order by points desc
+    </select>
     <insert id="insertSciPaperCfg" parameterType="SciPaperCfg" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO sci_paper_cfg
         <trim prefix="(" suffix=")" suffixOverrides=",">

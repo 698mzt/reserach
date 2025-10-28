@@ -15,4 +15,6 @@ public interface SciPaperACfgMapper {
     public SciPaperCfg selectSciPaperACfgId(@Param("id")Integer id);
 
     public int updateSciPaperCfg(SciPaperCfg sciPaperCfg);
+
+    List<Integer> selectSciPaperACfgPointList(String order);
 }

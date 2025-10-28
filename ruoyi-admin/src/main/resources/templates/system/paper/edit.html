@@ -119,14 +119,87 @@
 <!--                    </div>-->
 <!--                </div>-->
 <!--            </div>-->
-          <div class="form-group">
-            <label class="col-sm-3 control-label">排名：</label>
-            <div class="col-sm-8">
-              <select id="paperRanking"  name="paperRanking" class="form-control m-b" th:with="type=${@dict.getType('sci_paper_qwer')}" required>
-                <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
-              </select>
+<!--          <div class="form-group">-->
+<!--            <label class="col-sm-3 control-label">排名：</label>-->
+<!--            <div class="col-sm-8">-->
+<!--              <select id="paperRanking"  name="paperRanking" class="form-control m-b" th:with="type=${@dict.getType('sci_paper_qwer')}" required>-->
+<!--                <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>-->
+<!--              </select>-->
+<!--            </div>-->
+<!--          </div>-->
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">一作：</label>
+                    <div class="col-sm-8">
+                        <select name="firstPersonId" class="form-control m-b" id="firstPersonId">
+                            <option value="">---请选择--</option>
+                            <option th:each="user : ${sysUsers}"
+                                    th:text="${user.userName}"
+                                    th:value="${user.userId}"
+                                    th:selected="${sciPaperA.firstPersonId == user.userId.toString()}"
+                                    th:data-user-id="${user.userId}"></option>
+                        </select>
+                    </div>
+                </div>
             </div>
-          </div>
+
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">二作：</label>
+                    <div class="col-sm-8">
+                        <select name="secondPersonId" class="form-control m-b" id="secondPersonId">
+                            <option value="">---请选择--</option>
+                            <option th:each="user : ${sysUsers}"
+                                    th:text="${user.userName}"
+                                    th:value="${user.userId}"
+                                    th:selected="${sciPaperA.secondPersonId == user.userId.toString()}"
+                                    th:data-user-id="${user.userId}"></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">三作：</label>
+                    <div class="col-sm-8">
+                        <select name="thirdPersonId" class="form-control m-b" id="thirdPersonId">
+                            <option value="">---请选择--</option>
+                            <option th:each="user : ${sysUsers}"
+                                    th:text="${user.userName}"
+                                    th:value="${user.userId}"
+                                    th:selected="${sciPaperA.thirdPersonId == user.userId.toString()}"
+                                    th:data-user-id="${user.userId}"></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">四作：</label>
+                    <div class="col-sm-8">
+                        <select name="fourthPersonId" class="form-control m-b" id="fourthPersonId">
+                            <option value="">--请选择--</option>
+                            <option th:each="user : ${sysUsers}"
+                                    th:text="${user.userName}"
+                                    th:value="${user.userId}"
+                                    th:selected="${sciPaperA.fourthPersonId == user.userId.toString()}"
+                                    th:data-user-id="${user.userId}"></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-10">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">通讯作者：</label>
+                    <div class="col-sm-8">
+                        <select name="communicationAuthorId" class="form-control m-b" id="correspondingAuthorId">
+                            <option value="">--请选择--</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
 
             <div class="form-group">
                 <label class="col-sm-3 control-label">论文网址：</label>
@@ -278,8 +351,76 @@
 
         function submitHandler() {
             if ($.validate.form()) {
+                // 校验作者信息是否重复
+                const authorIds = [
+                    $("#firstPersonId").val(),
+                    $("#secondPersonId").val(),
+                    $("#thirdPersonId").val(),
+                    $("#fourthPersonId").val()
+                ].filter(id => id !== ""); // 过滤掉空值
+
+                // 检查是否有重复的作者ID
+                const uniqueAuthors = new Set(authorIds);
+                if (authorIds.length !== uniqueAuthors.size) {
+                    $.modal.alertError("第一作者到第四作者不能重复");
+                    return false;
+                }
+                
+                // 校验网址
+                const searchWeb = $("input[name='search_web']").val().trim();
+                if (searchWeb !== "" && !validateUrl(searchWeb)) {
+                    $.modal.alertError("论文网址格式不正确，请以 http:// 或 https:// 开头");
+                    return false;
+                }
+                
                 $.operate.saveTab(prefix + "/edit", $('#form-paper-edit').serialize());
             }
+        }
+        
+        // 更新通讯作者下拉框选项
+        function updateCorrespondingAuthorOptions() {
+            const correspondingAuthorSelect = $('#correspondingAuthorId');
+            const selectedAuthors = [];
+            
+            // 获取所有选中的作者ID和名称
+            $('#firstPersonId, #secondPersonId, #thirdPersonId, #fourthPersonId').each(function() {
+                const authorId = $(this).val();
+                const authorName = $(this).find('option:selected').text();
+                if (authorId && authorId !== '') {
+                    selectedAuthors.push({
+                        id: authorId,
+                        name: authorName
+                    });
+                }
+            });
+            
+            // 保存当前选中的通讯作者
+            const currentSelected = correspondingAuthorSelect.val();
+            
+            // 清空下拉框
+            correspondingAuthorSelect.empty();
+            correspondingAuthorSelect.append('<option value="">--请选择--</option>');
+            
+            // 添加选中的作者作为选项
+            selectedAuthors.forEach(function(author) {
+                correspondingAuthorSelect.append('<option value="' + author.id + '">' + author.name + '</option>');
+            });
+            
+            // 如果之前选中的通讯作者仍然在选项中，则保持选中状态
+            if (currentSelected && selectedAuthors.some(author => author.id === currentSelected)) {
+                correspondingAuthorSelect.val(currentSelected);
+            }
+        }
+        
+        function validateUrl(string) {
+            // 确保网址以 http:// 或 https:// 开头
+            if (!string.startsWith('http://') && !string.startsWith('https://')) {
+                return false;
+            }
+
+            // 使用正则表达式验证网址格式
+            const urlPattern = /^(https?):\/\/([^\s\.]+\.[^\s]{2,}|www\.[^\s]+\.[^\s]{2,})/;
+            return urlPattern.test(string);
         }
 
         $(".file-upload").each(function (i) {
@@ -304,6 +445,56 @@
             minView: "month",
             autoclose: true
         });
+
+        $(document).ready(function() {
+            // 初始化选择器为select2，提供搜索能力
+            $('#firstPersonId, #secondPersonId, #thirdPersonId, #fourthPersonId, #correspondingAuthorId').select2({
+                width: '100%',
+                placeholder: '\u002D\u002D请选择\u002D\u002D',
+                allowClear: true
+            });
+
+            // 初始化通讯作者下拉框（在页面加载时）
+            updateCorrespondingAuthorOptions();
+
+            // 设置默认选中的通讯作者
+            var communicationAuthorId = /*[[${sciPaperA.communicationAuthorId}]]*/ '';
+            if (communicationAuthorId && communicationAuthorId !== '') {
+                $('#correspondingAuthorId').val(communicationAuthorId).trigger('change');
+            }
+
+            // 根据论文类别，应用启禁用规则
+            const initialCategory = $('select[name="paperCategory"]').val();
+            if (initialCategory) {
+                applyAuthorEnableRule(initialCategory);
+            }
+
+            // 监听1-4作的选择变化
+            $('#firstPersonId, #secondPersonId, #thirdPersonId, #fourthPersonId').on('change', function() {
+                updateCorrespondingAuthorOptions();
+            });
+
+            // 监听论文类别变化，动态启禁用作者下拉框
+            $('select[name="paperCategory"]').on('change', function () {
+                applyAuthorEnableRule($(this).val());
+            });
+        });
+
+        function applyAuthorEnableRule(inputValue){
+            // 10,11,12: 只允许1-2作者
+            if(inputValue == "10" || inputValue == "11" || inputValue == "12") {
+                $('#secondPersonId').prop('disabled', false);
+                $('#thirdPersonId, #fourthPersonId').prop('disabled', true).val('').trigger('change');
+            } else if (inputValue == "8" || inputValue == "9"){
+                // 8,9: 仅第一作者
+                $('#secondPersonId, #thirdPersonId, #fourthPersonId').prop('disabled', true).val('').trigger('change');
+            } else {
+                // 其他: 全部可选
+                $('#secondPersonId, #thirdPersonId, #fourthPersonId').prop('disabled', false);
+            }
+            // 更新通讯作者选项
+            updateCorrespondingAuthorOptions();
+        }
 
         // window.onload = function() {
         //     displayFileName('text_paper', 'contractFileName');

@@ -68,6 +68,14 @@
             </div>
             <div class="col-md-6">
                 <div class="form-group">
+                    <label class="col-sm-4 control-label">备注：</label>
+                    <div class="col-sm-8">
+                        <input disabled name="remarks" th:field="*{remarks}" class="form-control" type="text">
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
                     <label class="col-sm-4 control-label">是否与行业联合发表：</label>
                     <div class="col-sm-8">
                         <label class="radio-box">
@@ -118,44 +126,77 @@
                     </div>
                 </div>
             </div>
+<!--            <div class="col-md-6">-->
+<!--                <div class="form-group">-->
+<!--                    <label class="col-sm-4 control-label">排名：</label>-->
+<!--&lt;!&ndash;                    <div class="col-sm-8" th:with="type=${@dict.getType('sci_paper_qwer')}">&ndash;&gt;-->
+<!--&lt;!&ndash;                        <select th:field="*{paperRanking}" disabled class="form-control m-b">&ndash;&gt;-->
+<!--&lt;!&ndash;                            &lt;!&ndash; 默认选项 &ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;                            <option value="" th:if="${#lists.isEmpty(type)}">无可用选项</option>&ndash;&gt;-->
+<!--&lt;!&ndash;                            &lt;!&ndash; 动态生成选项 &ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;                            <option th:each="dict : ${type}"&ndash;&gt;-->
+<!--&lt;!&ndash;                                    th:text="${dict.dictLabel}"&ndash;&gt;-->
+<!--&lt;!&ndash;                                    th:value="${dict.dictValue}"&ndash;&gt;-->
+<!--&lt;!&ndash;                                    th:selected="${sciPaperA.paperRanking == dict.dictValue}">&ndash;&gt;-->
+<!--&lt;!&ndash;                            </option>&ndash;&gt;-->
+<!--&lt;!&ndash;                        </select>&ndash;&gt;-->
+<!--&lt;!&ndash;                    </div>&ndash;&gt;-->
+<!--                  <div class="col-sm-8">-->
+<!--                    <select id="paperRanking"  readonly class="form-control" th:with="type=${@dict.getType('sci_paper_qwer')}" required disabled>-->
+<!--                      <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}" th:field="*{paperRanking}"></option>-->
+<!--                    </select>-->
+<!--                  </div>-->
+<!--                </div>-->
+<!--            </div>-->
             <div class="col-md-6">
                 <div class="form-group">
-                    <label class="col-sm-4 control-label">排名：</label>
-<!--                    <div class="col-sm-8" th:with="type=${@dict.getType('sci_paper_qwer')}">-->
-<!--                        <select th:field="*{paperRanking}" disabled class="form-control m-b">-->
-<!--                            &lt;!&ndash; 默认选项 &ndash;&gt;-->
-<!--                            <option value="" th:if="${#lists.isEmpty(type)}">无可用选项</option>-->
-<!--                            &lt;!&ndash; 动态生成选项 &ndash;&gt;-->
-<!--                            <option th:each="dict : ${type}"-->
-<!--                                    th:text="${dict.dictLabel}"-->
-<!--                                    th:value="${dict.dictValue}"-->
-<!--                                    th:selected="${sciPaperA.paperRanking == dict.dictValue}">-->
-<!--                            </option>-->
-<!--                        </select>-->
-<!--                    </div>-->
-                  <div class="col-sm-8">
-                    <select id="paperRanking"  readonly class="form-control" th:with="type=${@dict.getType('sci_paper_qwer')}" required disabled>
-                      <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}" th:field="*{paperRanking}"></option>
-                    </select>
-                  </div>
-                </div>
-            </div>
-          <div class="col-md-6">
-            <div class="form-group">
-              <label class="col-sm-4 control-label">备注：</label>
-              <div class="col-sm-8">
-                <input disabled name="remarks" th:field="*{remarks}" class="form-control" type="text">
-              </div>
-            </div>
-          </div>
-            <div class="col-md-6">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label">科研分：</label>
+                    <label class="col-sm-4 control-label">一作：</label>
                     <div class="col-sm-8">
-                        <input disabled name="researchScore" th:field="*{researchScore}" class="form-control" type="text">
+                        <input disabled name="firstAuthorName" th:field="*{firstAuthorName}" class="form-control" type="text">
                     </div>
                 </div>
             </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">二作：</label>
+                    <div class="col-sm-8">
+                        <input disabled name="secondAuthorName" th:field="*{secondAuthorName}" class="form-control" type="text">
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">三作：</label>
+                    <div class="col-sm-8">
+                        <input disabled name="thirdAuthorName" th:field="*{thirdAuthorName}" class="form-control" type="text">
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">四作：</label>
+                    <div class="col-sm-8">
+                        <input disabled name="fourthAuthorName" th:field="*{fourthAuthorName}" class="form-control" type="text">
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">通讯作者：</label>
+                    <div class="col-sm-8">
+                        <input disabled name="correspondingAuthorName" th:field="*{correspondingAuthorName}" class="form-control" type="text">
+                    </div>
+                </div>
+            </div>
+
+<!--            <div class="col-md-6">-->
+<!--                <div class="form-group">-->
+<!--                    <label class="col-sm-4 control-label">科研分：</label>-->
+<!--                    <div class="col-sm-8">-->
+<!--                        <input disabled name="researchScore" th:field="*{researchScore}" class="form-control" type="text">-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
             <div class="col-md-6">
                 <div class="form-group">
                     <label class="col-sm-4 control-label">论文网址：</label>

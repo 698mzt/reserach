@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.PaperUserScoreServiceMapper">
+    <resultMap type="Paper_user_score" id="Paper_user_scoreResult">
+        <result property="pusId"    column="pus_id"    />
+        <result property="paperId"    column="paper_id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="authorLevel"    column="author_level"    />
+        <result property="score"    column="score"    />
+        <result property="authorOrder"    column="author_order"    />
+        <result property="isDeleted"    column="is_deleted"    />
+        <!-- 继承自 BaseEntity 的通用字段 -->
+        <result property="createBy" column="create_by" />
+        <result property="createTime" column="create_time" />
+        <result property="updateBy" column="update_by" />
+        <result property="updateTime" column="update_time" />
+        <result property="remark" column="remark" />
+    </resultMap>
+
+    <!-- 批量插入论文作者得分记录 -->
+    <insert id="batchInsertPaperUserScore" parameterType="java.util.List">
+        INSERT INTO paper_author
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            paper_id,
+            user_id,
+            author_level,
+            score,
+            author_order,
+            is_deleted,
+            create_by,
+            create_time,
+            update_by,
+            update_time,
+            remark,
+        </trim>
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                #{item.paperId},
+                #{item.userId},
+                #{item.authorLevel},
+                #{item.score},
+                #{item.authorOrder},
+                '0',
+                #{item.createBy},
+                #{item.createTime},
+                #{item.updateBy},
+                #{item.updateTime},
+                #{item.remark},
+            </trim>
+        </foreach>
+    </insert>
+
+    <!-- 根据论文ID删除作者得分记录 -->
+    <delete id="deletePaperUserScoreByPaperId" parameterType="Long">
+        DELETE FROM paper_author
+        WHERE paper_id = #{paperId}
+    </delete>
+
+    <select id="getpaperUserScoreListByPaperId" resultMap = "Paper_user_scoreResult">
+        select pus_id , paper_id , user_id, author_level , author_order from paper_author
+        <where>
+        <if test="paperId != null and paperId != '' ">
+            AND paper_id = #{paperId}
+        </if>
+        </where>
+
+    </select>
+    <update id="updateScoreById" >
+        update paper_author set score = #{points} where pus_id = #{pusId}
+    </update>
+</mapper>

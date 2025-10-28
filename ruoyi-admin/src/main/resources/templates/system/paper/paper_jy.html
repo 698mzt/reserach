@@ -557,6 +557,31 @@
           title: '教师姓名',
           align: 'center',
         },
+        {
+          field: 'firstAuthorName',
+          title: '一作',
+          align: 'center',
+        },
+        {
+          field: 'secondAuthorName',
+          title: '二作',
+          align: 'center',
+        },
+        {
+          field: 'thirdAuthorName',
+          title: '三作',
+          align: 'center',
+        },
+        {
+          field: 'fourthAuthorName',
+          title: '四作',
+          align: 'center',
+        },
+        {
+          field: 'correspondingAuthorName',
+          title: '通讯作者',
+          align: 'center',
+        },
 
         {
           field: 'paperTitle',
@@ -624,24 +649,25 @@
           align: 'center',
           visible: false,
         },
-        {
-          field: 'paperRanking',
-          title: '作者排名',
-          formatter: function(value, row, index) {
-            console.log( $.table.selectDictLabels(QWERDates, value))
-            return $.table.selectDictLabel(QWERDates, value);
-          }
-        },
+        // {
+        //   field: 'paperRanking',
+        //   title: '作者排名',
+        //   formatter: function(value, row, index) {
+        //     console.log( $.table.selectDictLabels(QWERDates, value))
+        //     return $.table.selectDictLabel(QWERDates, value);
+        //   }
+        // },
         {
           field: 'researchScore',
           title: '积分',
           formatter: function (value, row, index) {
             //console.log("row=",row)
-            if (row.userId == row.uid) {
-              return row.researchScore;
-            } else {
-              return 0;
-            }
+              return row.first_author_id == row.uid ?row.first_author_score :row.second_author_id == row.uid ? row.second_author_score :row.third_author_id == row.uid ? row.third_author_score :row.fourth_author_id == row.uid ? row.fourth_author_score :row.corresponding_author_id == row.uid ? row.corresponding_author_score :0;
+            // if (row.first_author_id == row.uid) {
+            //   return row.researchScore;
+            // } else {
+            //   return 0;
+            // }
           }
         },
         {
