@@ -468,14 +468,17 @@
             //console.log("urlFlagBH:", urlFlag)
             //console.log("remark:", remark)
             var url = prefix + "/pybh/" + encodeURIComponent($("#pid").val());
-            if (!$('#remark').val().trim()) {
-                $.modal.confirm("确定 撤回 吗" ,function() {
 
-                    $.operate.saveTab(url, {"urlFlag": urlFlag, "remark": remark});
-                });
+                if (['pro', 'xytg', 'kytg'].includes(urlFlag)) {
+                    $.modal.confirm("确定 驳回 吗" ,function() {
+                        $.operate.saveTab(url, {"urlFlag": urlFlag, "remark": remark});
+                    });
+                }else{
+                    $.modal.confirm("确定 撤回 吗" ,function() {
+                        $.operate.saveTab(url, {"urlFlag": urlFlag, "remark": remark});
+                    });
+                }
 
-
-            }
 
 
 

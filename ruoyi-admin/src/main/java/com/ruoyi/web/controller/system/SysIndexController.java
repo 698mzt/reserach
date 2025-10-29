@@ -34,6 +34,8 @@ import com.ruoyi.system.service.ISysMenuService;
 @Controller
 public class SysIndexController extends BaseController
 {
+    private String prefix = "system/StatsQuery/view";
+
     @Autowired
     private ISysMenuService menuService;
 
@@ -134,7 +136,8 @@ public class SysIndexController extends BaseController
         // 取身份信息
         SysUser user = getSysUser();
         mmap.put("user", user);
-        return "main_v2";
+        return prefix;
+        //return "main_v2";
     }
 
     // content-main class
