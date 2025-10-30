@@ -246,11 +246,13 @@ public class SciPaperAController extends BaseController {
                 }else if (i == -1) {
                     return error("你不能添加自己不是作者的论文");
                 }else if (i == -2) {
-                    return error("不能添加作者不存在的论文");
+                    return error("作者数量错误");
                 } else if (i==-3) {
                     return error("一作只能是自己");
                 } else if (i==-4) {
                     return error("未找到论文类型");
+                }else if (i==-5){
+                    return error("作者重复");
                 }
 
                 SciPaperAr sciPaperAr = new SciPaperAr();
@@ -278,6 +280,14 @@ public class SciPaperAController extends BaseController {
         }
         // 这里只是限制了人数 ,没有详细限制是第几作者
         int key = (sciPaperA.getFirstPersonId()==null?0:1 )+ (sciPaperA.getSecondPersonId()==null?0:1) + (sciPaperA.getThirdPersonId()==null?0:1) + (sciPaperA.getFourthPersonId()==null?0:1);
+        Set<String> countAuthors = new HashSet<>();
+        countAuthors.add(sciPaperA.getFirstPersonId());
+        countAuthors.add(sciPaperA.getSecondPersonId ());
+        countAuthors.add(sciPaperA.getThirdPersonId());
+        countAuthors.add(sciPaperA.getFourthPersonId());
+        if (countAuthors.size()!=key){
+            return -5;
+        }
         if (sciPaperA.getPaperCategory()!=null){
             if (sciPaperA.getPaperCategory().equals("11") || sciPaperA.getPaperCategory().equals("12") || sciPaperA.getPaperCategory().equals("10")){
                 if (key!=2){
@@ -294,6 +304,8 @@ public class SciPaperAController extends BaseController {
         }else{
             return -4;
         }
+
+
 
         List<Paper_user_score> paperUserScoreList = new ArrayList<>();
         int res = 0;
