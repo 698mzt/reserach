@@ -572,6 +572,43 @@
             const urlPattern = /^(https?):\/\/([^\s\.]+\.[^\s]{2,}|www\.[^\s]+\.[^\s]{2,})/;
             return urlPattern.test(string);
         }
+        function updateAuthorDropdownOptions() {
+            // 构造所有未禁用select及其已选值
+            var selects = [
+                {id: 'firstPersonId', $el: $('#firstPersonId'), selected: $('#firstPersonId').val()},
+                {id: 'secondPersonId', $el: $('#secondPersonId'), selected: $('#secondPersonId').val()},
+                {id: 'thirdPersonId', $el: $('#thirdPersonId'), selected: $('#thirdPersonId').val()},
+                {id: 'fourthPersonId', $el: $('#fourthPersonId'), selected: $('#fourthPersonId').val()}
+            ];
+            // 收集所有未禁用且有选中的ID
+            var selectedIds = selects.filter(s => !s.$el.prop('disabled') && s.selected).map(s => s.selected);
+
+            selects.forEach(currentSel => {
+                // 只刷未禁用的
+                if (currentSel.$el.prop('disabled')) return;
+                currentSel.$el.find('option').each(function() {
+                    var val = $(this).val();
+                    if (!val) return; // 保留请选择
+                    // 如果该选项被其它未禁用下拉选中则禁用(但自身已选要保留)
+                    var isByOtherSelected = selectedIds.includes(val) && currentSel.selected !== val;
+                    $(this).prop('disabled', isByOtherSelected);
+                });
+                // 让select2刷新可选项
+                if (currentSel.$el.data('select2')) currentSel.$el.trigger('change.select2');
+            });
+        }
+        // 绑定互斥逻辑
+        $('#firstPersonId,#secondPersonId,#thirdPersonId,#fourthPersonId').on('change', function(){
+            updateAuthorDropdownOptions();
+            updateCorrespondingAuthorOptions(); // 通讯作者仍需联动
+        });
+        // 论文类别变化后，也需要刷新一次可选
+        $('select[name=\"paperCategory\"]').on('change', function(){
+            updateAuthorDropdownOptions();
+            updateCorrespondingAuthorOptions();
+        });
+        // 页面首次加载也刷新一次保证同步
+        $(document).ready(function(){ updateAuthorDropdownOptions(); });
     </script>
 </body>
 </html>

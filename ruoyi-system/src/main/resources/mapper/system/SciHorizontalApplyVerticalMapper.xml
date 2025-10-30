@@ -330,13 +330,13 @@
         <if test="topicName != null and topicName != ''">
             and s.top_name like concat('%', #{topicName}, '%')
         </if>
-        <if test="state != null and state != '' and state != 'null' and state != '1' ">
+        <if test='state != null and state != "" and state!="null" and state =="1" '>
             and s.state in (3,5,7,33,55,77,99,6)
         </if>
-        <if test="state != null and state != '' and state != 'null' and state != '2' ">
+        <if test='state != null and state != "" and state!="null" and state =="2"'>
             and s.state in (1,2,4,11,22,44)
         </if>
-        <if test="state != null and state != '' and state != 'null' and state != '3' ">
+        <if test='state != null and state != "" and state!="null" and state =="3"'>
             and s.state in (66)
         </if>
         order by s.createtime desc

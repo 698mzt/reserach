@@ -1260,7 +1260,16 @@
     </select>
     <select id="getStatsQuery" parameterType="map" resultMap="SciHorizontalApplyResult">
         <include refid="selectSciHorizontalApplyVo"/>
-        where s.state in (1,2,3,4,5,6,7)
+
+        <if test='state != null and state != "" and state!="null" and state =="1" '>
+            AND s.state in (3,5,9,10,12,14,4,15,16)
+        </if>
+        <if test='state != null and state != "" and state!="null" and state =="2"'>
+            AND s.state in (1,2,7,8,11,13)
+        </if>
+        <if test='state != null and state != "" and state!="null" and state =="3"'>
+            AND s.state in (6)
+        </if>
         <if test="startTime != null and startTime != ''">
             and s.createtime >= #{startTime}
         </if>
@@ -1279,9 +1288,7 @@
         <if test="topicName != null and topicName != ''">
             and s.top_name like concat('%', #{topicName}, '%')
         </if>
-        <if test="state != null and state != '' and state != 'null'">
-            and s.state = #{state}
-        </if>
+
         order by s.createtime desc
     </select>
 </mapper>

@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.*;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.page.TableDataInfo;
 
+import static net.sf.jsqlparser.parser.feature.Feature.set;
+
 //http://localhost:8081/IntraSchPro
 @Controller
 @RequestMapping("/IntraSchPro")
@@ -274,6 +276,14 @@ public class SciIntraSchoolProController extends BaseController {
 
     //数据库里面这个的默认值是15 草稿
     //System.out.println("addSave:"+sciIntraSchoolPro.getState());
+      Set<String> countAuthors = new HashSet<>();
+      countAuthors.add(sciIntraSchoolPro.getFirstPersonId());
+      countAuthors.add(sciIntraSchoolPro.getSecondPersonId ());
+      countAuthors.add(sciIntraSchoolPro.getThirdPersonId());
+      countAuthors.add(sciIntraSchoolPro.getFourthPersonId());
+      if (countAuthors.size() < 4){
+          return error("负责人不能重复");
+      }
     //插入这个课题
     sciIntraSchoolPro.setUid(getUserId());
     int id = sciIntraSchProApplyService.insert_SchPro_Apply(sciIntraSchoolPro);
