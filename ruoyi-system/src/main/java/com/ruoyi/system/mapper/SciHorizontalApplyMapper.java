@@ -115,6 +115,7 @@ public interface SciHorizontalApplyMapper
      * 查询到账金额
      * */
     List<creditedAmount> selectCreditedAmount();
+    String selectCreditedAmountById(Integer  id);
 
     // 科研处审批统计
     int countByStates(@Param("states") List<String> states,

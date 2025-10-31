@@ -746,6 +746,8 @@ public class SciHorizontalApplyController extends BaseController
     {
         SciHorizontalApply sciHorizontalApply = sciHorizontalApplyService.selectSciHorizontalApplyById(id);
         List<SysUser> userList1 =  userService.selectAllUser();
+        String allAmount = sciHorizontalApplyService.selectSciHorizontalApplyById(id).getAmount();
+        sciHorizontalApply.setAmount(allAmount);
         mmap.put("sysUsers1",userList1);
         mmap.put("sciHorizontalApply", sciHorizontalApply);
         // 查询全部成员并注入第5位及以后
@@ -763,7 +765,14 @@ public class SciHorizontalApplyController extends BaseController
     @ResponseBody
     public AjaxResult Reamount(SciHorizontalReamount sciHorizontalReamount)
     {
-        return toAjax(sciHorizontalReamountService.insertAmount(sciHorizontalReamount));
+        int state = sciHorizontalReamountService.insertAmount(sciHorizontalReamount);
+        if (state == -1) {
+            return  AjaxResult.error("新增金额大于总金额的七成！！！请核实后输入正确的金额");
+        }
+        if (state == -2) {
+            return  AjaxResult.error("追加总金额超过项目金额的七成！！！请核实后输入正确的金额");
+        }
+        return toAjax(state);
     }
 
     /**
