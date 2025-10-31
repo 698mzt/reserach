@@ -444,22 +444,37 @@
 </div>
 <script type="text/javascript">
     function submitAmount() {
-        if($("input[name='reAmount1']").val()==="")
+        // 获取输入的到账金额
+        var reAmount1Value = $("input[name='reAmount1']").val();
+        // 获取项目总金额
+        var totalAmount = $("input[name='amount']").val();
+
+        // 基本验证
+        if(reAmount1Value < 0 || reAmount1Value == 0)
+            return $.modal.alertError("请输入正确的金额");
+        if(reAmount1Value === "")
             return $.modal.alertError("请添加到账金额");
         if($("input[name='accountData1']").val()==="")
             return $.modal.alertError("请添加到账时间");
         if($("input[name='reamountUrl1']").val()==="")
             return $.modal.alertError("请上传到账金额文件");
-        if($("input[name='reAmount1']").val()!=="" && $("input[name='accountData1']").val()!=="" && $("input[name='reamountUrl1']").val()!==""){
-            $("#reAmount").val($("input[name='reAmount1']").val());
+
+        // 新增验证：检查到账金额是否超过总金额的70%
+        if(totalAmount && parseFloat(reAmount1Value) > parseFloat(totalAmount) * 0.7) {
+            return $.modal.alertError("到账金额不能超过项目总金额的70%");
+        }
+
+        // 保存数据
+        if(reAmount1Value !== "" && $("input[name='accountData1']").val() !== "" && $("input[name='reamountUrl1']").val() !== ""){
+            $("#reAmount").val(reAmount1Value);
             $("#accountData").val($("input[name='accountData1']").val());
             $("#reamountUrl").val($("input[name='reamountUrl1']").val());
             $("#close").click();
         }else{
             return $.modal.alertError("上传信息有误");
         }
-        // $.operate.saveTab(prefix + "/Reamount");
     }
+
     $("input[name='accountData1']").datetimepicker({
         format: "yyyy-mm-dd",
         minView: "month",

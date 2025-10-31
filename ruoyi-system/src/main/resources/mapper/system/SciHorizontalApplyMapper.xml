@@ -470,6 +470,16 @@
             shr.apply_id
     </select>
 
+    <select id="selectCreditedAmountById" resultType="String">
+        select
+            SUM(shr.re_amount) as credited_amount
+        from
+            sci_horizontal_reamount shr
+        where
+            shr.apply_id = #{applyId}
+
+    </select>
+
 
 
 

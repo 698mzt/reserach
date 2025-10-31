@@ -152,7 +152,7 @@
             <div class="form-group">
                 <label class="col-sm-4 control-label is-required">积分权重：</label>
                 <div class="col-sm-8">
-                    <select readonly id="weight" name="weight" class="form-control" th:with="type=${@dict.getType('sci_score_weight')}" required>
+                    <select disabled id="weight" name="weight" class="form-control" th:with="type=${@dict.getType('sci_score_weight')}" required>
                         <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
                     </select>
                 </div>
