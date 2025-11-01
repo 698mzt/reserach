@@ -219,6 +219,7 @@
                     <div class="file-loading">
                         <input class="form-control file-upload" id="text_paper" name ="file" type="file" >
                     </div>
+                    <small class="form-text text-muted">支持格式：PDF</small>
                 </div>
             </div>
             <div class="form-group">
@@ -228,6 +229,7 @@
                     <div class="file-loading">
                         <input class="form-control file-wupload" id="word_paper" name ="file" type="file" >
                     </div>
+                    <small class="form-text text-muted">支持格式：DOC、DOCX</small>
                 </div>
             </div>
             <div class="form-group">
@@ -302,6 +304,8 @@
             maxFileCount: 1,
             autoReplace: true,
             allowedFileExtensions: ["pdf"],
+            // 添加提示信息
+            allowedFileExtensionsMsg: '只允许上传PDF文件',
             slugCallback: function(filename) {
                 if ($("input[name='paperTitle']").val()===""){
                     $(".file-uploada").fileinput('clear');
@@ -328,6 +332,8 @@
             maxFileCount: 1,
             autoReplace: true,
             allowedFileExtensions: ["docx","doc"],
+            // 添加提示信息
+            allowedFileExtensionsMsg: '只允许上传DOC、DOCX文件',
             slugCallback: function(filename) {
                 if ($("input[name='paperTitle']").val()===""){
                     $(".file-uploada").fileinput('clear');

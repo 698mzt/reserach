@@ -571,7 +571,7 @@
     });
     var datas = [[${@dict.getType('sys_intraschpro_tasks')}]];
     var prefix = ctx + "StatsQuery";
-    var hasSearched = false; // 添加搜索状态标志
+    var hasSearched = false; // 添加搜索状态标志  初始菜单不加载 ,点击搜索之后才会显示
     
     // 定义不同项目类别对应的表格列配置
     var tableColumnsConfig = {
@@ -828,6 +828,8 @@
             $('#bootstrap-table0').bootstrapTable('refresh');
         });
     });
+    // 根据筛选条件
+    // 初始化表格
     $(function () {
         // tab-0
         var options0 = {
@@ -885,7 +887,123 @@
         $.table.init(options0);
     });
 
+    //设置不同模块的状态颜色
+    function rowStyle0(row, index) {
+        var remark = $("select[name='remark']").val(); // 项目类别
+        //console.log("row = ", row)
+        console.log("remark = ", remark=="1",remark)
+        if (remark == "1"){
+            if (["66", "6"].includes(row.state)) {
+                //console.log("row.state is 6", row.state)
+                // 完结 绿色
+                return {
+                    css: {"color": '#67c23a'}
 
+                };
+            } else if (["3","5","7","33","55","77","99"].includes(row.state)) {
+                // 草稿 黄色
+                return {
+                    css: {"color": '#c78045'}
+
+                };
+            } else if (["1", "2", "11", "4", "22", "44"].includes(row.state)) {
+                // 审核中 蓝色
+                return {
+                    css: {"color": '#2c99ff'}
+
+                };
+            }
+        }else if (remark == "2"){
+            if (["6", "4"].includes(row.state)) {
+                //console.log("row.state is 6", row.state)
+                // 完结 绿色
+                return {
+                    css: {"color": '#67c23a'}
+
+                };
+            } else if (["3","5","9","10","22","44","99"].includes(row.state)) {
+                // 草稿 黄色
+                return {
+                    css: {"color": '#c78045'}
+
+                };
+            } else if (["1", "2", "11", "7", "8", "33"].includes(row.state)) {
+                // 审核中 蓝色
+                return {
+                    css: {"color": '#2c99ff'}
+
+                };
+            }
+        }else if (remark == "3"){
+            if (["6", "4"].includes(row.state)) {
+                //console.log("row.state is 6", row.state)
+                // 完结 绿色
+                return {
+                    css: {"color": '#67c23a'}
+
+                };
+            } else if (["15","4","16"].includes(row.state)) {
+                // 草稿 黄色
+                return {
+                    css: {"color": '#c78045'}
+
+                };
+            } else if (["1", "2", "11", "7", "8", "13"].includes(row.state)) {
+                // 审核中 蓝色
+                return {
+                    css: {"color": '#2c99ff'}
+
+                };
+            } else if (["3", "5", "12", "9", "10", "14"].includes(row.state)) {
+                // 被驳回
+                return {
+                    // css: {"color": '#ff0000'}
+                    css: {"color": '#c78045'}
+                };
+            }
+        }else if (remark == "4"){
+        }else if (remark == "5"){
+
+        }else if (remark == "6"){
+
+        }else if (remark == "7"){
+
+        }else if (remark == "8"){
+
+        }
+        return {};
+    }
+
+
+    //获取批阅记录
+    function loadReviewRecords(Id, state) {
+        updateProgress(state); // 更新进度条
+
+        //批阅记录
+        $.ajax({
+            url: prefix + "/bhyy/" + Id, // 替换为实际的API路径
+            method: 'POST',
+            data: {kid: Id},
+            success: function (response) {
+                const eventList = document.getElementById('event-list');
+                eventList.innerHTML = '';
+
+                response.rows.forEach(function (row) {
+                    const li = document.createElement('li');
+                    li.innerHTML = '<i class="node-icon"></i>' +
+                        '<span class="time">' + row.createTime + '</span>' +
+                        '<span class="txt">' + row.state + '</span>';
+                    eventList.insertBefore(li, eventList.firstChild);
+                });
+            },
+            error: function () {
+                alert('无法获取批阅记录');
+            }
+        });
+    }
+
+
+    // 规则
     $("#datetimepicker-startTime").datetimepicker({
         format: 'yyyy-mm-dd',
         minView: "month",
@@ -948,61 +1066,6 @@
         }
     });
 
-    function rowStyle0(row, index) {
-        if (["6", "4"].includes(row.state)) {
-            console.log("row.state is 6", row.state)
-            // 完结 绿色
-            return {
-                css: {"color": '#67c23a'}
-
-            };
-        } else if (["15","4","16"].includes(row.state)) {
-            // 草稿 黄色
-            return {
-                css: {"color": '#c78045'}
-
-            };
-        } else if (["1", "2", "11", "7", "8", "13"].includes(row.state)) {
-            // 审核中 蓝色
-            return {
-                css: {"color": '#2c99ff'}
-
-            };
-        } else if (["3", "5", "12", "9", "10", "14"].includes(row.state)) {
-            // 被驳回
-            return {
-                // css: {"color": '#ff0000'}
-                css: {"color": '#c78045'}
-            };
-        }
-        return {};
-    }
-
-    function loadReviewRecords(Id, state) {
-        updateProgress(state); // 更新进度条
-
-        //批阅记录
-        $.ajax({
-            url: prefix + "/bhyy/" + Id, // 替换为实际的API路径
-            method: 'POST',
-            data: {kid: Id},
-            success: function (response) {
-                const eventList = document.getElementById('event-list');
-                eventList.innerHTML = '';
-
-                response.rows.forEach(function (row) {
-                    const li = document.createElement('li');
-                    li.innerHTML = '<i class="node-icon"></i>' +
-                        '<span class="time">' + row.createTime + '</span>' +
-                        '<span class="txt">' + row.state + '</span>';
-                    eventList.insertBefore(li, eventList.firstChild);
-                });
-            },
-            error: function () {
-                alert('无法获取批阅记录');
-            }
-        });
-    }
 </script>
 </body>
 </html>
