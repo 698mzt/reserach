@@ -203,6 +203,28 @@
             transform: translateY(-50%);
             color: #94a3b8;
         }
+
+        /* 密码显示/隐藏图标向左移动5px */
+        .password-toggle {
+            right: 12px !important; /* 原来是15px，现在是10px，向左移动5px */
+            cursor: pointer;
+        }
+        
+        /* 隐藏浏览器默认的密码眼睛图标 */
+        input[type="password"]::-ms-reveal,
+        input[type="password"]::-ms-clear {
+            display: none;
+        }
+        
+        /* 针对WebKit浏览器隐藏默认密码图标 */
+        input[type="password"]::-webkit-credentials-auto-fill-button {
+            display: none !important;
+            visibility: hidden;
+            pointer-events: none;
+            height: 0;
+            width: 0;
+            margin: 0;
+        }
         
         .form-control {
             height: 45px;
@@ -341,8 +363,8 @@
                 </div>
                 
                 <div class="form-group">
-                    <input type="password" name="password" class="form-control pword" placeholder="请输入密码" th:value="${password}"/>
-                    <span class="input-icon"><i class="fa fa-lock"></i></span>
+                    <input type="password" name="password" class="form-control pword" id="password" placeholder="请输入密码" th:value="${password}"/>
+                    <span class="input-icon password-toggle" id="togglePassword"><i class="fa fa-eye"></i></span>
                 </div>
                 
                 <div class="form-group" th:if="${captchaEnabled==true}">
@@ -423,6 +445,20 @@
                 
                 starsContainer.appendChild(star);
             }
+            
+            // 密码显示/隐藏功能
+            const togglePassword = document.getElementById('togglePassword');
+            const password = document.getElementById('password');
+            
+            togglePassword.addEventListener('click', function() {
+                // 切换密码可见性
+                const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+                password.setAttribute('type', type);
+                
+                // 切换图标
+                this.querySelector('i').classList.toggle('fa-eye');
+                this.querySelector('i').classList.toggle('fa-eye-slash');
+            });
         });
     </script>
 </body>
