@@ -466,6 +466,7 @@
             CONCAT(SUM(shr.re_amount),'万') as credited_amount
         from
             sci_horizontal_reamount shr
+        where shr.state = 6
         group by
             shr.apply_id
     </select>

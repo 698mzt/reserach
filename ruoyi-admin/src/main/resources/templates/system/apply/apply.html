@@ -707,27 +707,27 @@
                     formatter: function(value, row, index) {
                         var ranking = [];
                         if(row.firstPersonId == row.uid){
-                            ranking.push("第一负责人");
+                            ranking.push("1");
                         }else
                         if(row.secondPersonId == row.uid){
-                            ranking.push("第二负责人");
+                            ranking.push("2");
                         }else
                         if(row.thirdPersonId == row.uid){
-                            ranking.push("第三负责人");
+                            ranking.push("3");
                         }else
                         if(row.fourthPersonId == row.uid){
-                            ranking.push("第四负责人");
+                            ranking.push("4");
                         }else{
                             ranking.push("无");
                         }
                         return ranking.join('');
                     }
                 },
-                {
-                    field: 'score',
-                    align: 'center',
-                    title: '积分'
-                },
+                // {
+                //     field: 'score',
+                //     align: 'center',
+                //     title: '积分'
+                // },
                 {
                     title: '操作',
                     align: 'center',
@@ -836,27 +836,27 @@
                     formatter: function(value, row, index) {
                         var ranking = [];
                         if(row.firstPersonId == row.uid){
-                            ranking.push("第一负责人");
+                            ranking.push("1");
                         }else
                         if(row.secondPersonId == row.uid){
-                            ranking.push("第二负责人");
+                            ranking.push("2");
                         }else
                         if(row.thirdPersonId == row.uid){
-                            ranking.push("第三负责人");
+                            ranking.push("3");
                         }else
                         if(row.fourthPersonId == row.uid){
-                            ranking.push("第四负责人");
+                            ranking.push("4");
                         }else{
                             ranking.push("无");
                         }
                         return ranking.join('');
                     }
                 },
-                {
-                    field: 'score',
-                    align: 'center',
-                    title: '已获积分'
-                },
+                // {
+                //     field: 'score',
+                //     align: 'center',
+                //     title: '已获积分'
+                // },
                 {
                     title: '操作',
                     align: 'center',
@@ -1043,11 +1043,11 @@
                 //         return $.table.selectDictLabel(datas, value);
                 //     }
                 // },
-                {
-                    field: 'score',
-                    align: 'center',
-                    title: '已获积分'
-                },
+                // {
+                //     field: 'score',
+                //     align: 'center',
+                //     title: '已获积分'
+                // },
                 {
                     title: '操作',
                     align: 'center',
