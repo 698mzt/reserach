@@ -15,65 +15,415 @@
     <!-- 避免IE使用兼容模式 -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <link rel="shortcut icon" href="../static/favicon.ico" th:href="@{favicon.ico}"/>
-    <style type="text/css">label.error { position:inherit;  }</style>
+    <style type="text/css">
+        label.error { 
+            position: inherit;  
+        }
+        
+        /* 极光背景样式 */
+        .login-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: #000;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* 极光效果容器 */
+        .aurora-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+        
+        /* 极光光带 */
+        .aurora {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(125deg, 
+                rgba(0, 255, 255, 0.2) 0%, 
+                rgba(0, 0, 255, 0.2) 20%, 
+                rgba(255, 0, 255, 0.2) 40%, 
+                rgba(255, 0, 0, 0.2) 60%, 
+                rgba(255, 255, 0, 0.2) 80%, 
+                rgba(0, 255, 0, 0.2) 100%);
+            filter: blur(60px);
+            opacity: 0.7;
+            animation: aurora-flow 15s infinite linear;
+        }
+        
+        .aurora:nth-child(2) {
+            background: linear-gradient(225deg, 
+                rgba(255, 255, 0, 0.2) 0%, 
+                rgba(255, 0, 255, 0.2) 20%, 
+                rgba(0, 0, 255, 0.2) 40%, 
+                rgba(0, 255, 255, 0.2) 60%, 
+                rgba(0, 255, 0, 0.2) 80%, 
+                rgba(255, 0, 0, 0.2) 100%);
+            filter: blur(80px);
+            opacity: 0.5;
+            animation: aurora-flow 20s infinite linear reverse;
+            animation-delay: -5s;
+        }
+        
+        .aurora:nth-child(3) {
+            background: linear-gradient(45deg, 
+                rgba(255, 0, 0, 0.2) 0%, 
+                rgba(0, 255, 0, 0.2) 20%, 
+                rgba(0, 255, 255, 0.2) 40%, 
+                rgba(0, 0, 255, 0.2) 60%, 
+                rgba(255, 0, 255, 0.2) 80%, 
+                rgba(255, 255, 0, 0.2) 100%);
+            filter: blur(100px);
+            opacity: 0.3;
+            animation: aurora-flow 25s infinite linear;
+            animation-delay: -10s;
+        }
+        
+        @keyframes aurora-flow {
+            0% {
+                transform: translate(0, 0) rotate(0deg) scale(1);
+                opacity: 0.3;
+            }
+            25% {
+                transform: translate(20%, -20%) rotate(5deg) scale(1.1);
+                opacity: 0.5;
+            }
+            50% {
+                transform: translate(-20%, 20%) rotate(-5deg) scale(1.2);
+                opacity: 0.7;
+            }
+            75% {
+                transform: translate(10%, 10%) rotate(3deg) scale(1.05);
+                opacity: 0.5;
+            }
+            100% {
+                transform: translate(0, 0) rotate(0deg) scale(1);
+                opacity: 0.3;
+            }
+        }
+        
+        /* 星空背景 */
+        .stars {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+        }
+        
+        .star {
+            position: absolute;
+            background-color: #fff;
+            border-radius: 50%;
+            animation: twinkle var(--duration, 5s) infinite ease-in-out;
+        }
+        
+        @keyframes twinkle {
+            0%, 100% {
+                opacity: 0.2;
+            }
+            50% {
+                opacity: 1;
+            }
+        }
+        
+        .login-card {
+            width: 100%;
+            max-width: 400px;
+            background: rgba(15, 23, 42, 0.85);
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            padding: 40px 30px;
+            position: relative;
+            overflow: hidden;
+            z-index: 10;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(94, 234, 212, 0.2);
+        }
+        
+        .login-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #5e81f4, #38bdf8, #22d3ee);
+        }
+        
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .login-header h2 {
+            color: #e2e8f0;
+            font-size: 24px;
+            font-weight: 600;
+            margin: 0;
+            position: relative;
+        }
+        
+        .login-header h2::after {
+            content: '';
+            display: block;
+            width: 50px;
+            height: 3px;
+            background: linear-gradient(90deg, #5e81f4, #38bdf8, #22d3ee);
+            margin: 10px auto 0;
+            border-radius: 3px;
+        }
+        
+        .login-header p {
+            color: #94a3b8;
+            margin-top: 8px;
+            font-size: 14px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        .input-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+        }
+        
+        .form-control {
+            height: 45px;
+            padding: 10px 15px;
+            border: 1px solid rgba(148, 163, 184, 0.3);
+            border-radius: 5px;
+            transition: all 0.3s;
+            background: rgba(30, 41, 59, 0.6);
+            color: #e2e8f0;
+        }
+        
+        .form-control:focus {
+            border-color: #38bdf8;
+            box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.3);
+        }
+        
+        .form-control::placeholder {
+            color: #64748b;
+        }
+        
+        .captcha-row {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .captcha-input {
+            flex: 1;
+        }
+        
+        .captcha-image {
+            height: 45px;
+            border-radius: 5px;
+            cursor: pointer;
+            border: 1px solid rgba(148, 163, 184, 0.3);
+        }
+        
+        .remember-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .checkbox-custom label {
+            color: #94a3b8;
+        }
+        
+        .btn-login {
+            display: block;
+            width: 100%;
+            height: 45px;
+            background: linear-gradient(90deg, #5e81f4, #38bdf8, #22d3ee);
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-login::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: 0.5s;
+        }
+        
+        .btn-login:hover::before {
+            left: 100%;
+        }
+        
+        .btn-login:hover {
+            box-shadow: 0 5px 15px rgba(56, 189, 248, 0.4);
+        }
+        
+        .login-footer {
+            text-align: center;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(148, 163, 184, 0.2);
+            color: #94a3b8;
+            font-size: 13px;
+        }
+        
+        .login-footer a {
+            color: #38bdf8;
+            text-decoration: none;
+        }
+        
+        .login-footer a:hover {
+            text-decoration: underline;
+        }
+        
+        @media (max-width: 576px) {
+            .login-card {
+                padding: 30px 20px;
+            }
+            
+            .captcha-row {
+                flex-direction: column;
+            }
+        }
+    </style>
     <script>
         if(window.top!==window.self){alert('未登录或登录超时。请重新登录');window.top.location=window.location};
     </script>
 </head>
 <body class="signin">
-<div class="signinpanel">
-    <div class="row">
-
-        <div style="width: 50%;margin-left: auto;margin-right: auto;">
+    <div class="login-container">
+        <!-- 极光效果容器 -->
+        <div class="aurora-container">
+            <div class="aurora"></div>
+            <div class="aurora"></div>
+            <div class="aurora"></div>
+        </div>
+        
+        <!-- 星空背景 -->
+        <div class="stars" id="stars"></div>
+        
+        <div class="login-card">
+            <div class="login-header">
+                <h2>科研信息管理系统</h2>
+                <p>Research Information Management System</p>
+            </div>
+            
             <form id="signupForm" autocomplete="off">
-                <div style="text-align: center;">
-                    <h2 class="no-margins" >科研信息管理系统</h2>
+                <div class="form-group">
+                    <input type="text" name="username" class="form-control uname" placeholder="请输入用户名" th:value="${username}" />
+                    <span class="input-icon"><i class="fa fa-user"></i></span>
                 </div>
-                <input type="text"     name="username" class="form-control uname"     placeholder="用户名" th:value="${username}" />
-                <input type="password" name="password" class="form-control pword"     placeholder="密码"  th:value="${password}"/>
-                <div class="row m-t" th:if="${captchaEnabled==true}">
-                    <div class="col-xs-6">
-                        <input type="text" name="validateCode" class="form-control code" placeholder="验证码" maxlength="5" />
+                
+                <div class="form-group">
+                    <input type="password" name="password" class="form-control pword" placeholder="请输入密码" th:value="${password}"/>
+                    <span class="input-icon"><i class="fa fa-lock"></i></span>
+                </div>
+                
+                <div class="form-group" th:if="${captchaEnabled==true}">
+                    <div class="captcha-row">
+                        <div class="captcha-input">
+                            <input type="text" name="validateCode" class="form-control code" placeholder="验证码" maxlength="5" />
+                        </div>
+                        <div>
+                            <a href="javascript:void(0);" title="点击更换验证码">
+                                <img th:src="@{/captcha/captchaImage(type=${captchaType})}" class="captcha-image imgcode" />
+                            </a>
+                        </div>
                     </div>
-                    <div class="col-xs-6">
-                        <a href="javascript:void(0);" title="点击更换验证码">
-                            <img th:src="@{/captcha/captchaImage(type=${captchaType})}" class="imgcode" width="85%"/>
-                        </a>
+                </div>
+                
+                <div class="remember-row" th:if="${isRemembered}" th:classappend="${captchaEnabled==false} ? 'mt-3'">
+                    <div class="checkbox-custom">
+                        <input type="checkbox" id="rememberme" name="rememberme" th:checked="${isRemembered}"> 
+                        <label for="rememberme">记住我</label>
                     </div>
                 </div>
-                <div class="checkbox-custom" th:if="${isRemembered}" th:classappend="${captchaEnabled==false} ? 'm-t'">
-                    <input type="checkbox" id="rememberme" name="rememberme" th:checked="${isRemembered}"> <label for="rememberme">记住我</label>
-                </div>
-                <button class="btn btn-success btn-block" id="btnSubmit" data-loading="正在验证登录，请稍候...">登录</button>
-                <div class="signup-footer"  style="text-align: center">
-                    <div class="pull-left"  style="width: 100%; color: #0b0b0b;">
-                        联系我们
-                        <br>
-                        黄同学：19336900039
-                        <br>
+                
+                <button class="btn btn-login" id="btnSubmit" data-loading="正在验证登录，请稍候...">登录</button>
+                
+                <div class="login-footer">
+                    <div>
+                        联系我们<br>
+                        黄同学：19336900039<br>
                         安同学：18313537628
                     </div>
                 </div>
             </form>
-            </div>
         </div>
     </div>
-    <!--        <div class="signup-footer"  style="margin-left: auto;margin-right: auto;">-->
-    <!--            <div class="pull-left"  >-->
-    <!--                Copyright © 2018-2024 hxci.com. <br>-->
-    <!--            </div>-->
-    <!--        </div>-->
-</div>
-<script th:inline="javascript"> var ctx = [[@{/}]]; var captchaType = [[${captchaType}]]; var captchaEnabled = [[${captchaEnabled}]];</script>
-<!--[if lte IE 8]><script>window.location.href=ctx+'html/ie.html';</script><![endif]-->
-<!-- 全局js -->
-<script src="../static/js/jquery.min.js" th:src="@{/js/jquery.min.js}"></script>
-<script src="../static/ajax/libs/validate/jquery.validate.min.js" th:src="@{/ajax/libs/validate/jquery.validate.min.js}"></script>
-<script src="../static/ajax/libs/layer/layer.min.js" th:src="@{/ajax/libs/layer/layer.min.js}"></script>
-<script src="../static/ajax/libs/blockUI/jquery.blockUI.js" th:src="@{/ajax/libs/blockUI/jquery.blockUI.js}"></script>
-<script src="../static/ruoyi/js/ry-ui.js" th:src="@{/ruoyi/js/ry-ui.js?v=4.7.8}"></script>
-<script src="../static/ruoyi/login.js" th:src="@{/ruoyi/login.js}"></script>
 
-
+    <script th:inline="javascript"> 
+        var ctx = [[@{/}]]; 
+        var captchaType = [[${captchaType}]]; 
+        var captchaEnabled = [[${captchaEnabled}]];
+    </script>
+    
+    <!--[if lte IE 8]>
+        <script>window.location.href=ctx+'html/ie.html';</script>
+    <![endif]-->
+    
+    <!-- 全局js -->
+    <script src="../static/js/jquery.min.js" th:src="@{/js/jquery.min.js}"></script>
+    <script src="../static/ajax/libs/validate/jquery.validate.min.js" th:src="@{/ajax/libs/validate/jquery.validate.min.js}"></script>
+    <script src="../static/ajax/libs/layer/layer.min.js" th:src="@{/ajax/libs/layer/layer.min.js}"></script>
+    <script src="../static/ajax/libs/blockUI/jquery.blockUI.js" th:src="@{/ajax/libs/blockUI/jquery.blockUI.js}"></script>
+    <script src="../static/ruoyi/js/ry-ui.js" th:src="@{/ruoyi/js/ry-ui.js?v=4.7.8}"></script>
+    <script src="../static/ruoyi/login.js" th:src="@{/ruoyi/login.js}"></script>
+    
+    <!-- 星空效果脚本 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const starsContainer = document.getElementById('stars');
+            const starCount = 200;
+            
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.classList.add('star');
+                
+                // 随机大小
+                const size = Math.random() * 3;
+                star.style.width = `${size}px`;
+                star.style.height = `${size}px`;
+                
+                // 随机位置
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.top = `${Math.random() * 100}%`;
+                
+                // 随机动画延迟和持续时间
+                const duration = Math.random() * 5 + 3;
+                const delay = Math.random() * 5;
+                star.style.setProperty('--duration', `${duration}s`);
+                star.style.animationDelay = `${delay}s`;
+                
+                starsContainer.appendChild(star);
+            }
+        });
+    </script>
 </body>
 </html>
