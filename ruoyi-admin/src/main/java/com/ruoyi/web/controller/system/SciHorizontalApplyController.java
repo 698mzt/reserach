@@ -395,7 +395,7 @@ public class SciHorizontalApplyController extends BaseController
             sciHorizontalApply.setState("1");
         Integer a = sciHorizontalApplyService.updateSciHorizontalApply(sciHorizontalApply);
         sciHorizontalReamount.setState("1");
-        sciHorizontalReamountService.push(sciHorizontalApply.getId(),"1");
+        sciHorizontalReamountService.push(getUserId(),sciHorizontalApply.getId(),"1");
         return toAjax(a);
     }
 
@@ -765,6 +765,7 @@ public class SciHorizontalApplyController extends BaseController
     @ResponseBody
     public AjaxResult Reamount(SciHorizontalReamount sciHorizontalReamount)
     {
+        sciHorizontalReamount.setUid(getUserId());
         int state = sciHorizontalReamountService.insertAmount(sciHorizontalReamount);
         if (state == -1) {
             return  AjaxResult.error("新增金额大于总金额的七成！！！请核实后输入正确的金额");

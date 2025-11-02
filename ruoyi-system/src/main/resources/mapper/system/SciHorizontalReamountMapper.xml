@@ -131,10 +131,16 @@
         ${params.dataScope}
         order  by
         case
-        when re.state in (3,5,22) then 1
+--         已完结
+        when re.state = 6 then 1
+--         教研室审批
         when re.state = 1 then 2
-        when re.state in (2,11) then 3
-        when re.state = 4 then 4
+--         学院审批
+        when re.state = 2 then 3
+--         科研处审批
+        when re.state = 11 then 4
+--         草稿
+        when re.state = 99 then 5
         end,
         createtime desc
     </select>
@@ -153,12 +159,6 @@
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
             ${params.dataScope}
         order  by
-        case
-        when re.state = 99 then 1
-        when re.state = 2 then 2
-        when re.state = 1 then 3
-        when re.state in (4,11) then 4
-        end,
         createtime
     </select>
 
@@ -177,10 +177,6 @@
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
         ${params.dataScope}
         order  by
-        case
-        when re.state in (2,11) then 1
-        when re.state = 4 then 2
-        end,
         createtime
     </select>
 
@@ -199,10 +195,6 @@
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
         ${params.dataScope}
         order  by
-        case
-        when re.state = 11 then 1
-        when re.state = 4 then 2
-        end,
         createtime desc
     </select>
 

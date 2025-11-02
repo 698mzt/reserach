@@ -1,11 +1,9 @@
 package com.ruoyi.system.service.impl;
 
 import com.ruoyi.common.annotation.DataScope;
-import com.ruoyi.system.domain.SciHorizontalApply;
-import com.ruoyi.system.domain.SciHorizontalApplyVertical;
-import com.ruoyi.system.domain.SciHorizontalReamount;
-import com.ruoyi.system.domain.creditedAmount;
+import com.ruoyi.system.domain.*;
 import com.ruoyi.system.mapper.SciHorizontalApplyMapper;
+import com.ruoyi.system.mapper.SciHorizontalPiyueMapper;
 import com.ruoyi.system.mapper.SciHorizontalReamountMapper;
 import com.ruoyi.system.service.SciHorizontalReamountService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +21,8 @@ public class SciHorizontalReamountServiceImpl implements SciHorizontalReamountSe
     private SciHorizontalReamountMapper sciHorizontalReamountMapper;
     @Autowired
     private SciHorizontalApplyMapper sciHorizontalApplyMapper;
+    @Autowired
+    private SciHorizontalPiyueMapper sciHorizontalPiyueMapper;
 
     @Override
     public int insertAmount(SciHorizontalReamount sciHorizontalReamount) {
@@ -75,7 +75,14 @@ public class SciHorizontalReamountServiceImpl implements SciHorizontalReamountSe
                 return -2;
             }
 
-            return sciHorizontalReamountMapper.insertAmount(sciHorizontalReamount);
+            int a = sciHorizontalReamountMapper.insertAmount(sciHorizontalReamount);
+            SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
+            sciHorizontalPiyue.setUid(sciHorizontalReamount.getUid());
+            sciHorizontalPiyue.setHxktId(Integer.valueOf(id));
+            sciHorizontalPiyue.setConcate("新增金额");
+            sciHorizontalPiyue.setState("新增");
+            sciHorizontalPiyueMapper.insertHorizontalAmountPiyue(sciHorizontalPiyue);
+            return a;
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("金额格式不正确", e);
         }
@@ -135,8 +142,15 @@ public class SciHorizontalReamountServiceImpl implements SciHorizontalReamountSe
     }
 
     @Override
-    public int push(Integer id,String state) {
-        return sciHorizontalReamountMapper.push(id,state);
+    public int push(Long uid,Integer id,String state) {
+        int a = sciHorizontalReamountMapper.push(id,state);
+        SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
+        sciHorizontalPiyue.setUid(uid);
+        sciHorizontalPiyue.setHxktId(Integer.valueOf(id));
+        sciHorizontalPiyue.setConcate("提交审批");
+        sciHorizontalPiyue.setState("提交");
+        sciHorizontalPiyueMapper.insertHorizontalAmountPiyue(sciHorizontalPiyue);
+        return a;
     }
 
 
