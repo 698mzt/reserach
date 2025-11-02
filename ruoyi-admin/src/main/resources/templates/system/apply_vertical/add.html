@@ -252,9 +252,9 @@
             return newName;
         },
     }).on('fileuploaded', function (event, data, previewId, index) {
-        $("input[name='" + event.currentTarget.id + "']").val(data.response.url)
+        $("input[type='hidden'][name='file']").val(data.response.url)
     }).on('fileremoved', function (event, id, index) {
-        $("input[name='" + event.currentTarget.id + "']").val('')
+        $("input[type='hidden'][name='file']").val('')
     })
 
     // 动态新增成员下拉（第5位起）与编辑页预渲染
