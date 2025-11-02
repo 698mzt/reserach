@@ -1,4 +1,3 @@
-
 $(function() {
     validateKickout();
     validateRule();
@@ -35,9 +34,19 @@ function login() {
             } else {
                 $('.imgcode').click();
                 $(".code").val("");
-                $.modal.msg(r.msg);
+                // 先关闭loading，延迟一段时间后再显示错误消息
+                $.modal.closeLoading();
+                setTimeout(function() {
+                    $.modal.msg(r.msg);
+                }, 200);
             }
+        },
+        error: function() {
+            // 处理网络错误等情况
             $.modal.closeLoading();
+            setTimeout(function() {
+                $.modal.msg("登录请求失败，请稍后重试");
+            }, 200);
         }
     });
 }
