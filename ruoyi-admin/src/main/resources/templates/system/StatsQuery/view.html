@@ -21,6 +21,150 @@
         float: left;
     }
 
+    /* 优化筛选框样式，确保间距一致 */
+    .select-list ul {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .select-list li {
+        list-style: none;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        flex: 0 0 calc(25% - 12px);
+        min-width: 200px;
+    }
+    
+    /* 第一行项目 - 占满整行 */
+    .select-list li.first-row {
+        flex: 0 0 100%;
+    }
+    
+    /* 第一行中的子项 */
+    .first-row-wrapper {
+        display: flex;
+        gap: 15px;
+        width: 100%;
+    }
+    
+    .first-row-item {
+        flex: 0 0 calc(25% - 12px);
+    }
+    
+    /* 第二行项目 */
+    .select-list li.second-row.date-range-item,
+    .select-list li.second-row.college-major-item {
+        flex: 0 0 calc(50% - 8px);
+    }
+    
+    .select-list li.button-item {
+        flex: 0 0 100%;
+        justify-content: flex-start;
+        margin-top: 10px;
+        gap: 15px;
+    }
+    
+    .select-list li label {
+        width: 80px;
+        margin: 0 10px 0 0;
+        text-align: right;
+        line-height: 30px;
+        white-space: nowrap;
+    }
+    
+    /* 特殊处理日期范围选择标签 */
+    .select-list li.date-range-item label.font-noraml {
+        width: auto;
+        margin: 0 10px 0 0;
+        text-align: left;
+    }
+    
+    .select-list li input.form-control,
+    .select-list li select.form-control {
+        flex: 1;
+        width: 200px;
+        height: 30px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding-left: 5px;
+    }
+    
+    /* 学院专业选择框样式优化 */
+    .college-major-item {
+        flex: 0 0 calc(50% - 8px) !important;
+    }
+    
+    .college-major-item #element2 {
+        display: flex;
+        align-items: center;
+        width: 100%;
+    }
+    
+    .college-major-item #element2 label {
+        width: 80px;
+        margin: 0 10px 0 0;
+        text-align: right;
+        line-height: 30px;
+    }
+    
+    .college-major-item #element2 .row {
+        flex: 1;
+        display: flex;
+        gap: 15px;
+        margin: 0;
+    }
+    
+    .college-major-item #element2 .col-sm-3 {
+        flex: 1;
+        padding: 0;
+        max-width: 200px;
+    }
+    
+    .college-major-item #element2 .col-sm-3 select.form-control {
+        width: 100%;
+        height: 30px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+    
+    .select-list .input-daterange {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    
+    .select-list .input-daterange .form-control {
+        width: 120px;
+        flex: none;
+    }
+    
+    .select-list .input-daterange .input-group-addon {
+        width: auto;
+        padding: 5px 10px;
+        background-color: #f5f5f5;
+        border: 1px solid #ddd;
+        border-left: 0;
+        border-right: 0;
+        line-height: 20px;
+    }
+    
+    /* 日期范围选择样式调整 */
+    .select-list > ul > li.date-range-item {
+        display: flex;
+        align-items: center;
+    }
+    
+    .select-list > ul > li.date-range-item label.font-noraml {
+        margin: 0 10px 0 0;
+        line-height: 30px;
+        width: auto;
+        text-align: left;
+    }
+
     .track-rcol {
         width: 100%;
         max-width: 500px;
@@ -102,7 +246,7 @@
         padding-top: 30px;
         display: block;
         position: relative;
-        cursor: pointer;
+        cursor: label;
     }
 
     .progress_inner__step:before {
@@ -352,7 +496,51 @@
     .approve-status input {
         margin-right: 5px;
     }
-
+    
+    /* 响应式调整 */
+    @media (max-width: 1200px) {
+        .first-row-item {
+            flex: 0 0 calc(33.333% - 10px);
+        }
+        
+        .select-list li.second-row.date-range-item,
+        .select-list li.second-row.college-major-item {
+            flex: 0 0 calc(50% - 8px);
+        }
+    }
+    
+    @media (max-width: 992px) {
+        .first-row-item {
+            flex: 0 0 calc(50% - 8px);
+        }
+        
+        .select-list li.second-row.date-range-item,
+        .select-list li.second-row.college-major-item {
+            flex: 0 0 calc(50% - 8px);
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .select-list li,
+        .first-row-item,
+        .select-list li.second-row.date-range-item,
+        .select-list li.second-row.college-major-item {
+            flex: 0 0 100%;
+        }
+        
+        .select-list li.button-item {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .select-list li.button-item .btn {
+            margin: 5px 0;
+        }
+        
+        .first-row-wrapper {
+            flex-direction: column;
+        }
+    }
 
 </style>
 <body class="gray-bg">
@@ -370,24 +558,41 @@
                                     <form id="formId0">
                                         <div class="select-list">
                                             <ul>
-                                                <li>
-                                                    <label>项目类别：</label>
-                                                    <select name="remark" class="form-control"
-                                                            th:with="type=${@dict.getType('sys_mold_name')}">
-                                                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}"
-                                                                th:value="${dict.dictValue}"></option>
-                                                    </select>
+                                                <li class="first-row">
+                                                    <div class="first-row-wrapper">
+                                                        <div class="first-row-item">
+                                                            <label>项目类别：</label>
+                                                            <select name="remark" class="form-control"
+                                                                    th:with="type=${@dict.getType('sys_mold_name')}">
+                                                                <option th:each="dict : ${type}" th:text="${dict.dictLabel}"
+                                                                        th:value="${dict.dictValue}"></option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="first-row-item">
+                                                            <label>数据状态：</label>
+                                                            <select name="state" class="form-control"
+                                                                    th:with="type=${@dict.getType('sys_module_item_state')}">
+                                                                <option th:each="dict : ${type}" th:text="${dict.dictLabel}"
+                                                                        th:value="${dict.dictValue}"></option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="first-row-item">
+                                                            <label>教师职称：</label>
+                                                            <select name="job_title" class="form-control"
+                                                                    th:with="type=${@dict.getType('sys_job_title')}">
+                                                                <option th:each="dict : ${type}" th:text="${dict.dictLabel}"
+                                                                        th:value="${dict.dictValue}"></option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="first-row-item">
+                                                            <label>课题名称：</label>
+                                                            <input type="text" class="input-sm form-control" id="topicName"
+                                                                   name='topicName'/>
+                                                        </div>
+                                                    </div>
                                                 </li>
-                                                <li>
-                                                    <label>状态：</label>
-                                                    <select name="state" class="form-control"
-                                                            th:with="type=${@dict.getType('sys_module_item_state')}">
-                                                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}"
-                                                                th:value="${dict.dictValue}"></option>
-                                                    </select>
-                                                </li>
-                                                <li>
-                                                    <label class="font-noraml">日期范围选择</label>
+                                                <li class="second-row date-range-item">
+                                                    <label class="font-noraml">日期选择：</label>
                                                     <div class="input-group input-daterange">
                                                         <input type="text" class="input-sm form-control"
                                                                id="datetimepicker-startTime" placeholder="yyyy-MM-dd"/>
@@ -397,7 +602,7 @@
                                                                id="datetimepicker-endTime" placeholder="yyyy-MM-dd"/>
                                                     </div>
                                                 </li>
-                                                <li>
+                                                <li class="second-row college-major-item">
                                                     <div id="element2" class="row">
                                                         <label>学院专业：</label>
                                                         <div class="col-sm-3">
@@ -408,30 +613,13 @@
                                                         </div>
                                                     </div>
                                                 </li>
-                                                <li>
-                                                    <label>职称：</label>
-                                                    <select name="job_title" class="form-control"
-                                                            th:with="type=${@dict.getType('sys_job_title')}">
-                                                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}"
-                                                                th:value="${dict.dictValue}"></option>
-                                                    </select>
-                                                </li>
-                                                <li>
-                                                    <label>课题名称</label>
-                                                    <input type="text" class="input-sm form-control" id="topicName"
-                                                           name='topicName'/>
-                                                </li>
-
-                                                <li>
+                                                <li class="button-item">
                                                     <a class="btn btn-primary btn-rounded btn-sm"
                                                        id="searchBtn"><i class="fa fa-search"></i>&nbsp;搜索</a>
                                                     <a class="btn btn-warning btn-rounded btn-sm"
                                                        id="resetBtn"><i class="fa fa-refresh"></i>&nbsp;重置</a>
                                                 </li>
-
                                             </ul>
-
-
                                         </div>
                                     </form>
                                 </div>
@@ -452,8 +640,6 @@
                                 </div>
                             </div>
                         </div>
-
-
                     </div>
                 </div>
             </div>
@@ -471,9 +657,9 @@
                         <div class="modal-dialog modal-right">
                             <div class="modal-content animated bounceInRight">
                                 <div class="modal-header">
-                                    <!--                                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span-->
-                                    <!--                                            class="sr-only">关闭</span>-->
-                                    <!--                                    </button>-->
+                                    <!--                                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span
+                                            class="sr-only">关闭</span>
+                                    </button>-->
                                     <div class="timeline-title">流程记录</div>
 
                                     <!-- 原有的流程进度条部分 -->
@@ -510,16 +696,16 @@
                                         </div>
                                     </div>
 
-                                    <!--                                    <div class="approve-status">-->
-                                    <!--                                        <label><input type="radio" name="approve" value="pass" checked> 审核通过</label>-->
-                                    <!--                                        <label><input type="radio" name="approve" value="reject"> 审核未通过</label>-->
-                                    <!--                                    </div>-->
+                                    <!--                                    <div class="approve-status">
+                                        <label><input type="radio" name="approve" value="pass" checked> 审核通过</label>
+                                        <label><input type="radio" name="approve" value="reject"> 审核未通过</label>
+                                    </div>-->
 
-                                    <!--                                    <div class="buttons">-->
-                                    <!--                                        <button onclick="submitForm()">提交</button>-->
-                                    <!--                                        <button onclick="approveForm()">审核</button>-->
-                                    <!--                                        <button onclick="resetForm()">重置</button>-->
-                                    <!--                                    </div>-->
+                                    <!--                                    <div class="buttons">
+                                        <button onclick="submitForm()">提交</button>
+                                        <button onclick="approveForm()">审核</button>
+                                        <button onclick="resetForm()">重置</button>
+                                    </div>-->
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-white but" data-dismiss="modal">关闭</button>
@@ -545,7 +731,7 @@
         data: [
             {
                 'v': null, 'n': '学院', 's': [
-                    {'v': null, 'n': '专业 >'}
+                    {'v': null, 'n': '专业 '}
                 ]
             },
             {
