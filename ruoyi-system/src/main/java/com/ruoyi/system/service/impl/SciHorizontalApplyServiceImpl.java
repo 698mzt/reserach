@@ -1,5 +1,6 @@
 package com.ruoyi.system.service.impl;
 
+import java.math.BigDecimal;
 import java.time.Year;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -467,6 +468,27 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
                 }
             } catch (Exception e) {
                 return -2;
+            }
+        }
+//            获取到账金额
+        String creditedAmountValue = sciHorizontalApplyMapper.selectCreditedAmountById(sciHorizontalApply.getId());
+        if (creditedAmountValue != null && StringUtils.isNotEmpty(creditedAmountValue)){
+            try {
+//                新增总金额
+                BigDecimal credited = new BigDecimal(creditedAmountValue);
+                if (sciHorizontalApply.getReAmount() != null && StringUtils.isNotEmpty(sciHorizontalApply.getReAmount())){
+                    credited = credited.add(new BigDecimal(sciHorizontalApply.getReAmount()));
+                }
+//                项目金额
+                BigDecimal applied = new BigDecimal(sciHorizontalApply.getAmount());
+                if (credited.compareTo(applied) < 0) {
+                    return -3; //新增总金额小于项目金额
+                }
+                if (applied.compareTo(credited) < 0) {
+                    return -4; //新增总金额大于项目金额
+                }
+            } catch (NumberFormatException e) {
+                return -2; // 解析失败
             }
         }
         SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();

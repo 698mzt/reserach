@@ -63,14 +63,14 @@ public class SciHorizontalReamountServiceImpl implements SciHorizontalReamountSe
 //            获取到账金额
             String creditedAmountValue = sciHorizontalApplyMapper.selectCreditedAmountById(id);
             BigDecimal creditedAmount = new BigDecimal(creditedAmountValue != null ? creditedAmountValue : "0");
-            BigDecimal threshold = allAmount.multiply(BigDecimal.valueOf(0.7));
+            BigDecimal threshold = allAmount.multiply(BigDecimal.valueOf(1));
 
-            // 新增金额大于总金额的七成
+            // 新增金额大于总金额
             if (newAmount.compareTo(threshold) > 0) {
                 return -1;
             }
 
-            // 追加总金额超过项目金额的七成
+            // 追加总金额超过项目金额
             if (creditedAmount.add(newAmount).compareTo(threshold) > 0) {
                 return -2;
             }

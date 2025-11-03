@@ -142,7 +142,7 @@
 --         草稿
         when re.state = 99 then 5
         end,
-        createtime desc
+        re.createtime desc
     </select>
 
     <select id="selectAmountListJYS" resultMap="SciHorizontalApplyResult" parameterType="SciHorizontalApply">
@@ -159,7 +159,7 @@
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
             ${params.dataScope}
         order  by
-        createtime
+        re.createtime
     </select>
 
     <select id="selectAmountListDept" resultMap="SciHorizontalApplyResult" parameterType="SciHorizontalApply">
@@ -177,7 +177,7 @@
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
         ${params.dataScope}
         order  by
-        createtime
+        re.createtime
     </select>
 
     <select id="selectAmountListKYC" resultMap="SciHorizontalApplyResult" parameterType="SciHorizontalApply">
@@ -195,7 +195,7 @@
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
         ${params.dataScope}
         order  by
-        createtime desc
+        re.createtime desc
     </select>
 
     <select id="selectAmountById" parameterType="Integer" resultMap="SciHorizontalApplyResult">
