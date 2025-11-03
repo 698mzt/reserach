@@ -219,8 +219,8 @@
             if (topName === "") {
                 return $.modal.alertError("课题名称不能为空或纯空格");
             }
-            if (topName.length > 20) {
-                return $.modal.alertError("课题名称不能超过20个字符");
+            if (topName.length > 50) {
+                return $.modal.alertError("课题名称不能超过50个字符");
             }
             $.operate.saveTab(prefix + "/add", $('#form-apply-add').serialize());
         }

@@ -56,7 +56,7 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">项目金额：</label>
                     <div class="col-sm-8">
-                        <input name="amount" th:field="*{amount}" class="form-control" type="number" required readonly>
+                        <input name="amount" th:field="*{amount}" class="form-control" type="number" required readonly step="0.0001" maxlength="9">
                     </div>
                 </div>
             </div>
