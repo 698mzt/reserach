@@ -913,7 +913,7 @@
                 AND d.dept_id = #{major}
             </if>
             <if test="jobTitle != null and jobTitle != '' and jobTitle!='null' ">
-                AND u.tea_zhicheng = #{jobTitle}
+                and u.tea_zhicheng =#{jobTitle}
             </if>
             <if test="topicName != null and topicName != ''">
                 AND s.top_name LIKE CONCAT('%', #{topicName}, '%')

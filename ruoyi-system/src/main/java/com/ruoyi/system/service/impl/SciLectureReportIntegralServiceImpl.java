@@ -94,8 +94,4 @@ public class SciLectureReportIntegralServiceImpl implements ISciLectureReportInt
         return sciLectureReportIntegralMapper.deleteSciLectureReportIntegralById(id);
     }
 
-    @Override
-    public List<SciLectureReportIntegral> getStatsQuery(Map<String, String> params) {
-        return sciLectureReportIntegralMapper.getStatsQuery(params);
-    }
 }

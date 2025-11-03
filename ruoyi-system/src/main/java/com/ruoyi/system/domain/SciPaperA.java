@@ -221,6 +221,12 @@ public class SciPaperA extends BaseEntity {
     /** 通讯作者分数 */
     private String correspondingAuthorScore;
 
+
+
+    public List<String> getONE_AUTHORS() {
+        return ONE_AUTHORS;
+    }
+
     public String getFirstAuthorName() {
         return firstAuthorName;
     }

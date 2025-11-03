@@ -422,5 +422,9 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService
         opinionMapper.opinionadd(sciLectureReportOpinion); // 将批阅记录插入数据库
         return i;
     }
+    @Override
+    public List<SciLectureReportOpinion> getStatsQuery(Map<String, String> params) {
+        return sciLectureReportMapper.getStatsQuery(params);
+    }
 
 }

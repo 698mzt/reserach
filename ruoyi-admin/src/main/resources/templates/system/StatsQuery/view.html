@@ -758,7 +758,9 @@
     var datas = [[${@dict.getType('sys_intraschpro_tasks')}]];
     var prefix = ctx + "StatsQuery";
     var hasSearched = false; // 添加搜索状态标志  初始菜单不加载 ,点击搜索之后才会显示
-    
+    var paiMingDatas = [[${@dict.getType('sys_jiaocairuanzhu_fzr')}]];
+    var fenleiDatas = [[${@dict.getType('sys_zhuanli_fenlei')}]];
+
     // 定义不同项目类别对应的表格列配置
     var tableColumnsConfig = {
         // 默认列配置（可以根据实际项目类别调整）
@@ -820,8 +822,7 @@
                 }
             }
         ],
-        // 可以根据不同的项目类别添加不同的列配置
-        // 示例：项目类别1的列配置（假设是横向课题）
+        // 纵向课题
         '1': [
             {
                 field: 'number',
@@ -875,7 +876,7 @@
                 }
             }
         ],
-        // 示例：项目类别2的列配置（假设是纵向课题）
+        // 横向课题
         '2': [
             {
                 field: 'number',
@@ -931,6 +932,293 @@
                 title: '操作',
                 align: 'center',
                 formatter: function (value, row, index) {
+                    var actions = [];
+                    if (row.state == 6) {
+                        //actions.push('<a class="link-button" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')">查看</a> ');
+                    }
+                    return actions.join('');
+                }
+            }
+        ],
+        //论文
+        '4': [
+            {
+                field: 'number',
+                title: '序号',
+                width: 5,
+                align: 'center',
+                switchable: false,
+                formatter: function (value, row, index) {
+                    return $.table.serialNumber(index);
+                }
+            },
+            {
+                field: 'id',
+                title: '',
+                visible: false
+            },
+            {
+                field: 'college',
+                align: 'center',
+                title: '专业'
+            },
+            {
+                field: 'teacherName',
+                align: 'center',
+                title: '申请人'
+            },
+            {
+                field: 'paperTitle',
+                align: 'center',
+                title: '论文名称'
+            },
+            {
+                field: 'responsibilityTier',
+                title: '责任层级',
+                align: 'center',
+                formatter: function (value, row, index) {
+                    return row.firstPersonId == row.uid ? '一作' : row.secondPersonId == row.uid ? '二作' : row.thirdPersonId == row.uid ? "三作" : row.fourthPersonId == row.uid ? "四作" : "不是作者";
+                }
+            },
+            {
+                field: 'responsibilityTier',
+                title: '积分',
+                align: 'center',
+                formatter: function (value, row, index) {
+                    if (row.state == 6) {
+                        return row.firstPersonId == row.uid ? row.firstAuthorScore : row.secondPersonId == row.uid ? row.secondAuthorScore : row.thirdPersonId == row.uid ? row.thirdAuthorScore : row.fourthPersonId == row.uid ? row.fourthAuthorScore : "不是作者";
+                    } else {
+                        return 0;
+                    }
+                }
+            },
+            {
+                title: '操作',
+                align: 'center',
+                formatter: function (value, row, index) {
+                    //console.log('论文:row = ',row);
+                    var actions = [];
+                    if (row.state == 6) {
+                        //actions.push('<a class="link-button" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')">查看</a> ');
+                    }
+                    return actions.join('');
+                }
+            }
+        ],
+        //教材专著
+        '5': [
+            {
+                field: 'number',
+                title: '序号',
+                width: 5,
+                align: 'center',
+                switchable: false,
+                formatter: function (value, row, index) {
+                    return $.table.serialNumber(index);
+                }
+            },
+            {
+                field: 'id',
+                title: '',
+                visible: false
+            },
+            {
+                field: 'xueyuan',
+                title: '学院'
+            },
+            {
+                field: 'jiaoyanshi',
+                align: 'center',
+                title: '专业'
+            },
+
+            {
+                field: 'xingming',
+                align: 'center',
+                title: '申请人'
+            },
+            {
+                field: 'chubanshijian',
+                title: '出版时间'
+            },
+            {
+                field: 'mingcheng',
+                align: 'center',
+                title: '教材软著名称'
+            },
+            {
+                field: 'paiming',
+                title: '负责人排名',
+                formatter: function (value, row, index) {
+                    return $.table.selectDictLabel(paiMingDatas, value);
+                }
+            },
+            {
+                field: 'responsibilityTier',
+                title: '积分',
+                align: 'center',
+                formatter: function (value, row, index) {
+                    if (row.state == 6) {
+                        return row.firstPersonId == row.uid ? row.firstAuthorScore : row.secondPersonId == row.uid ? row.secondAuthorScore : row.thirdPersonId == row.uid ? row.thirdAuthorScore : row.fourthPersonId == row.uid ? row.fourthAuthorScore : "不是作者";
+                    } else {
+                        return 0;
+                    }
+                }
+            },
+            {
+                title: '操作',
+                align: 'center',
+                formatter: function (value, row, index) {
+                    //console.log('论文:row = ',row);
+                    var actions = [];
+                    if (row.state == 6) {
+                        //actions.push('<a class="link-button" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')">查看</a> ');
+                    }
+                    return actions.join('');
+                }
+            }
+        ],
+        //专利软著
+        '6': [
+            {
+                field: 'number',
+                title: '序号',
+                width: 5,
+                align: 'center',
+                switchable: false,
+                formatter: function (value, row, index) {
+                    return $.table.serialNumber(index);
+                }
+            },
+            {
+                field: 'id',
+                title: '',
+                visible: false
+            },
+            {
+                field: 'xueyuan',
+                title: '学院'
+            },
+            {
+                field: 'jiaoyanshi',
+                title: '专业'
+            },
+
+            {
+                field: 'xingming',
+                title: '姓名'
+            },
+            {
+                field: 'mingcheng',
+                title: '专利名称'
+            },
+            {
+                field: 'huopishijain',
+                title: '获批时间'
+            },
+            {
+                field: 'fenlei',
+                title: '分类',
+                formatter: function(value, row, index) {
+                    return $.table.selectDictLabel(fenleiDatas, value);
+                }
+            },
+            {
+                field: 'jifen',
+                title: '积分'
+            },
+            {
+                field: 'paiming',
+                title: '负责人排名',
+                formatter: function(value, row, index) {
+                    return $.table.selectDictLabel(paiMingDatas, value);
+                }
+            },
+
+            {
+                title: '操作',
+                align: 'center',
+                formatter: function (value, row, index) {
+                    //console.log('论文:row = ',row);
+                    var actions = [];
+                    if (row.state == 6) {
+                        //actions.push('<a class="link-button" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')">查看</a> ');
+                    }
+                    return actions.join('');
+                }
+            }
+        ],
+        //奖励
+        '7': [
+            {
+                field: 'number',
+                title: '序号',
+                width: 5,
+                align: 'center',
+                switchable: false,
+                formatter: function (value, row, index) {
+                    return $.table.serialNumber(index);
+                }
+            },
+            {
+                field: 'id',
+                title: '',
+                visible: false
+            },
+            {
+                field: 'yname',
+                align: 'center',
+                title: '学院'
+            },
+
+            {
+                field: 'dname',
+                align: 'center',
+                title: '专业'
+            },
+            {
+                field: 'userName',
+                title: '申请人'
+            },
+            {
+                field: 'rewardName',
+                title: '荣誉名称'
+            },
+            {
+                field: 'huopishijain',
+                title: '获批时间'
+            },
+            {
+                field: 'rewardFenlei',
+                title: '分类',
+                formatter: function(value, row, index) {
+                    return $.table.selectDictLabel(fenleiDatas, value);
+                }
+            },
+            {
+                field: 'rewardDengji',
+                title: '等级',
+                formatter: function(value, row, index) {
+                    return $.table.selectDictLabel(dengjiDatas, value);
+                }
+            },
+            {
+                field: 'rewardPaiming',
+                title: '排名',
+                formatter: function(value, row, index) {
+                    return $.table.selectDictLabel(paimingDatas, value);
+                }
+            },
+            {
+                field: 'jifen',
+                title: '积分'
+            },
+
+            {
+                title: '操作',
+                align: 'center',
+                formatter: function (value, row, index) {
+                    //console.log('论文:row = ',row);
                     var actions = [];
                     if (row.state == 6) {
                         //actions.push('<a class="link-button" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')">查看</a> ');
@@ -1077,7 +1365,8 @@
     function rowStyle0(row, index) {
         var remark = $("select[name='remark']").val(); // 项目类别
         //console.log("row = ", row)
-        console.log("remark = ", remark=="1",remark)
+        //console.log("remark = ", remark=="1",remark)
+        //纵向课题
         if (remark == "1"){
             if (["66", "6"].includes(row.state)) {
                 //console.log("row.state is 6", row.state)
@@ -1099,7 +1388,9 @@
 
                 };
             }
-        }else if (remark == "2"){
+        }
+        //横向课题
+        else if (remark == "2"){
             if (["6", "4"].includes(row.state)) {
                 //console.log("row.state is 6", row.state)
                 // 完结 绿色
@@ -1120,7 +1411,9 @@
 
                 };
             }
-        }else if (remark == "3"){
+        }
+        //成果转化
+        else if (remark == "3"){
             if (["6", "4"].includes(row.state)) {
                 //console.log("row.state is 6", row.state)
                 // 完结 绿色
@@ -1147,14 +1440,101 @@
                     css: {"color": '#c78045'}
                 };
             }
-        }else if (remark == "4"){
-        }else if (remark == "5"){
+        }
+        //论文
+        else if (remark == "4"){
+            if (["8"].includes(row.state)) {
+                //console.log("row.state is 6", row.state)
+                // 完结 绿色
+                return {
+                    css: {"color": '#67c23a'}
 
-        }else if (remark == "6"){
+                };
+            } else if (["3","5","7","9","10","22","44","99"].includes(row.state)) {
+                // 草稿 黄色
+                return {
+                    css: {"color": '#c78045'}
 
-        }else if (remark == "7"){
+                };
+            } else if (["1", "2", "11", "4", "6", "13"].includes(row.state)) {
+                // 审核中 蓝色
+                return {
+                    css: {"color": '#2c99ff'}
 
-        }else if (remark == "8"){
+                };
+            }
+        }
+        //教材专著
+        else if (remark == "5"){
+            if (["6"].includes(row.state)) {
+                //console.log("row.state is 6", row.state)
+                // 完结 绿色
+                return {
+                    css: {"color": '#67c23a'}
+
+                };
+            } else if (["3","5","7","0"].includes(row.state)) {
+                // 草稿 黄色
+                return {
+                    css: {"color": '#c78045'}
+
+                };
+            } else if (["1", "2", "4"].includes(row.state)) {
+                // 审核中 蓝色
+                return {
+                    css: {"color": '#2c99ff'}
+
+                };
+            }
+        }
+        //专利软著
+        else if (remark == "6"){
+            if (["6"].includes(row.state)) {
+                //console.log("row.state is 6", row.state)
+                // 完结 绿色
+                return {
+                    css: {"color": '#67c23a'}
+
+                };
+            } else if (["3","5","7","0"].includes(row.state)) {
+                // 草稿 黄色
+                return {
+                    css: {"color": '#c78045'}
+
+                };
+            } else if (["1", "2", "4"].includes(row.state)) {
+                // 审核中 蓝色
+                return {
+                    css: {"color": '#2c99ff'}
+
+                };
+            }
+        }
+        //奖励
+        else if (remark == "7"){
+            if (["6"].includes(row.state)) {
+                //console.log("row.state is 6", row.state)
+                // 完结 绿色
+                return {
+                    css: {"color": '#67c23a'}
+
+                };
+            } else if (["3","5","7","11"].includes(row.state)) {
+                // 草稿 黄色
+                return {
+                    css: {"color": '#c78045'}
+
+                };
+            } else if (["1", "2", "4"].includes(row.state)) {
+                // 审核中 蓝色
+                return {
+                    css: {"color": '#2c99ff'}
+
+                };
+            }
+        }
+        //讲座报告
+        else if (remark == "8"){
 
         }
         return {};

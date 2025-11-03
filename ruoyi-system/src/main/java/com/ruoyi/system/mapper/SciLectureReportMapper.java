@@ -1,7 +1,10 @@
 package com.ruoyi.system.mapper;
 
 import java.util.List;
+import java.util.Map;
+
 import com.ruoyi.system.domain.SciLectureReport;
+import com.ruoyi.system.domain.SciLectureReportOpinion;
 import org.apache.ibatis.annotations.Param;
 
 /**
@@ -81,6 +84,8 @@ public interface SciLectureReportMapper
 
 //    int SciLectureReportOverAdd(@Param("id") Integer id, @Param("actualNumber") Integer actualNumber, @Param("actualTime") String actualTime);
     int SciLectureReportOverAdd(SciLectureReport sciLectureReport);
+
+    List<SciLectureReportOpinion> getStatsQuery(Map<String, String> params);
 
 //    List<SciLectureReport> selectSciLectureReportListBy(SciLectureReport sciLectureReport);
 }

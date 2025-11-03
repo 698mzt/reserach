@@ -65,22 +65,5 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </foreach>
     </delete>
 
-    <select id="getStatsQuery" parameterType="map" resultMap="SciLectureReportIntegralResult">
-        <include refid="selectSciLectureReportIntegralVo"/>
-        where 1=1
-        <if test="startTime != null and startTime != ''">
-            and over_createtime >= #{startTime}
-        </if>
-        <if test="endTime != null and endTime != ''">
-            and over_createtime &lt;= #{endTime}
-        </if>
-        <if test="classification != null and classification != ''">
-            and classification like concat('%', #{classification}, '%')
-        </if>
-        <if test="state != null and state != ''">
-            and 1=1
-        </if>
-        order by over_createtime desc
-    </select>
 
 </mapper>
