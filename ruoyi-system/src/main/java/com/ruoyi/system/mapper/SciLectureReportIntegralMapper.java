@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.ruoyi.system.domain.SciLectureReportIntegral;
+import com.ruoyi.system.domain.SciLectureReportOpinion;
 
 /**
  * 讲座报告积分管理Mapper接口
@@ -61,11 +62,4 @@ public interface SciLectureReportIntegralMapper
      */
     public int deleteSciLectureReportIntegralByIds(String[] ids);
 
-    /**
-     * 统计查询讲座报告积分管理数据
-     *
-     * @param params 查询参数
-     * @return 讲座报告积分管理集合
-     */
-    List<SciLectureReportIntegral> getStatsQuery(Map<String, String> params);
 }

@@ -31,8 +31,8 @@ public class StatsQueryController extends BaseController {
     private ISciZhuanliruanzhuService sciZhuanliruanzhuService;
     @Autowired // 奖励 7 15204
     private ISysRewardService sysRewardService;
-    @Autowired // 讲座报告 8
-    private ISciLectureReportIntegralService sciLectureReportIntegralService;
+    @Autowired // 讲座报告Service接口 8
+    private ISciLectureReportService sciLectureReportService;
 
 
     @GetMapping("")
@@ -91,7 +91,7 @@ public class StatsQueryController extends BaseController {
                 return getDataTable(statsQuery);
             }else if("8".equals(remark)){
                 // 获取项目类别8的数据（讲座报告）
-                List<SciLectureReportIntegral> statsQuery = sciLectureReportIntegralService.getStatsQuery(params);
+                List<SciLectureReportOpinion> statsQuery = sciLectureReportService.getStatsQuery(params);
                 return getDataTable(statsQuery);
             }
         } else {

@@ -3,6 +3,7 @@ package com.ruoyi.system.mapper;
 import com.ruoyi.system.domain.SciLectureReportOpinion;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 讲座报告审核表Mapper接口
@@ -16,4 +17,5 @@ public interface SciLectureReportOpinionMapper
 
     // 添加审核意见
     int opinionadd(SciLectureReportOpinion sciLectureReportOpinion);
+
 }

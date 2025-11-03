@@ -2,7 +2,10 @@ package com.ruoyi.system.service;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import com.ruoyi.system.domain.SciLectureReport;
+import com.ruoyi.system.domain.SciLectureReportOpinion;
 
 /**
  * 讲座报告Service接口
@@ -98,6 +101,8 @@ public interface ISciLectureReportService
     List<SciLectureReport> selectSciLectureReportListKYS_Tab2(SciLectureReport sciLectureReport);
 
     int SciLectureReportOverAdd(SciLectureReport sciLectureReport);
+
+    List<SciLectureReportOpinion> getStatsQuery(Map<String, String> params);
 
 //    List<SciLectureReport> selectSciLectureReportListByKYS(SciLectureReport sciLectureReport);
 }

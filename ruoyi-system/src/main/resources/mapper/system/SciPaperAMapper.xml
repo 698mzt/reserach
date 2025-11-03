@@ -62,6 +62,7 @@
       select
         #{uid} uid,
         p.id ,
+        pac.createtime as createtime,
         u.login_name employee_id,
         p.text_paper,
         p.word_paper,
@@ -70,9 +71,9 @@
         p.user_id,
         d.dept_name dname,
         pt.dept_name college,
-        p.teacher_name,
+        p.teacher_name teacher_name,
         u.tea_zhicheng on_campus_title,
-        p.paper_title,
+        p.paper_title ,
         p.paper_type,
         p.paper_category,
         p.published_journal,
@@ -112,28 +113,28 @@
             select pa.paper_id, su.user_name ,su.user_id ,pa.score
             from paper_author pa
                      left join sys_user su on pa.user_id = su.user_id
-            where pa.author_level = '1'
+            where pa.author_order = '1'
         ) pa1 on p.id = pa1.paper_id
           left join (
             select pa.paper_id, su.user_name ,su.user_id ,pa.score
             from paper_author pa
                      left join sys_user su on pa.user_id = su.user_id
-            where pa.author_level = '2'
+            where pa.author_order = '2'
         ) pa2 on p.id = pa2.paper_id
           left join (
             select pa.paper_id, su.user_name ,su.user_id,pa.score
             from paper_author pa
                      left join sys_user su on pa.user_id = su.user_id
-            where pa.author_level = '3'
+            where pa.author_order = '3'
         ) pa3 on p.id = pa3.paper_id
           left join (
             select pa.paper_id, su.user_name ,su.user_id,pa.score
             from paper_author pa
                      left join sys_user su on pa.user_id = su.user_id
-            where pa.author_level = '4'
+            where pa.author_order = '4'
         ) pa4 on p.id = pa4.paper_id
           left join (
-            select pa.paper_id, su.user_name ,su.user_id,pa.score
+            select pa.paper_id, su.user_name ,su.user_id,pa.score ,pa.create_time as createtime
             from paper_author pa
                      left join sys_user su on pa.user_id = su.user_id
             where pa.author_level = '0'
@@ -627,30 +628,115 @@
 
 
     <select id="getStatsQuery" parameterType="map" resultMap="SciPaperAResult">
-        <include refid="selectSciPaperAVo"/>
-        where p.state in (1,2,3,4,5,6,7)
+        select
+        #{uid} uid,
+        p.id ,
+        pac.createtime as createtime,
+        u.login_name employee_id,
+        p.text_paper,
+        p.word_paper,
+        p.search_web,
+        pt.dept_name research_room,
+        p.user_id,
+        d.dept_name dname,
+        pt.dept_name college,
+        p.teacher_name teacher_name,
+        u.tea_zhicheng on_campus_title,
+        p.paper_title ,
+        p.paper_type,
+        p.paper_category,
+        p.published_journal,
+        p.publication_time,
+        p.is_industry_collaborative,
+        p.is_local_collaborative,
+        p.is_international_collaborative,
+        p.is_cross_discipline,
+        p.paper_ranking,
+        p.research_score,
+        p.remarks,
+        p.state,
+        pa1.user_name as first_author_name,
+        pa1.user_id as first_author_id,
+        pa1.score as first_author_score,
+        pa2.user_name as second_author_name,
+        pa2.user_id as second_author_id,
+        pa2.score as second_author_score,
+        pa3.user_name as third_author_name,
+        pa3.user_id as third_author_id,
+        pa3.score as third_author_score,
+        pa4.user_name as fourth_author_name,
+        pa4.user_id as fourth_author_id,
+        pa4.score as fourth_author_score,
+        pac.user_name as corresponding_author_name,
+        pac.user_id as corresponding_author_id,
+        pac.score as corresponding_author_score
+        from
+        sci_paper_a p
+        left join sys_user u on
+        p.user_id = u.user_id
+        left join sys_dept d on
+        u.dept_id = d.dept_id
+        left join sys_dept pt on
+        d.parent_id = pt.dept_id
+        left join (
+        select pa.paper_id, su.user_name ,su.user_id ,pa.score
+        from paper_author pa
+        left join sys_user su on pa.user_id = su.user_id
+        where pa.author_order = '1'
+        ) pa1 on p.id = pa1.paper_id
+        left join (
+        select pa.paper_id, su.user_name ,su.user_id ,pa.score
+        from paper_author pa
+        left join sys_user su on pa.user_id = su.user_id
+        where pa.author_order = '2'
+        ) pa2 on p.id = pa2.paper_id
+        left join (
+        select pa.paper_id, su.user_name ,su.user_id,pa.score
+        from paper_author pa
+        left join sys_user su on pa.user_id = su.user_id
+        where pa.author_order = '3'
+        ) pa3 on p.id = pa3.paper_id
+        left join (
+        select pa.paper_id, su.user_name ,su.user_id,pa.score
+        from paper_author pa
+        left join sys_user su on pa.user_id = su.user_id
+        where pa.author_order = '4'
+        ) pa4 on p.id = pa4.paper_id
+        left join (
+        select pa.paper_id, su.user_name ,su.user_id,pa.score ,pa.create_time as createtime
+        from paper_author pa
+        left join sys_user su on pa.user_id = su.user_id
+        where pa.author_level = '0'
+        ) pac on p.id = pac.paper_id
+        where 1=1
         <if test="startTime != null and startTime != ''">
-            and p.createtime >= #{startTime}
+            and pac.createtime >= #{startTime}
         </if>
         <if test="endTime != null and endTime != ''">
-            and p.createtime &lt;= #{endTime}
+            and pac.createtime &lt;= #{endTime}
         </if>
-        <if test="college != null and college != '' and college != 'null'">
-            and p.college like concat('%', #{college}, '%')
+        <if test="college != null and college != '' and college!='null' ">
+            AND pt.dept_id = #{college}
         </if>
-        <if test="major != null and major != '' and major != 'null'">
-            and d.dept_name like concat('%', #{major}, '%')
+        <if test="major != null and major != '' and major!='null'">
+            AND d.dept_id = #{major}
         </if>
         <if test="jobTitle != null and jobTitle != '' and jobTitle != 'null'">
-            and u.user_name like concat('%', #{jobTitle}, '%')
+            and u.tea_zhicheng =#{jobTitle}
         </if>
         <if test="topicName != null and topicName != ''">
             and p.paper_title like concat('%', #{topicName}, '%')
         </if>
-        <if test="state != null and state != '' and state != 'null'">
-            and p.state = #{state}
+        <if test='state != null and state != "" and state!="null" and state =="1" '>
+            AND s.state in (3,5,7,9,10,22,44,99)
         </if>
-        order by p.createtime desc
+        <if test='state != null and state != "" and state!="null" and state =="2"'>
+            AND s.state in (1,2,4,6,11,33)
+        </if>
+        <if test='state != null and state != "" and state!="null" and state =="3"'>
+            AND s.state in (8)
+        </if>
+        order by createtime desc
     </select>
 
 </mapper>

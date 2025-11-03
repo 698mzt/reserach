@@ -249,27 +249,33 @@
 
     <select id="getStatsQuery" parameterType="map" resultMap="SciJiaocairuanzhuResult">
         <include refid="selectSciJiaocairuanzhuVo"/>
-        where s.state in (1,2,3,4,5,6,7)
+        where 1=1
         <if test="startTime != null and startTime != ''">
             and s.createtime >= #{startTime}
         </if>
         <if test="endTime != null and endTime != ''">
             and s.createtime &lt;= #{endTime}
         </if>
-        <if test="college != null and college != '' and college != 'null'">
-            and p.dept_name like concat('%', #{college}, '%')
+        <if test="college != null and college != '' and college!='null' ">
+            AND p.dept_id = #{college}
         </if>
-        <if test="major != null and major != '' and major != 'null'">
-            and d.dept_name like concat('%', #{major}, '%')
+        <if test="major != null and major != '' and major!='null'">
+            AND d.dept_id = #{major}
         </if>
         <if test="jobTitle != null and jobTitle != '' and jobTitle != 'null'">
-            and u.user_name like concat('%', #{jobTitle}, '%')
+            and u.tea_zhicheng =#{jobTitle}
         </if>
         <if test="topicName != null and topicName != ''">
             and s.mingcheng like concat('%', #{topicName}, '%')
         </if>
-        <if test="state != null and state != '' and state != 'null'">
-            and s.state = #{state}
+        <if test='state != null and state != "" and state!="null" and state =="1" '>
+            AND s.state in (3,5,7,0)
+        </if>
+        <if test='state != null and state != "" and state!="null" and state =="2"'>
+            AND s.state in (1,2,4)
+        </if>
+        <if test='state != null and state != "" and state!="null" and state =="3"'>
+            AND s.state in (6)
         </if>
         order by s.createtime desc
     </select>

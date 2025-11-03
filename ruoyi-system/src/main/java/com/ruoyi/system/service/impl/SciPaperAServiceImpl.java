@@ -195,6 +195,14 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
         sciPaperAMapper.insertSciPaperAr(sciPaperAr);
         return a;
     }
+
+    /**
+     * 如果一作不是本校老师 ,那么通讯作者的分数就是一作的分数 , 无论这个通讯作者在这个论文中是几作
+     * 如果一作是本校老师，不是通讯作者 , 那么通讯作者获得的分数是他原来在这个论文中担任几作的分数
+     * @param id
+     * @param point_list
+     * @return
+     */
     public int setPaperUserScore (String id, List<Integer> point_list){
         List<Paper_user_score> paperUserScores = paperUserScoreServiceImplMapper.getpaperUserScoreListByPaperId(Long.valueOf(id));
 

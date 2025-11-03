@@ -236,23 +236,23 @@ public class SciPaperAController extends BaseController {
                 String user_name = userService.selectUserByLoginName(getLoginName()).getUserName();
                 sciPaperA.setTeacherName(user_name);
                 sciPaperA.setState("99");
+
                 //插入论文数据
                 sciPaperAService.insertSciPaperA(sciPaperA);
-
                 // 保存1-4作信息到Paper_user_score表
                 int i = savePaperAuthorsToScoreTable(sciPaperA);
                 if (i ==0) {
-                    return error("保存作者信息失败");
+                    throw new RuntimeException("保存作者信息失败");
                 }else if (i == -1) {
-                    return error("你不能添加自己不是作者的论文");
+                    throw new RuntimeException("你不能添加自己不是作者的论文");
                 }else if (i == -2) {
-                    return error("作者数量错误");
+                    throw new RuntimeException("作者数量错误");
                 } else if (i==-3) {
-                    return error("一作只能是自己");
+                    throw new RuntimeException("一作只能是自己");
                 } else if (i==-4) {
-                    return error("未找到论文类型");
+                    throw new RuntimeException("未找到论文类型");
                 }else if (i==-5){
-                    return error("作者重复");
+                    throw new RuntimeException("作者重复");
                 }
 
                 SciPaperAr sciPaperAr = new SciPaperAr();
@@ -281,10 +281,18 @@ public class SciPaperAController extends BaseController {
         // 这里只是限制了人数 ,没有详细限制是第几作者
         int key = (sciPaperA.getFirstPersonId()==null?0:1 )+ (sciPaperA.getSecondPersonId()==null?0:1) + (sciPaperA.getThirdPersonId()==null?0:1) + (sciPaperA.getFourthPersonId()==null?0:1);
         Set<String> countAuthors = new HashSet<>();
-        countAuthors.add(sciPaperA.getFirstPersonId());
-        countAuthors.add(sciPaperA.getSecondPersonId ());
-        countAuthors.add(sciPaperA.getThirdPersonId());
-        countAuthors.add(sciPaperA.getFourthPersonId());
+        if (sciPaperA.getFirstPersonId() != null) {
+            countAuthors.add(sciPaperA.getFirstPersonId());
+        }
+        if (sciPaperA.getSecondPersonId() != null) {
+            countAuthors.add(sciPaperA.getSecondPersonId());
+        }
+        if (sciPaperA.getThirdPersonId() != null) {
+            countAuthors.add(sciPaperA.getThirdPersonId());
+        }
+        if (sciPaperA.getFourthPersonId() != null) {
+            countAuthors.add(sciPaperA.getFourthPersonId());
+        }
         if (countAuthors.size()!=key){
             return -5;
         }
@@ -297,7 +305,7 @@ public class SciPaperAController extends BaseController {
                 if (key!=1){
                     return -2;
                 }
-                if (!sciPaperA.getCommunicationAuthorId().equals(getUserId()) || !sciPaperA.getFirstPersonId().equals(getUserId())){
+                if (!sciPaperA.getCommunicationAuthorId().equals(String.valueOf(getUserId())) || !sciPaperA.getFirstPersonId().equals(String.valueOf(getUserId()))){
                     return -3 ;
                 }
             }
