@@ -804,15 +804,15 @@
         }
 
         // 校验到账金额不能为负数
-        if (parseFloat(reAmount1) < 0) {
-            return $.modal.alertError("到账金额不能为负数");
+        if (parseFloat(reAmount1) < 0 || parseFloat(reAmount1) == 0) {
+            return $.modal.alertError("请输入正确的金额");
         }
 
-        // 校验到账金额不能大于项目金额的70%
+        // 校验到账金额不能大于项目金额的
         if (projectAmount !== undefined && projectAmount !== "") {
-            var maxAmount = parseFloat(projectAmount) * 0.7;
+            var maxAmount = parseFloat(projectAmount);
             if (parseFloat(reAmount1) > maxAmount) {
-                return $.modal.alertError("到账金额不能大于项目金额的70%");
+                return $.modal.alertError("到账金额不能大于项目金额");
             }
         }
 

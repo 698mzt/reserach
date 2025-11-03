@@ -458,8 +458,8 @@
             return $.modal.alertError("请上传到账金额文件");
 
         // 新增验证：检查到账金额是否超过总金额的70%
-        if(totalAmount && parseFloat(reAmount1Value) > parseFloat(totalAmount) * 0.7) {
-            return $.modal.alertError("到账金额不能超过项目总金额的70%");
+        if(totalAmount && parseFloat(reAmount1Value) > parseFloat(totalAmount)) {
+            return $.modal.alertError("到账金额不能大于项目金额");
         }
 
         // 保存数据
