@@ -31,5 +31,5 @@ public interface SciHorizontalReamountService {
     List<SciHorizontalReamount> selectAmountListById(Integer id);
 
 
-    int push(Integer id, String state);
+    int push(Long uid,Integer id, String state);
 }

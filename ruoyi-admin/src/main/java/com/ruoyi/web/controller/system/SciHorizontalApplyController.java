@@ -395,7 +395,7 @@ public class SciHorizontalApplyController extends BaseController
             sciHorizontalApply.setState("1");
         Integer a = sciHorizontalApplyService.updateSciHorizontalApply(sciHorizontalApply);
         sciHorizontalReamount.setState("1");
-        sciHorizontalReamountService.push(sciHorizontalApply.getId(),"1");
+        sciHorizontalReamountService.push(getUserId(),sciHorizontalApply.getId(),"1");
         return toAjax(a);
     }
 
@@ -437,7 +437,11 @@ public class SciHorizontalApplyController extends BaseController
         if (result == -1) {
             return AjaxResult.error("请选择有效的结项日期");
         } else if (result == -2) {
-            return AjaxResult.error("日期格式错误");
+            return AjaxResult.error("解析错误，尝试输入正确的数据！！！若输入正确数据后仍然报错，请联系管理员处理。");
+        } else if (result == -3) {
+            return AjaxResult.error("上报总金额小于项目金额，请核实金额后重新填写");
+        } else if (result == -4) {
+            return AjaxResult.error("上报总金额大于项目金额，请核实金额后重新填写");
         }
         if (sciHorizontalReamount.getReAmount() != null && !sciHorizontalReamount.getReAmount().isEmpty()) {
             sciHorizontalReamountService.insertAmount(sciHorizontalReamount);
@@ -765,12 +769,13 @@ public class SciHorizontalApplyController extends BaseController
     @ResponseBody
     public AjaxResult Reamount(SciHorizontalReamount sciHorizontalReamount)
     {
+        sciHorizontalReamount.setUid(getUserId());
         int state = sciHorizontalReamountService.insertAmount(sciHorizontalReamount);
         if (state == -1) {
-            return  AjaxResult.error("新增金额大于总金额的七成！！！请核实后输入正确的金额");
+            return  AjaxResult.error("追加金额大于项目金额！！！请核实后输入正确的金额");
         }
         if (state == -2) {
-            return  AjaxResult.error("追加总金额超过项目金额的七成！！！请核实后输入正确的金额");
+            return  AjaxResult.error("追加总金额大于项目金额！！！请核实后输入正确的金额");
         }
         return toAjax(state);
     }

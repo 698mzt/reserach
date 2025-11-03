@@ -2,6 +2,7 @@ package com.ruoyi.system.domain;
 
 import com.ruoyi.common.core.domain.BaseEntity;
 
+
 public class SciHorizontalReamount extends BaseEntity {
     private Integer reid;
     private String applyId;
@@ -11,6 +12,16 @@ public class SciHorizontalReamount extends BaseEntity {
     private String reamountUrl;
     private String amountType;
     private String state;
+    private Long uid;
+
+
+    public Long getUid() {
+        return uid;
+    }
+
+    public void setUid(Long uid) {
+        this.uid = uid;
+    }
 
     public Integer getReid() {
         return reid;

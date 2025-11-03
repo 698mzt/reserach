@@ -56,7 +56,7 @@
             <div class="form-group">
                 <label class="col-sm-4 control-label is-required">项目金额(万)：</label>
                 <div class="col-sm-8">
-                        <input name="amount"  class="form-control" type="number" required>
+                        <input name="amount"  class="form-control" type="number" required step="0.0001" maxlength="9">
                 </div>
             </div>
         </div>
@@ -219,8 +219,8 @@
             if (topName === "") {
                 return $.modal.alertError("课题名称不能为空或纯空格");
             }
-            if (topName.length > 20) {
-                return $.modal.alertError("课题名称不能超过20个字符");
+            if (topName.length > 50) {
+                return $.modal.alertError("课题名称不能超过50个字符");
             }
             $.operate.saveTab(prefix + "/add", $('#form-apply-add').serialize());
         }
@@ -252,9 +252,9 @@
             return newName;
         },
     }).on('fileuploaded', function (event, data, previewId, index) {
-        $("input[name='" + event.currentTarget.id + "']").val(data.response.url)
+        $("input[type='hidden'][name='file']").val(data.response.url)
     }).on('fileremoved', function (event, id, index) {
-        $("input[name='" + event.currentTarget.id + "']").val('')
+        $("input[type='hidden'][name='file']").val('')
     })
 
     // 动态新增成员下拉（第5位起）与编辑页预渲染

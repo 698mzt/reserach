@@ -73,9 +73,9 @@
                     <label class="col-sm-4 control-label is-required">项目金额(万)：</label>
                     <div class="col-sm-8">
                         <div class="input-group ">
-                            <input name="amount"  class="form-control" type="number" required>
+                            <input name="amount"  class="form-control" type="number" required step="0.0001" maxlength="9">
                             <span class="input-group-addon">
-                            <a href="#" title="上传到账金额"  data-toggle="modal" data-target="#myModal"><i class="fa fa-plus-circle" ></i>到账金额</a>
+                                <a href="#" title="上传到账金额"  data-toggle="modal" data-target="#myModal"><i class="fa fa-plus-circle" ></i>到账金额</a>
                             </span>
                         </div>
                     </div>
@@ -272,8 +272,8 @@
                 if (specialCharPattern.test(partyB)) {
                     return $.modal.alertError("乙方不能包含特殊字符");
                 }
-                if (topName.length > 20) {
-                    return $.modal.alertError("课题名称不能超过20个字符");
+                if (topName.length > 50) {
+                    return $.modal.alertError("课题名称不能超过50个字符");
                 }
                 if (partyA && partyA.length > 20) {
                     return $.modal.alertError("甲方不能超过20个字符");
@@ -751,7 +751,7 @@
                         <div class="form-group">
                             <label class="col-sm-4 control-label is-required">项目金额(万)：</label>
                             <div class="col-sm-8">
-                                <input name="reAmount1" class="form-control" type="number" required>
+                                <input name="reAmount1" class="form-control" type="number" required step="0.0001" maxlength="9">
                             </div>
                         </div>
                     </div>
@@ -804,15 +804,15 @@
         }
 
         // 校验到账金额不能为负数
-        if (parseFloat(reAmount1) < 0) {
-            return $.modal.alertError("到账金额不能为负数");
+        if (parseFloat(reAmount1) < 0 || parseFloat(reAmount1) == 0) {
+            return $.modal.alertError("请输入正确的金额");
         }
 
-        // 校验到账金额不能大于项目金额的70%
+        // 校验到账金额不能大于项目金额的
         if (projectAmount !== undefined && projectAmount !== "") {
-            var maxAmount = parseFloat(projectAmount) * 0.7;
+            var maxAmount = parseFloat(projectAmount);
             if (parseFloat(reAmount1) > maxAmount) {
-                return $.modal.alertError("到账金额不能大于项目金额的70%");
+                return $.modal.alertError("到账金额不能大于项目金额");
             }
         }
 

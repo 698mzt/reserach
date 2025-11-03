@@ -131,12 +131,18 @@
         ${params.dataScope}
         order  by
         case
-        when re.state in (3,5,22) then 1
+--         已完结
+        when re.state = 6 then 1
+--         教研室审批
         when re.state = 1 then 2
-        when re.state in (2,11) then 3
-        when re.state = 4 then 4
+--         学院审批
+        when re.state = 2 then 3
+--         科研处审批
+        when re.state = 11 then 4
+--         草稿
+        when re.state = 99 then 5
         end,
-        createtime desc
+        re.createtime desc
     </select>
 
     <select id="selectAmountListJYS" resultMap="SciHorizontalApplyResult" parameterType="SciHorizontalApply">
@@ -153,17 +159,11 @@
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
             ${params.dataScope}
         order  by
-        case
-        when re.state = 99 then 1
-        when re.state = 2 then 2
-        when re.state = 1 then 3
-        when re.state in (4,11) then 4
-        end,
-        createtime
+        re.createtime
     </select>
 
     <select id="selectAmountListDept" resultMap="SciHorizontalApplyResult" parameterType="SciHorizontalApply">
-        select s.id,re.reid reid,u.user_name userName,s.top_number ,d.dept_id,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,s.party_A,s.party_B, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, s.signing_data, s.validity_Date,re.re_amount ,re.reamount_url,re.account_data,s.contract, s.filing, re.state,re.createtime,re.amount_type
+        select s.id,re.reid reid,u.user_name userName,s.top_number ,d.dept_id,d.dept_name dname,p.dept_id ynameId,p.dept_name yname, s.user_id, s.top_name, s.top_type,s.party_A,s.party_B, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, s.signing_data, s.validity_Date,re.re_amount ,re.reamount_url,re.account_data,s.contract, s.filing, re.state,re.createtime,re.amount_type
         from sci_horizontal_reamount re
         join sci_horizontal_apply s on s.id = re.apply_id
         left join sys_user u on  s.user_id=u.user_id
@@ -177,11 +177,7 @@
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
         ${params.dataScope}
         order  by
-        case
-        when re.state in (2,11) then 1
-        when re.state = 4 then 2
-        end,
-        createtime
+        re.createtime
     </select>
 
     <select id="selectAmountListKYC" resultMap="SciHorizontalApplyResult" parameterType="SciHorizontalApply">
@@ -199,11 +195,7 @@
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
         ${params.dataScope}
         order  by
-        case
-        when re.state = 11 then 1
-        when re.state = 4 then 2
-        end,
-        createtime desc
+        re.createtime desc
     </select>
 
     <select id="selectAmountById" parameterType="Integer" resultMap="SciHorizontalApplyResult">
