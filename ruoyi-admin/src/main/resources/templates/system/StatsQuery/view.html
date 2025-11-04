@@ -914,13 +914,18 @@
                 title: '课题名称'
             },
             {
-                field: 'responsibilityTier',
-                title: '责任层级',
+                field: 'amount',
                 align: 'center',
-                formatter: function (value, row, index) {
-                    return row.firstPersonId == row.uid ? '第一负责人' : row.secondPersonId == row.uid ? '第二负责人' : row.thirdPersonId == row.uid ? "第三负责人" : row.fourthPersonId == row.uid ? "第四负责人" : "不是负责人";
-                }
+                title: '金额'
             },
+            // {
+            //     field: 'responsibilityTier',
+            //     title: '责任层级',
+            //     align: 'center',
+            //     formatter: function (value, row, index) {
+            //         return row.firstPersonId == row.uid ? '第一负责人' : row.secondPersonId == row.uid ? '第二负责人' : row.thirdPersonId == row.uid ? "第三负责人" : row.fourthPersonId == row.uid ? "第四负责人" : "不是负责人";
+            //     }
+            // },
             // {
             //     field: 'responsibilityTier',
             //     title: '积分',
