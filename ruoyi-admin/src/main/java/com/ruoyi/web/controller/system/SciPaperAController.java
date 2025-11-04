@@ -225,7 +225,7 @@ public class SciPaperAController extends BaseController {
     @Log(title = "论文", businessType = BusinessType.INSERT)
     @PostMapping("/add")
     @ResponseBody
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public AjaxResult addSave(SciPaperA sciPaperA) {
         try {
             if (sciPaperAService.selectSciPaperA(sciPaperA) != 0) {
@@ -237,8 +237,7 @@ public class SciPaperAController extends BaseController {
                 sciPaperA.setTeacherName(user_name);
                 sciPaperA.setState("99");
 
-                //插入论文数据
-                sciPaperAService.insertSciPaperA(sciPaperA);
+
                 // 保存1-4作信息到Paper_user_score表
                 int i = savePaperAuthorsToScoreTable(sciPaperA);
                 if (i ==0) {
@@ -255,6 +254,8 @@ public class SciPaperAController extends BaseController {
                     throw new RuntimeException("作者重复");
                 }
 
+                //插入论文数据
+                sciPaperAService.insertSciPaperA(sciPaperA);
                 SciPaperAr sciPaperAr = new SciPaperAr();
                 sciPaperAr.setUid(getUserId());
                 sciPaperAr.setAr_id(Math.toIntExact(sciPaperA.getId()));
