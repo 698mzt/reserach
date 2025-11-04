@@ -237,6 +237,8 @@ public class SciPaperAController extends BaseController {
                 sciPaperA.setTeacherName(user_name);
                 sciPaperA.setState("99");
 
+                //插入论文数据
+                sciPaperAService.insertSciPaperA(sciPaperA);
 
                 // 保存1-4作信息到Paper_user_score表
                 int i = savePaperAuthorsToScoreTable(sciPaperA);
@@ -254,8 +256,6 @@ public class SciPaperAController extends BaseController {
                     throw new RuntimeException("作者重复");
                 }
 
-                //插入论文数据
-                sciPaperAService.insertSciPaperA(sciPaperA);
                 SciPaperAr sciPaperAr = new SciPaperAr();
                 sciPaperAr.setUid(getUserId());
                 sciPaperAr.setAr_id(Math.toIntExact(sciPaperA.getId()));
