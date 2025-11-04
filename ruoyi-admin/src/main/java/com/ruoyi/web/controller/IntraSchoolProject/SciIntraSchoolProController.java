@@ -282,7 +282,7 @@ public class SciIntraSchoolProController extends BaseController {
       countAuthors.add(sciIntraSchoolPro.getThirdPersonId());
       countAuthors.add(sciIntraSchoolPro.getFourthPersonId());
       if (countAuthors.size() < 4){
-          return error("负责人不能重复");
+          return error("负责人不能少于四个");
       }
     //插入这个课题
     sciIntraSchoolPro.setUid(getUserId());

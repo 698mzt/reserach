@@ -728,13 +728,13 @@
             and p.paper_title like concat('%', #{topicName}, '%')
         </if>
         <if test='state != null and state != "" and state!="null" and state =="1" '>
-            AND s.state in (3,5,7,9,10,22,44,99)
+            AND p.state in (3,5,7,9,10,22,44,99)
         </if>
         <if test='state != null and state != "" and state!="null" and state =="2"'>
-            AND s.state in (1,2,4,6,11,33)
+            AND p.state in (1,2,4,6,11,33)
         </if>
         <if test='state != null and state != "" and state!="null" and state =="3"'>
-            AND s.state in (8)
+            AND p.state in (8)
         </if>
         order by createtime desc
     </select>
