@@ -1,13 +1,9 @@
 package com.ruoyi.web.controller.IntraSchoolProject;
 
-
-import com.github.pagehelper.Page;
-import com.github.pagehelper.PageHelper;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.system.domain.*;
 import com.ruoyi.system.service.*;
-import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -49,13 +45,8 @@ public class StatsQueryController extends BaseController {
     @ResponseBody
     public TableDataInfo list(@RequestParam Map<String, String> params)
     {
-        String offset = params.get("offset");//跳过了几条数据
-        Integer pageNum = offset == null ? 1 : Integer.parseInt(offset)/10+1;
-        // 获取分页参数
-        int pageSize = 10;
-        // 使用 PageHelper 进行分页
-        PageHelper.startPage(pageNum, pageSize);
-
+        System.out.println("params = " + params);
+        
         // 如果前端传递了noData标志，说明是初始加载，返回空数据
         if ("true".equals(params.get("noData"))) {
             return getDataTable(new ArrayList<>());
@@ -64,8 +55,10 @@ public class StatsQueryController extends BaseController {
         // 获取项目类别参数
         String remark = params.get("remark");
         System.out.println("项目类别: " + remark);
-
+        
+        startPage();
         List<Object> list = new ArrayList<>();
+        
         // 根据项目类别返回不同的数据
         if (remark != null && !remark.isEmpty()) {
             if ("1".equals(remark)) {
