@@ -45,7 +45,7 @@
             <div class="col-sm-6">
                 <label class="col-sm-4 control-label is-required">教材名称：</label>
                 <div class="col-sm-8">
-                    <input name="mingcheng" class="form-control" type="text" required>
+                    <input name="mingcheng" class="form-control" type="text" required maxlength="100">
                 </div>
             </div>
 <!--            <div class="col-sm-6">-->
@@ -70,7 +70,7 @@
                            minlength="13"
                            maxlength="13"
                            title="请输入13位数字ISBN"
-                           oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+                           oninput="this.value=this.value.replace(/[^0-9]/g,'')" >
                 </div>
             </div>
         </div>
@@ -88,7 +88,7 @@
             <div class="col-sm-6">
                 <label class="col-sm-4 control-label is-required">出版社：</label>
                 <div class="col-sm-8">
-                    <input name="chubanshe" class="form-control" type="text" required>
+                    <input name="chubanshe" class="form-control" type="text" required maxlength="50">
                 </div>
             </div>
         </div>

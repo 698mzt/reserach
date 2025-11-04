@@ -535,12 +535,30 @@
         }
         console.log(ListRowId);
       },
-      columns: [{
-        checkbox: true,
-      },
+      columns: [
+      //         {
+      //   checkbox: false,
+      // },
+        {
+          field: 'number',
+          title: '序号',
+          width:5 ,
+          align:'center',
+          switchable:false,
+          formatter:function(value,row,index){
+            //return index+1; //序号正序排序从1开始
+
+            //通过表的#id 可以得到每页多少条
+            var pageSize=$('#bootstrap-table').bootstrapTable('getOptions').pageSize;
+            //通过表的#id 可以得到当前第几页
+            var pageNumber=$('#bootstrap-table').bootstrapTable('getOptions').pageNumber;
+            //返回每条的序号： 每页条数 * （当前页 - 1 ）+ 序号
+            return pageSize * (pageNumber - 1) + index + 1;
+          }
+        },
         {
           field: 'id',
-          title: '序号',
+          title: 'id',
           visible: false
         },
         {

@@ -504,9 +504,22 @@
                         return {css: { "color": "#000000" }};
                 }
             },
-            columns: [{
-                checkbox: true
-            },
+            columns: [
+                // {
+                // checkbox: false
+                // },
+                {
+                    field: 'number',
+                    title: '序号',
+                    width:5 ,
+                    align:'center',
+                    switchable:false,
+                    formatter:function(value,row,index){
+                        //使用若依框架提供的serialNumber方法来生成序号
+                        return $.table.serialNumber(index, 'bootstrap-table1');
+                    }
+
+                },
                 {
                     field: 'id',
                     align: 'center',
