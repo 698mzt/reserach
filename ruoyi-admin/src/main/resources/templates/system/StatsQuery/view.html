@@ -760,6 +760,7 @@
     var hasSearched = false; // 添加搜索状态标志  初始菜单不加载 ,点击搜索之后才会显示
     var paiMingDatas = [[${@dict.getType('sys_jiaocairuanzhu_fzr')}]];
     var fenleiDatas = [[${@dict.getType('sys_zhuanli_fenlei')}]];
+    var dengjiDatas = [[${@dict.getType('sys_reward_dengji')}]];
 
     // 定义不同项目类别对应的表格列配置
     var tableColumnsConfig = {
@@ -1181,15 +1182,15 @@
                 title: '申请人'
             },
             {
-                field: 'rewardName',
+                field: 'mingcheng',
                 title: '荣誉名称'
             },
             {
-                field: 'huopishijain',
+                field: 'rewardTime',
                 title: '获批时间'
             },
             {
-                field: 'rewardFenlei',
+                field: 'fenlei',
                 title: '分类',
                 formatter: function(value, row, index) {
                     return $.table.selectDictLabel(fenleiDatas, value);
@@ -1206,7 +1207,7 @@
                 field: 'rewardPaiming',
                 title: '排名',
                 formatter: function(value, row, index) {
-                    return $.table.selectDictLabel(paimingDatas, value);
+                    return $.table.selectDictLabel(paiMingDatas, value);
                 }
             },
             {

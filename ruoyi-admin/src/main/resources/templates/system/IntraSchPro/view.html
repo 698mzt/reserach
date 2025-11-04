@@ -940,7 +940,7 @@
             actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"> 查看</a> &nbsp;&nbsp;&nbsp;');
             if (row.state == '15') {
               actions.push('<a   class="link-button' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')">编辑</a>');
-              actions.push('<a   class="link-button' + '" href="javascript:void(0)" onclick="subDraft(\'' + row.id + '\')">提交草稿</a> &nbsp;');
+              actions.push('<a   class="link-button' + '" href="javascript:void(0)" onclick="subDraft(\'' + row.id + '\')">提交</a> &nbsp;');
               actions.push('<a class="del-link-button' + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"> </i>删除</a>');
             }
             //这个role字段是在sql里面写死
@@ -1232,7 +1232,7 @@
                   //actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick="submitto(\'' + row.id + '\', \'' + row.state + '\')"> 提交</a> ');
                 } else if (row.state == '16'){
                     actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> 编辑</a><br> ');
-                    actions.push('<a   class="link-button' + '" href="javascript:void(0)" onclick="subDraft(\'' + row.id + '\')">提交草稿</a> &nbsp;');
+                    actions.push('<a   class="link-button' + '" href="javascript:void(0)" onclick="subDraft(\'' + row.id + '\')">提交</a> &nbsp;');
                   //actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"> 查看</a> ');
                 }
 
@@ -1295,7 +1295,7 @@
               if (row.userId == row.uid) {
                 if (row.state == '16'){
                   actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> 编辑</a><br> ');
-                  actions.push('<a   class="link-button' + '" href="javascript:void(0)" onclick="subDraft(\'' + row.id + '\')">提交草稿</a> ');
+                  actions.push('<a   class="link-button' + '" href="javascript:void(0)" onclick="subDraft(\'' + row.id + '\')">提交</a> ');
 
                 }
                 if (row.state == '7') {

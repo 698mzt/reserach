@@ -252,9 +252,10 @@
       var third = $("#thirdPersonId").val();
       var fourth = $("#fourthPersonId").val();
 
-      var fzrArray = [first, second, third, fourth];
+      var fzrArray = [first, second, third, fourth].filter(item => item !== "");
       var uniquefzr = [...new Set(fzrArray)];
-
+      //console.log('uniquefzr',uniquefzr);
+      //console.log('fzrArray',fzrArray);
       if (uniquefzr.length < fzrArray.length) {
         $.modal.alertWarning("负责人不能重复");
         return;
@@ -288,10 +289,10 @@
       var currentDate = new Date();
       currentDate.setHours(0, 0, 0, 0); // 重置时间部分以便比较日期
 
-      if (startDate < currentDate) {
-        $.modal.alertWarning("开始时间不能早于当前日期");
-        return;
-      }
+      // if (startDate < currentDate) {
+      //   $.modal.alertWarning("开始时间不能早于当前日期");
+      //   return;
+      // }
 
       // 原有文件上传验证
       if ($("input[name='contract']").val() == "") {
