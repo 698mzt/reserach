@@ -74,7 +74,7 @@
                 <label class="col-sm-4 control-label">是否本校用书：</label>
                 <div class="col-sm-8" th:with="type=${@dict.getType('sys_yes_no')}">
                     <label th:each="dict : ${type}" class="check-box">
-                        <input name="benxiaoshifoyongshu" type="checkbox" th:value="${dict.dictValue}" th:text="${dict.dictLabel}" th:attr="checked=${sciJiaocairuanzhu.benxiaoshifoyongshu.contains(dict.dictValue)?true:false}" disabled="true">
+                        <input name="benxiaoshifoyongshu" type="radio" th:value="${dict.dictValue}" th:text="${dict.dictLabel}" th:attr="checked=${sciJiaocairuanzhu.benxiaoshifoyongshu.contains(dict.dictValue)?true:false}" disabled="true">
                     </label>
                 </div>
             </div>
