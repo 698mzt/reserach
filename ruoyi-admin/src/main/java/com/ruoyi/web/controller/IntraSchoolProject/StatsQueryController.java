@@ -1,9 +1,13 @@
 package com.ruoyi.web.controller.IntraSchoolProject;
 
+
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.system.domain.*;
 import com.ruoyi.system.service.*;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -45,8 +49,19 @@ public class StatsQueryController extends BaseController {
     @ResponseBody
     public TableDataInfo list(@RequestParam Map<String, String> params)
     {
-        System.out.println("params = " + params);
-        
+        // 获取分页参数，添加默认值避免 null
+        String offsetStr = params.getOrDefault("offset", "0");
+        String limitStr = params.getOrDefault("limit", "10");
+        // 解析为整数
+        int offset = Integer.parseInt(offsetStr);
+        int limit = Integer.parseInt(limitStr);
+        // 计算分页参数
+        int pageNum = offset / limit + 1;
+        int pageSize = limit;
+
+        // 使用 PageHelper 进行分页
+        PageHelper.startPage(pageNum, pageSize);
+
         // 如果前端传递了noData标志，说明是初始加载，返回空数据
         if ("true".equals(params.get("noData"))) {
             return getDataTable(new ArrayList<>());
@@ -55,10 +70,8 @@ public class StatsQueryController extends BaseController {
         // 获取项目类别参数
         String remark = params.get("remark");
         System.out.println("项目类别: " + remark);
-        
-        startPage();
+
         List<Object> list = new ArrayList<>();
-        
         // 根据项目类别返回不同的数据
         if (remark != null && !remark.isEmpty()) {
             if ("1".equals(remark)) {

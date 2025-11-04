@@ -921,18 +921,18 @@
                     return row.firstPersonId == row.uid ? '第一负责人' : row.secondPersonId == row.uid ? '第二负责人' : row.thirdPersonId == row.uid ? "第三负责人" : row.fourthPersonId == row.uid ? "第四负责人" : "不是负责人";
                 }
             },
-            {
-                field: 'responsibilityTier',
-                title: '积分',
-                align: 'center',
-                formatter: function (value, row, index) {
-                    if (row.state == 6) {
-                        return row.firstPersonId == row.uid ? row.firstPoints : row.secondPersonId == row.uid ? row.secondPoints : row.thirdPersonId == row.uid ? row.thirdPoints : row.fourthPersonId == row.uid ? row.forthPoints : 0;
-                    } else {
-                        return 0;
-                    }
-                }
-            },
+            // {
+            //     field: 'responsibilityTier',
+            //     title: '积分',
+            //     align: 'center',
+            //     formatter: function (value, row, index) {
+            //         if (row.state == 6) {
+            //             return row.firstPersonId == row.uid ? row.firstPoints : row.secondPersonId == row.uid ? row.secondPoints : row.thirdPersonId == row.uid ? row.thirdPoints : row.fourthPersonId == row.uid ? row.forthPoints : 0;
+            //         } else {
+            //             return 0;
+            //         }
+            //     }
+            // },
             {
                 title: '操作',
                 align: 'center',
@@ -984,18 +984,18 @@
                     return row.firstPersonId == row.uid ? '一作' : row.secondPersonId == row.uid ? '二作' : row.thirdPersonId == row.uid ? "三作" : row.fourthPersonId == row.uid ? "四作" : "不是作者";
                 }
             },
-            {
-                field: 'responsibilityTier',
-                title: '积分',
-                align: 'center',
-                formatter: function (value, row, index) {
-                    if (row.state == 6) {
-                        return row.firstPersonId == row.uid ? row.firstAuthorScore : row.secondPersonId == row.uid ? row.secondAuthorScore : row.thirdPersonId == row.uid ? row.thirdAuthorScore : row.fourthPersonId == row.uid ? row.fourthAuthorScore : "不是作者";
-                    } else {
-                        return 0;
-                    }
-                }
-            },
+            // {
+            //     field: 'responsibilityTier',
+            //     title: '积分',
+            //     align: 'center',
+            //     formatter: function (value, row, index) {
+            //         if (row.state == 6) {
+            //             return row.firstPersonId == row.uid ? row.firstAuthorScore : row.secondPersonId == row.uid ? row.secondAuthorScore : row.thirdPersonId == row.uid ? row.thirdAuthorScore : row.fourthPersonId == row.uid ? row.fourthAuthorScore : "不是作者";
+            //         } else {
+            //             return 0;
+            //         }
+            //     }
+            // },
             {
                 title: '操作',
                 align: 'center',
@@ -1056,18 +1056,18 @@
                     return $.table.selectDictLabel(paiMingDatas, value);
                 }
             },
-            {
-                field: 'responsibilityTier',
-                title: '积分',
-                align: 'center',
-                formatter: function (value, row, index) {
-                    if (row.state == 6) {
-                        return row.firstPersonId == row.uid ? row.firstAuthorScore : row.secondPersonId == row.uid ? row.secondAuthorScore : row.thirdPersonId == row.uid ? row.thirdAuthorScore : row.fourthPersonId == row.uid ? row.fourthAuthorScore : "不是作者";
-                    } else {
-                        return 0;
-                    }
-                }
-            },
+            // {
+            //     field: 'responsibilityTier',
+            //     title: '积分',
+            //     align: 'center',
+            //     formatter: function (value, row, index) {
+            //         if (row.state == 6) {
+            //             return row.firstPersonId == row.uid ? row.firstAuthorScore : row.secondPersonId == row.uid ? row.secondAuthorScore : row.thirdPersonId == row.uid ? row.thirdAuthorScore : row.fourthPersonId == row.uid ? row.fourthAuthorScore : "不是作者";
+            //         } else {
+            //             return 0;
+            //         }
+            //     }
+            // },
             {
                 title: '操作',
                 align: 'center',
@@ -1114,10 +1114,10 @@
                 field: 'mingcheng',
                 title: '专利名称'
             },
-            {
-                field: 'huopishijain',
-                title: '获批时间'
-            },
+            // {
+            //     field: 'huopishijain',
+            //     title: '获批时间'
+            // },
             {
                 field: 'fenlei',
                 title: '分类',
@@ -1125,10 +1125,10 @@
                     return $.table.selectDictLabel(fenleiDatas, value);
                 }
             },
-            {
-                field: 'jifen',
-                title: '积分'
-            },
+            // {
+            //     field: 'jifen',
+            //     title: '积分'
+            // },
             {
                 field: 'paiming',
                 title: '负责人排名',
@@ -1210,10 +1210,10 @@
                     return $.table.selectDictLabel(paiMingDatas, value);
                 }
             },
-            {
-                field: 'jifen',
-                title: '积分'
-            },
+            // {
+            //     field: 'jifen',
+            //     title: '积分'
+            // },
 
             {
                 title: '操作',
@@ -1270,21 +1270,21 @@
                 align: 'center',
                 title: '题目'
             },
-            {
-                field: 'reportTime',
-                align: 'center',
-                title: '开始时间'
-            },
-            {
-                field: 'reportEndTime',
-                align: 'center',
-                title: '结束时间'
-            },
+            // {
+            //     field: 'reportTime',
+            //     align: 'center',
+            //     title: '开始时间'
+            // },
+            // {
+            //     field: 'reportEndTime',
+            //     align: 'center',
+            //     title: '结束时间'
+            // },
 
-            {
-                field: 'reportKeyanfen',
-                title: '积分'
-            },
+            // {
+            //     field: 'reportKeyanfen',
+            //     title: '积分'
+            // },
 
             {
                 title: '操作',
@@ -1719,42 +1719,42 @@
     function OpenDetailTab (id ,  remark) {
         // 纵向
         if (remark == "ZX"){
-            var url = prefixZX + "/overView/" + id +'/chakan';
+            var url = prefixZX + "/overView/" + id +'/ZX';
             $.modal.openTab("查看纵向详情", url);
         }
         // 横向
         else if (remark == "HX"){
-            var url = prefixHX + "/overView/" + id +'/chakan';
+            var url = prefixHX + "/overView/" + id +'/HX';
             $.modal.openTab("查看横向详情", url);
         }
         // 成果转化
         else if (remark == "CGZH"){
-            var url = prefixCGZH + "/detail/" + id +'/chakan';
+            var url = prefixCGZH + "/detail/" + id +'/CGZH';
             $.modal.openTab("查看成果转化详情", url);
         }
         // 论文
         else if (remark == "LW"){
-            var url = prefixLW + "/detail/" + id +'/chakan';
+            var url = prefixLW + "/detail/" + id +'/LW';
             $.modal.openTab("查看论文详情", url);
         }
         // 教材专著
         else if (remark == "JCZZ"){
-            var url = prefixJCZZ + "/detail/" + id +'/chakan';
+            var url = prefixJCZZ + "/detail/" + id +'/JCZZ';
             $.modal.openTab("查看教材专著详情", url);
         }
         // 专利软著
         else if (remark == "ZLRZ"){
-            var url = prefixZLRZ + "/detail/" + id +'/chakan';
+            var url = prefixZLRZ + "/detail/" + id +'/ZLRZ';
             $.modal.openTab("查看专利软著详情", url);
         }
         // 奖励
         else if (remark == "JL"){
-            var url = prefixJL + "/detail/" + id +'/chakan';
+            var url = prefixJL + "/detail/" + id +'/JL';
             $.modal.openTab("查看奖励详情", url);
         }
         // 讲座报告
         else if (remark == "JZBG"){
-            var url = prefixJZBG + "/detail/" + id +'/chakan';
+            var url = prefixJZBG + "/detail/" + id +'/JZBG';
             $.modal.openTab("查看讲座报告详情", url);
         }
 

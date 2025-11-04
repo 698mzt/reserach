@@ -267,10 +267,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             and s.reward_time &lt;= #{endTime}
         </if>
         <if test="college != null and college != '' and college != 'null'">
-            and p.dept_name like concat('%', #{college}, '%')
+            AND p.dept_id = #{college}
         </if>
         <if test="major != null and major != '' and major != 'null'">
-            and d.dept_name like concat('%', #{major}, '%')
+            AND d.dept_id = #{major}
         </if>
         <if test="jobTitle != null and jobTitle != '' and jobTitle != 'null'">
             and u.tea_zhicheng =#{jobTitle}
