@@ -273,7 +273,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             and d.dept_name like concat('%', #{major}, '%')
         </if>
         <if test="jobTitle != null and jobTitle != '' and jobTitle != 'null'">
-            and u.user_name like concat('%', #{jobTitle}, '%')
+            and u.tea_zhicheng =#{jobTitle}
         </if>
         <if test="topicName != null and topicName != ''">
             and s.reward_name like concat('%', #{topicName}, '%')

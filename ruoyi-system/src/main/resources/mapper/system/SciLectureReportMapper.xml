@@ -322,12 +322,11 @@ WHERE id IN (
         AND s.state in (3,5,7,0)
     </if>
     <if test='state != null and state != "" and state!="null" and state =="2"'>
-        AND s.state in (1,2,4)
+        AND s.state in (1,2,6)
     </if>
     <if test='state != null and state != "" and state!="null" and state =="3"'>
-        AND s.state in (6)
+        AND s.state in (4)
     </if>
-    order by s.createtime desc
     order by s.createtime desc
 </select>
 

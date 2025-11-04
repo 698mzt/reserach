@@ -761,11 +761,19 @@
     var paiMingDatas = [[${@dict.getType('sys_jiaocairuanzhu_fzr')}]];
     var fenleiDatas = [[${@dict.getType('sys_zhuanli_fenlei')}]];
     var dengjiDatas = [[${@dict.getType('sys_reward_dengji')}]];
+    var prefixZX = ctx + "system/apply_vertical";
+    var prefixHX = ctx + "system/apply";
+    var prefixCGZH = ctx + "IntraSchPro";
+    var prefixLW = ctx + "system/paper";
+    var prefixJCZZ = ctx + "system/jiaocairuanzhu";
+    var prefixZLRZ = ctx + "system/zhuanliruanzhu";
+    var prefixJL = ctx + "system/reward";
+    var prefixJZBG = ctx + "system/report";
 
     // 定义不同项目类别对应的表格列配置
     var tableColumnsConfig = {
-        // 默认列配置（可以根据实际项目类别调整）
-        'default': [
+        // 成果转化
+        '3': [
             {
                 field: 'number',
                 title: '序号',
@@ -816,14 +824,13 @@
                 align: 'center',
                 formatter: function (value, row, index) {
                     var actions = [];
-                    if (row.state == 6) {
-                        //actions.push('<a class="link-button" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')">查看</a> ');
-                    }
+                    actions.push('<a class="link-button" href="javascript:void(0)" onclick=\'OpenDetailTab("' + row.id + '","CGZH")\'>查看</a> ');
                     return actions.join('');
                 }
             }
         ],
         // 纵向课题
+
         '1': [
             {
                 field: 'number',
@@ -870,10 +877,7 @@
                 align: 'center',
                 formatter: function (value, row, index) {
                     var actions = [];
-                    if (row.state == 6) {
-                        //actions.push('<a class="link-button" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')">查看</a> ');
-                    }
-                    return actions.join('');
+                    actions.push('<a class="link-button" href="javascript:void(0)" onclick=\'OpenDetailTab("' + row.id + '","ZX")\'>查看</a> ');                    return actions.join('');
                 }
             }
         ],
@@ -934,9 +938,8 @@
                 align: 'center',
                 formatter: function (value, row, index) {
                     var actions = [];
-                    if (row.state == 6) {
-                        //actions.push('<a class="link-button" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')">查看</a> ');
-                    }
+                    actions.push('<a class="link-button" href="javascript:void(0)" onclick=\'OpenDetailTab("' + row.id + '","HX")\'>查看</a> ');                    return actions.join('');
+
                     return actions.join('');
                 }
             }
@@ -999,9 +1002,8 @@
                 formatter: function (value, row, index) {
                     //console.log('论文:row = ',row);
                     var actions = [];
-                    if (row.state == 6) {
-                        //actions.push('<a class="link-button" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')">查看</a> ');
-                    }
+                        actions.push('<a class="link-button" href="javascript:void(0)" onclick=\'OpenDetailTab("' + row.id + '","LW")\'>查看</a> ');
+
                     return actions.join('');
                 }
             }
@@ -1070,11 +1072,10 @@
                 title: '操作',
                 align: 'center',
                 formatter: function (value, row, index) {
-                    //console.log('论文:row = ',row);
+                    //console.log('教材专著:row = ',row);
                     var actions = [];
-                    if (row.state == 6) {
-                        //actions.push('<a class="link-button" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')">查看</a> ');
-                    }
+                        actions.push('<a class="link-button" href="javascript:void(0)" onclick=\'OpenDetailTab("' + row.id + '","JCZZ")\'>查看</a> ');
+
                     return actions.join('');
                 }
             }
@@ -1140,11 +1141,10 @@
                 title: '操作',
                 align: 'center',
                 formatter: function (value, row, index) {
-                    //console.log('论文:row = ',row);
+                    //console.log('专利软著:row = ',row);
                     var actions = [];
-                    if (row.state == 6) {
-                        //actions.push('<a class="link-button" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')">查看</a> ');
-                    }
+                        actions.push('<a class="link-button" href="javascript:void(0)" onclick=\'OpenDetailTab("' + row.id + '","ZLRZ")\'>查看</a> ');
+
                     return actions.join('');
                 }
             }
@@ -1219,11 +1219,81 @@
                 title: '操作',
                 align: 'center',
                 formatter: function (value, row, index) {
-                    //console.log('论文:row = ',row);
+                    //console.log('奖励:row = ',row);
                     var actions = [];
-                    if (row.state == 6) {
-                        //actions.push('<a class="link-button" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')">查看</a> ');
-                    }
+                        actions.push('<a class="link-button" href="javascript:void(0)" onclick=\'OpenDetailTab("' + row.id + '","JL")\'>查看</a> ');
+
+                    return actions.join('');
+                }
+            }
+        ],
+        //讲座报告
+        '8': [
+            {
+                field: 'number',
+                title: '序号',
+                width: 5,
+                align: 'center',
+                switchable: false,
+                formatter: function (value, row, index) {
+                    return $.table.serialNumber(index);
+                }
+            },
+            {
+                field: 'id',
+                title: 'jobId',
+                visible: false
+            },
+            {
+                field: 'xueyuan',
+                align: 'center',
+                title: '学院'
+            },
+
+            {
+                field: 'keyanshi',
+                align: 'center',
+                title: '专业'
+            },
+            {
+                field: 'teacherName',
+                align: 'center',
+                title: '申请人'
+            },
+            {
+                field: 'reportTheme',
+                align: 'center',
+                title: '主题'
+            },
+            {
+                field: 'reportSubject',
+                align: 'center',
+                title: '题目'
+            },
+            {
+                field: 'reportTime',
+                align: 'center',
+                title: '开始时间'
+            },
+            {
+                field: 'reportEndTime',
+                align: 'center',
+                title: '结束时间'
+            },
+
+            {
+                field: 'reportKeyanfen',
+                title: '积分'
+            },
+
+            {
+                title: '操作',
+                align: 'center',
+                formatter: function (value, row, index) {
+                    //console.log('讲座报告:row = ',row);
+                    var actions = [];
+                        actions.push('<a class="link-button" href="javascript:void(0)" onclick=\'OpenDetailTab("' + row.id + '","JZBG")\'>查看</a> ');
+
                     return actions.join('');
                 }
             }
@@ -1312,11 +1382,6 @@
             toolbar: "toolbar0",
             url: prefix + "/list",
             search: prefix + "/list",
-            createUrl: prefix + "/add",
-            detailUrl: prefix + "/overdetail/{id}",
-            updateUrl: prefix + "/edit/{id}",
-            removeUrl: prefix + "/remove",
-            exportUrl: prefix + "/export",
             rowStyle: rowStyle0,
             modalName: "成果转化",
             sortOrder: "asc",
@@ -1536,7 +1601,26 @@
         }
         //讲座报告
         else if (remark == "8"){
+            if (["4"].includes(row.state)) {
+                //console.log("row.state is 6", row.state)
+                // 完结 绿色
+                return {
+                    css: {"color": '#67c23a'}
 
+                };
+            } else if (["3","5","7","0"].includes(row.state)) {
+                // 草稿 黄色
+                return {
+                    css: {"color": '#c78045'}
+
+                };
+            } else if (["1", "2", "6"].includes(row.state)) {
+                // 审核中 蓝色
+                return {
+                    css: {"color": '#2c99ff'}
+
+                };
+            }
         }
         return {};
     }
@@ -1632,7 +1716,49 @@
             }
         }
     });
+    function OpenDetailTab (id ,  remark) {
+        // 纵向
+        if (remark == "ZX"){
+            var url = prefixZX + "/overView/" + id +'/chakan';
+            $.modal.openTab("查看纵向详情", url);
+        }
+        // 横向
+        else if (remark == "HX"){
+            var url = prefixHX + "/overView/" + id +'/chakan';
+            $.modal.openTab("查看横向详情", url);
+        }
+        // 成果转化
+        else if (remark == "CGZH"){
+            var url = prefixCGZH + "/detail/" + id +'/chakan';
+            $.modal.openTab("查看成果转化详情", url);
+        }
+        // 论文
+        else if (remark == "LW"){
+            var url = prefixLW + "/detail/" + id +'/chakan';
+            $.modal.openTab("查看论文详情", url);
+        }
+        // 教材专著
+        else if (remark == "JCZZ"){
+            var url = prefixJCZZ + "/detail/" + id +'/chakan';
+            $.modal.openTab("查看教材专著详情", url);
+        }
+        // 专利软著
+        else if (remark == "ZLRZ"){
+            var url = prefixZLRZ + "/detail/" + id +'/chakan';
+            $.modal.openTab("查看专利软著详情", url);
+        }
+        // 奖励
+        else if (remark == "JL"){
+            var url = prefixJL + "/detail/" + id +'/chakan';
+            $.modal.openTab("查看奖励详情", url);
+        }
+        // 讲座报告
+        else if (remark == "JZBG"){
+            var url = prefixJZBG + "/detail/" + id +'/chakan';
+            $.modal.openTab("查看讲座报告详情", url);
+        }
 
+    };
 </script>
 </body>
 </html>
