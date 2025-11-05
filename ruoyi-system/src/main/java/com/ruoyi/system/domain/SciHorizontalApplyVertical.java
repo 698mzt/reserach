@@ -407,4 +407,39 @@ public class SciHorizontalApplyVertical extends BaseEntity {
     public void setScore(String score) {
         this.score = score;
     }
+    public String getStateDes(){
+        switch (this.state){
+            case "1":
+                return "待处理";
+            case "2":
+                return "待学院审核";
+            case "3":
+                return "教研室退回";
+            case "4":
+                return "待科研处审核";
+            case "5":
+                return "学院退回";
+            case "6":
+                return "待结项";
+            case "7":
+                return "科研处退回";
+            case "11":
+                return "结项：待处理";
+            case "22":
+                return "结项：待学院审核";
+            case "33":
+                return "结项：教研室退回";
+            case "44":
+                return "结项：待科研处审核";
+            case "55":
+                return "结项：学院退回";
+            case "66":
+                return "已结项";
+            case "77":
+                return "结项：科研处退回";
+            case "99":
+                return "草稿箱";
+        }
+        return this.state;
+    }
 }

@@ -140,7 +140,7 @@ public class StatsQueryController extends BaseController {
                     // 获取项目类别1的数据（纵向课题）导出
                     List<SciHorizontalApplyVertical> exportList = sciHorizontalApplyVerticalService.getStatsQuery(params);
                     exportList = exportList.stream().map(item -> {
-                        item.setState(item.getState());
+                        item.setState(item.getStateDes());
                         return item;
                     }).collect(Collectors.toList());
                     ExcelUtil<SciHorizontalApplyVertical> util = new ExcelUtil<SciHorizontalApplyVertical>(SciHorizontalApplyVertical.class);
@@ -148,36 +148,64 @@ public class StatsQueryController extends BaseController {
                 } else if ("2".equals(remark)) {
                     // 获取项目类别2的数据（横向课题）导出
                     List<SciHorizontalApply> exportList = sciHorizontalApplyService.getStatsQuery(params);
+                    exportList = exportList.stream().map(item -> {
+                        item.setState(item.getStateDes());
+                        return item;
+                    }).collect(Collectors.toList());
                     ExcelUtil<SciHorizontalApply> util = new ExcelUtil<SciHorizontalApply>(SciHorizontalApply.class);
                     return util.exportExcel(exportList, "横向课题数据");
                 } else if ("3".equals(remark)) {
                     // 查询项目类别3的数据（成果转化）导出
                     List<SciIntraSchoolPro> exportList = sciIntraSchProApplyService.getStatsQuery(params);
+                    exportList = exportList.stream().map(item -> {
+                        item.setState(item.getStateDes());
+                        return item;
+                    }).collect(Collectors.toList());
                     ExcelUtil<SciIntraSchoolPro> util = new ExcelUtil<SciIntraSchoolPro>(SciIntraSchoolPro.class);
                     return util.exportExcel(exportList, "成果转化数据");
                 } else if ("4".equals(remark)) {
                     // 获取项目类别4的数据（论文）导出
                     List<SciPaperA> exportList = sciPaperAService.getStatsQuery( params);
+                    exportList = exportList.stream().map(item -> {
+                        item.setState(item.getStateDes());
+                        return item;
+                    }).collect(Collectors.toList());
                     ExcelUtil<SciPaperA> util = new ExcelUtil<SciPaperA>(SciPaperA.class);
                     return util.exportExcel(exportList, "论文数据");
                 } else if ("5".equals(remark)) {
                     // 获取项目类别5的数据（教材专著）导出
                     List<SciJiaocairuanzhu> exportList = sciJiaocairuanzhuService.getStatsQuery( params);
+                    exportList = exportList.stream().map(item -> {
+                        item.setState(item.getStateDes());
+                        return item;
+                    }).collect(Collectors.toList());
                     ExcelUtil<SciJiaocairuanzhu> util = new ExcelUtil<SciJiaocairuanzhu>(SciJiaocairuanzhu.class);
                     return util.exportExcel(exportList, "教材专著数据");
                 } else if ("6".equals(remark)) {
                     // 获取项目类别6的数据（专利软著）导出
                     List<SciZhuanliruanzhu> exportList = sciZhuanliruanzhuService.getStatsQuery( params);
+                    exportList = exportList.stream().map(item -> {
+                        item.setState(item.getStateDes());
+                        return item;
+                    }).collect(Collectors.toList());
                     ExcelUtil<SciZhuanliruanzhu> util = new ExcelUtil<SciZhuanliruanzhu>(SciZhuanliruanzhu.class);
                     return util.exportExcel(exportList, "专利软著数据");
                 } else if ("7".equals(remark)) {
                     // 获取项目类别7的数据（奖励）导出
                     List<SysReward> exportList = sysRewardService.getStatsQuery( params);
+                    exportList = exportList.stream().map(item -> {
+                        item.setState(item.getStateDes());
+                        return item;
+                    }).collect(Collectors.toList());
                     ExcelUtil<SysReward> util = new ExcelUtil<SysReward>(SysReward.class);
                     return util.exportExcel(exportList, "奖励数据");
                 } else if ("8".equals(remark)) {
                     // 获取项目类别8的数据（讲座报告）导出
                     List<SciLectureReportOpinion> exportList = sciLectureReportService.getStatsQuery( params);
+                    exportList = exportList.stream().map(item -> {
+                        item.setState(item.getStateDes());
+                        return item;
+                    }).collect(Collectors.toList());
                     ExcelUtil<SciLectureReportOpinion> util = new ExcelUtil<SciLectureReportOpinion>(SciLectureReportOpinion.class);
                     return util.exportExcel(exportList, "讲座报告数据");
                 }
