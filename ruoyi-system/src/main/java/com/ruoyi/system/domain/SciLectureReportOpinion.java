@@ -97,6 +97,9 @@ public class SciLectureReportOpinion extends BaseEntity
                 '}';
     }
     public String getStateDes() {
+        if (this.state == null) {
+            return "";
+        }
         switch (this.state) {
 
             case "1":

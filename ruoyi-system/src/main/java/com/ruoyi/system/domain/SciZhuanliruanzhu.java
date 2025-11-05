@@ -434,6 +434,9 @@ public class SciZhuanliruanzhu extends BaseEntity
     }
 
     public String getStateDes() {
+        if (this.state == null) {
+            return "";
+        }
         switch (this.state) {
             case "0":
                 return "草稿箱";

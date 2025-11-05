@@ -445,6 +445,9 @@ public class SciIntraSchoolPro extends BaseEntity {
     }
 
     public String getStateDes() {
+        if (this.state == null) {
+            return "";
+        }
         switch (this.state){
             case "1":
                 return "开题：待教研室处理";

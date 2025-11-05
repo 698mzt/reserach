@@ -509,6 +509,9 @@ public class SciHorizontalApply extends BaseEntity
     }
 
     public String getStateDes() {
+        if (this.state == null) {
+            return "";
+        }
         switch (this.state){
             case "1":
                 return "待处理";
