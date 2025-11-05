@@ -310,10 +310,6 @@ public class SciHorizontalApplyController extends BaseController
     {
         SysUser user1=getSysUser();
         Integer deptId = user1.getDeptId().intValue();
-//        创建一个“其他”
-        SysUser other = new SysUser();
-        other.setUserId(-1L);
-        other.setUserName("其他");
         List<SysUser> userList =  userService.selectUser(deptId);
         for (int a = 0; a<userList.size();a++) {
             if(userList.get(a).getUserId().equals(getUserId())){
@@ -323,6 +319,10 @@ public class SciHorizontalApplyController extends BaseController
                 break;
             }
         }
+        //        创建一个“其他”
+        SysUser other = new SysUser();
+        other.setUserId(-1L);
+        other.setUserName("其他");
 //        将"其他"追加到userList中
         userList.add(other);
         mmap.put("sysUsers",userList);
@@ -523,6 +523,13 @@ public class SciHorizontalApplyController extends BaseController
         SciHorizontalApply sciHorizontalApply = sciHorizontalApplyService.selectSciHorizontalApplyById(id);
         List<SysUser> userList1 =  userService.selectAllUser();
         sciHorizontalApply.setUrlFlag(urlFlag);
+        //        创建一个“其他”
+        SysUser other = new SysUser();
+        other.setUserId(-1L);
+        other.setUserName("其他");
+        //        将"其他"追加到userList中
+        userList1.add(other);
+
         mmap.put("sysUsers1",userList1);
         mmap.put("sciHorizontalApply", sciHorizontalApply);
         // 查询全部成员并注入第5位及以后
@@ -676,6 +683,7 @@ public class SciHorizontalApplyController extends BaseController
     @Log(title = "更新横向课题", businessType = BusinessType.UPDATE)
     @PostMapping("/overedit")
     @ResponseBody
+    @Transactional
     public AjaxResult overeditSave(SciHorizontalApply sciHorizontalApply, javax.servlet.http.HttpServletRequest request)
     {
         sciHorizontalApply.setUserId(Integer.valueOf(getSysUser().getUserId().toString()));
@@ -758,6 +766,13 @@ public class SciHorizontalApplyController extends BaseController
     {
         SciHorizontalApply sciHorizontalApply = sciHorizontalApplyService.selectSciHorizontalApplyById(id);
         List<SysUser> userList1 =  userService.selectAllUser();
+        //        创建一个“其他”
+        SysUser other = new SysUser();
+        other.setUserId(-1L);
+        other.setUserName("其他");
+        //        将"其他"追加到userList中
+        userList1.add(other);
+
         mmap.put("sysUsers1",userList1);
         mmap.put("sciHorizontalApply", sciHorizontalApply);
         // 查询全部成员并注入第5位及以后
@@ -793,6 +808,13 @@ public class SciHorizontalApplyController extends BaseController
         List<SysUser> userList1 =  userService.selectAllUser();
         String allAmount = sciHorizontalApplyService.selectSciHorizontalApplyById(id).getAmount();
         sciHorizontalApply.setAmount(allAmount);
+        //        创建一个“其他”
+        SysUser other = new SysUser();
+        other.setUserId(-1L);
+        other.setUserName("其他");
+        //        将"其他"追加到userList中
+        userList1.add(other);
+
         mmap.put("sysUsers1",userList1);
         mmap.put("sciHorizontalApply", sciHorizontalApply);
         // 查询全部成员并注入第5位及以后
@@ -927,6 +949,13 @@ public class SciHorizontalApplyController extends BaseController
     {
         SciHorizontalApply sciHorizontalApply = sciHorizontalReamountService.selectAmountById(id);
         List<SysUser> userList1 =  userService.selectAllUser();
+        //        创建一个“其他”
+        SysUser other = new SysUser();
+        other.setUserId(-1L);
+        other.setUserName("其他");
+        //        将"其他"追加到userList中
+        userList1.add(other);
+
         mmap.put("sysUsers1",userList1);
         mmap.put("sciHorizontalApply", sciHorizontalApply);
         // 查询全部成员并注入第5位及以后
