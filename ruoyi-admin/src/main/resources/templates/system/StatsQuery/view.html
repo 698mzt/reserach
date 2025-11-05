@@ -626,8 +626,7 @@
 
                                 <div class="btn-group-sm" id="toolbar0" role="group"
                                      style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                                    <a class="btn btn-warning" onclick="$.table.exportExcel()"
-                                       shiro:hasPermission="system:apply:list">
+                                    <a class="btn btn-warning" onclick=" exportExcel('bootstrap-table0')">
                                         <i class="fa fa-download"></i> 导出
                                     </a>
                                     <div
@@ -647,78 +646,6 @@
     </div>
 </div>
 
-
-<div class="wrapper wrapper-content fadeInRight" style="position: absolute; left: -9999px;">
-    <div class="row">
-        <div class="col-sm-4">
-            <div class="ibox ">
-                <div class="ibox-content">
-                    <div class="modal inmodal" id="myModal" tabindex="-1" role="dialog" aria-hidden="true">
-                        <div class="modal-dialog modal-right">
-                            <div class="modal-content animated bounceInRight">
-                                <div class="modal-header">
-                                    <!--                                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span
-                                            class="sr-only">关闭</span>
-                                    </button>-->
-                                    <div class="timeline-title">流程记录</div>
-
-                                    <!-- 原有的流程进度条部分 -->
-                                    <div>
-                                        <div class='progress_inner'>
-                                            <div class='progress_inner__step active' id='step-1'>
-                                                <label for='step-1'><span
-                                                        class="status-text active">待提交</span></label>
-                                            </div>
-                                            <div class='progress_inner__step pending' id='step-2'>
-                                                <label for='step-2'><span class="status-text">审核中</span></label>
-                                            </div>
-                                            <div class='progress_inner__step pending' id='step-3'>
-                                                <label for='step-3'><span class="status-text">已完成</span></label>
-                                            </div>
-                                            <div class='progress_inner__bar' style="z-index: 10">
-                                                <div class='progress_inner__bar--progress' id='progress-bar'></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="modal-body">
-                                    <!-- 流程记录标题 - 放在左上角 -->
-                                    <!-- 流程记录内容 - 放在流程图下方 -->
-                                    <div class="track-rcol">
-                                        <div class="track-list">
-                                            <ul id="event-list">
-                                                <li class="first">
-                                                    <i class="node-icon"></i>
-                                                    <span class="time" id="current-time">等待操作...</span>
-                                                    <span class="txt">[新增] - 哈尔滨信息工程学院</span>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </div>
-
-                                    <!--                                    <div class="approve-status">
-                                        <label><input type="radio" name="approve" value="pass" checked> 审核通过</label>
-                                        <label><input type="radio" name="approve" value="reject"> 审核未通过</label>
-                                    </div>-->
-
-                                    <!--                                    <div class="buttons">
-                                        <button onclick="submitForm()">提交</button>
-                                        <button onclick="approveForm()">审核</button>
-                                        <button onclick="resetForm()">重置</button>
-                                    </div>-->
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-white but" data-dismiss="modal">关闭</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
 <th:block th:include="include :: footer"/>
 <th:block th:include="include :: jquery-cxselect-js"/>
@@ -1304,7 +1231,7 @@
             }
         ]
     };
-
+    // 搜索,初始化
     $(function() {
         // 绑定搜索按钮点击事件
         $('#searchBtn').on('click', function() {
@@ -1388,10 +1315,11 @@
             url: prefix + "/list",
             search: prefix + "/list",
             rowStyle: rowStyle0,
-            modalName: "成果转化",
+            modalName: "统计查询",
             sortOrder: "asc",
             showHeader: false, // 初始不显示表头
             columns: [], // 初始为空列
+            exportUrl: prefix + "/export",
             queryParams: function(params) {
                 // 如果还没有搜索过，返回空数据请求
                 if (!hasSearched) {
@@ -1434,6 +1362,10 @@
 
     //设置不同模块的状态颜色
     function rowStyle0(row, index) {
+        // 添加对 row 对象的检查
+        if (!row || !row.state) {
+            return {};
+        }
         var remark = $("select[name='remark']").val(); // 项目类别
         //console.log("row = ", row)
         //console.log("remark = ", remark=="1",remark)
@@ -1631,34 +1563,6 @@
     }
 
 
-    //获取批阅记录
-    function loadReviewRecords(Id, state) {
-        updateProgress(state); // 更新进度条
-
-        //批阅记录
-        $.ajax({
-            url: prefix + "/bhyy/" + Id, // 替换为实际的API路径
-            method: 'POST',
-            data: {kid: Id},
-            success: function (response) {
-                const eventList = document.getElementById('event-list');
-                eventList.innerHTML = '';
-
-                response.rows.forEach(function (row) {
-                    const li = document.createElement('li');
-                    li.innerHTML = '<i class="node-icon"></i>' +
-                        '<span class="time">' + row.createTime + '</span>' +
-                        '<span class="txt">' + row.state + '</span>';
-                    eventList.insertBefore(li, eventList.firstChild);
-                });
-            },
-            error: function () {
-                alert('无法获取批阅记录');
-            }
-        });
-    }
-
-
     // 规则
     $("#datetimepicker-startTime").datetimepicker({
         format: 'yyyy-mm-dd',
@@ -1764,6 +1668,77 @@
         }
 
     };
+
+    // 导出数据
+    function exportExcel() {
+        $.modal.confirm("确定导出所有" + table.options.modalName + "吗？", function() {
+            // 创建参数对象而不是数组
+            var exportParams = {};
+            var remark = $("select[name='remark']").val();
+            var state = $("select[name='state']").val();
+            var startTime = $("#datetimepicker-startTime").val();
+            var endTime = $("#datetimepicker-endTime").val();
+            var college = $(".first").val();
+            var major = $(".second").val();
+            var jobTitle = $("select[name='job_title']").val();
+            var topicName = $("#topicName").val();
+
+            // 设置参数，state使用dictLabel
+            exportParams.remark = remark || '';
+            exportParams.state = state || ''; // 使用dictLabel而不是dictValue
+            exportParams.startTime = startTime || '';
+            exportParams.endTime = endTime || '';
+            exportParams.college = college || '';
+            exportParams.major = major || '';
+            exportParams.jobTitle = jobTitle || '';
+            exportParams.topicName = topicName || '';
+
+            // 添加表格当前的查询参数
+            var tableOptions = $("#" + table.options.id).bootstrapTable('getOptions');
+            if (tableOptions && tableOptions.queryParams) {
+                var queryParams = tableOptions.queryParams({
+                    pageNum: 1,
+                    pageSize: 99999999, // 导出所有数据
+                    orderByColumn: tableOptions.sortName || '',
+                    isAsc: tableOptions.sortOrder || 'asc'
+                });
+
+                // 合并查询参数
+                $.extend(exportParams, queryParams);
+            }
+
+            // 添加排序参数
+            if (tableOptions) {
+                exportParams.orderByColumn = tableOptions.sortName || '';
+                exportParams.isAsc = tableOptions.sortOrder || 'asc';
+            }
+
+            // 检查是否有导出URL
+            if (!table.options.exportUrl) {
+                $.modal.alertError("未配置导出URL");
+                return;
+            }
+
+            $.modal.loading("正在导出数据，请稍候...");
+            $.post(table.options.exportUrl, exportParams, function(result) {
+                if (result.code === web_status.SUCCESS) {
+                    window.location.href = ctx + "common/download?fileName=" + encodeURI(result.msg) + "&delete=" + true;
+                } else if (result.code === web_status.WARNING) {
+                    $.modal.alertWarning(result.msg);
+                } else {
+                    $.modal.alertError(result.msg);
+                }
+                $.modal.closeLoading();
+            }).fail(function(jqXHR, textStatus, errorThrown) {
+                $.modal.alertError("导出请求失败: " + textStatus);
+                $.modal.closeLoading();
+            });
+        });
+    }
+
+
+
+
 </script>
 </body>
 </html>
