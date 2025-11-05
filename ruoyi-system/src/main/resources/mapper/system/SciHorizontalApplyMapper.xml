@@ -1271,7 +1271,7 @@
     </select>
     <select id="getStatsQuery" parameterType="map" resultMap="SciHorizontalApplyResult">
         <include refid="selectSciHorizontalApplyVo"/>
-
+        where 1=1
         <if test='state != null and state != "" and state!="null" and state =="1" '>
             AND s.state in (3,5,9,10,12,14,4,15,16)
         </if>
@@ -1288,10 +1288,10 @@
             and s.createtime &lt;= #{endTime}
         </if>
         <if test="college != null and college != '' and college != 'null'">
-            and p.dept_name like concat('%', #{college}, '%')
+            AND p.dept_id = #{college}
         </if>
         <if test="major != null and major != '' and major != 'null'">
-            and d.dept_name like concat('%', #{major}, '%')
+            AND d.dept_id = #{major}
         </if>
         <if test="jobTitle != null and jobTitle != '' and jobTitle != 'null'">
             and u.tea_zhicheng =#{jobTitle}

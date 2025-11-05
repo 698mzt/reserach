@@ -195,34 +195,43 @@
             $.table.init(options);
 
             $('#bootstrap-table').on('load-success.bs.table', function (e, name, args) {
-                console.log('Event Name:', name.rows);
+                //console.log('Event Name:', name.rows);
 
                 var a =$("#state").val();
                 var b =$("#urlFlag").val();
-                // 当状态是“2待科研室处理”、“1待处理”、“6待学院处理”时，显示退回原因和退回记录以及功能按钮
-                if(a == 2 || a == 1 || a == 6 || a == 0){
-                    if(name.rows.length > 0){
-                        $(".tdiv2").show();
+                if (b == 'JZBG'){
+                    console.log("当前状态为："+a)
+                    $(".tdiv2").show();
+                    $("#btn3").show();
+
+                }else{
+                    // 当状态是“2待科研室处理”、“1待处理”、“6待学院处理”时，显示退回原因和退回记录以及功能按钮
+                    if(a == 2 || a == 1 || a == 6 || a == 0){
+                        if(name.rows.length > 0){
+                            $(".tdiv2").show();
+                        }
+                        if (b != "info"){
+                            $(".tdiv1").show();
+                            $("#btn2").show();
+                        }
+                        if (b != "tuihui" && b != "xytuihui" && b != "info"){
+                            $("#btn1").show();
+                        }
                     }
-                    if (b != "info"){
-                        $(".tdiv1").show();
-                        $("#btn2").show();
+                    // 当状态是“4已完成”、“3教研室驳回”、“5科研室驳回”、“7学院驳回”时，显示退回记录
+                    if(a == 4 || a == 3 || a == 5 || a == 7){
+                        if(name.rows.length > 0){
+                            $(".tdiv2").show();
+                        }
+                        if (a == 4 && b == "zgqxtuihui"){
+                            $(".tdiv1").show();
+                            $("#btn2").show();
+                        }
                     }
-                    if (b != "tuihui" && b != "xytuihui" && b != "info"){
-                        $("#btn1").show();
-                    }
+                    $("#btn3").show();
+
                 }
-                // 当状态是“4已完成”、“3教研室驳回”、“5科研室驳回”、“7学院驳回”时，显示退回记录
-                if(a == 4 || a == 3 || a == 5 || a == 7){
-                    if(name.rows.length > 0){
-                        $(".tdiv2").show();
-                    }
-                    if (a == 4 && b == "zgqxtuihui"){
-                        $(".tdiv1").show();
-                        $("#btn2").show();
-                    }
-                }
-                $("#btn3").show();
+
             });
         })
 

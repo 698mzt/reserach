@@ -645,6 +645,9 @@ public class SciHorizontalApplyVerticalController extends BaseController {
             extraMembers = allMemberIds.subList(4, allMemberIds.size());
         }
         mmap.put("extraMembers", extraMembers);
+        if (urlFlag.equals("ZX")){
+            sciHorizontalApplyVertical.setUrlFlag(urlFlag);
+        }
         return prefix + "/overView";
     }
 

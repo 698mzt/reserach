@@ -507,4 +507,40 @@ public class SciHorizontalApply extends BaseEntity
     public void setAmountType(String amountType) {
         this.amountType = amountType;
     }
+
+    public String getStateDes() {
+        switch (this.state){
+            case "1":
+                return "待处理";
+            case "2":
+                return "教研室通过";
+            case "3":
+                return "教研室退回";
+            case "4":
+                return "科研处通过";
+            case "5":
+                return "科研处退回";
+            case "6":
+                return "已完结";
+            case "7":
+                return "结项：待处理";
+            case "8":
+                return "结项：待学院审核";
+            case "9":
+                return "结项：教研室退回";
+            case "10":
+                return "结项：科研处退回";
+            case "11":
+                return "学院通过";
+            case "22":
+                return "学院退回";
+            case "33":
+                return "结项：待科研处审核";
+            case "44":
+                return "结项：学院退回";
+            case "99":
+                return "草稿箱";
+        }
+        return this.state;
+    }
 }

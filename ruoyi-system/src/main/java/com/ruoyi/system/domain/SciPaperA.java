@@ -18,7 +18,7 @@ import java.util.List;
 public class SciPaperA extends BaseEntity {
     private static final long serialVersionUID = 1L;
     public static final List<String> TWO_AUTHORS = List.of("11", "12", "10");
-    public  final List<String> ONE_AUTHORS = List.of("8", "9");
+    public final List<String> ONE_AUTHORS = List.of("8", "9");
 
     /**
      * 序号
@@ -30,7 +30,6 @@ public class SciPaperA extends BaseEntity {
     private String roleId;
     private String roleName;
     private String rolekey;
-
 
 
     //user表
@@ -134,7 +133,7 @@ public class SciPaperA extends BaseEntity {
     //论文word文件
 
     @Excel(name = "搜索网址")
-    private String  search_web;
+    private String search_web;
     /**
      * 是否与行业联合发表
      */
@@ -176,51 +175,80 @@ public class SciPaperA extends BaseEntity {
     @Excel(name = "备注")
     private String remarks;
 //    private String dataScope;
-    /** 一作 */
+    /**
+     * 一作
+     */
     private String firstPersonId;
 
-    /** 二作 */
+    /**
+     * 二作
+     */
     private String secondPersonId;
 
-    /**  三作 */
+    /**
+     * 三作
+     */
     private String thirdPersonId;
 
-    /** 四作 */
+    /**
+     * 四作
+     */
     private String fourthPersonId;
 
-    /**通讯作者 */
+    /**
+     * 通讯作者
+     */
     private String communicationAuthorId;
-    
-    /** 一作姓名 */
+
+    /**
+     * 一作姓名
+     */
     private String firstAuthorName;
-    
-    /** 二作姓名 */
+
+    /**
+     * 二作姓名
+     */
     private String secondAuthorName;
-    
-    /** 三作姓名 */
+
+    /**
+     * 三作姓名
+     */
     private String thirdAuthorName;
-    
-    /** 四作姓名 */
+
+    /**
+     * 四作姓名
+     */
     private String fourthAuthorName;
-    
-    /** 通讯作者姓名 */
+
+    /**
+     * 通讯作者姓名
+     */
     private String correspondingAuthorName;
 
-    /** 一作分数 */
+    /**
+     * 一作分数
+     */
     private String firstAuthorScore;
 
-    /** 二作分数 */
+    /**
+     * 二作分数
+     */
     private String secondAuthorScore;
 
-    /** 三作分数 */
+    /**
+     * 三作分数
+     */
     private String thirdAuthorScore;
 
-    /** 四作分数 */
+    /**
+     * 四作分数
+     */
     private String fourthAuthorScore;
 
-    /** 通讯作者分数 */
+    /**
+     * 通讯作者分数
+     */
     private String correspondingAuthorScore;
-
 
 
     public List<String> getONE_AUTHORS() {
@@ -657,8 +685,31 @@ public class SciPaperA extends BaseEntity {
     }
 
     public String getAuthorIds() {
-        return this.getFirstPersonId() + "," + this.getSecondPersonId() + "," + this.getThirdPersonId() + "," + this.getFourthPersonId()+ ","+ this.getCommunicationAuthorId();
+        return this.getFirstPersonId() + "," + this.getSecondPersonId() + "," + this.getThirdPersonId() + "," + this.getFourthPersonId() + "," + this.getCommunicationAuthorId();
     }
 
+    public String getStateDes() {
+        switch (this.state) {
+            case "1":
+                return "待教研室处理";
+            case "2":
+                return "待学院审核";
+            case "3":
+                return "教研室退回";
+            case "4":
+                return "待科研处审核";
+            case "5":
+                return "学院退回";
+            case "6":
+                return "科研处通过";
+            case "7":
+                return "科研处退回";
+            case "8":
+                return "完成";
+            case "9":
+                return "草稿";
+        }
+        return this.state;
 
+    }
 }
