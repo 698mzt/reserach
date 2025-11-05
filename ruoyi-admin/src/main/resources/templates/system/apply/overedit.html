@@ -67,7 +67,7 @@
                     <label class="col-sm-4 control-label is-required">结项日期：</label>
                     <div class="col-sm-8">
                         <div class="input-group date">
-                            <input  autocomplete="off" name="validityDate" th:field="*{validityDate}" th:value="${#dates.format(validityDate, 'yyyy-MM-dd - yyyy-MM-dd')}" class="form-control" id="laydate-demo-4" placeholder="yyyy-MM-dd - yyyy-MM-dd" type="text" required>
+                            <input  autocomplete="off" name="validityDate" th:field="*{validityDate}" th:value="${#dates.format(validityDate, 'yyyy-MM-dd')}" class="form-control" placeholder="yyyy-MM-dd" type="text" required>
                             <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
                         </div>
                     </div>
@@ -593,9 +593,9 @@ function updateSelectOptions(selectId, currentValue, selectedIds) {
 
             hasBlankOption = true;
 
-        } else if (value !== "" && (!selectedIds.has(value) || value === currentValue)) {
+        } else if (value !== "" && (!selectedIds.has(value) || value === currentValue || value === "-1")) {
 
-            // 添加非空选项，如果它未被其他下拉框选中，或者是当前下拉框已选中的值
+            // 添加非空选项，如果它未被其他下拉框选中，或者是当前下拉框已选中的值，或者userId为-1（其他）
 
             selectElement.append(option.clone());
 
@@ -751,9 +751,9 @@ function updateDynamicSelectOptions(selectElement, currentValue, selectedIds) {
 
             hasBlankOption = true;
 
-        } else if (value !== "" && (!selectedIds.has(value) || value === currentValue)) {
+        } else if (value !== "" && (!selectedIds.has(value) || value === currentValue || value === "-1")) {
 
-            // 添加非空选项，如果它未被其他下拉框选中，或者是当前下拉框已选中的值
+            // 添加非空选项，如果它未被其他下拉框选中，或者是当前下拉框已选中的值，或者userId为-1（其他）
 
             selectElement.append(option.clone());
 
@@ -882,7 +882,7 @@ function updateDynamicSelectOptions(selectElement, currentValue, selectedIds) {
         }
     }
 
-    $("input[name='signingData']").datetimepicker({
+    $("input[name='validityDate']").datetimepicker({
         format: "yyyy-mm-dd",
         minView: "month",
         autoclose: true
