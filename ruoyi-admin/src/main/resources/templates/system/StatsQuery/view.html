@@ -626,8 +626,7 @@
 
                                 <div class="btn-group-sm" id="toolbar0" role="group"
                                      style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                                    <a class="btn btn-warning" onclick="$.table.exportExcel()"
-                                       shiro:hasPermission="system:apply:list">
+                                    <a class="btn btn-warning" onclick=" exportExcel('bootstrap-table0')">
                                         <i class="fa fa-download"></i> 导出
                                     </a>
                                     <div
@@ -647,78 +646,6 @@
     </div>
 </div>
 
-
-<div class="wrapper wrapper-content fadeInRight" style="position: absolute; left: -9999px;">
-    <div class="row">
-        <div class="col-sm-4">
-            <div class="ibox ">
-                <div class="ibox-content">
-                    <div class="modal inmodal" id="myModal" tabindex="-1" role="dialog" aria-hidden="true">
-                        <div class="modal-dialog modal-right">
-                            <div class="modal-content animated bounceInRight">
-                                <div class="modal-header">
-                                    <!--                                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span
-                                            class="sr-only">关闭</span>
-                                    </button>-->
-                                    <div class="timeline-title">流程记录</div>
-
-                                    <!-- 原有的流程进度条部分 -->
-                                    <div>
-                                        <div class='progress_inner'>
-                                            <div class='progress_inner__step active' id='step-1'>
-                                                <label for='step-1'><span
-                                                        class="status-text active">待提交</span></label>
-                                            </div>
-                                            <div class='progress_inner__step pending' id='step-2'>
-                                                <label for='step-2'><span class="status-text">审核中</span></label>
-                                            </div>
-                                            <div class='progress_inner__step pending' id='step-3'>
-                                                <label for='step-3'><span class="status-text">已完成</span></label>
-                                            </div>
-                                            <div class='progress_inner__bar' style="z-index: 10">
-                                                <div class='progress_inner__bar--progress' id='progress-bar'></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="modal-body">
-                                    <!-- 流程记录标题 - 放在左上角 -->
-                                    <!-- 流程记录内容 - 放在流程图下方 -->
-                                    <div class="track-rcol">
-                                        <div class="track-list">
-                                            <ul id="event-list">
-                                                <li class="first">
-                                                    <i class="node-icon"></i>
-                                                    <span class="time" id="current-time">等待操作...</span>
-                                                    <span class="txt">[新增] - 哈尔滨信息工程学院</span>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </div>
-
-                                    <!--                                    <div class="approve-status">
-                                        <label><input type="radio" name="approve" value="pass" checked> 审核通过</label>
-                                        <label><input type="radio" name="approve" value="reject"> 审核未通过</label>
-                                    </div>-->
-
-                                    <!--                                    <div class="buttons">
-                                        <button onclick="submitForm()">提交</button>
-                                        <button onclick="approveForm()">审核</button>
-                                        <button onclick="resetForm()">重置</button>
-                                    </div>-->
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-white but" data-dismiss="modal">关闭</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
 <th:block th:include="include :: footer"/>
 <th:block th:include="include :: jquery-cxselect-js"/>
@@ -761,11 +688,19 @@
     var paiMingDatas = [[${@dict.getType('sys_jiaocairuanzhu_fzr')}]];
     var fenleiDatas = [[${@dict.getType('sys_zhuanli_fenlei')}]];
     var dengjiDatas = [[${@dict.getType('sys_reward_dengji')}]];
+    var prefixZX = ctx + "system/apply_vertical";
+    var prefixHX = ctx + "system/apply";
+    var prefixCGZH = ctx + "IntraSchPro";
+    var prefixLW = ctx + "system/paper";
+    var prefixJCZZ = ctx + "system/jiaocairuanzhu";
+    var prefixZLRZ = ctx + "system/zhuanliruanzhu";
+    var prefixJL = ctx + "system/reward";
+    var prefixJZBG = ctx + "system/report";
 
     // 定义不同项目类别对应的表格列配置
     var tableColumnsConfig = {
-        // 默认列配置（可以根据实际项目类别调整）
-        'default': [
+        // 成果转化
+        '3': [
             {
                 field: 'number',
                 title: '序号',
@@ -778,7 +713,7 @@
             },
             {
                 field: 'id',
-                title: '',
+                title: 'id',
                 visible: false
             },
             {
@@ -816,14 +751,13 @@
                 align: 'center',
                 formatter: function (value, row, index) {
                     var actions = [];
-                    if (row.state == 6) {
-                        //actions.push('<a class="link-button" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')">查看</a> ');
-                    }
+                    actions.push('<a class="link-button" href="javascript:void(0)" onclick=\'OpenDetailTab("' + row.id + '","CGZH")\'>查看</a> ');
                     return actions.join('');
                 }
             }
         ],
         // 纵向课题
+
         '1': [
             {
                 field: 'number',
@@ -837,7 +771,7 @@
             },
             {
                 field: 'id',
-                title: '',
+                title: 'id',
                 visible: false
             },
             {
@@ -870,10 +804,7 @@
                 align: 'center',
                 formatter: function (value, row, index) {
                     var actions = [];
-                    if (row.state == 6) {
-                        //actions.push('<a class="link-button" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')">查看</a> ');
-                    }
-                    return actions.join('');
+                    actions.push('<a class="link-button" href="javascript:void(0)" onclick=\'OpenDetailTab("' + row.id + '","ZX")\'>查看</a> ');                    return actions.join('');
                 }
             }
         ],
@@ -891,7 +822,7 @@
             },
             {
                 field: 'id',
-                title: '',
+                title: 'id',
                 visible: false
             },
             {
@@ -910,33 +841,37 @@
                 title: '课题名称'
             },
             {
-                field: 'responsibilityTier',
-                title: '责任层级',
+                field: 'amount',
                 align: 'center',
-                formatter: function (value, row, index) {
-                    return row.firstPersonId == row.uid ? '第一负责人' : row.secondPersonId == row.uid ? '第二负责人' : row.thirdPersonId == row.uid ? "第三负责人" : row.fourthPersonId == row.uid ? "第四负责人" : "不是负责人";
-                }
+                title: '金额'
             },
-            {
-                field: 'responsibilityTier',
-                title: '积分',
-                align: 'center',
-                formatter: function (value, row, index) {
-                    if (row.state == 6) {
-                        return row.firstPersonId == row.uid ? row.firstPoints : row.secondPersonId == row.uid ? row.secondPoints : row.thirdPersonId == row.uid ? row.thirdPoints : row.fourthPersonId == row.uid ? row.forthPoints : 0;
-                    } else {
-                        return 0;
-                    }
-                }
-            },
+            // {
+            //     field: 'responsibilityTier',
+            //     title: '责任层级',
+            //     align: 'center',
+            //     formatter: function (value, row, index) {
+            //         return row.firstPersonId == row.uid ? '第一负责人' : row.secondPersonId == row.uid ? '第二负责人' : row.thirdPersonId == row.uid ? "第三负责人" : row.fourthPersonId == row.uid ? "第四负责人" : "不是负责人";
+            //     }
+            // },
+            // {
+            //     field: 'responsibilityTier',
+            //     title: '积分',
+            //     align: 'center',
+            //     formatter: function (value, row, index) {
+            //         if (row.state == 6) {
+            //             return row.firstPersonId == row.uid ? row.firstPoints : row.secondPersonId == row.uid ? row.secondPoints : row.thirdPersonId == row.uid ? row.thirdPoints : row.fourthPersonId == row.uid ? row.forthPoints : 0;
+            //         } else {
+            //             return 0;
+            //         }
+            //     }
+            // },
             {
                 title: '操作',
                 align: 'center',
                 formatter: function (value, row, index) {
                     var actions = [];
-                    if (row.state == 6) {
-                        //actions.push('<a class="link-button" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')">查看</a> ');
-                    }
+                    actions.push('<a class="link-button" href="javascript:void(0)" onclick=\'OpenDetailTab("' + row.id + '","HX")\'>查看</a> ');                    return actions.join('');
+
                     return actions.join('');
                 }
             }
@@ -955,7 +890,7 @@
             },
             {
                 field: 'id',
-                title: '',
+                title: 'id',
                 visible: false
             },
             {
@@ -981,27 +916,26 @@
                     return row.firstPersonId == row.uid ? '一作' : row.secondPersonId == row.uid ? '二作' : row.thirdPersonId == row.uid ? "三作" : row.fourthPersonId == row.uid ? "四作" : "不是作者";
                 }
             },
-            {
-                field: 'responsibilityTier',
-                title: '积分',
-                align: 'center',
-                formatter: function (value, row, index) {
-                    if (row.state == 6) {
-                        return row.firstPersonId == row.uid ? row.firstAuthorScore : row.secondPersonId == row.uid ? row.secondAuthorScore : row.thirdPersonId == row.uid ? row.thirdAuthorScore : row.fourthPersonId == row.uid ? row.fourthAuthorScore : "不是作者";
-                    } else {
-                        return 0;
-                    }
-                }
-            },
+            // {
+            //     field: 'responsibilityTier',
+            //     title: '积分',
+            //     align: 'center',
+            //     formatter: function (value, row, index) {
+            //         if (row.state == 6) {
+            //             return row.firstPersonId == row.uid ? row.firstAuthorScore : row.secondPersonId == row.uid ? row.secondAuthorScore : row.thirdPersonId == row.uid ? row.thirdAuthorScore : row.fourthPersonId == row.uid ? row.fourthAuthorScore : "不是作者";
+            //         } else {
+            //             return 0;
+            //         }
+            //     }
+            // },
             {
                 title: '操作',
                 align: 'center',
                 formatter: function (value, row, index) {
                     //console.log('论文:row = ',row);
                     var actions = [];
-                    if (row.state == 6) {
-                        //actions.push('<a class="link-button" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')">查看</a> ');
-                    }
+                        actions.push('<a class="link-button" href="javascript:void(0)" onclick=\'OpenDetailTab("' + row.id + '","LW")\'>查看</a> ');
+
                     return actions.join('');
                 }
             }
@@ -1020,7 +954,7 @@
             },
             {
                 field: 'id',
-                title: '',
+                title: 'id',
                 visible: false
             },
             {
@@ -1054,27 +988,26 @@
                     return $.table.selectDictLabel(paiMingDatas, value);
                 }
             },
-            {
-                field: 'responsibilityTier',
-                title: '积分',
-                align: 'center',
-                formatter: function (value, row, index) {
-                    if (row.state == 6) {
-                        return row.firstPersonId == row.uid ? row.firstAuthorScore : row.secondPersonId == row.uid ? row.secondAuthorScore : row.thirdPersonId == row.uid ? row.thirdAuthorScore : row.fourthPersonId == row.uid ? row.fourthAuthorScore : "不是作者";
-                    } else {
-                        return 0;
-                    }
-                }
-            },
+            // {
+            //     field: 'responsibilityTier',
+            //     title: '积分',
+            //     align: 'center',
+            //     formatter: function (value, row, index) {
+            //         if (row.state == 6) {
+            //             return row.firstPersonId == row.uid ? row.firstAuthorScore : row.secondPersonId == row.uid ? row.secondAuthorScore : row.thirdPersonId == row.uid ? row.thirdAuthorScore : row.fourthPersonId == row.uid ? row.fourthAuthorScore : "不是作者";
+            //         } else {
+            //             return 0;
+            //         }
+            //     }
+            // },
             {
                 title: '操作',
                 align: 'center',
                 formatter: function (value, row, index) {
-                    //console.log('论文:row = ',row);
+                    //console.log('教材专著:row = ',row);
                     var actions = [];
-                    if (row.state == 6) {
-                        //actions.push('<a class="link-button" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')">查看</a> ');
-                    }
+                        actions.push('<a class="link-button" href="javascript:void(0)" onclick=\'OpenDetailTab("' + row.id + '","JCZZ")\'>查看</a> ');
+
                     return actions.join('');
                 }
             }
@@ -1093,7 +1026,7 @@
             },
             {
                 field: 'id',
-                title: '',
+                title: 'id',
                 visible: false
             },
             {
@@ -1113,10 +1046,10 @@
                 field: 'mingcheng',
                 title: '专利名称'
             },
-            {
-                field: 'huopishijain',
-                title: '获批时间'
-            },
+            // {
+            //     field: 'huopishijain',
+            //     title: '获批时间'
+            // },
             {
                 field: 'fenlei',
                 title: '分类',
@@ -1124,10 +1057,10 @@
                     return $.table.selectDictLabel(fenleiDatas, value);
                 }
             },
-            {
-                field: 'jifen',
-                title: '积分'
-            },
+            // {
+            //     field: 'jifen',
+            //     title: '积分'
+            // },
             {
                 field: 'paiming',
                 title: '负责人排名',
@@ -1140,11 +1073,10 @@
                 title: '操作',
                 align: 'center',
                 formatter: function (value, row, index) {
-                    //console.log('论文:row = ',row);
+                    //console.log('专利软著:row = ',row);
                     var actions = [];
-                    if (row.state == 6) {
-                        //actions.push('<a class="link-button" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')">查看</a> ');
-                    }
+                        actions.push('<a class="link-button" href="javascript:void(0)" onclick=\'OpenDetailTab("' + row.id + '","ZLRZ")\'>查看</a> ');
+
                     return actions.join('');
                 }
             }
@@ -1163,7 +1095,7 @@
             },
             {
                 field: 'id',
-                title: '',
+                title: 'id',
                 visible: false
             },
             {
@@ -1210,26 +1142,96 @@
                     return $.table.selectDictLabel(paiMingDatas, value);
                 }
             },
-            {
-                field: 'jifen',
-                title: '积分'
-            },
+            // {
+            //     field: 'jifen',
+            //     title: '积分'
+            // },
 
             {
                 title: '操作',
                 align: 'center',
                 formatter: function (value, row, index) {
-                    //console.log('论文:row = ',row);
+                    //console.log('奖励:row = ',row);
                     var actions = [];
-                    if (row.state == 6) {
-                        //actions.push('<a class="link-button" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')">查看</a> ');
-                    }
+                        actions.push('<a class="link-button" href="javascript:void(0)" onclick=\'OpenDetailTab("' + row.id + '","JL")\'>查看</a> ');
+
+                    return actions.join('');
+                }
+            }
+        ],
+        //讲座报告
+        '8': [
+            {
+                field: 'number',
+                title: '序号',
+                width: 5,
+                align: 'center',
+                switchable: false,
+                formatter: function (value, row, index) {
+                    return $.table.serialNumber(index);
+                }
+            },
+            {
+                field: 'id',
+                title: 'jobId',
+                visible: false
+            },
+            {
+                field: 'xueyuan',
+                align: 'center',
+                title: '学院'
+            },
+
+            {
+                field: 'keyanshi',
+                align: 'center',
+                title: '专业'
+            },
+            {
+                field: 'teacherName',
+                align: 'center',
+                title: '申请人'
+            },
+            {
+                field: 'reportTheme',
+                align: 'center',
+                title: '主题'
+            },
+            {
+                field: 'reportSubject',
+                align: 'center',
+                title: '题目'
+            },
+            // {
+            //     field: 'reportTime',
+            //     align: 'center',
+            //     title: '开始时间'
+            // },
+            // {
+            //     field: 'reportEndTime',
+            //     align: 'center',
+            //     title: '结束时间'
+            // },
+
+            // {
+            //     field: 'reportKeyanfen',
+            //     title: '积分'
+            // },
+
+            {
+                title: '操作',
+                align: 'center',
+                formatter: function (value, row, index) {
+                    //console.log('讲座报告:row = ',row);
+                    var actions = [];
+                        actions.push('<a class="link-button" href="javascript:void(0)" onclick=\'OpenDetailTab("' + row.id + '","JZBG")\'>查看</a> ');
+
                     return actions.join('');
                 }
             }
         ]
     };
-
+    // 搜索,初始化
     $(function() {
         // 绑定搜索按钮点击事件
         $('#searchBtn').on('click', function() {
@@ -1294,7 +1296,7 @@
                         endTime: '',
                         college: '',
                         major: '',
-                        jobTitle: '',
+                        jobtitle: 'id',
                         topicName: '',
                         noData: true
                     };
@@ -1312,16 +1314,12 @@
             toolbar: "toolbar0",
             url: prefix + "/list",
             search: prefix + "/list",
-            createUrl: prefix + "/add",
-            detailUrl: prefix + "/overdetail/{id}",
-            updateUrl: prefix + "/edit/{id}",
-            removeUrl: prefix + "/remove",
-            exportUrl: prefix + "/export",
             rowStyle: rowStyle0,
-            modalName: "成果转化",
+            modalName: "统计查询",
             sortOrder: "asc",
             showHeader: false, // 初始不显示表头
             columns: [], // 初始为空列
+            exportUrl: prefix + "/export",
             queryParams: function(params) {
                 // 如果还没有搜索过，返回空数据请求
                 if (!hasSearched) {
@@ -1364,6 +1362,10 @@
 
     //设置不同模块的状态颜色
     function rowStyle0(row, index) {
+        // 添加对 row 对象的检查
+        if (!row || !row.state) {
+            return {};
+        }
         var remark = $("select[name='remark']").val(); // 项目类别
         //console.log("row = ", row)
         //console.log("remark = ", remark=="1",remark)
@@ -1536,37 +1538,28 @@
         }
         //讲座报告
         else if (remark == "8"){
+            if (["4"].includes(row.state)) {
+                //console.log("row.state is 6", row.state)
+                // 完结 绿色
+                return {
+                    css: {"color": '#67c23a'}
 
+                };
+            } else if (["3","5","7","0"].includes(row.state)) {
+                // 草稿 黄色
+                return {
+                    css: {"color": '#c78045'}
+
+                };
+            } else if (["1", "2", "6"].includes(row.state)) {
+                // 审核中 蓝色
+                return {
+                    css: {"color": '#2c99ff'}
+
+                };
+            }
         }
         return {};
-    }
-
-
-    //获取批阅记录
-    function loadReviewRecords(Id, state) {
-        updateProgress(state); // 更新进度条
-
-        //批阅记录
-        $.ajax({
-            url: prefix + "/bhyy/" + Id, // 替换为实际的API路径
-            method: 'POST',
-            data: {kid: Id},
-            success: function (response) {
-                const eventList = document.getElementById('event-list');
-                eventList.innerHTML = '';
-
-                response.rows.forEach(function (row) {
-                    const li = document.createElement('li');
-                    li.innerHTML = '<i class="node-icon"></i>' +
-                        '<span class="time">' + row.createTime + '</span>' +
-                        '<span class="txt">' + row.state + '</span>';
-                    eventList.insertBefore(li, eventList.firstChild);
-                });
-            },
-            error: function () {
-                alert('无法获取批阅记录');
-            }
-        });
     }
 
 
@@ -1632,6 +1625,119 @@
             }
         }
     });
+    function OpenDetailTab (id ,  remark) {
+        // 纵向
+        if (remark == "ZX"){
+            var url = prefixZX + "/overView/" + id +'/ZX';
+            $.modal.openTab("查看纵向详情", url);
+        }
+        // 横向
+        else if (remark == "HX"){
+            var url = prefixHX + "/overView/" + id +'/HX';
+            $.modal.openTab("查看横向详情", url);
+        }
+        // 成果转化
+        else if (remark == "CGZH"){
+            var url = prefixCGZH + "/detail/" + id +'/CGZH';
+            $.modal.openTab("查看成果转化详情", url);
+        }
+        // 论文
+        else if (remark == "LW"){
+            var url = prefixLW + "/detail/" + id +'/LW';
+            $.modal.openTab("查看论文详情", url);
+        }
+        // 教材专著
+        else if (remark == "JCZZ"){
+            var url = prefixJCZZ + "/detail/" + id +'/JCZZ';
+            $.modal.openTab("查看教材专著详情", url);
+        }
+        // 专利软著
+        else if (remark == "ZLRZ"){
+            var url = prefixZLRZ + "/detail/" + id +'/ZLRZ';
+            $.modal.openTab("查看专利软著详情", url);
+        }
+        // 奖励
+        else if (remark == "JL"){
+            var url = prefixJL + "/detail/" + id +'/JL';
+            $.modal.openTab("查看奖励详情", url);
+        }
+        // 讲座报告
+        else if (remark == "JZBG"){
+            var url = prefixJZBG + "/detail/" + id +'/JZBG';
+            $.modal.openTab("查看讲座报告详情", url);
+        }
+
+    };
+
+    // 导出数据
+    function exportExcel() {
+        $.modal.confirm("确定导出所有" + table.options.modalName + "吗？", function() {
+            // 创建参数对象而不是数组
+            var exportParams = {};
+            var remark = $("select[name='remark']").val();
+            var state = $("select[name='state']").val();
+            var startTime = $("#datetimepicker-startTime").val();
+            var endTime = $("#datetimepicker-endTime").val();
+            var college = $(".first").val();
+            var major = $(".second").val();
+            var jobTitle = $("select[name='job_title']").val();
+            var topicName = $("#topicName").val();
+
+            // 设置参数，state使用dictLabel
+            exportParams.remark = remark || '';
+            exportParams.state = state || ''; // 使用dictLabel而不是dictValue
+            exportParams.startTime = startTime || '';
+            exportParams.endTime = endTime || '';
+            exportParams.college = college || '';
+            exportParams.major = major || '';
+            exportParams.jobTitle = jobTitle || '';
+            exportParams.topicName = topicName || '';
+
+            // 添加表格当前的查询参数
+            var tableOptions = $("#" + table.options.id).bootstrapTable('getOptions');
+            if (tableOptions && tableOptions.queryParams) {
+                var queryParams = tableOptions.queryParams({
+                    pageNum: 1,
+                    pageSize: 99999999, // 导出所有数据
+                    orderByColumn: tableOptions.sortName || '',
+                    isAsc: tableOptions.sortOrder || 'asc'
+                });
+
+                // 合并查询参数
+                $.extend(exportParams, queryParams);
+            }
+
+            // 添加排序参数
+            if (tableOptions) {
+                exportParams.orderByColumn = tableOptions.sortName || '';
+                exportParams.isAsc = tableOptions.sortOrder || 'asc';
+            }
+
+            // 检查是否有导出URL
+            if (!table.options.exportUrl) {
+                $.modal.alertError("未配置导出URL");
+                return;
+            }
+
+            $.modal.loading("正在导出数据，请稍候...");
+            $.post(table.options.exportUrl, exportParams, function(result) {
+                if (result.code === web_status.SUCCESS) {
+                    window.location.href = ctx + "common/download?fileName=" + encodeURI(result.msg) + "&delete=" + true;
+                } else if (result.code === web_status.WARNING) {
+                    $.modal.alertWarning(result.msg);
+                } else {
+                    $.modal.alertError(result.msg);
+                }
+                $.modal.closeLoading();
+            }).fail(function(jqXHR, textStatus, errorThrown) {
+                $.modal.alertError("导出请求失败: " + textStatus);
+                $.modal.closeLoading();
+            });
+        });
+    }
+
+
+
 
 </script>
 </body>

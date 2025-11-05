@@ -236,7 +236,11 @@ public class SciPaperAController extends BaseController {
                 String user_name = userService.selectUserByLoginName(getLoginName()).getUserName();
                 sciPaperA.setTeacherName(user_name);
                 sciPaperA.setState("99");
-
+                if (!sciPaperA.getPaperCategory().equals("8") && !sciPaperA.getPaperCategory().equals("9")) {
+                    if (sciPaperA.getSearch_web() == null || sciPaperA.getSearch_web().length() <= 0){
+                        throw new RuntimeException("论文网址不能为空");
+                    }
+                }
                 //插入论文数据
                 sciPaperAService.insertSciPaperA(sciPaperA);
 
@@ -266,8 +270,12 @@ public class SciPaperAController extends BaseController {
                 return toAjax(sciPaperAMapper.insertSciPaperAr(sciPaperAr));
             }
 
+        }  catch (RuntimeException e) {
+            // 直接抛出，Runtime异常会自动触发回滚
+            throw e;
         } catch (Exception e) {
-            return error(e.getMessage());
+            // 捕获检查型异常并转换为Runtime异常
+            throw new RuntimeException("论文保存过程中发生错误: " + e.getMessage(), e);
         }
     }
 
@@ -280,23 +288,21 @@ public class SciPaperAController extends BaseController {
             return -1;
         }
         // 这里只是限制了人数 ,没有详细限制是第几作者
-        int key = (sciPaperA.getFirstPersonId()==null?0:1 )+ (sciPaperA.getSecondPersonId()==null?0:1) + (sciPaperA.getThirdPersonId()==null?0:1) + (sciPaperA.getFourthPersonId()==null?0:1);
+        int key = (sciPaperA.getFirstPersonId()==null|| sciPaperA.getFirstPersonId().isEmpty() ?0:1 )+ (sciPaperA.getSecondPersonId()==null|| sciPaperA.getSecondPersonId().isEmpty()?0:1) + (sciPaperA.getThirdPersonId()==null|| sciPaperA.getThirdPersonId().isEmpty()?0:1) + (sciPaperA.getFourthPersonId()==null|| sciPaperA.getFourthPersonId().isEmpty()?0:1);
         Set<String> countAuthors = new HashSet<>();
-        if (sciPaperA.getFirstPersonId() != null) {
+        if (sciPaperA.getFirstPersonId() != null && !sciPaperA.getFirstPersonId().isEmpty()) {
             countAuthors.add(sciPaperA.getFirstPersonId());
         }
-        if (sciPaperA.getSecondPersonId() != null) {
+        if (sciPaperA.getSecondPersonId() != null && !sciPaperA.getSecondPersonId().isEmpty()) {
             countAuthors.add(sciPaperA.getSecondPersonId());
         }
-        if (sciPaperA.getThirdPersonId() != null) {
+        if (sciPaperA.getThirdPersonId() != null && !sciPaperA.getThirdPersonId().isEmpty()) {
             countAuthors.add(sciPaperA.getThirdPersonId());
         }
-        if (sciPaperA.getFourthPersonId() != null) {
+        if (sciPaperA.getFourthPersonId() != null && !sciPaperA.getFourthPersonId().isEmpty()) {
             countAuthors.add(sciPaperA.getFourthPersonId());
         }
-        if (countAuthors.size()!=key){
-            return -5;
-        }
+
         if (sciPaperA.getPaperCategory()!=null){
             if (sciPaperA.getPaperCategory().equals("11") || sciPaperA.getPaperCategory().equals("12") || sciPaperA.getPaperCategory().equals("10")){
                 if (key!=2){
@@ -313,7 +319,9 @@ public class SciPaperAController extends BaseController {
         }else{
             return -4;
         }
-
+        if (countAuthors.size()!=key){
+            return -5;
+        }
 
 
         List<Paper_user_score> paperUserScoreList = new ArrayList<>();

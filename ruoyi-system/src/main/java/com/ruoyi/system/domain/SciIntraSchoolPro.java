@@ -443,4 +443,45 @@ public class SciIntraSchoolPro extends BaseEntity {
                 ", urlFlag='" + urlFlag + '\'' +
                 '}';
     }
+
+    public String getStateDes() {
+        if (this.state == null) {
+            return "";
+        }
+        switch (this.state){
+            case "1":
+                return "开题：待教研室处理";
+            case "2":
+                return "开题：待科研室处理";
+            case "3":
+                return "开题：教研室退回";
+            case "4":
+                return "待申请结题";
+            case "5":
+                return "开题：科研室退回";
+            case "6":
+                return "完结啦！！";
+            case "7":
+                return "结题：待教研室处理";
+            case "8":
+                return "结题：待科研室处理";
+            case "9":
+                return "结题：教研室退回";
+            case "10":
+                return "结题：科研室退回";
+            case "11":
+                return "开题：待学院处理";
+            case "12":
+                return "开题：学院退回";
+            case "13":
+                return "结题：待学院处理";
+            case "14":
+                return "结题：学院退回";
+            case "15":
+                return "草稿箱";
+            case "16":
+                return "结项草稿";
+        }
+        return this.state;
+    }
 }

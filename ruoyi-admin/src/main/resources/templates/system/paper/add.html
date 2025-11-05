@@ -208,7 +208,7 @@
             <div class="form-group">
                 <label class="col-sm-3 control-label">论文网址：</label>
                 <div class="col-sm-8">
-                    <input name="search_web" id="search_web" class="form-control" type="text" required maxlength="200">
+                    <input name="search_web" id="search_web" class="form-control" type="text" maxlength="200">
                 </div>
             </div>
             <div class="form-group">
@@ -218,7 +218,6 @@
                     <div class="file-loading">
                         <input class="form-control file-upload" id="text_paper" name ="file" type="file" >
                     </div>
-                    <small class="form-text text-muted">支持格式：PDF</small>
                 </div>
             </div>
             <div class="form-group">
@@ -228,7 +227,6 @@
                     <div class="file-loading">
                         <input class="form-control file-wupload" id="word_paper" name ="file" type="file" >
                     </div>
-                    <small class="form-text text-muted">支持格式：DOC、DOCX</small>
                 </div>
             </div>
             <div class="form-group">
@@ -332,7 +330,7 @@
             autoReplace: true,
             allowedFileExtensions: ["docx","doc"],
             // 添加提示信息
-            allowedFileExtensionsMsg: '只允许上传DOC、DOCX文件',
+            dropZoneTitle: '拖拽Word文件到这里 &hellip;<br>或点击选择按钮<br>支持格式：DOC、DOCX<br>文件数量：1个',
             slugCallback: function(filename) {
                 if ($("input[name='paperTitle']").val()===""){
                     $(".file-uploada").fileinput('clear');
