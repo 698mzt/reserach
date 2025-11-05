@@ -430,8 +430,8 @@
                     // 只添加一次空选项
                     selectElement.append(option.clone());
                     hasBlankOption = true;
-                } else if (value !== "" && (!selectedIds.has(value) || value === currentValue)) {
-                    // 添加非空选项，如果它未被其他下拉框选中，或者是当前下拉框已选中的值
+                } else if (value !== "" && (!selectedIds.has(value) || value === currentValue || value === "-1")) {
+                    // 添加非空选项，如果它未被其他下拉框选中，或者是当前下拉框已选中的值，或者userId为-1（其他）
                     selectElement.append(option.clone());
                 }
             });
@@ -502,8 +502,8 @@
                     // 只添加一次空选项
                     selectElement.append(option.clone());
                     hasBlankOption = true;
-                } else if (value !== "" && (!selectedIds.has(value) || value === currentValue)) {
-                    // 添加非空选项，如果它未被其他下拉框选中，或者是当前下拉框已选中的值
+                } else if (value !== "" && (!selectedIds.has(value) || value === currentValue || value === "-1")) {
+                    // 添加非空选项，如果它未被其他下拉框选中，或者是当前下拉框已选中的值，或者userId为-1（其他）
                     selectElement.append(option.clone());
                 }
             });

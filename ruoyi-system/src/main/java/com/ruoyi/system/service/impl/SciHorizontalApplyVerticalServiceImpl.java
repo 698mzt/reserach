@@ -107,7 +107,13 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
 
     @Override
     public void saveVerticalPersons(Integer verticalId, java.util.List<String> personIds) {
-        if (verticalId == null || personIds == null || personIds.isEmpty()) return;
+        if (verticalId == null || personIds == null || personIds.isEmpty()){
+            return;
+        }
+        // 先清空原有成员
+        SciHorizontalPersion del = new SciHorizontalPersion();
+        del.setVerticalid(verticalId);
+        sciHorizontalApplyVerticalMapper.deletePersionVerticalByVerticalId(verticalId);
         SciHorizontalPersion rec = new SciHorizontalPersion();
         rec.setVerticalid(verticalId);
         int startRank = 5; // 从第5位开始
@@ -125,23 +131,14 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
         if (verticalId == null) {
             return;
         }
-        // 去重并保持顺序
-        LinkedHashSet<String> orderedSet = new LinkedHashSet<>();
-        if (personIds != null) {
-            for (String pid : personIds) {
-                if (StringUtils.isNotEmpty(pid)) {
-                    orderedSet.add(pid);
-                }
-            }
-        }
-        List<String> ordered = new ArrayList<>(orderedSet);
+
         sciHorizontalApplyVerticalMapper.deletePersionVerticalByVerticalId(verticalId);
         // 按顺序插入，ranking 从 1 开始
         SciHorizontalPersion rec = new SciHorizontalPersion();
         rec.setVerticalid(verticalId);
-        for (int i = 0; i < ordered.size(); i++) {
+        for (int i = 0; i < personIds.size(); i++) {
             rec.setRanking(String.valueOf(i + 1));
-            rec.setPersionid(ordered.get(i));
+            rec.setPersionid(personIds.get(i));
             sciHorizontalApplyVerticalMapper.insertPersionVertical(rec);
         }
     }

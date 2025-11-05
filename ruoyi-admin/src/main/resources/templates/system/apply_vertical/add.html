@@ -56,7 +56,7 @@
             <div class="form-group">
                 <label class="col-sm-4 control-label is-required">项目金额(万)：</label>
                 <div class="col-sm-8">
-                        <input name="amount"  class="form-control" type="number" required step="0.0001" maxlength="9">
+                    <input name="amount"  class="form-control" type="number" required step="0.0001" maxlength="9">
                 </div>
             </div>
         </div>
@@ -183,17 +183,6 @@
                 var val = $(this).val();
                 if (val) personIds.push(val);
             });
-
-            // 检查是否有重复的值
-            var uniqueIds = new Set(personIds);
-            if (uniqueIds.size !== personIds.length) {
-                return $.modal.alertError("成员不能有重复的值");
-            }
-            
-            // 至少保证有主持人 + 1 名成员
-            if (personIds.length < 2) {
-                return $.modal.alertError("请至少选择一名成员");
-            }
 
             // 校验项目金额不能为负数
             var projectAmount = $("input[name='amount']").val();
@@ -401,8 +390,8 @@
                 // 只添加一次空选项
                 selectElement.append(option.clone());
                 hasBlankOption = true;
-            } else if (value !== "" && (!selectedIds.has(value) || value === currentValue)) {
-                // 添加非空选项，如果它未被其他下拉框选中，或者是当前下拉框已选中的值
+            } else if (value !== "" && (!selectedIds.has(value) || value === currentValue || value === "-1")) {
+                // 添加非空选项，如果它未被其他下拉框选中，或者是当前下拉框已选中的值，或者userId为-1（其他）
                 selectElement.append(option.clone());
             }
         });
@@ -469,8 +458,8 @@
                 // 只添加一次空选项
                 selectElement.append(option.clone());
                 hasBlankOption = true;
-            } else if (value !== "" && (!selectedIds.has(value) || value === currentValue)) {
-                // 添加非空选项，如果它未被其他下拉框选中，或者是当前下拉框已选中的值
+            } else if (value !== "" && (!selectedIds.has(value) || value === currentValue || value === "-1")) {
+                // 添加非空选项，如果它未被其他下拉框选中，或者是当前下拉框已选中的值，或者userId为-1（其他）
                 selectElement.append(option.clone());
             }
         });
