@@ -6,6 +6,8 @@ import com.github.pagehelper.PageHelper;
 import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
+import com.ruoyi.common.core.domain.entity.SysRole;
+import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.common.utils.poi.ExcelUtil;
@@ -28,6 +30,8 @@ import java.util.stream.Collectors;
 @RequestMapping("/StatsQuery")
 public class StatsQueryController extends BaseController {
     private String prefix = "system/StatsQuery";
+    @Autowired // 纵向课题 1
+    private ISysUserService sysUserService;
     @Autowired // 纵向课题 1
     private ISciHorizontalApplyVerticalService sciHorizontalApplyVerticalService;
     @Autowired // 横向课题 2
@@ -52,10 +56,37 @@ public class StatsQueryController extends BaseController {
 
         return prefix + "/view";
     }
-
     @PostMapping("/list")
     @ResponseBody
     public TableDataInfo list(@RequestParam Map<String, String> params) {
+        // 如果前端传递了noData标志，说明是初始加载，返回空数据
+        if ("true".equals(params.get("noData"))) {
+            return getDataTable(new ArrayList<>());
+        }
+        params.put("uid",getUserId().toString());
+        //判断身份
+        String role_str = panRole_str();
+        SysUser sysUser = getSysUser();
+        //学院
+        if (role_str.equals("dept_teacher")) {
+            params.put("Pcollege",sysUser.getParentId().toString());
+        }
+        //科研处
+        else if (role_str.equals("sci_tesearch")) {
+
+        }
+        //        教研室
+        else if (role_str.equals("research")) {
+            params.put("major",sysUser.getDeptId().toString());
+        }
+        //admin
+        else if (role_str.equals("admin")) {
+
+        }
+        else if (role_str.equals("teacher")) {
+            params.put("userId",getUserId().toString());
+
+        }
         // 获取分页参数，添加默认值避免 null
         String offsetStr = params.getOrDefault("offset", "0");
         String limitStr = params.getOrDefault("limit", "10");
@@ -65,18 +96,13 @@ public class StatsQueryController extends BaseController {
         // 计算分页参数
         int pageNum = offset / limit + 1;
         int pageSize = limit;
-
         // 使用 PageHelper 进行分页
         PageHelper.startPage(pageNum, pageSize);
 
-        // 如果前端传递了noData标志，说明是初始加载，返回空数据
-        if ("true".equals(params.get("noData"))) {
-            return getDataTable(new ArrayList<>());
-        }
 
         // 获取项目类别参数
         String remark = params.get("remark");
-        System.out.println("项目类别: " + remark);
+        //System.out.println("项目类别: " + remark);
 
         List<Object> list = new ArrayList<>();
         // 根据项目类别返回不同的数据
@@ -215,4 +241,75 @@ public class StatsQueryController extends BaseController {
             return error(e.getMessage());
         }
     }
+    /**
+     * 判断当前登陆用户的身份
+     * dept_teacher，sci_tesearch，research，admin，teacher
+     *
+     * @return
+     */
+    private String panRole_str() {
+        String role_str = "";
+        //当前登陆角色列表，如果一个人有多个角色，列表就多一项
+        List<SysRole> roles = getSysUser().getRoles();
+        //代表六个身份
+        List<Integer> roles_list = new ArrayList<>(Arrays.asList(0, 0, 0, 0, 0, 0));
+
+        for (SysRole r : roles) {
+            System.out.println("r.getRoleKey()=" + r.getRoleKey());
+            //普通教师
+            if (r.getRoleId() == 100) {
+                roles_list.set(2, 1);
+            }
+            //科研处
+            if (r.getRoleId() == 101) {
+                roles_list.set(3, 1);
+            }
+            //教研室
+            if (r.getRoleId() == 102) {
+                roles_list.set(4, 1);
+            }
+            //学院负责人
+            if (r.getRoleId() == 103 || r.getRoleId() == 104 || r.getRoleId() == 105 || r.getRoleId() == 106 || r.getRoleId() == 107 || r.getRoleId() == 108) {
+                roles_list.set(5, 1);
+            }
+            //超级管理员
+            if (r.getRoleId() == 1) {
+                roles_list.set(1, 1);
+            }
+        }
+        //学院
+        if (roles_list.get(5) == 1) {
+            role_str = "dept_teacher";
+        }
+//        科研处
+        else if (roles_list.get(3) == 1) {
+            role_str = "sci_tesearch";
+
+        }
+//        教研室
+        else if (roles_list.get(4) == 1) {
+            System.out.println("this is 教研");
+            role_str = "research";
+
+        }
+        //admin
+        else if (roles_list.get(1) == 1) {
+            role_str = "admin";
+
+        }
+
+        String rolesString = roles_list.stream()
+                .map(String::valueOf)
+                .collect(Collectors.joining(""));
+        //只是普通教师
+        if (rolesString.equals("001000")) {
+            role_str = "teacher";
+        }
+        return role_str;
+
+
+    }
+
+
+
 }

@@ -709,11 +709,17 @@
         where pa.author_level = '0'
         ) pac on p.id = pac.paper_id
         where 1=1
+        <if test="userId != null and userId != ''">
+            and p.user_id = #{userId}
+        </if>
         <if test="startTime != null and startTime != ''">
             and pac.createtime >= #{startTime}
         </if>
         <if test="endTime != null and endTime != ''">
             and pac.createtime &lt;= #{endTime}
+        </if>
+        <if test="Pcollege != null and Pcollege != '' and Pcollege!='null' ">
+            AND d.parent_id = #{Pcollege}
         </if>
         <if test="college != null and college != '' and college!='null' ">
             AND pt.dept_id = #{college}

@@ -498,6 +498,7 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
         return sciHorizontalApplyVerticalMapper.updateSciHorizontalApplyVertical(sciHorizontalApplyVertical);
     }
     @Override
+    @DataScope(deptAlias = "d",userAlias = "u")
     public List<SciHorizontalApplyVertical> getStatsQuery(Map<String, String> params) {
         return sciHorizontalApplyVerticalMapper.getStatsQuery(params);
     }
