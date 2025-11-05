@@ -408,6 +408,10 @@ public class SciHorizontalApplyVertical extends BaseEntity {
         this.score = score;
     }
     public String getStateDes(){
+        // 添加空值检查
+        if (this.state == null) {
+            return "";
+        }
         switch (this.state){
             case "1":
                 return "待处理";

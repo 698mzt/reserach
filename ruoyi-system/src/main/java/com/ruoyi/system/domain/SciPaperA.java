@@ -689,6 +689,9 @@ public class SciPaperA extends BaseEntity {
     }
 
     public String getStateDes() {
+        if (this.state == null) {
+            return "";
+        }
         switch (this.state) {
             case "1":
                 return "待教研室处理";
