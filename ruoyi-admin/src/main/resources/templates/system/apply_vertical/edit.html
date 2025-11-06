@@ -520,6 +520,36 @@
             focusCleanup: true
         });
 
+        $("input[name='amount']").on('input', function() {
+            var value = $(this).val();
+            // 限制整数部分不超过9位
+            if (value) {
+                var numericValue = parseFloat(value);
+                // 限制整数部分长度
+                if (value.indexOf('.') !== -1) {
+                    var parts = value.split('.');
+                    if (parts[0].length > 9) {
+                        $(this).val(parts[0].substring(0, 9) + (parts[1] ? '.' + parts[1] : ''));
+                    }
+                } else {
+                    if (value.length > 9) {
+                        $(this).val(value.substring(0, 9));
+                    }
+                }
+                // 限制小数点后只能输入四位
+                if (value.indexOf('.') !== -1) {
+                    var parts = value.split('.');
+                    if (parts[1] && parts[1].length > 4) {
+                        $(this).val(parts[0] + '.' + parts[1].substring(0, 4));
+                    }
+                }
+                // 限制最大值
+                if (numericValue > 999999999) {
+                    $(this).val("000000000");
+                }
+            }
+        });
+
         function submitHandler() {
             if ($.validate.form()) {
                 var file = $("input[name='file']").val();
