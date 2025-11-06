@@ -376,6 +376,7 @@ public class SciHorizontalApplyController extends BaseController
 
         sciHorizontalReamount.setApplyId(id.toString());
         sciHorizontalReamount.setState("99");
+        sciHorizontalReamount.setUid(getUserId());
         if (sciHorizontalReamount.getReAmount() != null && !sciHorizontalReamount.getReAmount().isEmpty()){
             sciHorizontalReamountService.insertAmount(sciHorizontalReamount);
         }
