@@ -46,6 +46,7 @@ public class SciPaperA extends BaseEntity {
      */
     @Excel(name = "学院")
     private String college;
+    private String collegeId;
 
     /**
      * 教研室
@@ -250,6 +251,16 @@ public class SciPaperA extends BaseEntity {
      */
     private String correspondingAuthorScore;
 
+    //判定登陆人的 专业/学院 是否和当前课题负责人的 专业/学院  是否相等
+    private String deptNamekey;
+
+    public String getCollegeId() {
+        return collegeId;
+    }
+
+    public void setCollegeId(String collegeId) {
+        this.collegeId = collegeId;
+    }
 
     public List<String> getONE_AUTHORS() {
         return ONE_AUTHORS;
