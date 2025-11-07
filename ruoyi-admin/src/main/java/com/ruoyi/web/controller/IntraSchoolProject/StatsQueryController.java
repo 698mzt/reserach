@@ -157,6 +157,31 @@ public class StatsQueryController extends BaseController {
     @PostMapping("/export")
     @ResponseBody
     public AjaxResult export(@RequestParam Map<String, String> params) {
+        params.put("uid",getUserId().toString());
+        //判断身份
+        String role_str = panRole_str();
+        SysUser sysUser = getSysUser();
+        //学院
+        if (role_str.equals("dept_teacher")) {
+            params.put("Pcollege",sysUser.getParentId().toString());
+        }
+        //科研处
+        else if (role_str.equals("sci_tesearch")) {
+
+        }
+        //        教研室
+        else if (role_str.equals("research")) {
+            params.put("major",sysUser.getDeptId().toString());
+        }
+        //admin
+        else if (role_str.equals("admin")) {
+
+        }
+        else if (role_str.equals("teacher")) {
+            params.put("userId",getUserId().toString());
+
+        }
+
         try {
             // 获取项目类别参数
             String remark = params.get("remark");

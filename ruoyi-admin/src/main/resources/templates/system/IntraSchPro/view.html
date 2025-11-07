@@ -1520,11 +1520,11 @@
     progressBar.style.width = '0';
 
     // 根据 state 设置相应的步骤颜色
-    if ([15,9,4].includes(state)) {
+    if ([15,9].includes(state)) {
       document.getElementById('step-1').classList.add('active');
       document.getElementById('step-1').querySelector('.status-text').classList.add('active');
       progressBar.style.width = '0';
-    } else if (state === 6) {
+    } else if (state === 6 || state === 4) {
       document.getElementById('step-1').classList.add('completed');
       document.getElementById('step-1').querySelector('.status-text').classList.add('completed');
       document.getElementById('step-2').classList.add('completed');

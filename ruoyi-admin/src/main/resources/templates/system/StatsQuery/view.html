@@ -953,8 +953,18 @@
             },
             {
                 field: 'paperTitle',
+                title: '论文名称',
                 align: 'center',
-                title: '论文名称'
+                formatter: function(value, row, index) {
+                    if (!value) return ''; // 处理空值情况
+
+                    // 如果长度超过指定字符数（例如20个字符），则截取并添加省略号
+                    const maxLength = 20;
+                    if (value.length > maxLength) {
+                        return '<span title="' + value + '">' + value.substring(0, maxLength) + '...</span>';
+                    }
+                    return value;
+                }
             },
             // {
             //     field: 'responsibilityTier',

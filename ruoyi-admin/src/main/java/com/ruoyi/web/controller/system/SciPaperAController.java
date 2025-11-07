@@ -236,11 +236,11 @@ public class SciPaperAController extends BaseController {
                 String user_name = userService.selectUserByLoginName(getLoginName()).getUserName();
                 sciPaperA.setTeacherName(user_name);
                 sciPaperA.setState("99");
-                if (!sciPaperA.getPaperCategory().equals("8") && !sciPaperA.getPaperCategory().equals("9")) {
-                    if (sciPaperA.getSearch_web() == null || sciPaperA.getSearch_web().length() <= 0){
-                        throw new RuntimeException("论文网址不能为空");
-                    }
-                }
+//                if (!sciPaperA.getPaperCategory().equals("8") && !sciPaperA.getPaperCategory().equals("9")) {
+//                    if (sciPaperA.getSearch_web() == null || sciPaperA.getSearch_web().length() <= 0){
+//                        //throw new RuntimeException("论文网址不能为空");
+//                    }
+//                }
                 //插入论文数据
                 sciPaperAService.insertSciPaperA(sciPaperA);
 
@@ -253,7 +253,7 @@ public class SciPaperAController extends BaseController {
                 }else if (i == -2) {
                     throw new RuntimeException("作者数量错误");
                 } else if (i==-3) {
-                    throw new RuntimeException("一作只能是自己");
+                    throw new RuntimeException("此类论文的一作和通讯作者必须为自己");
                 } else if (i==-4) {
                     throw new RuntimeException("未找到论文类型");
                 }else if (i==-5){

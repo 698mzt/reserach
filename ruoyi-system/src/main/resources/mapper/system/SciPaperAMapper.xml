@@ -244,25 +244,25 @@
             select pa.paper_id, su.user_name ,su.user_id ,pa.score
             from paper_author pa 
             left join sys_user su on pa.user_id = su.user_id 
-            where pa.author_level = '1'
+            where pa.author_order = '1'
         ) pa1 on p.id = pa1.paper_id
         left join (
             select pa.paper_id, su.user_name ,su.user_id ,pa.score
             from paper_author pa 
             left join sys_user su on pa.user_id = su.user_id 
-            where pa.author_level = '2'
+            where pa.author_order = '2'
         ) pa2 on p.id = pa2.paper_id
         left join (
             select pa.paper_id, su.user_name ,su.user_id,pa.score
             from paper_author pa 
             left join sys_user su on pa.user_id = su.user_id 
-            where pa.author_level = '3'
+            where pa.author_order = '3'
         ) pa3 on p.id = pa3.paper_id
         left join (
             select pa.paper_id, su.user_name ,su.user_id,pa.score
             from paper_author pa 
             left join sys_user su on pa.user_id = su.user_id 
-            where pa.author_level = '4'
+            where pa.author_order = '4'
         ) pa4 on p.id = pa4.paper_id
         left join (
             select pa.paper_id, su.user_name ,su.user_id,pa.score
@@ -320,25 +320,25 @@
             select pa.paper_id, su.user_name ,su.user_id ,pa.score
             from paper_author pa
                      left join sys_user su on pa.user_id = su.user_id
-            where pa.author_level = '1'
+            where pa.author_order = '1'
         ) pa1 on p.id = pa1.paper_id
                  left join (
             select pa.paper_id, su.user_name ,su.user_id ,pa.score
             from paper_author pa
                      left join sys_user su on pa.user_id = su.user_id
-            where pa.author_level = '2'
+            where pa.author_order = '2'
         ) pa2 on p.id = pa2.paper_id
                  left join (
             select pa.paper_id, su.user_name ,su.user_id,pa.score
             from paper_author pa
                      left join sys_user su on pa.user_id = su.user_id
-            where pa.author_level = '3'
+            where pa.author_order = '3'
         ) pa3 on p.id = pa3.paper_id
                  left join (
             select pa.paper_id, su.user_name ,su.user_id,pa.score
             from paper_author pa
                      left join sys_user su on pa.user_id = su.user_id
-            where pa.author_level = '4'
+            where pa.author_order = '4'
         ) pa4 on p.id = pa4.paper_id
                  left join (
             select pa.paper_id, su.user_name ,su.user_id,pa.score
@@ -378,25 +378,25 @@
         select pa.paper_id, su.user_name ,su.user_id ,pa.score
         from paper_author pa
         left join sys_user su on pa.user_id = su.user_id
-        where pa.author_level = '1'
+        where pa.author_order = '1'
         ) pa1 on p.id = pa1.paper_id
         left join (
         select pa.paper_id, su.user_name ,su.user_id ,pa.score
         from paper_author pa
         left join sys_user su on pa.user_id = su.user_id
-        where pa.author_level = '2'
+        where pa.author_order = '2'
         ) pa2 on p.id = pa2.paper_id
         left join (
         select pa.paper_id, su.user_name ,su.user_id,pa.score
         from paper_author pa
         left join sys_user su on pa.user_id = su.user_id
-        where pa.author_level = '3'
+        where pa.author_order = '3'
         ) pa3 on p.id = pa3.paper_id
         left join (
         select pa.paper_id, su.user_name ,su.user_id,pa.score
         from paper_author pa
         left join sys_user su on pa.user_id = su.user_id
-        where pa.author_level = '4'
+        where pa.author_order = '4'
         ) pa4 on p.id = pa4.paper_id
         left join (
         select pa.paper_id, su.user_name ,su.user_id,pa.score

@@ -179,8 +179,9 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
             //System.out.println("points = " + points);
             //int b = sciPaperAMapper.updateSciPaperArs(id, points);
 
-            // 通过之后设置积分
+            //查询积分表
             List<Integer> point_list = sciPaperACfgMapper.selectSciPaperACfgPointList(order);
+            // 通过之后设置积分
             int res = setPaperUserScore(id, point_list);
             if (res < 1 || res >4){
                 return -1;
@@ -209,6 +210,7 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
         // 检查是否存在第一作者（author_order = 1）
         boolean hasFirstAuthor = paperUserScores.stream()
                 .anyMatch(score -> "1".equals(score.getAuthorOrder()));
+
         AtomicInteger res = new AtomicInteger(0); // 使用 AtomicInteger 替代 int
         paperUserScores.forEach(score -> {
             try {
