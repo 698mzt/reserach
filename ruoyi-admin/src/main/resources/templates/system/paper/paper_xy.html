@@ -579,21 +579,49 @@
           field: 'firstAuthorName',
           title: '一作',
           align: 'center',
+            formatter:function(value,row,index){
+                if (row.fourthAuthorName==null){
+                    return "其他";
+                }else{
+                    return row.firstAuthorName;
+                }
+            }
         },
         {
           field: 'secondAuthorName',
           title: '二作',
           align: 'center',
+            formatter:function(value,row,index){
+                if (row.fourthAuthorName==null){
+                    return "其他";
+                }else{
+                    return row.firstAuthorName;
+                }
+            }
         },
         {
           field: 'thirdAuthorName',
           title: '三作',
           align: 'center',
+            formatter:function(value,row,index){
+                if (row.fourthAuthorName==null){
+                    return "其他";
+                }else{
+                    return row.firstAuthorName;
+                }
+            }
         },
         {
           field: 'fourthAuthorName',
           title: '四作',
           align: 'center',
+            formatter:function(value,row,index){
+                if (row.fourthAuthorName==null){
+                    return "其他";
+                }else{
+                    return row.firstAuthorName;
+                }
+            }
         },
         {
           field: 'correspondingAuthorName',
@@ -602,9 +630,19 @@
         },
 
         {
-          field: 'paperTitle',
-          title: '论文名称',
-          align: 'center',
+            field: 'paperTitle',
+            title: '论文名称',
+            align: 'center',
+            formatter: function(value, row, index) {
+                if (!value) return ''; // 处理空值情况
+
+                // 如果长度超过指定字符数（例如20个字符），则截取并添加省略号
+                const maxLength = 20;
+                if (value.length > maxLength) {
+                    return '<span title="' + value + '">' + value.substring(0, maxLength) + '...</span>';
+                }
+                return value;
+            }
         },
         {
           field: 'paperCategory',
@@ -618,6 +656,16 @@
           field: 'publishedJournal',
           title: '发表期刊',
           align: 'center',
+            formatter: function(value, row, index) {
+                if (!value) return ''; // 处理空值情况
+
+                // 如果长度超过指定字符数（例如20个字符），则截取并添加省略号
+                const maxLength = 20;
+                if (value.length > maxLength) {
+                    return '<span title="' + value + '">' + value.substring(0, maxLength) + '...</span>';
+                }
+                return value;
+            }
         },
         {
           field: 'inclusionStatus',
@@ -675,19 +723,19 @@
         //     return $.table.selectDictLabel(QWERDates, value);
         //   }
         // },
-        {
-          field: 'researchScore',
-          title: '积分',
-          formatter: function (value, row, index) {
-            //console.log("row=",row)
-              return row.firstPersonId == row.uid ?row.fourthAuthorScore :row.secondPersonId == row.uid ? row.secondAuthorScore :row.thirdPersonId == row.uid ? row.thirdAuthorScore :row.fourthPersonId == row.uid ? row.fourthAuthorScore :row.communicationAuthorId == row.uid ? row.correspondingAuthorScore :"非作者";
-              // if (row.userId == row.uid) {
-            //   return row.researchScore;
-            // } else {
-            //   return 0;
-            // }
-          }
-        },
+        // {
+        //   field: 'researchScore',
+        //   title: '积分',
+        //   formatter: function (value, row, index) {
+        //     //console.log("row=",row)
+        //       return row.firstPersonId == row.uid ?row.firstAuthorScore :row.secondPersonId == row.uid ? row.secondAuthorScore :row.thirdPersonId == row.uid ? row.thirdAuthorScore :row.fourthPersonId == row.uid ? row.fourthAuthorScore :row.communicationAuthorId == row.uid ? row.correspondingAuthorScore :"非作者";
+        //       // if (row.userId == row.uid) {
+        //     //   return row.researchScore;
+        //     // } else {
+        //     //   return 0;
+        //     // }
+        //   }
+        // },
         {
           title: '操作',
           align: 'center',

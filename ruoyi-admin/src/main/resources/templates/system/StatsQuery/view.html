@@ -29,7 +29,7 @@
         padding: 0;
         margin: 0;
     }
-    
+
     .select-list li {
         list-style: none;
         margin: 0;
@@ -38,36 +38,36 @@
         flex: 0 0 calc(25% - 12px);
         min-width: 200px;
     }
-    
+
     /* 第一行项目 - 占满整行 */
     .select-list li.first-row {
         flex: 0 0 100%;
     }
-    
+
     /* 第一行中的子项 */
     .first-row-wrapper {
         display: flex;
         gap: 15px;
         width: 100%;
     }
-    
+
     .first-row-item {
         flex: 0 0 calc(25% - 12px);
     }
-    
+
     /* 第二行项目 */
     .select-list li.second-row.date-range-item,
     .select-list li.second-row.college-major-item {
         flex: 0 0 calc(50% - 8px);
     }
-    
+
     .select-list li.button-item {
         flex: 0 0 100%;
         justify-content: flex-start;
         margin-top: 10px;
         gap: 15px;
     }
-    
+
     .select-list li label {
         width: 80px;
         margin: 0 10px 0 0;
@@ -75,14 +75,14 @@
         line-height: 30px;
         white-space: nowrap;
     }
-    
+
     /* 特殊处理日期范围选择标签 */
     .select-list li.date-range-item label.font-noraml {
         width: auto;
         margin: 0 10px 0 0;
         text-align: left;
     }
-    
+
     .select-list li input.form-control,
     .select-list li select.form-control {
         flex: 1;
@@ -92,56 +92,56 @@
         border-radius: 4px;
         padding-left: 5px;
     }
-    
+
     /* 学院专业选择框样式优化 */
     .college-major-item {
         flex: 0 0 calc(50% - 8px) !important;
     }
-    
+
     .college-major-item #element2 {
         display: flex;
         align-items: center;
         width: 100%;
     }
-    
+
     .college-major-item #element2 label {
         width: 80px;
         margin: 0 10px 0 0;
         text-align: right;
         line-height: 30px;
     }
-    
+
     .college-major-item #element2 .row {
         flex: 1;
         display: flex;
         gap: 15px;
         margin: 0;
     }
-    
+
     .college-major-item #element2 .col-sm-3 {
         flex: 1;
         padding: 0;
         max-width: 200px;
     }
-    
+
     .college-major-item #element2 .col-sm-3 select.form-control {
         width: 100%;
         height: 30px;
         border: 1px solid #ddd;
         border-radius: 4px;
     }
-    
+
     .select-list .input-daterange {
         display: flex;
         align-items: center;
         gap: 5px;
     }
-    
+
     .select-list .input-daterange .form-control {
         width: 120px;
         flex: none;
     }
-    
+
     .select-list .input-daterange .input-group-addon {
         width: auto;
         padding: 5px 10px;
@@ -151,13 +151,13 @@
         border-right: 0;
         line-height: 20px;
     }
-    
+
     /* 日期范围选择样式调整 */
     .select-list > ul > li.date-range-item {
         display: flex;
         align-items: center;
     }
-    
+
     .select-list > ul > li.date-range-item label.font-noraml {
         margin: 0 10px 0 0;
         line-height: 30px;
@@ -496,30 +496,30 @@
     .approve-status input {
         margin-right: 5px;
     }
-    
+
     /* 响应式调整 */
     @media (max-width: 1200px) {
         .first-row-item {
             flex: 0 0 calc(33.333% - 10px);
         }
-        
+
         .select-list li.second-row.date-range-item,
         .select-list li.second-row.college-major-item {
             flex: 0 0 calc(50% - 8px);
         }
     }
-    
+
     @media (max-width: 992px) {
         .first-row-item {
             flex: 0 0 calc(50% - 8px);
         }
-        
+
         .select-list li.second-row.date-range-item,
         .select-list li.second-row.college-major-item {
             flex: 0 0 calc(50% - 8px);
         }
     }
-    
+
     @media (max-width: 768px) {
         .select-list li,
         .first-row-item,
@@ -527,16 +527,16 @@
         .select-list li.second-row.college-major-item {
             flex: 0 0 100%;
         }
-        
+
         .select-list li.button-item {
             flex-direction: column;
             align-items: stretch;
         }
-        
+
         .select-list li.button-item .btn {
             margin: 5px 0;
         }
-        
+
         .first-row-wrapper {
             flex-direction: column;
         }
@@ -564,7 +564,8 @@
                                                             <label>项目类别：</label>
                                                             <select name="remark" class="form-control"
                                                                     th:with="type=${@dict.getType('sys_mold_name')}">
-                                                                <option th:each="dict : ${type}" th:text="${dict.dictLabel}"
+                                                                <option th:each="dict : ${type}"
+                                                                        th:text="${dict.dictLabel}"
                                                                         th:value="${dict.dictValue}"></option>
                                                             </select>
                                                         </div>
@@ -572,21 +573,24 @@
                                                             <label>数据状态：</label>
                                                             <select name="state" class="form-control"
                                                                     th:with="type=${@dict.getType('sys_module_item_state')}">
-                                                                <option th:each="dict : ${type}" th:text="${dict.dictLabel}"
+                                                                <option th:each="dict : ${type}"
+                                                                        th:text="${dict.dictLabel}"
                                                                         th:value="${dict.dictValue}"></option>
                                                             </select>
                                                         </div>
-                                                        <div class="first-row-item">
+                                                        <div class="first-row-item" shiro:hasPermission="sys_job_title">
                                                             <label>教师职称：</label>
                                                             <select name="job_title" class="form-control"
                                                                     th:with="type=${@dict.getType('sys_job_title')}">
-                                                                <option th:each="dict : ${type}" th:text="${dict.dictLabel}"
+                                                                <option th:each="dict : ${type}"
+                                                                        th:text="${dict.dictLabel}"
                                                                         th:value="${dict.dictValue}"></option>
                                                             </select>
                                                         </div>
                                                         <div class="first-row-item">
                                                             <label>课题名称：</label>
-                                                            <input type="text" class="input-sm form-control" id="topicName"
+                                                            <input type="text" class="input-sm form-control"
+                                                                   id="topicName"
                                                                    name='topicName'/>
                                                         </div>
                                                     </div>
@@ -602,7 +606,7 @@
                                                                id="datetimepicker-endTime" placeholder="yyyy-MM-dd"/>
                                                     </div>
                                                 </li>
-                                                <li class="second-row college-major-item">
+                                                <li class="second-row college-major-item"  shiro:hasPermission="sys_collage_filter">
                                                     <div id="element2" class="row">
                                                         <label>学院专业：</label>
                                                         <div class="col-sm-3">
@@ -662,22 +666,54 @@
                 ]
             },
             {
-                'v': '1139', 'n': '软件学院', 's': [
+                "v": "1139",
+                "n": "软件学院",
+                "s": [
                     {'v': 'null', 'n': '空'},
-                    {'v': '1174', 'n': '软件工程教研室'},
-                    {'v': '1179', 'n': '计算机科学与技术教研室'},
-                    {'v': '1191', 'n': '数据科学与大数据技术教研室'},
-                    {'v': '1207', 'n': '智能科学与技术教研室'},
-                    {'v': '1210', 'n': '虚拟现实技术教研室'},
+                    {"v": "1174", "n": "软件工程教研室"},
+                    {"v": "1179", "n": "计算机科学与技术教研室"},
+                    {"v": "1191", "n": "数据科学与大数据技术教研室"},
+                    {"v": "1207", "n": "智能科学与技术教研室"},
+                    {"v": "1210", "n": "虚拟现实技术教研室"},
+                    {"v": "1192", "n": "软件学院办公室"},
+                    {"v": "1196", "n": "软件学院学生管理办公室"}
                 ]
             },
             {
-                'v': '1139', 'n': '电子工程学院', 's': [
+                "v": "1140",
+                "n": "商学院",
+                "s": [
                     {'v': 'null', 'n': '空'},
-                    {'v': '1184', 'n': '电子信息工程教研室'},
-                    {'v': '1187', 'n': '人工智能教研室'},
-                    {'v': '1223', 'n': '自动化教研室'},
-                    {'v': '1225', 'n': '物理教研室'},
+                    {"v": "1175", "n": "电子商务教研室"},
+                    {"v": "1231", "n": "商学院办公室"},
+                    {"v": "1228", "n": "商学院学生管理办公室"},
+                    {"v": "1215", "n": "物流管理教研室"},
+                    {"v": "1194", "n": "网络与新媒体教研室"},
+                    {"v": "1181", "n": "财务管理教研室"}
+                ]
+            },
+            {
+                "v": "1145",
+                "n": "艺术设计学院",
+                "s": [
+                    {'v': 'null', 'n': '空'},
+                    {"v": "1188", "n": "环境设计教研室"},
+                    {"v": "1211", "n": "艺术设计学院学生管理办公室"},
+                    {"v": "1182", "n": "视觉传达设计教研室"}
+                ]
+            },
+            {
+                "v": "1147", "n": "电子工程学院",
+                "s": [
+                    {'v': 'null', 'n': '空'},
+                    {"v": "1187", "n": "人工智能教研室"},
+                    {"v": "1184", "n": "电子信息工程教研室"},
+                    {"v": "1222", "n": "电子工程学院学生管理办公室"},
+                    {"v": "1223", "n": "自动化教研室"},
+                    {"v": "1224", "n": "工程训练中心"},
+                    {"v": "1225", "n": "物理教研室"},
+                    {"v": "1233", "n": "资料室"},
+                    {"v": "1235", "n": "电子工程办公室"}
                 ]
             }
         ]
@@ -780,6 +816,11 @@
                 title: '学院'
             },
             {
+                field: 'dname',
+                align: 'center',
+                title: '专业'
+            },
+            {
                 field: 'userName',
                 align: 'center',
                 title: '申请人'
@@ -804,7 +845,8 @@
                 align: 'center',
                 formatter: function (value, row, index) {
                     var actions = [];
-                    actions.push('<a class="link-button" href="javascript:void(0)" onclick=\'OpenDetailTab("' + row.id + '","ZX")\'>查看</a> ');                    return actions.join('');
+                    actions.push('<a class="link-button" href="javascript:void(0)" onclick=\'OpenDetailTab("' + row.id + '","ZX")\'>查看</a> ');
+                    return actions.join('');
                 }
             }
         ],
@@ -870,7 +912,8 @@
                 align: 'center',
                 formatter: function (value, row, index) {
                     var actions = [];
-                    actions.push('<a class="link-button" href="javascript:void(0)" onclick=\'OpenDetailTab("' + row.id + '","HX")\'>查看</a> ');                    return actions.join('');
+                    actions.push('<a class="link-button" href="javascript:void(0)" onclick=\'OpenDetailTab("' + row.id + '","HX")\'>查看</a> ');
+                    return actions.join('');
 
                     return actions.join('');
                 }
@@ -896,26 +939,41 @@
             {
                 field: 'college',
                 align: 'center',
+                title: '学院'
+            },
+            {
+                field: 'college',
+                align: 'center',
                 title: '专业'
             },
             {
-                field: 'teacherName',
+                field: 'researchRoom',
                 align: 'center',
                 title: '申请人'
             },
             {
                 field: 'paperTitle',
+                title: '论文名称',
                 align: 'center',
-                title: '论文名称'
-            },
-            {
-                field: 'responsibilityTier',
-                title: '责任层级',
-                align: 'center',
-                formatter: function (value, row, index) {
-                    return row.firstPersonId == row.uid ? '一作' : row.secondPersonId == row.uid ? '二作' : row.thirdPersonId == row.uid ? "三作" : row.fourthPersonId == row.uid ? "四作" : "不是作者";
+                formatter: function(value, row, index) {
+                    if (!value) return ''; // 处理空值情况
+
+                    // 如果长度超过指定字符数（例如20个字符），则截取并添加省略号
+                    const maxLength = 20;
+                    if (value.length > maxLength) {
+                        return '<span title="' + value + '">' + value.substring(0, maxLength) + '...</span>';
+                    }
+                    return value;
                 }
             },
+            // {
+            //     field: 'responsibilityTier',
+            //     title: '责任层级',
+            //     align: 'center',
+            //     formatter: function (value, row, index) {
+            //         return row.firstPersonId == row.uid ? '一作' : row.secondPersonId == row.uid ? '二作' : row.thirdPersonId == row.uid ? "三作" : row.fourthPersonId == row.uid ? "四作" : "不是作者";
+            //     }
+            // },
             // {
             //     field: 'responsibilityTier',
             //     title: '积分',
@@ -934,7 +992,7 @@
                 formatter: function (value, row, index) {
                     //console.log('论文:row = ',row);
                     var actions = [];
-                        actions.push('<a class="link-button" href="javascript:void(0)" onclick=\'OpenDetailTab("' + row.id + '","LW")\'>查看</a> ');
+                    actions.push('<a class="link-button" href="javascript:void(0)" onclick=\'OpenDetailTab("' + row.id + '","LW")\'>查看</a> ');
 
                     return actions.join('');
                 }
@@ -1006,7 +1064,7 @@
                 formatter: function (value, row, index) {
                     //console.log('教材专著:row = ',row);
                     var actions = [];
-                        actions.push('<a class="link-button" href="javascript:void(0)" onclick=\'OpenDetailTab("' + row.id + '","JCZZ")\'>查看</a> ');
+                    actions.push('<a class="link-button" href="javascript:void(0)" onclick=\'OpenDetailTab("' + row.id + '","JCZZ")\'>查看</a> ');
 
                     return actions.join('');
                 }
@@ -1053,7 +1111,7 @@
             {
                 field: 'fenlei',
                 title: '分类',
-                formatter: function(value, row, index) {
+                formatter: function (value, row, index) {
                     return $.table.selectDictLabel(fenleiDatas, value);
                 }
             },
@@ -1064,7 +1122,7 @@
             {
                 field: 'paiming',
                 title: '负责人排名',
-                formatter: function(value, row, index) {
+                formatter: function (value, row, index) {
                     return $.table.selectDictLabel(paiMingDatas, value);
                 }
             },
@@ -1075,7 +1133,7 @@
                 formatter: function (value, row, index) {
                     //console.log('专利软著:row = ',row);
                     var actions = [];
-                        actions.push('<a class="link-button" href="javascript:void(0)" onclick=\'OpenDetailTab("' + row.id + '","ZLRZ")\'>查看</a> ');
+                    actions.push('<a class="link-button" href="javascript:void(0)" onclick=\'OpenDetailTab("' + row.id + '","ZLRZ")\'>查看</a> ');
 
                     return actions.join('');
                 }
@@ -1124,21 +1182,21 @@
             {
                 field: 'fenlei',
                 title: '分类',
-                formatter: function(value, row, index) {
+                formatter: function (value, row, index) {
                     return $.table.selectDictLabel(fenleiDatas, value);
                 }
             },
             {
                 field: 'rewardDengji',
                 title: '等级',
-                formatter: function(value, row, index) {
+                formatter: function (value, row, index) {
                     return $.table.selectDictLabel(dengjiDatas, value);
                 }
             },
             {
                 field: 'rewardPaiming',
                 title: '排名',
-                formatter: function(value, row, index) {
+                formatter: function (value, row, index) {
                     return $.table.selectDictLabel(paiMingDatas, value);
                 }
             },
@@ -1153,7 +1211,7 @@
                 formatter: function (value, row, index) {
                     //console.log('奖励:row = ',row);
                     var actions = [];
-                        actions.push('<a class="link-button" href="javascript:void(0)" onclick=\'OpenDetailTab("' + row.id + '","JL")\'>查看</a> ');
+                    actions.push('<a class="link-button" href="javascript:void(0)" onclick=\'OpenDetailTab("' + row.id + '","JL")\'>查看</a> ');
 
                     return actions.join('');
                 }
@@ -1224,7 +1282,7 @@
                 formatter: function (value, row, index) {
                     //console.log('讲座报告:row = ',row);
                     var actions = [];
-                        actions.push('<a class="link-button" href="javascript:void(0)" onclick=\'OpenDetailTab("' + row.id + '","JZBG")\'>查看</a> ');
+                    actions.push('<a class="link-button" href="javascript:void(0)" onclick=\'OpenDetailTab("' + row.id + '","JZBG")\'>查看</a> ');
 
                     return actions.join('');
                 }
@@ -1232,9 +1290,9 @@
         ]
     };
     // 搜索,初始化
-    $(function() {
+    $(function () {
         // 绑定搜索按钮点击事件
-        $('#searchBtn').on('click', function() {
+        $('#searchBtn').on('click', function () {
             var remark = $("select[name='remark']").val(); // 项目类别
             var state = $("select[name='state']").val(); // 项目类别
             var startTime = $("#datetimepicker-startTime").val(); // 开始时间
@@ -1258,24 +1316,24 @@
             console.log("搜索参数:", params)
             // 设置搜索状态为true
             hasSearched = true;
-            
+
             // 根据项目类别获取对应的表格列配置
             var selectedRemark = remark || 'default';
             var columns = tableColumnsConfig[selectedRemark] || tableColumnsConfig['default'];
-            
+
             // 更新表格配置，显示表头并设置列
             $('#bootstrap-table0').bootstrapTable('refreshOptions', {
                 showHeader: true,
                 columns: columns,
-                queryParams: function(p) {
+                queryParams: function (p) {
                     return $.extend(p, params);
                 }
             });
             //$('#bootstrap-table0').bootstrapTable('refresh');
         });
-        
+
         // 绑定重置按钮点击事件
-        $('#resetBtn').on('click', function() {
+        $('#resetBtn').on('click', function () {
             // 重置搜索状态
             hasSearched = false;
             // 清空表单
@@ -1284,7 +1342,7 @@
             $('#bootstrap-table0').bootstrapTable('refreshOptions', {
                 showHeader: false,
                 columns: [],
-                queryParams: function(p) {
+                queryParams: function (p) {
                     return {
                         pageNum: 1,
                         pageSize: 10,
@@ -1320,7 +1378,7 @@
             showHeader: false, // 初始不显示表头
             columns: [], // 初始为空列
             exportUrl: prefix + "/export",
-            queryParams: function(params) {
+            queryParams: function (params) {
                 // 如果还没有搜索过，返回空数据请求
                 if (!hasSearched) {
                     return {
@@ -1339,7 +1397,7 @@
                         noData: true // 添加标志告诉后端不返回数据
                     };
                 }
-                
+
                 var searchParams = {
                     pageNum: params.pageNum,
                     pageSize: params.pageSize,
@@ -1370,7 +1428,7 @@
         //console.log("row = ", row)
         //console.log("remark = ", remark=="1",remark)
         //纵向课题
-        if (remark == "1"){
+        if (remark == "1") {
             if (["66", "6"].includes(row.state)) {
                 //console.log("row.state is 6", row.state)
                 // 完结 绿色
@@ -1378,7 +1436,7 @@
                     css: {"color": '#67c23a'}
 
                 };
-            } else if (["3","5","7","33","55","77","99"].includes(row.state)) {
+            } else if (["3", "5", "7", "33", "55", "77", "99"].includes(row.state)) {
                 // 草稿 黄色
                 return {
                     css: {"color": '#c78045'}
@@ -1393,7 +1451,7 @@
             }
         }
         //横向课题
-        else if (remark == "2"){
+        else if (remark == "2") {
             if (["6", "4"].includes(row.state)) {
                 //console.log("row.state is 6", row.state)
                 // 完结 绿色
@@ -1401,7 +1459,7 @@
                     css: {"color": '#67c23a'}
 
                 };
-            } else if (["3","5","9","10","22","44","99"].includes(row.state)) {
+            } else if (["3", "5", "9", "10", "22", "44", "99"].includes(row.state)) {
                 // 草稿 黄色
                 return {
                     css: {"color": '#c78045'}
@@ -1416,7 +1474,7 @@
             }
         }
         //成果转化
-        else if (remark == "3"){
+        else if (remark == "3") {
             if (["6", "4"].includes(row.state)) {
                 //console.log("row.state is 6", row.state)
                 // 完结 绿色
@@ -1424,7 +1482,7 @@
                     css: {"color": '#67c23a'}
 
                 };
-            } else if (["15","4","16"].includes(row.state)) {
+            } else if (["15", "4", "16"].includes(row.state)) {
                 // 草稿 黄色
                 return {
                     css: {"color": '#c78045'}
@@ -1445,7 +1503,7 @@
             }
         }
         //论文
-        else if (remark == "4"){
+        else if (remark == "4") {
             if (["8"].includes(row.state)) {
                 //console.log("row.state is 6", row.state)
                 // 完结 绿色
@@ -1453,7 +1511,7 @@
                     css: {"color": '#67c23a'}
 
                 };
-            } else if (["3","5","7","9","10","22","44","99"].includes(row.state)) {
+            } else if (["3", "5", "7", "9", "10", "22", "44", "99"].includes(row.state)) {
                 // 草稿 黄色
                 return {
                     css: {"color": '#c78045'}
@@ -1468,7 +1526,7 @@
             }
         }
         //教材专著
-        else if (remark == "5"){
+        else if (remark == "5") {
             if (["6"].includes(row.state)) {
                 //console.log("row.state is 6", row.state)
                 // 完结 绿色
@@ -1476,7 +1534,7 @@
                     css: {"color": '#67c23a'}
 
                 };
-            } else if (["3","5","7","0"].includes(row.state)) {
+            } else if (["3", "5", "7", "0"].includes(row.state)) {
                 // 草稿 黄色
                 return {
                     css: {"color": '#c78045'}
@@ -1491,7 +1549,7 @@
             }
         }
         //专利软著
-        else if (remark == "6"){
+        else if (remark == "6") {
             if (["6"].includes(row.state)) {
                 //console.log("row.state is 6", row.state)
                 // 完结 绿色
@@ -1499,7 +1557,7 @@
                     css: {"color": '#67c23a'}
 
                 };
-            } else if (["3","5","7","0"].includes(row.state)) {
+            } else if (["3", "5", "7", "0"].includes(row.state)) {
                 // 草稿 黄色
                 return {
                     css: {"color": '#c78045'}
@@ -1514,7 +1572,7 @@
             }
         }
         //奖励
-        else if (remark == "7"){
+        else if (remark == "7") {
             if (["6"].includes(row.state)) {
                 //console.log("row.state is 6", row.state)
                 // 完结 绿色
@@ -1522,7 +1580,7 @@
                     css: {"color": '#67c23a'}
 
                 };
-            } else if (["3","5","7","11"].includes(row.state)) {
+            } else if (["3", "5", "7", "11"].includes(row.state)) {
                 // 草稿 黄色
                 return {
                     css: {"color": '#c78045'}
@@ -1537,7 +1595,7 @@
             }
         }
         //讲座报告
-        else if (remark == "8"){
+        else if (remark == "8") {
             if (["4"].includes(row.state)) {
                 //console.log("row.state is 6", row.state)
                 // 完结 绿色
@@ -1545,7 +1603,7 @@
                     css: {"color": '#67c23a'}
 
                 };
-            } else if (["3","5","7","0"].includes(row.state)) {
+            } else if (["3", "5", "7", "0"].includes(row.state)) {
                 // 草稿 黄色
                 return {
                     css: {"color": '#c78045'}
@@ -1625,45 +1683,46 @@
             }
         }
     });
-    function OpenDetailTab (id ,  remark) {
+
+    function OpenDetailTab(id, remark) {
         // 纵向
-        if (remark == "ZX"){
-            var url = prefixZX + "/overView/" + id +'/ZX';
+        if (remark == "ZX") {
+            var url = prefixZX + "/overView/" + id + '/ZX';
             $.modal.openTab("查看纵向详情", url);
         }
         // 横向
-        else if (remark == "HX"){
-            var url = prefixHX + "/overView/" + id +'/HX';
+        else if (remark == "HX") {
+            var url = prefixHX + "/overView/" + id + '/HX';
             $.modal.openTab("查看横向详情", url);
         }
         // 成果转化
-        else if (remark == "CGZH"){
-            var url = prefixCGZH + "/detail/" + id +'/CGZH';
+        else if (remark == "CGZH") {
+            var url = prefixCGZH + "/detail/" + id + '/CGZH';
             $.modal.openTab("查看成果转化详情", url);
         }
         // 论文
-        else if (remark == "LW"){
-            var url = prefixLW + "/detail/" + id +'/LW';
+        else if (remark == "LW") {
+            var url = prefixLW + "/detail/" + id + '/LW';
             $.modal.openTab("查看论文详情", url);
         }
         // 教材专著
-        else if (remark == "JCZZ"){
-            var url = prefixJCZZ + "/detail/" + id +'/JCZZ';
+        else if (remark == "JCZZ") {
+            var url = prefixJCZZ + "/detail/" + id + '/JCZZ';
             $.modal.openTab("查看教材专著详情", url);
         }
         // 专利软著
-        else if (remark == "ZLRZ"){
-            var url = prefixZLRZ + "/detail/" + id +'/ZLRZ';
+        else if (remark == "ZLRZ") {
+            var url = prefixZLRZ + "/detail/" + id + '/ZLRZ';
             $.modal.openTab("查看专利软著详情", url);
         }
         // 奖励
-        else if (remark == "JL"){
-            var url = prefixJL + "/detail/" + id +'/JL';
+        else if (remark == "JL") {
+            var url = prefixJL + "/detail/" + id + '/JL';
             $.modal.openTab("查看奖励详情", url);
         }
         // 讲座报告
-        else if (remark == "JZBG"){
-            var url = prefixJZBG + "/detail/" + id +'/JZBG';
+        else if (remark == "JZBG") {
+            var url = prefixJZBG + "/detail/" + id + '/JZBG';
             $.modal.openTab("查看讲座报告详情", url);
         }
 
@@ -1671,7 +1730,7 @@
 
     // 导出数据
     function exportExcel() {
-        $.modal.confirm("确定导出所有" + table.options.modalName + "吗？", function() {
+        $.modal.confirm("确定导出所有" + table.options.modalName + "吗？", function () {
             // 创建参数对象而不是数组
             var exportParams = {};
             var remark = $("select[name='remark']").val();
@@ -1720,7 +1779,7 @@
             }
 
             $.modal.loading("正在导出数据，请稍候...");
-            $.post(table.options.exportUrl, exportParams, function(result) {
+            $.post(table.options.exportUrl, exportParams, function (result) {
                 if (result.code === web_status.SUCCESS) {
                     window.location.href = ctx + "common/download?fileName=" + encodeURI(result.msg) + "&delete=" + true;
                 } else if (result.code === web_status.WARNING) {
@@ -1729,14 +1788,12 @@
                     $.modal.alertError(result.msg);
                 }
                 $.modal.closeLoading();
-            }).fail(function(jqXHR, textStatus, errorThrown) {
+            }).fail(function (jqXHR, textStatus, errorThrown) {
                 $.modal.alertError("导出请求失败: " + textStatus);
                 $.modal.closeLoading();
             });
         });
     }
-
-
 
 
 </script>

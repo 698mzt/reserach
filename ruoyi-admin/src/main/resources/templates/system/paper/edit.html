@@ -365,7 +365,10 @@
                     $.modal.alertError("第一作者到第四作者不能重复");
                     return false;
                 }
-                
+                if ($("#correspondingAuthorId").val() == null || $("#correspondingAuthorId").val() == ""){
+                    $.modal.alertError("通讯作者不能为空");
+                    return false;
+                }
                 // 校验网址
                 const searchWeb = $("input[name='search_web']").val().trim();
                 if (searchWeb !== "" && !validateUrl(searchWeb)) {
