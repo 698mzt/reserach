@@ -205,7 +205,9 @@
 <!--    教研室的立项申请：有所有的申请-->
     <select id="sel_IntraSchPro_approval_jy" parameterType="SciIntraSchoolPro" resultMap="SciIntraSchoolProResult">
         select
-        'research' role,#{uid} uid,(SELECT dept_name FROM sys_dept WHERE dept_id=(SELECT dept_id from sys_user WHERE user_id=#{uid}))=d.dept_name deptNamekey, s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,
+        'research' role,#{uid} uid,
+        (SELECT dept_name FROM sys_dept WHERE dept_id=(SELECT dept_id from sys_user WHERE user_id=#{uid}))=d.dept_name deptNamekey,
+        s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,
         s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id,
         concat( s.amount,'万') amount, s.contract, s.filing, s.state ,s.PA ,s.PB,
         MAX(CASE WHEN s.first_person_id = sc.userid AND s.id = sc.sciIntraSch_Id THEN sc.earnedJT_Points END) AS firstPoints,
@@ -718,7 +720,9 @@
 
     <select id="sel_IntraSchPro_approval_dept_teacher" parameterType="SciIntraSchoolPro" resultMap="SciIntraSchoolProResult">
         select
-        'dept_teacher' role,#{uid} uid, s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,
+        'dept_teacher' role,#{uid} uid,
+        (SELECT parent_id FROM sys_dept WHERE dept_id =( SELECT dept_id from sys_user WHERE user_id = #{uid}))= p.dept_id deptNamekey ,
+        s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,
         s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id,
         concat( s.amount,'万') amount, s.contract, s.filing, s.state ,s.PA ,s.PB
         from sci_IntraSchPro_apply s left join sys_user u on  s.user_id=u.user_id
@@ -750,7 +754,9 @@
 
     <select id="sel_IntraSchPro_closure_dept_teacher" parameterType="SciIntraSchoolPro" resultMap="SciIntraSchoolProResult">
         select
-        'dept_teacher' role,#{uid} uid, s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,
+        'dept_teacher' role,#{uid} uid,
+        (SELECT parent_id FROM sys_dept WHERE dept_id =( SELECT dept_id from sys_user WHERE user_id = #{uid}))= p.dept_id deptNamekey ,
+        s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,
         s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id,
         concat( s.amount,'万') amount, s.contract, s.filing, s.state ,s.PA ,s.PB,
         MAX(CASE WHEN s.first_person_id = sc.userid AND s.id = sc.sciIntraSch_Id THEN sc.earnedJT_Points END) AS firstPoints,

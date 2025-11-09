@@ -580,7 +580,7 @@
           title: '一作',
           align: 'center',
             formatter:function(value,row,index){
-                if (row.fourthAuthorName==null){
+                if (row.firstAuthorName==null){
                     return "其他";
                 }else{
                     return row.firstAuthorName;
@@ -592,10 +592,10 @@
           title: '二作',
           align: 'center',
             formatter:function(value,row,index){
-                if (row.fourthAuthorName==null){
+                if (row.secondAuthorName==null){
                     return "其他";
                 }else{
-                    return row.firstAuthorName;
+                    return row.secondAuthorName;
                 }
             }
         },
@@ -604,10 +604,10 @@
           title: '三作',
           align: 'center',
             formatter:function(value,row,index){
-                if (row.fourthAuthorName==null){
+                if (row.thirdAuthorName==null){
                     return "其他";
                 }else{
-                    return row.firstAuthorName;
+                    return row.thirdAuthorName;
                 }
             }
         },
@@ -619,7 +619,7 @@
                 if (row.fourthAuthorName==null){
                     return "其他";
                 }else{
-                    return row.firstAuthorName;
+                    return row.fourthAuthorName;
                 }
             }
         },
@@ -766,12 +766,15 @@
             if (row.state == 1) { // 待处理
 
             } else if (row.state == 2) { // 教研室通过
-              actions.push('<a class="link-button' + '" href="#" onclick="$.operate.detailTab(\'' + row.id + '/xytg\')"><i class=""></i>学院核查</a>');
-
+                if (row.deptNamekey === '1') { //是自己学院的
+                    actions.push('<a class="link-button' + '" href="#" onclick="$.operate.detailTab(\'' + row.id + '/xytg\')"><i class=""></i>学院核查</a>');
+                }
             } else if (((row.state == 3 ||row.state == 7||row.state == 5))&& (row.uid == row.userId) ) { //退回
               actions.push('<a class="link-button' + '" href="#" onclick="$.operate.editTab(\'' + row.id + '\')"><i class=""></i>编辑</a><br>');
             } else if (row.state == 4) { // 学院通过
-              actions.push('<a  class="del-link-button' + '" href="#" onclick="$.operate.detailTab(\'' + row.id + '/xyth\')"><i class=""></i>撤回</a><br>');
+                if (row.deptNamekey === '1') { //是自己学院的
+                    actions.push('<a  class="del-link-button' + '" href="#" onclick="$.operate.detailTab(\'' + row.id + '/xyth\')"><i class=""></i>撤回</a><br>');
+                }
               // }  else if (row.state == 6) { // 科研处通过
               //     actions.push('<a class="' + editInfo + '" href="#" onclick="$.operate.detailTab(\'' + row.id + '/chakan\')"><i class=""></i>查看</a>');
               //     if (row.userId == row.uid) {

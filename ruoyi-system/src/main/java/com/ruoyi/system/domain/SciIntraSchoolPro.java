@@ -114,7 +114,7 @@ public class SciIntraSchoolPro extends BaseEntity {
     //角色
     private String role;
 
-    //判定登陆人的dept是否和当前课题负责人的dept是否相等
+    //判定登陆人的 专业/学院 是否和当前课题负责人的 专业/学院  是否相等
     private String deptNamekey;
 
     //结项合同
