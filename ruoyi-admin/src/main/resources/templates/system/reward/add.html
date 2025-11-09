@@ -14,7 +14,7 @@
                         <label class="col-sm-4 control-label is-required">申请人：</label>
                         <div class="col-sm-8">
                             <div th:each="user : ${sysUsers}" th:if="${user.flag}">
-                                <input  class="form-control" type="text" th:value="${user.userName}" >
+                                <input  class="form-control" type="text" th:value="${user.userName}" readonly>
                                 <input name="userId" class="form-control" type="hidden" th:value="${user.userId}">
                             </div>
                         </div>
