@@ -1,64 +1,87 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
-PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.system.mapper.SciLectureReportMapper">
-    
+
     <resultMap type="SciLectureReport" id="SciLectureReportResult">
-        <result property="id"    column="id"    />
+        <result property="id" column="id"/>
         <result property="userId" column="user_id"/>
-        <result property="xueyuan"    column="dept_name"    />
-        <result property="keyanshi"    column="dname"    />
-        <result property="jobId"    column="login_name"    />
-        <result property="teacherName"    column="userName"    />
-        <result property="reportTime"    column="report_time"    />
-        <result property="reportEndTime"    column="report_end_time"    />
-        <result property="reportTheme"    column="report_theme"    />
-        <result property="hostUnit"    column="host_unit"    />
-        <result property="reportPlace"    column="report_place"    />
-        <result property="reportNumber"    column="report_number"    />
-        <result property="reportSubject"    column="report_subject"    />
-        <result property="reportDuration"    column="report_duration"    />
-        <result property="reportClassify"    column="report_classify"    />
-        <result property="reportKeyanfen"    column="report_keyanfen"    />
-        <result property="reportUrl"    column="report_url"    />
-<!--        <result property="actualTime"    column="actual_time"    />-->
-        <result property="state"    column="state"    />
-        <result property="repIntId"    column="rep_int_id"    />
+        <result property="xueyuan" column="dept_name"/>
+        <result property="keyanshi" column="dname"/>
+        <result property="jobId" column="login_name"/>
+        <result property="teacherName" column="userName"/>
+        <result property="reportTime" column="report_time"/>
+        <result property="reportEndTime" column="report_end_time"/>
+        <result property="reportTheme" column="report_theme"/>
+        <result property="hostUnit" column="host_unit"/>
+        <result property="reportPlace" column="report_place"/>
+        <result property="reportNumber" column="report_number"/>
+        <result property="reportSubject" column="report_subject"/>
+        <result property="reportDuration" column="report_duration"/>
+        <result property="reportClassify" column="report_classify"/>
+        <result property="reportKeyanfen" column="report_keyanfen"/>
+        <result property="reportUrl" column="report_url"/>
+        <!--        <result property="actualTime"    column="actual_time"    />-->
+        <result property="state" column="state"/>
+        <result property="repIntId" column="rep_int_id"/>
     </resultMap>
 
     <sql id="selectSciLectureReportVo">
-        select #{uid} uid,id,u.user_name userName,u.login_name,d.dept_name dname,u.user_id,p.dept_name, s.report_time, s.report_end_time, s.report_theme, s.host_unit, s.report_place, s.report_number, s.report_subject, s.report_duration, i.classification report_classify,s.state,s.createtime,s.report_url,s.report_keyanfen,i.rep_int_id
-        from sci_lecture_report s left join sys_user u on  s.user_id=u.user_id
-                                  left join sys_dept d on u.dept_id = d.dept_id
-                                  left join sys_dept p on d.parent_id =p.dept_id
-                                  left join sci_lecture_report_integral i on i.rep_int_id = s.report_classify
+        select #{uid}           uid,
+               id,
+               u.user_name      userName,
+               u.login_name,
+               d.dept_name      dname,
+               u.user_id,
+               p.dept_name,
+               s.report_time,
+               s.report_end_time,
+               s.report_theme,
+               s.host_unit,
+               s.report_place,
+               s.report_number,
+               s.report_subject,
+               s.report_duration,
+               i.classification report_classify,
+               s.state,
+               s.createtime,
+               s.report_url,
+               s.report_keyanfen,
+               i.rep_int_id
+        from sci_lecture_report s
+                 left join sys_user u on s.user_id = u.user_id
+                 left join sys_dept d on u.dept_id = d.dept_id
+                 left join sys_dept p on d.parent_id = p.dept_id
+                 left join sci_lecture_report_integral i on i.rep_int_id = s.report_classify
     </sql>
 
-<!--    讲座报告首页项目申请数据查询       原始SQL -->
-<!--    <select id="selectSciLectureReportList" parameterType="SciLectureReport" resultMap="SciLectureReportResult">-->
-<!--        <include refid="selectSciLectureReportVo"/>-->
-<!--        where state in <foreach item="item" collection="statelist" open="(" separator="," close=")">#{item}</foreach>-->
-<!--            <if test="reportTheme != null  and reportTheme != ''"> and report_theme like concat('%', #{reportTheme}, '%')</if>-->
-<!--            <if test="hostUnit != null  and hostUnit != ''"> and host_unit like concat('%', #{hostUnit}, '%')</if>-->
-<!--            <if test="reportPlace != null  and reportPlace != ''"> and report_place like concat('%', #{reportPlace}, '%')</if>-->
-<!--            <if test="userId != null and userId != ''">and user_id = #{userId}</if>-->
-<!--            <if test="year != null  and year != ''"> and YEAR(report_time) = #{year}</if>-->
-<!--        &lt;!&ndash; 数据范围过滤 &ndash;&gt;-->
-<!--        ${params.dataScope}-->
-<!--        order  by createtime desc-->
-<!--    </select>-->
+    <!--    讲座报告首页项目申请数据查询       原始SQL -->
+    <!--    <select id="selectSciLectureReportList" parameterType="SciLectureReport" resultMap="SciLectureReportResult">-->
+    <!--        <include refid="selectSciLectureReportVo"/>-->
+    <!--        where state in <foreach item="item" collection="statelist" open="(" separator="," close=")">#{item}</foreach>-->
+    <!--            <if test="reportTheme != null  and reportTheme != ''"> and report_theme like concat('%', #{reportTheme}, '%')</if>-->
+    <!--            <if test="hostUnit != null  and hostUnit != ''"> and host_unit like concat('%', #{hostUnit}, '%')</if>-->
+    <!--            <if test="reportPlace != null  and reportPlace != ''"> and report_place like concat('%', #{reportPlace}, '%')</if>-->
+    <!--            <if test="userId != null and userId != ''">and user_id = #{userId}</if>-->
+    <!--            <if test="year != null  and year != ''"> and YEAR(report_time) = #{year}</if>-->
+    <!--        &lt;!&ndash; 数据范围过滤 &ndash;&gt;-->
+    <!--        ${params.dataScope}-->
+    <!--        order  by createtime desc-->
+    <!--    </select>-->
 
     <!--    讲座报告首页项目申请数据查询-->
     <select id="selectSciLectureReportList" parameterType="SciLectureReport" resultMap="SciLectureReportResult">
         <include refid="selectSciLectureReportVo"/>
-        where state in <foreach item="item" collection="statelist" open="(" separator="," close=")">#{item}</foreach>
-        <if test="reportTheme != null  and reportTheme != ''"> and report_theme like concat('%', #{reportTheme}, '%')</if>
-        <if test="keyanshi != null  and keyanshi != ''"> and d.dept_name like concat('%', #{keyanshi}, '%')</if>
-        <if test="teacherName != null  and teacherName != ''"> and u.user_name like concat('%', #{teacherName}, '%')</if>
+        where state in
+        <foreach item="item" collection="statelist" open="(" separator="," close=")">#{item}</foreach>
+        <if test="reportTheme != null  and reportTheme != ''">and report_theme like concat('%', #{reportTheme}, '%')
+        </if>
+        <if test="keyanshi != null  and keyanshi != ''">and d.dept_name like concat('%', #{keyanshi}, '%')</if>
+        <if test="teacherName != null  and teacherName != ''">and u.user_name like concat('%', #{teacherName}, '%')</if>
         <if test="userId != null and userId != ''">and user_id = #{userId}</if>
-        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(report_time,INTERVAL 1 MONTH)) = #{year}</if>
-    ${params.dataScope}
+        <if test="year != null  and year != ''">and YEAR(DATE_ADD(report_time,INTERVAL 1 MONTH)) = #{year}</if>
+        ${params.dataScope}
         <!-- 没有搜索条件时执行 -->
         <if test="uid != null and uid != '' and year != null  and year != ''
           and (reportTheme == null or reportTheme == '')
@@ -72,68 +95,71 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
           or keyanshi != null and keyanshi != ''
           or teacherName != null and teacherName != '')">
             or (
-                s.user_id = #{uid} and YEAR(DATE_ADD(report_time,INTERVAL 1 MONTH)) = #{year}
-                <if test="reportTheme != null and reportTheme != ''">
-                    and report_theme like concat('%', #{reportTheme}, '%')
-                </if>
-                <if test="keyanshi != null and keyanshi != ''">
-                    and d.dept_name like concat('%', #{keyanshi}, '%')
-                </if>
-                <if test="teacherName != null and teacherName != ''">
-                    and u.user_name like concat('%', #{teacherName}, '%')
-                </if>
+            s.user_id = #{uid} and YEAR(DATE_ADD(report_time,INTERVAL 1 MONTH)) = #{year}
+            <if test="reportTheme != null and reportTheme != ''">
+                and report_theme like concat('%', #{reportTheme}, '%')
+            </if>
+            <if test="keyanshi != null and keyanshi != ''">
+                and d.dept_name like concat('%', #{keyanshi}, '%')
+            </if>
+            <if test="teacherName != null and teacherName != ''">
+                and u.user_name like concat('%', #{teacherName}, '%')
+            </if>
             )
         </if>
-    order  by
+        order by
         CASE
-                <if test="uid != null and uid != ''">
-                    WHEN s.user_id = #{uid} AND state IN (3, 5, 7) THEN 0
-                    ELSE 1
-                </if>
-                <if test="uid == null or uid == ''">
-                    WHEN 1=1 THEN 1
-                </if>
+        <if test="uid != null and uid != ''">
+            WHEN s.user_id = #{uid} AND state IN (3, 5, 7) THEN 0
+            ELSE 1
+        </if>
+        <if test="uid == null or uid == ''">
+            WHEN 1=1 THEN 1
+        </if>
         END,
         CASE
-            WHEN state = 1 THEN 2
-            WHEN state = 6 THEN 3
-            WHEN state = 2 THEN 4
+        WHEN state = 1 THEN 2
+        WHEN state = 6 THEN 3
+        WHEN state = 2 THEN 4
 
-            WHEN state = 5 THEN 5
-            WHEN state = 7 THEN 6
-            WHEN state = 3 THEN 7
+        WHEN state = 5 THEN 5
+        WHEN state = 7 THEN 6
+        WHEN state = 3 THEN 7
 
-            WHEN state = 4 THEN 8
+        WHEN state = 4 THEN 8
         END,
         createtime desc
     </select>
 
-<!--    <select id="selectSciLectureReportListBy" parameterType="SciLectureReport" resultMap="SciLectureReportResult">-->
-<!--        select * from (-->
-<!--        <include refid="selectSciLectureReportVo"/>-->
-<!--        where state in <foreach item="item" collection="statelist" open="(" separator="," close=")">#{item}</foreach>-->
-<!--        <if test="reportTheme != null  and reportTheme != ''"> and report_theme like concat('%', #{reportTheme}, '%')</if>-->
-<!--        <if test="hostUnit != null  and hostUnit != ''"> and host_unit like concat('%', #{hostUnit}, '%')</if>-->
-<!--        <if test="reportPlace != null  and reportPlace != ''"> and report_place like concat('%', #{reportPlace}, '%')</if>-->
-<!--        <if test="userId != null and userId != ''">and user_id = #{userId}</if>-->
-<!--        <if test="year != null  and year != ''"> and YEAR(report_time) = #{year}</if>) report-->
+    <!--    <select id="selectSciLectureReportListBy" parameterType="SciLectureReport" resultMap="SciLectureReportResult">-->
+    <!--        select * from (-->
+    <!--        <include refid="selectSciLectureReportVo"/>-->
+    <!--        where state in <foreach item="item" collection="statelist" open="(" separator="," close=")">#{item}</foreach>-->
+    <!--        <if test="reportTheme != null  and reportTheme != ''"> and report_theme like concat('%', #{reportTheme}, '%')</if>-->
+    <!--        <if test="hostUnit != null  and hostUnit != ''"> and host_unit like concat('%', #{hostUnit}, '%')</if>-->
+    <!--        <if test="reportPlace != null  and reportPlace != ''"> and report_place like concat('%', #{reportPlace}, '%')</if>-->
+    <!--        <if test="userId != null and userId != ''">and user_id = #{userId}</if>-->
+    <!--        <if test="year != null  and year != ''"> and YEAR(report_time) = #{year}</if>) report-->
 
-<!--        <where>-->
-<!--        <if test="state != null and state !='' and uid != null and uid != ''">-->
-<!--            and (-->
-<!--            state != #{state}-->
-<!--            or (state = #{state}and user_id != #{uid})-->
-<!--            )</if>-->
-<!--        </where>-->
-<!--        &lt;!&ndash; 数据范围过滤 &ndash;&gt;-->
-<!--        ${params.dataScope}-->
-<!--        order  by createtime desc-->
-<!--    </select>-->
+    <!--        <where>-->
+    <!--        <if test="state != null and state !='' and uid != null and uid != ''">-->
+    <!--            and (-->
+    <!--            state != #{state}-->
+    <!--            or (state = #{state}and user_id != #{uid})-->
+    <!--            )</if>-->
+    <!--        </where>-->
+    <!--        &lt;!&ndash; 数据范围过滤 &ndash;&gt;-->
+    <!--        ${params.dataScope}-->
+    <!--        order  by createtime desc-->
+    <!--    </select>-->
 
-<!--    根据用户选择性导出数据-->
+    <!--    根据用户选择性导出数据-->
     <select id="selectSciLectureReportListByIds" parameterType="String" resultMap="SciLectureReportResult">
-        select id,u.user_name userName,u.login_name,d.dept_name dname,u.user_id,p.dept_name, s.report_time, s.report_end_time, s.report_theme, s.host_unit, s.report_place, s.report_number, s.report_subject, s.report_duration, i.classification report_classify,s.state,s.createtime,s.report_url,s.report_keyanfen,i.rep_int_id
-        from sci_lecture_report s left join sys_user u on  s.user_id=u.user_id
+        select id,u.user_name userName,u.login_name,d.dept_name dname,u.user_id,p.dept_name, s.report_time,
+        s.report_end_time, s.report_theme, s.host_unit, s.report_place, s.report_number, s.report_subject,
+        s.report_duration, i.classification
+        report_classify,s.state,s.createtime,s.report_url,s.report_keyanfen,i.rep_int_id
+        from sci_lecture_report s left join sys_user u on s.user_id=u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
         left join sci_lecture_report_integral i on i.rep_int_id = s.report_classify
@@ -143,13 +169,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </where>
     </select>
 
-<!--    讲座报告数据  修改查询语句-->
+    <!--    讲座报告数据  修改查询语句-->
     <select id="selectSciLectureReportById" parameterType="Integer" resultMap="SciLectureReportResult">
         <include refid="selectSciLectureReportVo"/>
         where id = #{id}
     </select>
 
-<!--    新增一条数据（讲座报告）-->
+    <!--    新增一条数据（讲座报告）-->
     <insert id="insertSciLectureReport" parameterType="SciLectureReport" useGeneratedKeys="true" keyProperty="id">
         insert into sci_lecture_report
         <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -166,7 +192,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="reportClassify != null">report_classify,</if>
             <if test="reportKeyanfen != null">report_keyanfen,</if>
             <if test="reportUrl != null">report_url,</if>
-         </trim>
+        </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="userId != null">#{userId},</if>
 
@@ -181,7 +207,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="reportClassify != null">#{reportClassify},</if>
             <if test="reportKeyanfen != null">#{reportKeyanfen},</if>
             <if test="reportUrl != null">#{reportUrl},</if>
-         </trim>
+        </trim>
     </insert>
 
     <select id="checkConflict" parameterType="SciLectureReport" resultType="Integer">
@@ -204,7 +230,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </if>
     </select>
 
-<!--    修改保存讲座报告的语句-->
+    <!--    修改保存讲座报告的语句-->
     <update id="updateSciLectureReport" parameterType="SciLectureReport">
         update sci_lecture_report
         <trim prefix="SET" suffixOverrides=",">
@@ -224,7 +250,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where id = #{id}
     </update>
 
-<!--    结项申请的保存-->
+    <!--    结项申请的保存-->
     <update id="SciLectureReportOverAdd" parameterType="SciLectureReport">
         update sci_lecture_report
         <trim prefix="SET" suffixOverrides=",">
@@ -253,81 +279,91 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where id = #{id}
     </update>
 
-<!--    删除一条数据-->
+    <!--    删除一条数据-->
     <delete id="deleteSciLectureReportById" parameterType="Integer">
-        delete from sci_lecture_report_opinion where id in (select id from sci_lecture_report_opinion where baogao_id = #{id})
-        delete from sci_lecture_report where id = #{id}
+        delete
+        from sci_lecture_report_opinion
+        where id in (select id from sci_lecture_report_opinion where baogao_id = #{id})
+        delete
+        from sci_lecture_report
+        where id = #{id}
     </delete>
 
-<!--    批量删除数据-->
+    <!--    批量删除数据-->
     <delete id="deleteSciLectureReportByIds" parameterType="String">
-        delete from sci_lecture_report where id in 
+        delete from sci_lecture_report where id in
         <foreach item="id" collection="array" open="(" separator="," close=")">
             #{id}
         </foreach>
     </delete>
 
-<!--    删除传入报告id对应的批阅记录
+    <!--    删除传入报告id对应的批阅记录
 
-sql示例：
-DELETE FROM sci_lecture_report_opinion
-WHERE id IN (
-    SELECT temp.id FROM (
-        SELECT id FROM sci_lecture_report_opinion
-        WHERE baogao_id IN (#{id1}, #{id2}, #{id3}, ...)
-    ) AS temp
-);
--->
+    sql示例：
+    DELETE FROM sci_lecture_report_opinion
+    WHERE id IN (
+        SELECT temp.id FROM (
+            SELECT id FROM sci_lecture_report_opinion
+            WHERE baogao_id IN (#{id1}, #{id2}, #{id3}, ...)
+        ) AS temp
+    );
+    -->
     <delete id="deleteSciLectureReportOpinionBy" parameterType="String">
         delete from sci_lecture_report_opinion where id in (
-            select temp.id from (
-                select id from sci_lecture_report_opinion where baogao_id in
-                <foreach item="id" collection="array" open="(" separator="," close=")">
-                    #{id}
-                </foreach>
-            ) as temp
+        select temp.id from (
+        select id from sci_lecture_report_opinion where baogao_id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        ) as temp
         )
     </delete>
     <select id="getStatsQuery" parameterType="map" resultMap="SciLectureReportResult">
-    <include refid="selectSciLectureReportVo"/>
-    where 1=1
-    <if test="startTime != null and startTime != ''">
-        and s.createtime >= #{startTime}
-    </if>
-    <if test="endTime != null and endTime != ''">
-        and s.createtime &lt;= #{endTime}
-    </if>
-    <if test="college != null and college != '' and college!='null' ">
-        AND p.dept_id = #{college}
-    </if>
-    <if test="major != null and major != '' and major!='null'">
-        AND d.dept_id = #{major}
-    </if>
-    <if test="jobTitle != null and jobTitle != '' and jobTitle != 'null'">
-        AND u.tea_zhicheng = #{jobTitle}
-    </if>
-    <if test="xingming != null and xingming != '' and xingming != 'null'">
-        and u.user_name like concat('%', #{xingming}, '%')
-    </if>
-    <if test="topicName != null and topicName != ''">
-        and s.report_subject like concat('%', #{topicName}, '%')
-    </if>
-    <if test="fenlei != null and fenlei != ''">
-        and s.fenlei = #{fenlei}
-    </if>
-    <if test="leixing != null and leixing != ''">
-        and s.leixing = #{leixing}
-    </if>
-    <if test='state != null and state != "" and state!="null" and state =="1" '>
-        AND s.state in (3,5,7,0)
-    </if>
-    <if test='state != null and state != "" and state!="null" and state =="2"'>
-        AND s.state in (1,2,6)
-    </if>
-    <if test='state != null and state != "" and state!="null" and state =="3"'>
-        AND s.state in (4)
-    </if>
-    order by s.createtime desc
-</select>
+        <include refid="selectSciLectureReportVo"/>
+        where 1=1
+        <if test="userId != null and userId != ''">
+            and  u.user_id = #{userId}
+        </if>
+        <if test="startTime != null and startTime != ''">
+            and s.createtime >= #{startTime}
+        </if>
+        <if test="endTime != null and endTime != ''">
+            and s.createtime &lt;= #{endTime}
+        </if>
+        <if test="Pcollege != null and Pcollege != '' and Pcollege!='null' ">
+            AND d.parent_id = #{Pcollege}
+        </if>
+        <if test="college != null and college != '' and college!='null' ">
+            AND p.dept_id = #{college}
+        </if>
+        <if test="major != null and major != '' and major!='null'">
+            AND d.dept_id = #{major}
+        </if>
+        <if test="jobTitle != null and jobTitle != '' and jobTitle != 'null'">
+            AND u.tea_zhicheng = #{jobTitle}
+        </if>
+        <if test="xingming != null and xingming != '' and xingming != 'null'">
+            and u.user_name like concat('%', #{xingming}, '%')
+        </if>
+        <if test="topicName != null and topicName != ''">
+            and s.report_subject like concat('%', #{topicName}, '%')
+        </if>
+        <if test="fenlei != null and fenlei != ''">
+            and s.fenlei = #{fenlei}
+        </if>
+        <if test="leixing != null and leixing != ''">
+            and s.leixing = #{leixing}
+        </if>
+        <if test='state != null and state != "" and state!="null" and state =="1" '>
+            AND s.state in (3,5,7,0)
+        </if>
+        <if test='state != null and state != "" and state!="null" and state =="2"'>
+            AND s.state in (1,2,6)
+        </if>
+        <if test='state != null and state != "" and state!="null" and state =="3"'>
+            AND s.state in (4)
+        </if>
+        order by s.createtime desc
+    </select>
 
 </mapper>

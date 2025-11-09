@@ -117,11 +117,11 @@
 
         <div class="col-xs-6">
             <div class="form-group">
-                <label class="col-sm-4 control-label is-required">第二负责人：</label>
+                <label class="col-sm-4 control-label">第二负责人：</label>
                 <div class="col-sm-8">
 
                     <select name="secondPersonId" class="form-control m-b" id="secondPersonId">
-                        <option value="">---请选择--</option>
+                        <option value="" selected>---其他--</option>
                         <!--                        <option th:each="user : ${sysUsers} " th:text="${user.userName}" th:value="${user.userId}"></option>-->
                         <option th:each="user : ${sysUsers}"
                                 th:text="${user.userName}"
@@ -135,10 +135,10 @@
 
         <div class="col-xs-6">
             <div class="form-group">
-                <label class="col-sm-4 control-label is-required">第三负责人：</label>
+                <label class="col-sm-4 control-label ">第三负责人：</label>
                 <div class="col-sm-8">
                     <select name="thirdPersonId" class="form-control m-b" id="thirdPersonId">
-                        <option value="">---请选择--</option>
+                        <option value="" selected>---其他--</option>
                         <!--                        <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}"></option>-->
                         <option th:each="user : ${sysUsers}"
                                 th:text="${user.userName}"
@@ -151,10 +151,10 @@
 
         <div class="col-xs-6">
             <div class="form-group">
-                <label class="col-sm-4 control-label is-required">第四负责人：</label>
+                <label class="col-sm-4 control-label ">第四负责人：</label>
                 <div class="col-sm-8">
                     <select name="fourthPersonId" class="form-control m-b" id="fourthPersonId">
-                        <option value="">--请选择--</option>
+                        <option value="" selected>--其他--</option>
                         <!--                        <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}"></option>-->
                         <option th:each="user : ${sysUsers}"
                                 th:text="${user.userName}"
@@ -422,7 +422,7 @@
     $(document).ready(function () {
         // 初始化Select2下拉框
         $('#secondPersonId, #thirdPersonId, #fourthPersonId').select2({
-            placeholder: '请选择',
+            placeholder: '其他',
             allowClear: true,
             width: '100%'
         });

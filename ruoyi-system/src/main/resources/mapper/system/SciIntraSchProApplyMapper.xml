@@ -891,6 +891,9 @@
         LEFT JOIN sys_dept p ON d.parent_id = p.dept_id
         LEFT JOIN sci_IntraSchPro_score sc ON sc.sciIntraSch_Id = s.id
         <where>
+            <if test="userId != null and userId != ''">
+                and  s.first_person_id = #{userId}
+            </if>
             <if test='state != null and state != "" and state!="null" and state =="1" '>
                 AND s.state in (3,5,9,10,22,44,99)
             </if>
@@ -899,6 +902,9 @@
             </if>
             <if test='state != null and state != "" and state!="null" and state =="3"'>
                 AND s.state in (6)
+            </if>
+            <if test="Pcollege != null and Pcollege != '' and Pcollege!='null' ">
+                AND d.parent_id = #{Pcollege}
             </if>
             <if test="startTime != null and startTime != ''">
                 AND DATE(s.signing_data) >= #{startTime}

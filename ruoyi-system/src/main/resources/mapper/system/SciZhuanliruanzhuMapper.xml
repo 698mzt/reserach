@@ -255,11 +255,17 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="getStatsQuery" parameterType="map" resultMap="SciZhuanliruanzhuResult">
         <include refid="selectSciZhuanliruanzhuVo"/>
         where 1=1
+        <if test="userId != null and userId != ''">
+            and s.user_id = #{userId}
+        </if>
         <if test="startTime != null and startTime != ''">
             and s.createtime >= #{startTime}
         </if>
         <if test="endTime != null and endTime != ''">
             and s.createtime &lt;= #{endTime}
+        </if>
+        <if test="Pcollege != null and Pcollege != '' and Pcollege!='null' ">
+            AND d.parent_id = #{Pcollege}
         </if>
         <if test="college != null and college != '' and college!='null' ">
             AND p.dept_id = #{college}

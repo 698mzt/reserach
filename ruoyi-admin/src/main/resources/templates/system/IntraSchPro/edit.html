@@ -131,6 +131,8 @@
                     <div class="col-sm-8">
                         <!--                        <input name="secondPersonTask" th:field="*{secondPersonTask}" class="form-control" type="text" required>-->
                         <select name="secondPersonId" class="form-control m-b">
+                            <option value="">--其他--</option>
+
                             <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}"
                                     th:selected="${ #strings.toString(user.userId) == sciIntraSchoolPro.secondPersonId}"></option>
                         </select>
@@ -144,6 +146,7 @@
                     <div class="col-sm-8">
                         <!--                        <input name="thirdPersonId" th:field="*{thirdPersonId}" class="form-control" type="text" required>-->
                         <select name="thirdPersonId" class="form-control m-b">
+                            <option value="">--其他--</option>
                             <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}"
                                     th:selected="${ #strings.toString(user.userId) == sciIntraSchoolPro.thirdPersonId}"></option>
                         </select>
@@ -157,6 +160,7 @@
                     <div class="col-sm-8">
                         <!--                        <input name="fourthPersonId" th:field="*{fourthPersonId}" class="form-control" type="text" required>-->
                         <select name="fourthPersonId" class="form-control m-b">
+                            <option value="">其他</option>
                             <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}"
                                     th:selected="${ #strings.toString(user.userId) == sciIntraSchoolPro.fourthPersonId}"></option>
                         </select>
