@@ -189,10 +189,90 @@
     </select>
   <!--待学院审核，完成-->
     <select id="selectSciPaperAListXY" parameterType="SciPaperA" resultMap="SciPaperAResult">
-        <include refid="selectSciPaperAVo"/>
+        select
+        #{uid} uid,
+        (SELECT parent_id FROM sys_dept WHERE dept_id =( SELECT dept_id from sys_user WHERE user_id = #{uid}))= pt.dept_id deptNamekey ,
+        p.id ,
+        pac.createtime as createtime,
+        u.login_name employee_id,
+        p.text_paper,
+        p.word_paper,
+        p.search_web,
+        pt.dept_name research_room,
+        p.user_id,
+        d.dept_name dname,
+        pt.dept_name college,
+        p.teacher_name teacher_name,
+        u.tea_zhicheng on_campus_title,
+        p.paper_title ,
+        p.paper_type,
+        p.paper_category,
+        p.published_journal,
+        p.publication_time,
+        p.is_industry_collaborative,
+        p.is_local_collaborative,
+        p.is_international_collaborative,
+        p.is_cross_discipline,
+        p.paper_ranking,
+        p.research_score,
+        p.remarks,
+        p.state,
+        pa1.user_name as first_author_name,
+        pa1.user_id as first_author_id,
+        pa1.score as first_author_score,
+        pa2.user_name as second_author_name,
+        pa2.user_id as second_author_id,
+        pa2.score as second_author_score,
+        pa3.user_name as third_author_name,
+        pa3.user_id as third_author_id,
+        pa3.score as third_author_score,
+        pa4.user_name as fourth_author_name,
+        pa4.user_id as fourth_author_id,
+        pa4.score as fourth_author_score,
+        pac.user_name as corresponding_author_name,
+        pac.user_id as corresponding_author_id,
+        pac.score as corresponding_author_score
+        from
+        sci_paper_a p
+        left join sys_user u on
+        p.user_id = u.user_id
+        left join sys_dept d on
+        u.dept_id = d.dept_id
+        left join sys_dept pt on
+        d.parent_id = pt.dept_id
+        left join (
+        select pa.paper_id, su.user_name ,su.user_id ,pa.score
+        from paper_author pa
+        left join sys_user su on pa.user_id = su.user_id
+        where pa.author_order = '1'
+        ) pa1 on p.id = pa1.paper_id
+        left join (
+        select pa.paper_id, su.user_name ,su.user_id ,pa.score
+        from paper_author pa
+        left join sys_user su on pa.user_id = su.user_id
+        where pa.author_order = '2'
+        ) pa2 on p.id = pa2.paper_id
+        left join (
+        select pa.paper_id, su.user_name ,su.user_id,pa.score
+        from paper_author pa
+        left join sys_user su on pa.user_id = su.user_id
+        where pa.author_order = '3'
+        ) pa3 on p.id = pa3.paper_id
+        left join (
+        select pa.paper_id, su.user_name ,su.user_id,pa.score
+        from paper_author pa
+        left join sys_user su on pa.user_id = su.user_id
+        where pa.author_order = '4'
+        ) pa4 on p.id = pa4.paper_id
+        left join (
+        select pa.paper_id, su.user_name ,su.user_id,pa.score ,pa.create_time as createtime
+        from paper_author pa
+        left join sys_user su on pa.user_id = su.user_id
+        where pa.author_level = '0'
+        ) pac on p.id = pac.paper_id
         <where>
-            p.state in (2,4,8) or ((pa1.user_id = #{uid} or  pa2.user_id = #{uid}) or pa3.user_id = #{uid}  or pa4.user_id = #{uid} or pac.user_id = #{uid} or pac.user_id = #{uid})
-            ${params.dataScope}
+            p.state in (2, 4, 8) and pt.dept_id = #{collegeId}
+            or (pa1.user_id = #{uid} or  pa2.user_id = #{uid} or pa3.user_id = #{uid}  or pa4.user_id = #{uid} or pac.user_id = #{uid})
             <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
             <if test="teacherName != null  and teacherName != ''"> and teacher_name like concat('%', #{teacherName}, '%')</if>
             <if test="college != null  and college != ''"> and pt.dept_name like concat('%', #{college}, '%')</if>
@@ -216,6 +296,7 @@
 
     <select id="selectSciPaperAListCxList" parameterType="SciPaperA" resultMap="SciPaperAResult">
         select  #{uid} uid,p.id,ptt.dept_name as college,
+        (SELECT dept_name FROM sys_dept WHERE dept_id=(SELECT dept_id from sys_user WHERE user_id=#{uid}))=pt.dept_name deptNamekey,
         p.text_paper,p.word_paper,p.search_web,p.user_id,
         p.teacher_name,
         p.paper_title, p.paper_category, p.published_journal,p.publication_time, p.is_industry_collaborative,

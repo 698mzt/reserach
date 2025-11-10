@@ -162,6 +162,9 @@ public class SciPaperAController extends BaseController {
         }
         //学院+普通老师身份
         else if ((roleId.contains("103") || roleId.contains("104") || roleId.contains("105") || roleId.contains("106") || roleId.contains("107") || roleId.contains("108")) && roleId.contains("100")) {
+            //学院身份
+            SysUser user = getSysUser();
+            sciPaperA.setCollegeId(String.valueOf(user.getParentId()));
             list.addAll(sciPaperAService.selectSciPaperAListXY(sciPaperA));
             System.out.println("list = " + list);
         } else if (roleId.contains("100") && roleId.size() == 1) {
@@ -180,7 +183,6 @@ public class SciPaperAController extends BaseController {
 
         return getDataTable(list);
     }
-
     /**
      * 导出论文列表
      */
