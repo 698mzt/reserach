@@ -192,8 +192,10 @@
                 }
             }
             // 限制最大值
-            if (numericValue > 999999999) {
-                $(this).val("000000000");
+            var valueStr = numericValue.toString();
+            if (valueStr.length > 9){
+                this.value = "";
+                $.modal.alertError("输入金额有误差：总长度最大9位数，小数点后最大四位；例：9999.9999")
             }
         }
     });
