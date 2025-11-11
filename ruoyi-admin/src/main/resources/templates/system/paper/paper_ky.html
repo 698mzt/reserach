@@ -570,11 +570,11 @@
           title: '专业',
           visible: false
         },
-        {
-          field: 'teacherName',
-          title: '录入教师',
-          align: 'center',
-        },
+        // {
+        //   field: 'teacherName',
+        //   title: '录入教师',
+        //   align: 'center',
+        // },
         {
           field: 'firstAuthorName',
           title: '一作',
@@ -627,6 +627,13 @@
           field: 'correspondingAuthorName',
           title: '通讯作者',
           align: 'center',
+            formatter:function(value,row,index){
+                if (row.correspondingAuthorName==null){
+                    return "其他";
+                }else{
+                    return row.correspondingAuthorName;
+                }
+            }
         },
 
         {

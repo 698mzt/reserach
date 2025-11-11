@@ -255,7 +255,7 @@ public class SciPaperAController extends BaseController {
                 }else if (i == -2) {
                     throw new RuntimeException("作者数量错误");
                 } else if (i==-3) {
-                    throw new RuntimeException("此类论文的一作和通讯作者必须为自己");
+                    throw new RuntimeException("此类论文的一作必须为自己");
                 } else if (i==-4) {
                     throw new RuntimeException("未找到论文类型");
                 }else if (i==-5){
@@ -304,16 +304,18 @@ public class SciPaperAController extends BaseController {
         if (sciPaperA.getFourthPersonId() != null && !sciPaperA.getFourthPersonId().isEmpty()) {
             countAuthors.add(sciPaperA.getFourthPersonId());
         }
-
+        // 获取论文类型
         if (sciPaperA.getPaperCategory()!=null){
             if (sciPaperA.getPaperCategory().equals("11") || sciPaperA.getPaperCategory().equals("12") || sciPaperA.getPaperCategory().equals("10")){
 //                if (key!=2){
 //                    return -2;
 //                }
             } else if (sciPaperA.getPaperCategory().equals("8") || sciPaperA.getPaperCategory().equals("9")) {
+                // 普通和校办论文 只有一个人
                 if (key!=1){
                     return -2;
                 }
+                // 如果普通和校办论文的这个人不是自己
                 if (!sciPaperA.getCommunicationAuthorId().equals(String.valueOf(getUserId())) || !sciPaperA.getFirstPersonId().equals(String.valueOf(getUserId()))){
                     return -3 ;
                 }
@@ -495,7 +497,7 @@ public class SciPaperAController extends BaseController {
     }
 
     /**
-     * 修改保存论文
+     * 修改保存论文 编辑
      */
     @RequiresPermissions("system:paper:edit")
     @Log(title = "论文", businessType = BusinessType.UPDATE)

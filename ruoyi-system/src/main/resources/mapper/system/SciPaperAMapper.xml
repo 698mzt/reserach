@@ -56,6 +56,7 @@
         <result property="thirdAuthorScore"    column="third_author_score"    />
         <result property="fourthAuthorScore"    column="fourth_author_score"    />
         <result property="correspondingAuthorScore"    column="corresponding_author_score"    />
+        <result property="isIndependentauthor"    column="is_Independentauthor"    />
     </resultMap>
 
     <sql id="selectSciPaperAVo">
@@ -86,6 +87,7 @@
         p.research_score,
         p.remarks,
         p.state,
+        p.is_Independentauthor,
         pa1.user_name as first_author_name,
         pa1.user_id as first_author_id,
         pa1.score as first_author_score,
@@ -217,6 +219,7 @@
         p.research_score,
         p.remarks,
         p.state,
+        p.is_Independentauthor,
         pa1.user_name as first_author_name,
         pa1.user_id as first_author_id,
         pa1.score as first_author_score,
@@ -300,7 +303,8 @@
         p.text_paper,p.word_paper,p.search_web,p.user_id,
         p.teacher_name,
         p.paper_title, p.paper_category, p.published_journal,p.publication_time, p.is_industry_collaborative,
-        p.is_local_collaborative, p.is_international_collaborative, p.is_cross_discipline, p.paper_ranking, p.research_score, p.remarks,p.state,
+        p.is_local_collaborative, p.is_international_collaborative, p.is_cross_discipline, p.paper_ranking,
+        p.research_score, p.remarks,p.state,p.is_Independentauthor,
         pa1.user_name as first_author_name,
         pa1.user_id as first_author_id,
         pa1.score as first_author_score,
@@ -316,6 +320,7 @@
         pac.user_name as corresponding_author_name,
         pac.user_id as corresponding_author_id,
         pac.score as corresponding_author_score
+
 
         from sci_paper_a p
         left join sys_user u on u.user_id = p.user_id
@@ -435,7 +440,8 @@
       p.text_paper,p.word_paper,p.search_web,p.user_id,
       p.teacher_name,
       p.paper_title, p.paper_category, p.published_journal,p.publication_time, p.is_industry_collaborative,
-      p.is_local_collaborative, p.is_international_collaborative, p.is_cross_discipline, p.paper_ranking, p.research_score, p.remarks,p.state,
+      p.is_local_collaborative, p.is_international_collaborative, p.is_cross_discipline, p.paper_ranking,
+      p.research_score, p.remarks,p.state,p.is_Independentauthor,
         pa1.user_name as first_author_name,
         pa1.user_id as first_author_id,
         pa1.score as first_author_score,
@@ -590,6 +596,7 @@
             <if test="paperRanking != null">paper_ranking,</if>
             <if test="researchScore != null">research_score,</if>
             <if test="remarks != null">remarks,</if>
+            <if test="isIndependentauthor != null">is_Independentauthor,</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="userId != null">#{userId},</if>
@@ -610,6 +617,7 @@
             <if test="paperRanking != null">#{paperRanking},</if>
             <if test="researchScore != null">#{researchScore},</if>
             <if test="remarks != null">#{remarks},</if>
+            <if test="isIndependentauthor != null">#{isIndependentauthor},</if>
         </trim>
     </insert>
 
@@ -683,6 +691,7 @@
             <if test="researchScore != null">research_score = #{researchScore},</if>
             <if test="remarks != null">remarks = #{remarks},</if>
             <if test="state != null">state = #{state},</if>
+            <if test="isIndependentauthor != null">is_Independentauthor = #{isIndependentauthor},</if>
         </trim>
         where id = #{id}
     </update>
