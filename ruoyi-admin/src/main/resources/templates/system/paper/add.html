@@ -22,6 +22,19 @@
             max-height: 200px;
             overflow-y: auto;
         }
+        .row-top-margin {
+            margin-top: 20px;
+            clear: both;
+        }
+        .first-author-aligned .first-author-label {
+            width: 25% !important;
+        }
+        .first-author-aligned .first-author-input {
+            width: 75% !important;
+        }
+        .first-author-full-width {
+            width: 100% !important;
+        }
     </style>
 </head>
 <body class="white-bg">
@@ -118,8 +131,20 @@
                     </div>
                 </div>
             </div>
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">是否是独立作者：</label>
+                    <div class="col-sm-9" >
+                        <label class="radio-box">
+                            <input name="isIndependentauthor" class="form-control" type="radio" value="1" required>是</label>
+                        <label class="radio-box">
+                            <input name="isIndependentauthor" class="form-control" type="radio" value="0">否</label>
+                    </div>
+                </div>
+            </div>
 
-<!--            <div class="form-group">-->
+
+            <!--            <div class="form-group">-->
 <!--                <label class="col-sm-3 control-label">排名：</label>-->
 <!--                <div class="col-sm-8">-->
 <!--                    <select  name="paperRanking" id="paperRanking" class="form-control m-b" th:with="type=${@dict.getType('sci_paper_qwer')}" required>-->
@@ -127,10 +152,10 @@
 <!--                    </select>-->
 <!--                </div>-->
 <!--            </div>-->
-            <div class="col-xs-6">
+            <div class="col-xs-6" id="firstAuthorGroup">
                 <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">一作：</label>
-                    <div class="col-sm-8">
+                    <label class="col-sm-4 control-label is-required first-author-label">一作：</label>
+                    <div class="col-sm-8 first-author-input">
 <!--                        <input type="text" id="firstPersonName" class="form-control" name="firstPersonName">-->
 <!--                        <input type="hidden" id="firstPersonId" class="form-control" name="firstPersonId" >-->
                         <select name="firstPersonId" class="form-control m-b" id="firstPersonId">
@@ -201,7 +226,7 @@
             </div>
 
 
-            <div class="form-group">
+            <div class="form-group" id="searchWebGroup">
                 <label class="col-sm-3 control-label">论文网址：</label>
                 <div class="col-sm-8">
                     <input name="search_web" id="search_web" class="form-control" type="text" maxlength="200">
@@ -536,12 +561,50 @@
         $('#firstPersonId, #secondPersonId, #thirdPersonId, #fourthPersonId').on('change', function() {
             updateCorrespondingAuthorOptions();
         });
+        // 监听是否独立作者变化
+        $('input[name="isIndependentauthor"]').on('change', function () {
+            handleIndependentAuthor($(this).val());
+        });
+
         // 监听论文类别变化，动态启禁用作者下拉框
         $('select[name="paperCategory"]').on('change', function () {
             applyAuthorEnableRule($(this).val());
         });
 
+        function handleIndependentAuthor(value) {
+            if (value === "1") {
+                // 是独立作者：清除二三四作者和通讯作者，隐藏相应控件
+                $('#secondPersonId, #thirdPersonId, #fourthPersonId, #correspondingAuthorId').val('').trigger('change');
+                $('.form-group:has(#secondPersonId), .form-group:has(#thirdPersonId), .form-group:has(#fourthPersonId), .form-group:has(#correspondingAuthorId)').hide();
+                
+                // 调整一作布局使其与其他控件对齐
+                $('#firstAuthorGroup').removeClass('col-xs-6').addClass('first-author-full-width');
+                $('#firstAuthorGroup .form-group').addClass('first-author-aligned');
+                
+                // 移动论文网址到下一行显示
+                $('#searchWebGroup').addClass('row-top-margin');
+            } else {
+                // 不是独立作者：显示所有作者控件，恢复布局
+                $('.form-group:has(#secondPersonId), .form-group:has(#thirdPersonId), .form-group:has(#fourthPersonId), .form-group:has(#correspondingAuthorId)').show();
+                
+                // 恢复一作原始布局
+                $('#firstAuthorGroup').removeClass('first-author-full-width').addClass('col-xs-6');
+                $('#firstAuthorGroup .form-group').removeClass('first-author-aligned');
+                
+                // 恢复论文网址到原始位置
+                $('#searchWebGroup').removeClass('row-top-margin');
+            }
+            updateCorrespondingAuthorOptions();
+        }
+
         function applyAuthorEnableRule(inputValue){
+            // 如果选择的是独立作者，优先应用独立作者逻辑
+            const isIndependent = $('input[name="isIndependentauthor"]:checked').val();
+            if (isIndependent === "1") {
+                handleIndependentAuthor("1");
+                return;
+            }
+            
             // 10,11,12: 只允许1-2作者
             if(inputValue == "10" || inputValue == "11" || inputValue == "12") {
                 $('#secondPersonId').prop('disabled', false);

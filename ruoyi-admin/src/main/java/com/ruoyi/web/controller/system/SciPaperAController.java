@@ -307,9 +307,9 @@ public class SciPaperAController extends BaseController {
 
         if (sciPaperA.getPaperCategory()!=null){
             if (sciPaperA.getPaperCategory().equals("11") || sciPaperA.getPaperCategory().equals("12") || sciPaperA.getPaperCategory().equals("10")){
-                if (key!=2){
-                    return -2;
-                }
+//                if (key!=2){
+//                    return -2;
+//                }
             } else if (sciPaperA.getPaperCategory().equals("8") || sciPaperA.getPaperCategory().equals("9")) {
                 if (key!=1){
                     return -2;
