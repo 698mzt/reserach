@@ -253,6 +253,24 @@ public class SciPaperA extends BaseEntity {
 
     //判定登陆人的 专业/学院 是否和当前课题负责人的 专业/学院  是否相等
     private String deptNamekey;
+    // 是否独立作者
+    private String isIndependentauthor ;
+
+    public String getIsIndependentauthor() {
+        return isIndependentauthor;
+    }
+
+    public void setIsIndependentauthor(String isIndependentauthor) {
+        this.isIndependentauthor = isIndependentauthor;
+    }
+
+    public String getDeptNamekey() {
+        return deptNamekey;
+    }
+
+    public void setDeptNamekey(String deptNamekey) {
+        this.deptNamekey = deptNamekey;
+    }
 
     public String getCollegeId() {
         return collegeId;
