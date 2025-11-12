@@ -30,7 +30,7 @@
 
             <div class="form-group row">
                 <div class="col-sm-6">
-                    <label class="col-sm-4 control-label is-required">专利名称：</label>
+                    <label class="col-sm-4 control-label is-required">名称：</label>
                     <div class="col-sm-8">
                         <input name="mingcheng" th:field="*{mingcheng}" class="form-control" type="text" required maxlength="50">
                     </div>
@@ -213,7 +213,7 @@
                 slugCallback: function(filename) {
                     if ($("input[name='mingcheng']").val()===""){
                         $(".file-upload").fileinput('clear');
-                        $.modal.alertError("请先输入专利名称");
+                        $.modal.alertError("请先输入名称");
                         return false;
                     }
                     // 自定义文件名生成规则
