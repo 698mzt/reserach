@@ -110,5 +110,13 @@ public interface ISciZhuanliruanzhuService
      */
     List<SciZhuanliruanzhu> getStatsQuery(Map<String, String> params);
 
+    /**
+     * 普通老师点击导出只导出自己前十积分的软著
+     * @param params
+     * @return
+     */
+    List<SciZhuanliruanzhu> getStatsQueryToExcil(Map<String, String> params);
+
+
 
 }

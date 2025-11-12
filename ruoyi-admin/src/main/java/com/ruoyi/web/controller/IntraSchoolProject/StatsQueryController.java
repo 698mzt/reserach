@@ -234,7 +234,13 @@ public class StatsQueryController extends BaseController {
                     return util.exportExcel(exportList, "教材专著数据");
                 } else if ("6".equals(remark)) {
                     // 获取项目类别6的数据（专利软著）导出
-                    List<SciZhuanliruanzhu> exportList = sciZhuanliruanzhuService.getStatsQuery( params);
+                    List<SciZhuanliruanzhu> exportList = new ArrayList<>();
+                    if (params.get("userId")!=null && !params.get("userId").isEmpty()){
+                          exportList = sciZhuanliruanzhuService.getStatsQueryToExcil( params);
+                    }else{
+                          exportList = sciZhuanliruanzhuService.getStatsQuery( params);
+
+                    }
                     exportList = exportList.stream().map(item -> {
                         item.setState(item.getStateDes());
                         return item;

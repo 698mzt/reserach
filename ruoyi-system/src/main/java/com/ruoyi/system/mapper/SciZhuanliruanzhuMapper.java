@@ -103,5 +103,6 @@ public interface SciZhuanliruanzhuMapper
      * @return 专利软著集合
      */
     List<SciZhuanliruanzhu> getStatsQuery(Map<String, String> params);
+    List<SciZhuanliruanzhu> getStatsQueryToExcil(Map<String, String> params);
 
 }

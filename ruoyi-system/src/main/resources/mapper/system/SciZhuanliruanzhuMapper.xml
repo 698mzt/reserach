@@ -299,5 +299,52 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </if>
         order by s.createtime desc
     </select>
+    <select id="getStatsQueryToExcil" parameterType="map" resultMap="SciZhuanliruanzhuResult">
+        <include refid="selectSciZhuanliruanzhuVo"/>
+        where 1=1
+        <if test="userId != null and userId != ''">
+            and s.user_id = #{userId}
+        </if>
+        <if test="startTime != null and startTime != ''">
+            and s.createtime >= #{startTime}
+        </if>
+        <if test="endTime != null and endTime != ''">
+            and s.createtime &lt;= #{endTime}
+        </if>
+        <if test="Pcollege != null and Pcollege != '' and Pcollege!='null' ">
+            AND d.parent_id = #{Pcollege}
+        </if>
+        <if test="college != null and college != '' and college!='null' ">
+            AND p.dept_id = #{college}
+        </if>
+        <if test="major != null and major != '' and major!='null'">
+            AND d.dept_id = #{major}
+        </if>
+        <if test="jobTitle != null and jobTitle != '' and jobTitle != 'null'">
+            AND u.tea_zhicheng = #{jobTitle}
+        </if>
+        <if test="xingming != null and xingming != '' and xingming != 'null'">
+            and u.user_name like concat('%', #{xingming}, '%')
+        </if>
+        <if test="mingcheng != null and mingcheng != ''">
+            and s.mingcheng like concat('%', #{mingcheng}, '%')
+        </if>
+        <if test="fenlei != null and fenlei != ''">
+            and s.fenlei = #{fenlei}
+        </if>
+        <if test="leixing != null and leixing != ''">
+            and s.leixing = #{leixing}
+        </if>
+        <if test='state != null and state != "" and state!="null" and state =="1" '>
+            AND s.state in (3,5,7,0)
+        </if>
+        <if test='state != null and state != "" and state!="null" and state =="2"'>
+            AND s.state in (1,2,4)
+        </if>
+        <if test='state != null and state != "" and state!="null" and state =="3"'>
+            AND s.state in (6)
+        </if>
+        order by s.jifen desc limit 10
+    </select>
 
 </mapper>
