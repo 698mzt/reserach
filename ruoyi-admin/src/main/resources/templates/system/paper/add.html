@@ -53,6 +53,7 @@
                 <label class="col-sm-3 control-label">论文类型：</label>
                 <div class="col-sm-8" >
                     <select  name="paperType" id="paperType" class="form-control" th:with="type=${@dict.getType('sci_paper_type')}" required>
+                        <option value="" selected>--请输入--</option>
                         <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
                     </select>
                 </div>
@@ -260,8 +261,8 @@
     </div>
     <div class="row">
         <div class="col-sm-offset-5 col-sm-10">
-            <button type="button" class="btn btn-sm btn-primary" onclick="submitHandler()"><i class="fa fa-check"></i>保 存</button>&nbsp;
-            <button type="button" class="btn btn-sm btn-danger" onclick="closeItem()"><i class="fa fa-reply-all"></i>关 闭 </button>
+            <button type="button" class="btn btn-sm btn-primary" onclick="submitHandler()">  </i>保 存</button>&nbsp;
+            <button type="button" class="btn btn-sm btn-danger" onclick="closeItem()"> 关 闭 </button>
         </div>
     </div>
 
