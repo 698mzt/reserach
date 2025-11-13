@@ -737,7 +737,6 @@
                             actions.push('<a  class="' + hechaFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000">撤回</a> ');
                             if (hechaFlag !== 'hidden')
                                 actions.push('<br>')
-                            // actions.push('<a  class="btn btn-success btn-xs ' + downloadFlag + '" href="javascript:void(0)" onclick="downloadFiles(\'' +row.id+'\')"><i class="fa fa-edit"></i>下载文件</a> ');
                             actions.push('<a class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                             actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
                         }
@@ -1267,9 +1266,6 @@
 
 </script>
 <script>
-    function downloadFiles(id) {
-        window.location.href = ctx + 'common/HXdownloadZip?id='+id;
-    }
 
     function rowStyle0(row, index) {
         // 定义状态值与颜色的映射关系

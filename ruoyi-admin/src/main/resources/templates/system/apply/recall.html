@@ -272,7 +272,8 @@
         window.open(fullPath ,'_blank');
     }
     function downloadFile(type){
-        var c = $("#"+type).val();
+        var contextPath = '/' + window.location.pathname.split('/')[1];
+        var c = window.location.origin + contextPath + $("#"+type).val();
         if(c){
             var a = document.createElement("a");
             a.href=c;
@@ -280,7 +281,7 @@
             a.style.display = "none";
             document.body.appendChild(a);
             a.click();
-            document.Element.removeChild(a);
+            document.body.removeChild(a);
         }else{
             alert("网址无效");
         }
