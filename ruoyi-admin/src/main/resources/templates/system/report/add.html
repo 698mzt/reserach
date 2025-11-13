@@ -83,7 +83,7 @@
                 <label class="col-sm-3 control-label is-required">分类：</label>
                 <div class="col-sm-8">
                     <select name="reportClassify" class="form-control m-b" required>
-                        <option value="">请选择</option>
+                        <option value="" selected>----请选择----</option>
                         <option th:each="reportIntegral : ${reportIntegralList}" th:text="${reportIntegral.classification}" th:value="${reportIntegral.id}"></option>
                     </select>
                 </div>
