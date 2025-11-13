@@ -1439,14 +1439,31 @@ var table = {
                             $.modal.closeLoading();
                             $.modal.enable();
                         }, 1000);
-                    } else if (parent.table.options.type == table_type.bootstrapTable) {
+                    } else if (parent.table && parent.table.options && parent.table.options.type == table_type.bootstrapTable) {
                         $.modal.close();
                         parent.$.modal.msgSuccess(result.msg);
                         parent.$.table.refresh();
-                    } else if (parent.table.options.type == table_type.bootstrapTreeTable) {
+                    } else if (parent.table && parent.table.options && parent.table.options.type == table_type.bootstrapTreeTable) {
                         $.modal.close();
                         parent.$.modal.msgSuccess(result.msg);
                         parent.$.treeTable.refresh();
+                    } else {
+                        // 在其他情况下也显示成功消息并关闭模态框
+                        try {
+                            if (parent.$.modal && parent.$.modal.msgSuccess) {
+                                parent.$.modal.msgSuccess(result.msg);
+                            } else {
+                                $.modal.msgSuccess(result.msg);
+                            }
+                        } catch (e) {
+                            // 如果访问parent.$.modal出错，直接使用当前窗口的modal
+                            $.modal.msgSuccess(result.msg);
+                        }
+                        setTimeout(function() {
+                            $.modal.close();
+                            $.modal.closeLoading();
+                            $.modal.enable();
+                        }, 1000);
                     }
                 } else if (result.code == web_status.WARNING) {
                     $.modal.alertWarning(result.msg)
