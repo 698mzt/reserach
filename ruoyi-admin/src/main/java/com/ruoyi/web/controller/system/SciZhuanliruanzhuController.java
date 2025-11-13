@@ -271,6 +271,7 @@ public class SciZhuanliruanzhuController extends BaseController
     @ResponseBody
     public AjaxResult addSave(SciZhuanliruanzhu sciZhuanliruanzhu)
     {
+        sciZhuanliruanzhu.setUserId(getUserId().intValue());
         return toAjax(sciZhuanliruanzhuService.insertSciZhuanliruanzhu(sciZhuanliruanzhu));
     }
 
