@@ -215,6 +215,10 @@ public class SciPaperAController extends BaseController {
                 break;
             }
         }
+        SysUser other = new SysUser();
+        other.setUserId(-1L);
+        other.setUserName("其他");
+        userList.add(other);
         mmap.put("sysUsers", userList);
         return prefix + "/add";
     }

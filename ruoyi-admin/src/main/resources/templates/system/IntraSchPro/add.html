@@ -398,8 +398,9 @@
             {id: 'thirdPersonId', $el: $('#thirdPersonId'), selected: $('#thirdPersonId').val()},
             {id: 'fourthPersonId', $el: $('#fourthPersonId'), selected: $('#fourthPersonId').val()}
         ];
-        // 收集所有未禁用且有选中的ID
-        var selectedIds = selects.filter(s => !s.$el.prop('disabled') && s.selected).map(s => s.selected);
+
+// 收集所有选中的ID，但跳过userId为-1的"其他"选项（因为userId是字符串，所以用'-1'）
+        var selectedIds = selects.filter(s => !s.$el.prop('disabled') && s.selected && s.selected !== '-1').map(s => s.selected);
 
         selects.forEach(currentSel => {
             // 只刷未禁用的
