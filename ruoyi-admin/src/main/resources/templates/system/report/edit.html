@@ -294,7 +294,7 @@
                 showPreview: true, // 显示预览
                 showCaption: true, // 显示文件名
                 showRemove: true, // 显示移除按钮
-                showUpload: false, // 隐藏上传按钮（自动上传）
+                showUpload: true, // 隐藏上传按钮（自动上传）
                 showCancel: true, // 显示取消按钮
                 browseOnZoneClick: true, // 点击预览区域可以浏览文件
                 previewFileIcon: '<i class="fa fa-file-pdf-o text-danger"></i>', // PDF文件图标
@@ -332,11 +332,6 @@
             });
         });
 
-        // $("input[name='reportTime']").datetimepicker({
-        //     format: "yyyy-mm-dd",
-        //     minView: "month",
-        //     autoclose: true
-        // });
 
         $("input[name='reportTime']").datetimepicker({
             format: "yyyy-mm-dd hh:ii",
