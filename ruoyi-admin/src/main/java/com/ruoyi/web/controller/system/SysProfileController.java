@@ -81,11 +81,11 @@ public class SysProfileController extends BaseController
         SysUser user = getSysUser();
         if (!passwordService.matches(user, oldPassword))
         {
-            return error("修改密码失败，旧密码错误");
+            return AjaxResult.error("修改密码失败，旧密码错误");
         }
         if (passwordService.matches(user, newPassword))
         {
-            return error("新密码不能与旧密码相同");
+            return AjaxResult.error("新密码不能与旧密码相同");
         }
         user.setSalt(ShiroUtils.randomSalt());
         user.setPassword(passwordService.encryptPassword(user.getLoginName(), newPassword, user.getSalt()));
@@ -93,9 +93,9 @@ public class SysProfileController extends BaseController
         if (userService.resetUserPwd(user) > 0)
         {
             setSysUser(userService.selectUserById(user.getUserId()));
-            return success();
+            return AjaxResult.success("密码修改成功");
         }
-        return error("修改密码异常，请联系管理员");
+        return AjaxResult.error("修改密码异常，请联系管理员");
     }
 
     /**
