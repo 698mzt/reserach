@@ -261,7 +261,6 @@
     var contextPath = '/' + window.location.pathname.split('/')[1];
     // 拼接完整 URL
     var fullPath = window.location.origin + contextPath + relativePath;
-    alert(fullPath)
     // 打开新窗口预览
     window.open(fullPath, '_blank');
   }
@@ -269,7 +268,6 @@
   function downloadFile(type){
     var contextPath = '/' + window.location.pathname.split('/')[1];
     var c = window.location.origin + contextPath + $("#"+type).val();
-    alert(c)
     if(c){
       var a = document.createElement("a");
       a.href=c;
