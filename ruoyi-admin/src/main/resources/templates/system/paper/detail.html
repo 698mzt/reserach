@@ -309,7 +309,8 @@
     }
 
     function downloadFile(type){
-        var c = $("#"+type).val();
+        var contextPath = '/' + window.location.pathname.split('/')[1];
+        var c = window.location.origin + contextPath + $("#"+type).val();
         if(c){
             var a = document.createElement("a");
             a.href=c;
