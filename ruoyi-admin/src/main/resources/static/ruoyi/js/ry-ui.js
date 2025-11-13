@@ -1433,7 +1433,12 @@ var table = {
                 if (result.code == web_status.SUCCESS) {
                     var parent = activeWindow();
                     if ($.common.isEmpty(parent.table)) {
-                        $.modal.msgSuccessReload(result.msg);
+                        $.modal.msgSuccess(result.msg);
+                        setTimeout(function() {
+                            $.modal.close();
+                            $.modal.closeLoading();
+                            $.modal.enable();
+                        }, 1000);
                     } else if (parent.table.options.type == table_type.bootstrapTable) {
                         $.modal.close();
                         parent.$.modal.msgSuccess(result.msg);
