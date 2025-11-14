@@ -316,7 +316,8 @@ public class SciPaperAController extends BaseController {
                     return -2;
                 }
                 // 如果普通和校办论文的这个人不是自己
-                if (!sciPaperA.getCommunicationAuthorId().equals(String.valueOf(getUserId())) || !sciPaperA.getFirstPersonId().equals(String.valueOf(getUserId()))){
+                //if (!sciPaperA.getCommunicationAuthorId().equals(String.valueOf(getUserId())) || !sciPaperA.getFirstPersonId().equals(String.valueOf(getUserId()))){
+                if (!sciPaperA.getFirstPersonId().equals(String.valueOf(getUserId()))){
                     return -3 ;
                 }
             }
@@ -325,6 +326,16 @@ public class SciPaperAController extends BaseController {
         }
         if (countAuthors.size()!=key){
             return -5;
+        }
+        //  判断独立作者类型论文人数
+        if (sciPaperA.getIsIndependentauthor().equals("1")){
+             if (key!=1){
+                 return -2;
+             }
+        } else if (sciPaperA.getIsIndependentauthor().equals("0")) {
+            if (key<=1){
+                return -2;
+            }
         }
 
 
