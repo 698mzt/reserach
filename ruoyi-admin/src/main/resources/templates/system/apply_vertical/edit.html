@@ -562,7 +562,7 @@
                 }
                 // 校验项目金额不能为负数
                 var projectAmount = $("input[name='amount']").val();
-                if (parseFloat(projectAmount) <= 0) {
+                if (parseFloat(projectAmount) < 0) {
                     return $.modal.alertError("请输入有效的项目金额");
                 }
 
