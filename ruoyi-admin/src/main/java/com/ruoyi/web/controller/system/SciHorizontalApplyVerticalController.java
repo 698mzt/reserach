@@ -17,7 +17,6 @@ import com.ruoyi.system.mapper.SciUserScoreMapper;
 import com.ruoyi.system.service.ISciHorizontalApplyVerticalService;
 import com.ruoyi.system.service.ISciHorizontalPiyueService;
 import com.ruoyi.system.service.ISysUserService;
-import com.ruoyi.system.service.SciHorizontalReamountService;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
