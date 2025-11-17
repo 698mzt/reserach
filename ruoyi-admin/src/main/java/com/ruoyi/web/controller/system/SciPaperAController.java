@@ -3,6 +3,7 @@ package com.ruoyi.web.controller.system;
 import java.util.*;
 
 
+import com.github.pagehelper.PageHelper;
 import com.ruoyi.common.config.RuoYiConfig;
 import com.ruoyi.common.config.ServerConfig;
 import com.ruoyi.common.utils.file.FileUploadUtils;
@@ -135,8 +136,8 @@ public class SciPaperAController extends BaseController {
     @RequiresPermissions("system:paper:list")
     @PostMapping("/list")
     @ResponseBody
-    public TableDataInfo list(SciPaperA sciPaperA, String year) {
-
+    public TableDataInfo list(SciPaperA sciPaperA, String year ,@RequestParam(defaultValue = "1") int pageNum,
+                              @RequestParam(defaultValue = "10") int pageSize) {
         Long userId = getUserId();
         System.out.println("userId = " + userId);
         List<String> roleId = sciPaperAService.selectSciPaperAByroleId(userId);
@@ -149,38 +150,41 @@ public class SciPaperAController extends BaseController {
         //教研室+普通老师身份
         // or((pa1.user_id = #{uid} or  pa2.user_id = #{uid}) or pa3.user_id = #{uid}  or pa4.user_id = #{uid} or pac.user_id = #{uid})
         if (roleId.contains("102") && roleId.contains("100")&& !roleId.contains("101")) {
-            list.addAll(sciPaperAService.selectSciPaperAListCxList(sciPaperA));
+            PageHelper.startPage(pageNum, pageSize);
+            list = sciPaperAService.selectSciPaperAListCxList(sciPaperA);
         }
         //单独教研室身份 暂时不用写
         else if (roleId.contains("102")&& !roleId.contains("100")&& !roleId.contains("101")) {
-            list.addAll(sciPaperAService.selectSciPaperAList(sciPaperA));
+            PageHelper.startPage(pageNum, pageSize);
+            list = sciPaperAService.selectSciPaperAList(sciPaperA);
         }
         //科研处+普通老师身份
         else if (roleId.contains("101") && roleId.contains("100")) {
             System.out.println("roleId = " + roleId);
-            list.addAll(sciPaperAService.selectSciPaperAListKY(sciPaperA));
+            PageHelper.startPage(pageNum, pageSize);
+            list = sciPaperAService.selectSciPaperAListKY(sciPaperA);
         }
         //学院+普通老师身份
         else if ((roleId.contains("103") || roleId.contains("104") || roleId.contains("105") || roleId.contains("106") || roleId.contains("107") || roleId.contains("108")) && roleId.contains("100")) {
             //学院身份
             SysUser user = getSysUser();
             sciPaperA.setCollegeId(String.valueOf(user.getParentId()));
-            list.addAll(sciPaperAService.selectSciPaperAListXY(sciPaperA));
+            PageHelper.startPage(pageNum, pageSize);
+            list = sciPaperAService.selectSciPaperAListXY(sciPaperA);
             System.out.println("list = " + list);
         } else if (roleId.contains("100") && roleId.size() == 1) {
             System.out.println("单个老师进入方法");
             //System.out.println(" sciPaperA=" + sciPaperAService.selectSciPaperAListCx(sciPaperA));
-            list.addAll(sciPaperAService.selectSciPaperAListCx(sciPaperA));
+            PageHelper.startPage(pageNum, pageSize);
+            list = sciPaperAService.selectSciPaperAListCx(sciPaperA);
         } else if (userId == 1L) {
             //admin进入
-            list.addAll(sciPaperAService.selectSciPaperAList(sciPaperA));
+            PageHelper.startPage(pageNum, pageSize);
+            list = sciPaperAService.selectSciPaperAList(sciPaperA);
         }
 
-
         System.out.println("year = " + year);
-        List<Map<String, Object>> data = new ArrayList<>();
-        startPage();
-
+        
         return getDataTable(list);
     }
     /**
