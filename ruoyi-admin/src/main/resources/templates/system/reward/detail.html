@@ -372,6 +372,7 @@
             initialPreviewAsData: true,
             initialPreview: [val],
             maxFileCount: 1,
+        maxFileSize: 51200,
             autoReplace: true
         }).on('fileuploaded', function (event, data, previewId, index) {
             $("input[name='" + event.currentTarget.id + "']").val(data.response.url)
