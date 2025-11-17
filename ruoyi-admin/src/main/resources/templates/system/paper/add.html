@@ -320,7 +320,7 @@
             uploadUrl: ctx + 'common/upload/lw',
             initialPreviewAsData: true,
             maxFileCount: 1,
-        maxFileSize: 51200,
+            maxFileSize: 51200,
             autoReplace: true,
             allowedFileExtensions: ["pdf"],
             // 添加提示信息
@@ -353,7 +353,7 @@
             autoReplace: true,
             allowedFileExtensions: ["docx","doc"],
             // 添加提示信息
-            dropZoneTitle: '拖拽Word文件到这里 &hellip;<br>或点击选择按钮<br>支持格式：DOC、DOCX<br>文件数量：1个',
+            dropZoneTitle: '拖拽Word文件到这里 &hellip;<br>或点击选择按钮<br>支持格式：DOC、DOCX<br>文件数量：1个<br>文件大小：50MB及以下',
             slugCallback: function(filename) {
                 if ($("input[name='paperTitle']").val()===""){
                     $(".file-uploada").fileinput('clear');
