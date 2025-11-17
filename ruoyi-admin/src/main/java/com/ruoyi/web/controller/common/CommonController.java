@@ -89,29 +89,53 @@ public class CommonController extends BaseController
     }
 
     /**
+
      * 通用上传请求（单个）
+
      */
     @PostMapping("/upload/{model}")
     @ResponseBody
     public AjaxResult uploadFile(MultipartFile file,@PathVariable("model") String model) throws Exception
+
     {
         try
         {
+            log.info("开始处理文件上传请求");
+            log.info("上传模块: {}", model);
+
+            // 记录文件基本信息
+            if (file != null) {
+                log.info("文件原始名称: {}", file.getOriginalFilename());
+                log.info("文件大小: {} bytes", file.getSize());
+                log.info("文件类型: {}", file.getContentType());
+            } else {
+                log.warn("上传文件为空");
+            }
+
+
             // 上传文件路径
-            String filePath = RuoYiConfig.getUploadPath() ;
+            String filePath = RuoYiConfig.getUploadPath();
+            log.info("文件上传基础路径: {}", filePath);
+
             // 上传并返回新文件名称
 //            String fileName = FileUploadUtils.upload(filePath, file);
-            String fileName = FileUploadUtils.newupload(filePath, file,model);
+            log.info("调用FileUploadUtils.newupload方法开始上传文件");
+            String fileName = FileUploadUtils.newupload(filePath, file, model);
+            log.info("文件上传完成，生成的文件路径: {}", fileName);
+
             String url = serverConfig.getUrl() + fileName;
+            log.info("文件访问URL: {}", url);
             AjaxResult ajax = AjaxResult.success();
             ajax.put("url", fileName);
             ajax.put("fileName", fileName);
             ajax.put("newFileName", FileUtils.getName(fileName));
             ajax.put("originalFilename", file.getOriginalFilename());
+            log.info("文件上传成功，返回结果: {}", ajax);
             return ajax;
         }
         catch (Exception e)
         {
+            log.error("文件上传失败", e);
             return AjaxResult.error(e.getMessage());
         }
     }
