@@ -367,45 +367,45 @@
                     <div class="panel-body">
                         <div class="container-div">
                             <div class="row">
-                                <div class="col-sm-12 search-collapse" shiro:hasPermission="['system:intraSch:select']">
-                                    <form id="formId0">
-                                        <!--                                        <div class="select-list"+[[${@permission.hasPermi('system:intraSch:select')}]]>-->
-                                        <div class="select-list" v-hasPermi="['system:intraSch:select']">
-                                            <ul>
-                                                <li>
-                                                    <label>申请人：</label>
-                                                    <input type="text" name="userName"/>
-                                                </li>
-                                                <li>
-                                                    <label>课题名称：</label>
-                                                    <input type="text" name="topName"/>
-                                                </li>
-                                                <li>
-                                                    <label>专业名称：</label>
-                                                    <input type="text" name="deptname"/>
-                                                </li>
-                                                <!--                                                <li>-->
-                                                <!--                                                    <label>状态：</label>-->
-                                                <!--                                                    <select name="state"-->
-                                                <!--                                                            th:with="type=${@dict.getType('sys_intraschpro_tasks')}">-->
-                                                <!--                                                        <option value="">所有</option>-->
-                                                <!--                                                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}"-->
-                                                <!--                                                                th:value="${dict.dictValue}"></option>-->
-                                                <!--                                                    </select>-->
-                                                <!--                                                </li>-->
+                                <!--                                <div class="col-sm-12 search-collapse" shiro:hasPermission="['system:intraSch:select']">-->
+                                <!--                                    <form id="formId0">-->
+                                <!--                                        &lt;!&ndash;                                        <div class="select-list"+[[${@permission.hasPermi('system:intraSch:select')}]]>&ndash;&gt;-->
+                                <!--                                        <div class="select-list" v-hasPermi="['system:intraSch:select']">-->
+                                <!--                                            <ul>-->
+                                <!--                                                <li>-->
+                                <!--                                                    <label>申请人：</label>-->
+                                <!--                                                    <input type="text" name="userName"/>-->
+                                <!--                                                </li>-->
+                                <!--                                                <li>-->
+                                <!--                                                    <label>课题名称：</label>-->
+                                <!--                                                    <input type="text" name="topName"/>-->
+                                <!--                                                </li>-->
+                                <!--                                                <li>-->
+                                <!--                                                    <label>专业名称：</label>-->
+                                <!--                                                    <input type="text" name="deptname"/>-->
+                                <!--                                                </li>-->
+                                <!--                                                &lt;!&ndash;                                                <li>&ndash;&gt;-->
+                                <!--                                                &lt;!&ndash;                                                    <label>状态：</label>&ndash;&gt;-->
+                                <!--                                                &lt;!&ndash;                                                    <select name="state"&ndash;&gt;-->
+                                <!--                                                &lt;!&ndash;                                                            th:with="type=${@dict.getType('sys_intraschpro_tasks')}">&ndash;&gt;-->
+                                <!--                                                &lt;!&ndash;                                                        <option value="">所有</option>&ndash;&gt;-->
+                                <!--                                                &lt;!&ndash;                                                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}"&ndash;&gt;-->
+                                <!--                                                &lt;!&ndash;                                                                th:value="${dict.dictValue}"></option>&ndash;&gt;-->
+                                <!--                                                &lt;!&ndash;                                                    </select>&ndash;&gt;-->
+                                <!--                                                &lt;!&ndash;                                                </li>&ndash;&gt;-->
 
 
-                                                <li>
-                                                    <a class="btn btn-primary btn-rounded btn-sm"
-                                                       onclick="$.table.search('formId0','bootstrap-table0')"><i
-                                                            class="fa fa-search"></i>&nbsp;搜索</a>
-                                                    <a class="btn btn-warning btn-rounded btn-sm"
-                                                       onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </form>
-                                </div>
+                                <!--                                                <li>-->
+                                <!--                                                    <a class="btn btn-primary btn-rounded btn-sm"-->
+                                <!--                                                       onclick="$.table.search('formId0','bootstrap-table0')"><i-->
+                                <!--                                                            class="fa fa-search"></i>&nbsp;搜索</a>-->
+                                <!--                                                    <a class="btn btn-warning btn-rounded btn-sm"-->
+                                <!--                                                       onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>-->
+                                <!--                                                </li>-->
+                                <!--                                            </ul>-->
+                                <!--                                        </div>-->
+                                <!--                                    </form>-->
+                                <!--                                </div>-->
 
                                 <div class="btn-group-sm" id="toolbar0" role="group"
                                      style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
@@ -439,44 +439,44 @@
                     <div class="panel-body">
                         <div class="container-div">
                             <div class="row">
-                                <div class="col-sm-12 search-collapse" shiro:hasPermission="['system:intraSch:select']">
-                                    <form id="formId1">
-                                        <!--                                        <div class="select-list">-->
-                                        <div class="select-list">
-                                            <ul>
-                                                <li>
-                                                    <label>申请人：</label>
-                                                    <input type="text" name="userName"/>
-                                                </li>
-                                                <li>
-                                                    <label>课题名称：</label>
-                                                    <input type="text" name="topName"/>
-                                                </li>
-                                                <li>
-                                                    <label>专业名称：</label>
-                                                    <input type="text" name="dname"/>
-                                                </li>
-                                                <!--                                                <li>-->
-                                                <!--                                                    <label>状态：</label>-->
-                                                <!--                                                    <select name="state"-->
-                                                <!--                                                            th:with="type=${@dict.getType('sys_intraschpro_tasks')}">-->
-                                                <!--                                                        <option value="">所有</option>-->
-                                                <!--                                                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}"-->
-                                                <!--                                                                th:value="${dict.dictValue}"></option>-->
-                                                <!--                                                    </select>-->
-                                                <!--                                                </li>-->
+<!--                                <div class="col-sm-12 search-collapse" shiro:hasPermission="['system:intraSch:select']">-->
+<!--                                    <form id="formId1">-->
+<!--                                        &lt;!&ndash;                                        <div class="select-list">&ndash;&gt;-->
+<!--                                        <div class="select-list">-->
+<!--                                            <ul>-->
+<!--                                                <li>-->
+<!--                                                    <label>申请人：</label>-->
+<!--                                                    <input type="text" name="userName"/>-->
+<!--                                                </li>-->
+<!--                                                <li>-->
+<!--                                                    <label>课题名称：</label>-->
+<!--                                                    <input type="text" name="topName"/>-->
+<!--                                                </li>-->
+<!--                                                <li>-->
+<!--                                                    <label>专业名称：</label>-->
+<!--                                                    <input type="text" name="dname"/>-->
+<!--                                                </li>-->
+<!--                                                &lt;!&ndash;                                                <li>&ndash;&gt;-->
+<!--                                                &lt;!&ndash;                                                    <label>状态：</label>&ndash;&gt;-->
+<!--                                                &lt;!&ndash;                                                    <select name="state"&ndash;&gt;-->
+<!--                                                &lt;!&ndash;                                                            th:with="type=${@dict.getType('sys_intraschpro_tasks')}">&ndash;&gt;-->
+<!--                                                &lt;!&ndash;                                                        <option value="">所有</option>&ndash;&gt;-->
+<!--                                                &lt;!&ndash;                                                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}"&ndash;&gt;-->
+<!--                                                &lt;!&ndash;                                                                th:value="${dict.dictValue}"></option>&ndash;&gt;-->
+<!--                                                &lt;!&ndash;                                                    </select>&ndash;&gt;-->
+<!--                                                &lt;!&ndash;                                                </li>&ndash;&gt;-->
 
-                                                <li>
-                                                    <a class="btn btn-primary btn-rounded btn-sm"
-                                                       onclick="$.table.search('formId1','bootstrap-table1')"><i
-                                                            class="fa fa-search"></i>&nbsp;搜索</a>
-                                                    <a class="btn btn-warning btn-rounded btn-sm"
-                                                       onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </form>
-                                </div>
+<!--                                                <li>-->
+<!--                                                    <a class="btn btn-primary btn-rounded btn-sm"-->
+<!--                                                       onclick="$.table.search('formId1','bootstrap-table1')"><i-->
+<!--                                                            class="fa fa-search"></i>&nbsp;搜索</a>-->
+<!--                                                    <a class="btn btn-warning btn-rounded btn-sm"-->
+<!--                                                       onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>-->
+<!--                                                </li>-->
+<!--                                            </ul>-->
+<!--                                        </div>-->
+<!--                                    </form>-->
+<!--                                </div>-->
 
                                 <div class="btn-group-sm" id="toolbar1" role="group"
                                      style="display: inline-flex; gap: 4px; ">
@@ -490,10 +490,10 @@
                                     <!--                <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()" shiro:hasPermission="system:apply:remove">-->
                                     <!--                     </i> 删除-->
                                     <!--                </a>-->
-<!--                                    <a class="btn btn-warning" onclick="$.table.exportExcel()"-->
-<!--                                       shiro:hasPermission="system:apply:export">-->
-<!--                                        <i class="fa fa-download"></i> 导出-->
-<!--                                    </a>-->
+                                    <!--                                    <a class="btn btn-warning" onclick="$.table.exportExcel()"-->
+                                    <!--                                       shiro:hasPermission="system:apply:export">-->
+                                    <!--                                        <i class="fa fa-download"></i> 导出-->
+                                    <!--                                    </a>-->
                                     <div
                                             style="display: flex; align-items: center; gap: 15px; background: #f8f9fa; padding: 6px 12px; border-radius: 4px;">
                                         <th:block th:replace="include :: status-circles"/>
@@ -511,42 +511,42 @@
                     <div class="panel-body">
                         <div class="container-div">
                             <div class="row">
-                                <div class="col-sm-12 search-collapse" shiro:hasPermission="['system:intraSch:select']">
-                                    <form id="formId2">
-                                        <div class="select-list">
-                                            <ul>
-                                                <li>
-                                                    <label>申请人：</label>
-                                                    <input type="text" name="userName"/>
-                                                </li>
-                                                <li>
-                                                    <label>课题名称：</label>
-                                                    <input type="text" name="topName"/>
-                                                </li>
-                                                <li>
-                                                    <label>专业名称：</label>
-                                                    <input type="text" name="deptname"/>
-                                                </li>
-                                                <!--                                                <li>-->
-                                                <!--                                                    <label>状态：</label>-->
-                                                <!--                                                    <select name="state"-->
-                                                <!--                                                            th:with="type=${@dict.getType('sys_intraschpro_tasks')}">-->
-                                                <!--                                                        <option value="">所有</option>-->
-                                                <!--                                                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}"-->
-                                                <!--                                                                th:value="${dict.dictValue}"></option>-->
-                                                <!--                                                    </select>-->
-                                                <!--                                                </li>-->
-                                                <li>
-                                                    <a class="btn btn-primary btn-rounded btn-sm"
-                                                       onclick="$.table.search('formId2','bootstrap-table2')"><i
-                                                            class="fa fa-search"></i>&nbsp;搜索</a>
-                                                    <a class="btn btn-warning btn-rounded btn-sm"
-                                                       onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </form>
-                                </div>
+<!--                                <div class="col-sm-12 search-collapse" shiro:hasPermission="['system:intraSch:select']">-->
+<!--                                    <form id="formId2">-->
+<!--                                        <div class="select-list">-->
+<!--                                            <ul>-->
+<!--                                                <li>-->
+<!--                                                    <label>申请人：</label>-->
+<!--                                                    <input type="text" name="userName"/>-->
+<!--                                                </li>-->
+<!--                                                <li>-->
+<!--                                                    <label>课题名称：</label>-->
+<!--                                                    <input type="text" name="topName"/>-->
+<!--                                                </li>-->
+<!--                                                <li>-->
+<!--                                                    <label>专业名称：</label>-->
+<!--                                                    <input type="text" name="deptname"/>-->
+<!--                                                </li>-->
+<!--                                                &lt;!&ndash;                                                <li>&ndash;&gt;-->
+<!--                                                &lt;!&ndash;                                                    <label>状态：</label>&ndash;&gt;-->
+<!--                                                &lt;!&ndash;                                                    <select name="state"&ndash;&gt;-->
+<!--                                                &lt;!&ndash;                                                            th:with="type=${@dict.getType('sys_intraschpro_tasks')}">&ndash;&gt;-->
+<!--                                                &lt;!&ndash;                                                        <option value="">所有</option>&ndash;&gt;-->
+<!--                                                &lt;!&ndash;                                                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}"&ndash;&gt;-->
+<!--                                                &lt;!&ndash;                                                                th:value="${dict.dictValue}"></option>&ndash;&gt;-->
+<!--                                                &lt;!&ndash;                                                    </select>&ndash;&gt;-->
+<!--                                                &lt;!&ndash;                                                </li>&ndash;&gt;-->
+<!--                                                <li>-->
+<!--                                                    <a class="btn btn-primary btn-rounded btn-sm"-->
+<!--                                                       onclick="$.table.search('formId2','bootstrap-table2')"><i-->
+<!--                                                            class="fa fa-search"></i>&nbsp;搜索</a>-->
+<!--                                                    <a class="btn btn-warning btn-rounded btn-sm"-->
+<!--                                                       onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>-->
+<!--                                                </li>-->
+<!--                                            </ul>-->
+<!--                                        </div>-->
+<!--                                    </form>-->
+<!--                                </div>-->
 
                                 <div class="btn-group-sm" id="toolbar2" role="group">
                                     <!--                                    <a class="btn btn-success" onclick="$.operate.addTab()">-->
@@ -558,10 +558,10 @@
                                     <!--                <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()" shiro:hasPermission="system:apply:remove">-->
                                     <!--                     </i> 删除-->
                                     <!--                </a>-->
-<!--                                    <a class="btn btn-warning" onclick="$.table.exportExcel()"-->
-<!--                                       shiro:hasPermission="system:apply:export">-->
-<!--                                        <i class="fa fa-download"></i> 导出-->
-<!--                                    </a>-->
+                                    <!--                                    <a class="btn btn-warning" onclick="$.table.exportExcel()"-->
+                                    <!--                                       shiro:hasPermission="system:apply:export">-->
+                                    <!--                                        <i class="fa fa-download"></i> 导出-->
+                                    <!--                                    </a>-->
                                     <div
                                             style="display: flex; align-items: center; gap: 15px; background: #f8f9fa; padding: 6px 12px; border-radius: 4px;">
                                         <th:block th:replace="include :: status-circles"/>
@@ -782,7 +782,7 @@
                 // },
                 {
                     field: 'responsibilityTier',
-                    title: '责任层级',
+                    title: '个人排名',
                     align: 'center',
                     formatter: function (value, row, index) {
                         return row.firstPersonId == row.uid ? '第一负责人' : row.secondPersonId == row.uid ? '第二负责人' : row.thirdPersonId == row.uid ? "第三负责人" : row.fourthPersonId == row.uid ? "第四负责人" : "不是负责人";
@@ -1255,7 +1255,7 @@
                                 } else if (row.state == '8') {
                                     actions.push('<a  class="del-link-button ' + XYPY + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/dept_teacher' + '\')"> 撤回</a> ');
                                 } else {
-                                    if (row.userId == row.uid){
+                                    if (row.userId == row.uid) {
                                         if (row.state == '9' || row.state == '10' || row.state == '14') {
                                             //被三方驳回
                                             actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> 编辑</a> ');

@@ -24,7 +24,7 @@ public class SciIntraSchoolScore extends BaseEntity {
     //校内横向课题id
     private Integer sciIntraSchid;
 
-    //责任层级
+    //责任层级 / 个人排名
     private Integer sciIntraSchResponTier;
 
     //已获开题积分
