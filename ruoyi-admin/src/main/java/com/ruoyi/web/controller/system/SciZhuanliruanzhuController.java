@@ -67,17 +67,10 @@ public class SciZhuanliruanzhuController extends BaseController
     @PostMapping("/list")
     @ResponseBody
     public TableDataInfo list(SciZhuanliruanzhu sciZhuanliruanzhu,String year)
-
     {
-//        System.out.println("Received tableId: " + tableId);
-        System.out.println("Received year: " + year);
+
         sciZhuanliruanzhu.setYear(year);
         sciZhuanliruanzhu.setUid(getUserId());
-        System.out.println("SciZhuanliruanzhu object: " + sciZhuanliruanzhu);
-
-
-//        startPage();
-//        List<SciZhuanliruanzhu> list = sciZhuanliruanzhuService.selectSciZhuanliruanzhuList(sciZhuanliruanzhu);
 
         startPage();
         List<SysRole> roles = getSysUser().getRoles();
@@ -113,14 +106,6 @@ public class SciZhuanliruanzhuController extends BaseController
 
 //          无用了//设置部门父id，传输过去用来为查询设置部门限制，这个是为查询部门负责人时，查询出部门负责人的部门，并设置查询条件，查询出部门负责人的部门下的所有子部门，
         sciZhuanliruanzhu.setParentId(user.getDept().getParentId());
-//        sciZhuanliruanzhu.setParentId(getSysUser().getAncestors());
-//        System.out.println(getSysUser());
-//        System.out.println(user.getDept().getParentId());
-
-
-
-
-//        System.out.println(sciZhuanliruanzhu);
 
         List<SciZhuanliruanzhu> list = new ArrayList<>();
 //        科研处

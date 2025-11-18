@@ -400,7 +400,7 @@ public class SciHorizontalApplyController extends BaseController
             sciHorizontalApply.setState("7");
         else
             sciHorizontalApply.setState("1");
-        Integer a = sciHorizontalApplyService.updateSciHorizontalApply(sciHorizontalApply);
+        int a = sciHorizontalApplyService.updateSciHorizontalApply(sciHorizontalApply);
         sciHorizontalReamount.setState("1");
         sciHorizontalReamountService.push(getUserId(),sciHorizontalApply.getId(),"1");
         return toAjax(a);
