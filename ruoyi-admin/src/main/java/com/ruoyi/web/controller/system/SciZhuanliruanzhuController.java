@@ -320,15 +320,24 @@ public class SciZhuanliruanzhuController extends BaseController
 //    @RequiresPermissions("system:zhuanliruanzhu:process","system:zhuanliruanzhu:info")
 
     //批阅
+
     @RequiresPermissions(value={"system:zhuanliruanzhu:process","system:zhuanliruanzhu:info"},logical= Logical.OR)
+
     @GetMapping("/detail/{id}/{urlFlag}")
+
     public String detail(@PathVariable("id") Integer id,@PathVariable("urlFlag") String urlFlag, ModelMap mmap)
     {
         SciZhuanliruanzhu sciZhuanliruanzhu = sciZhuanliruanzhuService.selectSciZhuanliruanzhuById(id);
-        List<SysUser> userList1 =  userService.selectAllUser();
-        sciZhuanliruanzhu.setUrlFlag(urlFlag);
-        mmap.put("sysUsers1",userList1);
-        mmap.put("sciZhuanliruanzhu", sciZhuanliruanzhu);
+        if (sciZhuanliruanzhu == null) {
+            mmap.put("sciZhuanliruanzhu", sciZhuanliruanzhu);
+            mmap.put("error", "数据不存在，请刷新页面重试");
+            mmap.put("errorMsg", "数据不存在，请刷新页面重试");
+        } else {
+            sciZhuanliruanzhu.setUrlFlag(urlFlag);
+            List<SysUser> userList1 =  userService.selectAllUser();
+            mmap.put("sysUsers1",userList1);
+            mmap.put("sciZhuanliruanzhu", sciZhuanliruanzhu);
+        }
         return prefix + "/detail";
     }
 
