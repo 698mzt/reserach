@@ -71,6 +71,29 @@
 
     </dependencies>
 
+    <profiles>
+        <!-- 测试环境 -->
+        <profile>
+            <id>test</id>
+            <properties>
+                <env>test</env>
+                <profile.active>druid-test</profile.active>
+            </properties>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+        </profile>
+        
+        <!-- 生产环境 -->
+        <profile>
+            <id>prod</id>
+            <properties>
+                <env>prod</env>
+                <profile.active>druid-prod</profile.active>
+            </properties>
+        </profile>
+    </profiles>
+
     <build>
         <plugins>
             <plugin>
@@ -79,6 +102,10 @@
                 <version>2.5.15</version>
                 <configuration>
                     <fork>true</fork> <!-- 如果没有该配置，devtools不会生效 -->
+                    <!-- 指定激活的profile -->
+                    <profiles>
+                        <profile>${profile.active}</profile>
+                    </profiles>
                 </configuration>
                 <executions>
                     <execution>
@@ -94,7 +121,7 @@
                 <version>3.3.1</version>
                 <configuration>
                     <failOnMissingWebXml>false</failOnMissingWebXml>
-                    <warName>${project.artifactId}</warName>
+                    <warName>${project.artifactId}-${env}</warName>
                 </configuration>
             </plugin>
             <!-- YUI Compressor (CSS/JS压缩)
