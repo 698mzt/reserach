@@ -23,7 +23,7 @@ public class SciTec_traScoreCfg {
     private String funds_min;
 
     /**
-     * 负责人排名
+     * 个人排名
      */
     private String user_order;
 
