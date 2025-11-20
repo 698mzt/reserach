@@ -85,7 +85,7 @@
            eternal="false"
            diskPersistent="false"
            timeToLiveSeconds="1800"
-           timeToIdleSeconds="600"
+           timeToIdleSeconds="1800"
            memoryStoreEvictionPolicy="LRU"
            statistics="false"/>
     
