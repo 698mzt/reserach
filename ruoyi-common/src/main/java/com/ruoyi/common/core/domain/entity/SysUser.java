@@ -30,7 +30,7 @@ public class SysUser extends BaseEntity
     private Long userId;
 
     /** 部门ID */
-    @Excel(name = "部门编号", type = Type.IMPORT)
+    @Excel(name = "专业名称", type = Type.IMPORT)
     private Long deptId;
 
     /** 部门父ID */
@@ -40,18 +40,20 @@ public class SysUser extends BaseEntity
     private Long roleId;
 
     /** 登录名称 */
-    @Excel(name = "登录名称")
+    @Excel(name = "教师工号")
+
     private String loginName;
 
     /** 用户名称 */
-    @Excel(name = "用户名称")
+    @Excel(name = "教师姓名")
+
     private String userName;
 
     /** 用户类型 */
     private String userType;
 
     /** 用户邮箱 */
-    @Excel(name = "用户邮箱")
+    @Excel(name = "邮箱")
     private String email;
 
     /** 手机号码 */
@@ -59,7 +61,7 @@ public class SysUser extends BaseEntity
     private String phonenumber;
 
     /** 用户性别 */
-    @Excel(name = "用户性别", readConverterExp = "0=男,1=女,2=未知")
+//    @Excel(name = "用户性别", readConverterExp = "0=男,1=女,2=未知")
     private String sex;
 
     /** 用户头像 */
@@ -72,18 +74,18 @@ public class SysUser extends BaseEntity
     private String salt;
 
     /** 帐号状态（0正常 1停用） */
-    @Excel(name = "帐号状态", readConverterExp = "0=正常,1=停用")
+//    @Excel(name = "帐号状态", readConverterExp = "0=正常,1=停用")
     private String status;
 
     /** 删除标志（0代表存在 2代表删除） */
     private String delFlag;
 
     /** 最后登录IP */
-    @Excel(name = "最后登录IP", type = Type.EXPORT)
+//    @Excel(name = "最后登录IP", type = Type.EXPORT)
     private String loginIp;
 
     /** 最后登录时间 */
-    @Excel(name = "最后登录时间", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss", type = Type.EXPORT)
+//    @Excel(name = "最后登录时间", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss", type = Type.EXPORT)
     private Date loginDate;
 
     /** 密码最后更新时间 */
@@ -98,16 +100,18 @@ public class SysUser extends BaseEntity
         this.flag = flag;
     }
     /** 部门对象 */
-    @Excels({
-        @Excel(name = "部门名称", targetAttr = "deptName", type = Type.EXPORT),
-        @Excel(name = "部门负责人", targetAttr = "leader", type = Type.EXPORT)
-    })
+//    @Excels({
+//        @Excel(name = "部门名称", targetAttr = "deptName", type = Type.EXPORT),
+//        @Excel(name = "部门负责人", targetAttr = "leader", type = Type.EXPORT)
+//    })
     private SysDept dept;
 
     private List<SysRole> roles;
 
     /** 角色组 */
+//    @Excel(name = "角色组", cellType = ColumnType.TEXT, prompt = "请填写角色ID，多个ID用逗号分隔")
     private Long[] roleIds;
+
 
     /** 岗位组 */
     private Long[] postIds;
@@ -116,10 +120,14 @@ public class SysUser extends BaseEntity
     private String socialTitle;
     private String adminstrativeTitle;
     private String reserchDirection;
+
     // 来校时间
+    @Excel(name = "来校时间", dateFormat = "yyyy-MM-dd")
     private String serviceDate;
+
     // 出生日期
     private String dateOfBirth;
+
 
     public String getServiceDate() {
         return serviceDate;
