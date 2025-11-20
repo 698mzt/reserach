@@ -966,26 +966,26 @@
                     return value;
                 }
             },
-            // {
-            //     field: 'responsibilityTier',
-            //     title: '责任层级',
-            //     align: 'center',
-            //     formatter: function (value, row, index) {
-            //         return row.firstPersonId == row.uid ? '一作' : row.secondPersonId == row.uid ? '二作' : row.thirdPersonId == row.uid ? "三作" : row.fourthPersonId == row.uid ? "四作" : "不是作者";
-            //     }
-            // },
-            // {
-            //     field: 'responsibilityTier',
-            //     title: '积分',
-            //     align: 'center',
-            //     formatter: function (value, row, index) {
-            //         if (row.state == 6) {
-            //             return row.firstPersonId == row.uid ? row.firstAuthorScore : row.secondPersonId == row.uid ? row.secondAuthorScore : row.thirdPersonId == row.uid ? row.thirdAuthorScore : row.fourthPersonId == row.uid ? row.fourthAuthorScore : "不是作者";
-            //         } else {
-            //             return 0;
-            //         }
-            //     }
-            // },
+            {
+                field: 'responsibilityTier',
+                title: '个人排名',
+                align: 'center',
+                formatter: function (value, row, index) {
+                    return row.firstPersonId == row.uid ? '1' : row.secondPersonId == row.uid ? '2' : row.thirdPersonId == row.uid ? "3" : row.fourthPersonId == row.uid ? "4" : "不是作者";
+                }
+            },
+            {
+                field: 'responsibilityTier',
+                title: '积分',
+                align: 'center',
+                formatter: function (value, row, index) {
+                    if (row.state == 6) {
+                        return row.firstPersonId == row.uid ? row.firstAuthorScore : row.secondPersonId == row.uid ? row.secondAuthorScore : row.thirdPersonId == row.uid ? row.thirdAuthorScore : row.fourthPersonId == row.uid ? row.fourthAuthorScore : "不是作者";
+                    } else {
+                        return 0;
+                    }
+                }
+            },
             {
                 title: '操作',
                 align: 'center',
@@ -1041,7 +1041,7 @@
             },
             {
                 field: 'paiming',
-                title: '负责人排名',
+                title: '个人排名',
                 formatter: function (value, row, index) {
                     return $.table.selectDictLabel(paiMingDatas, value);
                 }
@@ -1121,7 +1121,7 @@
             // },
             {
                 field: 'paiming',
-                title: '负责人排名',
+                title: '个人排名',
                 formatter: function (value, row, index) {
                     return $.table.selectDictLabel(paiMingDatas, value);
                 }

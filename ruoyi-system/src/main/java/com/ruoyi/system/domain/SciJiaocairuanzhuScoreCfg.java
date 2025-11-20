@@ -22,8 +22,8 @@ public class SciJiaocairuanzhuScoreCfg extends BaseEntity
     @Excel(name = "分类")
     private String fenLei;
 
-    /** 负责人排名 */
-    @Excel(name = "负责人排名")
+    /** 个人排名 */
+    @Excel(name = "个人排名")
     private String paiMing;
 
     /** 总分 */

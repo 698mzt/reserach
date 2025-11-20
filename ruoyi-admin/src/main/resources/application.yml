@@ -61,7 +61,11 @@ spring:
     time-zone: GMT+8
     date-format: yyyy-MM-dd HH:mm:ss
   profiles:
-    active: druid
+    active: druid-test
+    # 可选环境配置：
+    # druid-test: 测试环境
+    # druid-prod: 生产环境
+    # druid: 默认配置（兼容性保留）
   # 文件上传
   servlet:
     multipart:
@@ -73,7 +77,7 @@ spring:
   devtools:
     restart:
       # 热部署开关
-      enabled: true
+      enabled: false
 
 # MyBatis
 mybatis:
