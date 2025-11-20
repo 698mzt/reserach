@@ -15,7 +15,7 @@
             </div>
         </div>
         <div class="form-group">
-            <label class="col-sm-3 control-label is-required">负责人排名：</label>
+            <label class="col-sm-3 control-label is-required">个人排名：</label>
             <div class="col-sm-8">
                 <select name="paiMing" class="form-control m-b" th:with="type=${@dict.getType('sys_jiaocairuanzhu_fzr')}" required>
                     <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>

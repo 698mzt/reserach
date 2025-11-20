@@ -18,7 +18,7 @@
                                 </select>
                             </li>
                             <li>
-                                <label>负责人排名：</label>
+                                <label>个人排名：</label>
                                 <select name="paiMing" th:with="type=${@dict.getType('sys_zhuanliruanzhu_fzr')}">
                                     <option value="">所有</option>
                                     <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
@@ -90,7 +90,7 @@
                 },
                 {
                     field: 'paiMing',
-                    title: '负责人排名',
+                    title: '个人排名',
                     formatter: function(value, row, index) {
                        return $.table.selectDictLabel(paiMingDatas, value);
                     }

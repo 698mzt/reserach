@@ -49,8 +49,8 @@ public class SciJcrzTextbooks extends BaseEntity
     @Excel(name = "具体类别")
     private String classification;
 
-    /** 作者排名 */
-    @Excel(name = "作者排名")
+    /** 个人排名 */
+    @Excel(name = "个人排名")
     private String authorRank;
 
     /** 科研分 */

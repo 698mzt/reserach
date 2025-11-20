@@ -740,27 +740,27 @@
                     align: 'center',
                     visible: false,
                 },
-                // {
-                //   field: 'paperRanking',
-                //   title: '作者排名',
-                //   formatter: function(value, row, index) {
-                //     console.log( $.table.selectDictLabels(QWERDates, value))
-                //     return $.table.selectDictLabel(QWERDates, value);
-                //   }
-                // },
-                // {
-                //   field: 'researchScore',
-                //   title: '积分',
-                //   formatter: function (value, row, index) {
-                //     console.log("row=",row)
-                //       return row.firstPersonId == row.uid ?row.firstAuthorScore :row.secondPersonId == row.uid ? row.secondAuthorScore :row.thirdPersonId == row.uid ? row.thirdAuthorScore :row.fourthPersonId == row.uid ? row.fourthAuthorScore :row.communicationAuthorId == row.uid ? row.correspondingAuthorScore :"非作者";
-                //       // if (row.first_author_id == row.uid) {
-                //     //   return row.researchScore;
-                //     // } else {
-                //     //   return 0;
-                //     // }
-                //   }
-                // },
+                {
+                  field: 'paperRanking',
+                  title: '个人排名',
+                  formatter: function(value, row, index) {
+                      return row.firstPersonId == row.uid ? '1' : row.secondPersonId == row.uid ? '2' : row.thirdPersonId == row.uid ? "3" : row.fourthPersonId == row.uid ? "4" : "不是作者";
+
+                  }
+                },
+                {
+                  field: 'researchScore',
+                  title: '积分',
+                  formatter: function (value, row, index) {
+                    console.log("row=",row)
+                      return row.firstPersonId == row.uid ?row.firstAuthorScore :row.secondPersonId == row.uid ? row.secondAuthorScore :row.thirdPersonId == row.uid ? row.thirdAuthorScore :row.fourthPersonId == row.uid ? row.fourthAuthorScore :row.communicationAuthorId == row.uid ? row.correspondingAuthorScore :"非作者";
+                      // if (row.first_author_id == row.uid) {
+                    //   return row.researchScore;
+                    // } else {
+                    //   return 0;
+                    // }
+                  }
+                },
                 {
                     title: '操作',
                     align: 'center',
