@@ -72,6 +72,18 @@
     </dependencies>
 
     <profiles>
+        <!-- 开发环境（默认） -->
+        <profile>
+            <id>dev</id>
+            <properties>
+                <env>dev</env>
+                <profile.active>druid</profile.active>
+            </properties>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+        </profile>
+        
         <!-- 测试环境 -->
         <profile>
             <id>test</id>
@@ -79,9 +91,6 @@
                 <env>test</env>
                 <profile.active>druid-test</profile.active>
             </properties>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
         </profile>
         
         <!-- 生产环境 -->
@@ -95,6 +104,31 @@
     </profiles>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <!-- 启用资源过滤，替换${变量} -->
+                <filtering>true</filtering>
+                <!-- 只过滤配置文件 -->
+                <includes>
+                    <include>**/*.yml</include>
+                    <include>**/*.yaml</include>
+                    <include>**/*.properties</include>
+                    <include>**/*.xml</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <!-- 其他资源不进行过滤 -->
+                <filtering>false</filtering>
+                <excludes>
+                    <exclude>**/*.yml</exclude>
+                    <exclude>**/*.yaml</exclude>
+                    <exclude>**/*.properties</exclude>
+                    <exclude>**/*.xml</exclude>
+                </excludes>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
@@ -102,10 +136,6 @@
                 <version>2.5.15</version>
                 <configuration>
                     <fork>true</fork> <!-- 如果没有该配置，devtools不会生效 -->
-                    <!-- 指定激活的profile -->
-                    <profiles>
-                        <profile>${profile.active}</profile>
-                    </profiles>
                 </configuration>
                 <executions>
                     <execution>
@@ -124,38 +154,6 @@
                     <warName>${project.artifactId}-${env}</warName>
                 </configuration>
             </plugin>
-            <!-- YUI Compressor (CSS/JS压缩)
-            <plugin>
-                <groupId>net.alchim31.maven</groupId>
-                <artifactId>yuicompressor-maven-plugin</artifactId>
-                <version>1.5.1</version>
-                <executions>
-                    <execution>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>compress</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <encoding>UTF-8</encoding>
-                    <jswarn>false</jswarn>
-                    <nosuffix>true</nosuffix>
-                    <linebreakpos>50000</linebreakpos>
-                    <sourceDirectory>src/main/resources/static</sourceDirectory>
-                    <force>true</force>
-                    <includes>
-                        <include>**/*.js</include>
-                        <include>**/*.css</include>
-                    </includes>
-                    <excludes>
-                        <exclude>**/*.min.js</exclude>
-                        <exclude>**/*.min.css</exclude>
-                        <exclude>**/fileinput.js</exclude>
-                        <exclude>**/bootstrap-table/**</exclude>
-                    </excludes>
-                </configuration>
-            </plugin> -->
         </plugins>
         <finalName>${project.artifactId}</finalName>
     </build>
