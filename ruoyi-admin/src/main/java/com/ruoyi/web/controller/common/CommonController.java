@@ -33,6 +33,7 @@ import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.file.FileUploadUtils;
 import com.ruoyi.common.utils.file.FileUtils;
+import com.ruoyi.common.utils.file.MinIOUtils;
 
 /**
  * 通用请求处理
@@ -71,15 +72,46 @@ public class CommonController extends BaseController
             {
                 throw new Exception(StringUtils.format("文件名称({})非法，不允许下载。 ", fileName));
             }
-            String realFileName = System.currentTimeMillis() + fileName.substring(fileName.indexOf("_") + 1);
-            String filePath = RuoYiConfig.getDownloadPath() + fileName;
 
-            response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
-            FileUtils.setAttachmentResponseHeader(response, realFileName);
-            FileUtils.writeBytes(filePath, response.getOutputStream());
-            if (delete)
-            {
-                FileUtils.deleteFile(filePath);
+            // 检查是否为MinIO文件路径
+            if (MinIOUtils.isEnabled() && fileName.startsWith("/minio/")) {
+                // 从MinIO路径中提取bucket和object名称
+                String[] parts = fileName.substring("/minio/".length()).split("/", 2);
+                if (parts.length == 2) {
+                    String bucketName = parts[0];
+                    String objectName = parts[1];
+
+                    // 从MinIO下载文件
+                    try (InputStream inputStream = MinIOUtils.download(objectName)) {
+                        String realFileName = System.currentTimeMillis() + objectName.substring(objectName.indexOf("_") + 1);
+                        response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
+                        FileUtils.setAttachmentResponseHeader(response, realFileName);
+                        // 将文件流写入响应输出流
+                        byte[] buffer = new byte[8192];
+                        int bytesRead;
+                        while ((bytesRead = inputStream.read(buffer)) != -1) {
+                            response.getOutputStream().write(buffer, 0, bytesRead);
+                        }
+                        response.getOutputStream().flush();
+                    } catch (Exception e) {
+                        log.error("从MinIO下载文件失败", e);
+                        throw e;
+                    }
+                } else {
+                    throw new Exception(StringUtils.format("MinIO文件路径格式不正确: {}", fileName));
+                }
+            } else {
+                // 原来的本地文件下载逻辑
+                String realFileName = System.currentTimeMillis() + fileName.substring(fileName.indexOf("_") + 1);
+                String filePath = RuoYiConfig.getDownloadPath() + fileName;
+
+                response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
+                FileUtils.setAttachmentResponseHeader(response, realFileName);
+                FileUtils.writeBytes(filePath, response.getOutputStream());
+                if (delete)
+                {
+                    FileUtils.deleteFile(filePath);
+                }
             }
         }
         catch (Exception e)
@@ -89,9 +121,7 @@ public class CommonController extends BaseController
     }
 
     /**
-
      * 通用上传请求（单个）
-
      */
     @PostMapping("/upload/{model}")
     @ResponseBody
@@ -102,7 +132,6 @@ public class CommonController extends BaseController
         {
             log.info("开始处理文件上传请求");
             log.info("上传模块: {}", model);
-
             // 记录文件基本信息
             if (file != null) {
                 log.info("文件原始名称: {}", file.getOriginalFilename());
@@ -112,21 +141,27 @@ public class CommonController extends BaseController
                 log.warn("上传文件为空");
             }
 
-
             // 上传文件路径
             String filePath = RuoYiConfig.getUploadPath();
             log.info("文件上传基础路径: {}", filePath);
 
             // 上传并返回新文件名称
-//            String fileName = FileUploadUtils.upload(filePath, file);
             log.info("调用FileUploadUtils.newupload方法开始上传文件");
             String fileName = FileUploadUtils.newupload(filePath, file, model);
             log.info("文件上传完成，生成的文件路径: {}", fileName);
 
-            String url = serverConfig.getUrl() + fileName;
+            String url = "";
+            // 根据是否使用MinIO来决定URL生成方式
+            if (MinIOUtils.isEnabled() && fileName.startsWith("/minio/")) {
+                // 如果使用MinIO且返回的是MinIO路径，直接使用
+                url = fileName;
+            } else {
+                log.error("不是minio路径，文件上传失败");
+                return AjaxResult.error("不是minio路径，请联系管理员");
+            }
             log.info("文件访问URL: {}", url);
             AjaxResult ajax = AjaxResult.success();
-            ajax.put("url", fileName);
+            ajax.put("url", url);
             ajax.put("fileName", fileName);
             ajax.put("newFileName", FileUtils.getName(fileName));
             ajax.put("originalFilename", file.getOriginalFilename());
@@ -159,7 +194,15 @@ public class CommonController extends BaseController
             {
                 // 上传并返回新文件名称
                 String fileName = FileUploadUtils.upload(filePath, file);
-                String url = serverConfig.getUrl() + fileName;
+                String url = "";
+                // 根据是否使用MinIO来决定URL生成方式
+                if (MinIOUtils.isEnabled() && fileName.startsWith("/minio/")) {
+                    // 如果使用MinIO且返回的是MinIO路径，直接使用
+                    url = fileName;
+                } else {
+                    // 否则使用原来的URL生成方式
+                    url = serverConfig.getUrl() + fileName;
+                }
                 urls.add(url);
                 fileNames.add(fileName);
                 newFileNames.add(FileUtils.getName(fileName));
@@ -191,20 +234,159 @@ public class CommonController extends BaseController
             {
                 throw new Exception(StringUtils.format("资源文件({})非法，不允许下载。 ", resource));
             }
-            // 本地资源路径
-            String localPath = RuoYiConfig.getProfile();
-            // 数据库资源地址
-            String downloadPath = localPath + StringUtils.substringAfter(resource, Constants.RESOURCE_PREFIX);
-            // 下载名称
-            String downloadName = StringUtils.substringAfterLast(downloadPath, "/");
-            response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
-            FileUtils.setAttachmentResponseHeader(response, downloadName);
-            FileUtils.writeBytes(downloadPath, response.getOutputStream());
+
+            // 检查是否为MinIO文件路径
+            if (MinIOUtils.isEnabled() && resource.startsWith("/minio/")) {
+                // 从MinIO路径中提取bucket和object名称
+                String[] parts = resource.substring("/minio/".length()).split("/", 2);
+                if (parts.length == 2) {
+                    String bucketName = parts[0];
+                    String objectName = parts[1];
+
+                    // 从MinIO下载文件
+                    try (InputStream inputStream = MinIOUtils.download(objectName)) {
+                        String downloadName = StringUtils.substringAfterLast(objectName, "/");
+                        response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
+                        FileUtils.setAttachmentResponseHeader(response, downloadName);
+                        // 将文件流写入响应输出流
+                        byte[] buffer = new byte[8192];
+                        int bytesRead;
+                        while ((bytesRead = inputStream.read(buffer)) != -1) {
+                            response.getOutputStream().write(buffer, 0, bytesRead);
+                        }
+                        response.getOutputStream().flush();
+                    } catch (Exception e) {
+                        log.error("从MinIO下载文件失败", e);
+                        throw e;
+                    }
+                } else {
+                    throw new Exception(StringUtils.format("MinIO文件路径格式不正确: {}", resource));
+                }
+            } else {
+                // 原来的本地资源下载逻辑
+                // 本地资源路径
+                String localPath = RuoYiConfig.getProfile();
+                // 数据库资源地址
+                String downloadPath = localPath + StringUtils.substringAfter(resource, Constants.RESOURCE_PREFIX);
+                // 下载名称
+                String downloadName = StringUtils.substringAfterLast(downloadPath, "/");
+                response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
+                FileUtils.setAttachmentResponseHeader(response, downloadName);
+                FileUtils.writeBytes(downloadPath, response.getOutputStream());
+            }
         }
         catch (Exception e)
         {
             log.error("下载文件失败", e);
         }
+    }
+
+    /**
+     * 通用文件预览请求
+     */
+    @GetMapping("/preview")
+    public void filePreview(String fileName, HttpServletResponse response, HttpServletRequest request)
+            throws Exception
+    {
+        try
+        {
+            if (!FileUtils.checkAllowDownload(fileName))
+            {
+                throw new Exception(StringUtils.format("文件名称({})非法，不允许预览。 ", fileName));
+            }
+
+            // 检查是否为MinIO文件路径
+            if (MinIOUtils.isEnabled() && fileName.startsWith("/minio/")) {
+                // 从MinIO路径中提取bucket和object名称
+                String[] parts = fileName.substring("/minio/".length()).split("/", 2);
+                if (parts.length == 2) {
+                    String bucketName = parts[0];
+                    String objectName = parts[1];
+
+                    // 从MinIO下载文件
+                    try (InputStream inputStream = MinIOUtils.download(objectName)) {
+                        // 根据文件扩展名设置适当的MIME类型以支持浏览器预览
+                        String fileExtension = getFileExtension(objectName);
+                        String contentType = getContentTypeByExtension(fileExtension);
+                        response.setContentType(contentType);
+                        
+                        // 将文件流写入响应输出流
+                        byte[] buffer = new byte[8192];
+                        int bytesRead;
+                        while ((bytesRead = inputStream.read(buffer)) != -1) {
+                            response.getOutputStream().write(buffer, 0, bytesRead);
+                        }
+                        response.getOutputStream().flush();
+                    } catch (Exception e) {
+                        log.error("从MinIO预览文件失败", e);
+                        throw e;
+                    }
+                } else {
+                    throw new Exception(StringUtils.format("MinIO文件路径格式不正确: {}", fileName));
+                }
+            } else {
+                // 本地文件预览逻辑
+                String filePath = RuoYiConfig.getDownloadPath() + fileName;
+                String fileExtension = getFileExtension(fileName);
+                String contentType = getContentTypeByExtension(fileExtension);
+                response.setContentType(contentType);
+                FileUtils.writeBytes(filePath, response.getOutputStream());
+            }
+        }
+        catch (Exception e)
+        {
+            log.error("预览文件失败", e);
+        }
+    }
+
+    /**
+     * 根据文件扩展名获取MIME类型
+     */
+    private String getContentTypeByExtension(String fileExtension) {
+        if (fileExtension == null) {
+            return MediaType.APPLICATION_OCTET_STREAM_VALUE;
+        }
+
+        switch (fileExtension.toLowerCase()) {
+            case "jpg":
+            case "jpeg":
+                return "image/jpeg";
+            case "png":
+                return "image/png";
+            case "gif":
+                return "image/gif";
+            case "bmp":
+                return "image/bmp";
+            case "pdf":
+                return "application/pdf";
+            case "txt":
+                return "text/plain";
+            case "html":
+            case "htm":
+                return "text/html";
+            case "xml":
+                return "application/xml";
+            case "json":
+                return "application/json";
+            case "mp4":
+                return "video/mp4";
+            case "avi":
+                return "video/x-msvideo";
+            case "mp3":
+                return "audio/mpeg";
+            default:
+                return MediaType.APPLICATION_OCTET_STREAM_VALUE; // 默认为二进制流
+        }
+    }
+
+    /**
+     * 获取文件扩展名
+     */
+    private String getFileExtension(String fileName) {
+        if (fileName == null || fileName.lastIndexOf(".") == -1) {
+            return null;
+        }
+        return fileName.substring(fileName.lastIndexOf(".") + 1);
     }
 
     /**
