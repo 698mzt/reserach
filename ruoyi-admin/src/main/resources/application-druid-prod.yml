@@ -6,9 +6,9 @@ spring:
     druid:
       # 生产数据库
       master:
-        url: jdbc:mysql://39.105.158.38:3309/2024keyan?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8
-        username: root
-        password: 1q2w3e4r
+        url: jdbc:mysql://172.16.4.204:3306/keyan?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8
+        username: keyan
+        password: Wx5JSbrY7BRaNWDz
       # 从库数据源
       slave:
         # 从数据源开关/默认关闭
