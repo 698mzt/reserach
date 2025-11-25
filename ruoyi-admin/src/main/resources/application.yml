@@ -19,11 +19,11 @@ minio:
   # 是否启用MinIO
   enabled: true
   # MinIO服务器地址，例如: http://localhost:9000
-  endpoint: http://111.229.50.4:9000
+  endpoint: http://172.16.4.218:30389
   # 访问密钥
-  accessKey: tqjzfl
+  accessKey: C50Hx9r7b31mLDR0qcOj
   # 私钥
-  secretKey: 314159@QQcom
+  secretKey: jV0zEMYFQWfiyyBphrGXcMOJNtaFHcxW5pNnjr5Z
   # 存储桶名称
   bucketName: ruoyi
 
