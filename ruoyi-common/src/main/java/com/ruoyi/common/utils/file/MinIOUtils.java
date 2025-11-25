@@ -90,25 +90,68 @@ public class MinIOUtils
                 throw new RuntimeException("MinIO未启用");
             }
 
-            // 使用UUID生成唯一的文件名，避免文件名冲突
-            // 保持原始的路径结构，并在前面添加UUID以确保唯一性
-            String uniqueFilename = UUID.randomUUID().toString().replace("-", "") + "_" + filename;
+            // 检查文件是否已存在，如果存在则添加时间戳避免覆盖
+            String uniqueFilename = getUniqueFilename(filename);
+            String bucketName = MinIOConfig.getBucketName();
             
             minioClient.putObject(
                     PutObjectArgs.builder()
-                            .bucket(MinIOConfig.getBucketName())
+                            .bucket(bucketName)
                             .object(uniqueFilename)
                             .stream(stream, size, -1)
                             .contentType(contentType)
                             .build());
 
             // 返回文件访问路径
-            return "/minio/" + MinIOConfig.getBucketName() + "/" + uniqueFilename;
+            return "/minio/" + bucketName + "/" + uniqueFilename;
         }
         catch (Exception e)
         {
             log.error("上传文件到MinIO失败: {}", e.getMessage());
             throw new RuntimeException("上传文件到MinIO失败", e);
+        }
+    }
+
+    /**
+     * 获取唯一的文件名，如果文件已存在则添加时间戳
+     * 
+     * @param filename 原始文件名
+     * @return 唯一的文件名
+     */
+    private static String getUniqueFilename(String filename) {
+        String uniqueFilename = filename;
+        int counter = 1;
+        String nameWithoutExtension = uniqueFilename.substring(0, uniqueFilename.lastIndexOf('.'));
+        String extension = uniqueFilename.substring(uniqueFilename.lastIndexOf('.'));
+        String baseName = nameWithoutExtension;
+
+        // 检查文件是否已存在，如果存在则添加计数器
+        while (fileExists(uniqueFilename)) {
+            uniqueFilename = baseName + "_" + counter + extension;
+            counter++;
+        }
+
+        return uniqueFilename;
+    }
+
+    /**
+     * 检查文件是否已存在于MinIO中
+     * 
+     * @param objectName 对象名称
+     * @return 如果文件存在返回true，否则返回false
+     */
+    private static boolean fileExists(String objectName) {
+        try {
+            minioClient.statObject(
+                io.minio.StatObjectArgs.builder()
+                    .bucket(MinIOConfig.getBucketName())
+                    .object(objectName)
+                    .build()
+            );
+            return true;
+        } catch (Exception e) {
+            // 如果发生异常，说明文件不存在
+            return false;
         }
     }
 
