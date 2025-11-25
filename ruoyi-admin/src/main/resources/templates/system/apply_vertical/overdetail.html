@@ -269,20 +269,43 @@
             alert("没有可预览的文件！");
             return;
         }
-        // 获取当前页面的上下文路径
-        var contextPath = '/' + window.location.pathname.split('/')[1];
-        // 拼接完整 URL
-        var fullPath = window.location.origin + contextPath + relativePath;
-        // 打开新窗口预览
-        window.open(fullPath, '_blank');
+        
+        // 检查是否为MinIO文件（路径以/minio/开头）
+        if (relativePath.startsWith('/minio/')) {
+            // 对于MinIO文件，使用新的预览接口
+            var contextPath = '/' + window.location.pathname.split('/')[1];
+            var previewUrl = window.location.origin + contextPath + '/common/preview?fileName=' + encodeURIComponent(relativePath);
+            window.open(previewUrl, '_blank');
+        } else {
+            // 对于本地文件，按原方式处理
+            var contextPath = '/' + window.location.pathname.split('/')[1];
+            var fullPath = window.location.origin + contextPath + relativePath;
+            window.open(fullPath, '_blank');
+        }
     }
 
     function downloadFile(type){
-        var contextPath = '/' + window.location.pathname.split('/')[1];
-        var c = window.location.origin + contextPath + $("#"+type).val();
-        if(c){
+        var relativePath = $("#" + type).val();
+        if (!relativePath) {
+            alert("没有可下载的文件！");
+            return;
+        }
+        
+        var downloadUrl;
+        // 检查是否为MinIO文件（路径以/minio/开头）
+        if (relativePath.startsWith('/minio/')) {
+            // 对于MinIO文件，使用通用下载接口
+            var contextPath = '/' + window.location.pathname.split('/')[1];
+            downloadUrl = window.location.origin + contextPath + '/common/download?fileName=' + encodeURIComponent(relativePath);
+        } else {
+            // 对于本地文件，按原方式处理
+            var contextPath = '/' + window.location.pathname.split('/')[1];
+            downloadUrl = window.location.origin + contextPath + relativePath;
+        }
+        
+        if(downloadUrl){
             var a = document.createElement("a");
-            a.href=c;
+            a.href=downloadUrl;
             a.download="";
             a.style.display = "none";
             document.body.appendChild(a);

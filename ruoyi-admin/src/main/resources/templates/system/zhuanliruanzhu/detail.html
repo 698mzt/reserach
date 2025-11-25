@@ -6,15 +6,15 @@
     <th:block th:include="include :: bootstrap-fileinput-css"/>
     <th:block th:include="include :: select2-css" />
 </head>
-<body class="white-bg">
-<div class="wrapper wrapper-content animated fadeInRight ibox-content">
-    <!-- 错误信息提示 -->
-    <div th:if="${errorMsg}" class="alert alert-danger" style="margin: 10px 0;">
-        <i class="fa fa-exclamation-triangle"></i> [[${errorMsg}]]
-    </div>
-    <form class="form-horizontal m" id="form-zhuanliruanzhu-edit" th:object="${sciZhuanliruanzhu}">
-        <input name="urlFlag" id="urlFlag" th:field="*{urlFlag}"  type="hidden">
-        <input name="state" id="state" th:field="*{state}" type="hidden">
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <!-- 错误信息提示 -->
+    <div th:if="${errorMsg}" class="alert alert-danger" style="margin: 10px 0;">
+        <i class="fa fa-exclamation-triangle"></i> [[${errorMsg}]]
+    </div>
+    <form class="form-horizontal m" id="form-zhuanliruanzhu-edit" th:object="${sciZhuanliruanzhu}">
+        <input name="urlFlag" id="urlFlag" th:field="*{urlFlag}"  type="hidden">
+        <input name="state" id="state" th:field="*{state}" type="hidden">
         <input name="id" id="ktid" th:field="*{id}" type="hidden">
 
 <!--        <input name="id" th:field="*{id}" type="hidden">-->
@@ -204,20 +204,43 @@
             alert("没有可预览的文件！");
             return;
         }
-        // 获取当前页面的上下文路径
-        var contextPath = '/' + window.location.pathname.split('/')[1];
-        // 拼接完整 URL
-        var fullPath = window.location.origin + contextPath + relativePath;
-        // 打开新窗口预览
-        window.open(fullPath, '_blank');
+        
+        // 检查是否为MinIO文件（路径以/minio/开头）
+        if (relativePath.startsWith('/minio/')) {
+            // 对于MinIO文件，使用新的预览接口
+            var contextPath = '/' + window.location.pathname.split('/')[1];
+            var previewUrl = window.location.origin + contextPath + '/common/preview?fileName=' + encodeURIComponent(relativePath);
+            window.open(previewUrl, '_blank');
+        } else {
+            // 对于本地文件，按原方式处理
+            var contextPath = '/' + window.location.pathname.split('/')[1];
+            var fullPath = window.location.origin + contextPath + relativePath;
+            window.open(fullPath, '_blank');
+        }
     }
 
     function downloadFile(type){
-        var contextPath = '/' + window.location.pathname.split('/')[1];
-        var c = window.location.origin + contextPath + $("#"+type).val();
-        if(c){
+        var relativePath = $("#" + type).val();
+        if (!relativePath) {
+            alert("没有可下载的文件！");
+            return;
+        }
+        
+        var downloadUrl;
+        // 检查是否为MinIO文件（路径以/minio/开头）
+        if (relativePath.startsWith('/minio/')) {
+            // 对于MinIO文件，使用通用下载接口
+            var contextPath = '/' + window.location.pathname.split('/')[1];
+            downloadUrl = window.location.origin + contextPath + '/common/download?fileName=' + encodeURIComponent(relativePath);
+        } else {
+            // 对于本地文件，按原方式处理
+            var contextPath = '/' + window.location.pathname.split('/')[1];
+            downloadUrl = window.location.origin + contextPath + relativePath;
+        }
+        
+        if(downloadUrl){
             var a = document.createElement("a");
-            a.href=c;
+            a.href=downloadUrl;
             a.download="";
             a.style.display = "none";
             document.body.appendChild(a);
@@ -226,7 +249,6 @@
         }else{
             alert("网址无效");
         }
-
     }
 
 
@@ -318,20 +340,20 @@
     }
 
 
-    // 页面加载时显示文件名
-    window.onload = function() {
-        displayFileName('wenjian', 'wenjianFileName');
-    };
-    
-    // 检查是否存在错误信息，如果有则禁用所有表单元素
-    $(document).ready(function() {
-        if ($('.alert-danger').length > 0) {
-            // 禁用所有输入元素
-            $('input, select, textarea, button:not(#btn3)').prop('disabled', true);
-            // 隐藏操作按钮，只保留关闭按钮
-            $('#btn1, #btn2').hide();
-            $('#btn3').show();
-        }
+    // 页面加载时显示文件名
+    window.onload = function() {
+        displayFileName('wenjian', 'wenjianFileName');
+    };
+    
+    // 检查是否存在错误信息，如果有则禁用所有表单元素
+    $(document).ready(function() {
+        if ($('.alert-danger').length > 0) {
+            // 禁用所有输入元素
+            $('input, select, textarea, button:not(#btn3)').prop('disabled', true);
+            // 隐藏操作按钮，只保留关闭按钮
+            $('#btn1, #btn2').hide();
+            $('#btn3').show();
+        }
     });
 </script>
 </body>
