@@ -1,13 +1,15 @@
 package com.ruoyi.common.utils.file;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.Objects;
 
 import org.apache.commons.io.FilenameUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.multipart.MultipartFile;
+import com.ruoyi.common.config.MinIOConfig;
 import com.ruoyi.common.config.RuoYiConfig;
 import com.ruoyi.common.constant.Constants;
 import com.ruoyi.common.exception.file.FileNameLengthLimitExceededException;
@@ -34,6 +36,7 @@ public class FileUploadUtils {
      * 默认的文件名最大长度 100
      */
     public static final int DEFAULT_FILE_NAME_LENGTH = 200;
+    private static final Logger log = LoggerFactory.getLogger(FileUploadUtils.class);
 
     /**
      * 默认上传的地址
@@ -101,11 +104,33 @@ public class FileUploadUtils {
 
         assertAllowed(file, allowedExtension);
 
-        String fileName = extractFilename(file);
+        // 检查是否启用MinIO，如果启用则上传到MinIO，否则上传到本地
+        if (MinIOUtils.isEnabled()) {
+            return uploadToMinIO(file);
+        } else {
+            String fileName = extractFilename(file);
+            String absPath = getAbsoluteFile(baseDir, fileName).getAbsolutePath();
+            file.transferTo(Paths.get(absPath));
+            return getPathFileName(baseDir, fileName);
+        }
+    }
 
-        String absPath = getAbsoluteFile(baseDir, fileName).getAbsolutePath();
-        file.transferTo(Paths.get(absPath));
-        return getPathFileName(baseDir, fileName);
+    /**
+     * 上传文件到MinIO
+     *
+     * @param file 上传的文件
+     * @return 文件访问路径
+     * @throws IOException
+     */
+    private static String uploadToMinIO(MultipartFile file) throws IOException {
+        try {
+            String fileName = extractFilename(file);
+            String contentType = file.getContentType() != null ? file.getContentType() : "application/octet-stream";
+            String uniqueFileName = MinIOUtils.upload(fileName, file.getInputStream(), file.getSize(), contentType);
+            return uniqueFileName;
+        } catch (Exception e) {
+            throw new IOException("上传文件到MinIO失败: " + e.getMessage(), e);
+        }
     }
     public static final String newupload(String baseDir, MultipartFile file,String model)
             throws FileSizeLimitExceededException, IOException, FileNameLengthLimitExceededException,
@@ -116,10 +141,38 @@ public class FileUploadUtils {
         {
             throw new FileNameLengthLimitExceededException(FileUploadUtils.DEFAULT_FILE_NAME_LENGTH);
         }
-        String fileName = newFilename(file,model);
-        String absPath = getAbsoluteFile(baseDir, fileName).getAbsolutePath();
-        file.transferTo(Paths.get(absPath));
-        return getPathFileName(baseDir, fileName);
+        assertAllowed(file, MimeTypeUtils.DEFAULT_ALLOWED_EXTENSION);
+
+        // 检查是否启用MinIO，如果启用则上传到MinIO，否则上传到本地
+        if (MinIOUtils.isEnabled()) {
+            log.info("MinIO已启用，将上传文件到MinIO");
+            return uploadToMinIONew(file, model);
+        } else {
+            log.info("MinIO未启用，将上传文件到本地");
+            String fileName = newFilename(file, model);
+            String absPath = getAbsoluteFile(baseDir, fileName).getAbsolutePath();
+            file.transferTo(Paths.get(absPath));
+            return getPathFileName(baseDir, fileName);
+        }
+    }
+
+    /**
+     * 上传文件到MinIO（新的文件名生成方式）
+     *
+     * @param file  上传的文件
+     * @param model 模型参数
+     * @return 文件访问路径
+     * @throws IOException
+     */
+    private static String uploadToMinIONew(MultipartFile file, String model) throws IOException {
+        try {
+            String fileName = newFilename(file, model);
+            String contentType = file.getContentType() != null ? file.getContentType() : "application/octet-stream";
+            String uniqueFileName = MinIOUtils.upload(fileName, file.getInputStream(), file.getSize(), contentType);
+            return uniqueFileName;
+        } catch (Exception e) {
+            throw new IOException("上传文件到MinIO失败: " + e.getMessage(), e);
+        }
     }
 
     /**
@@ -308,12 +361,15 @@ public class FileUploadUtils {
 
         assertAllowed(file, allowedExtension);
 
-        String fileName = extractFilename_cgzh(file);
-        //写入
-        //String absPath = getAbsoluteFile(baseDir, fileName).getAbsolutePath();
-
-        //file.transferTo(Paths.get(absPath));
-        return getPathFileName(baseDir, fileName);
+        // 检查是否启用MinIO，如果启用则上传到MinIO，否则上传到本地
+        if (MinIOUtils.isEnabled()) {
+            return uploadToMinIO(file);
+        } else {
+            String fileName = extractFilename_cgzh(file);
+            String absPath = getAbsoluteFile(baseDir, fileName).getAbsolutePath();
+            file.transferTo(Paths.get(absPath));
+            return getPathFileName(baseDir, fileName);
+        }
     }
 
     /**
