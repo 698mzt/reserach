@@ -128,6 +128,7 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
     }
 
     @Override
+    @DataScope(deptAlias = "pt", userAlias = "u")
     public List<SciPaperA> selectSciPaperAListCxList(SciPaperA sciPaperA) {
         return sciPaperAMapper.selectSciPaperAListCxList(sciPaperA);
     }

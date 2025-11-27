@@ -357,7 +357,9 @@
             where pa.author_level = '0'
         ) pac on p.id = pac.paper_id
         <where>
-           p.state in (1,2,8) or((pa1.user_id = #{uid} or  pa2.user_id = #{uid}) or pa3.user_id = #{uid}  or pa4.user_id = #{uid} or pac.user_id = #{uid} or pac.user_id = #{uid})
+
+           (p.state in (1,2,8) ${params.dataScope})
+            or((pa1.user_id = #{uid} or  pa2.user_id = #{uid}) or pa3.user_id = #{uid}  or pa4.user_id = #{uid} or pac.user_id = #{uid} or pac.user_id = #{uid})
             /*${params.dataScope}*/
 <!--            <if test="userId != null  and userId != ''"> and p.user_id = #{userId}</if>-->
             <if test="teacherName != null  and teacherName != ''"> and teacher_name like concat('%', #{teacherName}, '%')</if>
@@ -377,6 +379,7 @@
             <if test="remarks != null  and remarks != ''"> and remarks = #{remarks}</if>
             <if test="year != null  and year != ''"> and YEAR(publication_time) = #{year}</if>
         </where>
+
       order  by p.state
 </select>
 
