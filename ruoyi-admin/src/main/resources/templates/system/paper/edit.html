@@ -461,11 +461,18 @@
                 maxFileCount: 1,
         maxFileSize: 51200,
                 autoReplace: true,
-                allowedFileExtensions: ["doc","docx"]
+                allowedFileExtensions: ["doc","docx"],
+                showUpload: false,  // 隐藏上传按钮
             }).on('fileuploaded', function (event, data, previewId, index) {
                 $("input[name='" + event.currentTarget.id + "']").val(data.response.url)
             }).on('fileremoved', function (event, id, index) {
                 $("input[name='" + event.currentTarget.id + "']").val('')
+            }).on('filebatchselected', function(event) {
+                // 批量选择文件后立即上传
+                $(this).fileinput('upload');
+            }).on('fileselected', function(event) {
+                // 单个文件选择后立即上传
+                $(this).fileinput('upload');
             })
             $(this).fileinput('_initFileActions');
         });
@@ -478,11 +485,18 @@
                 maxFileCount: 1,
         maxFileSize: 51200,
                 autoReplace: true,
-                allowedFileExtensions: ["pdf"]
+                allowedFileExtensions: ["pdf"],
+                showUpload: false,  // 隐藏上传按钮
             }).on('fileuploaded', function (event, data, previewId, index) {
                 $("input[name='" + event.currentTarget.id + "']").val(data.response.url)
             }).on('fileremoved', function (event, id, index) {
                 $("input[name='" + event.currentTarget.id + "']").val('')
+            }).on('filebatchselected', function(event) {
+                // 批量选择文件后立即上传
+                $(this).fileinput('upload');
+            }).on('fileselected', function(event) {
+                // 单个文件选择后立即上传
+                $(this).fileinput('upload');
             })
             $(this).fileinput('_initFileActions');
         });

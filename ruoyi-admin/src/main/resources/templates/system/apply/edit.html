@@ -376,8 +376,9 @@
                 initialPreview: initialPreview,
                 initialPreviewConfig: initialPreviewConfig,
                 maxFileCount: 1,
-        maxFileSize: 51200,
+                maxFileSize: 51200,
                 autoReplace: true,
+                showUpload: false,  // 隐藏上传按钮
                 overwriteInitial: true,
                 allowedFileExtensions: ["pdf"],
                 slugCallback: function(filename) {
@@ -400,7 +401,12 @@
                 $("input[name='" + event.currentTarget.id + "']").val('');
             }).on('fileclear', function (event) {
                 $("input[name='" + event.currentTarget.id + "']").val('');
-            });
+            }).on('filebatchselected', function(event) {
+                // 批量选择文件后立即上传
+                $(this).fileinput('upload');
+            }).on('fileselected', function(event) {
+                // 单个文件选择后立即上传
+                $(this).fileinput('upload');
         });
         $(".file-uploadb").each(function (i) {
             var val = $("input[name='" + this.id + "']").val()
@@ -423,8 +429,9 @@
                 initialPreview: initialPreview,
                 initialPreviewConfig: initialPreviewConfig,
                 maxFileCount: 1,
-        maxFileSize: 51200,
+                maxFileSize: 51200,
                 autoReplace: true,
+                showUpload: false,  // 隐藏上传按钮
                 overwriteInitial: true,
                 allowedFileExtensions: ["pdf"],
                 slugCallback: function(filename) {
@@ -447,7 +454,12 @@
                 $("input[name='" + event.currentTarget.id + "']").val('');
             }).on('fileclear', function (event) {
                 $("input[name='" + event.currentTarget.id + "']").val('');
-            });
+            }).on('filebatchselected', function(event) {
+                // 批量选择文件后立即上传
+                $(this).fileinput('upload');
+            }).on('fileselected', function(event) {
+                // 单个文件选择后立即上传
+                $(this).fileinput('upload');
         });
         // 动态新增成员下拉（第5位起）与编辑页预渲染
         $(function(){
@@ -879,8 +891,9 @@
         $this.fileinput({
             uploadUrl: ctx + 'common/upload/hxkt',
             maxFileCount: 1,
-        maxFileSize: 51200,
+            maxFileSize: 51200,
             autoReplace: true,
+            showUpload: false,  // 隐藏上传按钮
             allowedFileExtensions: ["pdf"],
             initialPreview: initialPreview,
             initialPreviewAsData: true,
@@ -904,7 +917,12 @@
             $("input[name='" + event.currentTarget.id + "']").val('')
         }).on('fileclear', function(event) {
             $("input[name='" + event.currentTarget.id + "']").val('')
-        });
+        }).on('filebatchselected', function(event) {
+            // 批量选择文件后立即上传
+            $(this).fileinput('upload');
+        }).on('fileselected', function(event) {
+            // 单个文件选择后立即上传
+            $(this).fileinput('upload');
     });
 </script>
 </body>

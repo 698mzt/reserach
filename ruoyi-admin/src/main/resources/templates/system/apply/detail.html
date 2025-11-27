@@ -426,15 +426,21 @@
             initialPreviewAsData: true,
             initialPreview: [val],
             maxFileCount: 1,
-        maxFileSize: 51200,
+            maxFileSize: 51200,
+            showUpload: false,  // 隐藏上传按钮
             autoReplace: true
         }).on('fileuploaded', function (event, data, previewId, index) {
             $("input[name='" + event.currentTarget.id + "']").val(data.response.url)
         }).on('fileremoved', function (event, id, index) {
             $("input[name='" + event.currentTarget.id + "']").val('')
-        })
-        $(this).fileinput('_initFileActions');
-    });
+        }) }).on('filebatchselected', function(event) {
+            // 批量选择文件后立即上传
+            $(this).fileinput('upload');
+        }).on('fileselected', function(event) {
+            // 单个文件选择后立即上传
+            $(this).fileinput('upload');
+            $(this).fileinput('_initFileActions');
+        });
     // 页面加载时显示文件名
     window.onload = function() {
         displayFileName('filing', 'filingFileName');

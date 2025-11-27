@@ -348,7 +348,8 @@
         maxFileSize: 51200,
             autoReplace: true,
             overwriteInitial: true,
-            allowedFileExtensions: ["pdf"]
+            allowedFileExtensions: ["pdf"],
+            showUpload: false,  // 隐藏上传按钮
         }).on('fileuploaded', function (event, data, previewId, index) {
             if (data.response && data.response.url) {
                 $("input[name='" + event.currentTarget.id + "']").val(data.response.url);
@@ -357,6 +358,12 @@
             $("input[name='" + event.currentTarget.id + "']").val('');
         }).on('fileclear', function (event) {
             $("input[name='" + event.currentTarget.id + "']").val('');
+        }).on('filebatchselected', function(event) {
+            // 批量选择文件后立即上传
+            $(this).fileinput('upload');
+        }).on('fileselected', function(event) {
+            // 单个文件选择后立即上传
+            $(this).fileinput('upload');
         });
         $(this).fileinput('_initFileActions');
     });
@@ -529,7 +536,7 @@
             }];
         }
         
-        $this.fileinput({
+                $this.fileinput({
             uploadUrl: ctx + 'common/upload/hxkt',
             maxFileCount: 1,
         maxFileSize: 51200,
@@ -551,6 +558,7 @@
                 const newName = year +"-"+ $("input[name='topName']").val() +"-"+ "金额佐证材料"+ "." + fileExtension;
                 return newName;
             },
+            showUpload: false,  // 隐藏上传按钮
         }).on('fileuploaded', function (event, data, previewId, index) {
             if (data.response && data.response.url) {
                 $("input[name='" + event.currentTarget.id + "']").val(data.response.url);
@@ -559,6 +567,12 @@
             $("input[name='" + event.currentTarget.id + "']").val('');
         }).on('fileclear', function(event) {
             $("input[name='" + event.currentTarget.id + "']").val('');
+        }).on('filebatchselected', function(event) {
+            // 批量选择文件后立即上传
+            $(this).fileinput('upload');
+        }).on('fileselected', function(event) {
+            // 单个文件选择后立即上传
+            $(this).fileinput('upload');
         });
     });
 

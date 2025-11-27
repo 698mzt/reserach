@@ -295,7 +295,7 @@
                 showPreview: true, // 显示预览
                 showCaption: true, // 显示文件名
                 showRemove: true, // 显示移除按钮
-                showUpload: true, // 隐藏上传按钮（自动上传）
+                showUpload: false, // 隐藏上传按钮（自动上传）
                 showCancel: true, // 显示取消按钮
                 browseOnZoneClick: true, // 点击预览区域可以浏览文件
                 previewFileIcon: '<i class="fa fa-file-pdf-o text-danger"></i>', // PDF文件图标
@@ -315,7 +315,7 @@
                     const newName = year + "-" + $("input[name='reportSubject']").val() + "-" + "报告资料" + "." + fileExtension; // 生成新文件名
                     return newName; // 返回新文件名
                 },
-            }).on('fileuploaded', function (event, data, previewId, index) {
+            })            }).on('fileuploaded', function (event, data, previewId, index) {
                 if (data.response && data.response.url) {
                     $("input[name='" + event.currentTarget.id + "']").val(data.response.url);
                 }
@@ -330,6 +330,12 @@
                 // 文件错误处理
                 console.log('文件上传错误:', msg);
                 $.modal.alertError('文件上传失败: ' + msg);
+            }).on('filebatchselected', function(event) {
+                // 批量选择文件后立即上传
+                $(this).fileinput('upload');
+            }).on('fileselected', function(event) {
+                // 单个文件选择后立即上传
+                $(this).fileinput('upload');
             });
         });
 

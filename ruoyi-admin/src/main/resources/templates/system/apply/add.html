@@ -329,6 +329,7 @@
         maxFileSize: 51200,
             autoReplace: true,
             allowedFileExtensions: ["pdf"],
+            showUpload: false,  // 隐藏上传按钮
             slugCallback: function(filename) {
                 if ($("input[name='topName']").val()===""){
                     $(".file-uploada").fileinput('clear');
@@ -345,14 +346,21 @@
             $("input[name='" + event.currentTarget.id + "']").val(data.response.url)
         }).on('fileremoved', function (event, id, index) {
             $("input[name='" + event.currentTarget.id + "']").val('')
+        }).on('filebatchselected', function(event) {
+            // 批量选择文件后立即上传
+            $(this).fileinput('upload');
+        }).on('fileselected', function(event) {
+            // 单个文件选择后立即上传
+            $(this).fileinput('upload');
         })
         $(".file-uploadb").fileinput({
             uploadUrl: ctx + 'common/upload/hxkt',
             initialPreviewAsData: true,
             maxFileCount: 1,
-        maxFileSize: 51200,
+            maxFileSize: 51200,
             autoReplace: true,
             allowedFileExtensions: ["pdf"],
+            showUpload: false,  // 隐藏上传按钮
             slugCallback: function(filename) {
                 if ($("input[name='topName']").val()===""){
                     $(".file-uploadb").fileinput('clear');
@@ -369,6 +377,12 @@
             $("input[name='" + event.currentTarget.id + "']").val(data.response.url)
         }).on('fileremoved', function (event, id, index) {
             $("input[name='" + event.currentTarget.id + "']").val('')
+        }).on('filebatchselected', function(event) {
+            // 批量选择文件后立即上传
+            $(this).fileinput('upload');
+        }).on('fileselected', function(event) {
+            // 单个文件选择后立即上传
+            $(this).fileinput('upload');
         })
                 // 动态新增成员下拉（第5位起）
 
@@ -764,6 +778,7 @@
         maxFileSize: 51200,
         autoReplace: true,
         allowedFileExtensions: ["pdf"],
+        showUpload: false,  // 隐藏上传按钮
         slugCallback: function(filename) {
             if ($("input[name='reAmount1']").val()===""){
                 $(".amountfile-upload").fileinput('clear');
@@ -780,6 +795,12 @@
         $("input[name='" + event.currentTarget.id + "']").val(data.response.url)
     }).on('fileremoved', function (event, id, index) {
         $("input[name='" + event.currentTarget.id + "']").val('')
+    }).on('filebatchselected', function(event) {
+        // 批量选择文件后立即上传
+        $(this).fileinput('upload');
+    }).on('fileselected', function(event) {
+        // 单个文件选择后立即上传
+        $(this).fileinput('upload');
     })
 
 </script>
