@@ -261,7 +261,7 @@ public class SciPaperAController extends BaseController {
                 }else if (i == -1) {
                     throw new RuntimeException("你不能添加自己不是作者的论文");
                 }else if (i == -2) {
-                    throw new RuntimeException("作者数量错误");
+                    //throw new RuntimeException("作者数量错误");
                 } else if (i==-3) {
                     throw new RuntimeException("此类论文的一作必须为自己");
                 } else if (i==-4) {
