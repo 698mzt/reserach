@@ -976,6 +976,12 @@ function updateDynamicSelectOptions(selectElement, currentValue, selectedIds) {
             $("input[name='" + event.currentTarget.id + "']").val('');
         }).on('fileclear', function (event) {
             $("input[name='" + event.currentTarget.id + "']").val('');
+        }).on('filebatchselected', function(event) {
+            // 批量选择文件后立即上传
+            $(this).fileinput('upload');
+        }).on('fileselected', function(event) {
+            // 单个文件选择后立即上传
+            $(this).fileinput('upload');
         });
     });
     $(".file-uploadb").each(function (i) {
@@ -1023,6 +1029,12 @@ function updateDynamicSelectOptions(selectElement, currentValue, selectedIds) {
             $("input[name='" + event.currentTarget.id + "']").val('');
         }).on('fileclear', function (event) {
             $("input[name='" + event.currentTarget.id + "']").val('');
+        }).on('filebatchselected', function(event) {
+            // 批量选择文件后立即上传
+            $(this).fileinput('upload');
+        }).on('fileselected', function(event) {
+            // 单个文件选择后立即上传
+            $(this).fileinput('upload');
         });
     });
 </script>

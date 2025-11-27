@@ -591,6 +591,7 @@
                     const newName = year +"-"+ topName +"-"+ "开题文件"+ "." + fileExtension;
                     return newName;
                 },
+                showUpload: false,  // 隐藏上传按钮
             }).on('fileuploaded', function (event, data, previewId, index) {
                 if (data.response && data.response.url) {
                     $("input[name='" + event.currentTarget.id + "']").val(data.response.url);
@@ -599,6 +600,12 @@
                 $("input[name='" + event.currentTarget.id + "']").val('');
             }).on('fileclear', function (event) {
                 $("input[name='" + event.currentTarget.id + "']").val('');
+            }).on('filebatchselected', function(event) {
+                // 批量选择文件后立即上传
+                $(this).fileinput('upload');
+            }).on('fileselected', function(event) {
+                // 单个文件选择后立即上传
+                $(this).fileinput('upload');
             });
         });
         $(".file-upload2").each(function (i) {
@@ -633,6 +640,7 @@
                     const newName = year +"-"+ topName +"-"+ "中期文件"+ "." + fileExtension;
                     return newName;
                 },
+                showUpload: false,  // 隐藏上传按钮
             }).on('fileuploaded', function (event, data, previewId, index) {
                 if (data.response && data.response.url) {
                     $("input[name='" + event.currentTarget.id + "']").val(data.response.url);
@@ -641,6 +649,12 @@
                 $("input[name='" + event.currentTarget.id + "']").val('');
             }).on('fileclear', function (event) {
                 $("input[name='" + event.currentTarget.id + "']").val('');
+            }).on('filebatchselected', function(event) {
+                // 批量选择文件后立即上传
+                $(this).fileinput('upload');
+            }).on('fileselected', function(event) {
+                // 单个文件选择后立即上传
+                $(this).fileinput('upload');
             });
         });
         $(".file-upload3").each(function (i) {
@@ -675,6 +689,7 @@
                     const newName = year +"-"+ topName +"-"+ "结项文件"+ "." + fileExtension;
                     return newName;
                 },
+                showUpload: false,  // 隐藏上传按钮
             }).on('fileuploaded', function (event, data, previewId, index) {
                 if (data.response && data.response.url) {
                     $("input[name='" + event.currentTarget.id + "']").val(data.response.url);
@@ -683,6 +698,12 @@
                 $("input[name='" + event.currentTarget.id + "']").val('');
             }).on('fileclear', function (event) {
                 $("input[name='" + event.currentTarget.id + "']").val('');
+            }).on('filebatchselected', function(event) {
+                // 批量选择文件后立即上传
+                $(this).fileinput('upload');
+            }).on('fileselected', function(event) {
+                // 单个文件选择后立即上传
+                $(this).fileinput('upload');
             });
         });
     </script>

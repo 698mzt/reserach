@@ -201,7 +201,7 @@
                 }];
             }
             
-            $(this).fileinput({
+                        $(this).fileinput({
                 'uploadUrl': ctx + 'common/upload/zlrz',
                 initialPreviewAsData: true,
                 initialPreview: initialPreview,
@@ -223,6 +223,7 @@
                     const newName = year +"-"+ $("input[name='mingcheng']").val() +"-"+ "专利软著文件"+ "." + fileExtension;
                     return newName;
                 },
+                showUpload: false,  // 隐藏上传按钮
             }).on('fileuploaded', function (event, data, previewId, index) {
                 if (data.response && data.response.url) {
                     $("input[name='" + event.currentTarget.id + "']").val(data.response.url);
@@ -231,6 +232,12 @@
                 $("input[name='" + event.currentTarget.id + "']").val('');
             }).on('fileclear', function (event) {
                 $("input[name='" + event.currentTarget.id + "']").val('');
+            }).on('filebatchselected', function(event) {
+                // 批量选择文件后立即上传
+                $(this).fileinput('upload');
+            }).on('fileselected', function(event) {
+                // 单个文件选择后立即上传
+                $(this).fileinput('upload');
             });
             $(this).fileinput('_initFileActions');
         });
