@@ -293,8 +293,6 @@
                 }
             }
             if ($.validate.form()) {
-                if($("input[name='text_paper']").val()=="")
-                    return $.modal.alertError("请上传论文收录通知");
                 if($("input[name='word_paper']").val()=="")
                     return $.modal.alertError("请上传论文原文");
                 console.log($('#form-paper-add'));
@@ -325,6 +323,7 @@
             allowedFileExtensions: ["pdf"],
             // 添加提示信息
             allowedFileExtensionsMsg: '只允许上传PDF文件',
+            dropZoneTitle: '拖拽PDF文件到这里 &hellip;<br>或点击选择按钮<br>支持格式：DOC、DOCX<br>文件数量：1个<br>文件大小：50MB及以下<br>校刊可不传',
             slugCallback: function(filename) {
                 if ($("input[name='paperTitle']").val()===""){
                     $(".file-uploada").fileinput('clear');
