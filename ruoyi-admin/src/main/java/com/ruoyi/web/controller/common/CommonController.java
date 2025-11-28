@@ -83,7 +83,7 @@ public class CommonController extends BaseController
 
                     // 从MinIO下载文件
                     try (InputStream inputStream = MinIOUtils.download(objectName)) {
-                        String realFileName = System.currentTimeMillis() + objectName.substring(objectName.indexOf("_") + 1);
+                        String realFileName =  objectName.substring(objectName.indexOf("_") + 1);
                         response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
                         FileUtils.setAttachmentResponseHeader(response, realFileName);
                         // 将文件流写入响应输出流
