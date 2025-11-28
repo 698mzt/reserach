@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  ruoyi-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ruoyi-app
+    restart: always
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - JAVA_OPTS=-Xms512m -Xmx1024m
+      - TZ=Asia/Shanghai
+    volumes:
+      - ./upload:/home/ruoyi/uploadPath
+    # 连接到服务器上已有的数据库
+    command: >
+      sh -c "java $JAVA_OPTS -jar /app/app.jar 
+             --spring.datasource.druid.master.url=jdbc:mysql://123.56.76.249:3309/2024keyan?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8
+             --spring.datasource.druid.master.username=root
+             --spring.datasource.druid.master.password=1Q2W3E4R"
+
+volumes:
+  mysql_data:
