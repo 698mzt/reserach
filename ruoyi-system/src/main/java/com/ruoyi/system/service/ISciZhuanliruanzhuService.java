@@ -100,7 +100,7 @@ public interface ISciZhuanliruanzhuService
      * @param paiming 负责人级别
      * @return 是否存在
      */
-    boolean checkExist(String mingcheng, String paiming);
+    int checkExist(String mingcheng, String paiming, Long userId);
 
     /**
      * 统计查询教材专著数据

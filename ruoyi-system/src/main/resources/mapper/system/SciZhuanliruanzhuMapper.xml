@@ -252,6 +252,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
           AND paiming = #{paiming}
     </select>
 
+    <select id="checkUserCount" resultType="int">
+        SELECT COUNT(*) FROM sci_zhuanliruanzhu
+        WHERE user_id = #{userId}
+    </select>
+
     <select id="getStatsQuery" parameterType="map" resultMap="SciZhuanliruanzhuResult">
         <include refid="selectSciZhuanliruanzhuVo"/>
         where 1=1
