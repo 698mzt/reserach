@@ -459,7 +459,7 @@
                 initialPreviewAsData: true,
                 initialPreview: [val],
                 maxFileCount: 1,
-        maxFileSize: 51200,
+                maxFileSize: 51200,
                 autoReplace: true,
                 allowedFileExtensions: ["doc","docx"],
                 showUpload: false,  // 隐藏上传按钮
@@ -476,6 +476,7 @@
             })
             $(this).fileinput('_initFileActions');
         });
+
         $(".file-upload").each(function (i) {
             var val = $("input[name='" + this.id + "']").val()
             $(this).fileinput({
@@ -483,7 +484,7 @@
                 initialPreviewAsData: true,
                 initialPreview: [val],
                 maxFileCount: 1,
-        maxFileSize: 51200,
+                maxFileSize: 51200,
                 autoReplace: true,
                 allowedFileExtensions: ["pdf"],
                 showUpload: false,  // 隐藏上传按钮
