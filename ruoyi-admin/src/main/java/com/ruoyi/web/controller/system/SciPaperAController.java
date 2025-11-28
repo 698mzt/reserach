@@ -341,7 +341,7 @@ public class SciPaperAController extends BaseController {
                  return -2;
              }
         } else if (sciPaperA.getIsIndependentauthor().equals("0")) {
-            if (key<=1){
+            if (key<1){
                 return -2;
             }
         }
