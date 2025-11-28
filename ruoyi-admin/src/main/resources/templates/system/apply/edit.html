@@ -359,7 +359,7 @@
             var val = $("input[name='" + this.id + "']").val()
             var initialPreview = [];
             var initialPreviewConfig = [];
-            
+
             if (val && val.trim() !== '') {
                 initialPreview = [val];
                 initialPreviewConfig = [{
@@ -369,7 +369,7 @@
                     key: val
                 }];
             }
-            
+
             $(this).fileinput({
                 'uploadUrl': ctx + 'common/upload/hxkt',
                 initialPreviewAsData: true,
@@ -381,8 +381,8 @@
                 showUpload: false,  // 隐藏上传按钮
                 overwriteInitial: true,
                 allowedFileExtensions: ["pdf"],
-                slugCallback: function(filename) {
-                    if ($("input[name='topName']").val()===""){
+                slugCallback: function (filename) {
+                    if ($("input[name='topName']").val() === "") {
                         $(".file-uploada").fileinput('clear');
                         $.modal.alertError("请先输入课题名称");
                         return false;
@@ -390,7 +390,7 @@
                     // 自定义文件名生成规则
                     fileExtension = filename.split('.').pop();
                     const year = new Date().getFullYear();
-                    const newName = year +"-"+ $("input[name='topName']").val() +"-"+ "立项合同"+ "." + fileExtension;
+                    const newName = year + "-" + $("input[name='topName']").val() + "-" + "立项合同" + "." + fileExtension;
                     return newName;
                 },
             }).on('fileuploaded', function (event, data, previewId, index) {
@@ -401,18 +401,19 @@
                 $("input[name='" + event.currentTarget.id + "']").val('');
             }).on('fileclear', function (event) {
                 $("input[name='" + event.currentTarget.id + "']").val('');
-            }).on('filebatchselected', function(event) {
+            }).on('filebatchselected', function (event) {
                 // 批量选择文件后立即上传
                 $(this).fileinput('upload');
-            }).on('fileselected', function(event) {
+            }).on('fileselected', function (event) {
                 // 单个文件选择后立即上传
                 $(this).fileinput('upload');
-        });
+            });
+        })
         $(".file-uploadb").each(function (i) {
             var val = $("input[name='" + this.id + "']").val()
             var initialPreview = [];
             var initialPreviewConfig = [];
-            
+
             if (val && val.trim() !== '') {
                 initialPreview = [val];
                 initialPreviewConfig = [{
@@ -422,7 +423,7 @@
                     key: val
                 }];
             }
-            
+
             $(this).fileinput({
                 'uploadUrl': ctx + 'common/upload/hxkt',
                 initialPreviewAsData: true,
@@ -434,8 +435,8 @@
                 showUpload: false,  // 隐藏上传按钮
                 overwriteInitial: true,
                 allowedFileExtensions: ["pdf"],
-                slugCallback: function(filename) {
-                    if ($("input[name='topName']").val()===""){
+                slugCallback: function (filename) {
+                    if ($("input[name='topName']").val() === "") {
                         $(".file-uploadb").fileinput('clear');
                         $.modal.alertError("请先输入课题名称");
                         return false;
@@ -443,7 +444,7 @@
                     // 自定义文件名生成规则
                     fileExtension = filename.split('.').pop();
                     const year = new Date().getFullYear();
-                    const newName = year +"-"+ $("input[name='topName']").val() +"-"+ "立项备案表"+ "." + fileExtension;
+                    const newName = year + "-" + $("input[name='topName']").val() + "-" + "立项备案表" + "." + fileExtension;
                     return newName;
                 },
             }).on('fileuploaded', function (event, data, previewId, index) {
@@ -454,13 +455,14 @@
                 $("input[name='" + event.currentTarget.id + "']").val('');
             }).on('fileclear', function (event) {
                 $("input[name='" + event.currentTarget.id + "']").val('');
-            }).on('filebatchselected', function(event) {
+            }).on('filebatchselected', function (event) {
                 // 批量选择文件后立即上传
                 $(this).fileinput('upload');
-            }).on('fileselected', function(event) {
+            }).on('fileselected', function (event) {
                 // 单个文件选择后立即上传
                 $(this).fileinput('upload');
-        });
+            });
+        })
         // 动态新增成员下拉（第5位起）与编辑页预渲染
         $(function(){
             function appendMemberSelect(selectedVal) {
@@ -527,23 +529,23 @@
             $(document).on('click', '.remove-member', function(){
                 $(this).closest('.member-item').remove();
             });
-            
+
             // 成员下拉框联动功能
             // 页面加载完成后保存原始选项并初始化联动
             $('#member1Select, #member2Select, #member3Select').each(function() {
                 var originalOptions = $(this).html();
                 $(this).data('original-options', originalOptions);
             });
-            
+
             // 保存主持人下拉框的原始选项（虽然不可编辑，但需要用于联动）
             var firstPersonOriginalOptions = $('#firstPersonSelect').html();
             $('#firstPersonSelect').data('original-options', firstPersonOriginalOptions);
-            
+
             // 预渲染已有的第5位及以后成员（在保存原始选项之后）
             setTimeout(function() {
                 // 先清空已有的成员项目，避免重复添加
                 $('#memberContainer').empty();
-                
+
                 var extraMembers = $('#memberContainer').data('extra-members');
                 if (Array.isArray(extraMembers)) {
                     extraMembers.forEach(function(mid){ appendMemberSelect(mid); });
@@ -554,17 +556,17 @@
                     } catch(e) {}
                 }
             }, 50);
-            
+
             // 初始化联动效果
             updateMemberLists();
-            
+
             // 初始化Select2组件以支持搜索功能
             $('#member1Select, #member2Select, #member3Select').select2({
                 placeholder: "无",
                 allowClear: true,
                 width: "100%"
             });
-            
+
             // 为主持人下拉框初始化Select2（虽然不可编辑，但可以改善显示效果）
             $('#firstPersonSelect').select2({
                 placeholder: "无",
@@ -578,26 +580,26 @@
             }, 100);
 
         });
-        
+
         // 更新成员下拉框列表
         function updateMemberLists() {
             // 获取所有已选中的成员ID（使用Set自动去重）
             var selectedIds = new Set();
-            
+
             // 获取主持人下拉框的值（虽然不可编辑，但仍需参与联动）
             var firstPersonValue = $('#firstPersonSelect').val();
-            
+
             // 获取三个固定成员下拉框的值
             var member1Value = $('#member1Select').val();
             var member2Value = $('#member2Select').val();
             var member3Value = $('#member3Select').val();
-            
+
             // 将非空值添加到Set中
             if (firstPersonValue) selectedIds.add(firstPersonValue);
             if (member1Value) selectedIds.add(member1Value);
             if (member2Value) selectedIds.add(member2Value);
             if (member3Value) selectedIds.add(member3Value);
-            
+
             // 添加动态成员的选中值
             $('.member-select').each(function() {
                 var value = $(this).val();
@@ -605,35 +607,35 @@
                     selectedIds.add(value);
                 }
             });
-            
+
             // 为每个固定下拉框更新选项（不包括主持人，因为主持人下拉框不可编辑）
             updateSelectOptions('#member1Select', member1Value, selectedIds);
             updateSelectOptions('#member2Select', member2Value, selectedIds);
             updateSelectOptions('#member3Select', member3Value, selectedIds);
-            
+
             // 为每个动态下拉框更新选项
             $('.member-select').each(function() {
                 updateDynamicSelectOptions($(this), $(this).val(), selectedIds);
             });
         }
-        
+
         // 更新单个下拉框的选项
         function updateSelectOptions(selectId, currentValue, selectedIds) {
             var selectElement = $(selectId);
             var originalOptions = selectElement.data('original-options');
             var isCurrentlySelected = selectElement.val(); // 保存当前选中的值
-            
+
             // 清空当前选项（保留第一个提示选项）
             selectElement.find('option:not(:first)').remove();
-            
+
             // 解析原始选项
             var tempDiv = $('<div>' + originalOptions + '</div>');
             var hasBlankOption = false; // 标记是否已添加空选项
-            
+
             tempDiv.find('option').each(function() {
                 var option = $(this);
                 var value = option.val();
-                
+
                 // 只有当选项值为空（请选择）或未被其他下拉框选中时才添加
                 // currentValue（当前下拉框已选中的值）总是会被保留，如果它不在其他下拉框中
                 if (value === "" && !hasBlankOption) {
@@ -645,40 +647,40 @@
                     selectElement.append(option.clone());
                 }
             });
-            
+
             // 重新设置选中状态，确保选中的值仍然被选中
             if (isCurrentlySelected) {
                 selectElement.val(isCurrentlySelected);
             }
         }
-        
+
         // 更新动态添加的成员下拉框
         function updateDynamicMemberList(element) {
             var selectElement = $(element);
             var currentValue = selectElement.val();
             var allSelectedIds = getSelectedIds();
-            
+
             // 为动态成员下拉框更新选项
             updateDynamicSelectOptions(selectElement, currentValue, allSelectedIds);
         }
-        
+
         // 获取所有已选中的ID（包括固定成员和动态成员）
         function getSelectedIds() {
             var selectedIds = new Set();
-            
+
             // 添加主持人下拉框的选中值（虽然不可编辑，但仍需参与联动）
             var firstPersonValue = $('#firstPersonSelect').val();
-            
+
             // 添加固定成员的选中值
             var member1Value = $('#member1Select').val();
             var member2Value = $('#member2Select').val();
             var member3Value = $('#member3Select').val();
-            
+
             if (firstPersonValue) selectedIds.add(firstPersonValue);
             if (member1Value) selectedIds.add(member1Value);
             if (member2Value) selectedIds.add(member2Value);
             if (member3Value) selectedIds.add(member3Value);
-            
+
             // 添加动态成员的选中值
             $('.member-select').each(function() {
                 var value = $(this).val();
@@ -686,26 +688,26 @@
                     selectedIds.add(value);
                 }
             });
-            
+
             return selectedIds;
         }
-        
+
         // 更新动态下拉框的选项
         function updateDynamicSelectOptions(selectElement, currentValue, selectedIds) {
             var originalOptions = $('#member1Select').data('original-options');
             var isCurrentlySelected = selectElement.val(); // 保存当前选中的值
-            
+
             // 清空当前选项（保留第一个提示选项）
             selectElement.find('option:not(:first)').remove();
-            
+
             // 解析原始选项
             var tempDiv = $('<div>' + originalOptions + '</div>');
             var hasBlankOption = false; // 标记是否已添加空选项
-            
+
             tempDiv.find('option').each(function() {
                 var option = $(this);
                 var value = option.val();
-                
+
                 // 只有当选项值为空（请选择）或未被其他下拉框选中时才添加
                 // currentValue（当前下拉框已选中的值）总是会被保留，如果它不在其他下拉框中
                 if (value === "" && !hasBlankOption) {
@@ -717,7 +719,7 @@
                     selectElement.append(option.clone());
                 }
             });
-            
+
             // 重新设置选中状态，确保选中的值仍然被选中
             if (isCurrentlySelected) {
                 selectElement.val(isCurrentlySelected);
@@ -923,7 +925,8 @@
         }).on('fileselected', function(event) {
             // 单个文件选择后立即上传
             $(this).fileinput('upload');
-    });
+        });
+    })
 </script>
 </body>
 </html>
