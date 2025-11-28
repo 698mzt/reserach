@@ -684,7 +684,7 @@
             <if test="inclusionStatus != null">inclusion_status = #{inclusionStatus},</if>
             <if test="publicationTime != null">publication_time = #{publicationTime},</if>
             <if test="text_paper != null">text_paper = #{text_paper},</if>
-            <if test="word_paper != null">text_paper = #{word_paper},</if>
+            <if test="word_paper != null">word_paper = #{word_paper},</if>
             <if test="search_web != null">search_web = #{search_web},</if>
             <if test="isIndustryCollaborative != null">is_industry_collaborative = #{isIndustryCollaborative},</if>
             <if test="isLocalCollaborative != null">is_local_collaborative = #{isLocalCollaborative},</if>
