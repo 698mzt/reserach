@@ -883,15 +883,15 @@ public class SciHorizontalApplyController extends BaseController
 //        查询积分的所有范围
         List<SciProjectScoreCfg> list= sciProjectScoreCfgMapper.selectSciProjectScoreCfgList(sciProjectScoreCfg);
         Integer applyId;
-        Integer Damount;
+        Double Damount;
         try {
-            Damount = Integer.valueOf(amount);
+            Damount = Double.valueOf(amount);
         } catch (NumberFormatException e) {
             return AjaxResult.error("金额无效");
         }
 //        查询项目金额在积分的哪个范围内，并将范围记录到sciProjectScoreCfg1中
         for (SciProjectScoreCfg scoreCfg : list) {
-            if (Damount >= Integer.valueOf(scoreCfg.getFundsMin()) && Damount < Integer.valueOf(scoreCfg.getFundsMax())) {
+            if (Damount >= Double.valueOf(scoreCfg.getFundsMin()) && Damount <= Double.valueOf(scoreCfg.getFundsMax())) {
                 sciProjectScoreCfg1.setFundsMin(scoreCfg.getFundsMin());
                 sciProjectScoreCfg1.setFundsMax(scoreCfg.getFundsMax());
                 break;
