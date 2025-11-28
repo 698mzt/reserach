@@ -212,16 +212,21 @@ public class SciZhuanliruanzhuController extends BaseController
 
     /**
      * 检查专利名称与负责人级别是否重复
+     * 限制一个老师最大十条数据
      */
     @RequiresPermissions("system:zhuanliruanzhu:add")
     @PostMapping("/checkDuplicate")
     @ResponseBody
     public AjaxResult checkDuplicate(@RequestParam String mingcheng, @RequestParam String paiming) {
-        boolean exists = sciZhuanliruanzhuService.checkExist(mingcheng, paiming);
-        if (exists) {
+        int exists = sciZhuanliruanzhuService.checkExist(mingcheng, paiming, getUserId());
+        if (exists == 1) {
             return AjaxResult.error("该专利名称的该负责人级别已存在，不可重复添加");
+        } else if (exists == 2) {
+            return AjaxResult.error("教师添加的专利软著数据不允许大于十条");
+        } else if (exists == 0) {
+            return AjaxResult.success();
         } else {
-            return AjaxResult.success(); // code == 0
+            return AjaxResult.error("请联系管理员解决");
         }
     }
 
@@ -233,7 +238,6 @@ public class SciZhuanliruanzhuController extends BaseController
     @GetMapping("/add")
     public String add( ModelMap mmap)
     {
-
         List<SysUser> userList =  userService.selectAllUser();
         for (int a = 0; a<userList.size();a++) {
             if(userList.get(a).getUserId().equals(getUserId())){
@@ -271,7 +275,6 @@ public class SciZhuanliruanzhuController extends BaseController
         mmap.put("sciZhuanliruanzhu", sciZhuanliruanzhu);
         List<SysUser> userList1 =  userService.selectAllUser();
         mmap.put("sysUsers1",userList1);
-
         return prefix + "/edit";
     }
 

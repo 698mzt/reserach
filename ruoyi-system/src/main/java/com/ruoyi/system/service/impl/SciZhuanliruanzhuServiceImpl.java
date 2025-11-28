@@ -292,8 +292,17 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
 
 
     @Override
-    public boolean checkExist(String mingcheng, String paiming) {
-        return sciZhuanliruanzhuMapper.checkExist(mingcheng, paiming) > 0;
+    public int checkExist(String mingcheng, String paiming,Long userId) {
+//        判断该专利名称的该负责人级别已存在，不可重复添加
+        if (sciZhuanliruanzhuMapper.checkExist(mingcheng, paiming) > 0) {
+            return 1;
+//        校验教师的数据是否大于十条
+        } else if (sciZhuanliruanzhuMapper.checkUserCount(userId) >= 10) {
+            return 2;
+        } else {
+//            提示联系管理员解决
+            return 0;
+        }
     }
 
     @Override

@@ -96,6 +96,8 @@ public interface SciZhuanliruanzhuMapper
      */
     int checkExist(@Param("mingcheng") String mingcheng, @Param("paiming") String paiming);
 
+    int checkUserCount(@Param("userId") Long userId);
+
     /**
      * 统计查询专利软著数据
      *
