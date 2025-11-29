@@ -30,7 +30,7 @@
     </resultMap>
 
     <select id="selectSciHorizontalApplyVerticalAllList" resultType="SciHorizontalApplyVertical" resultMap="SciHorizontalApplyVerticalResult">
-        select s.id,u.user_name userName,d.dept_id,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,s.top_number ,s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file,s.open_file,s.mid_file,s.over_file
+        select s.id,u.user_name userName,d.dept_id,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,s.top_number ,s.top_type,  s.signing_data, s.validity_data, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file,s.open_file,s.mid_file,s.over_file
         from  sci_horizontal_apply_vertical s left join sci_persion pe on pe.apply_id = s.id
                                               left join sys_user u on  s.user_id=u.user_id
                                               left join sys_dept d on u.dept_id = d.dept_id
@@ -103,12 +103,14 @@
 
 
     <select id="selectSciHorizontalApplyVerticalListJX"  resultType="SciHorizontalApplyVertical" resultMap="SciHorizontalApplyVerticalResult" >
-        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,s.top_number, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file,s.open_file,s.mid_file,s.over_file
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,s.top_number, s.top_type,  s.signing_data, s.validity_data, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file,s.open_file,s.mid_file,s.over_file
         from  sci_horizontal_apply_vertical s left join sys_user u on  s.user_id=u.user_id
                                               left join sys_dept d on u.dept_id = d.dept_id
                                               left join sys_dept p on d.parent_id =p.dept_id
         where  s.state in (11,22,33,44,55,77)
-        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
+        <if test="year != null and year != ''">
+            AND YEAR(DATE_ADD(COALESCE(validity_data, signing_data), INTERVAL 1 MONTH)) = #{year}
+        </if>
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
@@ -117,12 +119,14 @@
     </select>
 
     <select id="selectSciHorizontalApplyVerticalListJYSJX"  resultType="SciHorizontalApplyVertical" resultMap="SciHorizontalApplyVerticalResult" >
-        select #{uid} uid,s.id,u.user_name userName,d.dept_id,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,s.top_number, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file,s.open_file,s.mid_file,s.over_file
+        select #{uid} uid,s.id,u.user_name userName,d.dept_id,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,s.top_number, s.top_type,  s.signing_data, s.validity_data, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file,s.open_file,s.mid_file,s.over_file
         from  sci_horizontal_apply_vertical s left join sys_user u on  s.user_id=u.user_id
                                               left join sys_dept d on u.dept_id = d.dept_id
                                               left join sys_dept p on d.parent_id =p.dept_id
         where  s.state  in (11,22)
-        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
+        <if test="year != null and year != ''">
+            AND YEAR(DATE_ADD(COALESCE(validity_data, signing_data), INTERVAL 1 MONTH)) = #{year}
+        </if>
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
@@ -131,12 +135,14 @@
     </select>
 
     <select id="selectSciHorizontalApplyVerticalListDeptJX"  resultType="SciHorizontalApplyVertical" resultMap="SciHorizontalApplyVerticalResult" >
-        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_id ynameId,p.dept_name yname, s.user_id, s.top_name,s.top_number, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file,s.open_file,s.mid_file,s.over_file
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_id ynameId,p.dept_name yname, s.user_id, s.top_name,s.top_number, s.top_type,  s.signing_data, s.validity_data, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file,s.open_file,s.mid_file,s.over_file
         from  sci_horizontal_apply_vertical s left join sys_user u on  s.user_id=u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
         where  s.state in (22,44)
-        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
+        <if test="year != null and year != ''">
+            AND YEAR(DATE_ADD(COALESCE(validity_data, signing_data), INTERVAL 1 MONTH)) = #{year}
+        </if>
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if  test="dname != null  and dname != ''"> and d.dept_name like concat('%', #{dname}, '%')</if>
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
@@ -146,12 +152,14 @@
     </select>
 
     <select id="selectSciHorizontalApplyVerticalListKYCJX"  resultType="SciHorizontalApplyVertical" resultMap="SciHorizontalApplyVerticalResult" >
-        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,s.top_number, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file,s.open_file,s.mid_file,s.over_file
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,s.top_number, s.top_type,  s.signing_data, s.validity_data, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file,s.open_file,s.mid_file,s.over_file
         from  sci_horizontal_apply_vertical s left join sys_user u on  s.user_id=u.user_id
                                               left join sys_dept d on u.dept_id = d.dept_id
                                               left join sys_dept p on d.parent_id =p.dept_id
         where s.state in (44)
-        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
+        <if test="year != null and year != ''">
+            AND YEAR(DATE_ADD(COALESCE(validity_data, signing_data), INTERVAL 1 MONTH)) = #{year}
+        </if>
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if  test="dname != null  and dname != ''"> and d.dept_name like concat('%', #{dname}, '%')</if>
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
@@ -161,12 +169,14 @@
     </select>
 
     <select id="selectSciHorizontalApplyVerticalListOVER"  resultType="SciHorizontalApplyVertical" resultMap="SciHorizontalApplyVerticalResult" >
-        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,s.top_number, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file,s.open_file,s.mid_file,s.over_file
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,s.top_number, s.top_type,  s.signing_data, s.validity_data, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file,s.open_file,s.mid_file,s.over_file
         from  sci_horizontal_apply_vertical s left join sys_user u on  s.user_id=u.user_id
                                               left join sys_dept d on u.dept_id = d.dept_id
                                               left join sys_dept p on d.parent_id =p.dept_id
         where  s.state = 66
-        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
+        <if test="year != null and year != ''">
+            AND YEAR(DATE_ADD(COALESCE(validity_data, signing_data), INTERVAL 1 MONTH)) = #{year}
+        </if>
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if  test="dname != null  and dname != ''"> and d.dept_name like concat('%', #{dname}, '%')</if>
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
@@ -268,7 +278,7 @@
     </insert>
 
     <select id="selectOtherListByUid" parameterType="Long" resultMap="SciHorizontalApplyVerticalResult">
-        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,s.top_number, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file,s.over_file
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,s.top_number, s.top_type,  s.signing_data, s.validity_data, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file,s.over_file
         from sci_horizontal_apply_vertical s left join sci_persion_vertical pe on pe.vertical_id = s.id
         left join sys_user u on  s.user_id=u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
@@ -287,7 +297,9 @@
                 </when>
             </choose>
         </if>
-        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
+        <if test="year != null and year != ''">
+            AND YEAR(DATE_ADD(COALESCE(validity_data, signing_data), INTERVAL 1 MONTH)) = #{year}
+        </if>
         <if  test="dname != null  and dname != ''"> and d.dept_name like concat('%', #{dname}, '%')</if>
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
