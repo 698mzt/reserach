@@ -693,14 +693,14 @@
             } else if (row.state == 2) {
               actions.push('<a class="' + proFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000"></i>撤回</a>');
               if (hechaFlag != 'hidden') {
-                actions.push('<a class="' + hechaFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/hecha' + '\')"></i>核查</a>');
+                actions.push('<a class="' + hechaFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/hecha' + '\')"></i>批阅</a>');
               }
               huanhang = true;
             } else if (row.state == 4) {
 
               actions.push('<a class="' + hechaFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000"></i>撤回</a>');
               if (chayueFlag != 'hidden') {
-                actions.push('<a class="' + chayueFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chayue' + '\')"></i>查阅</a>');
+                actions.push('<a class="' + chayueFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chayue' + '\')"></i>批阅</a>');
               }
               huanhang = true;
             } else if (row.state == 6) {
