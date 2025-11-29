@@ -574,7 +574,7 @@
                             else if(row.state ==  2){
                                 actions.push('<a  class="' + proFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000">撤回&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                                 if (hechaFlag != 'hidden'){
-                                actions.push('<a  class="' + hechaFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/hecha' + '\')">核查&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
+                                actions.push('<a  class="' + hechaFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/hecha' + '\')">批阅&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                                 }
                                 huanhang = true;
                             }else
@@ -584,7 +584,7 @@
                                 huanhang = true;
                             }
                             if (chayueFlag != 'hidden') {
-                                actions.push('<a  class="' + chayueFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chayue' + '\')">查阅&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
+                                actions.push('<a  class="' + chayueFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chayue' + '\')">批阅&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                                 huanhang = true;
                             }
                             }

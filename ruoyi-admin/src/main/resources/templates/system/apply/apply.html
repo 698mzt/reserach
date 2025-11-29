@@ -902,7 +902,7 @@
                                 hasButton = true;
                             }
                             if (row.ynameId == row.userynameId || row.uid == 1) {
-                                actions.push('<a  class="' + DeptFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/Dept' + '\')">学院核查&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
+                                actions.push('<a  class="' + DeptFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/Dept' + '\')">批阅&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                                 hasButton = true;
                             }
                             if (row.dnameId == row.userdnameId || row.uid == 1) {
@@ -931,7 +931,7 @@
                             if (row.userId == row.uid){
                                 actions.push('<a   class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.reamountTab(\'' + row.id + '\')"> 追加金额&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                             }
-                            actions.push('<a  class="' + hechaFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/hecha'+ '\')">核查&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
+                            actions.push('<a  class="' + hechaFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/hecha'+ '\')">批阅&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                             if(row.ynameId == row.userynameId || row.uid == 1)
                                 actions.push('<a  class="' + DeptFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000">撤回&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                             if(hechaFlag !== "hidden" || DeptFlag !== "hidden" || (editFlag !== "hidden" && row.uid==row.userId))

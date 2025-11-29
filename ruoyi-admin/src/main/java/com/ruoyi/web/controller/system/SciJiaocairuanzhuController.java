@@ -92,10 +92,10 @@ public class SciJiaocairuanzhuController extends BaseController
                     break label;
                 case "dept_teacher":
                 case "discuss_college":
-                case "art_design_college":
-                case "cxcy_college":
-                case "marxism_college":
                 case "dzgc_college":
+                case "yssj_college":
+                case "student_college":
+                case "marxism_college":
                     role = "dept_teacher";
                     break label;
                 case "admin":

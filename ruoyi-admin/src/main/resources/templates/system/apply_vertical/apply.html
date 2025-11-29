@@ -857,7 +857,7 @@
                             actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
                         }else if(row.state ==  2){
                             if(row.ynameId == row.userynameId)
-                                actions.push('<a  class="' + DeptFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/Dept'+ '\')">学院核查&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
+                                actions.push('<a  class="' + DeptFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/Dept'+ '\')">批阅&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                             if (row.dnameId == row.userdnameId)
                                 actions.push('<a  class="' + JYSFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000">撤回&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                             if (DeptFlag != "hidden" || JYSFlag != "hidden")
@@ -876,7 +876,7 @@
                             actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
                         }
                         if(row.state ==  4){
-                            actions.push('<a  class="' + KYCFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/KYC'+ '\')">科研处批阅&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
+                            actions.push('<a  class="' + KYCFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/KYC'+ '\')">批阅&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                             actions.push('<a  class="' + DeptFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000">撤回&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                             if (KYCFlag != "hidden" || DeptFlag != "hidden")
                                 actions.push('<br>')

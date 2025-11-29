@@ -60,8 +60,8 @@ public class SciLectureReportController extends BaseController
             "dept_teacher", // 软件学院管理员
             "discuss_college", // 商学院管理员
             "dzgc_college", // 电子工程学院管理员
-            "art_design_college", // 艺术设计学院管理员
-            "cxcy_college", // 创新创业学院管理员
+            "yssj_college", // 艺术设计学院管理员
+            "student_college", // 学生处学院管理员
             "marxism_college" // 马克思主义学院管理员
     ));
     @RequiresPermissions("system:report:view")
