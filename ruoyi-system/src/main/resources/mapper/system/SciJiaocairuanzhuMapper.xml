@@ -26,7 +26,7 @@
         
     </resultMap>
     <sql id="selectSciJiaocairuanzhuVo">
-        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.mingcheng, s.isbn, s.chubanshijian, s.chubanshe, s.benxiaoshifoyongshu, s.fenlei, s.state,s.jifen,s.paiming,s.wenjian,s.createtime
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname,p.dept_id parent_id, s.user_id, s.mingcheng, s.isbn, s.chubanshijian, s.chubanshe, s.benxiaoshifoyongshu, s.fenlei, s.state,s.jifen,s.paiming,s.wenjian,s.createtime
         from sci_jiaocairuanzhu s left join sys_user u on  s.user_id=u.user_id
                                   left join sys_dept d on u.dept_id = d.dept_id
                                   left join sys_dept p on d.parent_id =p.dept_id
