@@ -264,6 +264,11 @@ public class SciPaperAController extends BaseController {
 //                        //throw new RuntimeException("论文网址不能为空");
 //                    }
 //                }
+                if (!sciPaperA.getPaperCategory().equals("9")) {
+                    if (sciPaperA.getText_paper() == null || sciPaperA.getText_paper().length() <= 0){
+                        throw new RuntimeException("非校刊论文收录通知不能为空");
+                    }
+                }
                 //插入论文数据
                 sciPaperAService.insertSciPaperA(sciPaperA);
 
