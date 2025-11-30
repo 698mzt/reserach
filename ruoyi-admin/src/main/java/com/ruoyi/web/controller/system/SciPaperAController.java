@@ -269,8 +269,18 @@ public class SciPaperAController extends BaseController {
                         throw new RuntimeException("非校刊论文收录通知不能为空");
                     }
                 }
+
                 //插入论文数据
-                sciPaperAService.insertSciPaperA(sciPaperA);
+                int i1 = sciPaperAService.insertSciPaperA(sciPaperA);
+                if (i1==1){
+                    if (sciPaperA.getText_paper() == null || sciPaperA.getText_paper().length() <= 0){
+                        System.out.println("插入论文:收录通知为空");
+                    }
+                    if (sciPaperA.getWord_paper() == null || sciPaperA.getWord_paper().length() <= 0){
+                        System.out.println("插入论文:论文原文为空");
+                    }
+                }
+                
 
                 // 保存1-4作信息到Paper_user_score表
                 int i = savePaperAuthorsToScoreTable(sciPaperA);
