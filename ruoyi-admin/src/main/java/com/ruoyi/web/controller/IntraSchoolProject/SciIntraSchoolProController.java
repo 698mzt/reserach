@@ -11,6 +11,7 @@ import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.system.domain.*;
 import com.ruoyi.system.service.*;
+import io.swagger.models.auth.In;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -185,7 +186,9 @@ public class SciIntraSchoolProController extends BaseController {
    */
   private String panRole_str() {
     String role_str = "";
-    //当前登陆角色列表，如果一个人有多个角色，列表就多一项
+    List<Long> collage_role_ids = new ArrayList<>(Arrays.asList(103L, 104L, 105L, 106L, 107L, 108L, 116L, 117L, 118L, 119L));
+
+      //当前登陆角色列表，如果一个人有多个角色，列表就多一项
     List<SysRole> roles = getSysUser().getRoles();
     //代表六个身份
     List<Integer> roles_list = new ArrayList<>(Arrays.asList(0, 0, 0, 0, 0, 0));
@@ -205,7 +208,7 @@ public class SciIntraSchoolProController extends BaseController {
         roles_list.set(4, 1);
       }
       //学院负责人
-      if (r.getRoleId() == 103 || r.getRoleId() == 104 || r.getRoleId() == 105 || r.getRoleId() == 106 || r.getRoleId() == 107 || r.getRoleId() == 108) {
+      if (collage_role_ids.contains(r.getRoleId())) {
         roles_list.set(5, 1);
       }
       //超级管理员
