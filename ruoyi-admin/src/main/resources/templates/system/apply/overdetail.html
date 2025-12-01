@@ -142,9 +142,9 @@
                 <label class="col-sm-4 control-label is-required">结题合同：</label>
                 <div class="col-sm-8">
                     <input th:field="*{filingurl}" hidden id="filingurl" type="text" >
-                    <div style="display: inline-block;">
-                        <div id="filingurlFileName" style="display: inline; margin-right: 5px;"></div>
-                    </div>
+<!--                    <div style="display: inline-block;">-->
+<!--                        <div id="filingurlFileName" style="display: inline; margin-right: 5px;"></div>-->
+<!--                    </div>-->
                     <div>
                         <button onclick="chakan()" class="btn btn-sm btn-primary color">预览</button>
                         <button onclick="downloadFile('filingurl')" class="btn btn-sm btn-primary color">下载</button>
@@ -159,9 +159,9 @@
                 <label class="col-sm-4 control-label is-required">结题备案表：</label>
                 <div class="col-sm-8">
                     <input th:field="*{agreeurl}" hidden id="agreeurl" type="text" >
-                    <div style="display: inline-block;">
-                        <div id="agreeurlFileName" style="display: inline; margin-right: 5px;"></div>
-                    </div>
+<!--                    <div style="display: inline-block;">-->
+<!--                        <div id="agreeurlFileName" style="display: inline; margin-right: 5px;"></div>-->
+<!--                    </div>-->
                     <div>
                         <button onclick="beian()" class="btn btn-sm btn-primary color">预览</button>
                         <button onclick="downloadFile('agreeurl')" class="btn btn-sm btn-primary color">下载</button>
@@ -433,10 +433,10 @@
         $("input[name='" + event.currentTarget.id + "']").val('')
     })
     // 页面加载时显示文件名
-    window.onload = function() {
-        displayFileName('agreeurl', 'agreeurlFileName');
-        displayFileName('filingurl', 'filingurlFileName');
-    };
+    // window.onload = function() {
+    //     displayFileName('agreeurl', 'agreeurlFileName');
+    //     displayFileName('filingurl', 'filingurlFileName');
+    // };
 </script>
 </body>
 </html>
