@@ -6,6 +6,14 @@
     <th:block th:include="include :: bootstrap-fileinput-css"/>
     <th:block th:include="include :: select2-css"/>
 </head>
+<style>
+    #filingFileName{
+        display: none!important
+    }
+    #contractFileName{
+        display: none!important
+    }
+</style>
 <body class="white-bg">
 <div class="wrapper wrapper-content animated fadeInRight ibox-content">
     <form class="form-horizontal m" id="form-apply-edit" th:object="${sciIntraSchoolPro}">
