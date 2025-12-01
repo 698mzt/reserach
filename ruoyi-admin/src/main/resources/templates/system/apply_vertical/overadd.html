@@ -149,7 +149,7 @@
             </div>
             <div class="col-xs-4">
                 <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">中期文件：</label>
+                    <label class="col-sm-4 control-label">中期文件：</label>
                     <div class="col-sm-8">
                         <input type="hidden" name="midfile">
                         <div class="file-loading">
@@ -232,11 +232,9 @@
     function submitHandler() {
         if ($.validate.form()) {
             if($("input[name='openfile']").val()=="")
-                return $.modal.alertError("请上传文件1");
-            if($("input[name='midfile']").val()=="")
-                return $.modal.alertError("请上传文件2");
+                return $.modal.alertError("请上传开题文件");
             if($("input[name='overfile']").val()=="")
-                return $.modal.alertError("请上传文件3");
+                return $.modal.alertError("请上传结题文件");
             $.operate.saveTab(prefix + "/overadd", $('#form-apply-add').serialize());
         }
 
