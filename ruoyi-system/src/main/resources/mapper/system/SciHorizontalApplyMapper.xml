@@ -91,9 +91,14 @@
         ${params.dataScope}
         order  by
         case
-        when state in (3,5,22) then 1
-        when state = 4 then 2
-        when state in (1,2,11) then 3
+--         草稿箱
+        when state = 99 then 1
+--         被驳回
+        when state in (3,22,5) then 2
+--         申请结项
+        when state = 4 then 3
+--         审核中
+        when state in (1,2,11) then 4
         end,
         createtime desc
     </select>
@@ -114,9 +119,11 @@
         ${params.dataScope}
         order  by
         case
-        when state = 2 then 1
-        when state = 1 then 2
-        when state in (4,11) then 3
+--         待教研室审核
+        when state = 1 then 1
+--         教研室通过
+        when state = 2 then 2
+--         when state in (4,11) then 3
         end,
         createtime desc
     </select>
@@ -137,7 +144,9 @@
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
         order  by
         case
+--         待科研处审核
         when state = 11 then 2
+--         科研处通过
         when state = 4 then 1
         end,
         createtime desc
@@ -160,8 +169,10 @@
         ${params.dataScope}
         order  by
         case
-        when state in (2,11) then 1
-        when state = 4 then 2
+--         待学院审核
+        when state = 2 then 1
+--         学院通过
+        when state = 11 then 2
         end,
         createtime desc
     </select>
@@ -181,7 +192,14 @@
         <if test="state != null  and state != ''"> and state = #{state}</if>
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(validity_Date,INTERVAL 1 MONTH)) = #{year}</if>
         ${params.dataScope}
-        order  by s.createtime desc
+        order  by
+        case
+--         被驳回
+        when state in (9,10,44) then 2
+--         审核中
+        when state in (7,8.33) then 4
+        end,
+        s.createtime desc
     </select>
 
     <!--    教研室查询结项审批-->
@@ -199,7 +217,14 @@
         <if test="state != null  and state != ''"> and state = #{state}</if>
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(validity_Date,INTERVAL 1 MONTH)) = #{year}</if>
         ${params.dataScope}
-        order  by s.createtime desc
+        order  by
+        case
+--         待教研室审核
+        when state = 7 then 1
+--         教研室审核通过
+        when state = 8 then 2
+        end,
+        s.createtime desc
     </select>
     <!--    科研处查询结项审批-->
     <select id="selectSciHorizontalApplyListByOverApplyKYC" parameterType="SciHorizontalApply" resultMap="SciHorizontalApplyResult">
@@ -208,14 +233,21 @@
         left join sys_user u on  s.user_id=u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
-        where s.state in (33)
+        where s.state in (33,4)
         <!--            <if test="userId != null "> and user_id = #{userId}</if>-->
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
         <if  test="dname != null  and dname != ''"> and d.dept_name like concat('%', #{dname}, '%')</if>
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(validity_Date,INTERVAL 1 MONTH)) = #{year}</if>
-        order  by s.createtime desc
+        order  by
+        case
+--         待科研处审核
+        when state = 33 then 1
+--         科研处审核通过
+        when state = 4 then 2
+        end,
+        s.createtime desc
     </select>
 
     <!--    学院查询结项审批-->
@@ -233,7 +265,14 @@
         <if test="state != null  and state != ''"> and state = #{state}</if>
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(validity_Date,INTERVAL 1 MONTH)) = #{year}</if>
         ${params.dataScope}
-        order  by s.createtime desc
+        order  by
+        case
+--         待学院审核
+        when state = 8 then 1
+--         学院通过
+        when state = 33 then 2
+        end,
+        s.createtime desc
     </select>
 
     <!--查询已结项-->

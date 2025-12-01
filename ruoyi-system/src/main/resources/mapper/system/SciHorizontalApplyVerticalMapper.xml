@@ -54,7 +54,18 @@
         <if test="topNumber != null  and topNumber != ''"> or top_number =  #{topNumber}</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
         ${params.dataScope}
-        order by s.createtime desc
+        order by
+        case
+--         草稿箱
+        when state = 99 then 1
+--         被驳回
+        when state in (3,5,7) then 2
+--         申请结项
+        when state = 6 then 3
+--         审核中
+        when state in (1,2,4) then 4
+        end,
+        s.createtime desc
     </select>
 
     <select id="selectSciHorizontalApplyVerticalListJYS"  resultType="SciHorizontalApplyVertical" resultMap="SciHorizontalApplyVerticalResult">
@@ -68,8 +79,15 @@
         <if  test="dname != null  and dname != ''"> and d.dept_name like concat('%', #{dname}, '%')</if>
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
-            ${params.dataScope}
-        order by s.createtime desc
+        ${params.dataScope}
+        order by
+        case
+--         待教研室审核
+        when state = 1 then 1
+--         教研室通过
+        when state = 2 then 2
+        end,
+        s.createtime desc
     </select>
 
     <select id="selectSciHorizontalApplyVerticalListDept"  resultType="SciHorizontalApplyVertical" resultMap="SciHorizontalApplyVerticalResult">
@@ -84,7 +102,14 @@
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
         ${params.dataScope}
-        order by s.createtime desc
+        order by
+        case
+--         待学院审核
+        when state = 2 then 1
+--         学院通过
+        when state = 3 then 2
+        end,
+        s.createtime desc
     </select>
 
     <select id="selectSciHorizontalApplyVerticalListKYC"  resultType="SciHorizontalApplyVertical" resultMap="SciHorizontalApplyVerticalResult">
@@ -98,7 +123,14 @@
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
             ${params.dataScope}
-        order by s.createtime desc
+        order by
+        case
+--         待科研处审核
+        when state = 4 then 1
+--         科研处通过
+        when state = 6 then 2
+        end,
+        s.createtime desc
     </select>
 
 
@@ -115,7 +147,14 @@
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
         ${params.dataScope}
-        order by s.createtime desc
+        order by
+        case
+--         被驳回
+        when state in (33,55,77) then 2
+--         审核中
+        when state in (11,22,44) then 4
+        end,
+        s.createtime desc
     </select>
 
     <select id="selectSciHorizontalApplyVerticalListJYSJX"  resultType="SciHorizontalApplyVertical" resultMap="SciHorizontalApplyVerticalResult" >
@@ -131,7 +170,14 @@
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
         ${params.dataScope}
-        order by s.createtime desc
+        order by
+        case
+--         待教研室审核
+        when state = 11 then 1
+--         教研室通过
+        when state = 22 then 2
+        end,
+        s.createtime desc
     </select>
 
     <select id="selectSciHorizontalApplyVerticalListDeptJX"  resultType="SciHorizontalApplyVertical" resultMap="SciHorizontalApplyVerticalResult" >
@@ -148,7 +194,14 @@
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
         ${params.dataScope}
-        order by s.createtime desc
+        order by
+        case
+--         待教研室审核
+        when state = 22 then 1
+--         教研室通过
+        when state = 44 then 2
+        end,
+        s.createtime desc
     </select>
 
     <select id="selectSciHorizontalApplyVerticalListKYCJX"  resultType="SciHorizontalApplyVertical" resultMap="SciHorizontalApplyVerticalResult" >

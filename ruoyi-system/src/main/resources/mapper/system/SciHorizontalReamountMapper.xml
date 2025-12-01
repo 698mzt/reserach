@@ -131,16 +131,12 @@
         ${params.dataScope}
         order  by
         case
---         已完结
-        when re.state = 6 then 1
---         教研室审批
-        when re.state = 1 then 2
---         学院审批
-        when re.state = 2 then 3
---         科研处审批
-        when re.state = 11 then 4
 --         草稿
-        when re.state = 99 then 5
+        when re.state = 99 then 1
+--         审批中
+        when re.state in (1,2,11) then 2
+--         已完结
+        when re.state = 6 then 3
         end,
         re.createtime desc
     </select>
@@ -159,7 +155,15 @@
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
             ${params.dataScope}
         order  by
-        re.createtime
+        case
+--         草稿
+        when re.state = 99 then 1
+--         审批中
+        when re.state in (1,2,11) then 2
+--         已完结
+        when re.state = 6 then 3
+        end,
+        re.createtime desc
     </select>
 
     <select id="selectAmountListDept" resultMap="SciHorizontalApplyResult" parameterType="SciHorizontalApply">
@@ -177,7 +181,15 @@
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
         ${params.dataScope}
         order  by
-        re.createtime
+        case
+--         草稿
+        when re.state = 99 then 1
+--         审批中
+        when re.state in (1,2,11) then 2
+--         已完结
+        when re.state = 6 then 3
+        end,
+        re.createtime desc
     </select>
 
     <select id="selectAmountListKYC" resultMap="SciHorizontalApplyResult" parameterType="SciHorizontalApply">
@@ -195,6 +207,13 @@
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
         ${params.dataScope}
         order  by
+--         草稿
+        when re.state = 99 then 1
+--         审批中
+        when re.state in (1,2,11) then 2
+--         已完结
+        when re.state = 6 then 3
+        end,
         re.createtime desc
     </select>
 
@@ -293,12 +312,14 @@
         ${params.dataScope}
         order  by
         case
-        when re.state in (3,5,22) then 1
-        when re.state = 1 then 2
-        when re.state in (2,11) then 3
-        when re.state = 4 then 4
+--         草稿
+        when re.state = 99 then 1
+--         审批中
+        when re.state in (1,2,11) then 2
+--         已完结
+        when re.state = 6 then 3
         end,
-        createtime desc
+        re.createtime desc
     </select>
 
     <select id="selectVerticalAmountListJYS" resultMap="SciHorizontalApplyVerticalResult" parameterType="SciHorizontalApplyVertical">
@@ -316,11 +337,14 @@
         ${params.dataScope}
         order  by
         case
-        when re.state = 2 then 1
-        when re.state = 1 then 2
-        when re.state in (4,11) then 3
+--         草稿
+        when re.state = 99 then 1
+--         审批中
+        when re.state in (1,2,11) then 2
+--         已完结
+        when re.state = 6 then 3
         end,
-        createtime
+        re.createtime desc
     </select>
 
     <select id="selectVerticalAmountListDept" resultMap="SciHorizontalApplyVerticalResult" parameterType="SciHorizontalApplyVertical">
@@ -337,11 +361,14 @@
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
         ${params.dataScope}
         order  by
-        case
-        when re.state in (2,11) then 1
-        when re.state = 4 then 2
+--         草稿
+        when re.state = 99 then 1
+--         审批中
+        when re.state in (1,2,11) then 2
+--         已完结
+        when re.state = 6 then 3
         end,
-        createtime
+        re.createtime desc
     </select>
 
     <select id="selectVerticalAmountListKYC" resultMap="SciHorizontalApplyVerticalResult" parameterType="SciHorizontalApplyVertical">
@@ -359,10 +386,14 @@
         ${params.dataScope}
         order  by
         case
-        when re.state = 11 then 1
-        when re.state = 4 then 2
+--         草稿
+        when re.state = 99 then 1
+--         审批中
+        when re.state in (1,2,11) then 2
+--         已完结
+        when re.state = 6 then 3
         end,
-        createtime desc
+        re.createtime desc
     </select>
 
     <update id="push">
