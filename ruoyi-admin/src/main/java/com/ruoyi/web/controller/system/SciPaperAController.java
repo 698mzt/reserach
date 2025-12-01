@@ -69,6 +69,7 @@ public class SciPaperAController extends BaseController {
 
     @Resource
     private IPaperUserScoreService paperUserScoreService;
+    private List<Long> collage_role_ids = new ArrayList<>(Arrays.asList(103L, 104L, 105L, 106L, 107L, 108L, 116L, 117L, 118L, 119L));
 
 
     @RequiresPermissions("system:paper:view")
@@ -96,8 +97,13 @@ public class SciPaperAController extends BaseController {
             return prefix + "/paper_ky";
         }
         //学院+普通老师身份
-        else if ((roleId.contains("103") || roleId.contains("104") || roleId.contains("105") || roleId.contains("106") || roleId.contains("107") || roleId.contains("108")) && roleId.contains("100")) {
+        else if ((roleId.contains("103") || roleId.contains("104") || roleId.contains("105") || roleId.contains("106") || roleId.contains("107") || roleId.contains("108")|| roleId.contains("116L")|| roleId.contains("117")|| roleId.contains("118")|| roleId.contains("109")) && roleId.contains("100")) {
             System.out.println("学院+普通老师身份");
+            return prefix + "/paper_xy";
+        }
+        //学院
+        else if ((roleId.contains("103") || roleId.contains("104") || roleId.contains("105") || roleId.contains("106") || roleId.contains("107") || roleId.contains("108")|| roleId.contains("116L")|| roleId.contains("117")|| roleId.contains("118")|| roleId.contains("109"))) {
+            System.out.println("学院身份");
             return prefix + "/paper_xy";
         } else if (roleId.contains("100") && roleId.size() == 1) {
             System.out.println("普通老师身份");
@@ -165,7 +171,14 @@ public class SciPaperAController extends BaseController {
             list = sciPaperAService.selectSciPaperAListKY(sciPaperA);
         }
         //学院+普通老师身份
-        else if ((roleId.contains("103") || roleId.contains("104") || roleId.contains("105") || roleId.contains("106") || roleId.contains("107") || roleId.contains("108")) && roleId.contains("100")) {
+        else if ((roleId.contains("103") || roleId.contains("104") || roleId.contains("105") || roleId.contains("106") || roleId.contains("107") || roleId.contains("108")|| roleId.contains("116L")|| roleId.contains("117")|| roleId.contains("118")|| roleId.contains("109")) && roleId.contains("100")) {
+            //学院身份
+            SysUser user = getSysUser();
+            sciPaperA.setCollegeId(String.valueOf(user.getParentId()));
+            PageHelper.startPage(pageNum, pageSize);
+            list = sciPaperAService.selectSciPaperAListXY(sciPaperA);
+            System.out.println("list = " + list);
+        }else if ((roleId.contains("103") || roleId.contains("104") || roleId.contains("105") || roleId.contains("106") || roleId.contains("107") || roleId.contains("108")|| roleId.contains("116L")|| roleId.contains("117")|| roleId.contains("118")|| roleId.contains("109"))) {
             //学院身份
             SysUser user = getSysUser();
             sciPaperA.setCollegeId(String.valueOf(user.getParentId()));
@@ -251,8 +264,23 @@ public class SciPaperAController extends BaseController {
 //                        //throw new RuntimeException("论文网址不能为空");
 //                    }
 //                }
+                if (!sciPaperA.getPaperCategory().equals("9")) {
+                    if (sciPaperA.getText_paper() == null || sciPaperA.getText_paper().length() <= 0){
+                        throw new RuntimeException("非校刊论文收录通知不能为空");
+                    }
+                }
+
                 //插入论文数据
-                sciPaperAService.insertSciPaperA(sciPaperA);
+                int i1 = sciPaperAService.insertSciPaperA(sciPaperA);
+                if (i1==1){
+                    if (sciPaperA.getText_paper() == null || sciPaperA.getText_paper().length() <= 0){
+                        System.out.println("插入论文:收录通知为空");
+                    }
+                    if (sciPaperA.getWord_paper() == null || sciPaperA.getWord_paper().length() <= 0){
+                        System.out.println("插入论文:论文原文为空");
+                    }
+                }
+                
 
                 // 保存1-4作信息到Paper_user_score表
                 int i = savePaperAuthorsToScoreTable(sciPaperA);

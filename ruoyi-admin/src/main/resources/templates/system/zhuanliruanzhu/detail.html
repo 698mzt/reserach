@@ -22,9 +22,11 @@
             <div class="col-sm-6">
                 <label class="col-sm-4 control-label is-required">学院：</label>
                 <div class="col-sm-8">
-                    <select name="xueyuan" class="form-control" th:with="type=${@dict.getType('sys_dept')}" required disabled="true">
-                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}" th:field="*{xueyuan}"></option>
-                    </select>
+                    <input name="xueyuan" th:field="*{xueyuan}" class="form-control" type="text" required disabled="true">
+
+<!--                    <select name="xueyuan" class="form-control" th:with="type=${@dict.getType('sys_dept')}" required disabled="true">-->
+<!--                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}" th:field="*{xueyuan}"></option>-->
+<!--                    </select>-->
                 </div>
             </div>
             <div class="col-sm-6">
@@ -107,9 +109,10 @@
         <div class="col-sm-6">
             <label class="col-sm-4 control-label is-required">排名：</label>
             <div class="col-sm-8">
-                <select name="paiming" class="form-control" th:with="type=${@dict.getType('sys_zhuanliruanzhu_fzr')}" required disabled="true">
+                <select name="paiming" class="form-control" th:with="type=${@dict.getType('sys_zhuanliruanzhu_fzr')}" required disabled="true" th:field="*{paiming}">
                     <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
                 </select>
+
             </div>
         </div>
         <div class="row">
