@@ -6,6 +6,14 @@
     <th:block th:include="include :: bootstrap-fileinput-css"/>
     <th:block th:include="include :: select2-css"/>
 </head>
+<style>
+    #contractFileName{
+        display: none!important
+    }
+    #wordFileName{
+        display: none!important
+    }
+</style>
 <body class="white-bg">
 <div class="wrapper wrapper-content animated fadeInRight ibox-content">
     <form class="form-horizontal m" id="form-paper-process" th:object="${sciPaperA}">
@@ -211,8 +219,14 @@
             <div class="col-md-6">
                 <div class="form-group">
                     <label class="col-sm-4 control-label">论文网址：</label>
-                    <div class="col-sm-8">
-                        <input disabled name="search_web" th:field="*{search_web}" class="form-control" type="text">
+                    <div class="col-sm-7">
+                        <a th:href="*{search_web}"
+                           th:text="*{search_web}"
+                                target="_blank"
+                           class="form-control"
+
+                        >
+                        </a>
                     </div>
                 </div>
             </div>
@@ -241,8 +255,7 @@
                             <div id="wordFileName" style="display: inline; margin-right: 5px;"></div>
                         </div>
                         <div>
-                            <button onclick="downloadFile('word_paper')" class="btn btn-sm btn-primary color">下载</button>
-                            <button  class="alert-link">论文请下载后查看</button>
+                            <button onclick="downloadFile('word_paper')" class="btn btn-sm btn-primary color">下载并查看</button>
                         </div>
                     </div>
                 </div>
@@ -339,6 +352,7 @@
             // 对于MinIO文件，使用通用下载接口
             var contextPath = '/' + window.location.pathname.split('/')[1];
             downloadUrl = window.location.origin + contextPath + '/common/download?fileName=' + encodeURIComponent(relativePath);
+            console.log('downloadUrl',downloadUrl)
         } else {
             // 对于本地文件，按原方式处理
             var contextPath = '/' + window.location.pathname.split('/')[1];

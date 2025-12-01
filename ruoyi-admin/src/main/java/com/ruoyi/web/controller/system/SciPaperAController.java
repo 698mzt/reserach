@@ -152,7 +152,7 @@ public class SciPaperAController extends BaseController {
         sciPaperA.setYear(year);
 
         List<SciPaperA> list = new ArrayList<>();
-// 所有的审核方都会有普通老师身份，单身份的判断暂时先留着，除非增加审核方的时候少给他加上普通老师身份，否则不会报错
+        // 所有的审核方都会有普通老师身份，单身份的判断暂时先留着，除非增加审核方的时候少给他加上普通老师身份，否则不会报错
         //教研室+普通老师身份
         // or((pa1.user_id = #{uid} or  pa2.user_id = #{uid}) or pa3.user_id = #{uid}  or pa4.user_id = #{uid} or pac.user_id = #{uid})
         if (roleId.contains("102") && roleId.contains("100")&& !roleId.contains("101")) {
@@ -318,7 +318,7 @@ public class SciPaperAController extends BaseController {
     }
 
     /**
-     * 保存1-4作信息到Paper_user_score表
+     * 保存1-4作信息到 Paper_user_score 表
      */
     private int savePaperAuthorsToScoreTable(SciPaperA sciPaperA) {
         // 如果作者没有当前登录人，返回失败
@@ -483,7 +483,7 @@ public class SciPaperAController extends BaseController {
     }
 
     /**
-     * 修改论文
+     * 修改论文html
      */
     @RequiresPermissions("system:paper:edit")
     @GetMapping("/edit/{id}")

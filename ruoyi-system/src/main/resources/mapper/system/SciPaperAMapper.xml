@@ -163,7 +163,7 @@
             <if test="remarks != null  and remarks != ''"> and remarks = #{remarks}</if>
             <if test="year != null  and year != ''"> and YEAR(publication_time) = #{year}</if>
         </where>
-      order  by p.state
+      order  by field(p.state ,'1','2','4')
     </select>
 <!--待科研处审核，完成-->
     <select id="selectSciPaperAListKY" parameterType="SciPaperA" resultMap="SciPaperAResult">
@@ -187,7 +187,7 @@
             <if test="year != null  and year != ''"> and YEAR(publication_time) = #{year}</if>
 
         </where>
-        order  by p.state
+        order  by field(p.state ,'1','2','4')
     </select>
   <!--待学院审核，完成-->
     <select id="selectSciPaperAListXY" parameterType="SciPaperA" resultMap="SciPaperAResult">
@@ -294,7 +294,7 @@
             <if test="remarks != null  and remarks != ''"> and remarks = #{remarks}</if>
             <if test="year != null  and year != ''"> and YEAR(publication_time) = #{year}</if>
         </where>
-      order  by p.state
+      order  by field(p.state ,'1','2','4')
     </select>
 
     <select id="selectSciPaperAListCxList" parameterType="SciPaperA" resultMap="SciPaperAResult">
@@ -380,7 +380,8 @@
             <if test="year != null  and year != ''"> and YEAR(publication_time) = #{year}</if>
         </where>
 
-      order  by p.state
+      order  by field(p.state ,'1','2','4')
+
 </select>
 
     <select id="selectSciPaperArole" parameterType="SciPaperA" resultMap="SciPaperAResult">
@@ -515,7 +516,7 @@
         <if test="remarks != null  and remarks != ''"> and remarks = #{remarks}</if>
         <if test="year != null  and year != ''"> and YEAR(publication_time) = #{year}</if>
       </where>
-      order  by p.state
+      order  by field(p.state ,'1','2','4')
     </select>
 
     <select id="selectSciPaperAByroleId" >
@@ -581,46 +582,46 @@
     <insert id="insertSciPaperA" parameterType="SciPaperA" useGeneratedKeys="true" keyProperty="id">
         insert into sci_paper_a
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="userId != null">user_id,</if>
-            <if test="teacherName != null">teacher_name,</if>
-            <if test="paperTitle != null">paper_title,</if>
-            <if test="paperType != null">paper_type,</if>
-            <if test="paperCategory != null">paper_category,</if>
-            <if test="publishedJournal != null">published_journal,</if>
-            <if test="inclusionStatus != null">inclusion_status,</if>
-            <if test="publicationTime != null">publication_time,</if>
-            <if test="text_paper != null">text_paper,</if>
-            <if test="word_paper != null">word_paper,</if>
-            <if test="search_web != null">search_web,</if>
-            <if test="isIndustryCollaborative != null">is_industry_collaborative,</if>
-            <if test="isLocalCollaborative != null">is_local_collaborative,</if>
-            <if test="isInternationalCollaborative != null">is_international_collaborative,</if>
-            <if test="isCrossDiscipline != null">is_cross_discipline,</if>
-            <if test="paperRanking != null">paper_ranking,</if>
-            <if test="researchScore != null">research_score,</if>
-            <if test="remarks != null">remarks,</if>
-            <if test="isIndependentauthor != null">is_Independentauthor,</if>
+            <if test="userId != null and userId != ''">user_id,</if>
+            <if test="teacherName != null and teacherName != ''">teacher_name,</if>
+            <if test="paperTitle != null and paperTitle != ''">paper_title,</if>
+            <if test="paperType != null and paperType != ''">paper_type,</if>
+            <if test="paperCategory != null and paperCategory != ''">paper_category,</if>
+            <if test="publishedJournal != null and publishedJournal != ''">published_journal,</if>
+            <if test="inclusionStatus != null and inclusionStatus != ''">inclusion_status,</if>
+            <if test="publicationTime != null and publicationTime != ''">publication_time,</if>
+            <if test="text_paper != null and text_paper != ''">text_paper,</if>
+            <if test="word_paper != null and word_paper !=  ''">word_paper,</if>
+            <if test="search_web != null and search_web != ''">search_web,</if>
+            <if test="isIndustryCollaborative != null and isIndustryCollaborative != ''">is_industry_collaborative,</if>
+            <if test="isLocalCollaborative != null and isLocalCollaborative != ''">is_local_collaborative,</if>
+            <if test="isInternationalCollaborative != null and isInternationalCollaborative != ''">is_international_collaborative,</if>
+            <if test="isCrossDiscipline != null and isCrossDiscipline != ''">is_cross_discipline,</if>
+            <if test="paperRanking != null and paperRanking != ''">paper_ranking,</if>
+            <if test="researchScore != null and researchScore != ''">research_score,</if>
+            <if test="remarks != null and remarks != ''">remarks,</if>
+            <if test="isIndependentauthor != null and isIndependentauthor != ''">is_Independentauthor,</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="userId != null">#{userId},</if>
-            <if test="teacherName != null">#{teacherName},</if>
-            <if test="paperTitle != null">#{paperTitle},</if>
-            <if test="paperType != null">#{paperType},</if>
-            <if test="paperCategory != null">#{paperCategory},</if>
-            <if test="publishedJournal != null">#{publishedJournal},</if>
-            <if test="inclusionStatus != null">#{inclusionStatus},</if>
-            <if test="publicationTime != null">#{publicationTime},</if>
-            <if test="text_paper != null">#{text_paper},</if>
-            <if test="word_paper != null">#{word_paper},</if>
-            <if test="search_web != null">#{search_web},</if>
-            <if test="isIndustryCollaborative != null">#{isIndustryCollaborative},</if>
-            <if test="isLocalCollaborative != null">#{isLocalCollaborative},</if>
-            <if test="isInternationalCollaborative != null">#{isInternationalCollaborative},</if>
-            <if test="isCrossDiscipline != null">#{isCrossDiscipline},</if>
-            <if test="paperRanking != null">#{paperRanking},</if>
-            <if test="researchScore != null">#{researchScore},</if>
-            <if test="remarks != null">#{remarks},</if>
-            <if test="isIndependentauthor != null">#{isIndependentauthor},</if>
+            <if test="userId != null and userId != ''">#{userId},</if>
+            <if test="teacherName != null and teacherName != ''">#{teacherName},</if>
+            <if test="paperTitle != null and paperTitle != ''">#{paperTitle},</if>
+            <if test="paperType != null and paperType != ''">#{paperType},</if>
+            <if test="paperCategory != null and paperCategory != ''">#{paperCategory},</if>
+            <if test="publishedJournal != null and publishedJournal != ''">#{publishedJournal},</if>
+            <if test="inclusionStatus != null and inclusionStatus != ''">#{inclusionStatus},</if>
+            <if test="publicationTime != null and publicationTime != ''">#{publicationTime},</if>
+            <if test="text_paper != null and text_paper != ''"> #{text_paper},</if>
+            <if test="word_paper != null and word_paper !=  ''">#{word_paper},</if>
+            <if test="search_web != null and search_web != ''">#{search_web},</if>
+            <if test="isIndustryCollaborative != null and isIndustryCollaborative != ''">#{isIndustryCollaborative},</if>
+            <if test="isLocalCollaborative != null and isLocalCollaborative != ''">#{isLocalCollaborative},</if>
+            <if test="isInternationalCollaborative != null and isInternationalCollaborative != ''">#{isInternationalCollaborative},</if>
+            <if test="isCrossDiscipline != null and isCrossDiscipline != ''">#{isCrossDiscipline},</if>
+            <if test="paperRanking != null and paperRanking != ''">#{paperRanking},</if>
+            <if test="researchScore != null and researchScore != ''">#{researchScore},</if>
+            <if test="remarks != null and remarks != ''">#{remarks},</if>
+            <if test="isIndependentauthor != null and isIndependentauthor != ''">#{isIndependentauthor},</if>
         </trim>
     </insert>
 
@@ -683,8 +684,8 @@
             <if test="publishedJournal != null">published_journal = #{publishedJournal},</if>
             <if test="inclusionStatus != null">inclusion_status = #{inclusionStatus},</if>
             <if test="publicationTime != null">publication_time = #{publicationTime},</if>
-            <if test="text_paper != null">text_paper = #{text_paper},</if>
-            <if test="word_paper != null">word_paper = #{word_paper},</if>
+            <if test="text_paper != null and text_paper != ''">  text_paper = #{text_paper},</if>
+            <if test="word_paper != null and word_paper !=  ''"> word_paper = #{word_paper},</if>
             <if test="search_web != null">search_web = #{search_web},</if>
             <if test="isIndustryCollaborative != null">is_industry_collaborative = #{isIndustryCollaborative},</if>
             <if test="isLocalCollaborative != null">is_local_collaborative = #{isLocalCollaborative},</if>
