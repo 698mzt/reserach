@@ -620,10 +620,10 @@
                             if (row.userId == row.uid) {
                                 actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="viewProcess(\'' + row.id +','+row.state+ '\')"></i>查看流程</a><br>');
                             }
-                            actions.push('<a class="' + proFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro\')"></i>教研室批阅</a>');
+                            actions.push('<a class="' + proFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro\')"></i>批阅</a>');
                         } else if (row.state == 2) { // 教研室通过
                             actions.push('<a  class="' + revokeInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/proth\')"></i>撤回</a><br>');
-                            actions.push('<a class="' + XYPYFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/xytg\')"></i>学院核查</a>');
+                            actions.push('<a class="' + XYPYFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/xytg\')"></i>批阅</a>');
                             if (row.userId == row.uid) {
                                 actions.push('<a class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan\')"></i>查看</a><br>');
                                 actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="viewProcess(\'' + row.id +','+row.state+ '\')"></i>查看流程</a>');

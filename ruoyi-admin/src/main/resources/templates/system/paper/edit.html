@@ -463,6 +463,18 @@
                 autoReplace: true,
                 allowedFileExtensions: ["doc","docx"],
                 showUpload: false,  // 隐藏上传按钮
+                slugCallback: function(filename) {
+                    if ($("input[name='paperTitle']").val()===""){
+                        $(".file-uploada").fileinput('clear');
+                        $.modal.alertError("请先输入论文名称");
+                        return false;
+                    }
+                    // 自定义文件名生成规则
+                    fileExtension = filename.split('.').pop();
+                    const year = new Date().getFullYear();
+                    const newName = year +"-"+ $("input[name='paperTitle']").val() +"-"+ "论文原文"+ "." + fileExtension;
+                    return newName;
+                },
             }).on('fileuploaded', function (event, data, previewId, index) {
                 $("input[name='" + event.currentTarget.id + "']").val(data.response.url)
             }).on('fileremoved', function (event, id, index) {
@@ -488,6 +500,18 @@
                 autoReplace: true,
                 allowedFileExtensions: ["pdf"],
                 showUpload: false,  // 隐藏上传按钮
+                slugCallback: function(filename) {
+                    if ($("input[name='paperTitle']").val()===""){
+                        $(".file-uploada").fileinput('clear');
+                        $.modal.alertError("请先输入论文名称");
+                        return false;
+                    }
+                    // 自定义文件名生成规则
+                    fileExtension = filename.split('.').pop();
+                    const year = new Date().getFullYear();
+                    const newName = year +"-"+ $("input[name='paperTitle']").val() +"-"+ "论文收录通知"+ "." + fileExtension;
+                    return newName;
+                },
             }).on('fileuploaded', function (event, data, previewId, index) {
                 $("input[name='" + event.currentTarget.id + "']").val(data.response.url)
             }).on('fileremoved', function (event, id, index) {
