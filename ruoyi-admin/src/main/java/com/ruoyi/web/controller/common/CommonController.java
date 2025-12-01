@@ -83,7 +83,28 @@ public class CommonController extends BaseController
 
                     // 从MinIO下载文件
                     try (InputStream inputStream = MinIOUtils.download(objectName)) {
-                        String realFileName =  objectName.substring(objectName.indexOf("_") + 1);
+                        // 提取文件名，去除路径并处理下划线后缀
+                        String fullPath = objectName;
+                        String fileNameWithExt = fullPath.substring(fullPath.lastIndexOf("/") + 1);
+                        String nameWithoutExt = fileNameWithExt.substring(0, fileNameWithExt.lastIndexOf("."));
+                        String extension = fileNameWithExt.substring(fileNameWithExt.lastIndexOf("."));
+                        
+                        // 查找最后一个下划线的位置，移除序列号部分（如 _4）
+                        int lastUnderscoreIndex = nameWithoutExt.lastIndexOf("_");
+                        if (lastUnderscoreIndex != -1) {
+                            String prefix = nameWithoutExt.substring(0, lastUnderscoreIndex);
+                            String suffix = nameWithoutExt.substring(lastUnderscoreIndex + 1);
+                            
+                            // 如果下划线后的部分是数字，则认为是序列号，移除它
+                            if (suffix.matches("\\d+")) {
+                                nameWithoutExt = prefix;
+                            } else {
+                                // 如果下划线后的部分不是数字，则保留完整名称
+                                nameWithoutExt = nameWithoutExt;
+                            }
+                        }
+                        
+                        String realFileName = nameWithoutExt + extension;
                         response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
                         FileUtils.setAttachmentResponseHeader(response, realFileName);
                         // 将文件流写入响应输出流
@@ -102,7 +123,27 @@ public class CommonController extends BaseController
                 }
             } else {
                 // 原来的本地文件下载逻辑
-                String realFileName = System.currentTimeMillis() + fileName.substring(fileName.indexOf("_") + 1);
+                // 提取文件名，去除路径并处理下划线后缀
+                String fileNameWithExt = fileName.substring(fileName.lastIndexOf("/") + 1);
+                String nameWithoutExt = fileNameWithExt.substring(0, fileNameWithExt.lastIndexOf("."));
+                String extension = fileNameWithExt.substring(fileNameWithExt.lastIndexOf("."));
+                
+                // 查找最后一个下划线的位置，移除序列号部分（如 _4）
+                int lastUnderscoreIndex = nameWithoutExt.lastIndexOf("_");
+                if (lastUnderscoreIndex != -1) {
+                    String prefix = nameWithoutExt.substring(0, lastUnderscoreIndex);
+                    String suffix = nameWithoutExt.substring(lastUnderscoreIndex + 1);
+                    
+                    // 如果下划线后的部分是数字，则认为是序列号，移除它
+                    if (suffix.matches("\\d+")) {
+                        nameWithoutExt = prefix;
+                    } else {
+                        // 如果下划线后的部分不是数字，则保留完整名称
+                        nameWithoutExt = nameWithoutExt;
+                    }
+                }
+                
+                String realFileName = nameWithoutExt + extension;
                 String filePath = RuoYiConfig.getDownloadPath() + fileName;
 
                 response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
