@@ -71,3 +71,8 @@ minio:
   secretKey: 314159@QQcom
   # 存储桶名称
   bucketName: ruoyi
+# Shiro
+shiro:
+  user:
+    # 登录地址
+    loginUrl: http://localhost:18081/Keyan/login

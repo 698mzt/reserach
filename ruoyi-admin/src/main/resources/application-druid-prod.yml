@@ -71,3 +71,7 @@ minio:
   secretKey: jV0zEMYFQWfiyyBphrGXcMOJNtaFHcxW5pNnjr5Z
   # 存储桶名称
   bucketName: ruoyi
+shiro:
+  user:
+    # 登录地址
+    loginUrl: https://keyan.greathiit.com/Keyan/login

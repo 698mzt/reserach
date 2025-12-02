@@ -391,7 +391,8 @@
                     return false;
                 }
                 if ($("#correspondingAuthorId").val() == null || $("#correspondingAuthorId").val() == ""){
-                    if ($("#isIndependentauthor").val() == "0"){
+                    const isIndependent = $('input[name="isIndependentauthor"]:checked').val();
+                    if (isIndependent == "0" || !isIndependent){
                         $.modal.alertError("通讯作者不能为空");
                         return false;
                     }
@@ -558,12 +559,14 @@
 
             // 监听1-4作的选择变化
             $('#firstPersonId, #secondPersonId, #thirdPersonId, #fourthPersonId').on('change', function() {
+                updateAuthorDropdownOptions();
                 updateCorrespondingAuthorOptions();
             });
 
             // 监听论文类别变化，动态启禁用作者下拉框
             $('select[name="paperCategory"]').on('change', function () {
                 applyAuthorEnableRule($(this).val());
+                updateAuthorDropdownOptions();
             });
             
             // 监听是否独立作者变化
@@ -576,6 +579,9 @@
             if (isIndependent === "1") {
                 handleIndependentAuthor("1");
             }
+            
+            // 页面首次加载时刷新作者互斥选项，保证同步
+            updateAuthorDropdownOptions();
         });
 
         function applyAuthorEnableRule(inputValue){
@@ -597,7 +603,8 @@
                 // 其他: 全部可选
                 $('#secondPersonId, #thirdPersonId, #fourthPersonId').prop('disabled', false);
             }
-            // 更新通讯作者选项
+            // 更新作者互斥选项和通讯作者选项
+            updateAuthorDropdownOptions();
             updateCorrespondingAuthorOptions();
         }
         
@@ -624,33 +631,37 @@
                 // 恢复论文网址到原始位置
                 $('#searchWebGroup').removeClass('row-top-margin');
             }
+            updateAuthorDropdownOptions();
             updateCorrespondingAuthorOptions();
         }
         
-        function handleIndependentAuthor(value) {
-            if (value === "1") {
-                // 是独立作者：清除二三四作者和通讯作者，隐藏相应控件
-                $('#secondPersonId, #thirdPersonId, #fourthPersonId, #correspondingAuthorId').val('').trigger('change');
-                $('.form-group:has(#secondPersonId), .form-group:has(#thirdPersonId), .form-group:has(#fourthPersonId), .form-group:has(#correspondingAuthorId)').hide();
-                
-                // 调整一作布局使其与其他控件对齐
-                $('#firstAuthorGroup').removeClass('col-xs-6').addClass('first-author-full-width');
-                $('#firstAuthorGroup .form-group').addClass('first-author-aligned');
-                
-                // 移动论文网址到下一行显示
-                $('#searchWebGroup').addClass('row-top-margin');
-            } else {
-                // 不是独立作者：显示所有作者控件，恢复布局
-                $('.form-group:has(#secondPersonId), .form-group:has(#thirdPersonId), .form-group:has(#fourthPersonId), .form-group:has(#correspondingAuthorId)').show();
-                
-                // 恢复一作原始布局
-                $('#firstAuthorGroup').removeClass('first-author-full-width').addClass('col-xs-6');
-                $('#firstAuthorGroup .form-group').removeClass('first-author-aligned');
-                
-                // 恢复论文网址到原始位置
-                $('#searchWebGroup').removeClass('row-top-margin');
-            }
-            updateCorrespondingAuthorOptions();
+        // 作者互斥逻辑：确保第一到第四作者不能重复选择
+        function updateAuthorDropdownOptions() {
+            // 构造所有未禁用select及其已选值
+            var selects = [
+                {id: 'firstPersonId', $el: $('#firstPersonId'), selected: $('#firstPersonId').val()},
+                {id: 'secondPersonId', $el: $('#secondPersonId'), selected: $('#secondPersonId').val()},
+                {id: 'thirdPersonId', $el: $('#thirdPersonId'), selected: $('#thirdPersonId').val()},
+                {id: 'fourthPersonId', $el: $('#fourthPersonId'), selected: $('#fourthPersonId').val()}
+            ];
+            // 收集所有选中的ID，但跳过空值和"其他"选项
+            var selectedIds = selects.filter(s => !s.$el.prop('disabled') && s.selected && s.selected !== '' && s.selected !== '-1').map(s => s.selected);
+
+            selects.forEach(currentSel => {
+                // 只处理未禁用的下拉框
+                if (currentSel.$el.prop('disabled')) return;
+                currentSel.$el.find('option').each(function() {
+                    var val = $(this).val();
+                    if (!val || val === '') return; // 保留"请选择"等空选项
+                    // 如果该选项被其它未禁用下拉选中则禁用(但自身已选要保留)
+                    var isByOtherSelected = selectedIds.includes(val) && currentSel.selected !== val;
+                    $(this).prop('disabled', isByOtherSelected);
+                });
+                // 让select2刷新可选项
+                if (currentSel.$el.data('select2')) {
+                    currentSel.$el.trigger('change.select2');
+                }
+            });
         }
 
         // window.onload = function() {
