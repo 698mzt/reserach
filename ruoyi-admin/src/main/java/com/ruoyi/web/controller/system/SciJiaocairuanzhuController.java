@@ -96,6 +96,7 @@ public class SciJiaocairuanzhuController extends BaseController
                 case "yssj_college":
                 case "student_college":
                 case "marxism_college":
+                case "general":
                     role = "dept_teacher";
                     break label;
                 case "admin":

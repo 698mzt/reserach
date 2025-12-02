@@ -60,7 +60,8 @@ public class SciHorizontalApplyVerticalController extends BaseController {
             "dzgc_college", // 电子工程学院管理员
             "yssj_college", // 艺术设计学院管理员
             "student_college", // 学生处学院管理员
-            "marxism_college" // 马克思主义学院管理员
+            "marxism_college", // 马克思主义学院管理员
+            "general" //综合院部管理员
     ));
 
 //    访问的首页
