@@ -361,6 +361,7 @@
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
         ${params.dataScope}
         order  by
+        case
 --         草稿
         when re.state = 99 then 1
 --         审批中
