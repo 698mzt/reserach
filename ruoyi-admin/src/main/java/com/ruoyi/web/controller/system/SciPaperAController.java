@@ -178,8 +178,8 @@ public class SciPaperAController extends BaseController {
             PageHelper.startPage(pageNum, pageSize);
             list = sciPaperAService.selectSciPaperAListXY(sciPaperA);
             System.out.println("list = " + list);
-        }else if ((roleId.contains("103") || roleId.contains("104") || roleId.contains("105") || roleId.contains("106") || roleId.contains("107") || roleId.contains("108")|| roleId.contains("116L")|| roleId.contains("117")|| roleId.contains("118")|| roleId.contains("109"))) {
-            //学院身份
+        }else if ((roleId.contains("103") || roleId.contains("104") || roleId.contains("105") || roleId.contains("106") || roleId.contains("107") || roleId.contains("108")|| roleId.contains("116L")|| roleId.contains("117")|| roleId.contains("118")|| roleId.contains("109")|| roleId.contains("119") ||roleId.contains("120")  )) {
+            //单独学院身份
             SysUser user = getSysUser();
             sciPaperA.setCollegeId(String.valueOf(user.getParentId()));
             PageHelper.startPage(pageNum, pageSize);
@@ -521,7 +521,10 @@ public class SciPaperAController extends BaseController {
                 }
             }
         }
-        
+        SysUser other = new SysUser();
+        other.setUserId(-1L);
+        other.setUserName("其他");
+        userList.add(other);
         mmap.put("sysUsers", userList);
         mmap.put("sciPaperA", sciPaperA);
         return prefix + "/edit";
@@ -553,6 +556,11 @@ public class SciPaperAController extends BaseController {
     @Transactional
     public AjaxResult editSave(SciPaperA sciPaperA) {
         try {
+            if (!sciPaperA.getPaperCategory().equals("9")) {
+                if (sciPaperA.getText_paper() == null || sciPaperA.getText_paper().length() <= 0){
+                    throw new RuntimeException("非校刊论文收录通知不能为空");
+                }
+            }
             // 更新论文基本信息
             int result = sciPaperAService.updateSciPaperA(sciPaperA);
             
@@ -563,15 +571,19 @@ public class SciPaperAController extends BaseController {
                 // 保存新的作者信息
                 int authorResult = savePaperAuthorsToScoreTable(sciPaperA);
                 if (authorResult == 0) {
-                    return error("保存作者信息失败");
+                    throw new RuntimeException("保存作者信息失败");
                 } else if (authorResult == -1) {
-                    return error("你不能添加自己不是作者的论文");
+                    throw new RuntimeException("你不能添加自己不是作者的论文");
                 }
             }
             
             return toAjax(result);
+        } catch (RuntimeException e) {
+            // 直接抛出，Runtime异常会自动触发回滚
+            throw e;
         } catch (Exception e) {
-            return error(e.getMessage());
+            // 捕获检查型异常并转换为Runtime异常
+            throw new RuntimeException("论文保存过程中发生错误: " + e.getMessage(), e);
         }
     }
 

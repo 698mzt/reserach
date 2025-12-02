@@ -186,7 +186,7 @@ public class SciIntraSchoolProController extends BaseController {
    */
   private String panRole_str() {
     String role_str = "";
-    List<Long> collage_role_ids = new ArrayList<>(Arrays.asList(103L, 104L, 105L, 106L, 107L, 108L, 116L, 117L, 118L, 119L));
+    List<Long> collage_role_ids = new ArrayList<>(Arrays.asList(103L, 104L, 105L, 106L, 107L, 108L, 116L, 117L, 118L, 119L,120L));
 
       //当前登陆角色列表，如果一个人有多个角色，列表就多一项
     List<SysRole> roles = getSysUser().getRoles();
