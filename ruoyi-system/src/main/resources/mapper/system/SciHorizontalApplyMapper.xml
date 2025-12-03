@@ -64,7 +64,7 @@
                     and s.state in (1,2,3,4,5,11,22,99)
                 </when>
                 <when test="newsql == '02'">
-                    and s.state in (7,8,9,10,33,44)
+                    and s.state in (999,7,8,9,10,33,44)
                 </when>
             </choose>
         </if>
@@ -184,7 +184,7 @@
         left join sys_user u on  s.user_id=u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
-        where s.state in(7,8,9,10,33,44)
+        where s.state in(999,7,8,9,10,33,44)
         <!--            <if test="userId != null "> and user_id = #{userId}</if>-->
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
@@ -195,7 +195,7 @@
         order  by
         case
 --         被驳回
-        when state in (9,10,44) then 2
+        when state in (9,10,44,999) then 2
 --         审核中
         when state in (7,8.33) then 4
         end,

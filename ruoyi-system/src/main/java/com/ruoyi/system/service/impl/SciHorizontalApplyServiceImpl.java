@@ -222,7 +222,11 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
         if (sciHorizontalApply.getNewsql().equals("99")) {
             sciHorizontalPiyue.setConcate("提交申请");
             sciHorizontalPiyue.setState("提交");
-        }else {
+        } else if (sciHorizontalApply.getNewsql().equals("999")) {
+            sciHorizontalPiyue.setConcate("修改");
+            sciHorizontalPiyue.setState("修改");
+        }
+        else {
             sciHorizontalPiyue.setConcate("修改");
             sciHorizontalPiyue.setState("修改");
         }

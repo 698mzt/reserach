@@ -415,7 +415,9 @@
     function submitHandlerBH() {
         var a = $("#urlFlag").val();
         if ($.validate.form()) {
-            $.operate.saveTab(prefix + "/hxoverBh",   $('#form-apply-edit').serialize());
+            $.modal.confirm("确定 驳回 吗" ,function() {
+                $.operate.saveTab(prefix + "/hxoverBh", $('#form-apply-edit').serialize());
+            });
          }
     }
 

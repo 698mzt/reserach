@@ -414,7 +414,9 @@
     function submitHandler() {
 
         if ($.validate.form()) {
-        $.operate.saveTab(prefix + "/recallsave", $('#form-apply-edit').serialize());
+            $.modal.confirm("确定 撤回 吗" ,function() {
+                $.operate.saveTab(prefix + "/recallsave", $('#form-apply-edit').serialize());
+            });
         }
     }
     // function submitHandlerBH() {
