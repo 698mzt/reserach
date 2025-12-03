@@ -46,7 +46,8 @@ input[type=file].file-loading {
 .file-input-ajax-new .no-browse .input-group-btn,
 .hide-content .kv-file-content,
 .is-locked .fileinput-upload-button,
-.is-locked .fileinput-remove-button {
+.is-locked .fileinput-remove-button,
+.kv-file-remove {
     display: none;
 }
 
