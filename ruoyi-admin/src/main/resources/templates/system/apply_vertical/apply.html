@@ -1003,6 +1003,16 @@
                     align: 'center',
                     formatter: function(value, row, index) {
                         var actions = [];
+                        if(row.state == 999 ){
+                            if (row.userId == row.uid){
+                                actions.push('<a class="' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.push(\'' + row.id + '\')">提交&nbsp;&nbsp;&nbsp;&nbsp;</a>');
+                                actions.push('<a class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')">编辑&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
+                                actions.push('<a class="' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')" style="color : #c90000">删除</a>');
+                                actions.push('<br>')
+                            }
+                            actions.push('<a class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
+                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
+                        }else
                         if(row.state == 11 ){
                             actions.push('<a  class="' + JYSFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id+'/JYS' + '\')">批阅</a> ');
                             if (JYSFlag != "hidden")
@@ -1070,7 +1080,7 @@
         // 定义状态值与颜色的映射关系
         const stateColorMap = {
             66: '#67c23a', 6: '#67c23a',// 完结 绿色
-            3: '#e6a344', 5: '#e6a344',  7: '#e6a344', 33: '#e6a344', 55: '#e6a344',77: '#e6a344',99: '#e6a344', // 被驳回，草稿 黄色
+            3: '#e6a344', 5: '#e6a344',  7: '#e6a344', 33: '#e6a344', 55: '#e6a344',77: '#e6a344',99: '#e6a344', 999: '#e6a344', // 被驳回，草稿 黄色
             1: '#2c99ff', 2: '#2c99ff', 4: '#2c99ff', 11: '#2c99ff', 22: '#2c99ff', 44: '#2c99ff' // 审核中 蓝色
         };
 

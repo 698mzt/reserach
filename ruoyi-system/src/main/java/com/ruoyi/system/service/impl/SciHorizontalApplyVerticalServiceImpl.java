@@ -182,17 +182,17 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
                     // 教研室
                     case "33":
                     case "3":
-                        newState = "99";
+                        newState = "999";
                         break;
                     // 学院
                     case "5":
                     case "55":
-                        newState = "99";
+                        newState = "999";
                         break;
                     // 科研处
                     case "77":
                     case "7":
-                        newState = "99";
+                        newState = "999";
                         break;
                     // 教师
                     case "99":
