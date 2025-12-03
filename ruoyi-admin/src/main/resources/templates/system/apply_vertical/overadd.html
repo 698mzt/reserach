@@ -24,10 +24,10 @@
 
             <div class="col-xs-6">
                 <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">课题类型：</label>
+                    <label class="col-sm-4 control-label is-required">课题类型1：</label>
                     <div class="col-sm-8">
-                        <select name="topType" class="form-control" th:with="type=${@dict.getType('sci_vertical_type')}" required disabled>
-                            <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
+                        <select readonly class="form-control" th:with="type=${@dict.getType('sci_vertical_type')}" required disabled>
+                            <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}" th:field="*{topType}"></option>
                         </select>
                     </div>
                 </div>
