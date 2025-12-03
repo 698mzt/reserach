@@ -711,7 +711,7 @@ public class SciHorizontalApplyController extends BaseController
         sciHorizontalApply.setUserId(Integer.valueOf(getSysUser().getUserId().toString()));
         if (sciHorizontalApply.getState().equals("9") || sciHorizontalApply.getState().equals("10") || sciHorizontalApply.getState().equals("44")){
             sciHorizontalApply.setNewsql("7");
-            sciHorizontalApply.setState("99");
+            sciHorizontalApply.setState("999");
         }
         int update = sciHorizontalApplyService.updateSciHorizontalApply(sciHorizontalApply);
         if (update == -1) {
