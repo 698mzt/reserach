@@ -30,7 +30,7 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">课题类型：</label>
                     <div class="col-sm-8">
-                        <select id="topType" class="form-control" th:with="type=${@dict.getType('sci_top_type')}" required>
+                        <select id="topType" class="form-control" th:with="type=${@dict.getType('sci_vertical_type')}" required>
                             <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}" th:field="*{topType}"></option>
                         </select>
                     </div>
@@ -529,10 +529,9 @@
         function submitHandler() {
             if ($.validate.form()) {
                 var openfile = $("input[name='openfile']").val();
-                var midfile = $("input[name='midfile']").val();
                 var overfile = $("input[name='overfile']").val();
                 if ($.validate.form()) {
-                    if (openfile == "" || midfile == "" || overfile == "") {
+                    if (openfile == ""  || overfile == "") {
                         $.modal.alertWarning("请上传文件");
                         return;
                     }
