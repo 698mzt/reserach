@@ -556,11 +556,11 @@ public class SciPaperAController extends BaseController {
     @Transactional
     public AjaxResult editSave(SciPaperA sciPaperA) {
         try {
-            if (!sciPaperA.getPaperCategory().equals("9")) {
-                if (sciPaperA.getText_paper() == null || sciPaperA.getText_paper().length() <= 0){
-                    throw new RuntimeException("非校刊论文收录通知不能为空");
-                }
-            }
+//            if (!sciPaperA.getPaperCategory().equals("9")) {
+//                if (sciPaperA.getText_paper() == null || sciPaperA.getText_paper().length() <= 0){
+//                    throw new RuntimeException("非校刊论文收录通知不能为空");
+//                }
+//            }
             // 更新论文基本信息
             int result = sciPaperAService.updateSciPaperA(sciPaperA);
             
