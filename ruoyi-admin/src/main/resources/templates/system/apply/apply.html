@@ -918,6 +918,7 @@
                         if(row.state ==  4){
                             if(row.userId == row.uid){
                                 actions.push('<a  class="' + createFlag + '" href="javascript:void(0)" onclick="$.operate.overTab(\'' + row.id +'\')">申请结项&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
+                                actions.push('<a   class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.reamountTab(\'' + row.id + '\')"> 追加金额&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                                 actions.push('<br>')
                             }
                             if(hechaFlag !== "hidden"){
