@@ -857,10 +857,10 @@ public class SciHorizontalApplyController extends BaseController
         sciHorizontalReamount.setUid(getUserId());
         int state = sciHorizontalReamountService.insertAmount(sciHorizontalReamount);
         if (state == -1) {
-            return  AjaxResult.error("追加金额大于项目金额！！！请核实后输入正确的金额");
+            return  AjaxResult.error("课题总金额必须大于0");
         }
         if (state == -2) {
-            return  AjaxResult.error("追加总金额大于项目金额！！！请核实后输入正确的金额");
+            return  AjaxResult.error("追加金额必须大于0");
         }
         return toAjax(state);
     }
