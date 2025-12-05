@@ -364,7 +364,7 @@
         SELECT persion_id
         FROM sci_persion_vertical
         WHERE vertical_id = #{verticalId}
-        ORDER BY ranking ASC
+        ORDER BY CAST(ranking AS UNSIGNED) ASC
     </select>
 
     <delete id="deletePersionVerticalByVerticalId" parameterType="int">
