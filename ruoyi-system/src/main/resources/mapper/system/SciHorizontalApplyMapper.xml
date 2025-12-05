@@ -362,7 +362,7 @@
         SELECT persion_id
         FROM sci_persion
         WHERE apply_id = #{applyId}
-        ORDER BY ranking ASC
+        ORDER BY CAST(ranking AS UNSIGNED) ASC
     </select>
 
 
