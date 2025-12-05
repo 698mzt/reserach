@@ -53,11 +53,13 @@ public class SciHorizontalReamountServiceImpl implements SciHorizontalReamountSe
 
             // 验证金额有效性
             if (allAmount.compareTo(BigDecimal.ZERO) <= 0) {
-                throw new IllegalArgumentException("课题总金额必须大于0");
+                return -1;
+//                throw new IllegalArgumentException("课题总金额必须大于0");
             }
 
             if (newAmount.compareTo(BigDecimal.ZERO) <= 0) {
-                throw new IllegalArgumentException("追加金额必须大于0");
+                return -2;
+//                throw new IllegalArgumentException("追加金额必须大于0");
             }
 
 //            获取到账金额
@@ -66,14 +68,14 @@ public class SciHorizontalReamountServiceImpl implements SciHorizontalReamountSe
             BigDecimal threshold = allAmount.multiply(BigDecimal.valueOf(1));
 
             // 新增金额大于总金额
-            if (newAmount.compareTo(threshold) > 0) {
-                return -1;
-            }
-
-            // 追加总金额超过项目金额
-            if (creditedAmount.add(newAmount).compareTo(threshold) > 0) {
-                return -2;
-            }
+//            if (newAmount.compareTo(threshold) > 0) {
+//                return -1;
+//            }
+//
+//            // 追加总金额超过项目金额
+//            if (creditedAmount.add(newAmount).compareTo(threshold) > 0) {
+//                return -2;
+//            }
 
             int a = sciHorizontalReamountMapper.insertAmount(sciHorizontalReamount);
             SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
