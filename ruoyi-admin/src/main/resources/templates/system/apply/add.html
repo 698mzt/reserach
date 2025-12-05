@@ -724,14 +724,6 @@
             return $.modal.alertError("请输入正确的金额");
         }
 
-        // 校验到账金额不能大于项目金额的
-        if (projectAmount !== undefined && projectAmount !== "") {
-            var maxAmount = parseFloat(projectAmount);
-            if (parseFloat(reAmount1) > maxAmount) {
-                return $.modal.alertError("到账金额不能大于项目金额");
-            }
-        }
-
         // 去除前后空格并转换为字符串
         var value = reAmount1.trim();
 
