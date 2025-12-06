@@ -473,10 +473,6 @@ public class SciHorizontalApplyController extends BaseController
             return AjaxResult.error("请选择有效的结项日期");
         } else if (result == -2) {
             return AjaxResult.error("解析错误，尝试输入正确的数据！！！若输入正确数据后仍然报错，请联系管理员处理。");
-        } else if (result == -3) {
-            return AjaxResult.error("上报总金额小于项目金额，请核实金额后重新填写");
-        } else if (result == -4) {
-            return AjaxResult.error("上报总金额大于项目金额，请核实金额后重新填写");
         }
         if (sciHorizontalReamount.getReAmount() != null && !sciHorizontalReamount.getReAmount().isEmpty()) {
             sciHorizontalReamountService.insertAmount(sciHorizontalReamount);
