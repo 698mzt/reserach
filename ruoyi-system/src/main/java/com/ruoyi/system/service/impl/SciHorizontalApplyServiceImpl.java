@@ -485,12 +485,6 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
                 }
 //                项目金额
                 BigDecimal applied = new BigDecimal(sciHorizontalApply.getAmount());
-                if (credited.compareTo(applied) < 0) {
-                    return -3; //新增总金额小于项目金额
-                }
-                if (applied.compareTo(credited) < 0) {
-                    return -4; //新增总金额大于项目金额
-                }
             } catch (NumberFormatException e) {
                 return -2; // 解析失败
             }
