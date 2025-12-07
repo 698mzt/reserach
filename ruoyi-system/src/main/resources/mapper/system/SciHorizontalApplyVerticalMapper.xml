@@ -26,7 +26,7 @@
         <result property="createtime"    column="createtime"    />
         <result property="newsql"    column="newsql"    />
         <result property="dnameId"    column="dept_id"    />
-
+        <result property="subjectSource"    column="subject_source"    />
     </resultMap>
 
     <select id="selectSciHorizontalApplyVerticalAllList" resultType="SciHorizontalApplyVertical" resultMap="SciHorizontalApplyVerticalResult">
@@ -271,7 +271,7 @@
     </insert>
 
     <select id="selectSciHorizontalApplyVerticalById" resultMap="SciHorizontalApplyVerticalResult" parameterType="Integer">
-        select s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,s.top_number, s.top_type,  s.signing_data, s.validity_data,  s.first_person_id,  s.second_person_id, s.third_person_id, s.fourth_person_id, s.amount, s.state,s.file,s.open_file,s.mid_file,s.over_file
+        select s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,s.top_number, s.top_type,  s.signing_data, s.validity_data,  s.first_person_id,  s.second_person_id, s.third_person_id, s.fourth_person_id, s.amount, s.state,s.file,s.open_file,s.mid_file,s.over_file,s.subject_source
         from  sci_horizontal_apply_vertical s left join sys_user u on  s.user_id=u.user_id
                                               left join sys_dept d on u.dept_id = d.dept_id
                                               left join sys_dept p on d.parent_id =p.dept_id
@@ -309,11 +309,21 @@
     </delete>
 
     <update id="applyPass" >
-        update sci_horizontal_apply_vertical set state = #{state} where id = #{id}
+        update sci_horizontal_apply_vertical
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="state != null and state != ''">state = #{state},</if>
+            <if test="subjectSource != null and subjectSource != ''">subject_source = #{subjectSource}</if>
+        </trim>
+        where id = #{id}
     </update>
 
     <update id="overPass" >
-        update sci_horizontal_apply_vertical set state = #{state} where id = #{id}
+        update sci_horizontal_apply_vertical
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="state != null and state != ''">state = #{state},</if>
+            <if test="subjectSource != null and subjectSource != ''">subject_source = #{subjectSource}</if>
+        </trim>
+        where id = #{id}
     </update>
 
     <insert id="insertPersionVertical" useGeneratedKeys="true" keyProperty="id">

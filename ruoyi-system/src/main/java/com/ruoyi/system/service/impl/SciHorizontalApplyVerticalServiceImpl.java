@@ -226,7 +226,7 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
     }
 
     @Override
-    public int applyPass(String id, Long userId, String urlFlag,List score,List persion,String verticalId) {
+    public int applyPass(String id, Long userId, String urlFlag,List score,List persion,String verticalId,String SubjectSource) {
         String state = "0";
         SciUserScore sciUserScore = new SciUserScore();
         sciUserScore.setVerticalId(verticalId);
@@ -248,7 +248,7 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
         }else if(urlFlag.equals("Dept")){
             state ="4";
         }
-        int a =  sciHorizontalApplyVerticalMapper.applyPass(id,state);
+        int a =  sciHorizontalApplyVerticalMapper.applyPass(id,state,SubjectSource);
         SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
         sciHorizontalPiyue.setUid(userId);
         sciHorizontalPiyue.setVerticalId(Integer.valueOf(id));
@@ -268,7 +268,7 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
         }else if (urlFlag.equals("Dept")){
             state ="5";
         }
-        int a =  sciHorizontalApplyVerticalMapper.applyPass(id,state);
+        int a =  sciHorizontalApplyVerticalMapper.applyPass(id,state,null);
         SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
         sciHorizontalPiyue.setUid(userId);
         sciHorizontalPiyue.setVerticalId(Integer.valueOf(id));
@@ -282,7 +282,7 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public int overPass(String id, Long userId, String urlFlag,List score,List persion,String verticalId) {
+    public int overPass(String id, Long userId, String urlFlag,List score,List persion,String verticalId,String subjectSource) {
         String state = "0";
         SciUserScore sciUserScore = new SciUserScore();
         sciUserScore.setVerticalId(verticalId);
@@ -304,7 +304,7 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
         }else if(urlFlag.equals("Dept")){
             state ="44";
         }
-        int a =  sciHorizontalApplyVerticalMapper.overPass(id,state);
+        int a =  sciHorizontalApplyVerticalMapper.overPass(id,state,subjectSource);
         SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
         sciHorizontalPiyue.setUid(userId);
         sciHorizontalPiyue.setVerticalId(Integer.valueOf(id));
@@ -324,7 +324,7 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
         }else if (urlFlag.equals("Dept")){
             state ="55";
         }
-        int a =  sciHorizontalApplyVerticalMapper.overPass(id,state);
+        int a =  sciHorizontalApplyVerticalMapper.overPass(id,state,null);
         SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
         sciHorizontalPiyue.setUid(userId);
         sciHorizontalPiyue.setVerticalId(Integer.valueOf(id));
@@ -414,7 +414,7 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
         sciHorizontalPiyue.setState("撤回");
         sciHorizontalPiyueMapper.insertVerticalPiyue(sciHorizontalPiyue);
 
-        return sciHorizontalApplyVerticalMapper.applyPass(id.toString(),newState);
+        return sciHorizontalApplyVerticalMapper.applyPass(id.toString(),newState,null);
     }
 
 

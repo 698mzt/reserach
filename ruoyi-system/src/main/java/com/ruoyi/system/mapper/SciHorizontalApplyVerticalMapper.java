@@ -60,9 +60,9 @@ public interface SciHorizontalApplyVerticalMapper {
      */
     public int deleteSciHorizontalApplyVerticalByIds(String[] ids);
 
-    int applyPass(@Param("id") String id, @Param("state") String state);
+    int applyPass(@Param("id") String id, @Param("state") String state, @Param("subjectSource") String subjectSource);
 
-    int overPass(@Param("id") String id, @Param("state") String state);
+    int overPass(@Param("id") String id, @Param("state") String state,@Param("subjectSource") String subjectSource);
 
 
     /**

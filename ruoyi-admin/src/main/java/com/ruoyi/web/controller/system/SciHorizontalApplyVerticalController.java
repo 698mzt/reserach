@@ -564,7 +564,7 @@ public class SciHorizontalApplyVerticalController extends BaseController {
     @Log(title = "纵向课题申请通过", businessType = BusinessType.UPDATE)
     @PostMapping( "/applyPass")
     @ResponseBody
-    public AjaxResult applyPass(String id,String urlFlag,String type,String weight,SciProjectScoreCfg sciProjectScoreCfg)
+    public AjaxResult applyPass(String id,String urlFlag,String type,String weight,SciProjectScoreCfg sciProjectScoreCfg, SciHorizontalApplyVertical sciHorizontalApplyVertical1)
     {
         sciProjectScoreCfg.setFundsType(type);
         List<SciProjectScoreCfg> list = sciProjectScoreCfgMapper.selectVerticalScoreCfgList(sciProjectScoreCfg);
@@ -595,7 +595,7 @@ public class SciHorizontalApplyVerticalController extends BaseController {
             persion.add(sciHorizontalApplyVertical.getFourthPersonId());
         }
 
-        return toAjax(sciHorizontalApplyVerticalService.applyPass(id,getUserId(),urlFlag,score,persion,verticalId));
+        return toAjax(sciHorizontalApplyVerticalService.applyPass(id,getUserId(),urlFlag,score,persion,verticalId,sciHorizontalApplyVertical1.getSubjectSource()));
     }
     @RequiresPermissions(value={"system:apply_vertical:JYS","system:apply_vertical:KYC","system:apply_vertical:Dept"},logical= Logical.OR)
     @Log(title = "纵向课题申请通过驳回", businessType = BusinessType.UPDATE)
@@ -639,7 +639,7 @@ public class SciHorizontalApplyVerticalController extends BaseController {
     @Log(title = "纵向课题申请通过", businessType = BusinessType.UPDATE)
     @PostMapping( "/overPass")
     @ResponseBody
-    public AjaxResult overPass(String id,String urlFlag,String type,String weight,SciProjectScoreCfg sciProjectScoreCfg)
+    public AjaxResult overPass(String id,String urlFlag,String type,String weight,SciProjectScoreCfg sciProjectScoreCfg,SciHorizontalApplyVertical sciHorizontalApplyVertical1)
     {
         sciProjectScoreCfg.setFundsType(type);
         List<SciProjectScoreCfg> list = sciProjectScoreCfgMapper.selectVerticalScoreCfgList(sciProjectScoreCfg);
@@ -669,7 +669,7 @@ public class SciHorizontalApplyVerticalController extends BaseController {
         if (sciHorizontalApplyVertical.getFourthPersonId() != null && !sciHorizontalApplyVertical.getFourthPersonId().isEmpty()) {
             persion.add(sciHorizontalApplyVertical.getFourthPersonId());
         }
-        int result = sciHorizontalApplyVerticalService.overPass(id, getUserId(), urlFlag, score, persion, verticalId);
+        int result = sciHorizontalApplyVerticalService.overPass(id, getUserId(), urlFlag, score, persion, verticalId, sciHorizontalApplyVertical1.getSubjectSource());
         return toAjax(result);
     }
 
