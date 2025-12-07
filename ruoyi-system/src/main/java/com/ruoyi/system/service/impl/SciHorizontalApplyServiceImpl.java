@@ -188,6 +188,7 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
      * @return 结果
      */
     @Override
+    @Transactional
     public int updateSciHorizontalApply(SciHorizontalApply sciHorizontalApply)
     {
         sciHorizontalApplyMapper.updateSciHorizontalApply(sciHorizontalApply);
@@ -223,8 +224,8 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
             sciHorizontalPiyue.setConcate("提交申请");
             sciHorizontalPiyue.setState("提交");
         } else if (sciHorizontalApply.getNewsql().equals("999")) {
-            sciHorizontalPiyue.setConcate("修改");
-            sciHorizontalPiyue.setState("修改");
+            sciHorizontalPiyue.setConcate("提交申请");
+            sciHorizontalPiyue.setState("提交");
         }
         else {
             sciHorizontalPiyue.setConcate("修改");

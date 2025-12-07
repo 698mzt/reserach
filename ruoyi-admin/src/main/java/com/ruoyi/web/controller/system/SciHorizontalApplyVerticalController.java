@@ -339,7 +339,7 @@ public class SciHorizontalApplyVerticalController extends BaseController {
     {
         SciHorizontalApplyVertical sciHorizontalApplyVertical1 = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalById(sciHorizontalApplyVertical.getId());
         sciHorizontalApplyVertical.setUserId(Integer.valueOf(getSysUser().getUserId().toString()));
-        sciHorizontalApplyVertical.setNewsql("99");
+        sciHorizontalApplyVertical.setNewsql("999");
         if (sciHorizontalApplyVertical1.getValidityData() !=  null && !sciHorizontalApplyVertical1.getValidityData().isEmpty())
             sciHorizontalApplyVertical.setState("11");
         else

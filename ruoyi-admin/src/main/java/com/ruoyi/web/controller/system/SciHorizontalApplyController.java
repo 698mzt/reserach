@@ -416,11 +416,14 @@ public class SciHorizontalApplyController extends BaseController
     {
         SciHorizontalApply sciHorizontalApply1 = sciHorizontalApplyService.selectSciHorizontalApplyById(sciHorizontalApply.getId());
         sciHorizontalApply.setUserId(Integer.valueOf(getSysUser().getUserId().toString()));
-        sciHorizontalApply.setNewsql("99");
-        if ( sciHorizontalApply1.getValidityDate() !=  null && !sciHorizontalApply1.getValidityDate().isEmpty() )
+        if ( sciHorizontalApply1.getValidityDate() !=  null && !sciHorizontalApply1.getValidityDate().isEmpty()){
+            sciHorizontalApply.setNewsql("999");
             sciHorizontalApply.setState("7");
-        else
+        }
+        else{
+            sciHorizontalApply.setNewsql("99");
             sciHorizontalApply.setState("1");
+        }
         int a = sciHorizontalApplyService.updateSciHorizontalApply(sciHorizontalApply);
         sciHorizontalReamount.setState("1");
         sciHorizontalReamountService.push(getUserId(),sciHorizontalApply.getId(),"1");
@@ -705,8 +708,9 @@ public class SciHorizontalApplyController extends BaseController
     public AjaxResult overeditSave(SciHorizontalApply sciHorizontalApply, javax.servlet.http.HttpServletRequest request)
     {
         sciHorizontalApply.setUserId(Integer.valueOf(getSysUser().getUserId().toString()));
+        sciHorizontalApply.setNewsql("");
         if (sciHorizontalApply.getState().equals("9") || sciHorizontalApply.getState().equals("10") || sciHorizontalApply.getState().equals("44")){
-            sciHorizontalApply.setNewsql("7");
+            sciHorizontalApply.setNewsql("999");
             sciHorizontalApply.setState("999");
         }
         int update = sciHorizontalApplyService.updateSciHorizontalApply(sciHorizontalApply);
