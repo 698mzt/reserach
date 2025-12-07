@@ -168,6 +168,7 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
         switch (sciHorizontalApplyVertical.getNewsql()) {
 //            草稿箱提交时的记录
             case "99":
+            case "999":
                 sciHorizontalPiyue.setConcate("提交申请");
                 sciHorizontalPiyue.setState("提交");
                 break;
@@ -181,18 +182,24 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
                 switch (newState) {
                     // 教研室
                     case "33":
-                    case "3":
                         newState = "999";
+                        break;
+                    case "3":
+                        newState = "99";
                         break;
                     // 学院
                     case "5":
+                        newState = "99";
+                        break;
                     case "55":
                         newState = "999";
                         break;
                     // 科研处
                     case "77":
-                    case "7":
                         newState = "999";
+                        break;
+                    case "7":
+                        newState = "99";
                         break;
                     // 教师
                     case "99":

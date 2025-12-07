@@ -107,7 +107,7 @@
 --         待学院审核
         when state = 2 then 1
 --         学院通过
-        when state = 3 then 2
+        when state = 4 then 2
         end,
         s.createtime desc
     </select>
