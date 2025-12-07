@@ -48,11 +48,11 @@ public interface ISciHorizontalApplyVerticalService {
     int deleteSciHorizontalApplyVerticalByIds(String ids);
 
 
-    int applyPass(String id, Long userId, String urlFlag,List score,List persion,String verticalId);
+    int applyPass(String id, Long userId, String urlFlag,List score,List persion,String verticalId,String SubjectSource);
 
     int applyBh(String id, Long userId, String remark, String urlFlag);
 
-    int overPass(String id, Long userId, String urlFlag,List score,List persion,String verticalId);
+    int overPass(String id, Long userId, String urlFlag,List score,List persion,String verticalId,String subjectSource);
 
     int overBh(String id, Long userId, String remark, String urlFlag);
 

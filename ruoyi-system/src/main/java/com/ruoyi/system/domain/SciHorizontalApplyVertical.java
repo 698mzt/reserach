@@ -73,6 +73,17 @@ public class SciHorizontalApplyVertical extends BaseEntity {
     @Excel(name = "状态")
     private String state;
 
+    /** 课题来源 */
+    private String subjectSource;
+
+    public String getSubjectSource() {
+        return subjectSource;
+    }
+
+    public void setSubjectSource(String subjectSource) {
+        this.subjectSource = subjectSource;
+    }
+
     /** 角色 */
     private String role;
 
