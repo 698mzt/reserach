@@ -200,30 +200,17 @@ public class FileUtils
      */
     public static void setAttachmentResponseHeader(HttpServletResponse response, String realFileName) throws UnsupportedEncodingException
     {
-//        String percentEncodedFileName = percentEncode(realFileName);
-//
-//        StringBuilder contentDispositionValue = new StringBuilder();
-//        contentDispositionValue.append("attachment; filename=")
-//                .append(percentEncodedFileName)
-//                .append(";")
-//                .append("filename*=")
-//                .append("utf-8''")
-//                .append(percentEncodedFileName);
-//
-//        response.setHeader("Content-disposition", contentDispositionValue.toString());
+        String percentEncodedFileName = percentEncode(realFileName);
 
-        // 优化兼容性，特别是苹果系统Safari浏览器
-        String encodedFileName = URLEncoder.encode(realFileName, "UTF-8").replace("+", "%20");
+        StringBuilder contentDispositionValue = new StringBuilder();
+        contentDispositionValue.append("attachment; filename=")
+                .append(percentEncodedFileName)
+                .append(";")
+                .append("filename*=")
+                .append("utf-8''")
+                .append(percentEncodedFileName);
 
-        // 使用RFC 2231标准格式，兼容所有浏览器包括Safari
-        String contentDisposition = String.format("attachment; filename=\"%s\"; filename*=UTF-8''%s",
-                realFileName, encodedFileName);
-
-        response.setHeader("Content-Disposition", contentDisposition);
-        // 设置缓存控制，确保Safari能正确识别下载
-        response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-        response.setHeader("Pragma", "no-cache");
-        response.setDateHeader("Expires", 0);
+        response.setHeader("Content-disposition", contentDispositionValue.toString());
     }
 
     /**

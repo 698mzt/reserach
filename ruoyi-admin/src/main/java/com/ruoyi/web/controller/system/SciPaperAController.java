@@ -266,7 +266,7 @@ public class SciPaperAController extends BaseController {
 //                }
                 if (!sciPaperA.getPaperCategory().equals("9")) {
                     if (sciPaperA.getText_paper() == null || sciPaperA.getText_paper().length() <= 0){
-                        throw new RuntimeException("非校刊论文收录通知不能为空");
+                        throw new RuntimeException("非校刊录用/检索证明不能为空");
                     }
                 }
 
@@ -558,7 +558,7 @@ public class SciPaperAController extends BaseController {
         try {
 //            if (!sciPaperA.getPaperCategory().equals("9")) {
 //                if (sciPaperA.getText_paper() == null || sciPaperA.getText_paper().length() <= 0){
-//                    throw new RuntimeException("非校刊论文收录通知不能为空");
+//                    throw new RuntimeException("非校刊录用/检索证明不能为空");
 //                }
 //            }
             // 更新论文基本信息

@@ -126,7 +126,7 @@ public class SciPaperA extends BaseEntity {
     @Excel(name = "发表时间")
     private String publicationTime;
 
-    @Excel(name = "论文收录通知")
+    @Excel(name = "录用/检索证明")
     private String text_paper;
     //论文pdf文件
     @Excel(name = "论文原文")
