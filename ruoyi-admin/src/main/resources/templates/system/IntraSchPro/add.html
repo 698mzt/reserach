@@ -139,8 +139,6 @@
                 <label class="col-sm-4 control-label ">第三负责人：</label>
                 <div class="col-sm-8">
                     <select name="thirdPersonId" class="form-control m-b" id="thirdPersonId">
-                        <option value="" selected>---其他--</option>
-                        <!--                        <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}"></option>-->
                         <option th:each="user : ${sysUsers}"
                                 th:text="${user.userName}"
                                 th:value="${user.userId}"
