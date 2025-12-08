@@ -74,7 +74,10 @@ public interface SynchronizeDataMapper {
     /**
      * 同步教材软著积分
      */
-    int SynchronizeScoreZLRZ();
+//    专利（fenlei !=4）
+    int SynchronizeScoreZL();
+//    软著（fenlei=4）
+    int SynchronizeScoreRZ();
 
 
     /**

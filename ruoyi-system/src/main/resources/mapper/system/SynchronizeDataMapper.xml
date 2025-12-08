@@ -364,8 +364,8 @@
                 a.wxsjzl = COALESCE(b.count_fenlei_3, 0),
                 a.jsjrjzzq = COALESCE(b.count_fenlei_4, 0)
     </update>
-    <update id="SynchronizeScoreZLRZ">
-        -- 更新alltotle_score表中的专利软著总积分
+    <update id="SynchronizeScoreZL">
+        -- 更新alltotle_score表中的专利总积分
         update
             Alltotle_score a
             join(
@@ -376,13 +376,37 @@
                     sci_zhuanliruanzhu sz
                 where
                     state = 6
+                    and
+                    sz.fenlei not in (4)
                 group by
                     user_id
             ) s
             on
             a.userId = s.user_id
         set
-            a.zlrz = COALESCE(s.score, 0)
+            a.zl = COALESCE(s.score, 0)
+    </update>
+    <update id="SynchronizeScoreRZ">
+        -- 更新alltotle_score表中的软著总积分
+        update
+            Alltotle_score a
+            join(
+                SELECT
+                    sz.user_id ,
+                    SUM(sz.jifen) as score
+                FROM
+                    sci_zhuanliruanzhu sz
+                where
+                    state = 6
+                    and
+                    sz.fenlei in (4)
+                group by
+                    user_id
+            ) s
+        on
+            a.userId = s.user_id
+            set
+                a.rz = COALESCE(s.score, 0)
     </update>
 
 
