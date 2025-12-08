@@ -147,7 +147,8 @@ public class DataSynchronizeTask {
 //    个数
     synchronizeDataMapper.synchronizeZLRZ();
 //    积分
-    synchronizeDataMapper.SynchronizeScoreZLRZ();
+    synchronizeDataMapper.SynchronizeScoreZL();
+    synchronizeDataMapper.SynchronizeScoreRZ();
     System.out.println("专利软著数据同步完成");
 
   }
