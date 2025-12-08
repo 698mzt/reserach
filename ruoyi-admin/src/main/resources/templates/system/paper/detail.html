@@ -281,7 +281,7 @@
 
             <div class="col-md-6">
                 <div class="form-group">
-                    <label class="col-sm-4 control-label">论文收录通知：</label>
+                    <label class="col-sm-4 control-label">录用/检索证明：</label>
                     <div class="col-sm-8">
                         <input th:field="*{text_paper}" hidden id="text_paper" type="text">
                         <div style="display: inline-block;">
@@ -393,57 +393,26 @@
             alert("没有可下载的文件！");
             return;
         }
-        
+
         var downloadUrl;
         // 检查是否为MinIO文件（路径以/minio/开头）
         if (relativePath.startsWith('/minio/')) {
             // 对于MinIO文件，使用通用下载接口
             var contextPath = '/' + window.location.pathname.split('/')[1];
             downloadUrl = window.location.origin + contextPath + '/common/download?fileName=' + encodeURIComponent(relativePath);
-            console.log('downloadUrl',downloadUrl)
         } else {
             // 对于本地文件，按原方式处理
             var contextPath = '/' + window.location.pathname.split('/')[1];
             downloadUrl = window.location.origin + contextPath + relativePath;
         }
-        
         if(downloadUrl){
-            // 检测是否为Safari浏览器
-            var isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-
-            if (isSafari) {
-                // Safari特殊处理：直接打开链接在新窗口
-                var newWindow = window.open(downloadUrl, '_blank');
-                if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
-                    // 如果弹窗被阻止，提示用户
-                    alert('Safari浏览器已阻止弹窗，请允许弹窗或手动点击链接下载。您也可以右键链接选择"链接存储为..."');
-                }
-            } else {
-                // 其他浏览器使用a标签下载
-                var a = document.createElement("a");
-                a.href = downloadUrl;
-                // 尝试从路径中提取文件名
-                var fileName = '';
-                try {
-                    var pathParts = relativePath.split('/');
-                    var lastPart = pathParts[pathParts.length - 1];
-                    // 如果包含下划线分割，取第一部分作为文件名
-                    if (lastPart.includes('_')) {
-                        var nameParts = lastPart.split('_');
-                        nameParts.pop(); // 移除最后的数字部分
-                        fileName = nameParts.join('_');
-                    } else {
-                        fileName = lastPart;
-                    }
-                } catch (e) {
-                    fileName = 'download';
-                }
-                a.download = fileName;
-                a.style.display = "none";
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-            }
+            var a = document.createElement("a");
+            a.href=downloadUrl;
+            a.download="";
+            a.style.display = "none";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
         }else{
             alert("网址无效");
         }

@@ -106,7 +106,6 @@ public class CommonController extends BaseController
                         
                         String realFileName = nameWithoutExt + extension;
                         response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
-                        response.setContentLength(inputStream.available()); // 设置Content-Length
                         FileUtils.setAttachmentResponseHeader(response, realFileName);
                         // 将文件流写入响应输出流
                         byte[] buffer = new byte[8192];
@@ -298,7 +297,7 @@ public class CommonController extends BaseController
                         }
                         response.getOutputStream().flush();
                     } catch (Exception e) {
-                        log.error("从MinIO下载文件失败", e);
+                        log.error(resource,"从MinIO下载文件失败", e);
                         throw e;
                     }
                 } else {
