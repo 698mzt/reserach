@@ -17,16 +17,16 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">申请人：</label>
                     <div class="col-sm-8">
-                        <input  readonly th:field="*{userName}" class="form-control" type="text" >
+                        <input name="userId" readonly th:field="*{userName}" class="form-control" type="text" >
                     </div>
                 </div>
             </div>
 
             <div class="col-xs-6">
                 <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">课题类型1：</label>
+                    <label class="col-sm-4 control-label is-required">课题类型：</label>
                     <div class="col-sm-8">
-                        <select readonly class="form-control" th:with="type=${@dict.getType('sci_vertical_type')}" required disabled>
+                        <select readonly name="topType" class="form-control" th:with="type=${@dict.getType('sci_vertical_type')}" required disabled>
                             <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}" th:field="*{topType}"></option>
                         </select>
                     </div>
@@ -44,7 +44,7 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">课题编号：</label>
                     <div class="col-sm-8">
-                        <input  th:field="*{topNumber}" class="form-control" type="text" maxlength="100">
+                        <input name="topNumber" th:field="*{topNumber}" class="form-control" type="text" maxlength="100">
                     </div>
                 </div>
             </div>
