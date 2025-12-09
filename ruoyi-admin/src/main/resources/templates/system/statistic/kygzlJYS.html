@@ -6,26 +6,27 @@
 <head>
     <th:block th:include="include :: header('表格虚拟滚动')" />
     <style>
-        /* 总计行样式 */
-        .total-row {
-            background-color: #f8f9fa !important;
+        /* 统计行样式 */
+        .statistics-row {
+            background-color: #e7f3ff !important;
             font-weight: bold;
         }
         
-        .total-row td {
-            border-top: 2px solid #dee2e6 !important;
+        .statistics-row td {
+            border-top: 2px solid #007bff !important;
+            border-bottom: 2px solid #007bff !important;
         }
         
-        /* 总计行合并列的样式 */
-        .total-merged-cell {
+        /* 统计行合并列的样式 */
+        .statistics-merged-cell {
             position: relative;
             text-align: center !important;
-            background-color: #e9ecef !important;
+            background-color: #d4e6ff !important;
             font-weight: bold !important;
         }
         
-        /* 隐藏总计行的多选框 */
-        .total-row .bs-checkbox {
+        /* 隐藏统计行的多选框 */
+        .statistics-row .bs-checkbox {
             visibility: hidden;
         }
     </style>
@@ -58,6 +59,7 @@
                     checkbox: true, // 添加多选框列
                     align: 'center'
                 },
+                { field: 'parentName', title: '学院', align: 'center' },
                 { field: 'deptName', title: '教研室', align: 'center' },
                 { field: 'userName', title: '&nbsp;&nbsp;&nbsp;教师&nbsp;&nbsp;&nbsp;', align: 'center' },
                 { field: 'zxktxjys', title: '纵向课题科研项目-校级以上', align: 'center' },
@@ -66,7 +68,8 @@
                 { field: 'cgzh', title: '成果转化', align: 'center' },
                 { field: 'xslw', title: '学术论文', align: 'center' },
                 { field: 'jczz', title: '教材著作', align: 'center' },
-                { field: 'zlrz', title: '专利、软著', align: 'center' },
+                { field: 'zl', title: '专利', align: 'center' },
+                { field: 'rz', title: '软著', align: 'center' },
                 { field: 'jl', title: '&nbsp;&nbsp;&nbsp;奖励&nbsp;&nbsp;&nbsp;', align: 'center' },
                 { field: 'jzbg', title: '学术报告(讲座类)', align: 'center' }
             ]
@@ -80,14 +83,19 @@
             
             // 使用延时确保DOM完全渲染
             setTimeout(function() {
-                // 查找总计行（userName为"总计"的行）
+                // 查找总计行和教研室统计行
                 $tbody.find('tr').each(function() {
                     const $row = $(this);
                     const $cells = $row.find('td');
                     
-                    // 检查第三列（教师列）是否为"总计"
-                    if ($cells.length > 2 && $cells.eq(2).text().trim() === '总计') {
-                        processTotalRow($row, $cells);
+                    // 检查第三列（教师列）是否为"总计"或"小计"
+                    if ($cells.length > 2) {
+                        const userNameText = $cells.eq(2).text().trim();
+                        if (userNameText === '总计') {
+                            processTotalRow($row, $cells);
+                        } else if (userNameText === '小计') {
+                            processDepartmentStatsRow($row, $cells);
+                        }
                     }
                 });
             }, 200);
@@ -106,6 +114,27 @@
             $deptCell.addClass('total-merged-cell')
                      .attr('colspan', '2')
                      .text('总计');
+            
+            // 4. 隐藏第三列
+            $teacherCell.hide();
+            
+            // 5. 确保多选框被隐藏
+            $cells.eq(0).addClass('bs-checkbox');
+        }
+        
+        // 处理教研室统计行的函数
+        function processDepartmentStatsRow($row, $cells) {
+            // 1. 为整行添加教研室统计行样式
+            $row.addClass('statistics-row');
+            
+            // 2. 处理第二、三列的合并（教研室和教师列）
+            const $deptCell = $cells.eq(1);    // 教研室列
+            const $teacherCell = $cells.eq(2); // 教师列
+            
+            // 3. 设置合并后的样式和内容
+            $deptCell.addClass('statistics-merged-cell')
+                     .attr('colspan', '2')
+                     .text($deptCell.text() + ' 小计');
             
             // 4. 隐藏第三列
             $teacherCell.hide();
