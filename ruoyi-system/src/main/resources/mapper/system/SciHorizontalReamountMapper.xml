@@ -120,6 +120,7 @@
                 left join sys_dept d on u.dept_id = d.dept_id
                 left join sys_dept p on d.parent_id =p.dept_id
         where re.state  in (99,1,2,11,22,5,6)
+                  and s.user_id = #{userName}
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
