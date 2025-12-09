@@ -293,6 +293,9 @@ public class StatsQueryController extends BaseController {
      * 导出核算列表
      * 只接收三个参数：college(学院)、major(教研室)、remark(模块类型)
      * 导出的Excel包含：学院列、教研室列、老师名称，每个项目一条记录
+     *
+     * 纵向因为开题完成之后就有分, 所以状态会有未完成的
+     * 横向只有金额审批通过了才算分,所以导出大多都是完结的
      */
     //@RequiresPermissions("system:statsquery:export")
     @Log(title = "导出核算", businessType = BusinessType.EXPORT)
@@ -395,24 +398,165 @@ public class StatsQueryController extends BaseController {
                     ExcelUtil<SciHorizontalApplyVertical> util = new ExcelUtil<SciHorizontalApplyVertical>(SciHorizontalApplyVertical.class);
                     return util.exportExcelWithMergedCells(finalList, "纵向课题核算数据", "纵向课题核算数据",
                         new String[]{"yname", "dname", "userName", "totalTeacherScore"});
-                } else if ("2".equals(remark)) {
+                }
+                else if ("2".equals(remark)) {
+
                     // 获取项目类别2的数据（横向课题）导出
                     List<SciHorizontalApply> exportList = sciHorizontalApplyService.getStatsQueryToCheck(params);
+
+                    // 处理状态描述
                     exportList = exportList.stream().map(item -> {
                         item.setState(item.getStateDes());
                         return item;
                     }).collect(Collectors.toList());
+                    
+                    // 计算积分：按课题ID和参与者用户ID分组，计算每个课题的立项和结项积分之和
+                    // 使用 Map 存储 (id, participantUserId) -> 积分总和
+                    Map<String, Double> scoreMap = new java.util.HashMap<>();
+                    
+                    // 第一遍遍历：计算每个(课题ID, 参与者用户ID)组合的积分总和
+                    for (SciHorizontalApply item : exportList) {
+                        // 使用 s.id 和 u.user_id（参与者的ID）作为分组键
+                        Integer participantId = item.getParticipantUserId() != null ? item.getParticipantUserId() : item.getUserId();
+                        String key = item.getId() + "_" + participantId;
+                        Double currentScore = 0.0;
+                        
+                        // 解析积分值
+                        if (item.getChangeValue() != null && !item.getChangeValue().isEmpty()) {
+                            try {
+                                currentScore = Double.parseDouble(item.getChangeValue());
+                            } catch (NumberFormatException e) {
+                                // 如果解析失败，使用0
+                                currentScore = 0.0;
+                            }
+                        }
+                        
+                        // 累加积分（同一个课题的立项和结项积分相加）
+                        scoreMap.put(key, scoreMap.getOrDefault(key, 0.0) + currentScore);
+                    }
+                    
+                    // 计算每个老师获得的总分（按参与者用户ID分组，累加所有项目的积分）
+                    // 使用 Set 记录已经计算过的项目，避免重复累加
+                    Map<Integer, Double> teacherTotalScoreMap = new java.util.HashMap<>();
+                    java.util.Set<String> processedProjects = new java.util.HashSet<>();
+                    
+                    for (SciHorizontalApply item : exportList) {
+                        Integer participantId = item.getParticipantUserId() != null ? item.getParticipantUserId() : item.getUserId();
+                        String key = item.getId() + "_" + participantId;
+                        
+                        // 如果这个项目还没有被计算过，则累加到老师总分中
+                        if (!processedProjects.contains(key)) {
+                            Double projectScore = scoreMap.getOrDefault(key, 0.0);
+                            teacherTotalScoreMap.put(participantId, teacherTotalScoreMap.getOrDefault(participantId, 0.0) + projectScore);
+                            processedProjects.add(key);
+                        }
+                    }
+                    
+                    // 第二遍遍历：为每个记录设置积分总和和老师总分，并去重（同一个课题同一个老师只保留一条）
+                    Map<String, SciHorizontalApply> mergedMap = new java.util.LinkedHashMap<>();
+                    for (SciHorizontalApply item : exportList) {
+                        Integer participantId = item.getParticipantUserId() != null ? item.getParticipantUserId() : item.getUserId();
+                        String key = item.getId() + "_" + participantId;
+                        Double totalScore = scoreMap.getOrDefault(key, 0.0);
+                        item.setTotalScore(String.valueOf(totalScore));
+                        
+                        // 设置该老师获得的总分
+                        Double teacherTotalScore = teacherTotalScoreMap.getOrDefault(participantId, 0.0);
+                        item.setTotalTeacherScore(String.valueOf(teacherTotalScore));
+                        
+                        // 如果该(课题ID, 参与者用户ID)组合还没有记录，则添加；否则跳过（去重）
+                        if (!mergedMap.containsKey(key)) {
+                            mergedMap.put(key, item);
+                        }
+                    }
+                    
+                    // 转换为去重后的列表
+                    List<SciHorizontalApply> finalList = new ArrayList<>(mergedMap.values());
+                    
+                    // 使用自定义的合并单元格导出方法
+                    // 合并列：学院、教研室、工号、姓名、总分（同一老师的总分应该合并）
                     ExcelUtil<SciHorizontalApply> util = new ExcelUtil<SciHorizontalApply>(SciHorizontalApply.class);
-                    return util.exportExcel(exportList, "横向课题核算数据");
-                } else if ("3".equals(remark)) {
+                    return util.exportExcelWithMergedCells(finalList, "横向课题核算数据", "横向课题核算数据",
+                        new String[]{"yname", "dname", "loginName", "userName", "totalTeacherScore"});
+                }
+                else if ("3".equals(remark)) {
                     // 查询项目类别3的数据（成果转化）导出
                     List<SciIntraSchoolPro> exportList = sciIntraSchProApplyService.getStatsQueryToCheck(params);
+
+                    // 处理状态描述
                     exportList = exportList.stream().map(item -> {
                         item.setState(item.getStateDes());
                         return item;
                     }).collect(Collectors.toList());
+                    
+                    // 计算积分：按课题ID和参与者用户ID分组，计算每个课题的积分
+                    // 使用 Map 存储 (id, participantUserId) -> 积分总和
+                    Map<String, Double> scoreMap = new java.util.HashMap<>();
+                    
+                    // 第一遍遍历：计算每个(课题ID, 参与者用户ID)组合的积分总和
+                    for (SciIntraSchoolPro item : exportList) {
+                        // 使用 s.id 和 u.user_id（参与者的ID）作为分组键
+                        Integer participantId = item.getParticipantUserId() != null ? item.getParticipantUserId() : item.getUserId();
+                        String key = item.getId() + "_" + participantId;
+                        Double currentScore = 0.0;
+                        
+                        // 解析积分值
+                        if (item.getChangeValue() != null && !item.getChangeValue().isEmpty()) {
+                            try {
+                                currentScore = Double.parseDouble(item.getChangeValue());
+                            } catch (NumberFormatException e) {
+                                // 如果解析失败，使用0
+                                currentScore = 0.0;
+                            }
+                        }
+                        
+                        // 累加积分（同一个课题的积分相加，如果有多个记录）
+                        scoreMap.put(key, scoreMap.getOrDefault(key, 0.0) + currentScore);
+                    }
+                    
+                    // 计算每个老师获得的总分（按参与者用户ID分组，累加所有项目的积分）
+                    // 使用 Set 记录已经计算过的项目，避免重复累加
+                    Map<Integer, Double> teacherTotalScoreMap = new java.util.HashMap<>();
+                    java.util.Set<String> processedProjects = new java.util.HashSet<>();
+                    
+                    for (SciIntraSchoolPro item : exportList) {
+                        Integer participantId = item.getParticipantUserId() != null ? item.getParticipantUserId() : item.getUserId();
+                        String key = item.getId() + "_" + participantId;
+                        
+                        // 如果这个项目还没有被计算过，则累加到老师总分中
+                        if (!processedProjects.contains(key)) {
+                            Double projectScore = scoreMap.getOrDefault(key, 0.0);
+                            teacherTotalScoreMap.put(participantId, teacherTotalScoreMap.getOrDefault(participantId, 0.0) + projectScore);
+                            processedProjects.add(key);
+                        }
+                    }
+                    
+                    // 第二遍遍历：为每个记录设置积分总和和老师总分，并去重（同一个课题同一个老师只保留一条）
+                    Map<String, SciIntraSchoolPro> mergedMap = new java.util.LinkedHashMap<>();
+                    for (SciIntraSchoolPro item : exportList) {
+                        Integer participantId = item.getParticipantUserId() != null ? item.getParticipantUserId() : item.getUserId();
+                        String key = item.getId() + "_" + participantId;
+                        Double totalScore = scoreMap.getOrDefault(key, 0.0);
+                        item.setTotalScore(String.valueOf(totalScore));
+                        
+                        // 设置该老师获得的总分
+                        Double teacherTotalScore = teacherTotalScoreMap.getOrDefault(participantId, 0.0);
+                        item.setTotalTeacherScore(String.valueOf(teacherTotalScore));
+                        
+                        // 如果该(课题ID, 参与者用户ID)组合还没有记录，则添加；否则跳过（去重）
+                        if (!mergedMap.containsKey(key)) {
+                            mergedMap.put(key, item);
+                        }
+                    }
+                    
+                    // 转换为去重后的列表
+                    List<SciIntraSchoolPro> finalList = new ArrayList<>(mergedMap.values());
+                    
+                    // 使用自定义的合并单元格导出方法
+                    // 合并列：学院、教研室、工号、姓名、总分（同一老师的总分应该合并）
                     ExcelUtil<SciIntraSchoolPro> util = new ExcelUtil<SciIntraSchoolPro>(SciIntraSchoolPro.class);
-                    return util.exportExcel(exportList, "成果转化核算数据");
+                    return util.exportExcelWithMergedCells(finalList, "成果转化核算数据", "成果转化核算数据",
+                        new String[]{"yname", "dname", "loginName", "userName", "totalTeacherScore"});
                 } else if ("4".equals(remark)) {
                     // 获取项目类别4的数据（论文）导出
                     List<SciPaperA> exportList = sciPaperAService.getStatsQueryToCheck(params);

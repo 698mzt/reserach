@@ -25,9 +25,9 @@ public class SciHorizontalApply extends BaseEntity
     private String  filingurl;
     /**  */
     private Integer id;
-    @Excel(name = "学院")
+    @Excel(name = "学院", sort = 1)
     private String  yname;
-    @Excel(name = "教研室")
+    @Excel(name = "教研室", sort = 2)
     private String  dname;
 
 
@@ -51,23 +51,58 @@ public class SciHorizontalApply extends BaseEntity
     }
 
     private Integer userId;
+    
+    /** 工号 */
+    @Excel(name = "工号", sort = 3)
+    private String loginName;
+    
+    /** 申请人 */
+    @Excel(name = "姓名", sort = 4)
+    private String  userName;
+    
+    /** 行政职务 */
+    @Excel(name = "行政职务", sort = 5)
+    private String adminstrativeTitle;
+    
+    /** 社会职称 */
+    @Excel(name = "社会职称", sort = 6)
+    private String socialTitle;
+    
+    /** 校内职称 */
+    @Excel(name = "校内职称", sort = 7)
+    private String teaZhicheng;
+    
+    /** 参与者用户ID（用于分组计算积分） */
+    private Integer participantUserId;
+    
+    /** 积分值 */
+    private String changeValue;
+
+    /** 积分状态（立项/结项） */
+    private String changeStatus;
+    
+    /** 积分总和（用于导出） */
+    @Excel(name = "积分", sort = 10)
+    private String totalScore;
+
+    /** 老师获得的总分（用于导出，合计该老师所有项目的积分） */
+    @Excel(name = "总分", sort = 11)
+    private String totalTeacherScore;
+    
     /** 课题名称 */
-    @Excel(name = "项目名称")
+    @Excel(name = "课题名称", sort = 8)
     private String topName;
     /** 课题编号*/
     private String topNumber;
 
-    /** 申请人 */
-    @Excel(name = "老师名称")
-    private String  userName;
     /** 甲方*/
-    @Excel(name = "甲方")
+    @Excel(name = "甲方", sort = 13)
     private String partyA;
     /** 乙方*/
-    @Excel(name = "乙方")
+    @Excel(name = "乙方", sort = 14)
     private String partyB;
     /** 项目金额 */
-    @Excel(name = "项目金额")
+    @Excel(name = "金额", sort = 15)
     private String amount;
 
     /** 到账金额 */
@@ -78,15 +113,15 @@ public class SciHorizontalApply extends BaseEntity
     private String topType;
 
     /** 签订日期 */
-    @Excel(name = "起始时间")
+    @Excel(name = "立项日期", sort = 16)
     private String signingData;
     /** 合同有效日期 */
-    @Excel(name = "终止时间")
+    @Excel(name = "结项日期", sort = 17)
     private String validityDate;
 
     private String persionId;
     /** 排名 */
-//    @Excel(name = "排名")
+    @Excel(name = "排名", sort = 9)
     private String ranking;
 
 
@@ -129,7 +164,7 @@ public class SciHorizontalApply extends BaseEntity
     private String filing;
 
     /** 状态 */
-    @Excel(name = "状态")
+    @Excel(name = "状态", sort = 18)
     private String state;
 
 //    用户角色字段
@@ -397,6 +432,78 @@ public class SciHorizontalApply extends BaseEntity
 
     public void setRanking(String ranking) {
         this.ranking = ranking;
+    }
+
+    public String getLoginName() {
+        return loginName;
+    }
+
+    public void setLoginName(String loginName) {
+        this.loginName = loginName;
+    }
+
+    public String getAdminstrativeTitle() {
+        return adminstrativeTitle;
+    }
+
+    public void setAdminstrativeTitle(String adminstrativeTitle) {
+        this.adminstrativeTitle = adminstrativeTitle;
+    }
+
+    public String getSocialTitle() {
+        return socialTitle;
+    }
+
+    public void setSocialTitle(String socialTitle) {
+        this.socialTitle = socialTitle;
+    }
+
+    public String getTeaZhicheng() {
+        return teaZhicheng;
+    }
+
+    public void setTeaZhicheng(String teaZhicheng) {
+        this.teaZhicheng = teaZhicheng;
+    }
+
+    public Integer getParticipantUserId() {
+        return participantUserId;
+    }
+
+    public void setParticipantUserId(Integer participantUserId) {
+        this.participantUserId = participantUserId;
+    }
+
+    public String getChangeValue() {
+        return changeValue;
+    }
+
+    public void setChangeValue(String changeValue) {
+        this.changeValue = changeValue;
+    }
+
+    public String getChangeStatus() {
+        return changeStatus;
+    }
+
+    public void setChangeStatus(String changeStatus) {
+        this.changeStatus = changeStatus;
+    }
+
+    public String getTotalScore() {
+        return totalScore;
+    }
+
+    public void setTotalScore(String totalScore) {
+        this.totalScore = totalScore;
+    }
+
+    public String getTotalTeacherScore() {
+        return totalTeacherScore;
+    }
+
+    public void setTotalTeacherScore(String totalTeacherScore) {
+        this.totalTeacherScore = totalTeacherScore;
     }
 
     public String getTableId() {

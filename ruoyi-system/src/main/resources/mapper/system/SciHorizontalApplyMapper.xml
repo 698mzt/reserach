@@ -27,6 +27,13 @@
         <result property="year"    column="year"    />
         <result property="newsql"    column="newsql"    />
         <result property="dnameId"    column="dept_id"    />
+        <result property="loginName"    column="login_name"    />
+        <result property="participantUserId"    column="participant_user_id"    />
+        <result property="adminstrativeTitle"    column="adminstrative_title"    />
+        <result property="socialTitle"    column="social_title"    />
+        <result property="teaZhicheng"    column="tea_zhicheng"    />
+        <result property="changeValue"    column="change_value"    />
+        <result property="changeStatus"    column="change_status"    />
     </resultMap>
 
     <resultMap id="SciHorizontalPersionResult" type="SciHorizontalPersion">
@@ -1351,11 +1358,36 @@
     </select>
 
     <select id="getStatsQueryToCheck" parameterType="map" resultMap="SciHorizontalApplyResult">
-        select #{uid} uid,s.id,u.user_name userName,s.top_number ,d.dept_id ,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,s.party_A,s.party_B, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, s.signing_data, s.validity_Date,  concat( s.amount,'万') amount, s.contract, s.filing, s.state,s.createtime
-        from sci_horizontal_apply s
-        left join sys_user u on  s.user_id=u.user_id
-        left join sys_dept d on u.dept_id = d.dept_id
-        left join sys_dept p on d.parent_id =p.dept_id
+        select
+        s.id,
+        d.dept_name dname,
+        p.dept_name yname,
+        u.login_name,
+        u.user_id as participant_user_id,
+        u.user_name userName,
+        u.adminstrative_title,
+        u.social_title,
+        u.tea_zhicheng,
+        sp.ranking ,
+        s.top_name  ,
+        s.party_A,
+        s.party_B,
+        concat( s.amount, '万') amount,
+        s.signing_data,
+        s.validity_Date,
+        s.state,
+        s.createtime,
+        sush.change_value,
+        sush.change_status
+        from
+        sci_horizontal_apply s
+        left join sys_user u on  (s.second_person_id = u.user_id or s.first_person_id=u.user_id or  s.third_person_id=u.user_id or  s.fourth_person_id=u.user_id )
+        left join sys_dept d on
+        u.dept_id = d.dept_id
+        left join sys_dept p on
+        d.parent_id = p.dept_id
+        left join sci_user_score_history sush   on (s.id = sush.apply_id and u.user_id=sush.user_id)
+        left join sci_persion sp  on (s.id=sp.apply_id and u.user_id=sp.persion_id)
         where 1=1
         <if test="college != null and college != '' and college != 'null'">
             AND p.dept_id = #{college}
@@ -1363,6 +1395,7 @@
         <if test="major != null and major != '' and major != 'null'">
             AND d.dept_id = #{major}
         </if>
-        order by s.createtime desc
+        and s.top_name is not null  and sush.change_status is not NULL
+        order by yname asc, dname asc, userName asc
     </select>
 </mapper>

@@ -13,12 +13,48 @@ public class SciIntraSchoolPro extends BaseEntity {
     private String  filingurl;
     /**  */
     private Integer id;
-    @Excel(name = "学院")
+    @Excel(name = "学院", sort = 1)
     private String  yname;
-    @Excel(name = "教研室")
+    @Excel(name = "教研室", sort = 2)
     private String  dname;
 
+    /** 工号 */
+    @Excel(name = "工号", sort = 3)
+    private String loginName;
+    
+    /** 行政职务 */
+    @Excel(name = "行政职务", sort = 4)
+    private String adminstrativeTitle;
+    
+    /** 社会职称 */
+    @Excel(name = "社会职称", sort = 5)
+    private String socialTitle;
+    
+    /** 校内职称 */
+    @Excel(name = "校内职称", sort = 6)
+    private String teaZhicheng;
+    
+    /** 参与者用户ID（用于分组计算积分） */
+    private Integer participantUserId;
+    
+    /** 积分值 */
+    private String changeValue;
+    
+    /** 排名 */
+    @Excel(name = "排名", sort = 14)
+    private String ranking;
+    
+    /** 积分总和（用于导出） */
+    @Excel(name = "积分", sort = 15)
+    private String totalScore;
+
+    /** 老师获得的总分（用于导出，合计该老师所有项目的积分） */
+    @Excel(name = "总分", sort = 16)
+    private String totalTeacherScore;
+
+    @Excel(name = "甲方", sort = 8)
     private String pa;
+    @Excel(name = "乙方", sort = 9)
     private String pb;
 
     public String getPa() {
@@ -36,9 +72,81 @@ public class SciIntraSchoolPro extends BaseEntity {
     public void setPb(String pb) {
         this.pb = pb;
     }
+    
+    public String getLoginName() {
+        return loginName;
+    }
+
+    public void setLoginName(String loginName) {
+        this.loginName = loginName;
+    }
+
+    public String getAdminstrativeTitle() {
+        return adminstrativeTitle;
+    }
+
+    public void setAdminstrativeTitle(String adminstrativeTitle) {
+        this.adminstrativeTitle = adminstrativeTitle;
+    }
+
+    public String getSocialTitle() {
+        return socialTitle;
+    }
+
+    public void setSocialTitle(String socialTitle) {
+        this.socialTitle = socialTitle;
+    }
+
+    public String getTeaZhicheng() {
+        return teaZhicheng;
+    }
+
+    public void setTeaZhicheng(String teaZhicheng) {
+        this.teaZhicheng = teaZhicheng;
+    }
+
+    public Integer getParticipantUserId() {
+        return participantUserId;
+    }
+
+    public void setParticipantUserId(Integer participantUserId) {
+        this.participantUserId = participantUserId;
+    }
+
+    public String getChangeValue() {
+        return changeValue;
+    }
+
+    public void setChangeValue(String changeValue) {
+        this.changeValue = changeValue;
+    }
+
+    public String getRanking() {
+        return ranking;
+    }
+
+    public void setRanking(String ranking) {
+        this.ranking = ranking;
+    }
+
+    public String getTotalScore() {
+        return totalScore;
+    }
+
+    public void setTotalScore(String totalScore) {
+        this.totalScore = totalScore;
+    }
+
+    public String getTotalTeacherScore() {
+        return totalTeacherScore;
+    }
+
+    public void setTotalTeacherScore(String totalTeacherScore) {
+        this.totalTeacherScore = totalTeacherScore;
+    }
 
     /** 申请人 */
-    @Excel(name = "老师名称")
+    @Excel(name = "姓名", sort = 7)
     private String  userName;
 
     public String getUserName() {
@@ -51,19 +159,19 @@ public class SciIntraSchoolPro extends BaseEntity {
 
     private Integer userId;
     /** 课题名称 */
-    @Excel(name = "课题名称")
+    @Excel(name = "成果转化名称", sort = 7)
     private String topName;
 
     /** 课题类型 */
-    // @Excel(name = "课题类型")
+    @Excel(name = "分类", sort = 13)
     private String topType;
 
     /** 签订日期 */
-    @Excel(name = "申请日期")
+    @Excel(name = "开题时间", sort = 11)
     private String signingData;
 
     /** 合同有效日期 */
-    @Excel(name = "结项日期")
+    @Excel(name = "结项时间", sort = 12)
     private String validityDate;
 
     @Excel(name = "申请结项日期")
@@ -94,7 +202,7 @@ public class SciIntraSchoolPro extends BaseEntity {
 
 
     /** 项目金额 */
-    @Excel(name = "项目金额")
+    @Excel(name = "项目金额", sort = 10)
     private String amount;
 
     /** 合同 */
