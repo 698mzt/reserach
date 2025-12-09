@@ -54,7 +54,7 @@ public class StatisticPage extends BaseController {
                 .map(SysDictData::getDictValue)
                 .collect(Collectors.toList());
         startPage();
-        List<ResearchWorkload> list = statisticService.selectAll(dictValues);
+        List<ResearchWorkload> list = statisticService.selectAllTeacher(dictValues);
         TableDataInfo data = getDataTable(list);
         System.out.println(data);
         return data;

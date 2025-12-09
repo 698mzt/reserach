@@ -8,7 +8,10 @@ import java.util.Map;
 public interface IStatisticService {
 
     //    查询总计行
-    List<ResearchWorkload> selectAll(List<String> dictValues);
+    List<ResearchWorkload> selectAllTeacher(List<String> dictValues);
+
+    //    查询总计行
+    List<ResearchWorkload> selectAllDept(List<String> dictValues);
 
 
 }

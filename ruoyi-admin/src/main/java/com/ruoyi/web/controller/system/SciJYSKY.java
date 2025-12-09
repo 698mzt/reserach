@@ -28,9 +28,6 @@ public class SciJYSKY extends BaseController {
 
     @Autowired
     private IStatisticService statisticService;
-    
-    @Autowired
-    private IStatisticKYGZLService statisticKYGZLService;
 
 
     @GetMapping
@@ -48,7 +45,7 @@ public class SciJYSKY extends BaseController {
                 .map(SysDictData::getDictValue)
                 .collect(Collectors.toList());
         startPage();
-        List<ResearchWorkload> list = statisticService.selectAll(dictValues);
+        List<ResearchWorkload> list = statisticService.selectAllTeacher(dictValues);
         TableDataInfo data = getDataTable(list);
         return data;
     }

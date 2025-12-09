@@ -33,9 +33,15 @@ public class IStatisticServiceImpl implements IStatisticService {
     );
 
     @Override
-    public List<ResearchWorkload> selectAll(List<String> dictValues) {
+    public List<ResearchWorkload> selectAllTeacher(List<String> dictValues) {
         // 这里保持原有的按部门ID查询的逻辑
-        return statisticMapper.selectAll(dictValues);
+        return statisticMapper.selectAllTeacher(dictValues);
+    }
+
+    @Override
+    public List<ResearchWorkload> selectAllDept(List<String> dictValues) {
+        // 这里保持原有的按部门ID查询的逻辑
+        return statisticMapper.selectAllDept(dictValues);
     }
     
     /**

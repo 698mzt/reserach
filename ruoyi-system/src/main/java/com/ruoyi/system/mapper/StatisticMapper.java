@@ -6,6 +6,8 @@ import java.util.List;
 
 public interface StatisticMapper {
 
-    List<ResearchWorkload> selectAll(List<String> dictValues);
+    List<ResearchWorkload> selectAllTeacher(List<String> dictValues);
+
+    List<ResearchWorkload> selectAllDept(List<String> dictValues);
 
 }

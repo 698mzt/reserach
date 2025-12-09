@@ -25,7 +25,7 @@
     </resultMap>
 
 
-    <select id="selectAll" parameterType="List" resultMap="ResearchWorkloadResult">
+    <select id="selectAllTeacher" parameterType="List" resultMap="ResearchWorkloadResult">
         select userId, userName, partenId, partenName, deptId, deptName, hxkt, zxktxj, zxktxjys, cgzh, xslw, jczz, zl, rz, jl, jzbg from alltotle_score
         <where>
             <if test="list != null and list.size() > 0">
@@ -35,6 +35,20 @@
                 </foreach>
             </if>
         </where>
+        order by partenId, deptId
+    </select>
+
+    <select id="selectAllDept" parameterType="List" resultMap="ResearchWorkloadResult">
+        select partenId, partenName, deptId, deptName,SUM(hxkt) hxkt,SUM(zxktxj) zxktxj,SUM(zxktxjys) zxktxjys,SUM(cgzh) cgzh,SUM(xslw) xslw,SUM(jczz) jczz,SUM(zl) zl,SUM(rz) rz,SUM(jl) jl,SUM(jzbg) jzbg from alltotle_score
+        <where>
+            <if test="list != null and list.size() > 0">
+                AND partenId IN
+                <foreach collection="list" item="dictValue" open="(" separator="," close=")">
+                    #{dictValue}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY deptId, deptName
         order by partenId, deptId
     </select>
 
