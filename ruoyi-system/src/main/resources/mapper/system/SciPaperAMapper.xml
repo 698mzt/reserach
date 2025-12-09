@@ -839,4 +839,31 @@
         order by createtime desc
     </select>
 
+    <select id="getStatsQueryToCheck" parameterType="map" resultMap="SciPaperAResult">
+        select
+        p.id,
+        p.user_id,
+        d.dept_name research_room,
+        pt.dept_name college,
+        p.teacher_name teacher_name,
+        p.paper_title,
+        p.paper_type,
+        p.paper_category,
+        p.published_journal,
+        p.publication_time,
+        p.state
+        from sci_paper_a p
+        left join sys_user u on p.user_id = u.user_id
+        left join sys_dept d on u.dept_id = d.dept_id
+        left join sys_dept pt on d.parent_id = pt.dept_id
+        where 1=1
+        <if test="college != null and college != '' and college!='null' ">
+            AND pt.dept_id = #{college}
+        </if>
+        <if test="major != null and major != '' and major!='null'">
+            AND d.dept_id = #{major}
+        </if>
+        order by p.publication_time desc
+    </select>
+
 </mapper>

@@ -87,5 +87,13 @@ public interface SciLectureReportMapper
 
     List<SciLectureReportOpinion> getStatsQuery(Map<String, String> params);
 
+    /**
+     * 核算查询讲座报告数据
+     *
+     * @param params 查询参数
+     * @return 讲座报告集合
+     */
+    List<SciLectureReport> getStatsQueryToCheck(Map<String, String> params);
+
 //    List<SciLectureReport> selectSciLectureReportListBy(SciLectureReport sciLectureReport);
 }

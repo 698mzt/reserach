@@ -187,6 +187,14 @@ public interface ISciHorizontalApplyService
     List<SciHorizontalApply> getStatsQuery(Map<String, String> params);
 
     /**
+     * 核算查询横向课题数据
+     *
+     * @param params 查询参数
+     * @return 横向课题集合
+     */
+    List<SciHorizontalApply> getStatsQueryToCheck(Map<String, String> params);
+
+    /**
      * 删除被驳回的到账金额
      * */
     int removeAmount(String id, String reid, Long userId, String remark, String urlFlag);

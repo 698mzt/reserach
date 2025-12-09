@@ -314,4 +314,12 @@ public interface SciHorizontalApplyMapper
      * @return 横向课题集合
      */
     List<SciHorizontalApply> getStatsQuery(Map<String, String> params);
+
+    /**
+     * 核算查询横向课题数据
+     *
+     * @param params 查询参数
+     * @return 横向课题集合
+     */
+    List<SciHorizontalApply> getStatsQueryToCheck(Map<String, String> params);
 }

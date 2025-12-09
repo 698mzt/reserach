@@ -28,7 +28,7 @@ public class SysReward extends BaseEntity
     private Long userId;
 
     /** 申请人 */
-    @Excel(name = "申请人")
+    @Excel(name = "老师名称")
     private String  userName;
 
     /** 判断教研室还是科研处 */
@@ -36,7 +36,7 @@ public class SysReward extends BaseEntity
 
     @Excel(name = "学院")
     private String  yname;
-    @Excel(name = "专业")
+    @Excel(name = "教研室")
     private String  dname;
 
     public Long getDeptId() {

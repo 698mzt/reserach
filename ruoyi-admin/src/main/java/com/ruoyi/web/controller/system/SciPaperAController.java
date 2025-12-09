@@ -531,7 +531,7 @@ public class SciPaperAController extends BaseController {
     }
 
     /**
-     * 批阅
+     * 批阅+查看
      */
     @RequiresPermissions(value = {"system:paper:xypy", "system:paper:process", "system:paper:kypy", "system:paper:info"}, logical = Logical.OR)
     @GetMapping("/detail/{id}/{urlFlag}")

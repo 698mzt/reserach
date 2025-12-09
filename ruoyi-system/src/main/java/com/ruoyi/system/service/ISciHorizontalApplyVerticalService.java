@@ -104,4 +104,6 @@ public interface ISciHorizontalApplyVerticalService {
      * @return 纵向课题集合
      */
     List<SciHorizontalApplyVertical> getStatsQuery(Map<String, String> params);
+
+    List<SciHorizontalApplyVertical> getStatsQueryToCheck(Map<String, String> params);
 }

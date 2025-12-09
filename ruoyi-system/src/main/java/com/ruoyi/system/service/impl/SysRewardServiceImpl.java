@@ -286,4 +286,9 @@ public class SysRewardServiceImpl implements ISysRewardService
     public List<SysReward> getStatsQuery(Map<String, String> params) {
         return sysRewardMapper.getStatsQuery(params);
     }
+
+    @Override
+    public List<SysReward> getStatsQueryToCheck(Map<String, String> params) {
+        return sysRewardMapper.getStatsQueryToCheck(params);
+    }
 }

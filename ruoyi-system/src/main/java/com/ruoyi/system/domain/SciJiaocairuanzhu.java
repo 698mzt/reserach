@@ -196,7 +196,7 @@ public class SciJiaocairuanzhu extends BaseEntity
     private Integer gonghao;
 
     /** 姓名 */
-    @Excel(name = "姓名")
+    @Excel(name = "老师名称")
     private String xingming;
 
     /** 行政职务 */

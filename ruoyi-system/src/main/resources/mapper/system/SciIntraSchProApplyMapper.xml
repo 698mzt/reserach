@@ -33,7 +33,13 @@
         <result property="year"    column="year"    />
         <result property="overContract"    column="over_contract"    />
         <result property="overFiling"    column="over_filing"    />
-
+        <result property="loginName"    column="login_name"    />
+        <result property="participantUserId"    column="participant_user_id"    />
+        <result property="adminstrativeTitle"    column="adminstrative_title"    />
+        <result property="socialTitle"    column="social_title"    />
+        <result property="teaZhicheng"    column="tea_zhicheng"    />
+        <result property="changeValue"    column="change_value"    />
+        <result property="ranking"    column="ranking"    />
     </resultMap>
 
 
@@ -932,5 +938,51 @@
             </if>
         </where>
         GROUP BY s.id, s.top_name, s.first_person_id, s.second_person_id, s.third_person_id, s.fourth_person_id, s.signing_data, s.amount, s.state, u.user_name, d.dept_name, p.dept_name
+    </select>
+
+    <select id="getStatsQueryToCheck" parameterType="java.util.Map" resultMap="SciIntraSchoolProResult">
+        select
+        distinct u.user_id as participant_user_id,
+        s.id,
+        s.top_name,
+        s.signing_data,
+        s.validity_Date,
+        s.amount,
+        s.state,
+        s.top_type,
+        sis.earnedALL_Points as change_value,
+        sis.sciIntraSchResponTier as ranking,
+        u.login_name,
+        u.adminstrative_title,
+        u.social_title,
+        u.tea_zhicheng,
+        s.PA,
+        s.PB,
+        u.user_name as userName,
+        d.dept_name as dname,
+        p.dept_name as yname
+        from
+        sci_IntraSchPro_apply s
+        left join sys_user u on
+        (s.second_person_id = u.user_id
+        or s.first_person_id = u.user_id
+        or s.third_person_id = u.user_id
+        or s.fourth_person_id = u.user_id )
+        left join sys_dept d on
+        u.dept_id = d.dept_id
+        left join sys_dept p on
+        d.parent_id = p.dept_id
+        left join sci_intraschpro_score sis on
+        (s.id = sis.sciIntraSch_Id and u.user_id = sis.userid)
+        <where>
+            <if test="college != null and college != '' and college!='null' ">
+                AND p.dept_id = #{college}
+            </if>
+            <if test="major != null and major != '' and major!='null'">
+                AND d.dept_id = #{major}
+            </if>
+            and s.top_name is not null and sis.earnedALL_Points is not null
+        </where>
+        order by yname asc, dname asc, userName asc
     </select>
 </mapper>
