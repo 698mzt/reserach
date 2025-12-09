@@ -13,15 +13,32 @@ public class SciHorizontalApplyVertical extends BaseEntity {
     private String  filingurl;
     /**  */
     private Integer id;
-    @Excel(name = "学院")
+    @Excel(name = "学院", sort = 1)
     private String  yname;
-    @Excel(name = "教研室")
+    @Excel(name = "教研室", sort = 2)
     private String  dname;
 
 
     /** 申请人 */
-    @Excel(name = "老师名称")
+    @Excel(name = "老师名称", sort = 3)
     private String  userName;
+
+    /** 积分值 */
+    private String changeValue;
+
+    /** 积分状态（立项/结项） */
+    private String changeStatus;
+
+    /** 参与者用户ID（用于分组计算积分） */
+    private Integer participantUserId;
+
+    /** 积分总和（用于导出） */
+    @Excel(name = "积分", sort = 7)
+    private String totalScore;
+
+    /** 老师获得的总分（用于导出，合计该老师所有项目的积分） */
+    @Excel(name = "总分", sort = 8)
+    private String totalTeacherScore;
 
     public String getUserName() {
         return userName;
@@ -31,20 +48,60 @@ public class SciHorizontalApplyVertical extends BaseEntity {
         this.userName = userName;
     }
 
+    public String getChangeValue() {
+        return changeValue;
+    }
+
+    public void setChangeValue(String changeValue) {
+        this.changeValue = changeValue;
+    }
+
+    public String getChangeStatus() {
+        return changeStatus;
+    }
+
+    public void setChangeStatus(String changeStatus) {
+        this.changeStatus = changeStatus;
+    }
+
+    public Integer getParticipantUserId() {
+        return participantUserId;
+    }
+
+    public void setParticipantUserId(Integer participantUserId) {
+        this.participantUserId = participantUserId;
+    }
+
+    public String getTotalScore() {
+        return totalScore;
+    }
+
+    public void setTotalScore(String totalScore) {
+        this.totalScore = totalScore;
+    }
+
+    public String getTotalTeacherScore() {
+        return totalTeacherScore;
+    }
+
+    public void setTotalTeacherScore(String totalTeacherScore) {
+        this.totalTeacherScore = totalTeacherScore;
+    }
+
     private Integer userId;
     /** 课题名称 */
-    @Excel(name = "课题名称")
+    @Excel(name = "课题名称", sort = 5)
     private String topName;
     /** 课题编号 */
-    @Excel(name = "课题编号")
+    @Excel(name = "课题编号", sort = 7)
     private String topNumber;
     /** 课题类型 */
     // @Excel(name = "课题类型")
     private String topType;
     /** 签订日期 */
-    @Excel(name = "立项日期")
+    @Excel(name = "立项日期", sort = 9)
     private String signingData;
-    @Excel(name = "结项日期")
+    @Excel(name = "结项日期", sort = 10)
     private String validityData;
     /** 第一负责人 */
     //@Excel(name = "第一负责人")
@@ -59,7 +116,7 @@ public class SciHorizontalApplyVertical extends BaseEntity {
     //  @Excel(name = "第四负责人")
     private String fourthPersonId;
     /** 项目金额 */
-    @Excel(name = "项目金额")
+    @Excel(name = "项目金额", sort = 11)
     private String amount;
     /** 申请文件 */
     private String file;
@@ -70,11 +127,16 @@ public class SciHorizontalApplyVertical extends BaseEntity {
     /** 结项文件 */
     private String overfile;
     /** 状态 */
-    @Excel(name = "状态")
+    @Excel(name = "状态", sort = 12)
     private String state;
 
     /** 课题来源 */
+    @Excel(name = "课题来源", sort = 4)
     private String subjectSource;
+
+    /** 排名 */
+    @Excel(name = "排名", sort = 6)
+    private String ranking;
 
     public String getSubjectSource() {
         return subjectSource;
@@ -82,6 +144,14 @@ public class SciHorizontalApplyVertical extends BaseEntity {
 
     public void setSubjectSource(String subjectSource) {
         this.subjectSource = subjectSource;
+    }
+
+    public String getRanking() {
+        return ranking;
+    }
+
+    public void setRanking(String ranking) {
+        this.ranking = ranking;
     }
 
     /** 角色 */
@@ -453,7 +523,9 @@ public class SciHorizontalApplyVertical extends BaseEntity {
             case "77":
                 return "结项：科研处退回";
             case "99":
-                return "草稿箱";
+                return "立项草稿箱";
+            case "999":
+                return "结项草稿箱";
         }
         return this.state;
     }
