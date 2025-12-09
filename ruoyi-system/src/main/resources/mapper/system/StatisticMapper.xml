@@ -5,8 +5,37 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.system.mapper.StatisticMapper">
 
-    <select id="selectAll">
-        select * from Alltotle  where deptId=#{deptId}
+    <resultMap type="ResearchWorkload" id="ResearchWorkloadResult">
+        <result property="parentId"    column="partenId"    />
+        <result property="parentName"    column="partenName"    />
+        <result property="deptId"    column="deptId"    />
+        <result property="deptName"    column="deptName"    />
+        <result property="userId"    column="userId"    />
+        <result property="userName"    column="userName"    />
+        <result property="hxkt"    column="hxkt"    />
+        <result property="zxktxj"    column="zxktxj"    />
+        <result property="zxktxjys"    column="zxktxjys"    />
+        <result property="cgzh"    column="cgzh"    />
+        <result property="xslw"    column="xslw"    />
+        <result property="jczz"    column="jczz"    />
+        <result property="zl"    column="zl"    />
+        <result property="rz"    column="rz"    />
+        <result property="jl"    column="jl"    />
+        <result property="jzbg"    column="jzbg"    />
+    </resultMap>
+
+
+    <select id="selectAll" parameterType="List" resultMap="ResearchWorkloadResult">
+        select userId, userName, partenId, partenName, deptId, deptName, hxkt, zxktxj, zxktxjys, cgzh, xslw, jczz, zl, rz, jl, jzbg from alltotle_score
+        <where>
+            <if test="list != null and list.size() > 0">
+                AND partenId IN
+                <foreach collection="list" item="dictValue" open="(" separator="," close=")">
+                    #{dictValue}
+                </foreach>
+            </if>
+        </where>
+        order by partenId, deptId
     </select>
 
 </mapper>

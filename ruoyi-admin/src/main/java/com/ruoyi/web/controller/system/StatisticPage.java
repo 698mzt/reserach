@@ -2,9 +2,12 @@ package com.ruoyi.web.controller.system;
 //<!--教研室科研工作任务计划表-->
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.entity.SysDept;
+import com.ruoyi.common.core.domain.entity.SysDictData;
 import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.common.core.page.TableDataInfo;
+import com.ruoyi.common.utils.DictUtils;
 import com.ruoyi.framework.web.domain.server.Sys;
+import com.ruoyi.system.domain.ResearchWorkload;
 import com.ruoyi.system.mapper.StatisticMapper;
 import com.ruoyi.system.mapper.SysDeptMapper;
 import com.ruoyi.system.service.IStatisticService;
@@ -44,42 +47,14 @@ public class StatisticPage extends BaseController {
     public TableDataInfo list() {
         String dept = getSysUser().getDeptId().toString();
         startPage();
-        List<Map<String, Object>> list = statisticService.selectAll(dept);
-        if (list == null || list.isEmpty()) {
-            throw new IllegalStateException("查询结果为空");
-        }
-        List<SysUser> users = userService.selectAllUser();
-        Map<Long, SysUser> userMap = users.stream()
-                .collect(Collectors.toMap(SysUser::getUserId, user -> user));
-        // 新增: 将用户和部门信息添加到list中
-        for (Map<String, Object> map : list) {
-            Long userId = (Long) map.get("userId");
-            Long deptId = (Long) map.get("deptId");
-
-            if (userId != null && userMap.containsKey(userId)) {
-                SysUser user = userMap.get(userId);
-                map.put("userName", user.getUserName());
-            }
-
-            if (deptId != null) {
-                SysDept dept1 = deptService.selectDeptById(deptId);
-                if (dept1 != null) {
-                    map.put("deptName", dept1.getDeptName());
-                } else {
-                    map.put("deptName", "未知部门"); // 防止空值
-                }
-            }
-        }
-        for (Map<String, Object> map : list) {
-            map.replaceAll((key, value) -> {
-                if (value instanceof byte[]) {
-                    return new String((byte[]) value, StandardCharsets.UTF_8);
-                } else if (value instanceof String) {
-                    return ((String) value).trim();
-                }
-                return value;
-            });
-        }
+//        List<Map<String, Object>> list = statisticService.selectAll(dept);
+        List<SysDictData> dictList = DictUtils.getDictCache("sys_acade_dept");
+        // 使用字典数据的dictValue作为筛选条件
+        List<String> dictValues = dictList.stream()
+                .map(SysDictData::getDictValue)
+                .collect(Collectors.toList());
+        startPage();
+        List<ResearchWorkload> list = statisticService.selectAll(dictValues);
         TableDataInfo data = getDataTable(list);
         System.out.println(data);
         return data;
