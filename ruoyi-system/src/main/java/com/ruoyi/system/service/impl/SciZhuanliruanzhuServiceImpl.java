@@ -315,6 +315,11 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
         return sciZhuanliruanzhuMapper.getStatsQueryToExcil(params);
     }
 
+    @Override
+    public List<SciZhuanliruanzhu> getStatsQueryToCheck(Map<String, String> params) {
+        return sciZhuanliruanzhuMapper.getStatsQueryToCheck(params);
+    }
+
 
 
 

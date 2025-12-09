@@ -64,6 +64,6 @@ public interface IAlltotleService
    */
   int synchronousAlltotle();
 
-  public List<Alltotle> selectFourColtotleList(Alltotle alltotle);
+  public List<Alltotle> selectFourColtotleList( String deptIdString);
 }
 

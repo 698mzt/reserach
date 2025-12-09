@@ -2,6 +2,7 @@ package com.ruoyi.system.mapper;
 
 import java.util.List;
 import com.ruoyi.system.domain.Alltotle;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * AlltotleMapper接口
@@ -59,5 +60,5 @@ public interface AlltotleMapper
    */
   public int deleteAlltotleByUserIds(String[] userIds);
 
-  List<Alltotle> selectFourColtotleList(Alltotle alltotle);
+  List<Alltotle> selectFourColtotleList( @Param("deptIdString") String deptIdString);
 }

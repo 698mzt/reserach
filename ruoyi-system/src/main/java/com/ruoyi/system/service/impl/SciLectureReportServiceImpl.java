@@ -427,4 +427,9 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService
         return sciLectureReportMapper.getStatsQuery(params);
     }
 
+    @Override
+    public List<SciLectureReport> getStatsQueryToCheck(Map<String, String> params) {
+        return sciLectureReportMapper.getStatsQueryToCheck(params);
+    }
+
 }

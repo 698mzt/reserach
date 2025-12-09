@@ -125,9 +125,14 @@ public class AlltotleServiceImpl implements IAlltotleService {
 
   }
 
+    /**
+     * 查出来每个老师的每一个模块的个数 , 做统计 ,
+     * @param deptIdString
+     * @return
+     */
   @Override
-  public List<Alltotle> selectFourColtotleList(Alltotle alltotle) {
-    List<Alltotle> list = alltotleMapper.selectFourColtotleList(alltotle);
+  public List<Alltotle> selectFourColtotleList(String deptIdString) {
+    List<Alltotle> list = alltotleMapper.selectFourColtotleList(deptIdString);
 
     List<Alltotle> result = new ArrayList<>();
     if (list.isEmpty()) {
@@ -135,13 +140,13 @@ public class AlltotleServiceImpl implements IAlltotleService {
     }
     String thisPartName = list.get(0).getPartenName();
     String thisDeptName = list.get(0).getDeptName();
-    // 部门
+    // 部门 查到的部门都有啥
     Alltotle sum_alltotle = new Alltotle();
     sum_alltotle.setDeptName(list.get(0).getDeptName());
     sum_alltotle.setPartenName(list.get(0).getPartenName());
     sum_alltotle.setPartenId(list.get(0).getPartenId());
     thisDeptName = list.get(0).getDeptName();
-    // 父部门统计
+    // 父部门统计 查到的父部门都有啥
     Alltotle sum_alltotle_part = new Alltotle();
     sum_alltotle_part.setDeptName("计");
     sum_alltotle_part.setPartenName("统");
@@ -149,7 +154,7 @@ public class AlltotleServiceImpl implements IAlltotleService {
     thisPartName = list.get(0).getPartenName();
     for (int i = 0; i < list.size(); i++){
 
-      // 插入返回值，如果是最后一个 或者 当前部门名称和上一部门名称不一致 就说明这个部门计算完毕 先插入返回值
+      // 插入返回值，如果是最后一个 或者 当前部门名称和上一部门名称不一致 就说明这个部门计算完毕 插入计算出来的总计
       if ( !list.get(i).getDeptName().equals(thisDeptName)){
         //把上一个部门统计的添加到返回值中
         result.add(sum_alltotle);
@@ -169,10 +174,11 @@ public class AlltotleServiceImpl implements IAlltotleService {
         sum_alltotle_part.setPartenId(list.get(i).getPartenId());
         thisPartName = list.get(i).getPartenName();
       }
-
+      // 这条数据的部门
       sum_alltotle = AlltotleSet(sum_alltotle, list.get(i));
+      // 这条数据的父部门
       sum_alltotle_part = AlltotleSet(sum_alltotle_part, list.get(i));
-      // 如果是最后一个就插入返回值
+      // 如果是最后一个就插入返回值 ,处理最后一个不会走第一个if插入统计
       if (i == list.size() - 1 ){
         result.add(sum_alltotle);
         result.add(sum_alltotle_part);
@@ -180,7 +186,7 @@ public class AlltotleServiceImpl implements IAlltotleService {
     }
     return result;
   }
-
+ // 相加函数
   private Alltotle AlltotleSet(Alltotle sum_alltotle, Alltotle alltotle) {
     // 使用反射简化求和操作
     //getDeclaredFields()方法返回一个包含Field对象的数组，每个Field对象代表类中

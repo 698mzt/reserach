@@ -96,4 +96,12 @@ public interface ISciPaperAService
      * @return 论文集合
      */
     List<SciPaperA> getStatsQuery(Map<String, String> params);
+
+    /**
+     * 核算查询论文数据
+     *
+     * @param params 查询参数
+     * @return 论文集合
+     */
+    List<SciPaperA> getStatsQueryToCheck(Map<String, String> params);
 }

@@ -323,4 +323,9 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
     public List<SciPaperA> getStatsQuery(Map<String, String> params) {
         return sciPaperAMapper.getStatsQuery(params);
     }
+
+    @Override
+    public List<SciPaperA> getStatsQueryToCheck(Map<String, String> params) {
+        return sciPaperAMapper.getStatsQueryToCheck(params);
+    }
 }

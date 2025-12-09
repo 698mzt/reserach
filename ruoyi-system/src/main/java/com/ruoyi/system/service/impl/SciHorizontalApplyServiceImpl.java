@@ -1335,6 +1335,11 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
         return sciHorizontalApplyMapper.getStatsQuery(params);
     }
 
+    @Override
+    public List<SciHorizontalApply> getStatsQueryToCheck(Map<String, String> params) {
+        return sciHorizontalApplyMapper.getStatsQueryToCheck(params);
+    }
+
     /**
      * 删除被驳回的到账金额
      * */

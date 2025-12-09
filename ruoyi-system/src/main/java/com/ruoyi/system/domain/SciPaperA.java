@@ -63,7 +63,7 @@ public class SciPaperA extends BaseEntity {
     /**
      * 教师姓名
      */
-    @Excel(name = "教师姓名")
+    @Excel(name = "老师名称")
     private String teacherName;
 
     /**

@@ -418,6 +418,11 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
     public List<SciIntraSchoolPro> getStatsQuery(Map<String, String> params) {
         return sciIntraSchProApplyMapper.getStatsQuery(params);
     }
+
+    @Override
+    public List<SciIntraSchoolPro> getStatsQueryToCheck(Map<String, String> params) {
+        return sciIntraSchProApplyMapper.getStatsQueryToCheck(params);
+    }
 }
 
 

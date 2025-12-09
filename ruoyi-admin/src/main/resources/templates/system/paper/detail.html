@@ -264,15 +264,15 @@
                     <div class="col-sm-7 url-link-container">
                         <a th:href="*{search_web}"
                            th:title="*{search_web}"
-                           th:target="${sciPaperA.search_web != null and sciPaperA.search_web != ''} ? '_blank' : null"
-                           th:class="${sciPaperA.search_web != null and sciPaperA.search_web != ''} ? 'form-control url-link' : 'form-control url-link url-empty'"
-                           th:onclick="${sciPaperA.search_web == null or sciPaperA.search_web == ''} ? 'return false;' : null"
+                           th:target="*{search_web != null and search_web != ''} ? '_blank' : null"
+                           th:class="*{search_web != null and search_web != ''} ? 'form-control url-link' : 'form-control url-link url-empty'"
+                           th:onclick="*{search_web == null or search_web == ''} ? 'return false;' : null"
                            onmouseenter="showTooltip(this)"
                            onmouseleave="hideTooltip()"
                         >
-                            <span th:if="${sciPaperA.search_web != null and #strings.length(sciPaperA.search_web) > 44}" 
-                                  th:text="${#strings.substring(sciPaperA.search_web, 0, 44)} + '...'"></span>
-                            <span th:if="${sciPaperA.search_web == null or #strings.length(sciPaperA.search_web) <= 44}" 
+                            <span th:if="*{search_web != null and #strings.length(search_web) > 44}" 
+                                  th:text="*{#strings.substring(search_web, 0, 44)} + '...'"></span>
+                            <span th:if="*{search_web == null or #strings.length(search_web) <= 44}" 
                                   th:text="*{search_web}"></span>
                         </a>
                     </div>

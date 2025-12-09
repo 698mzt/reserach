@@ -617,6 +617,15 @@
                                                         </div>
                                                     </div>
                                                 </li>
+                                                <li class="second-row college-major-item"  shiro:hasPermission="sys_collage_filter">
+                                                    <label>姓名：</label>
+                                                    <select name="teacherName" class="form-control m-b select2-search" id="teacherName">
+                                                        <option th:each="user : ${sysUsers}"
+                                                                th:text="${user.userName}"
+                                                                th:value="${user.userId}"
+                                                                th:data-user-id="${user.userId}"></option>
+                                                    </select>
+                                                </li>
                                                 <li class="button-item">
                                                     <a class="btn btn-primary btn-rounded btn-sm"
                                                        id="searchBtn"><i class="fa fa-search"></i>&nbsp;搜索</a>
@@ -657,14 +666,14 @@
 <th:block th:include="include :: select2-js"/>
 
 <script th:inline="javascript">
-$(document).ready(function() {
-    // 只对有 select2-search 类的下拉框初始化select2
-    $('.select2-search').select2({
-        placeholder: '---其他--',
-        allowClear: true,
-        width: '100%'
+    $(document).ready(function() {
+        // 只对有 select2-search 类的下拉框初始化select2
+        $('.select2-search').select2({
+            placeholder: '---其他--',
+            allowClear: true,
+            width: '100%'
+        });
     });
-});
 
     $('#element2').cxSelect({
         selects: ['first', 'second'],
@@ -1388,7 +1397,7 @@ $(document).ready(function() {
             sortOrder: "asc",
             showHeader: false, // 初始不显示表头
             columns: [], // 初始为空列
-            exportUrl: prefix + "/export",
+            exportUrl: prefix + "/exportToCheck",
             queryParams: function (params) {
                 // 如果还没有搜索过，返回空数据请求
                 if (!hasSearched) {
@@ -1741,7 +1750,7 @@ $(document).ready(function() {
 
     // 导出数据
     function exportExcel() {
-        $.modal.confirm("确定导出所有" + table.options.modalName + "吗？", function () {
+        $.modal.confirm("确定导出所有" + table.options.modalName + "吗？ 此导出用于核查", function () {
             // 创建参数对象而不是数组
             var exportParams = {};
             var remark = $("select[name='remark']").val();
@@ -1810,3 +1819,4 @@ $(document).ready(function() {
 </script>
 </body>
 </html>
+

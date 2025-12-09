@@ -366,4 +366,39 @@
         order by s.createtime desc
     </select>
 
+    <select id="getStatsQueryToCheck" parameterType="map" resultMap="SciLectureReportResult">
+        select
+               s.id,
+               s.user_id,
+               p.dept_name,
+               d.dept_name dname,
+               u.login_name,
+               u.user_name userName,
+               s.report_time,
+               s.report_end_time,
+               s.report_theme,
+               s.host_unit,
+               s.report_place,
+               s.report_number,
+               s.report_subject,
+               s.report_duration,
+               s.report_classify,
+               s.state,
+               s.createtime,
+               s.report_url,
+               s.report_keyanfen
+        from sci_lecture_report s
+        left join sys_user u on s.user_id = u.user_id
+        left join sys_dept d on u.dept_id = d.dept_id
+        left join sys_dept p on d.parent_id = p.dept_id
+        where 1=1
+        <if test="college != null and college != '' and college!='null' ">
+            AND p.dept_id = #{college}
+        </if>
+        <if test="major != null and major != '' and major!='null'">
+            AND d.dept_id = #{major}
+        </if>
+        order by s.createtime desc
+    </select>
+
 </mapper>

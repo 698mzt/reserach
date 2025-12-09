@@ -108,5 +108,13 @@ public interface ISciJiaocairuanzhuService
      */
     List<SciJiaocairuanzhu> getStatsQuery(Map<String, String> params);
 
+    /**
+     * 核算查询教材专著数据
+     *
+     * @param params 查询参数
+     * @return 教材专著集合
+     */
+    List<SciJiaocairuanzhu> getStatsQueryToCheck(Map<String, String> params);
+
 
 }
