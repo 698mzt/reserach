@@ -91,4 +91,12 @@ public interface SysRewardMapper
      * @return 奖励集合
      */
     List<SysReward> getStatsQuery(Map<String, String> params);
+
+    /**
+     * 核算查询奖励数据
+     *
+     * @param params 查询参数
+     * @return 奖励集合
+     */
+    List<SysReward> getStatsQueryToCheck(Map<String, String> params);
 }

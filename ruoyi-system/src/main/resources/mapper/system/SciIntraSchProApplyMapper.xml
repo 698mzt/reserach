@@ -933,4 +933,33 @@
         </where>
         GROUP BY s.id, s.top_name, s.first_person_id, s.second_person_id, s.third_person_id, s.fourth_person_id, s.signing_data, s.amount, s.state, u.user_name, d.dept_name, p.dept_name
     </select>
+
+    <select id="getStatsQueryToCheck" parameterType="java.util.Map" resultMap="SciIntraSchoolProResult">
+        SELECT
+        s.id,
+        s.top_name,
+        s.first_person_id,
+        s.second_person_id,
+        s.third_person_id,
+        s.fourth_person_id,
+        s.signing_data,
+        s.amount,
+        s.state,
+        u.user_name AS userName,
+        d.dept_name AS dname,
+        p.dept_name AS yname
+        FROM sci_IntraSchPro_apply s
+        LEFT JOIN sys_user u ON s.user_id = u.user_id
+        LEFT JOIN sys_dept d ON u.dept_id = d.dept_id
+        LEFT JOIN sys_dept p ON d.parent_id = p.dept_id
+        <where>
+            <if test="college != null and college != '' and college!='null' ">
+                AND p.dept_id = #{college}
+            </if>
+            <if test="major != null and major != '' and major!='null'">
+                AND d.dept_id = #{major}
+            </if>
+        </where>
+        ORDER BY s.signing_data DESC
+    </select>
 </mapper>

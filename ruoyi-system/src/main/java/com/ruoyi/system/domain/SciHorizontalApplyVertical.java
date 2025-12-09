@@ -15,12 +15,12 @@ public class SciHorizontalApplyVertical extends BaseEntity {
     private Integer id;
     @Excel(name = "学院")
     private String  yname;
-    @Excel(name = "专业")
+    @Excel(name = "教研室")
     private String  dname;
 
 
     /** 申请人 */
-    @Excel(name = "申请人")
+    @Excel(name = "老师名称")
     private String  userName;
 
     public String getUserName() {

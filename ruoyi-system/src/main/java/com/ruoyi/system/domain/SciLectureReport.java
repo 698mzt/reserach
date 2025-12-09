@@ -44,7 +44,7 @@ public class SciLectureReport extends BaseEntity
     private String xueyuan;
 
     /** 科研室 --- 专业*/
-    @Excel(name = "专业")
+    @Excel(name = "教研室")
     private String keyanshi;
 
     /** 工号 */
@@ -52,7 +52,7 @@ public class SciLectureReport extends BaseEntity
     private String jobId;
 
     /** 姓名 */
-    @Excel(name = "申请人")
+    @Excel(name = "老师名称")
     private String teacherName;
 
 //    /** 行政职务 */

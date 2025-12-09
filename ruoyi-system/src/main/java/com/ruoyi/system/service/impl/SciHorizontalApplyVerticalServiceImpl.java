@@ -506,4 +506,12 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
     public List<SciHorizontalApplyVertical> getStatsQuery(Map<String, String> params) {
         return sciHorizontalApplyVerticalMapper.getStatsQuery(params);
     }
+
+    @Override
+    public List<SciHorizontalApplyVertical> getStatsQueryToCheck(Map<String, String> params) {
+        return sciHorizontalApplyVerticalMapper.getStatsQueryToCheck(params);
+
+    }
+
+
 }

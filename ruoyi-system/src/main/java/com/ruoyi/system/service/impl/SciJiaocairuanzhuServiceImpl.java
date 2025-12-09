@@ -335,4 +335,9 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
     public List<SciJiaocairuanzhu> getStatsQuery(Map<String, String> params) {
         return sciJiaocairuanzhuMapper.getStatsQuery(params);
     }
+
+    @Override
+    public List<SciJiaocairuanzhu> getStatsQueryToCheck(Map<String, String> params) {
+        return sciJiaocairuanzhuMapper.getStatsQueryToCheck(params);
+    }
 }

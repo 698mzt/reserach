@@ -27,7 +27,7 @@ public class SciHorizontalApply extends BaseEntity
     private Integer id;
     @Excel(name = "学院")
     private String  yname;
-    @Excel(name = "专业")
+    @Excel(name = "教研室")
     private String  dname;
 
 
@@ -58,7 +58,7 @@ public class SciHorizontalApply extends BaseEntity
     private String topNumber;
 
     /** 申请人 */
-    @Excel(name = "主持人姓名")
+    @Excel(name = "老师名称")
     private String  userName;
     /** 甲方*/
     @Excel(name = "甲方")

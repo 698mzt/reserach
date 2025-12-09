@@ -1793,4 +1793,193 @@ public class ExcelUtil<T>
         }
         return method;
     }
+
+    /**
+     * 对list数据源将其里面的数据导入到excel表单，并合并指定列的相同数据
+     * 
+     * @param list 导出数据集合
+     * @param sheetName 工作表的名称
+     * @param title 标题
+     * @param mergeColumns 需要合并的列名数组
+     * @return 结果
+     */
+    public AjaxResult exportExcelWithMergedCells(List<T> list, String sheetName, String title, String[] mergeColumns)
+    {
+        this.init(list, sheetName, title, Type.EXPORT);
+        try
+        {
+            writeSheet();
+            mergeSameColumns(mergeColumns);
+            String filename = encodingFilename(sheetName);
+            OutputStream out = new FileOutputStream(getAbsoluteFile(filename));
+            wb.write(out);
+            return AjaxResult.success(filename);
+        }
+        catch (Exception e)
+        {
+            log.error("导出Excel异常{}", e.getMessage());
+            throw new UtilException("导出Excel失败，请联系网站管理员！");
+        }
+        finally
+        {
+            IOUtils.closeQuietly(wb);
+        }
+    }
+
+    /**
+     * 合并相同数据的列
+     * 
+     * @param mergeColumns 需要合并的列名数组
+     */
+    private void mergeSameColumns(String[] mergeColumns)
+    {
+        if (mergeColumns == null || mergeColumns.length == 0 || list.size() == 0)
+        {
+            return;
+        }
+
+        // 创建列名到列索引的映射
+        Map<String, Integer> columnMap = new HashMap<>();
+        for (int i = 0; i < fields.size(); i++)
+        {
+            Field field = (Field) fields.get(i)[0];
+            columnMap.put(field.getName(), i);
+        }
+
+        // 计算数据开始的行号（标题行占用的行数）
+        int headerRowCount = 1; // 列标题行
+        if (StringUtils.isNotEmpty(title))
+        {
+            headerRowCount++; // 如果有标题，增加一行
+        }
+        if (isSubList())
+        {
+            headerRowCount++; // 如果有子列表，增加一行
+        }
+        int startRow = headerRowCount; // Excel从0开始计数，startRow是数据第一行
+
+        // 对每一列需要合并的列进行处理
+        for (String columnName : mergeColumns)
+        {
+            Integer columnIndex = columnMap.get(columnName);
+            if (columnIndex == null)
+            {
+                continue; // 找不到列，跳过
+            }
+
+            // 找到该列所有相同的连续行并合并
+            int mergeStartRow = -1;
+            Object previousValue = null;
+
+            // 遍历所有数据行
+            for (int i = 0; i < list.size(); i++)
+            {
+                int currentRow = startRow + i;
+                Row row = sheet.getRow(currentRow);
+                if (row == null)
+                {
+                    // 如果当前行为空，结束之前的合并
+                    if (mergeStartRow != -1 && mergeStartRow < currentRow - 1)
+                    {
+                        sheet.addMergedRegion(new CellRangeAddress(mergeStartRow, currentRow - 1, columnIndex, columnIndex));
+                    }
+                    mergeStartRow = -1;
+                    previousValue = null;
+                    continue;
+                }
+
+                // 通过反射获取对象字段值，而不是从单元格读取（更准确）
+                Object currentValue = null;
+                try
+                {
+                    T vo = list.get(i);
+                    Field field = (Field) fields.get(columnIndex)[0];
+                    currentValue = getTargetValue(vo, field, (Excel) fields.get(columnIndex)[1]);
+                    if (currentValue != null)
+                    {
+                        currentValue = currentValue.toString().trim();
+                    }
+                }
+                catch (Exception e)
+                {
+                    // 如果反射失败，从单元格读取
+                    Cell cell = row.getCell(columnIndex);
+                    currentValue = getCellValue(cell);
+                    if (currentValue != null)
+                    {
+                        currentValue = currentValue.toString().trim();
+                    }
+                }
+
+                // 判断是否与上一行相同
+                boolean isSame = (currentValue != null && !currentValue.toString().isEmpty() 
+                    && previousValue != null && currentValue.equals(previousValue));
+
+                if (isSame)
+                {
+                    // 如果相同且还没有开始合并区域，开始合并（从上一行开始）
+                    if (mergeStartRow == -1)
+                    {
+                        mergeStartRow = currentRow - 1;
+                    }
+                }
+                else
+                {
+                    // 如果值不同或为空，结束之前的合并区域
+                    if (mergeStartRow != -1 && mergeStartRow < currentRow - 1)
+                    {
+                        sheet.addMergedRegion(new CellRangeAddress(mergeStartRow, currentRow - 1, columnIndex, columnIndex));
+                    }
+                    mergeStartRow = -1; // 重置合并开始行
+                }
+                
+                previousValue = (currentValue != null && !currentValue.toString().isEmpty()) ? currentValue : null;
+            }
+
+            // 处理最后一个合并区域（循环结束后）
+            if (mergeStartRow != -1)
+            {
+                int lastRow = startRow + list.size() - 1;
+                if (mergeStartRow < lastRow)
+                {
+                    sheet.addMergedRegion(new CellRangeAddress(mergeStartRow, lastRow, columnIndex, columnIndex));
+                }
+            }
+        }
+    }
+
+    /**
+     * 获取单元格的值，用于合并比较
+     * 
+     * @param cell 单元格
+     * @return 单元格值
+     */
+    private Object getCellValue(Cell cell)
+    {
+        if (cell == null)
+        {
+            return null;
+        }
+
+        switch (cell.getCellType())
+        {
+            case STRING:
+                return cell.getStringCellValue().trim();
+            case NUMERIC:
+                if (DateUtil.isCellDateFormatted(cell))
+                {
+                    return cell.getDateCellValue();
+                }
+                else
+                {
+                    return cell.getNumericCellValue();
+                }
+            case BOOLEAN:
+                return cell.getBooleanCellValue();
+            case FORMULA:
+                return cell.getCellFormula();
+            default:
+                return null;
+        }
+    }
 }

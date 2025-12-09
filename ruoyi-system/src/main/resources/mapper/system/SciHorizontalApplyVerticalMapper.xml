@@ -423,4 +423,21 @@
         order by s.createtime desc
     </select>
 
+    <select id="getStatsQueryToCheck" parameterType="map" resultMap="SciHorizontalApplyVerticalResult">
+        select distinct s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,s.top_number, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file,s.open_file,s.mid_file,s.over_file,s.createtime
+        from  sci_horizontal_apply_vertical s 
+        left join sys_user u on  (s.second_person_id = u.user_id or s.first_person_id=u.user_id or  s.third_person_id=u.user_id or  s.fourth_person_id=u.user_id )
+        left join sys_dept d on u.dept_id = d.dept_id
+        left join sys_dept p on d.parent_id =p.dept_id
+        where 1=1
+        <if test="college != null and college != '' ">
+            and d.parent_id =#{college}
+        </if>
+        <if test="major != null and major != '' and major!='null'">
+            AND d.dept_id = #{major}
+        </if>
+        and s.top_name is not null
+        order by yname asc, dname asc, userName asc
+    </select>
+
 </mapper>

@@ -296,5 +296,17 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         order by s.reward_time desc
     </select>
 
+    <select id="getStatsQueryToCheck" parameterType="map" resultMap="SysRewardResult">
+        <include refid="selectSysRewardVo"/>
+        where 1=1
+        <if test="college != null and college != '' and college != 'null'">
+            AND p.dept_id = #{college}
+        </if>
+        <if test="major != null and major != '' and major != 'null'">
+            AND d.dept_id = #{major}
+        </if>
+        order by s.reward_time desc
+    </select>
+
 
 </mapper>

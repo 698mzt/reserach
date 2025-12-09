@@ -18,6 +18,7 @@ import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -49,12 +50,27 @@ public class StatsQueryController extends BaseController {
     @Autowired // 讲座报告Service接口 8
     private ISciLectureReportService sciLectureReportService;
 
-
+    @Autowired
+    private ISysUserService userService;
     @GetMapping("")
-    String view(Model model) {
-        model.addAttribute("data", "123");
+    String view(ModelMap mmap) {
 
         return prefix + "/view";
+    }
+
+    @GetMapping("/ToCheck")
+    String viewToCheck(ModelMap mmap) {
+        List<SysUser> userList = userService.selectAllUserSchPro(getUserId());
+        for (int a = 0; a < userList.size(); a++) {
+            if (userList.get(a).getUserId() == getUserId()) {
+                SysUser user = userList.get(a);
+                user.setFlag(true);
+                userList.set(a, user);
+                break;
+            }
+        }
+        mmap.put("sysUsers", userList);
+        return prefix + "/viewToCheck";
     }
     @PostMapping("/list")
     @ResponseBody
@@ -265,6 +281,112 @@ public class StatsQueryController extends BaseController {
                     }).collect(Collectors.toList());
                     ExcelUtil<SciLectureReportOpinion> util = new ExcelUtil<SciLectureReportOpinion>(SciLectureReportOpinion.class);
                     return util.exportExcel(exportList, "讲座报告数据");
+                }
+            }
+            return error("未指定导出模块或模块不存在");
+        } catch (Exception e) {
+            return error(e.getMessage());
+        }
+    }
+
+    /**
+     * 导出核算列表
+     * 只接收三个参数：college(学院)、major(教研室)、remark(模块类型)
+     * 导出的Excel包含：学院列、教研室列、老师名称，每个项目一条记录
+     */
+    //@RequiresPermissions("system:statsquery:export")
+    @Log(title = "导出核算", businessType = BusinessType.EXPORT)
+    @PostMapping("/exportToCheck")
+    @ResponseBody
+    public AjaxResult exportToCheck(@RequestParam(required = false) String college,
+                                    @RequestParam(required = false) String major,
+                                    @RequestParam(required = false) String remark) {
+        try {
+            // 构建参数Map，只包含三个参数
+            Map<String, String> params = new java.util.HashMap<>();
+            if (college != null && !college.isEmpty()) {
+                params.put("college", college);
+            }
+            if (major != null && !major.isEmpty()) {
+                params.put("major", major);
+            }
+            if (remark != null && !remark.isEmpty()) {
+                params.put("remark", remark);
+            }
+            
+            // 根据项目类别返回不同的数据
+            if (remark != null && !remark.isEmpty()) {
+                if ("1".equals(remark)) {
+                    // 获取项目类别1的数据（纵向课题）导出
+                    List<SciHorizontalApplyVertical> exportList = sciHorizontalApplyVerticalService.getStatsQueryToCheck(params);
+                    exportList = exportList.stream().map(item -> {
+                        item.setState(item.getStateDes());
+                        return item;
+                    }).collect(Collectors.toList());
+                    
+                    // 使用自定义的合并单元格导出方法
+                    ExcelUtil<SciHorizontalApplyVertical> util = new ExcelUtil<SciHorizontalApplyVertical>(SciHorizontalApplyVertical.class);
+                    return util.exportExcelWithMergedCells(exportList, "纵向课题核算数据", "纵向课题核算数据",
+                        new String[]{"yname", "dname", "userName"});
+                } else if ("2".equals(remark)) {
+                    // 获取项目类别2的数据（横向课题）导出
+                    List<SciHorizontalApply> exportList = sciHorizontalApplyService.getStatsQueryToCheck(params);
+                    exportList = exportList.stream().map(item -> {
+                        item.setState(item.getStateDes());
+                        return item;
+                    }).collect(Collectors.toList());
+                    ExcelUtil<SciHorizontalApply> util = new ExcelUtil<SciHorizontalApply>(SciHorizontalApply.class);
+                    return util.exportExcel(exportList, "横向课题核算数据");
+                } else if ("3".equals(remark)) {
+                    // 查询项目类别3的数据（成果转化）导出
+                    List<SciIntraSchoolPro> exportList = sciIntraSchProApplyService.getStatsQueryToCheck(params);
+                    exportList = exportList.stream().map(item -> {
+                        item.setState(item.getStateDes());
+                        return item;
+                    }).collect(Collectors.toList());
+                    ExcelUtil<SciIntraSchoolPro> util = new ExcelUtil<SciIntraSchoolPro>(SciIntraSchoolPro.class);
+                    return util.exportExcel(exportList, "成果转化核算数据");
+                } else if ("4".equals(remark)) {
+                    // 获取项目类别4的数据（论文）导出
+                    List<SciPaperA> exportList = sciPaperAService.getStatsQueryToCheck(params);
+                    exportList = exportList.stream().map(item -> {
+                        item.setState(item.getStateDes());
+                        return item;
+                    }).collect(Collectors.toList());
+                    ExcelUtil<SciPaperA> util = new ExcelUtil<SciPaperA>(SciPaperA.class);
+                    return util.exportExcel(exportList, "论文核算数据");
+                } else if ("5".equals(remark)) {
+                    // 获取项目类别5的数据（教材专著）导出
+                    List<SciJiaocairuanzhu> exportList = sciJiaocairuanzhuService.getStatsQueryToCheck(params);
+                    exportList = exportList.stream().map(item -> {
+                        item.setState(item.getStateDes());
+                        return item;
+                    }).collect(Collectors.toList());
+                    ExcelUtil<SciJiaocairuanzhu> util = new ExcelUtil<SciJiaocairuanzhu>(SciJiaocairuanzhu.class);
+                    return util.exportExcel(exportList, "教材专著核算数据");
+                } else if ("6".equals(remark)) {
+                    // 获取项目类别6的数据（专利软著）导出
+                    List<SciZhuanliruanzhu> exportList = sciZhuanliruanzhuService.getStatsQueryToCheck(params);
+                    exportList = exportList.stream().map(item -> {
+                        item.setState(item.getStateDes());
+                        return item;
+                    }).collect(Collectors.toList());
+                    ExcelUtil<SciZhuanliruanzhu> util = new ExcelUtil<SciZhuanliruanzhu>(SciZhuanliruanzhu.class);
+                    return util.exportExcel(exportList, "专利软著核算数据");
+                } else if ("7".equals(remark)) {
+                    // 获取项目类别7的数据（奖励）导出
+                    List<SysReward> exportList = sysRewardService.getStatsQueryToCheck(params);
+                    exportList = exportList.stream().map(item -> {
+                        item.setState(item.getStateDes());
+                        return item;
+                    }).collect(Collectors.toList());
+                    ExcelUtil<SysReward> util = new ExcelUtil<SysReward>(SysReward.class);
+                    return util.exportExcel(exportList, "奖励核算数据");
+                } else if ("8".equals(remark)) {
+                    // 获取项目类别8的数据（讲座报告）导出
+                    List<SciLectureReport> exportList = sciLectureReportService.getStatsQueryToCheck(params);
+                    ExcelUtil<SciLectureReport> util = new ExcelUtil<SciLectureReport>(SciLectureReport.class);
+                    return util.exportExcel(exportList, "讲座报告核算数据");
                 }
             }
             return error("未指定导出模块或模块不存在");

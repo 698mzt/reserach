@@ -1349,4 +1349,16 @@
 
         order by s.createtime desc
     </select>
+
+    <select id="getStatsQueryToCheck" parameterType="map" resultMap="SciHorizontalApplyResult">
+        <include refid="selectSciHorizontalApplyVo"/>
+        where 1=1
+        <if test="college != null and college != '' and college != 'null'">
+            AND p.dept_id = #{college}
+        </if>
+        <if test="major != null and major != '' and major != 'null'">
+            AND d.dept_id = #{major}
+        </if>
+        order by s.createtime desc
+    </select>
 </mapper>

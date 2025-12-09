@@ -117,6 +117,14 @@ public interface ISciZhuanliruanzhuService
      */
     List<SciZhuanliruanzhu> getStatsQueryToExcil(Map<String, String> params);
 
+    /**
+     * 核算查询专利软著数据
+     *
+     * @param params 查询参数
+     * @return 专利软著集合
+     */
+    List<SciZhuanliruanzhu> getStatsQueryToCheck(Map<String, String> params);
+
 
 
 }
