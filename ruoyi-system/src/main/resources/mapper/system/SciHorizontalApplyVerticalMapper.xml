@@ -451,14 +451,14 @@
         left join sci_user_score_vertical susv  on (s.id = susv.vertical_id and u.user_id=susv.user_id)
         left join sci_persion_vertical spv on (s.id=spv.vertical_id and u.user_id=spv.persion_id)
         where 1=1
-        <if test="college != null and college != '' ">
+        <if test="college != null and college != '' and major!='null' ">
             and d.parent_id =#{college}
         </if>
         <if test="major != null and major != '' and major!='null'">
             AND d.dept_id = #{major}
         </if>
         and s.top_name is not null  and susv.change_status is not NULL
-        order by yname asc, dname asc, userName asc
+        order by yname asc, dname asc, su.login_name asc
     </select>
 
 </mapper>

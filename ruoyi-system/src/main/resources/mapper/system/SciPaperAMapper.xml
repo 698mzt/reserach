@@ -57,6 +57,10 @@
         <result property="fourthAuthorScore"    column="fourth_author_score"    />
         <result property="correspondingAuthorScore"    column="corresponding_author_score"    />
         <result property="isIndependentauthor"    column="is_Independentauthor"    />
+        <result property="loginName"    column="loginName"    />
+        <result property="participantUserId"    column="participant_user_id"    />
+        <result property="changeValue"    column="change_value"    />
+        <result property="userName"    column="userName"    />
     </resultMap>
 
     <sql id="selectSciPaperAVo">
@@ -841,29 +845,46 @@
 
     <select id="getStatsQueryToCheck" parameterType="map" resultMap="SciPaperAResult">
         select
-        p.id,
-        p.user_id,
-        d.dept_name research_room,
-        pt.dept_name college,
-        p.teacher_name teacher_name,
-        p.paper_title,
-        p.paper_type,
-        p.paper_category,
-        p.published_journal,
-        p.publication_time,
-        p.state
-        from sci_paper_a p
-        left join sys_user u on p.user_id = u.user_id
-        left join sys_dept d on u.dept_id = d.dept_id
-        left join sys_dept pt on d.parent_id = pt.dept_id
+        sd.dept_name dname,
+        sp.dept_name college,
+        su.user_name userName,
+        su.user_name teacher_name,
+        su.login_name loginName,
+        su.tea_zhicheng onCampusTitle,
+        pa.user_id as participant_user_id,
+        spa.id ,
+        spa.published_journal ,
+        spa.paper_title ,
+        spa.paper_type ,
+        spa.paper_category,
+        pa.author_order,
+        pa.author_level ,
+        pa.score as change_value,
+        spa.is_industry_collaborative,
+        spa.is_local_collaborative,
+        spa.is_international_collaborative,
+        spa.is_cross_discipline
+        from
+        paper_author pa
+        left join sci_paper_a spa on
+        pa.paper_id = spa.id
+        left join sys_user su on
+        pa.user_id = su.user_id
+        left join sys_dept sd on
+        su.dept_id = sd.dept_id
+        left join sys_dept sp on
+        sd.parent_id = sp.dept_id
         where 1=1
         <if test="college != null and college != '' and college!='null' ">
-            AND pt.dept_id = #{college}
+            AND sp.dept_id = #{college}
         </if>
         <if test="major != null and major != '' and major!='null'">
-            AND d.dept_id = #{major}
+            AND sd.dept_id = #{major}
         </if>
-        order by p.publication_time desc
+        and pa.user_id != '-1'
+        and spa.paper_title is not null
+        and pa.score !='0'
+        order by college asc,dname asc,su.login_name asc
     </select>
 
 </mapper>
