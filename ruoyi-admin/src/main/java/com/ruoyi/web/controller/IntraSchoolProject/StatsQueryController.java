@@ -607,15 +607,41 @@ public class StatsQueryController extends BaseController {
                     ExcelUtil<SciPaperA> util = new ExcelUtil<SciPaperA>(SciPaperA.class);
                     return util.exportExcelWithMergedCells(finalList, "论文核算数据", "论文核算数据",
                         new String[]{"college", "researchRoom", "loginName"});
-                } else if ("5".equals(remark)) {
+                }
+                else if ("5".equals(remark)) {
                     // 获取项目类别5的数据（教材专著）导出
                     List<SciJiaocairuanzhu> exportList = sciJiaocairuanzhuService.getStatsQueryToCheck(params);
+                    
+                    // 处理状态描述
                     exportList = exportList.stream().map(item -> {
                         item.setState(item.getStateDes());
                         return item;
                     }).collect(Collectors.toList());
+                    
+                    // 确保合并字段不为null且不为空字符串，避免合并失败
+                    for (SciJiaocairuanzhu item : exportList) {
+                        if (item.getXueyuan() == null || item.getXueyuan().trim().isEmpty()) {
+                            item.setXueyuan(" ");
+                        } else {
+                            item.setXueyuan(item.getXueyuan().trim());
+                        }
+                        if (item.getJiaoyanshi() == null || item.getJiaoyanshi().trim().isEmpty()) {
+                            item.setJiaoyanshi(" ");
+                        } else {
+                            item.setJiaoyanshi(item.getJiaoyanshi().trim());
+                        }
+                        if (item.getLoginName() == null || item.getLoginName().trim().isEmpty()) {
+                            item.setLoginName(" ");
+                        } else {
+                            item.setLoginName(item.getLoginName().trim());
+                        }
+                    }
+                    
+                    // 使用自定义的合并单元格导出方法
+                    // 合并列：学院、教研室、工号（前三列）
                     ExcelUtil<SciJiaocairuanzhu> util = new ExcelUtil<SciJiaocairuanzhu>(SciJiaocairuanzhu.class);
-                    return util.exportExcel(exportList, "教材专著核算数据");
+                    return util.exportExcelWithMergedCells(exportList, "教材专著核算数据", "教材专著核算数据",
+                        new String[]{"xueyuan", "jiaoyanshi", "loginName"});
                 } else if ("6".equals(remark)) {
                     // 获取项目类别6的数据（专利软著）导出
                     List<SciZhuanliruanzhu> exportList = sciZhuanliruanzhuService.getStatsQueryToCheck(params);

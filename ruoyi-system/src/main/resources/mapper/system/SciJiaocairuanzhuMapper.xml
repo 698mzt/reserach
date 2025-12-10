@@ -10,6 +10,7 @@
         <result property="xueyuan" column="yname"/> <!-- 学院 -->
         <result property="jiaoyanshi" column="dname"/> <!-- 教研室 -->
         <result property="xingming" column="userName"/> <!-- 姓名 -->
+        <result property="loginName" column="login_name"/> <!-- 工号 -->
         <result property="mingcheng"    column="mingcheng"    />
         <result property="leixing"    column="leixing"    />
         <result property="isbn"    column="isbn"    />
@@ -287,15 +288,41 @@
     </select>
 
     <select id="getStatsQueryToCheck" parameterType="map" resultMap="SciJiaocairuanzhuResult">
-        <include refid="selectSciJiaocairuanzhuVo"/>
-        where 1=1
+        select
+        s.id,
+        u.user_name userName,
+        d.dept_name dname,
+        p.dept_name yname,
+        p.dept_id parent_id,
+        s.user_id,
+        s.mingcheng,
+        s.isbn,
+        s.jifen ,
+        s.chubanshijian,
+        s.chubanshe,
+        s.benxiaoshifoyongshu,
+        s.fenlei,
+        s.state,
+        s.paiming,
+        s.wenjian,
+        s.createtime,
+        u.login_name login_name
+        from
+        sci_jiaocairuanzhu s
+        left join sys_user u on
+        s.user_id = u.user_id
+        left join sys_dept d on
+        u.dept_id = d.dept_id
+        left join sys_dept p on
+        d.parent_id = p.dept_id
+        where 1=1 and s.jifen !='0'
         <if test="college != null and college != '' and college!='null' ">
             AND p.dept_id = #{college}
         </if>
         <if test="major != null and major != '' and major!='null'">
             AND d.dept_id = #{major}
         </if>
-        order by s.createtime desc
-    </select>
+        order by yname asc,dname asc,u.login_name asc
+        </select>
 
 </mapper>
