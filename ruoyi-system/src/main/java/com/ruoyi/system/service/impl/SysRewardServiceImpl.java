@@ -59,6 +59,7 @@ public class SysRewardServiceImpl implements ISysRewardService
     }
 
     @Override
+    @DataScope(deptAlias = "d", userAlias = "u")
     public List<SysReward> selectSysRewardListByKYC(SysReward sysReward) {
         return sysRewardMapper.selectSysRewardListByKYC(sysReward);
     }

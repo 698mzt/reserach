@@ -641,8 +641,10 @@ public class SciHorizontalApplyController extends BaseController
             sciHorizontalApply.setNewsql("");
             sciHorizontalApply.setState("99");
         }
-        if (!sciHorizontalReamount.getReAmount().isEmpty())
+        if (sciHorizontalReamount.getReAmount() != null && !sciHorizontalReamount.getReAmount().isEmpty()) {
+            sciHorizontalReamount.setState("99");
             sciHorizontalReamountService.insertAmount(sciHorizontalReamount);
+        }
         int update = sciHorizontalApplyService.updateSciHorizontalApply(sciHorizontalApply);
         if (update == -1) {
             return AjaxResult.error("课题名称或课题编号已存在");

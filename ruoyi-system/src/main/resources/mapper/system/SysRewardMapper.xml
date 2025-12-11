@@ -172,7 +172,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         from sys_reward s left join sys_user u on  s.user_id= u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
-        where s.state in (4,6) or s.user_id = #{uid}
+        where s.state in (4,6)
         <!--            <if test="userId != null "> and user_id = #{userId}</if>-->
         <if test="yname != null  and yname != ''"> and yname = #{yname}</if>
         <if test="rewardName != null  and rewardName != ''"> and reward_name like concat('%', #{rewardName}, '%')</if>
@@ -182,6 +182,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <if test="dname != null and dname != ''">
             AND d.dept_name = #{dname}
         </if>
+        ${params.dataScope}
         order  by state ,reward_time desc
     </select>
 
