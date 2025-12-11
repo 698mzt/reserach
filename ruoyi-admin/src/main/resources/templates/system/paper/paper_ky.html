@@ -380,10 +380,10 @@
 <body class="gray-bg">
 <div class="container-div">
   <div class="row">
-<!--    <div class="col-sm-12 search-collapse" shiro:hasPermission="system:paper:chaxun">-->
-<!--      <form id="formId">-->
-<!--        <div class="select-list" >-->
-<!--          <ul>-->
+    <div class="col-sm-12 search-collapse" shiro:hasPermission="system:paper:chaxun">
+      <form id="formId">
+        <div class="select-list" >
+          <ul>
 <!--            <li>-->
 <!--              <label>学院：</label>-->
 <!--              <input type="text" name="college"/>-->
@@ -396,14 +396,18 @@
 <!--              <label>教研室：</label>-->
 <!--              <input type="text" name="roleName"/>-->
 <!--            </li>-->
-<!--            <li>-->
-<!--              <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>-->
-<!--              <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>-->
-<!--            </li>-->
-<!--          </ul>-->
-<!--        </div>-->
-<!--      </form>-->
-<!--    </div>-->
+              <li>
+                  <label>论文名称：</label>
+                  <input type="text" name="paperTitle"/>
+              </li>
+            <li>
+              <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+              <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+            </li>
+          </ul>
+        </div>
+      </form>
+    </div>
 
     <div class="btn-group-sm" id="toolbar" role="group">
       <a class="btn btn-success" onclick="$.operate.addTab()" shiro:hasPermission="system:paper:add">
@@ -513,7 +517,7 @@
 
   $(function() {
     var options = {
-      // url:getUrl($('table').attr('id')),
+      url: prefix + "/list",
       createUrl: prefix + "/add",
       detailUrl: prefix + "/detail/{id}",
       updateUrl: prefix + "/edit/{id}",

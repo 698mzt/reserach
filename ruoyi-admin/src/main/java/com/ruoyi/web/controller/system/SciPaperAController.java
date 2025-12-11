@@ -97,12 +97,12 @@ public class SciPaperAController extends BaseController {
             return prefix + "/paper_ky";
         }
         //学院+普通老师身份
-        else if ((roleId.contains("103") || roleId.contains("104") || roleId.contains("105") || roleId.contains("106") || roleId.contains("107") || roleId.contains("108")|| roleId.contains("116L")|| roleId.contains("117")|| roleId.contains("118")|| roleId.contains("109")) && roleId.contains("100")) {
+        else if ((roleId.contains("103") || roleId.contains("104") || roleId.contains("105") || roleId.contains("106") || roleId.contains("107") || roleId.contains("108")|| roleId.contains("116L")|| roleId.contains("117")|| roleId.contains("118")|| roleId.contains("119")|| roleId.contains("120")) && roleId.contains("100")) {
             System.out.println("学院+普通老师身份");
             return prefix + "/paper_xy";
         }
         //学院
-        else if ((roleId.contains("103") || roleId.contains("104") || roleId.contains("105") || roleId.contains("106") || roleId.contains("107") || roleId.contains("108")|| roleId.contains("116L")|| roleId.contains("117")|| roleId.contains("118")|| roleId.contains("109"))) {
+        else if ((roleId.contains("103") || roleId.contains("104") || roleId.contains("105") || roleId.contains("106") || roleId.contains("107") || roleId.contains("108")|| roleId.contains("116L")|| roleId.contains("117")|| roleId.contains("118")|| roleId.contains("119")|| roleId.contains("120"))) {
             System.out.println("学院身份");
             return prefix + "/paper_xy";
         } else if (roleId.contains("100") && roleId.size() == 1) {

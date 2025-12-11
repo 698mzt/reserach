@@ -65,6 +65,8 @@ public class AlltotleScore extends BaseEntity
   /** 专利、软著 */
   @Excel(name = "专利、软著")
   private String zlrz;
+  private String zl;
+  private String rz;
 
   /** 奖励 */
   @Excel(name = "奖励")
@@ -210,7 +212,23 @@ public class AlltotleScore extends BaseEntity
     return jzbg;
   }
 
-  @Override
+    public String getZl() {
+        return zl;
+    }
+
+    public void setZl(String zl) {
+        this.zl = zl;
+    }
+
+    public String getRz() {
+        return rz;
+    }
+
+    public void setRz(String rz) {
+        this.rz = rz;
+    }
+
+    @Override
   public String toString() {
     return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
       .append("userId", getUserId())

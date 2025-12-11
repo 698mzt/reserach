@@ -1396,6 +1396,6 @@
             AND d.dept_id = #{major}
         </if>
         and s.top_name is not null  and sush.change_status is not NULL
-        order by yname asc, dname asc, userName asc
+        order by yname asc, dname asc, u.login_name asc
     </select>
 </mapper>
