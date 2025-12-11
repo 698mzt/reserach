@@ -983,6 +983,6 @@
             </if>
             and s.top_name is not null and sis.earnedALL_Points is not null
         </where>
-        order by yname asc, dname asc, userName asc
+        order by yname asc, dname asc, u.login_name asc
     </select>
 </mapper>

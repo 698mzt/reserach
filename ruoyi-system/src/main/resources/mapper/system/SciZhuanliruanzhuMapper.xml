@@ -12,6 +12,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="xueyuan" column="yname"/> <!-- 学院 -->
         <result property="jiaoyanshi" column="dname"/> <!-- 教研室 -->
         <result property="xingming" column="userName"/> <!-- 姓名 -->
+        <result property="loginName" column="login_name"/> <!-- 工号 -->
 
         <result property="mingcheng"    column="mingcheng"    />
         <result property="leixing"    column="leixing"    />
@@ -364,15 +365,40 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <select id="getStatsQueryToCheck" parameterType="map" resultMap="SciZhuanliruanzhuResult">
-        <include refid="selectSciZhuanliruanzhuVo"/>
-        where 1=1
+        select
+        s.id,
+        u.user_name userName,
+        d.dept_name dname,
+        p.dept_name yname,
+        s.user_id,
+        s.mingcheng,
+        s.shoquanhao,
+        s.huopishijain,
+        s.shifouyingyon,
+        s.hangyelianhe,
+        s.fenlei,
+        s.state,
+        s.jifen,
+        s.paiming,
+        s.wenjian,
+        s.createtime,
+        u.login_name login_name
+        from
+        sci_zhuanliruanzhu s
+        left join sys_user u on
+        s.user_id = u.user_id
+        left join sys_dept d on
+        u.dept_id = d.dept_id
+        left join sys_dept p on
+        d.parent_id = p.dept_id
+        where 1=1 and s.jifen !='0'
         <if test="college != null and college != '' and college!='null' ">
             AND p.dept_id = #{college}
         </if>
         <if test="major != null and major != '' and major!='null'">
             AND d.dept_id = #{major}
         </if>
-        order by s.createtime desc
+        order by yname asc,dname asc,u.login_name asc
     </select>
 
 </mapper>

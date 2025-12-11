@@ -557,34 +557,128 @@ public class StatsQueryController extends BaseController {
                     ExcelUtil<SciIntraSchoolPro> util = new ExcelUtil<SciIntraSchoolPro>(SciIntraSchoolPro.class);
                     return util.exportExcelWithMergedCells(finalList, "成果转化核算数据", "成果转化核算数据",
                         new String[]{"yname", "dname", "loginName", "userName", "totalTeacherScore"});
-                } else if ("4".equals(remark)) {
+                }
+                else if ("4".equals(remark)) {
                     // 获取项目类别4的数据（论文）导出
                     List<SciPaperA> exportList = sciPaperAService.getStatsQueryToCheck(params);
+                    
+                    // 处理状态描述
                     exportList = exportList.stream().map(item -> {
                         item.setState(item.getStateDes());
                         return item;
                     }).collect(Collectors.toList());
+                    
+                    // 去重：同一个论文同一个作者只保留一条记录
+                    // 使用LinkedHashMap保持插入顺序（SQL查询已排序：order by college asc,dname asc,su.login_name asc）
+                    Map<String, SciPaperA> mergedMap = new java.util.LinkedHashMap<>();
+                    for (SciPaperA item : exportList) {
+                        Integer participantId = item.getParticipantUserId() != null ? item.getParticipantUserId() : (item.getUserId() != null ? item.getUserId().intValue() : null);
+                        if (participantId == null) continue;
+                        String key = item.getId() + "_" + participantId;
+                        
+                        // 确保合并字段不为null且不为空字符串，避免合并失败
+                        if (item.getCollege() == null || item.getCollege().trim().isEmpty()) {
+                            item.setCollege(" ");
+                        } else {
+                            item.setCollege(item.getCollege().trim());
+                        }
+                        if (item.getResearchRoom() == null || item.getResearchRoom().trim().isEmpty()) {
+                            item.setResearchRoom(" ");
+                        } else {
+                            item.setResearchRoom(item.getResearchRoom().trim());
+                        }
+                        if (item.getLoginName() == null || item.getLoginName().trim().isEmpty()) {
+                            item.setLoginName(" ");
+                        } else {
+                            item.setLoginName(item.getLoginName().trim());
+                        }
+                        
+                        // 如果该(论文ID, 参与者用户ID)组合还没有记录，则添加；否则跳过（去重）
+                        if (!mergedMap.containsKey(key)) {
+                            mergedMap.put(key, item);
+                        }
+                    }
+                    
+                    // 转换为去重后的列表
+                    List<SciPaperA> finalList = new ArrayList<>(mergedMap.values());
+                    
+                    // 使用自定义的合并单元格导出方法
+                    // 合并列：学院、教研室、工号（前三列）
                     ExcelUtil<SciPaperA> util = new ExcelUtil<SciPaperA>(SciPaperA.class);
-                    return util.exportExcel(exportList, "论文核算数据");
-                } else if ("5".equals(remark)) {
+                    return util.exportExcelWithMergedCells(finalList, "论文核算数据", "论文核算数据",
+                        new String[]{"college", "researchRoom", "loginName"});
+                }
+                else if ("5".equals(remark)) {
                     // 获取项目类别5的数据（教材专著）导出
                     List<SciJiaocairuanzhu> exportList = sciJiaocairuanzhuService.getStatsQueryToCheck(params);
+                    
+                    // 处理状态描述
                     exportList = exportList.stream().map(item -> {
                         item.setState(item.getStateDes());
                         return item;
                     }).collect(Collectors.toList());
+                    
+                    // 确保合并字段不为null且不为空字符串，避免合并失败
+                    for (SciJiaocairuanzhu item : exportList) {
+                        if (item.getXueyuan() == null || item.getXueyuan().trim().isEmpty()) {
+                            item.setXueyuan(" ");
+                        } else {
+                            item.setXueyuan(item.getXueyuan().trim());
+                        }
+                        if (item.getJiaoyanshi() == null || item.getJiaoyanshi().trim().isEmpty()) {
+                            item.setJiaoyanshi(" ");
+                        } else {
+                            item.setJiaoyanshi(item.getJiaoyanshi().trim());
+                        }
+                        if (item.getLoginName() == null || item.getLoginName().trim().isEmpty()) {
+                            item.setLoginName(" ");
+                        } else {
+                            item.setLoginName(item.getLoginName().trim());
+                        }
+                    }
+                    
+                    // 使用自定义的合并单元格导出方法
+                    // 合并列：学院、教研室、工号（前三列）
                     ExcelUtil<SciJiaocairuanzhu> util = new ExcelUtil<SciJiaocairuanzhu>(SciJiaocairuanzhu.class);
-                    return util.exportExcel(exportList, "教材专著核算数据");
-                } else if ("6".equals(remark)) {
+                    return util.exportExcelWithMergedCells(exportList, "教材专著核算数据", "教材专著核算数据",
+                        new String[]{"xueyuan", "jiaoyanshi", "loginName"});
+                }
+                else if ("6".equals(remark)) {
                     // 获取项目类别6的数据（专利软著）导出
                     List<SciZhuanliruanzhu> exportList = sciZhuanliruanzhuService.getStatsQueryToCheck(params);
+                    
+                    // 处理状态描述
                     exportList = exportList.stream().map(item -> {
                         item.setState(item.getStateDes());
                         return item;
                     }).collect(Collectors.toList());
+                    
+                    // 确保合并字段不为null且不为空字符串，避免合并失败
+                    for (SciZhuanliruanzhu item : exportList) {
+                        if (item.getXueyuan() == null || item.getXueyuan().trim().isEmpty()) {
+                            item.setXueyuan(" ");
+                        } else {
+                            item.setXueyuan(item.getXueyuan().trim());
+                        }
+                        if (item.getJiaoyanshi() == null || item.getJiaoyanshi().trim().isEmpty()) {
+                            item.setJiaoyanshi(" ");
+                        } else {
+                            item.setJiaoyanshi(item.getJiaoyanshi().trim());
+                        }
+                        if (item.getLoginName() == null || item.getLoginName().trim().isEmpty()) {
+                            item.setLoginName(" ");
+                        } else {
+                            item.setLoginName(item.getLoginName().trim());
+                        }
+                    }
+                    
+                    // 使用自定义的合并单元格导出方法
+                    // 合并列：学院、教研室、工号（前三列）
                     ExcelUtil<SciZhuanliruanzhu> util = new ExcelUtil<SciZhuanliruanzhu>(SciZhuanliruanzhu.class);
-                    return util.exportExcel(exportList, "专利软著核算数据");
-                } else if ("7".equals(remark)) {
+                    return util.exportExcelWithMergedCells(exportList, "专利软著核算数据", "专利软著核算数据",
+                        new String[]{"xueyuan", "jiaoyanshi", "loginName"});
+                }
+                else if ("7".equals(remark)) {
                     // 获取项目类别7的数据（奖励）导出
                     List<SysReward> exportList = sysRewardService.getStatsQueryToCheck(params);
                     exportList = exportList.stream().map(item -> {
@@ -593,7 +687,8 @@ public class StatsQueryController extends BaseController {
                     }).collect(Collectors.toList());
                     ExcelUtil<SysReward> util = new ExcelUtil<SysReward>(SysReward.class);
                     return util.exportExcel(exportList, "奖励核算数据");
-                } else if ("8".equals(remark)) {
+                }
+                else if ("8".equals(remark)) {
                     // 获取项目类别8的数据（讲座报告）导出
                     List<SciLectureReport> exportList = sciLectureReportService.getStatsQueryToCheck(params);
                     ExcelUtil<SciLectureReport> util = new ExcelUtil<SciLectureReport>(SciLectureReport.class);

@@ -44,14 +44,14 @@ public class SciPaperA extends BaseEntity {
     /**
      * 学院
      */
-    @Excel(name = "学院")
+    @Excel(name = "学院", sort = 1)
     private String college;
     private String collegeId;
 
     /**
      * 教研室
      */
-    @Excel(name = "教研室")
+    @Excel(name = "教研室", sort = 2)
     private String researchRoom;
 
     /**
@@ -59,12 +59,35 @@ public class SciPaperA extends BaseEntity {
      */
     @Excel(name = "工号")
     private String employeeId;
+    
+    /**
+     * 工号（login_name，用于核算导出）
+     */
+    @Excel(name = "工号", sort = 3)
+    private String loginName;
 
     /**
      * 教师姓名
      */
     @Excel(name = "老师名称")
     private String teacherName;
+    
+    /**
+     * 用户姓名（userName，用于核算导出）
+     */
+    @Excel(name = "姓名", sort = 4)
+    private String userName;
+    
+    /**
+     * 参与者用户ID（用于分组计算积分）
+     */
+    private Integer participantUserId;
+    
+    /**
+     * 积分值（change_value）
+     */
+    @Excel(name = "积分", sort = 5)
+    private String changeValue;
 
     /**
      * 行政职务

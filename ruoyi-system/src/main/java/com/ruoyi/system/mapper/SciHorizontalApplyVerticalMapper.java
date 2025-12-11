@@ -115,5 +115,6 @@ public interface SciHorizontalApplyVerticalMapper {
      */
     List<SciHorizontalApplyVertical> getStatsQuery(Map<String, String> params);
 
-    List<SciHorizontalApplyVertical> getStatsQueryToCheck(Map<String, String> params);
+    List<SciHorizontalApplyVertical>
+    getStatsQueryToCheck(Map<String, String> params);
 }

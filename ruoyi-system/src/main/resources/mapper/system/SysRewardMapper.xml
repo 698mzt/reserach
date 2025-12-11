@@ -297,7 +297,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <select id="getStatsQueryToCheck" parameterType="map" resultMap="SysRewardResult">
-        <include refid="selectSysRewardVo"/>
+        select  uid,s.id, u.user_name username, d.dept_name dname,p.dept_name yname,s.jifen,s.user_id,s.reward_name, s.reward_danwei, s.reward_leixing, s.reward_wenjian, s.reward_time, s.reward_fenlei, s.reward_dengji, s.reward_paiming, s.reward_jibie,s.state
+        from sys_reward s left join sys_user u on  s.user_id= u.user_id
+        left join sys_dept d on u.dept_id = d.dept_id
+        left join sys_dept p on d.parent_id =p.dept_id
         where 1=1
         <if test="college != null and college != '' and college != 'null'">
             AND p.dept_id = #{college}
@@ -305,7 +308,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <if test="major != null and major != '' and major != 'null'">
             AND d.dept_id = #{major}
         </if>
-        order by s.reward_time desc
+        order by yname asc,dname asc,u.login_name asc
     </select>
 
 

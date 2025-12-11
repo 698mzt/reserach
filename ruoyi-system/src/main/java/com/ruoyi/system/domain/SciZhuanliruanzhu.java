@@ -202,18 +202,22 @@ public class SciZhuanliruanzhu extends BaseEntity
     private Integer id;
 
     /** 学院 */
-    @Excel(name = "学院")
+    @Excel(name = "学院", sort = 1)
     private String xueyuan;
 
     /** 教研室 */
-    @Excel(name = "教研室")
+    @Excel(name = "教研室", sort = 2)
     private String jiaoyanshi;
 
     /** 工号 */
     private Integer gonghao;
+    
+    /** 工号（login_name，用于核算导出） */
+    @Excel(name = "工号", sort = 3)
+    private String loginName;
 
     /** 姓名 */
-    @Excel(name = "老师名称")
+    @Excel(name = "姓名", sort = 4)
     private String xingming;
 
     /** 行政职务 */
@@ -261,7 +265,7 @@ public class SciZhuanliruanzhu extends BaseEntity
     @Excel(name = "排名",dictType = "sys_zhuanliruanzhu_fzr")
     private String paiming;
 
-    @Excel(name = "积分")
+    @Excel(name = "积分", sort = 5)
     private String jifen;
 
     @Excel(name = "文件")
@@ -314,6 +318,14 @@ public class SciZhuanliruanzhu extends BaseEntity
     public Integer getGonghao() 
     {
         return gonghao;
+    }
+    public void setLoginName(String loginName)
+    {
+        this.loginName = loginName;
+    }
+    public String getLoginName()
+    {
+        return loginName;
     }
     public void setXingming(String xingming) 
     {
