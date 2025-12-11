@@ -78,6 +78,7 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
         return sciHorizontalApplyMapper.selectSciHorizontalApplyList(sciHorizontalApply);
     }
     @Override
+    @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciHorizontalApply> selectSciHorizontalApplyListByKYC(SciHorizontalApply sciHorizontalApply)
     {
         return sciHorizontalApplyMapper.selectSciHorizontalApplyListByKYC(sciHorizontalApply);
@@ -99,6 +100,7 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
         return sciHorizontalApplyMapper.selectSciHorizontalApplyListByOverApplyJYS(sciHorizontalApply);
     }
     @Override
+    @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciHorizontalApply> selectSciHorizontalApplyListByOverApplyKYC(SciHorizontalApply sciHorizontalApply) {
         return sciHorizontalApplyMapper.selectSciHorizontalApplyListByOverApplyKYC(sciHorizontalApply);
     }
@@ -110,7 +112,7 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
         return sciHorizontalApplyMapper.selectSciHorizontalApplyListByOVER(sciHorizontalApply);
     }
     @Override
-    @DataScope(deptAlias = "d")
+    @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciHorizontalApply> selectSciHorizontalApplyListByOVERKYC(SciHorizontalApply sciHorizontalApply) {
         return sciHorizontalApplyMapper.selectSciHorizontalApplyListByOVERKYC(sciHorizontalApply);
     }
@@ -399,6 +401,7 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
 
 
     @Override
+    @DataScope(deptAlias = "d",userAlias = "u")
     public List<SciHorizontalApply> selectOtherListByUid(SciHorizontalApply sciHorizontalApply) {
         String role = sciHorizontalApply.getRole();
         String tableId = sciHorizontalApply.getTableId();
