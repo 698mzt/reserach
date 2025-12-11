@@ -173,10 +173,10 @@
     <select id="selectSciPaperAListKY" parameterType="SciPaperA" resultMap="SciPaperAResult">
         <include refid="selectSciPaperAVo"/>
         <where>
-            p.state in (4,8)  or((pa1.user_id = #{uid} or  pa2.user_id = #{uid}) or pa3.user_id = #{uid}  or pa4.user_id = #{uid} or pac.user_id = #{uid})
+            (p.state in (4,8)  or(pa1.user_id = #{uid} or  pa2.user_id = #{uid} or pa3.user_id = #{uid}  or pa4.user_id = #{uid} or pac.user_id = #{uid}))
             <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
             <if test="teacherName != null  and teacherName != ''"> and teacher_name like concat('%', #{teacherName}, '%')</if>
-            <if test="paperTitle != null  and paperTitle != ''"> and paper_title = #{paperTitle}</if>
+            <if test="paperTitle != null  and paperTitle != ''"> and paper_title like concat('%', #{paperTitle},'%')</if>
             <if test="paperCategory != null  and paperCategory != ''"> and paper_category = #{paperCategory}</if>
             <if test="publishedJournal != null  and publishedJournal != ''"> and published_journal = #{publishedJournal}</if>
             <if test="inclusionStatus != null  and inclusionStatus != ''"> and inclusion_status = #{inclusionStatus}</if>
@@ -191,7 +191,7 @@
             <if test="year != null  and year != ''"> and YEAR(publication_time) = #{year}</if>
 
         </where>
-        order  by field(p.state ,'1','2','4')
+        order by field(p.state , '4','8', '1', '2')
     </select>
   <!--待学院审核，完成-->
     <select id="selectSciPaperAListXY" parameterType="SciPaperA" resultMap="SciPaperAResult">
@@ -298,7 +298,7 @@
             <if test="remarks != null  and remarks != ''"> and remarks = #{remarks}</if>
             <if test="year != null  and year != ''"> and YEAR(publication_time) = #{year}</if>
         </where>
-      order  by field(p.state ,'1','2','4')
+      order  by field(p.state ,'2','4','1','8')
     </select>
 
     <select id="selectSciPaperAListCxList" parameterType="SciPaperA" resultMap="SciPaperAResult">

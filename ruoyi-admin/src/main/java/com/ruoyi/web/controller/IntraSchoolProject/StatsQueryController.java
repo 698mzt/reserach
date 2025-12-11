@@ -642,16 +642,43 @@ public class StatsQueryController extends BaseController {
                     ExcelUtil<SciJiaocairuanzhu> util = new ExcelUtil<SciJiaocairuanzhu>(SciJiaocairuanzhu.class);
                     return util.exportExcelWithMergedCells(exportList, "教材专著核算数据", "教材专著核算数据",
                         new String[]{"xueyuan", "jiaoyanshi", "loginName"});
-                } else if ("6".equals(remark)) {
+                }
+                else if ("6".equals(remark)) {
                     // 获取项目类别6的数据（专利软著）导出
                     List<SciZhuanliruanzhu> exportList = sciZhuanliruanzhuService.getStatsQueryToCheck(params);
+                    
+                    // 处理状态描述
                     exportList = exportList.stream().map(item -> {
                         item.setState(item.getStateDes());
                         return item;
                     }).collect(Collectors.toList());
+                    
+                    // 确保合并字段不为null且不为空字符串，避免合并失败
+                    for (SciZhuanliruanzhu item : exportList) {
+                        if (item.getXueyuan() == null || item.getXueyuan().trim().isEmpty()) {
+                            item.setXueyuan(" ");
+                        } else {
+                            item.setXueyuan(item.getXueyuan().trim());
+                        }
+                        if (item.getJiaoyanshi() == null || item.getJiaoyanshi().trim().isEmpty()) {
+                            item.setJiaoyanshi(" ");
+                        } else {
+                            item.setJiaoyanshi(item.getJiaoyanshi().trim());
+                        }
+                        if (item.getLoginName() == null || item.getLoginName().trim().isEmpty()) {
+                            item.setLoginName(" ");
+                        } else {
+                            item.setLoginName(item.getLoginName().trim());
+                        }
+                    }
+                    
+                    // 使用自定义的合并单元格导出方法
+                    // 合并列：学院、教研室、工号（前三列）
                     ExcelUtil<SciZhuanliruanzhu> util = new ExcelUtil<SciZhuanliruanzhu>(SciZhuanliruanzhu.class);
-                    return util.exportExcel(exportList, "专利软著核算数据");
-                } else if ("7".equals(remark)) {
+                    return util.exportExcelWithMergedCells(exportList, "专利软著核算数据", "专利软著核算数据",
+                        new String[]{"xueyuan", "jiaoyanshi", "loginName"});
+                }
+                else if ("7".equals(remark)) {
                     // 获取项目类别7的数据（奖励）导出
                     List<SysReward> exportList = sysRewardService.getStatsQueryToCheck(params);
                     exportList = exportList.stream().map(item -> {
@@ -660,7 +687,8 @@ public class StatsQueryController extends BaseController {
                     }).collect(Collectors.toList());
                     ExcelUtil<SysReward> util = new ExcelUtil<SysReward>(SysReward.class);
                     return util.exportExcel(exportList, "奖励核算数据");
-                } else if ("8".equals(remark)) {
+                }
+                else if ("8".equals(remark)) {
                     // 获取项目类别8的数据（讲座报告）导出
                     List<SciLectureReport> exportList = sciLectureReportService.getStatsQueryToCheck(params);
                     ExcelUtil<SciLectureReport> util = new ExcelUtil<SciLectureReport>(SciLectureReport.class);
