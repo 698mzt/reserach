@@ -129,7 +129,6 @@
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(account_data,INTERVAL 1 MONTH)) = #{year}</if>
-        ${params.dataScope}
         order  by
         case
 --         草稿
