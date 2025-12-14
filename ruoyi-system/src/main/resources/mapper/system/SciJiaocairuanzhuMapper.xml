@@ -152,7 +152,7 @@
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(createtime,INTERVAL 1 MONTH)) = #{year}</if>
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
 
-
+        ${params.dataScope}
         order by state, createtime desc
     </select>
 
@@ -289,24 +289,13 @@
 
     <select id="getStatsQueryToCheck" parameterType="map" resultMap="SciJiaocairuanzhuResult">
         select
-        s.id,
-        u.user_name userName,
         d.dept_name dname,
         p.dept_name yname,
-        p.dept_id parent_id,
-        s.user_id,
+        u.login_name login_name,
+        u.user_name userName,
         s.mingcheng,
-        s.isbn,
-        s.jifen ,
-        s.chubanshijian,
-        s.chubanshe,
-        s.benxiaoshifoyongshu,
-        s.fenlei,
-        s.state,
-        s.paiming,
-        s.wenjian,
-        s.createtime,
-        u.login_name login_name
+        s.jifen,
+        s.state
         from
         sci_jiaocairuanzhu s
         left join sys_user u on
@@ -321,6 +310,27 @@
         </if>
         <if test="major != null and major != '' and major!='null'">
             AND d.dept_id = #{major}
+        </if>
+        <if test="teacherName != null and teacherName != '' and teacherName!='null'">
+            AND u.user_id = #{teacherName}
+        </if>
+        <if test="startTime != null and startTime != ''">
+            and s.createtime >= #{startTime}
+        </if>
+        <if test="endTime != null and endTime != ''">
+            and s.createtime &lt;= #{endTime}
+        </if>
+        <if test="topicName != null and topicName != ''">
+            and s.mingcheng like concat('%', #{topicName}, '%')
+        </if>
+        <if test='state != null and state != "" and state!="null" and state =="1" '>
+            AND s.state in (3,5,7,0)
+        </if>
+        <if test='state != null and state != "" and state!="null" and state =="2"'>
+            AND s.state in (1,2,4)
+        </if>
+        <if test='state != null and state != "" and state!="null" and state =="3"'>
+            AND s.state in (6)
         </if>
         order by yname asc,dname asc,u.login_name asc
         </select>

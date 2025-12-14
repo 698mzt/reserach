@@ -23,6 +23,9 @@ public class SciHorizontalApplyVertical extends BaseEntity {
     @Excel(name = "老师名称", sort = 3)
     private String  userName;
 
+    /** 工号 */
+    private String loginName;
+
     /** 积分值 */
     private String changeValue;
 
@@ -46,6 +49,14 @@ public class SciHorizontalApplyVertical extends BaseEntity {
 
     public void setUserName(String userName) {
         this.userName = userName;
+    }
+
+    public String getLoginName() {
+        return loginName;
+    }
+
+    public void setLoginName(String loginName) {
+        this.loginName = loginName;
     }
 
     public String getChangeValue() {
@@ -93,7 +104,6 @@ public class SciHorizontalApplyVertical extends BaseEntity {
     @Excel(name = "课题名称", sort = 5)
     private String topName;
     /** 课题编号 */
-    @Excel(name = "课题编号", sort = 7)
     private String topNumber;
     /** 课题类型 */
     // @Excel(name = "课题类型")

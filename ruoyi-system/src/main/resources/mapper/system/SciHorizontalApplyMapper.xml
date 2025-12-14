@@ -1364,25 +1364,24 @@
     <select id="getStatsQueryToCheck" parameterType="map" resultMap="SciHorizontalApplyResult">
         select
         s.id,
-        d.dept_name dname,
-        p.dept_name yname,
-        u.login_name,
         u.user_id as participant_user_id,
+        p.dept_name yname,
+        d.dept_name dname,
+        u.login_name,
         u.user_name userName,
         u.adminstrative_title,
         u.social_title,
         u.tea_zhicheng,
-        sp.ranking ,
         s.top_name  ,
+        sp.ranking,
         s.party_A,
         s.party_B,
         concat( s.amount, '万') amount,
+        sush.change_value,
+        sush.change_status,
         s.signing_data,
         s.validity_Date,
-        s.state,
-        s.createtime,
-        sush.change_value,
-        sush.change_status
+        s.state
         from
         sci_horizontal_apply s
         left join sys_user u on  (s.second_person_id = u.user_id or s.first_person_id=u.user_id or  s.third_person_id=u.user_id or  s.fourth_person_id=u.user_id )
@@ -1398,6 +1397,27 @@
         </if>
         <if test="major != null and major != '' and major != 'null'">
             AND d.dept_id = #{major}
+        </if>
+        <if test="teacherName != null and teacherName != '' and teacherName!='null'">
+            AND u.user_id = #{teacherName}
+        </if>
+        <if test="startTime != null and startTime != ''">
+            and s.createtime >= #{startTime}
+        </if>
+        <if test="endTime != null and endTime != ''">
+            and s.createtime &lt;= #{endTime}
+        </if>
+        <if test="topicName != null and topicName != ''">
+            and s.top_name like concat('%', #{topicName}, '%')
+        </if>
+        <if test='state != null and state != "" and state!="null" and state =="1" '>
+            AND s.state in (3,5,9,10,12,14,4,15,16)
+        </if>
+        <if test='state != null and state != "" and state!="null" and state =="2"'>
+            AND s.state in (1,2,7,8,11,13)
+        </if>
+        <if test='state != null and state != "" and state!="null" and state =="3"'>
+            AND s.state in (6)
         </if>
         and s.top_name is not null  and sush.change_status is not NULL
         order by yname asc, dname asc, u.login_name asc

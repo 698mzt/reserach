@@ -3,6 +3,7 @@ package com.ruoyi.system.service.impl;
 import java.util.List;
 import java.util.Map;
 
+import com.ruoyi.common.annotation.DataScope;
 import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.system.domain.SciHorizontalPiyue;
 import com.ruoyi.system.domain.SciJiaocairuanzhuPiyue;
@@ -259,6 +260,7 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
 
 
     @Override
+    @DataScope(deptAlias = "d",userAlias = "u")
     public List<SciJiaocairuanzhu> selectSciJiaocairuanzhuList4(SciJiaocairuanzhu sciJiaocairuanzhu) {
         return sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuList4(sciJiaocairuanzhu);
     }

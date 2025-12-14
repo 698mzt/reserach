@@ -174,7 +174,6 @@ public class SciIntraSchoolPro extends BaseEntity {
     @Excel(name = "结项时间", sort = 12)
     private String validityDate;
 
-    @Excel(name = "申请结项日期")
     private String createtime;
 
     /** 第一负责人 */

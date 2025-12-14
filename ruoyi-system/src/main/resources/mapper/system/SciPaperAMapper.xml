@@ -172,7 +172,7 @@
 <!--待科研处审核，完成-->
     <select id="selectSciPaperAListKY" parameterType="SciPaperA" resultMap="SciPaperAResult">
         <include refid="selectSciPaperAVo"/>
-        <where>
+        where
             (p.state in (4,8)  or(pa1.user_id = #{uid} or  pa2.user_id = #{uid} or pa3.user_id = #{uid}  or pa4.user_id = #{uid} or pac.user_id = #{uid}))
             <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
             <if test="teacherName != null  and teacherName != ''"> and teacher_name like concat('%', #{teacherName}, '%')</if>
@@ -189,8 +189,7 @@
             <if test="researchScore != null  and researchScore != ''"> and research_score = #{researchScore}</if>
             <if test="remarks != null  and remarks != ''"> and remarks = #{remarks}</if>
             <if test="year != null  and year != ''"> and YEAR(publication_time) = #{year}</if>
-
-        </where>
+        ${params.dataScope}
         order by field(p.state , '4','8', '1', '2')
     </select>
   <!--待学院审核，完成-->
@@ -845,25 +844,14 @@
 
     <select id="getStatsQueryToCheck" parameterType="map" resultMap="SciPaperAResult">
         select
-        sd.dept_name dname,
         sp.dept_name college,
-        su.user_name userName,
-        su.user_name teacher_name,
+        sd.dept_name dname,
         su.login_name loginName,
-        su.tea_zhicheng onCampusTitle,
-        pa.user_id as participant_user_id,
-        spa.id ,
+        su.user_name userName,
         spa.published_journal ,
         spa.paper_title ,
-        spa.paper_type ,
-        spa.paper_category,
-        pa.author_order,
-        pa.author_level ,
         pa.score as change_value,
-        spa.is_industry_collaborative,
-        spa.is_local_collaborative,
-        spa.is_international_collaborative,
-        spa.is_cross_discipline
+        spa.state
         from
         paper_author pa
         left join sci_paper_a spa on
@@ -874,12 +862,34 @@
         su.dept_id = sd.dept_id
         left join sys_dept sp on
         sd.parent_id = sp.dept_id
-        where 1=1
+        where
+        1 = 1
         <if test="college != null and college != '' and college!='null' ">
             AND sp.dept_id = #{college}
         </if>
         <if test="major != null and major != '' and major!='null'">
             AND sd.dept_id = #{major}
+        </if>
+        <if test="teacherName != null and teacherName != '' and teacherName!='null'">
+            AND su.user_id = #{teacherName}
+        </if>
+        <if test="startTime != null and startTime != ''">
+            and spa.createtime >= #{startTime}
+        </if>
+        <if test="endTime != null and endTime != ''">
+            and spa.createtime &lt;= #{endTime}
+        </if>
+        <if test="topicName != null and topicName != ''">
+            and spa.paper_title like concat('%', #{topicName}, '%')
+        </if>
+        <if test='state != null and state != "" and state!="null" and state =="1" '>
+            AND spa.state in (3,5,7,9,10,22,44,99)
+        </if>
+        <if test='state != null and state != "" and state!="null" and state =="2"'>
+            AND spa.state in (1,2,4,6,11,33)
+        </if>
+        <if test='state != null and state != "" and state!="null" and state =="3"'>
+            AND spa.state in (8)
         </if>
         and pa.user_id != '-1'
         and spa.paper_title is not null

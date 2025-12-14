@@ -57,7 +57,6 @@ public class SciPaperA extends BaseEntity {
     /**
      * 工号
      */
-    @Excel(name = "工号")
     private String employeeId;
     
     /**
@@ -69,7 +68,6 @@ public class SciPaperA extends BaseEntity {
     /**
      * 教师姓名
      */
-    @Excel(name = "老师名称")
     private String teacherName;
     
     /**
@@ -92,43 +90,36 @@ public class SciPaperA extends BaseEntity {
     /**
      * 行政职务
      */
-    @Excel(name = "行政职务")
     private String administrativePosition;
 
     /**
      * 社会职称
      */
-    @Excel(name = "社会职称")
     private String socialTitle;
 
     /**
      * 校内职称
      */
-    @Excel(name = "校内职称")
     private String onCampusTitle;
 
     /**
      * 作者类型
      */
-    @Excel(name = "作者类型")
     private String authorType;
 
     /**
      * 论文名称
      */
-    @Excel(name = "论文名称")
     private String paperTitle;
 
     /**
      * 论文类型
      */
-    @Excel(name = "论文类型")
     private String paperType;
 
     /**
      * 论文类别
      */
-    @Excel(name = "论文类别")
     private String paperCategory;
 
     /**
@@ -140,63 +131,51 @@ public class SciPaperA extends BaseEntity {
     /**
      * 收录情况
      */
-    @Excel(name = "收录情况")
     private String inclusionStatus;
 
     /**
      * 发表时间
      */
-    @Excel(name = "发表时间")
     private String publicationTime;
 
-    @Excel(name = "录用/检索证明")
     private String text_paper;
     //论文pdf文件
-    @Excel(name = "论文原文")
     private String word_paper;
     //论文word文件
 
-    @Excel(name = "搜索网址")
     private String search_web;
     /**
      * 是否与行业联合发表
      */
-    @Excel(name = "是否与行业联合发表")
     private String isIndustryCollaborative;
 
     /**
      * 是否与地方联合发表
      */
-    @Excel(name = "是否与地方联合发表")
     private String isLocalCollaborative;
 
     /**
      * 是否与国际联合发表
      */
-    @Excel(name = "是否与国际联合发表")
     private String isInternationalCollaborative;
 
     /**
      * 是否是跨学科论文
      */
-    @Excel(name = "是否是跨学科论文")
     private String isCrossDiscipline;
 
     /**
      * 排名
      */
-    @Excel(name = "排名")
     private String paperRanking;
 
     /**
      * 科研分
      */
-    @Excel(name = "科研分")
     private String researchScore;
     /**
      * 备注
      */
-    @Excel(name = "备注")
     private String remarks;
 //    private String dataScope;
     /**
@@ -278,6 +257,15 @@ public class SciPaperA extends BaseEntity {
     private String deptNamekey;
     // 是否独立作者
     private String isIndependentauthor ;
+    private String totalTeacherScore;
+
+    public String getTotalTeacherScore() {
+        return totalTeacherScore;
+    }
+
+    public void setTotalTeacherScore(String totalTeacherScore) {
+        this.totalTeacherScore = totalTeacherScore;
+    }
 
     public String getIsIndependentauthor() {
         return isIndependentauthor;

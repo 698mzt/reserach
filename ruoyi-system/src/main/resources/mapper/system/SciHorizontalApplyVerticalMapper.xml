@@ -23,6 +23,9 @@
         <result property="amount"    column="amount"    />
         <result property="state"    column="state"    />
         <result property="userName"    column="userName"    />
+        <result property="yname"    column="yname"    />
+        <result property="dname"    column="dname"    />
+        <result property="loginName"    column="login_name"    />
         <result property="changeValue"    column="change_value"    />
         <result property="changeStatus"    column="change_status"    />
         <result property="participantUserId"    column="participant_user_id"    />
@@ -428,23 +431,23 @@
     </select>
 
     <select id="getStatsQueryToCheck" parameterType="map" resultMap="SciHorizontalApplyVerticalResult">
-        select  s.id,
-        u.user_name userName,
+        select
+        s.id,
         u.user_id as participant_user_id,
-        susv.change_value ,
-        susv.change_status ,
-        d.dept_name dname,
         p.dept_name yname,
+        d.dept_name dname,
+        u.login_name,
+        u.user_name userName,
         s.subject_source,
-        s.user_id,
         s.top_name,
-        s.top_number,
-        s.top_type,
-        spv.ranking ,
         concat( s.amount, '万') amount,
-        s.state,
-        s.createtime
-        from  sci_horizontal_apply_vertical s 
+        susv.change_value ,
+        susv.change_status,
+        spv.ranking,
+        s.signing_data,
+        s.validity_data,
+        s.state
+        from  sci_horizontal_apply_vertical s
         left join sys_user u on  (s.second_person_id = u.user_id or s.first_person_id=u.user_id or  s.third_person_id=u.user_id or  s.fourth_person_id=u.user_id )
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
@@ -457,8 +460,29 @@
         <if test="major != null and major != '' and major!='null'">
             AND d.dept_id = #{major}
         </if>
+        <if test="teacherName != null and teacherName != '' and teacherName!='null'">
+            AND u.user_id = #{teacherName}
+        </if>
+        <if test="startTime != null and startTime != ''">
+            and s.createtime >= #{startTime}
+        </if>
+        <if test="endTime != null and endTime != ''">
+            and s.createtime &lt;= #{endTime}
+        </if>
+        <if test="topicName != null and topicName != ''">
+            and s.top_name like concat('%', #{topicName}, '%')
+        </if>
+        <if test='state != null and state != "" and state!="null" and state =="1" '>
+            and s.state in (3,5,7,33,55,77,99)
+        </if>
+        <if test='state != null and state != "" and state!="null" and state =="2"'>
+            and s.state in (1,2,4,11,22,44)
+        </if>
+        <if test='state != null and state != "" and state!="null" and state =="3"'>
+            and s.state in (66,6)
+        </if>
         and s.top_name is not null  and susv.change_status is not NULL
-        order by yname asc, dname asc, su.login_name asc
+        order by yname asc, dname asc, u.login_name asc
     </select>
 
 </mapper>

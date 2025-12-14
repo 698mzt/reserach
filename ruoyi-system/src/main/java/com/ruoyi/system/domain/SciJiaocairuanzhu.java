@@ -224,34 +224,27 @@ public class SciJiaocairuanzhu extends BaseEntity
   private String leixing;
 
     /** isbn */
-    @Excel(name = "ISBN")
     private String isbn;
 
     /** 出版时间 */
     @JsonFormat(pattern = "yyyy-MM-dd")
-    @Excel(name = "出版时间", width = 30, dateFormat = "yyyy-MM-dd")
     private Date chubanshijian;
 
     /** 出版社 */
-    @Excel(name = "出版社")
     private String chubanshe;
 
     /** 本校是否用书 */
-    @Excel(name = "本校是否用书",dictType = "sys_yes_no")
     private String benxiaoshifoyongshu;
 
     /** 分类 */
-    @Excel(name = "分类",dictType = "sys_jiaocairuanzhu_fenlei")
     private String fenlei;
 
     /** 排名 */
-    @Excel(name = "排名",dictType = "sys_jiaocairuanzhu_fzr")
     private String paiming;
 
     /** 科研分 */
     @Excel(name = "积分", sort = 5)
     private String jifen;
-    @Excel(name = "文件")
     private String wenjian;
 
     public String getState() {
