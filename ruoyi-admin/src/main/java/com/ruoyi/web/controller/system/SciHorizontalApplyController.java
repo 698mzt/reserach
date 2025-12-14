@@ -203,25 +203,28 @@ public class SciHorizontalApplyController extends BaseController
         Integer yid = sysUser.getParentId().intValue();
 
         List<SciHorizontalApply> Alist1 = new ArrayList<>();
-        for (SysRole r : roles) {
-            if ("teacher".equals(r.getRoleKey())) {
-                Alist1 =sciHorizontalReamountService.selectAmountList(sciHorizontalApply);
+        if (roles.size() > 1) {
+            for (SysRole r : roles) {
+                if ("teacher".equals(r.getRoleKey())) {
+                    Alist1 = sciHorizontalReamountService.selectAmountList(sciHorizontalApply);
+                    break;
+                }
             }
         }
         Alist1.addAll(Alist);
-        List<SciHorizontalApply> AdistinctList = Alist1.stream()
-                .collect(Collectors.collectingAndThen(
-                        Collectors.toMap(
-                                SciHorizontalApply::getTopName, // 使用 topName 作为键
-                                Function.identity(), // 值为原对象
-                                (existing, replacement) -> existing, // 如果有重复，保留第一个出现的对象
-                                LinkedHashMap::new // 保持插入顺序
-                        ),
-                        map -> new ArrayList<>(map.values()) // 将 Map 的值转换为 List
-                ));
+//        List<SciHorizontalApply> AdistinctList = Alist1.stream()
+//                .collect(Collectors.collectingAndThen(
+//                        Collectors.toMap(
+//                                SciHorizontalApply::getTopName, // 使用 topName 作为键
+//                                Function.identity(), // 值为原对象
+//                                (existing, replacement) -> existing, // 如果有重复，保留第一个出现的对象
+//                                LinkedHashMap::new // 保持插入顺序
+//                        ),
+//                        map -> new ArrayList<>(map.values()) // 将 Map 的值转换为 List
+//                ));
 
         if (tableId.equals("bootstrap-table3"))
-            distinctList.addAll(AdistinctList);
+            distinctList.addAll(Alist1);
 
 //        计算到账金额
         List<creditedAmount> creditedAmount = sciHorizontalApplyService.selectCreditedAmount();
