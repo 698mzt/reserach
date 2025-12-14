@@ -97,7 +97,7 @@ public class SciHorizontalReamountServiceImpl implements SciHorizontalReamountSe
     }
 
     @Override
-    @DataScope(deptAlias = "d",userAlias = "u")
+//    @DataScope(deptAlias = "d",userAlias = "u")
     public List<SciHorizontalApply> selectAmountList(SciHorizontalApply sciHorizontalApply) {
         return sciHorizontalReamountMapper.selectAmountList(sciHorizontalApply);
     }

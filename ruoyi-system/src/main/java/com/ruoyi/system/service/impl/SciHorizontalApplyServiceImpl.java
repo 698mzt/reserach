@@ -401,7 +401,7 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
 
 
     @Override
-    @DataScope(deptAlias = "d",userAlias = "u")
+//    @DataScope(deptAlias = "d",userAlias = "u")
     public List<SciHorizontalApply> selectOtherListByUid(SciHorizontalApply sciHorizontalApply) {
         String role = sciHorizontalApply.getRole();
         String tableId = sciHorizontalApply.getTableId();
