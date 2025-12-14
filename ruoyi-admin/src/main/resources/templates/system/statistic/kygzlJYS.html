@@ -35,8 +35,31 @@
 <div class="container-div">
     <div class="btn-group-sm" id="toolbar" role="group">
         &nbsp;&nbsp;<span id="total" class="badge badge-success"></span>
+        <a class="btn btn-warning" onclick="$.table.exportExcel()">
+            <i class="fa fa-download"></i> 导出
+        </a>
     </div>
     <div class="row">
+        <div class="col-sm-12 search-collapse">
+            <form id="formId1">
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            <label>学院：</label>
+                            <input type="text" name="pname"/>
+                        </li>
+                        <li>
+                            <label>教研室：</label>
+                            <input type="text" name="dname"   />
+                        </li>
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search('formId1','bootstrap-table')"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset('formId1')"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
         <div class="col-sm-12 select-table table-bordered">
             <table id="bootstrap-table"></table>
         </div>
@@ -48,6 +71,7 @@
     $(function () {
         var options = {
             url: prefix + "/list",
+            exportUrl: prefix + "/export",
             modalName: '教研室科研工作量',
             method: "post",
             sidePagination: "server",

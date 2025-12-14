@@ -184,7 +184,6 @@
             SUM(ush.change_value) AS total_score
             FROM sci_horizontal_apply sha
             JOIN sci_user_score_history ush ON sha.id = ush.apply_id
-            where sha.state  = 6
             GROUP BY ush.user_id
             ) h ON a.userId = h.user_id
             SET a.hxkt = COALESCE(h.total_score, 0)
@@ -309,7 +308,7 @@
                 on
                 ush.vertical_id = shav .id
                 where
-                shav.top_type not in (6,7) and shav.state = 66
+                shav.top_type not in (6,7)
                 GROUP BY ush.user_id
             ) h
             ON
@@ -332,7 +331,7 @@
             on
             ush.vertical_id = shav .id
             where
-            shav.top_type in (6,7) and shav.state = 66
+            shav.top_type in (6,7)
             GROUP BY ush.user_id
             ) h
         ON
@@ -375,8 +374,6 @@
                 FROM
                     sci_zhuanliruanzhu sz
                 where
-                    state = 6
-                    and
                     sz.fenlei not in (4)
                 group by
                     user_id
@@ -397,8 +394,6 @@
                 FROM
                     sci_zhuanliruanzhu sz
                 where
-                    state = 6
-                    and
                     sz.fenlei in (4)
                 group by
                     user_id
@@ -449,8 +444,6 @@
                     SUM(sj.jifen) as score
                 FROM
                     sci_jiaocairuanzhu sj
-                where
-                    state = 6
                 group by
                     user_id
             )s
@@ -501,8 +494,6 @@
                     SUM(sr.jifen) as score
                 FROM
                     sys_reward sr
-                where
-                    state = 6
                 group by
                     user_id
                 )s
@@ -552,19 +543,18 @@
         update
             Alltotle_score a
             join(
-                SELECT
-                    spa.user_id ,
-                    SUM(spa.research_score) as score
-                FROM
-                    sci_paper_a spa
-                where
-                    state = 8
-                group by user_id
+            SELECT
+            spa.user_id ,
+            SUM(pa.score) as score
+            FROM
+            sci_paper_a spa join paper_author pa
+            on pa.paper_id = spa.id
+            group by user_id
             )sp
-            on
+        on
             a.userId = sp.user_id
-        set
-            a.xslw = COALESCE(sp.score, 0)
+            set
+                a.xslw = COALESCE(sp.score, 0)
     </update>
 
 
@@ -605,8 +595,6 @@
                     SUM(slr.report_keyanfen) as score
                 FROM
                     sci_lecture_report slr
-                where
-                    state = 6
                 group by
                     user_id
             )s

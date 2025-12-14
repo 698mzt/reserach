@@ -2,11 +2,16 @@ package com.ruoyi.web.controller.system;
 
 //学院科研工作量
 
+import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.core.controller.BaseController;
+import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.domain.entity.SysDictData;
 import com.ruoyi.common.core.page.TableDataInfo;
+import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.common.utils.DictUtils;
+import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.system.domain.ResearchWorkload;
+import com.ruoyi.system.domain.ResearchWorkloadByJYS;
 import com.ruoyi.system.mapper.SciCollegeResearchMapper;
 import com.ruoyi.system.service.IStatisticKYGZLService;
 import com.ruoyi.system.service.IStatisticService;
@@ -38,16 +43,31 @@ public class SciCollegeResearch extends BaseController {
     }
     @PostMapping("/list")
     @ResponseBody
-    public TableDataInfo list() {
+    public TableDataInfo list(String pname, String dname) {
         List<SysDictData> dictList = DictUtils.getDictCache("sys_acade_dept");
         // 使用字典数据的dictValue作为筛选条件
         List<String> dictValues = dictList.stream()
                 .map(SysDictData::getDictValue)
                 .collect(Collectors.toList());
         startPage();
-        List<ResearchWorkload> list = statisticService.selectAllDept(dictValues);
+        List<ResearchWorkloadByJYS> list = statisticService.selectAllDept(dictValues,pname, dname);
         TableDataInfo data = getDataTable(list);
         return data;
+    }
+
+    @Log(title = "导出教研室科研工作量（教研室版）", businessType = BusinessType.EXPORT)
+    @PostMapping("/export")
+    @ResponseBody
+    public AjaxResult export(String pname, String dname)
+    {
+        List<SysDictData> dictList = DictUtils.getDictCache("sys_acade_dept");
+        // 使用字典数据的dictValue作为筛选条件
+        List<String> dictValues = dictList.stream()
+                .map(SysDictData::getDictValue)
+                .collect(Collectors.toList());
+        List<ResearchWorkloadByJYS> list = statisticService.selectAllDept(dictValues, pname, dname);
+        ExcelUtil<ResearchWorkloadByJYS> util = new ExcelUtil<ResearchWorkloadByJYS>(ResearchWorkloadByJYS.class);
+        return util.exportExcel(list, "教研室科研工作量");
     }
 
 }
