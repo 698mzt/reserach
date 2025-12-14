@@ -24,11 +24,9 @@ public class SysReward extends BaseEntity
     private Long id;
 
     /** 用户id */
-    @Excel(name = "申请人id")
     private Long userId;
 
     /** 申请人 */
-    @Excel(name = "老师名称")
     private String  userName;
 
     /** 判断教研室还是科研处 */
@@ -75,7 +73,6 @@ public class SysReward extends BaseEntity
     private String rewardName;
 
     /** 颁发单位 */
-    @Excel(name = "颁发单位")
     private String rewardDanwei;
 
     /** 奖励类型 */
@@ -83,28 +80,22 @@ public class SysReward extends BaseEntity
     private String rewardLeixing;
 
     /** 证书文件 */
-    @Excel(name = "证书文件")
     private String rewardWenjian;
 
     /** 颁发时间 */
     @JsonFormat(pattern = "yyyy-MM-dd")
-    @Excel(name = "颁发时间", width = 30, dateFormat = "yyyy-MM-dd")
     private Date rewardTime;
 
     /** 分类 */
-    @Excel(name = "分类")
     private String rewardFenlei;
 
     /** 等级 */
-    @Excel(name = "等级")
     private String rewardDengji;
 
     /** 排名 */
-    @Excel(name = "排名")
     private String rewardPaiming;
 
     /** 级别 */
-    @Excel(name = "级别")
     private String rewardJibie;
 
 

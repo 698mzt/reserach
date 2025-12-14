@@ -578,15 +578,15 @@
                                                                         th:value="${dict.dictValue}"></option>
                                                             </select>
                                                         </div>
-                                                        <div class="first-row-item" shiro:hasPermission="sys_job_title">
-                                                            <label>教师职称：</label>
-                                                            <select name="job_title" class="form-control"
-                                                                    th:with="type=${@dict.getType('sys_job_title')}">
-                                                                <option th:each="dict : ${type}"
-                                                                        th:text="${dict.dictLabel}"
-                                                                        th:value="${dict.dictValue}"></option>
-                                                            </select>
-                                                        </div>
+<!--                                                        <div class="first-row-item" shiro:hasPermission="sys_job_title">-->
+<!--                                                            <label>教师职称：</label>-->
+<!--                                                            <select name="job_title" class="form-control"-->
+<!--                                                                    th:with="type=${@dict.getType('sys_job_title')}">-->
+<!--                                                                <option th:each="dict : ${type}"-->
+<!--                                                                        th:text="${dict.dictLabel}"-->
+<!--                                                                        th:value="${dict.dictValue}"></option>-->
+<!--                                                            </select>-->
+<!--                                                        </div>-->
                                                         <div class="first-row-item">
                                                             <label>课题名称：</label>
                                                             <input type="text" class="input-sm form-control"
@@ -620,6 +620,7 @@
                                                 <li class="second-row college-major-item"  shiro:hasPermission="sys_collage_filter">
                                                     <label>姓名：</label>
                                                     <select name="teacherName" class="form-control m-b select2-search" id="teacherName">
+                                                        <option value="">---其他--</option>
                                                         <option th:each="user : ${sysUsers}"
                                                                 th:text="${user.userName}"
                                                                 th:value="${user.userId}"
@@ -859,6 +860,11 @@
                 field: 'amount',
                 align: 'center',
                 title: '项目金额'
+            },
+            {
+                field: 'changeValue',
+                align: 'center',
+                title: '已获积分'
             },
             {
                 title: '操作',
@@ -1181,7 +1187,6 @@
                 align: 'center',
                 title: '学院'
             },
-
             {
                 field: 'dname',
                 align: 'center',
@@ -1193,33 +1198,21 @@
             },
             {
                 field: 'rewardName',
-                title: '荣誉名称'
+                title: '奖励名称'
+            },
+            {
+                field: 'jifen',
+                title: '已获积分'
+            },            {
+                field: 'rewardLeixing',
+                title: '奖励类型'
             },
             {
                 field: 'rewardTime',
                 title: '获批时间'
             },
-            {
-                field: 'fenlei',
-                title: '分类',
-                formatter: function (value, row, index) {
-                    return $.table.selectDictLabel(fenleiDatas, value);
-                }
-            },
-            {
-                field: 'rewardDengji',
-                title: '等级',
-                formatter: function (value, row, index) {
-                    return $.table.selectDictLabel(dengjiDatas, value);
-                }
-            },
-            {
-                field: 'rewardPaiming',
-                title: '排名',
-                formatter: function (value, row, index) {
-                    return $.table.selectDictLabel(paiMingDatas, value);
-                }
-            },
+
+
             // {
             //     field: 'jifen',
             //     title: '积分'
@@ -1279,6 +1272,10 @@
                 field: 'reportSubject',
                 align: 'center',
                 title: '题目'
+            },            {
+                field: 'reportPlace',
+                align: 'center',
+                title: '地点'
             },
             // {
             //     field: 'reportTime',
@@ -1321,9 +1318,11 @@
             var major = $(".second").val(); // 专业
             var jobTitle = $("select[name='job_title']").val(); // 职称
             var topicName = $("#topicName").val(); // 课题名称
+            var teacherName = $("#teacherName").val(); // 姓名
 
             // 构造查询参数对象
             var params = {
+                teacherName: teacherName,
                 remark: remark,
                 state: state,
                 startTime: startTime,
@@ -1390,8 +1389,8 @@
         var options0 = {
             id: "bootstrap-table0",
             toolbar: "toolbar0",
-            url: prefix + "/list",
-            search: prefix + "/list",
+            url: prefix + "/listToCheck",
+            search: prefix + "/listToCheck",
             rowStyle: rowStyle0,
             modalName: "统计查询",
             sortOrder: "asc",

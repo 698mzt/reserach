@@ -298,16 +298,50 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <select id="getStatsQueryToCheck" parameterType="map" resultMap="SysRewardResult">
-        select  uid,s.id, u.user_name username, d.dept_name dname,p.dept_name yname,s.jifen,s.user_id,s.reward_name, s.reward_danwei, s.reward_leixing, s.reward_wenjian, s.reward_time, s.reward_fenlei, s.reward_dengji, s.reward_paiming, s.reward_jibie,s.state
-        from sys_reward s left join sys_user u on  s.user_id= u.user_id
-        left join sys_dept d on u.dept_id = d.dept_id
-        left join sys_dept p on d.parent_id =p.dept_id
+        select
+        p.dept_name yname,
+        d.dept_name dname,
+        u.login_name,
+        u.user_name username,
+        s.reward_name,
+        s.jifen,
+        s.reward_leixing,
+        s.state
+        from
+        sys_reward s
+        left join sys_user u on
+        s.user_id = u.user_id
+        left join sys_dept d on
+        u.dept_id = d.dept_id
+        left join sys_dept p on
+        d.parent_id = p.dept_id
         where 1=1
         <if test="college != null and college != '' and college != 'null'">
             AND p.dept_id = #{college}
         </if>
         <if test="major != null and major != '' and major != 'null'">
             AND d.dept_id = #{major}
+        </if>
+        <if test="teacherName != null and teacherName != '' and teacherName!='null'">
+            AND u.user_id = #{teacherName}
+        </if>
+        <if test="startTime != null and startTime != ''">
+            and s.reward_time >= #{startTime}
+        </if>
+        <if test="endTime != null and endTime != ''">
+            and s.reward_time &lt;= #{endTime}
+        </if>
+        <if test="topicName != null and topicName != ''">
+            and s.reward_name like concat('%', #{topicName}, '%')
+        </if>
+        <if test='state != null and state != "" and state!="null" and state =="1" '>
+            AND s.state in (3,5,7,11)
+        </if>
+        <if test='state != null and state != "" and state!="null" and state =="2"'>
+            AND s.state in (1,2,4)
+        </if>
+        <if test='state != null and state != "" and state!="null" and state =="3"'>
+            AND s.state in (6)
         </if>
         order by yname asc,dname asc,u.login_name asc
     </select>

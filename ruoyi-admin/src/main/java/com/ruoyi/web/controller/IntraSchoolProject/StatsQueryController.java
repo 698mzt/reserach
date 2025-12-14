@@ -61,14 +61,15 @@ public class StatsQueryController extends BaseController {
     @GetMapping("/ToCheck")
     String viewToCheck(ModelMap mmap) {
         List<SysUser> userList = userService.selectAllUserSchPro(getUserId());
-        for (int a = 0; a < userList.size(); a++) {
-            if (userList.get(a).getUserId() == getUserId()) {
-                SysUser user = userList.get(a);
-                user.setFlag(true);
-                userList.set(a, user);
-                break;
-            }
-        }
+        // todo: 不知道为啥要这样处理 很迷 !!!
+//        for (int a = 0; a < userList.size(); a++) {
+//            if (userList.get(a).getUserId() == getUserId()) {
+//                SysUser user = userList.get(a);
+//                user.setFlag(true);
+//                userList.set(a, user);
+//                break;
+//            }
+//        }
         mmap.put("sysUsers", userList);
         return prefix + "/viewToCheck";
     }
@@ -289,32 +290,134 @@ public class StatsQueryController extends BaseController {
         }
     }
 
+    @PostMapping("/listToCheck")
+    @ResponseBody
+    public TableDataInfo listToCheck(@RequestParam Map<String, String> params) {
+        // 如果前端传递了noData标志，说明是初始加载，返回空数据
+        if ("true".equals(params.get("noData"))) {
+            return getDataTable(new ArrayList<>());
+        }
+        params.put("uid",getUserId().toString());
+        //判断身份
+        String role_str = panRole_str();
+        SysUser sysUser = getSysUser();
+        //学院
+        if (role_str.equals("dept_teacher")) {
+            params.put("Pcollege",sysUser.getParentId().toString());
+        }
+        //科研处
+        else if (role_str.equals("sci_tesearch")) {
+
+        }
+        //        教研室
+        else if (role_str.equals("research")) {
+            params.put("major",sysUser.getDeptId().toString());
+        }
+        //admin
+        else if (role_str.equals("admin")) {
+
+        }
+        else if (role_str.equals("teacher")) {
+            params.put("userId",getUserId().toString());
+
+        }
+        // 获取分页参数，添加默认值避免 null
+        String offsetStr = params.getOrDefault("offset", "0");
+        String limitStr = params.getOrDefault("limit", "10");
+        // 解析为整数
+        int offset = Integer.parseInt(offsetStr);
+        int limit = Integer.parseInt(limitStr);
+        // 计算分页参数
+        int pageNum = offset / limit + 1;
+        int pageSize = limit;
+        // 使用 PageHelper 进行分页
+        PageHelper.startPage(pageNum, pageSize);
+
+
+        // 获取项目类别参数
+        String remark = params.get("remark");
+        //System.out.println("项目类别: " + remark);
+
+        List<Object> list = new ArrayList<>();
+        // 根据项目类别返回不同的数据
+        if (remark != null && !remark.isEmpty()) {
+            if ("1".equals(remark)) {
+                // 获取项目类别1的数据（纵向课题）
+                List<SciHorizontalApplyVertical> statsQuery = sciHorizontalApplyVerticalService.getStatsQueryToCheck(params);
+                return getDataTable(statsQuery);
+            } else if ("2".equals(remark)) {
+                // 获取项目类别2的数据（横向课题）
+                List<SciHorizontalApply> statsQuery = sciHorizontalApplyService.getStatsQueryToCheck(params);
+                return getDataTable(statsQuery);
+            } else if ("3".equals(remark)) {
+                // 查询项目类别3的数据（成果转化）
+                List<SciIntraSchoolPro> statsQuery = sciIntraSchProApplyService.getStatsQueryToCheck(params);
+                return getDataTable(statsQuery);
+            } else if ("4".equals(remark)) {
+                // 获取项目类别4的数据（论文）
+                List<SciPaperA> statsQuery = sciPaperAService.getStatsQueryToCheck(params);
+                return getDataTable(statsQuery);
+            } else if ("5".equals(remark)) {
+                // 获取项目类别5的数据（教材专著）
+                List<SciJiaocairuanzhu> statsQuery = sciJiaocairuanzhuService.getStatsQueryToCheck(params);
+                return getDataTable(statsQuery);
+            } else if ("6".equals(remark)) {
+                // 获取项目类别6的数据（专利软著）
+                List<SciZhuanliruanzhu> statsQuery = sciZhuanliruanzhuService.getStatsQueryToCheck(params);
+                return getDataTable(statsQuery);
+            } else if ("7".equals(remark)) {
+                // 获取项目类别7的数据（奖励）
+                List<SysReward> statsQuery = sysRewardService.getStatsQueryToCheck(params);
+                return getDataTable(statsQuery);
+            } else if ("8".equals(remark)) {
+                // 获取项目类别8的数据（讲座报告）
+                List<SciLectureReport> statsQuery = sciLectureReportService.getStatsQueryToCheck(params);
+                return getDataTable(statsQuery);
+            }
+        } else {
+            // 如果没有选择项目类别，返回空数据
+            list = new ArrayList<>();
+        }
+
+        return getDataTable(list);
+    }
+
     /**
      * 导出核算列表
-     * 只接收三个参数：college(学院)、major(教研室)、remark(模块类型)
-     * 导出的Excel包含：学院列、教研室列、老师名称，每个项目一条记录
-     *
-     * 纵向因为开题完成之后就有分, 所以状态会有未完成的
-     * 横向只有金额审批通过了才算分,所以导出大多都是完结的
+     * 使用与listToCheck相同的查询逻辑
+     * 导出的Excel包含查询到的所有列，并计算总分
      */
     //@RequiresPermissions("system:statsquery:export")
     @Log(title = "导出核算", businessType = BusinessType.EXPORT)
     @PostMapping("/exportToCheck")
     @ResponseBody
-    public AjaxResult exportToCheck(@RequestParam(required = false) String college,
-                                    @RequestParam(required = false) String major,
-                                    @RequestParam(required = false) String remark) {
+    public AjaxResult exportToCheck(@RequestParam Map<String, String> params) {
+        String remark = params.get("remark");
+
         try {
-            // 构建参数Map，只包含三个参数
-            Map<String, String> params = new java.util.HashMap<>();
-            if (college != null && !college.isEmpty()) {
-                params.put("college", college);
+            // 使用与listToCheck相同的参数处理逻辑
+            params.put("uid", getUserId().toString());
+            //判断身份
+            String role_str = panRole_str();
+            SysUser sysUser = getSysUser();
+            //学院
+            if (role_str.equals("dept_teacher")) {
+                params.put("Pcollege", sysUser.getParentId().toString());
             }
-            if (major != null && !major.isEmpty()) {
-                params.put("major", major);
+            //科研处
+            else if (role_str.equals("sci_tesearch")) {
+
             }
-            if (remark != null && !remark.isEmpty()) {
-                params.put("remark", remark);
+            //        教研室
+            else if (role_str.equals("research")) {
+                params.put("major", sysUser.getDeptId().toString());
+            }
+            //admin
+            else if (role_str.equals("admin")) {
+
+            }
+            else if (role_str.equals("teacher")) {
+                params.put("userId", getUserId().toString());
             }
             
             // 根据项目类别返回不同的数据
@@ -372,8 +475,7 @@ public class StatsQueryController extends BaseController {
                         }
                     }
                     
-                    // 第二遍遍历：为每个记录设置积分总和和老师总分，并去重（同一个课题同一个老师只保留一条）
-                    Map<String, SciHorizontalApplyVertical> mergedMap = new java.util.LinkedHashMap<>();
+                    // 为每个记录设置积分总和和老师总分（不去重，导出所有记录）
                     for (SciHorizontalApplyVertical item : exportList) {
                         Integer participantId = item.getParticipantUserId() != null ? item.getParticipantUserId() : item.getUserId();
                         String key = item.getId() + "_" + participantId;
@@ -383,21 +485,14 @@ public class StatsQueryController extends BaseController {
                         // 设置该老师获得的总分
                         Double teacherTotalScore = teacherTotalScoreMap.getOrDefault(participantId, 0.0);
                         item.setTotalTeacherScore(String.valueOf(teacherTotalScore));
-                        
-                        // 如果该(课题ID, 参与者用户ID)组合还没有记录，则添加；否则跳过（去重）
-                        if (!mergedMap.containsKey(key)) {
-                            mergedMap.put(key, item);
-                        }
                     }
                     
-                    // 转换为去重后的列表
-                    List<SciHorizontalApplyVertical> finalList = new ArrayList<>(mergedMap.values());
+                    // 直接使用所有记录（不去重）
+                    List<SciHorizontalApplyVertical> finalList = exportList;
                     
-                    // 使用自定义的合并单元格导出方法
-                    // 合并列：学院、教研室、老师名称、总分（同一老师的总分应该合并）
+                    // 使用普通导出方法（不合并单元格）
                     ExcelUtil<SciHorizontalApplyVertical> util = new ExcelUtil<SciHorizontalApplyVertical>(SciHorizontalApplyVertical.class);
-                    return util.exportExcelWithMergedCells(finalList, "纵向课题核算数据", "纵向课题核算数据",
-                        new String[]{"yname", "dname", "userName", "totalTeacherScore"});
+                    return util.exportExcel(finalList, "纵向课题核算数据");
                 }
                 else if ("2".equals(remark)) {
 
@@ -452,8 +547,7 @@ public class StatsQueryController extends BaseController {
                         }
                     }
                     
-                    // 第二遍遍历：为每个记录设置积分总和和老师总分，并去重（同一个课题同一个老师只保留一条）
-                    Map<String, SciHorizontalApply> mergedMap = new java.util.LinkedHashMap<>();
+                    // 为每个记录设置积分总和和老师总分（不去重，导出所有记录）
                     for (SciHorizontalApply item : exportList) {
                         Integer participantId = item.getParticipantUserId() != null ? item.getParticipantUserId() : item.getUserId();
                         String key = item.getId() + "_" + participantId;
@@ -463,21 +557,14 @@ public class StatsQueryController extends BaseController {
                         // 设置该老师获得的总分
                         Double teacherTotalScore = teacherTotalScoreMap.getOrDefault(participantId, 0.0);
                         item.setTotalTeacherScore(String.valueOf(teacherTotalScore));
-                        
-                        // 如果该(课题ID, 参与者用户ID)组合还没有记录，则添加；否则跳过（去重）
-                        if (!mergedMap.containsKey(key)) {
-                            mergedMap.put(key, item);
-                        }
                     }
                     
-                    // 转换为去重后的列表
-                    List<SciHorizontalApply> finalList = new ArrayList<>(mergedMap.values());
+                    // 直接使用所有记录（不去重）
+                    List<SciHorizontalApply> finalList = exportList;
                     
-                    // 使用自定义的合并单元格导出方法
-                    // 合并列：学院、教研室、工号、姓名、总分（同一老师的总分应该合并）
+                    // 使用普通导出方法（不合并单元格）
                     ExcelUtil<SciHorizontalApply> util = new ExcelUtil<SciHorizontalApply>(SciHorizontalApply.class);
-                    return util.exportExcelWithMergedCells(finalList, "横向课题核算数据", "横向课题核算数据",
-                        new String[]{"yname", "dname", "loginName", "userName", "totalTeacherScore"});
+                    return util.exportExcel(finalList, "横向课题核算数据");
                 }
                 else if ("3".equals(remark)) {
                     // 查询项目类别3的数据（成果转化）导出
@@ -531,8 +618,7 @@ public class StatsQueryController extends BaseController {
                         }
                     }
                     
-                    // 第二遍遍历：为每个记录设置积分总和和老师总分，并去重（同一个课题同一个老师只保留一条）
-                    Map<String, SciIntraSchoolPro> mergedMap = new java.util.LinkedHashMap<>();
+                    // 为每个记录设置积分总和和老师总分（不去重，导出所有记录）
                     for (SciIntraSchoolPro item : exportList) {
                         Integer participantId = item.getParticipantUserId() != null ? item.getParticipantUserId() : item.getUserId();
                         String key = item.getId() + "_" + participantId;
@@ -542,21 +628,14 @@ public class StatsQueryController extends BaseController {
                         // 设置该老师获得的总分
                         Double teacherTotalScore = teacherTotalScoreMap.getOrDefault(participantId, 0.0);
                         item.setTotalTeacherScore(String.valueOf(teacherTotalScore));
-                        
-                        // 如果该(课题ID, 参与者用户ID)组合还没有记录，则添加；否则跳过（去重）
-                        if (!mergedMap.containsKey(key)) {
-                            mergedMap.put(key, item);
-                        }
                     }
                     
-                    // 转换为去重后的列表
-                    List<SciIntraSchoolPro> finalList = new ArrayList<>(mergedMap.values());
+                    // 直接使用所有记录（不去重）
+                    List<SciIntraSchoolPro> finalList = exportList;
                     
-                    // 使用自定义的合并单元格导出方法
-                    // 合并列：学院、教研室、工号、姓名、总分（同一老师的总分应该合并）
+                    // 使用普通导出方法（不合并单元格）
                     ExcelUtil<SciIntraSchoolPro> util = new ExcelUtil<SciIntraSchoolPro>(SciIntraSchoolPro.class);
-                    return util.exportExcelWithMergedCells(finalList, "成果转化核算数据", "成果转化核算数据",
-                        new String[]{"yname", "dname", "loginName", "userName", "totalTeacherScore"});
+                    return util.exportExcel(finalList, "成果转化核算数据");
                 }
                 else if ("4".equals(remark)) {
                     // 获取项目类别4的数据（论文）导出
@@ -568,45 +647,35 @@ public class StatsQueryController extends BaseController {
                         return item;
                     }).collect(Collectors.toList());
                     
-                    // 去重：同一个论文同一个作者只保留一条记录
-                    // 使用LinkedHashMap保持插入顺序（SQL查询已排序：order by college asc,dname asc,su.login_name asc）
-                    Map<String, SciPaperA> mergedMap = new java.util.LinkedHashMap<>();
+                    // 计算总分：按用户ID分组，累加所有论文的积分
+                    Map<Integer, Double> teacherTotalScoreMap = new java.util.HashMap<>();
                     for (SciPaperA item : exportList) {
-                        Integer participantId = item.getParticipantUserId() != null ? item.getParticipantUserId() : (item.getUserId() != null ? item.getUserId().intValue() : null);
-                        if (participantId == null) continue;
-                        String key = item.getId() + "_" + participantId;
+                        Integer userId = item.getParticipantUserId() != null ? item.getParticipantUserId() : (item.getUserId() != null ? item.getUserId().intValue() : null);
+                        if (userId == null) continue;
                         
-                        // 确保合并字段不为null且不为空字符串，避免合并失败
-                        if (item.getCollege() == null || item.getCollege().trim().isEmpty()) {
-                            item.setCollege(" ");
-                        } else {
-                            item.setCollege(item.getCollege().trim());
+                        Double currentScore = 0.0;
+                        if (item.getChangeValue() != null && !item.getChangeValue().isEmpty()) {
+                            try {
+                                currentScore = Double.parseDouble(item.getChangeValue());
+                            } catch (NumberFormatException e) {
+                                currentScore = 0.0;
+                            }
                         }
-                        if (item.getResearchRoom() == null || item.getResearchRoom().trim().isEmpty()) {
-                            item.setResearchRoom(" ");
-                        } else {
-                            item.setResearchRoom(item.getResearchRoom().trim());
-                        }
-                        if (item.getLoginName() == null || item.getLoginName().trim().isEmpty()) {
-                            item.setLoginName(" ");
-                        } else {
-                            item.setLoginName(item.getLoginName().trim());
-                        }
-                        
-                        // 如果该(论文ID, 参与者用户ID)组合还没有记录，则添加；否则跳过（去重）
-                        if (!mergedMap.containsKey(key)) {
-                            mergedMap.put(key, item);
+                        teacherTotalScoreMap.put(userId, teacherTotalScoreMap.getOrDefault(userId, 0.0) + currentScore);
+                    }
+                    
+                    // 设置每个记录的总分
+                    for (SciPaperA item : exportList) {
+                        Integer userId = item.getParticipantUserId() != null ? item.getParticipantUserId() : (item.getUserId() != null ? item.getUserId().intValue() : null);
+                        if (userId != null) {
+                            Double totalScore = teacherTotalScoreMap.getOrDefault(userId, 0.0);
+                            item.setTotalTeacherScore(String.valueOf(totalScore));
                         }
                     }
                     
-                    // 转换为去重后的列表
-                    List<SciPaperA> finalList = new ArrayList<>(mergedMap.values());
-                    
-                    // 使用自定义的合并单元格导出方法
-                    // 合并列：学院、教研室、工号（前三列）
+                    // 使用普通导出方法（不合并单元格）
                     ExcelUtil<SciPaperA> util = new ExcelUtil<SciPaperA>(SciPaperA.class);
-                    return util.exportExcelWithMergedCells(finalList, "论文核算数据", "论文核算数据",
-                        new String[]{"college", "researchRoom", "loginName"});
+                    return util.exportExcel(exportList, "论文核算数据");
                 }
                 else if ("5".equals(remark)) {
                     // 获取项目类别5的数据（教材专著）导出
@@ -618,30 +687,35 @@ public class StatsQueryController extends BaseController {
                         return item;
                     }).collect(Collectors.toList());
                     
-                    // 确保合并字段不为null且不为空字符串，避免合并失败
+                    // 计算总分：按用户ID分组，累加所有教材专著的积分
+                    Map<Integer, Double> teacherTotalScoreMap = new java.util.HashMap<>();
                     for (SciJiaocairuanzhu item : exportList) {
-                        if (item.getXueyuan() == null || item.getXueyuan().trim().isEmpty()) {
-                            item.setXueyuan(" ");
-                        } else {
-                            item.setXueyuan(item.getXueyuan().trim());
+                        Integer userId = item.getUserId();
+                        if (userId == null) continue;
+                        
+                        Double currentScore = 0.0;
+                        if (item.getJifen() != null && !item.getJifen().isEmpty()) {
+                            try {
+                                currentScore = Double.parseDouble(item.getJifen());
+                            } catch (NumberFormatException e) {
+                                currentScore = 0.0;
+                            }
                         }
-                        if (item.getJiaoyanshi() == null || item.getJiaoyanshi().trim().isEmpty()) {
-                            item.setJiaoyanshi(" ");
-                        } else {
-                            item.setJiaoyanshi(item.getJiaoyanshi().trim());
-                        }
-                        if (item.getLoginName() == null || item.getLoginName().trim().isEmpty()) {
-                            item.setLoginName(" ");
-                        } else {
-                            item.setLoginName(item.getLoginName().trim());
-                        }
+                        teacherTotalScoreMap.put(userId, teacherTotalScoreMap.getOrDefault(userId, 0.0) + currentScore);
                     }
                     
-                    // 使用自定义的合并单元格导出方法
-                    // 合并列：学院、教研室、工号（前三列）
+                    // 设置每个记录的总分（需要添加totalTeacherScore字段到实体类，这里先注释）
+                    // for (SciJiaocairuanzhu item : exportList) {
+                    //     Integer userId = item.getUserId();
+                    //     if (userId != null) {
+                    //         Double totalScore = teacherTotalScoreMap.getOrDefault(userId, 0.0);
+                    //         item.setTotalTeacherScore(String.valueOf(totalScore));
+                    //     }
+                    // }
+                    
+                    // 使用普通导出方法（不合并单元格）
                     ExcelUtil<SciJiaocairuanzhu> util = new ExcelUtil<SciJiaocairuanzhu>(SciJiaocairuanzhu.class);
-                    return util.exportExcelWithMergedCells(exportList, "教材专著核算数据", "教材专著核算数据",
-                        new String[]{"xueyuan", "jiaoyanshi", "loginName"});
+                    return util.exportExcel(exportList, "教材专著核算数据");
                 }
                 else if ("6".equals(remark)) {
                     // 获取项目类别6的数据（专利软著）导出
@@ -653,30 +727,35 @@ public class StatsQueryController extends BaseController {
                         return item;
                     }).collect(Collectors.toList());
                     
-                    // 确保合并字段不为null且不为空字符串，避免合并失败
+                    // 计算总分：按用户ID分组，累加所有专利软著的积分
+                    Map<Integer, Double> teacherTotalScoreMap = new java.util.HashMap<>();
                     for (SciZhuanliruanzhu item : exportList) {
-                        if (item.getXueyuan() == null || item.getXueyuan().trim().isEmpty()) {
-                            item.setXueyuan(" ");
-                        } else {
-                            item.setXueyuan(item.getXueyuan().trim());
+                        Integer userId = item.getUserId();
+                        if (userId == null) continue;
+                        
+                        Double currentScore = 0.0;
+                        if (item.getJifen() != null && !item.getJifen().isEmpty()) {
+                            try {
+                                currentScore = Double.parseDouble(item.getJifen());
+                            } catch (NumberFormatException e) {
+                                currentScore = 0.0;
+                            }
                         }
-                        if (item.getJiaoyanshi() == null || item.getJiaoyanshi().trim().isEmpty()) {
-                            item.setJiaoyanshi(" ");
-                        } else {
-                            item.setJiaoyanshi(item.getJiaoyanshi().trim());
-                        }
-                        if (item.getLoginName() == null || item.getLoginName().trim().isEmpty()) {
-                            item.setLoginName(" ");
-                        } else {
-                            item.setLoginName(item.getLoginName().trim());
-                        }
+                        teacherTotalScoreMap.put(userId, teacherTotalScoreMap.getOrDefault(userId, 0.0) + currentScore);
                     }
                     
-                    // 使用自定义的合并单元格导出方法
-                    // 合并列：学院、教研室、工号（前三列）
+                    // 设置每个记录的总分（需要添加totalTeacherScore字段到实体类，这里先注释）
+                    // for (SciZhuanliruanzhu item : exportList) {
+                    //     Integer userId = item.getUserId();
+                    //     if (userId != null) {
+                    //         Double totalScore = teacherTotalScoreMap.getOrDefault(userId, 0.0);
+                    //         item.setTotalTeacherScore(String.valueOf(totalScore));
+                    //     }
+                    // }
+                    
+                    // 使用普通导出方法（不合并单元格）
                     ExcelUtil<SciZhuanliruanzhu> util = new ExcelUtil<SciZhuanliruanzhu>(SciZhuanliruanzhu.class);
-                    return util.exportExcelWithMergedCells(exportList, "专利软著核算数据", "专利软著核算数据",
-                        new String[]{"xueyuan", "jiaoyanshi", "loginName"});
+                    return util.exportExcel(exportList, "专利软著核算数据");
                 }
                 else if ("7".equals(remark)) {
                     // 获取项目类别7的数据（奖励）导出

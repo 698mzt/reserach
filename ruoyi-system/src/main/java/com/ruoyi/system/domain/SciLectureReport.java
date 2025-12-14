@@ -48,11 +48,9 @@ public class SciLectureReport extends BaseEntity
     private String keyanshi;
 
     /** 工号 */
-    @Excel(name = "工号")
     private String jobId;
 
     /** 姓名 */
-    @Excel(name = "老师名称")
     private String teacherName;
 
 //    /** 行政职务 */
@@ -65,11 +63,9 @@ public class SciLectureReport extends BaseEntity
 //    private String schoolTitle;
 
     /** 讲座开始时间 */
-    @Excel(name = "开始时间")
     private String reportTime;
 
     /** 讲座结束时间 */
-    @Excel(name = "结束时间")
     private String reportEndTime;
 
     /** 讲座主题 */
@@ -77,7 +73,6 @@ public class SciLectureReport extends BaseEntity
     private String reportTheme;
 
     /** 主办单位 */
-    @Excel(name = "主办单位")
     private String hostUnit;
 
     /** 讲座地点 */
@@ -89,11 +84,9 @@ public class SciLectureReport extends BaseEntity
     private String reportSubject;
 
     /** 参与人数 */
-    @Excel(name = "参与人数")
     private Integer reportNumber;
 
     /** 报告时长 */
-    @Excel(name = "报告时长")
     private Long reportDuration;
 
 
@@ -102,7 +95,6 @@ public class SciLectureReport extends BaseEntity
     private String reportUrl;
 
     /** 分类 */
-    @Excel(name = "分类")
     private String reportClassify;
 
     /** 科研分 */
