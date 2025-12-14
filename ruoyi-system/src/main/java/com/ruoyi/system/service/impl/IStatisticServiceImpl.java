@@ -1,6 +1,8 @@
 package com.ruoyi.system.service.impl;
 
 import com.ruoyi.system.domain.ResearchWorkload;
+import com.ruoyi.system.domain.ResearchWorkloadByJYS;
+import com.ruoyi.system.domain.SciHorizontalApply;
 import com.ruoyi.system.mapper.StatisticMapper;
 import com.ruoyi.system.service.IStatisticService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,15 +35,15 @@ public class IStatisticServiceImpl implements IStatisticService {
     );
 
     @Override
-    public List<ResearchWorkload> selectAllTeacher(List<String> dictValues) {
+    public List<ResearchWorkload> selectAllTeacher(List<String> dictValues,String pname, String dname) {
         // 这里保持原有的按部门ID查询的逻辑
-        return statisticMapper.selectAllTeacher(dictValues);
+        return statisticMapper.selectAllTeacher(dictValues,pname, dname);
     }
 
     @Override
-    public List<ResearchWorkload> selectAllDept(List<String> dictValues) {
+    public List<ResearchWorkloadByJYS> selectAllDept(List<String> dictValues, String pname, String dname) {
         // 这里保持原有的按部门ID查询的逻辑
-        return statisticMapper.selectAllDept(dictValues);
+        return statisticMapper.selectAllDept(dictValues,pname, dname);
     }
     
     /**

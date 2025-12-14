@@ -49,7 +49,7 @@ public class DataSynchronizeTask {
     synchronizeZX();
 
     //自动同步成果转化
-    synchronousAlltotle();
+//    synchronousAlltotle();
 
     //同步专利软著
     synchronizeZLRZ();
