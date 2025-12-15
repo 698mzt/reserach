@@ -62,7 +62,7 @@
                 AND deptName LIKE CONCAT('%', #{dname}, '%')
             </if>
         </where>
-        order by ac.partenName asc, deptName asc, su.login_name asc
+        order by ac.partenName asc, ac.deptName asc, su.login_name asc
     </select>
 
     <select id="selectAllDept" resultMap="ResearchWorkloadByJYSResult">
@@ -84,7 +84,7 @@
             </if>
         </where>
         GROUP BY deptId, deptName
-        order by ac.partenName asc, deptName asc
+        order by ac.partenName asc, ac.deptName asc
     </select>
 
 </mapper>
