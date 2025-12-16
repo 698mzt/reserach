@@ -62,11 +62,11 @@
                 AND deptName LIKE CONCAT('%', #{dname}, '%')
             </if>
         </where>
-        order by ac.partenName asc, deptName asc, su.login_name asc
+        order by ac.partenName asc, ac.deptName asc, su.login_name asc
     </select>
 
     <select id="selectAllDept" resultMap="ResearchWorkloadByJYSResult">
-        select ac.partenId, ac.partenName, ac.deptId, deptName, ac.hxkt, ac.zxktxj, ac.zxktxjys, ac.cgzh, ac.xslw, ac.jczz, ac.zl, ac.rz, ac.jl, ac.jzbg
+        select ac.partenId, ac.partenName, ac.deptId, deptName, sum(ac.hxkt) hxkt, sum(ac.zxktxj) zxktxj, sum(ac.zxktxjys) zxktxjys, sum(ac.cgzh) cgzh, sum(ac.xslw) xslw, sum(ac.jczz) jczz, sum(ac.zl) zl, sum(ac.rz) rz, sum(ac.jl)jl, sum(ac.jzbg) jzbg
         from alltotle_score ac
         left join sys_user su on su.user_id  = ac.userId
          <where>
@@ -84,7 +84,7 @@
             </if>
         </where>
         GROUP BY deptId, deptName
-        order by ac.partenName asc, deptName asc
+        order by ac.partenName asc, ac.deptName asc
     </select>
 
 </mapper>

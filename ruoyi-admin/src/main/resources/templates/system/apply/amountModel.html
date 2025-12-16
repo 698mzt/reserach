@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <th:block th:include="include :: header('追加到账金额')" />
+  <th:block th:include="include :: datetimepicker-css" />
+  <th:block th:include="include :: bootstrap-fileinput-css"/>
+  <th:block th:include="include :: select2-css" />
+</head>
+<body>
+  <div class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+      <form class="form-horizontal" id="form-apply-add1" th:object="${sciHorizontalApply}">
+        <input type="hidden" id="topName" name="topName" th:field="*{topName}">
+        <input type="hidden" id="id" name="id" th:field="*{id}">
+        <input type="hidden" id="applyId" name="applyId">
+        <input name="state" id="state" value="1" type="hidden">
+              <div class="col-xs-10">
+                <div class="form-group">
+                  <label class="col-sm-4 control-label is-required">项目金额(万)：</label>
+                  <div class="col-sm-8">
+                    <input name="reAmount" class="form-control" type="number" required step="0.0001" maxlength="9">
+                  </div>
+                </div>
+              </div>
+
+
+              <div class="col-xs-10">
+                <div class="form-group">
+                  <label class="col-sm-4 control-label is-required">到账日期：</label>
+                  <div class="col-sm-8">
+                    <div class="input-group date">
+                      <input name="accountData" autocomplete="off"  class="form-control" placeholder="yyyy-MM-dd" type="text" required>
+                      <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-xs-10">
+                <div class="form-group">
+                  <label class="col-sm-4 control-label is-required">到账文件：</label>
+                  <div class="col-sm-8">
+                    <input type="hidden" name="reamountUrl">
+                    <div class="file-loading">
+                      <input class="form-control amountfile-upload" id="reamountUrl" name="file" type="file" >
+                    </div>
+                  </div>
+                </div>
+              </div>
+          </form>
+      <div class="row">
+        <div class="col-sm-offset-5 col-sm-10">
+          <button type="button" class="btn btn-sm btn-primary" onclick="submitAmount()">保 存</button>
+          <button type="button" class="btn btn-sm btn-danger" onclick="$.modal.close()"> 关 闭 </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <th:block th:include="include :: footer" />
+  <th:block th:include="include :: datetimepicker-js" />
+  <th:block th:include="include :: bootstrap-fileinput-js"/>
+  <th:block th:include="include :: datetimepicker-js" />
+  <th:block th:include="include :: select2-js" />
+  <script th:inline="javascript">
+    var prefix = ctx + "system/apply";
+
+    $(document).ready(function() {
+      // 隐藏模态框自带的底部按钮
+      if (window.parent && window.parent.$('.layui-layer-btn')) {
+        window.parent.$('.layui-layer-btn').hide();
+      }
+      $("input[name='applyId']").val($("input[name='id']").val());
+      $("input[name='reAmount']").on('input', function() {
+      var value = $(this).val();
+      // 限制整数部分不超过9位
+      if (value) {
+        var numericValue = parseFloat(value);
+        // 限制整数部分长度
+        if (value.indexOf('.') !== -1) {
+          var parts = value.split('.');
+          if (parts[0].length > 9) {
+            $(this).val(parts[0].substring(0, 9) + (parts[1] ? '.' + parts[1] : ''));
+          }
+        } else {
+          if (value.length > 9) {
+            $(this).val(value.substring(0, 9));
+          }
+        }
+        // 限制小数点后只能输入四位
+        if (value.indexOf('.') !== -1) {
+          var parts = value.split('.');
+          if (parts[1] && parts[1].length > 4) {
+            $(this).val(parts[0] + '.' + parts[1].substring(0, 4));
+          }
+        }
+        // 限制最大值
+        var valueStr = numericValue.toString();
+        if (valueStr.length > 9){
+          this.value = "";
+          $.modal.alertError("输入金额有误差：总长度最大9位数，小数点后最大四位；例：9999.9999")
+        }
+      }
+    });
+
+
+      $("input[name='accountData']").datetimepicker({
+        format: "yyyy-mm-dd",
+        minView: "month",
+        autoclose: true
+      });
+      $(".amountfile-upload").fileinput({
+        uploadUrl: ctx + 'common/upload/hxkt',
+        initialPreviewAsData: true,
+        maxFileCount: 1,
+        maxFileSize: 51200,
+        autoReplace: true,
+        allowedFileExtensions: ["pdf"],
+        showUpload: false,  // 隐藏上传按钮
+        slugCallback: function(filename) {
+          if ($("input[name='reAmount']").val()===""){
+            $(".amountfile-upload").fileinput('clear');
+            $.modal.alertError("请先输入到账金额");
+            return false;
+          }
+          // 自定义文件名生成规则
+          fileExtension = filename.split('.').pop();
+          const year = new Date().getFullYear();
+          const newName = year +"-"+ $("input[name='topName']").val() +"-"+ "金额佐证材料"+ "." + fileExtension;
+          return newName;
+        },
+      }).on('fileuploaded', function (event, data, previewId, index) {
+        $("input[name='" + event.currentTarget.id + "']").val(data.response.url)
+      }).on('fileremoved', function (event, id, index) {
+        $("input[name='" + event.currentTarget.id + "']").val('')
+      }).on('filebatchselected', function(event) {
+        // 批量选择文件后立即上传
+        $(this).fileinput('upload');
+      }).on('fileselected', function(event) {
+        // 单个文件选择后立即上传
+        $(this).fileinput('upload');
+      });
+    });
+
+      function submitAmount() {
+        var reAmount = $("input[name='reAmount']").val();
+        var accountData = $("input[name='accountData']").val();
+        var reamountUrl = $("input[name='reamountUrl']").val();
+
+        if (reAmount === "") {
+          return $.modal.alertError("请添加到账金额");
+        }
+
+        // 校验到账金额不能为负数
+        if (parseFloat(reAmount) <= 0) {
+          return $.modal.alertError("请输入正确的金额");
+        }
+
+        // 去除前后空格并转换为字符串
+        var value = reAmount.trim();
+
+        // 判断是否是有效数字
+        if (isNaN(value)) {
+          return $.modal.alertError("请输入有效的数字");
+        }
+
+        // 全由0组成（包括整数和小数形式）
+        if (/^0+(\.0+)?$/.test(value)) {
+          return $.modal.alertError("到账金额不能为零");
+        }
+
+        if (accountData === "") {
+          return $.modal.alertError("请添加到账时间");
+        }
+
+        if (reamountUrl === "") {
+          return $.modal.alertError("请上传到账金额文件");
+        }
+
+        $.ajax({
+          type: "POST",
+          url: prefix + "/Reamount",
+          data: $('#form-apply-add1').serialize(),
+          dataType: "json",
+          success: function(result) {
+            if (result.code == 0) {
+              $.modal.msgSuccess(result.msg);
+              setTimeout(function() {
+                $.modal.close();
+                // 刷新父页面表格
+                if (window.parent.$.table) {
+                  window.parent.$.table.refresh();
+                }
+              }, 1000);
+            } else {
+              $.modal.alertError(result.msg);
+            }
+          },
+          error: function() {
+            $.modal.alertError("请求失败，请稍后重试");
+          }
+        });
+
+      }
+  </script>
+</body>
+</html>
