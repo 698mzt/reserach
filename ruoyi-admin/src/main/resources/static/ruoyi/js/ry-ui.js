@@ -1284,8 +1284,8 @@ var table = {
             },
             // 追加到账信息，以tab页展现
             reamountTab: function(id) {
-                table.set();
-                $.modal.openTab("追加金额" + table.options.modalName, $.operate.reamountUrl(id));
+                // table.set();
+                $.modal.open("追加金额" + table.options.modalName, $.operate.reamountUrl(id));
             },
             // 撤回操作
             recallTab: function(id) {

@@ -212,19 +212,19 @@ public class SciHorizontalApplyController extends BaseController
             }
         }
         Alist1.addAll(Alist);
-//        List<SciHorizontalApply> AdistinctList = Alist1.stream()
-//                .collect(Collectors.collectingAndThen(
-//                        Collectors.toMap(
-//                                SciHorizontalApply::getTopName, // 使用 topName 作为键
-//                                Function.identity(), // 值为原对象
-//                                (existing, replacement) -> existing, // 如果有重复，保留第一个出现的对象
-//                                LinkedHashMap::new // 保持插入顺序
-//                        ),
-//                        map -> new ArrayList<>(map.values()) // 将 Map 的值转换为 List
-//                ));
+        List<SciHorizontalApply> AdistinctList = Alist1.stream()
+                .collect(Collectors.collectingAndThen(
+                        Collectors.toMap(
+                                SciHorizontalApply::getReid, // 使用 reid 作为键
+                                Function.identity(), // 值为原对象
+                                (existing, replacement) -> existing, // 如果有重复，保留第一个出现的对象
+                                LinkedHashMap::new // 保持插入顺序
+                        ),
+                        map -> new ArrayList<>(map.values()) // 将 Map 的值转换为 List
+                ));
 
         if (tableId.equals("bootstrap-table3"))
-            distinctList.addAll(Alist1);
+            distinctList.addAll(AdistinctList);
 
 //        计算到账金额
         List<creditedAmount> creditedAmount = sciHorizontalApplyService.selectCreditedAmount();
@@ -851,9 +851,9 @@ public class SciHorizontalApplyController extends BaseController
             extraMembers = allMemberIds.subList(4, allMemberIds.size());
         }
         mmap.put("extraMembers", extraMembers);
-        return prefix + "/reamount";
+        return prefix + "/amountModel";
     }
-    @RequiresPermissions("system:apply:edit")
+//    @RequiresPermissions("system:apply:edit")
     @Log(title = "添加到账金额", businessType = BusinessType.INSERT)
     @PostMapping("/Reamount")
     @ResponseBody
