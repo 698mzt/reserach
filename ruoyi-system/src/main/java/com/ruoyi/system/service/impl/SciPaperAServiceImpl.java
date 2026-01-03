@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.ruoyi.common.annotation.DataScope;
+import com.ruoyi.common.utils.DataScopeUtils;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.system.domain.Paper_user_score;
 import com.ruoyi.system.domain.SciPaperAr;
@@ -325,7 +326,10 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
     }
 
     @Override
+    @DataScope(deptAlias = "sd",userAlias = "su")
     public List<SciPaperA> getStatsQueryToCheck(Map<String, String> params) {
+        // 手动处理数据权限，因为 @DataScope 只支持 BaseEntity 类型，而这里使用的是 Map
+        DataScopeUtils.applyDataScopeToMap(params, "sd", "su", "");
         return sciPaperAMapper.getStatsQueryToCheck(params);
     }
 }

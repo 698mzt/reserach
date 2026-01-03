@@ -376,7 +376,8 @@
         s.report_place,
         s.report_subject,
         s.report_keyanfen,
-        s.state
+        s.state,
+        s.report_end_time
         from
         sci_lecture_report s
         left join sys_user u on
@@ -412,6 +413,12 @@
         </if>
         <if test='state != null and state != "" and state!="null" and state =="3"'>
             AND s.state in (4)
+        </if>
+        <if test="year != null and year != '' and year != 'null'">
+            AND YEAR(DATE_ADD(s.report_end_time, INTERVAL 1 MONTH)) = #{year}
+        </if>
+        <if test="_dataScope != null and _dataScope != ''">
+            ${_dataScope}
         </if>
         order by dept_name asc,dname asc,u.login_name asc
     </select>

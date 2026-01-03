@@ -993,6 +993,12 @@
             <if test='state != null and state != "" and state!="null" and state =="3"'>
                 AND s.state in (6)
             </if>
+            <if test="year != null and year != '' and year != 'null'">
+                AND (YEAR(DATE_ADD(s.signing_data, INTERVAL 1 MONTH)) = #{year} OR YEAR(DATE_ADD(s.validity_Date, INTERVAL 1 MONTH)) = #{year})
+            </if>
+            <if test="_dataScope != null and _dataScope != ''">
+                ${_dataScope}
+            </if>
             and s.top_name is not null and sis.earnedALL_Points is not null
         </where>
         order by yname asc, dname asc, u.login_name asc

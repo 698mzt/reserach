@@ -12,6 +12,7 @@ import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.system.domain.*;
+import com.ruoyi.common.core.domain.entity.SysDept;
 import com.ruoyi.system.service.*;
 import org.apache.ibatis.annotations.Param;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -52,6 +54,9 @@ public class StatsQueryController extends BaseController {
 
     @Autowired
     private ISysUserService userService;
+    @Autowired
+    private ISysDeptService deptService;
+    
     @GetMapping("")
     String view(ModelMap mmap) {
 
@@ -71,7 +76,87 @@ public class StatsQueryController extends BaseController {
 //            }
 //        }
         mmap.put("sysUsers", userList);
+        
+        // 获取学院专业数据
+        List<Map<String, Object>> collegeMajorData = buildCollegeMajorData();
+        mmap.put("collegeMajorData", collegeMajorData);
+        
         return prefix + "/viewToCheck";
+    }
+    
+    /**
+     * 构建学院专业数据，用于前端 cxSelect 组件
+     * 格式：[{v: null, n: '学院', s: [{v: null, n: '专业'}]}, {v: '学院ID', n: '学院名称', s: [{v: '专业ID', n: '专业名称'}]}]
+     */
+    private List<Map<String, Object>> buildCollegeMajorData() {
+        List<Map<String, Object>> result = new ArrayList<>();
+        
+        // 添加默认选项
+        Map<String, Object> defaultOption = new HashMap<>();
+        defaultOption.put("v", null);
+        defaultOption.put("n", "学院");
+        List<Map<String, Object>> defaultSubOptions = new ArrayList<>();
+        Map<String, Object> defaultSubOption = new HashMap<>();
+        defaultSubOption.put("v", null);
+        defaultSubOption.put("n", "专业");
+        defaultSubOptions.add(defaultSubOption);
+        defaultOption.put("s", defaultSubOptions);
+        result.add(defaultOption);
+        
+        // 获取所有部门
+        SysDept deptQuery = new SysDept();
+        deptQuery.setStatus("0"); // 只获取正常状态的部门
+        List<SysDept> allDepts = deptService.selectDeptList(deptQuery);
+        
+        // 找出所有学院（parent_id = 100 的部门）
+        List<SysDept> colleges = allDepts.stream()
+                .filter(dept -> dept.getParentId() != null && dept.getParentId().equals(100L))
+                .sorted((d1, d2) -> {
+                    if (d1.getOrderNum() != null && d2.getOrderNum() != null) {
+                        return d1.getOrderNum().compareTo(d2.getOrderNum());
+                    }
+                    return d1.getDeptName().compareTo(d2.getDeptName());
+                })
+                .collect(Collectors.toList());
+        
+        // 为每个学院构建数据
+        for (SysDept college : colleges) {
+            Map<String, Object> collegeMap = new HashMap<>();
+            collegeMap.put("v", college.getDeptId().toString());
+            collegeMap.put("n", college.getDeptName());
+            
+            // 找出该学院下的所有专业（parent_id = 学院ID 的部门）
+            List<Map<String, Object>> majors = new ArrayList<>();
+            
+            // 添加"空"选项
+            Map<String, Object> emptyOption = new HashMap<>();
+            emptyOption.put("v", "null");
+            emptyOption.put("n", "空");
+            majors.add(emptyOption);
+            
+            // 添加专业
+            List<SysDept> collegeMajors = allDepts.stream()
+                    .filter(dept -> dept.getParentId() != null && dept.getParentId().equals(college.getDeptId()))
+                    .sorted((d1, d2) -> {
+                        if (d1.getOrderNum() != null && d2.getOrderNum() != null) {
+                            return d1.getOrderNum().compareTo(d2.getOrderNum());
+                        }
+                        return d1.getDeptName().compareTo(d2.getDeptName());
+                    })
+                    .collect(Collectors.toList());
+            
+            for (SysDept major : collegeMajors) {
+                Map<String, Object> majorMap = new HashMap<>();
+                majorMap.put("v", major.getDeptId().toString());
+                majorMap.put("n", major.getDeptName());
+                majors.add(majorMap);
+            }
+            
+            collegeMap.put("s", majors);
+            result.add(collegeMap);
+        }
+        
+        return result;
     }
     @PostMapping("/list")
     @ResponseBody
@@ -153,7 +238,7 @@ public class StatsQueryController extends BaseController {
                 List<SysReward> statsQuery = sysRewardService.getStatsQuery(params);
                 return getDataTable(statsQuery);
             } else if ("8".equals(remark)) {
-                // 获取项目类别8的数据（讲座报告）
+                // 获取项目类别8的数据（讲座报告） SciLectureReportOpinion
                 List<SciLectureReportOpinion> statsQuery = sciLectureReportService.getStatsQuery(params);
                 return getDataTable(statsQuery);
             }
@@ -274,7 +359,7 @@ public class StatsQueryController extends BaseController {
                     ExcelUtil<SysReward> util = new ExcelUtil<SysReward>(SysReward.class);
                     return util.exportExcel(exportList, "奖励数据");
                 } else if ("8".equals(remark)) {
-                    // 获取项目类别8的数据（讲座报告）导出
+                    // 获取项目类别8的数据（讲座报告）导出 SciLectureReportOpinion
                     List<SciLectureReportOpinion> exportList = sciLectureReportService.getStatsQuery( params);
                     exportList = exportList.stream().map(item -> {
                         item.setState(item.getStateDes());
@@ -292,7 +377,8 @@ public class StatsQueryController extends BaseController {
 
     @PostMapping("/listToCheck")
     @ResponseBody
-    public TableDataInfo listToCheck(@RequestParam Map<String, String> params) {
+    public TableDataInfo listToCheck(@RequestParam Map<String, String> params,String year) {
+        System.out.println("year = " + year);
         // 如果前端传递了noData标志，说明是初始加载，返回空数据
         if ("true".equals(params.get("noData"))) {
             return getDataTable(new ArrayList<>());
@@ -303,7 +389,7 @@ public class StatsQueryController extends BaseController {
         SysUser sysUser = getSysUser();
         //学院
         if (role_str.equals("dept_teacher")) {
-            params.put("Pcollege",sysUser.getParentId().toString());
+            params.put("college",sysUser.getParentId().toString());
         }
         //科研处
         else if (role_str.equals("sci_tesearch")) {
@@ -320,6 +406,9 @@ public class StatsQueryController extends BaseController {
         else if (role_str.equals("teacher")) {
             params.put("userId",getUserId().toString());
 
+        }
+        if (year!=null){
+            params.put("year",year);
         }
         // 获取分页参数，添加默认值避免 null
         String offsetStr = params.getOrDefault("offset", "0");
@@ -370,7 +459,7 @@ public class StatsQueryController extends BaseController {
                 List<SysReward> statsQuery = sysRewardService.getStatsQueryToCheck(params);
                 return getDataTable(statsQuery);
             } else if ("8".equals(remark)) {
-                // 获取项目类别8的数据（讲座报告）
+                // 获取项目类别8的数据（讲座报告） SciLectureReportOpinion
                 List<SciLectureReport> statsQuery = sciLectureReportService.getStatsQueryToCheck(params);
                 return getDataTable(statsQuery);
             }
@@ -768,8 +857,12 @@ public class StatsQueryController extends BaseController {
                     return util.exportExcel(exportList, "奖励核算数据");
                 }
                 else if ("8".equals(remark)) {
-                    // 获取项目类别8的数据（讲座报告）导出
+                    // 获取项目类别8的数据（讲座报告）导出 SciLectureReport
                     List<SciLectureReport> exportList = sciLectureReportService.getStatsQueryToCheck(params);
+                    exportList = exportList.stream().map(item -> {
+                        item.setState(item.getStateDes());
+                        return item;
+                    }).collect(Collectors.toList());
                     ExcelUtil<SciLectureReport> util = new ExcelUtil<SciLectureReport>(SciLectureReport.class);
                     return util.exportExcel(exportList, "讲座报告核算数据");
                 }

@@ -1,6 +1,7 @@
 package com.ruoyi.system.service.impl;
 
 import com.ruoyi.common.annotation.DataScope;
+import com.ruoyi.common.utils.DataScopeUtils;
 import com.ruoyi.common.core.text.Convert;
 import com.ruoyi.system.domain.SciHorizontalApply;
 import com.ruoyi.system.domain.SciHorizontalPiyue;
@@ -420,7 +421,10 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
     }
 
     @Override
+    @DataScope(deptAlias = "d",userAlias = "u")
     public List<SciIntraSchoolPro> getStatsQueryToCheck(Map<String, String> params) {
+        // 手动处理数据权限，因为 @DataScope 只支持 BaseEntity 类型，而这里使用的是 Map
+        DataScopeUtils.applyDataScopeToMap(params, "d", "u", "");
         return sciIntraSchProApplyMapper.getStatsQueryToCheck(params);
     }
 }
