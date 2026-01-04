@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.ruoyi.common.annotation.DataScope;
+import com.ruoyi.common.utils.DataScopeUtils;
 import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.system.domain.SciHorizontalPiyue;
 import com.ruoyi.system.domain.SciJiaocairuanzhuPiyue;
@@ -339,7 +340,10 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
     }
 
     @Override
+    @DataScope(deptAlias = "d",userAlias = "u")
     public List<SciJiaocairuanzhu> getStatsQueryToCheck(Map<String, String> params) {
+        // 手动处理数据权限，因为 @DataScope 只支持 BaseEntity 类型，而这里使用的是 Map
+        DataScopeUtils.applyDataScopeToMap(params, "d", "u", "");
         return sciJiaocairuanzhuMapper.getStatsQueryToCheck(params);
     }
 }

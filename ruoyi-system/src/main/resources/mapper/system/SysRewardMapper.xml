@@ -306,7 +306,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         s.reward_name,
         s.jifen,
         s.reward_leixing,
-        s.state
+        s.state,
+        s.reward_time
         from
         sys_reward s
         left join sys_user u on
@@ -342,6 +343,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </if>
         <if test='state != null and state != "" and state!="null" and state =="3"'>
             AND s.state in (6)
+        </if>
+        <if test="year != null and year != '' and year != 'null'">
+            AND YEAR(DATE_ADD(s.reward_time, INTERVAL 1 MONTH)) = #{year}
+        </if>
+        <if test="_dataScope != null and _dataScope != ''">
+            ${_dataScope}
         </if>
         order by yname asc,dname asc,u.login_name asc
     </select>

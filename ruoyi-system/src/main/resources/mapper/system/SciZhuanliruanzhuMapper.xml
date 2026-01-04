@@ -373,7 +373,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         u.user_name userName,
         s.mingcheng,
         s.jifen,
-        s.state
+        s.state,
+        s.huopishijain
         from
         sci_zhuanliruanzhu s
         left join sys_user u on
@@ -409,6 +410,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </if>
         <if test='state != null and state != "" and state!="null" and state =="3"'>
             AND s.state in (6)
+        </if>
+        <if test="year != null and year != '' and year != 'null'">
+            AND YEAR(DATE_ADD(s.huopishijain, INTERVAL 1 MONTH)) = #{year}
+        </if>
+        <if test="_dataScope != null and _dataScope != ''">
+            ${_dataScope}
         </if>
         order by yname asc,dname asc,u.login_name asc
     </select>

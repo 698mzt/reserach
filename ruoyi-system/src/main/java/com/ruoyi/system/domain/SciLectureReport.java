@@ -24,6 +24,7 @@ public class SciLectureReport extends BaseEntity
     /** 年份 -- 查询*/
     private String year;
     /** 状态 */
+    @Excel(name = "状态")
     private String state;
     /** 当前登录用户id */
     private Long uid;
@@ -342,5 +343,32 @@ public class SciLectureReport extends BaseEntity
             .append("reportClassify", getReportClassify())
             .append("reportKeyanfen", getReportKeyanfen())
             .toString();
+    }
+
+    public String getStateDes() {
+        if (this.state == null) {
+            return "";
+        }
+        switch (this.state) {
+
+            case "1":
+                return "待教研室处理";
+            case "2":
+                return "待科研处处理";
+            case "3":
+                return "教研室驳回";
+            case "4":
+                return "已通过";
+            case "5":
+                return "科研处驳回";
+            case "6":
+                return "待学院处理";
+            case "7":
+                return "学院驳回";
+            case "0":
+                return "草稿箱";
+
+        }
+        return this.state;
     }
 }

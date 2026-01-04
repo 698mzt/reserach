@@ -295,7 +295,8 @@
         u.user_name userName,
         s.mingcheng,
         s.jifen,
-        s.state
+        s.state,
+        s.chubanshijian
         from
         sci_jiaocairuanzhu s
         left join sys_user u on
@@ -331,6 +332,12 @@
         </if>
         <if test='state != null and state != "" and state!="null" and state =="3"'>
             AND s.state in (6)
+        </if>
+        <if test="year != null and year != '' and year != 'null'">
+            AND YEAR(DATE_ADD(s.chubanshijian, INTERVAL 1 MONTH)) = #{year}
+        </if>
+        <if test="_dataScope != null and _dataScope != ''">
+            ${_dataScope}
         </if>
         order by yname asc,dname asc,u.login_name asc
         </select>

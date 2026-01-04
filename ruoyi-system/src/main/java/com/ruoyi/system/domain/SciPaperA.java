@@ -110,6 +110,7 @@ public class SciPaperA extends BaseEntity {
     /**
      * 论文名称
      */
+    @Excel(name = "论文名称")
     private String paperTitle;
 
     /**
@@ -136,6 +137,7 @@ public class SciPaperA extends BaseEntity {
     /**
      * 发表时间
      */
+    @Excel(name = "发表时间")
     private String publicationTime;
 
     private String text_paper;
@@ -258,6 +260,48 @@ public class SciPaperA extends BaseEntity {
     // 是否独立作者
     private String isIndependentauthor ;
     private String totalTeacherScore;
+    @Excel(name = "第几作者")
+    private String authorOrder;
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public String getLoginName() {
+        return loginName;
+    }
+
+    public void setLoginName(String loginName) {
+        this.loginName = loginName;
+    }
+
+    public Integer getParticipantUserId() {
+        return participantUserId;
+    }
+
+    public void setParticipantUserId(Integer participantUserId) {
+        this.participantUserId = participantUserId;
+    }
+
+    public String getChangeValue() {
+        return changeValue;
+    }
+
+    public void setChangeValue(String changeValue) {
+        this.changeValue = changeValue;
+    }
+
+    public String getAuthorOrder() {
+        return authorOrder;
+    }
+
+    public void setAuthorOrder(String authorOrder) {
+        this.authorOrder = authorOrder;
+    }
 
     public String getTotalTeacherScore() {
         return totalTeacherScore;

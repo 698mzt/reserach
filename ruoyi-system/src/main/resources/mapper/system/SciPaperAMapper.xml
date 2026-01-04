@@ -61,6 +61,7 @@
         <result property="participantUserId"    column="participant_user_id"    />
         <result property="changeValue"    column="change_value"    />
         <result property="userName"    column="userName"    />
+        <result property="authorOrder"    column="author_order"    />
     </resultMap>
 
     <sql id="selectSciPaperAVo">
@@ -851,7 +852,9 @@
         spa.published_journal ,
         spa.paper_title ,
         pa.score as change_value,
-        spa.state
+        spa.state,
+        spa.publication_time,
+        pa.author_order
         from
         paper_author pa
         left join sci_paper_a spa on
@@ -890,6 +893,12 @@
         </if>
         <if test='state != null and state != "" and state!="null" and state =="3"'>
             AND spa.state in (8)
+        </if>
+        <if test="year != null and year != '' and year != 'null'">
+            AND YEAR(DATE_ADD(spa.publication_time, INTERVAL 1 MONTH)) = #{year}
+        </if>
+        <if test="_dataScope != null and _dataScope != ''">
+            ${_dataScope}
         </if>
         and pa.user_id != '-1'
         and spa.paper_title is not null
