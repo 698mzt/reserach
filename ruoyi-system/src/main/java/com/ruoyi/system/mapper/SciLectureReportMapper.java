@@ -85,7 +85,7 @@ public interface SciLectureReportMapper
 //    int SciLectureReportOverAdd(@Param("id") Integer id, @Param("actualNumber") Integer actualNumber, @Param("actualTime") String actualTime);
     int SciLectureReportOverAdd(SciLectureReport sciLectureReport);
 
-    List<SciLectureReportOpinion> getStatsQuery(Map<String, String> params);
+    List<SciLectureReport> getStatsQuery(Map<String, String> params);
 
     /**
      * 核算查询讲座报告数据

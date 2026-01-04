@@ -239,7 +239,7 @@ public class StatsQueryController extends BaseController {
                 return getDataTable(statsQuery);
             } else if ("8".equals(remark)) {
                 // 获取项目类别8的数据（讲座报告） SciLectureReportOpinion
-                List<SciLectureReportOpinion> statsQuery = sciLectureReportService.getStatsQuery(params);
+                List<SciLectureReport> statsQuery = sciLectureReportService.getStatsQuery(params);
                 return getDataTable(statsQuery);
             }
         } else {
@@ -359,13 +359,13 @@ public class StatsQueryController extends BaseController {
                     ExcelUtil<SysReward> util = new ExcelUtil<SysReward>(SysReward.class);
                     return util.exportExcel(exportList, "奖励数据");
                 } else if ("8".equals(remark)) {
-                    // 获取项目类别8的数据（讲座报告）导出 SciLectureReportOpinion
-                    List<SciLectureReportOpinion> exportList = sciLectureReportService.getStatsQuery( params);
+                    // 获取项目类别8的数据（讲座报告）导出
+                    List<SciLectureReport> exportList = sciLectureReportService.getStatsQuery( params);
                     exportList = exportList.stream().map(item -> {
                         item.setState(item.getStateDes());
                         return item;
                     }).collect(Collectors.toList());
-                    ExcelUtil<SciLectureReportOpinion> util = new ExcelUtil<SciLectureReportOpinion>(SciLectureReportOpinion.class);
+                    ExcelUtil<SciLectureReport> util = new ExcelUtil<SciLectureReport>(SciLectureReport.class);
                     return util.exportExcel(exportList, "讲座报告数据");
                 }
             }

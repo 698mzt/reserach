@@ -102,7 +102,7 @@ public interface ISciLectureReportService
 
     int SciLectureReportOverAdd(SciLectureReport sciLectureReport);
 
-    List<SciLectureReportOpinion> getStatsQuery(Map<String, String> params);
+    List<SciLectureReport> getStatsQuery(Map<String, String> params);
 
     /**
      * 核算查询讲座报告数据
