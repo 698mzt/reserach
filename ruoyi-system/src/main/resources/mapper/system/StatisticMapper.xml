@@ -49,12 +49,7 @@
         from alltotle_score ac
         left join sys_user su on su.user_id  = ac.userId
         <where>
-            <if test="dictValue != null and dictValue.size() > 0">
-                AND partenId IN
-                <foreach collection="dictValue" item="dictValue" open="(" separator="," close=")">
-                    #{dictValue}
-                </foreach>
-            </if>
+
             <if test="pname != null and pname != ''">
                 AND partenName LIKE CONCAT('%', #{pname}, '%')
             </if>

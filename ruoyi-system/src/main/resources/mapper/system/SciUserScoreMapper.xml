@@ -7,6 +7,7 @@
     <resultMap  id="SciUserScoreResult" type="SciUserScore">
         <result property="userId" column="user_id"/>
         <result property="applyId" column="apply_id"/>
+        <result property="verticalId" column="vertical_id"/>
         <result property="changeStatus" column="change_status"/>
         <result property="scoreType" column="score_type"/>
         <result property="changeValue" column="change_value"/>
@@ -52,8 +53,25 @@
     <select id="selectScoreHistoryById" parameterType="Integer" resultMap="SciUserScoreResult">
         select s.user_id,s.apply_id,s.change_value from sci_user_score_history s where s.apply_id = #{id}
     </select>
+    
+    <select id="selectScoreHistoryByApplyIds" parameterType="java.util.Set" resultMap="SciUserScoreResult">
+        select s.user_id,s.apply_id,s.change_value from sci_user_score_history s 
+        where s.apply_id in
+        <foreach collection="applyIds" item="applyId" open="(" separator="," close=")">
+            #{applyId}
+        </foreach>
+    </select>
+    
     <select id="selectScoreVerticalById" parameterType="Integer" resultMap="SciUserScoreResult">
         select s.user_id,s.vertical_id,s.change_value from sci_user_score_vertical s where s.vertical_id = #{id}
+    </select>
+    
+    <select id="selectScoreVerticalByApplyIds" parameterType="java.util.Set" resultMap="SciUserScoreResult">
+        select s.user_id,s.vertical_id,s.change_value from sci_user_score_vertical s 
+        where s.vertical_id in
+        <foreach collection="applyIds" item="applyId" open="(" separator="," close=")">
+            #{applyId}
+        </foreach>
     </select>
 
     <delete id="deleteScoreById">

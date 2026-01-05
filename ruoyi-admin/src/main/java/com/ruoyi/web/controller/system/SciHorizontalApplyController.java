@@ -239,23 +239,42 @@ public class SciHorizontalApplyController extends BaseController
 
 //        计算分
         if(!distinctList.isEmpty()){
+            // 批量获取所有相关的积分记录
+            Set<Integer> applyIds = distinctList.stream()
+                    .map(SciHorizontalApply::getId)
+                    .collect(Collectors.toSet());
+            
+            // 从数据库批量查询积分记录
+            List<SciUserScore> allScores = sciUserScoreMapper.selectScoreHistoryByApplyIds(applyIds);
+            
+            // 构建按applyId分组的积分映射，过滤掉applyId为null的记录
+            Map<String, List<SciUserScore>> scoreMap = allScores.stream()
+                    .filter(score -> score.getApplyId() != null) // 过滤掉applyId为null的记录
+                    .collect(Collectors.groupingBy(SciUserScore::getApplyId, 
+                            Collectors.toList()));
+            
+            String currentUserId = getUserId().toString();
+            
             for (SciHorizontalApply apply: distinctList){
                 apply.setUserdnameId(did);
                 apply.setUserynameId(yid);
                 apply.setUid(getUserId());
-                List<SciUserScore> score = sciUserScoreMapper.selectScoreHistoryById(apply.getId());
+                
+                List<SciUserScore> score = scoreMap.getOrDefault(apply.getId().toString(), new ArrayList<>());
                 ArrayList<Integer> allscore = new ArrayList<>();
+                
                 for(SciUserScore score1: score){
-                    if (apply.getFirstPersonId().equals(score1.getUserId()) && apply.getFirstPersonId().equals(getUserId().toString()))
+                    if (apply.getFirstPersonId().equals(score1.getUserId()) && apply.getFirstPersonId().equals(currentUserId)) {
                         allscore.add(Integer.parseInt(score1.getChangeValue()));
-                    else if (apply.getSecondPersonId().equals(score1.getUserId()) && apply.getSecondPersonId().equals(getUserId().toString())){
+                    } else if (apply.getSecondPersonId().equals(score1.getUserId()) && apply.getSecondPersonId().equals(currentUserId)) {
                         allscore.add(Integer.parseInt(score1.getChangeValue()));
-                    }else if (apply.getThirdPersonId().equals(score1.getUserId()) && apply.getThirdPersonId().equals(getUserId().toString())){
+                    } else if (apply.getThirdPersonId().equals(score1.getUserId()) && apply.getThirdPersonId().equals(currentUserId)) {
                         allscore.add(Integer.parseInt(score1.getChangeValue()));
-                    }else if (apply.getFourthPersonId().equals(score1.getUserId()) && apply.getFourthPersonId().equals(getUserId().toString())){
+                    } else if (apply.getFourthPersonId().equals(score1.getUserId()) && apply.getFourthPersonId().equals(currentUserId)) {
                         allscore.add(Integer.parseInt(score1.getChangeValue()));
                     }
                 }
+                
                 Integer count = 0;
                 for (int i : allscore){
                     count += i;
