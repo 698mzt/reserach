@@ -9,6 +9,7 @@ public class SciUserScore extends BaseEntity
     private String userId;
     /**创建数据id*/
     private String VerticalId;
+
     private String applyId;
     /**创建时间*/
     private String Createtime;

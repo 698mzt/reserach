@@ -35,6 +35,7 @@ public class DataSynchronizeTask {
    * 同步所有数据
    * 包括横向课题和纵向课题数据
    */
+//  todo:积分同步需要写（横向、纵向定时任务写完了）
   public void synchronizeAll() {
     // 同步用户数据
     SynchronizeUser();
@@ -95,7 +96,7 @@ public class DataSynchronizeTask {
     System.out.println("横向课题数据开始同步");
 //    个数
     synchronizeDataMapper.SynchronizeHX();
-//    积分
+//    积分（12/15修改，按年份查询）
     synchronizeDataMapper.SynchronizeScoreHX();
     System.out.println("横向课题数据同步完成");
   }
@@ -109,7 +110,7 @@ public class DataSynchronizeTask {
     System.out.println("纵向课题数据开始同步");
 //    个数
     synchronizeDataMapper.SynchronizeZX();
-//    积分
+//    积分（12/15修改，按年份查询）
 //    校级以上
     synchronizeDataMapper.SynchronizeScoreZXXJYS();
 //    校级
@@ -126,7 +127,7 @@ public class DataSynchronizeTask {
     System.out.println("成果转化数据开始同步");
 //    todo：这个同步数据 是否为同步个数
     synchronousAlltotle.synchronousAlltotle();
-//    todo：需要同步积分
+//    todo：需要同步积分,按年份查询
     alltotleScoreService.synchronousAlltotleScore();
     System.out.println("成果转化数据同步完成");
     //todo：缓存
