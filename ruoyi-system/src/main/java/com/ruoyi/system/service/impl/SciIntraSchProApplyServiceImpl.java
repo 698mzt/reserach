@@ -1,13 +1,14 @@
 package com.ruoyi.system.service.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import com.ruoyi.common.annotation.DataScope;
-import com.ruoyi.common.utils.DataScopeUtils;
 import com.ruoyi.common.core.text.Convert;
-import com.ruoyi.system.domain.SciHorizontalApply;
-import com.ruoyi.system.domain.SciHorizontalPiyue;
-import com.ruoyi.system.domain.SciIntraSchProPiyue;
+import com.ruoyi.common.utils.DateUtils;
+import com.ruoyi.common.utils.DataScopeUtils;
 import com.ruoyi.system.domain.SciIntraSchoolPro;
-import com.ruoyi.system.mapper.SciHorizontalPiyueMapper;
 import com.ruoyi.system.mapper.SciIntraSchProApplyMapper;
 import com.ruoyi.system.mapper.SciIntraSchProPiyueMapper;
 import com.ruoyi.system.mapper.SciIntraSchProScoreMapper;
@@ -16,8 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Map;
+import com.ruoyi.system.domain.SciIntraSchProPiyue;
 
 @Service
 public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyService {
@@ -426,6 +426,48 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
         // 手动处理数据权限，因为 @DataScope 只支持 BaseEntity 类型，而这里使用的是 Map
         DataScopeUtils.applyDataScopeToMap(params, "d", "u", "");
         return sciIntraSchProApplyMapper.getStatsQueryToCheck(params);
+    }
+    
+    @Override
+    public List<String> selectPersionIdsByIntraSchId(Integer id) {
+        // 根据成果转化ID查询所有成员ID，包括前四个固定成员和动态成员
+        SciIntraSchoolPro sciIntraSchoolPro = sciIntraSchProApplyMapper.sel_IntraSchPro_by_id(id);
+        List<String> personIds = new ArrayList<>();
+        
+        if (sciIntraSchoolPro != null) {
+            // 添加前四个固定成员
+            if (sciIntraSchoolPro.getFirstPersonId() != null && !sciIntraSchoolPro.getFirstPersonId().isEmpty() 
+                && !sciIntraSchoolPro.getFirstPersonId().equals("-1") && !sciIntraSchoolPro.getFirstPersonId().equals("null")) {
+                personIds.add(sciIntraSchoolPro.getFirstPersonId());
+            }
+            
+            if (sciIntraSchoolPro.getSecondPersonId() != null && !sciIntraSchoolPro.getSecondPersonId().isEmpty() 
+                && !sciIntraSchoolPro.getSecondPersonId().equals("-1") && !sciIntraSchoolPro.getSecondPersonId().equals("null")) {
+                personIds.add(sciIntraSchoolPro.getSecondPersonId());
+            }
+            
+            if (sciIntraSchoolPro.getThirdPersonId() != null && !sciIntraSchoolPro.getThirdPersonId().isEmpty() 
+                && !sciIntraSchoolPro.getThirdPersonId().equals("-1") && !sciIntraSchoolPro.getThirdPersonId().equals("null")) {
+                personIds.add(sciIntraSchoolPro.getThirdPersonId());
+            }
+            
+            if (sciIntraSchoolPro.getFourthPersonId() != null && !sciIntraSchoolPro.getFourthPersonId().isEmpty() 
+                && !sciIntraSchoolPro.getFourthPersonId().equals("-1") && !sciIntraSchoolPro.getFourthPersonId().equals("null")) {
+                personIds.add(sciIntraSchoolPro.getFourthPersonId());
+            }
+            
+            // 添加动态成员（如果存在）
+            if (sciIntraSchoolPro.getMembers() != null && !sciIntraSchoolPro.getMembers().isEmpty()) {
+                for (String member : sciIntraSchoolPro.getMembers()) {
+                    if (member != null && !member.isEmpty() 
+                        && !member.equals("-1") && !member.equals("null")) {
+                        personIds.add(member);
+                    }
+                }
+            }
+        }
+        
+        return personIds;
     }
 }
 

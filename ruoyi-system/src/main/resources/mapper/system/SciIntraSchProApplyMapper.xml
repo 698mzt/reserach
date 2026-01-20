@@ -7,7 +7,8 @@
         <result property="id"    column="id"    />
         <result property="userId"    column="user_id"    />
         <result property="topName"    column="top_name"    />
-        <result property="topType"    column="top_type"    />
+        <!-- 删除课题类型字段 -->
+        <!-- <result property="topType"    column="top_type"    /> -->
         <result property="client"    column="client"    />
         <result property="undertaking"    column="undertaking"    />
         <result property="contacta"    column="contacta"    />
@@ -46,8 +47,7 @@
 
     <select id="sel_IntraSchPro_isOVER" parameterType="SciIntraSchoolPro" resultMap="SciIntraSchoolProResult">
         select
-            #{uid} uid, s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,
-            s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id,
+            #{uid} uid, s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id,
             concat( s.amount,'万') amount, s.contract, s.filing, s.state ,s.PA ,s.PB,
         MAX(CASE WHEN s.first_person_id = sc.userid AND s.id = sc.sciIntraSch_Id THEN sc.earnedALL_Points END) AS firstPoints,
         MAX(CASE WHEN s.second_person_id = sc.userid AND s.id = sc.sciIntraSch_Id THEN sc.earnedALL_Points END) AS secondPoints,
@@ -66,7 +66,7 @@
         <if test="dname != null  and dname != ''"> and d.dept_name like concat('%', #{dname}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
         <!-- 数据范围过滤 -->
-        <!--${params.dataScope}-->
+        /*${params.dataScope}*/
         GROUP BY
         s.id,
         u.user_name,
@@ -74,7 +74,6 @@
         p.dept_name,
         s.user_id,
         s.top_name,
-        s.top_type,
         s.signing_data,
         s.validity_Date,
         s.first_person_id,
@@ -91,8 +90,7 @@
     </select>
     <select id="sel_my_IntraSchPro_isOVER" parameterType="SciIntraSchoolPro" resultMap="SciIntraSchoolProResult">
         select
-        #{uid} uid, s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,
-        s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id,
+        #{uid} uid, s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id,
         concat( s.amount,'万') amount, s.contract, s.filing, s.state ,s.PA ,s.PB,
         MAX(CASE WHEN s.first_person_id = sc.userid AND s.id = sc.sciIntraSch_Id THEN sc.earnedALL_Points END) AS firstPoints,
         MAX(CASE WHEN s.second_person_id = sc.userid AND s.id = sc.sciIntraSch_Id THEN sc.earnedALL_Points END) AS secondPoints,
@@ -127,7 +125,6 @@
         p.dept_name,
         s.user_id,
         s.top_name,
-        s.top_type,
         s.signing_data,
         s.validity_Date,
         s.first_person_id,
@@ -147,8 +144,7 @@
 
     <select id="sel_IntraSchPro_approval_ky" parameterType="SciIntraSchoolPro" resultMap="SciIntraSchoolProResult">
         select
-        'sci_tesearch' role,#{uid} uid, s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,
-        s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id,
+        'sci_tesearch' role,#{uid} uid, s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id,
         concat( s.amount,'万') amount, s.contract, s.filing, s.state ,s.PA ,s.PB,
         MAX(CASE WHEN s.first_person_id = sc.userid AND s.id = sc.sciIntraSch_Id THEN sc.earned_Points END) AS firstPoints,
         MAX(CASE WHEN s.second_person_id = sc.userid AND s.id = sc.sciIntraSch_Id THEN sc.earned_Points END) AS secondPoints,
@@ -184,7 +180,7 @@
 
 
         <!-- 数据范围过滤 -->
-        <!--${params.dataScope}-->
+        /*${params.dataScope}*/
         GROUP BY
         s.id,
         u.user_name,
@@ -192,7 +188,6 @@
         p.dept_name,
         s.user_id,
         s.top_name,
-        s.top_type,
         s.signing_data,
         s.validity_Date,
         s.first_person_id,
@@ -213,8 +208,7 @@
         select
         'research' role,#{uid} uid,
         (SELECT dept_name FROM sys_dept WHERE dept_id=(SELECT dept_id from sys_user WHERE user_id=#{uid}))=d.dept_name deptNamekey,
-        s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,
-        s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id,
+        s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id,
         concat( s.amount,'万') amount, s.contract, s.filing, s.state ,s.PA ,s.PB,
         MAX(CASE WHEN s.first_person_id = sc.userid AND s.id = sc.sciIntraSch_Id THEN sc.earnedJT_Points END) AS firstPoints,
         MAX(CASE WHEN s.second_person_id = sc.userid AND s.id = sc.sciIntraSch_Id THEN sc.earnedJT_Points END) AS secondPoints,
@@ -269,7 +263,6 @@
         p.dept_name,
         s.user_id,
         s.top_name,
-        s.top_type,
         s.signing_data,
         s.validity_Date,
         s.first_person_id,
@@ -297,7 +290,6 @@
         p.dept_name AS yname,
         s.user_id,
         s.top_name,
-        s.top_type,
         s.signing_data,
         s.validity_Date,
         s.first_person_id,
@@ -350,7 +342,6 @@
         p.dept_name,
         s.user_id,
         s.top_name,
-        s.top_type,
         s.signing_data,
         s.validity_Date,
         s.first_person_id,
@@ -372,8 +363,7 @@
 
     <select id="sel_IntraSchPro_closure_ky" parameterType="SciIntraSchoolPro" resultMap="SciIntraSchoolProResult">
         select
-        'sci_tesearch' role,#{uid} uid, s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,
-        s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id,
+        'sci_tesearch' role,#{uid} uid, s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id,
         concat( s.amount,'万') amount, s.contract, s.filing, s.state ,s.PA ,s.PB,
         MAX(CASE WHEN s.first_person_id = sc.userid AND s.id = sc.sciIntraSch_Id THEN sc.earnedJT_Points END) AS firstPoints,
         MAX(CASE WHEN s.second_person_id = sc.userid AND s.id = sc.sciIntraSch_Id THEN sc.earnedJT_Points END) AS secondPoints,
@@ -413,7 +403,7 @@
 
 
         <!-- 数据范围过滤 -->
-        <!--${params.dataScope}-->
+        /*${params.dataScope}*/
         GROUP BY
         s.id,
         u.user_name,
@@ -421,7 +411,6 @@
         p.dept_name,
         s.user_id,
         s.top_name,
-        s.top_type,
         s.signing_data,
         s.validity_Date,
         s.first_person_id,
@@ -438,8 +427,7 @@
     </select>
     <select id="sel_IntraSchPro_closure_jy" parameterType="SciIntraSchoolPro" resultMap="SciIntraSchoolProResult">
         select
-        'research' role,#{uid} uid,(SELECT dept_name FROM sys_dept WHERE dept_id=(SELECT dept_id from sys_user WHERE user_id=#{uid}))=d.dept_name deptNamekey, s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,
-        s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id,
+        'research' role,#{uid} uid,(SELECT dept_name FROM sys_dept WHERE dept_id=(SELECT dept_id from sys_user WHERE user_id=#{uid}))=d.dept_name deptNamekey, s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id,
         concat( s.amount,'万') amount, s.contract, s.filing, s.state ,s.PA ,s.PB,
         MAX(CASE WHEN s.first_person_id = sc.userid AND s.id = sc.sciIntraSch_Id THEN sc.earnedJT_Points END) AS firstPoints,
         MAX(CASE WHEN s.second_person_id = sc.userid AND s.id = sc.sciIntraSch_Id THEN sc.earnedJT_Points END) AS secondPoints,
@@ -485,7 +473,6 @@
         p.dept_name,
         s.user_id,
         s.top_name,
-        s.top_type,
         s.signing_data,
         s.validity_Date,
         s.first_person_id,
@@ -503,8 +490,7 @@
     </select>
     <select id="sel_IntraSchPro_closure_my" parameterType="SciIntraSchoolPro" resultMap="SciIntraSchoolProResult">
         select
-        'teacher' role,#{uid} uid, s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,
-        s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id,
+        'teacher' role,#{uid} uid, s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id,
         concat( s.amount,'万') amount, s.contract, s.filing, s.state ,s.PA ,s.PB,
         MAX(CASE WHEN s.first_person_id = sc.userid AND s.id = sc.sciIntraSch_Id THEN sc.earnedJT_Points END) AS firstPoints,
         MAX(CASE WHEN s.second_person_id = sc.userid AND s.id = sc.sciIntraSch_Id THEN sc.earnedJT_Points END) AS secondPoints,
@@ -540,7 +526,6 @@
         p.dept_name,
         s.user_id,
         s.top_name,
-        s.top_type,
         s.signing_data,
         s.validity_Date,
         s.first_person_id,
@@ -562,7 +547,8 @@
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="userId != null">user_id,</if>
             <if test="topName != null and topName != ''">top_name,</if>
-            <if test="topType != null and topType != ''">top_type,</if>
+            <!-- 删除课题类型字段 -->
+            <!-- <if test="topType != null and topType != ''">top_type,</if> -->
             <if test="signingData != null and signingData != ''">signing_data,</if>
             <if test="validityDate != null and validityDate != ''">validity_Date,</if>
             <if test="firstPersonId != null and firstPersonId != ''">first_person_id,</if>
@@ -579,8 +565,8 @@
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="userId != null">#{userId},</if>
             <if test="topName != null and topName != ''">#{topName},</if>
-            <if test="topType != null and topType != ''">#{topType},</if>
-
+            <!-- 删除课题类型字段 -->
+            <!-- <if test="topType != null and topType != ''">#{topType},</if> -->
             <if test="signingData != null and signingData != ''">#{signingData},</if>
             <if test="validityDate != null and validityDate != ''">#{validityDate},</if>
             <if test="firstPersonId != null and firstPersonId != ''">#{firstPersonId},</if>
@@ -597,7 +583,7 @@
     </insert>
 
     <select id="sel_IntraSchPro_by_id" parameterType="Integer" resultMap="SciIntraSchoolProResult">
-        select s.PA,s.PB,s.id,u.user_name userName, d.dept_name dname,s.user_id, s.top_name, s.top_type,  s.signing_data, s.validity_Date,s.createtime, s.over_contract,s.over_filing,s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id,  s.amount, amount, s.contract, s.filing, s.state
+        select s.PA,s.PB,s.id,u.user_name userName, d.dept_name dname,s.user_id, s.top_name, s.signing_data, s.validity_Date,s.createtime, s.over_contract,s.over_filing,s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id,  s.amount, amount, s.contract, s.filing, s.state
         from sci_IntraSchPro_apply s
             left join sys_user u on  s.user_id=u.user_id
             left join sys_dept d on u.dept_id = d.dept_id
@@ -617,10 +603,10 @@
         <trim prefix="SET" suffixOverrides=",">
             <if test="userId != null">user_id = #{userId},</if>
             <if test="topName != null and topName != ''">top_name = #{topName},</if>
-            <if test="topType != null and topType != ''">top_type = #{topType},</if>
-
+            <!-- 删除课题类型字段 -->
+            <!-- <if test="topType != null and topType != ''">top_type = #{topType},</if> -->
             <if test="pa != null and pa != ''">PA = #{pa},</if>
-            <if test="pb != null and pb != ''">PA = #{pb},</if>
+            <if test="pb != null and pb != ''">PB = #{pb},</if>
             <if test="signingData != null and signingData != ''">signing_data = #{signingData},</if>
             <if test="validityDate != null and validityDate != ''">validity_Date = #{validityDate},</if>
             <if test="firstPersonId != null and firstPersonId != ''">first_person_id = #{firstPersonId},</if>
@@ -656,8 +642,7 @@
     <!--admin登陆查看所有的完结校内横向-->
     <select id="sel_IntraSchPro_isOVER_admin" parameterType="SciIntraSchoolPro" resultMap="SciIntraSchoolProResult">
         select
-        #{uid} uid, s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,
-        s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id,
+        #{uid} uid, s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id,
         concat( s.amount,'万') amount, s.contract, s.filing, s.state ,s.PA ,s.PB
         from sci_IntraSchPro_apply s left join sys_user u on  s.user_id=u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
@@ -678,8 +663,7 @@
     <!--admin登陆查看处于开题流程的项目-->
     <select id="sel_IntraSchPro_approval_admin" parameterType="SciIntraSchoolPro" resultMap="SciIntraSchoolProResult">
         select
-        'admin' role,#{uid} uid, s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,
-        s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id,
+        'admin' role,#{uid} uid, s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id,
         concat( s.amount,'万') amount, s.contract, s.filing, s.state ,s.PA ,s.PB
         from sci_IntraSchPro_apply s left join sys_user u on  s.user_id=u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
@@ -700,8 +684,7 @@
     <!--admin登陆查看处于结题流程的项目-->
     <select id="sel_IntraSchPro_closure_admin" parameterType="SciIntraSchoolPro" resultMap="SciIntraSchoolProResult">
         select
-        'admin' role,#{uid} uid, s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,
-        s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id,
+        'admin' role,#{uid} uid, s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id,
         concat( s.amount,'万') amount, s.contract, s.filing, s.state ,s.PA ,s.PB
         from sci_IntraSchPro_apply s left join sys_user u on  s.user_id=u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
@@ -728,8 +711,7 @@
         select
         'dept_teacher' role,#{uid} uid,
         (SELECT parent_id FROM sys_dept WHERE dept_id =( SELECT dept_id from sys_user WHERE user_id = #{uid}))= p.dept_id deptNamekey ,
-        s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,
-        s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id,
+        s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id,
         concat( s.amount,'万') amount, s.contract, s.filing, s.state ,s.PA ,s.PB
         from sci_IntraSchPro_apply s left join sys_user u on  s.user_id=u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
@@ -762,8 +744,7 @@
         select
         'dept_teacher' role,#{uid} uid,
         (SELECT parent_id FROM sys_dept WHERE dept_id =( SELECT dept_id from sys_user WHERE user_id = #{uid}))= p.dept_id deptNamekey ,
-        s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,
-        s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id,
+        s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id,
         concat( s.amount,'万') amount, s.contract, s.filing, s.state ,s.PA ,s.PB,
         MAX(CASE WHEN s.first_person_id = sc.userid AND s.id = sc.sciIntraSch_Id THEN sc.earnedJT_Points END) AS firstPoints,
         MAX(CASE WHEN s.second_person_id = sc.userid AND s.id = sc.sciIntraSch_Id THEN sc.earnedJT_Points END) AS secondPoints,
@@ -801,7 +782,6 @@
         p.dept_name,
         s.user_id,
         s.top_name,
-        s.top_type,
         s.signing_data,
         s.validity_Date,
         s.first_person_id,
@@ -819,8 +799,7 @@
 
     <select id="sel_IntraSchPro_isOVER_dept_teacher" parameterType="SciIntraSchoolPro" resultMap="SciIntraSchoolProResult">
         select
-        'dept_teacher' role ,#{uid} uid, s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,
-        s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id,
+        'dept_teacher' role ,#{uid} uid, s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id,
         concat( s.amount,'万') amount, s.contract, s.filing, s.state ,s.PA ,s.PB
         from sci_IntraSchPro_apply s
         left join sys_user u on s.user_id=u.user_id
@@ -949,15 +928,14 @@
         s.validity_Date,
         s.amount,
         s.state,
-        s.top_type,
+        s.PA,
+        s.PB,
         sis.earnedALL_Points as change_value,
         sis.sciIntraSchResponTier as ranking,
         u.login_name,
         u.adminstrative_title,
         u.social_title,
         u.tea_zhicheng,
-        s.PA,
-        s.PB,
         u.user_name as userName,
         d.dept_name as dname,
         p.dept_name as yname
@@ -999,8 +977,6 @@
             <if test="_dataScope != null and _dataScope != ''">
                 ${_dataScope}
             </if>
-            and s.top_name is not null and sis.earnedALL_Points is not null
         </where>
-        order by yname asc, dname asc, u.login_name asc
     </select>
 </mapper>

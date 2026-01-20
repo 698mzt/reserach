@@ -73,8 +73,14 @@ public interface ISciIntraSchProApplyService {
      * 核算查询成果转化数据
      *
      * @param params 查询参数
-     * @return 成果转化集合
      */
     List<SciIntraSchoolPro> getStatsQueryToCheck(Map<String, String> params);
+
+    /**
+     * 根据成果转化ID查询所有成员ID
+     * @param id 成果转化ID
+     * @return 所有成员ID列表
+     */
+    List<String> selectPersionIdsByIntraSchId(Integer id);
 
 }

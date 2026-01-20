@@ -7,6 +7,33 @@
     <th:block th:include="include :: datetimepicker-css"/>
     <th:block th:include="include :: bootstrap-fileinput-css"/>
     <th:block th:include="include :: select2-css"/>
+    <style>
+        .member-item {
+            margin-bottom: 8px;
+        }
+        .more-members-section {
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+        }
+        .add-member-btn-wrapper {
+            margin-top: 10px;
+        }
+        .score-info {
+            color: #999;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        .score-display {
+            margin-top: 5px;
+            padding: 5px 10px;
+            background-color: #f5f5f5;
+            border-radius: 4px;
+        }
+        .score-item {
+            margin: 3px 0;
+        }
+    </style>
 </head>
 <body class="white-bg">
 
@@ -24,7 +51,8 @@
                 </div>
             </div>
         </div>
-        <div class="col-xs-6">
+        <!-- 删除课题类型字段 -->
+        <!-- <div class="col-xs-6">
             <div class="form-group">
                 <label class="col-sm-4 control-label is-required">课题类型：</label>
                 <div class="col-sm-8">
@@ -36,10 +64,10 @@
                     </select>
                 </div>
             </div>
-        </div>
+        </div> -->
         <div class="col-xs-6">
             <div class="form-group">
-                <label class="col-sm-4 control-label is-required">课题名称：</label>
+                <label class="col-sm-4 control-label is-required">成果名称：</label>
                 <div class="col-sm-8">
                     <input name="topName" class="form-control" type="text" required>
                 </div>
@@ -76,7 +104,7 @@
 
         <div class="col-xs-6">
             <div class="form-group">
-                <label class="col-sm-4 control-label is-required">立项日期：</label>
+                <label class="col-sm-4 control-label is-required">转化日期：</label>
                 <div class="col-sm-8">
                     <div class="input-group date">
                         <input autocomplete="off" name="signingData" class="form-control" placeholder="yyyy-MM-dd"
@@ -87,7 +115,8 @@
                 </div>
             </div>
         </div>
-        <div class="col-xs-6">
+        <!-- 删除结项日期字段 -->
+        <!-- <div class="col-xs-6">
             <div class="form-group">
                 <label class="col-sm-4 control-label is-required">结项日期：</label>
                 <div class="col-sm-8">
@@ -95,12 +124,12 @@
                         <input autocomplete="off" name="validityDate" class="form-control" placeholder="yyyy-MM-dd"
                                type="text"
                                required>
-                        <!--                        <input  autocomplete="off" name="validityDatee" class="form-control" placeholder="待申请结项时填写" type="text" readonly>-->
+                        
                         <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
                     </div>
                 </div>
             </div>
-        </div>
+        </div> -->
 
         <div class="col-xs-6">
             <div class="form-group">
@@ -120,8 +149,7 @@
             <div class="form-group">
                 <label class="col-sm-4 control-label">第二负责人：</label>
                 <div class="col-sm-8">
-
-                    <select name="secondPersonId" class="form-control m-b" id="secondPersonId">
+                    <select name="secondPersonId" class="form-control m-b" id="secondPersonId" onchange="updateMemberLists()">
                         <option value="" selected>---其他--</option>
                         <!--                        <option th:each="user : ${sysUsers} " th:text="${user.userName}" th:value="${user.userId}"></option>-->
                         <option th:each="user : ${sysUsers}"
@@ -138,7 +166,7 @@
             <div class="form-group">
                 <label class="col-sm-4 control-label ">第三负责人：</label>
                 <div class="col-sm-8">
-                    <select name="thirdPersonId" class="form-control m-b" id="thirdPersonId">
+                    <select name="thirdPersonId" class="form-control m-b" id="thirdPersonId" onchange="updateMemberLists()">
                         <option th:each="user : ${sysUsers}"
                                 th:text="${user.userName}"
                                 th:value="${user.userId}"
@@ -152,7 +180,7 @@
             <div class="form-group">
                 <label class="col-sm-4 control-label ">第四负责人：</label>
                 <div class="col-sm-8">
-                    <select name="fourthPersonId" class="form-control m-b" id="fourthPersonId">
+                    <select name="fourthPersonId" class="form-control m-b" id="fourthPersonId" onchange="updateMemberLists()">
                         <option value="" selected>--其他--</option>
                         <!--                        <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}"></option>-->
                         <option th:each="user : ${sysUsers}"
@@ -164,10 +192,42 @@
             </div>
         </div>
 
+        <!-- 科研分显示区域 -->
+        <div class="col-xs-12 score-display">
+            <div class="form-group">
+                <label class="col-sm-2 control-label">科研分分配：</label>
+                <div class="col-sm-10">
+                    <div class="score-item">
+                        <strong>科研分分配规则：</strong>根据项目金额，前四个负责人可获得相应科研分，后续添加成员不参与科研分分配。
+                    </div>
+                    <div class="score-item">
+                        <span id="score-info">项目金额未填写，科研分待计算</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 第5位及以后：可动态添加 -->
+        <div class="col-xs-12 more-members-section">
+            <div class="form-group">
+                <label class="col-sm-2 control-label">更多负责人：</label>
+                <div class="col-sm-10">
+                    <div id="memberContainer" class="row" style="margin-top: 5px; margin-left: 0px; margin-bottom: 10px;"></div>
+                    <div class="add-member-btn-wrapper">
+                        <button type="button" id="addMemberBtn" class="btn btn-white btn-sm" title="新增负责人">
+                            <i class="fa fa-plus-circle"></i> 增加负责人
+                        </button>
+                    </div>
+                    <div class="score-info">
+                        <strong>注意：</strong>第5位及以后的负责人不参与科研分分配。
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <div class="col-xs-6">
             <div class="form-group">
-                <label class="col-sm-4 control-label is-required">合同：</label>
+                <label class="col-sm-4 control-label is-required">转化合同：</label>
                 <div class="col-sm-8">
                     <input type="hidden" name="contract">
                     <div class="file-loading">
@@ -178,11 +238,23 @@
         </div>
         <div class="col-xs-6">
             <div class="form-group">
-                <label class="col-sm-4 control-label is-required">备案表：</label>
+                <label class="col-sm-4 control-label is-required">成果登记表：</label>
                 <div class="col-sm-8">
                     <input type="hidden" name="filing">
                     <div class="file-loading">
                         <input class="form-control file-upload2" id="filing" name="file" type="file">
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xs-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label is-required">成果扫描件：</label>
+                <div class="col-sm-8">
+                    <input type="hidden" name="overContract">
+                    <div class="file-loading">
+                        <input class="form-control file-upload3" id="overContract" name="file" type="file">
                     </div>
                 </div>
             </div>
@@ -247,6 +319,77 @@
         },
     })
 
+    // 根据项目金额计算科研分
+    function updateScoreDisplay() {
+        var amountStr = $("input[name='amount']").val().trim();
+        if (!amountStr) {
+            $("#score-info").text("项目金额未填写，科研分待计算");
+            return;
+        }
+        
+        var amount = parseFloat(amountStr);
+        if (isNaN(amount) || amount < 0) {
+            $("#score-info").text("项目金额格式错误");
+            return;
+        }
+        
+        // 根据金额范围计算科研分
+        var firstScore, secondScore, thirdScore, fourthScore;
+        
+        if (amount >= 20 && amount <= 50) {
+            // 经费到款20-50万元：第一排名：1540分，第二排名：700分，第三排名：280分，第四排名：140分
+            firstScore = 1540;
+            secondScore = 700;
+            thirdScore = 280;
+            fourthScore = 140;
+        } else if (amount >= 5 && amount < 10) {
+            // 经费到款5-10万元：第一排名：440分，第二排名：200分，第三排名：80分，第四排名：40分
+            firstScore = 440;
+            secondScore = 200;
+            thirdScore = 80;
+            fourthScore = 40;
+        } else if (amount >= 10 && amount < 20) {
+            // 对于10-20万之间的经费，按比例计算积分
+            var ratio = (20 - amount) / 10; // 金额越大，系数越小
+            firstScore = Math.round(440 + (1540 - 440) * (1 - ratio)); // 在440-1540之间插值
+            secondScore = Math.round(200 + (700 - 200) * (1 - ratio)); // 在200-700之间插值
+            thirdScore = Math.round(80 + (280 - 80) * (1 - ratio)); // 在80-280之间插值
+            fourthScore = Math.round(40 + (140 - 40) * (1 - ratio)); // 在40-140之间插值
+        } else if (amount > 50) {
+            // 对于超过50万的情况，使用最高积分
+            firstScore = 1540;
+            secondScore = 700;
+            thirdScore = 280;
+            fourthScore = 140;
+        } else if (amount >= 0.5 && amount < 5) {
+            // 对于0.5-5万之间的经费，按比例计算积分
+            firstScore = Math.round(440 * (amount / 5)); // 在0-440之间按比例计算
+            secondScore = Math.round(200 * (amount / 5)); // 在0-200之间按比例计算
+            thirdScore = Math.round(80 * (amount / 5)); // 在0-80之间按比例计算
+            fourthScore = Math.round(40 * (amount / 5)); // 在0-40之间按比例计算
+        } else {
+            // 低于0.5万或无效金额，返回0分
+            firstScore = 0;
+            secondScore = 0;
+            thirdScore = 0;
+            fourthScore = 0;
+        }
+        
+        $("#score-info").html(
+            "预计科研分分配：<br>" +
+            "第一负责人：" + firstScore + " 分，" +
+            "第二负责人：" + secondScore + " 分，" +
+            "第三负责人：" + thirdScore + " 分，" +
+            "第四负责人：" + fourthScore + " 分<br>" +
+            "<strong>注意：</strong>仅前四个负责人可获得科研分，后续添加成员不参与科研分分配。"
+        );
+    }
+
+    // 监听金额输入变化
+    $("input[name='amount']").on('input', function() {
+        updateScoreDisplay();
+    });
+
     function submitHandler() {
         if ($.validate.form()) {
             // 新增验证逻辑
@@ -257,6 +400,13 @@
             var fourth = $("#fourthPersonId").val();
 
             var fzrArray = [first, second, third, fourth].filter(item => item !== "");
+            
+            // 收集动态添加的负责人
+            $('.member-select').each(function(){
+                var val = $(this).val();
+                if (val) fzrArray.push(val);
+            });
+
             var uniquefzr = [...new Set(fzrArray)];
             //console.log('uniquefzr',uniquefzr);
             //console.log('fzrArray',fzrArray);
@@ -296,30 +446,18 @@
                 return;
             }
 
-            // 4. 结束时间不能小于开始时间
-            var startDate = new Date($("input[name='signingData']").val());
-            var endDate = new Date($("input[name='validityDate']").val());
-
-            if (endDate <= startDate) {
-                $.modal.alertWarning("结束时间不能早于开始时间");
-                return;
-            }
-
-            // 5. 开始时间不能小于当前时间
-            var currentDate = new Date();
-            currentDate.setHours(0, 0, 0, 0); // 重置时间部分以便比较日期
-
-            // if (startDate < currentDate) {
-            //   $.modal.alertWarning("开始时间不能早于当前日期");
-            //   return;
-            // }
+            // 4. 转化日期验证
+            var transDate = new Date($("input[name='signingData']").val());
 
             // 原有文件上传验证
             if ($("input[name='contract']").val() == "") {
-                $.modal.alertWarning("请上传合同");
+                $.modal.alertWarning("请上传转化合同");
                 return;
             } else if ($("input[name='filing']").val() == "") {
-                $.modal.alertWarning("请上传备案表");
+                $.modal.alertWarning("请上传成果登记表");
+                return;
+            } else if ($("input[name='overContract']").val() == "") {
+                $.modal.alertWarning("请上传成果扫描件");
                 return;
             }
 
@@ -333,11 +471,7 @@
         autoclose: true
     });
 
-    $("input[name='validityDate']").datetimepicker({
-        format: "yyyy-mm-dd",
-        minView: "month",
-        autoclose: true
-    });
+    // 添加第三个文件上传控件
     $(".file-upload1").fileinput({
         //prefix+"/upload",
         uploadUrl: ctx + 'common/upload/cgzh',
@@ -401,48 +535,226 @@
         // 单个文件选择后立即上传
         $(this).fileinput('upload');
     })
+    
+    // 第三个文件上传控件 - 成果扫描件
+    $(".file-upload3").fileinput({
+        //prefix+"/upload",
+        uploadUrl: ctx + 'common/upload/cgzh',
+        initialPreviewAsData: true,
+        maxFileCount: 1,
+        maxFileSize: 51200,
+        autoReplace: true,
+        allowedFileExtensions: ["pdf"],  //指定上传文件类型
+        slugCallback: function (filename) {
+            if ($("input[name='topName']").val() === "") {
+                $(".file-upload3").fileinput('clear');
+                $.modal.alertError("请先输入课题名称");
+                return false;
+            }
+            // 自定义文件名生成规则
+            fileExtension = filename.split('.').pop();
+            const year = new Date().getFullYear();
+            const newName = year + "-" + $("input[name='topName']").val() + "-" + "成果扫描件" + "." + fileExtension;
+            return newName;
+        },
+    }).on('fileuploaded', function (event, data, previewId, index) {
+        $("input[name='" + event.currentTarget.id + "']").val(data.response.url)
+    }).on('fileremoved', function (event, id, index) {
+        $("input[name='" + event.currentTarget.id + "']").val('')
+    }).on('filebatchselected', function(event) {
+        // 批量选择文件后立即上传
+        $(this).fileinput('upload');
+    }).on('fileselected', function(event) {
+        // 单个文件选择后立即上传
+        $(this).fileinput('upload');
+    })
 
-    function updateAuthorDropdownOptions() {
-        // 构造所有未禁用select及其已选值
-        var selects = [
-            {id: 'firstPersonId', $el: $('#firstPersonId'), selected: $('#firstPersonId').val()},
-            {id: 'secondPersonId', $el: $('#secondPersonId'), selected: $('#secondPersonId').val()},
-            {id: 'thirdPersonId', $el: $('#thirdPersonId'), selected: $('#thirdPersonId').val()},
-            {id: 'fourthPersonId', $el: $('#fourthPersonId'), selected: $('#fourthPersonId').val()}
-        ];
+    // 动态新增负责人下拉（第5位起）
+    $('#addMemberBtn').on('click', function(){
+        var originalOptions = $('#secondPersonId').data('original-options');
+        var memberCount = $('.member-item').length + 1; // 计算当前成员数量
+        var memberId = 'dynamicMember' + memberCount; // 为每个动态成员生成唯一ID
 
-// 收集所有选中的ID，但跳过userId为-1的"其他"选项（因为userId是字符串，所以用'-1'）
-        var selectedIds = selects.filter(s => !s.$el.prop('disabled') && s.selected && s.selected !== '-1').map(s => s.selected);
+        var tpl = '\
+        <div class="col-xs-12 col-sm-6 col-md-4 member-item" style="margin-bottom: 8px; padding-left: 0; padding-right: 15px;">\
+            <div class="input-group">\
+                <select id="' + memberId + '" name="members" class="form-control m-b member-select select2-select" onchange="updateMemberLists()">\
+                    <option value="">---请选择--</option>\
+                </select>\
+                <span class="input-group-btn">\
+                    <button class="btn btn-danger btn-sm remove-member" type="button" title="移除"><i class="fa fa-minus"></i></button>\
+                </span>\
+            </div>\
+        </div>';
 
-        selects.forEach(currentSel => {
-            // 只刷未禁用的
-            if (currentSel.$el.prop('disabled')) return;
-            currentSel.$el.find('option').each(function () {
-                var val = $(this).val();
-                if (!val) return; // 保留请选择
-                // 如果该选项被其它未禁用下拉选中则禁用(但自身已选要保留)
-                var isByOtherSelected = selectedIds.includes(val) && currentSel.selected !== val;
-                $(this).prop('disabled', isByOtherSelected);
-            });
-            // 让select2刷新可选项
-            if (currentSel.$el.data('select2')) currentSel.$el.trigger('change.select2');
+        $('#memberContainer').append(tpl);
+
+        // 初始化新添加的下拉框选项
+        updateDynamicMemberList($('#' + memberId)[0]);
+
+        // 初始化Select2
+        $('#' + memberId).select2({
+            placeholder: "---请选择--",
+            allowClear: true,
+            width: "100%"
+        });
+    });
+
+    // 移除成员项
+    $(document).on('click', '.remove-member', function(){
+        $(this).closest('.member-item').remove();
+        updateMemberLists(); // 移除后更新其他下拉框选项
+    });
+
+    function updateMemberLists() {
+        // 获取所有已选中的成员ID（使用Set自动去重）
+        var selectedIds = new Set();
+
+        // 获取四个固定负责人下拉框的值
+        var secondValue = $('#secondPersonId').val();
+        var thirdValue = $('#thirdPersonId').val();
+        var fourthValue = $('#fourthPersonId').val();
+
+        // 将非空值添加到Set中
+        if (secondValue) selectedIds.add(secondValue);
+        if (thirdValue) selectedIds.add(thirdValue);
+        if (fourthValue) selectedIds.add(fourthValue);
+
+        // 添加动态成员的选中值
+        $('.member-select').each(function() {
+            var value = $(this).val();
+            if (value) {
+                selectedIds.add(value);
+            }
+        });
+
+        // 为每个固定下拉框更新选项
+        updateSelectOptions('#secondPersonId', secondValue, selectedIds);
+        updateSelectOptions('#thirdPersonId', thirdValue, selectedIds);
+        updateSelectOptions('#fourthPersonId', fourthValue, selectedIds);
+
+        // 为每个动态下拉框更新选项
+        $('.member-select').each(function() {
+            updateDynamicSelectOptions($(this), $(this).val(), selectedIds);
         });
     }
 
-    // 绑定互斥逻辑
-    $('#firstPersonId,#secondPersonId,#thirdPersonId,#fourthPersonId').on('change', function () {
-        updateAuthorDropdownOptions();
-    });
-    // 页面首次加载也刷新一次保证同步
-    $(document).ready(function () {
-        // 初始化Select2下拉框
+    // 更新单个下拉框的选项
+    function updateSelectOptions(selectId, currentValue, selectedIds) {
+        var selectElement = $(selectId);
+        var originalOptions = selectElement.data('original-options');
+        var isCurrentlySelected = selectElement.val(); // 保存当前选中的值
+
+        // 清空当前选项（保留第一个提示选项）
+        selectElement.find('option:not(:first)').remove();
+
+        // 解析原始选项
+        var tempDiv = $('<div>' + originalOptions + '</div>');
+        var hasBlankOption = false; // 标记是否已添加空选项
+        tempDiv.find('option').each(function() {
+            var option = $(this);
+            var value = option.val();
+            // 只有当选项值为空（请选择）或未被其他下拉框选中时才添加
+            // currentValue（当前下拉框已选中的值）总是会被保留，如果它不在其他下拉框中
+            if (value === "" && !hasBlankOption) {
+                // 只添加一次空选项
+                selectElement.append(option.clone());
+                hasBlankOption = true;
+            } else if (value !== "" && (!selectedIds.has(value) || value === currentValue || value === "-1")) {
+                // 添加非空选项，如果它未被其他下拉框选中，或者是当前下拉框已选中的值，或者userId为-1（其他）
+                selectElement.append(option.clone());
+            }
+        });
+
+        // 重新设置选中状态，确保选中的值仍然被选中
+        if (isCurrentlySelected) {
+            selectElement.val(isCurrentlySelected);
+        }
+    }
+
+    // 更新动态添加的成员下拉框
+    function updateDynamicMemberList(element) {
+        var selectElement = $(element);
+        var currentValue = selectElement.val();
+        var allSelectedIds = getSelectedIds();
+
+        // 为动态成员下拉框更新选项
+        updateDynamicSelectOptions(selectElement, currentValue, allSelectedIds);
+    }
+
+    // 获取所有已选中的ID（包括固定成员和动态成员）
+    function getSelectedIds() {
+        var selectedIds = new Set();
+
+        // 添加固定成员的选中值
+        var secondValue = $('#secondPersonId').val();
+        var thirdValue = $('#thirdPersonId').val();
+        var fourthValue = $('#fourthPersonId').val();
+
+        if (secondValue) selectedIds.add(secondValue);
+        if (thirdValue) selectedIds.add(thirdValue);
+        if (fourthValue) selectedIds.add(fourthValue);
+
+        // 添加动态成员的选中值
+        $('.member-select').each(function() {
+            var value = $(this).val();
+            if (value) {
+                selectedIds.add(value);
+            }
+        });
+        return selectedIds;
+    }
+
+    // 更新动态下拉框的选项
+    function updateDynamicSelectOptions(selectElement, currentValue, selectedIds) {
+        var originalOptions = $('#secondPersonId').data('original-options');
+        var isCurrentlySelected = selectElement.val(); // 保存当前选中的值
+
+        // 清空当前选项（保留第一个提示选项）
+        selectElement.find('option:not(:first)').remove();
+        
+        // 解析原始选项
+        var tempDiv = $('<div>' + originalOptions + '</div>');
+        var hasBlankOption = false; // 标记是否已添加空选项
+        tempDiv.find('option').each(function() {
+            var option = $(this);
+            var value = option.val();
+            // 只有当选项值为空（请选择）或未被其他下拉框选中时才添加
+            // currentValue（当前下拉框已选中的值）总是会被保留，如果它不在其他下拉框中
+            if (value === "" && !hasBlankOption) {
+                // 只添加一次空选项
+                selectElement.append(option.clone());
+                hasBlankOption = true;
+            } else if (value !== "" && (!selectedIds.has(value) || value === currentValue || value === "-1")) {
+                // 添加非空选项，如果它未被其他下拉框选中，或者是当前下拉框已选中的值，或者userId为-1（其他）
+                selectElement.append(option.clone());
+            }
+        });
+
+        // 重新设置选中状态，确保选中的值仍然被选中
+        if (isCurrentlySelected) {
+            selectElement.val(isCurrentSelected);
+        }
+    }
+
+    // 成员下拉框联动功能
+    // 页面加载完成后保存原始选项并初始化联动
+    $(document).ready(function() {
+        // 保存原始选项数据
+        $('#secondPersonId, #thirdPersonId, #fourthPersonId').each(function() {
+            var originalOptions = $(this).html();
+            $(this).data('original-options', originalOptions);
+        });
+
+        // 初始化联动效果
+        updateMemberLists();
+
+        // 初始化Select2组件以支持搜索功能
         $('#secondPersonId, #thirdPersonId, #fourthPersonId').select2({
             placeholder: '其他',
             allowClear: true,
             width: '100%'
         });
-
-        updateAuthorDropdownOptions();
     });
 
 </script>
