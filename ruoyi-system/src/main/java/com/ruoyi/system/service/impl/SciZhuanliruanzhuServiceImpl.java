@@ -3,6 +3,7 @@ package com.ruoyi.system.service.impl;
 import java.util.List;
 import java.util.Map;
 
+import com.ruoyi.system.domain.SciZhuanliruanzhuScoreCfg;
 import com.ruoyi.common.annotation.DataScope;
 import com.ruoyi.common.utils.DataScopeUtils;
 import com.ruoyi.common.core.domain.entity.SysUser;
@@ -90,9 +91,40 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
         sciZhuanliruanzhuPiyue.setConcate("新增");
         sciZhuanliruanzhuPiyue.setState("新增");
         sciZhuanliruanzhuPiyueMapper.insertSciZhuanliruanzhuPiyue(sciZhuanliruanzhuPiyue);
+        // 新增：处理成员积分计算
+        if (a > 0) {
+            calculateMemberScores(sciZhuanliruanzhu);
+        }
         return a;
     }
 
+    // 新增方法
+    private void calculateMemberScores(SciZhuanliruanzhu sciZhuanliruanzhu) {
+        // 获取积分配置
+        SciZhuanliruanzhuScoreCfg scoreCfg = new SciZhuanliruanzhuScoreCfg();
+        scoreCfg.setFenLei(sciZhuanliruanzhu.getFenlei());
+        scoreCfg.setPaiMing(sciZhuanliruanzhu.getPaiming());
+        List<SciZhuanliruanzhuScoreCfg> configs = sciZhuanliruanzhuScoreCfgMapper.selectSciZhuanliruanzhuScoreCfgList(scoreCfg);
+
+        if (configs.isEmpty()) return;
+
+        int baseScore = Integer.parseInt(configs.get(0).getTotalScore());
+
+        // 为各个成员分配积分（根据排名递减）
+        if (sciZhuanliruanzhu.getFirstPersonId() != null && !sciZhuanliruanzhu.getFirstPersonId().isEmpty()) {
+            // 第一作者100%积分
+        }
+        if (sciZhuanliruanzhu.getSecondPersonId() != null && !sciZhuanliruanzhu.getSecondPersonId().isEmpty()) {
+            // 成员1 80%积分
+        }
+        if (sciZhuanliruanzhu.getThirdPersonId() != null && !sciZhuanliruanzhu.getThirdPersonId().isEmpty()) {
+            // 成员2 60%积分
+        }
+        if (sciZhuanliruanzhu.getFourthPersonId() != null && !sciZhuanliruanzhu.getFourthPersonId().isEmpty()) {
+            // 成员3 40%积分
+        }
+        // 处理更多成员的积分分配
+    }
     /**
      * 修改专利软著
      *
