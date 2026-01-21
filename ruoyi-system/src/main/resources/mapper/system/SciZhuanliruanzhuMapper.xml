@@ -47,7 +47,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 <!--    导出语句-->
     <select id="selectSciZhuanliruanzhuList" parameterType="SciZhuanliruanzhu" resultMap="SciZhuanliruanzhuResult">
         <include refid="selectSciZhuanliruanzhuVo"/>
-        where state in (1,2,3,4,5,6,7)
+        where (state in (1,2,3,4,5,6,7)) or (state = 0 and s.user_id = #{uid})
         <if test="jiaoyanshi != null  and jiaoyanshi != ''">and  d.dept_name like concat('%', #{jiaoyanshi}, '%')</if>
         <if test="xingming != null  and xingming != ''">and  u.user_name like concat('%', #{xingming}, '%')</if>
         <if test="mingcheng != null  and mingcheng != ''"> and mingcheng like concat('%', #{mingcheng}, '%')</if>
