@@ -260,6 +260,7 @@
             <if test="amount != null and amount != ''">amount,</if>
             <if test="file != null and file != ''">file,</if>
             <if test="state != null and state != ''">state,</if>
+            <if test="subjectSource != null and subjectSource != ''">subject_source,</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="userId != null">#{userId},</if>
@@ -274,6 +275,7 @@
             <if test="amount != null and amount != ''">#{amount},</if>
             <if test="file != null and file != ''">#{file},</if>
             <if test="state != null and state != ''">#{state},</if>
+            <if test="subjectSource != null and subjectSource != ''">#{subjectSource},</if>
         </trim>
     </insert>
 
@@ -304,6 +306,7 @@
             <if test="midfile != null and midfile != ''">mid_file = #{midfile},</if>
             <if test="overfile != null and overfile != ''">over_file = #{overfile},</if>
             <if test="state != null and state != ''">state = #{state},</if>
+            <if test="subjectSource != null and subjectSource != ''">subject_source = #{subjectSource},</if>
         </trim>
         where id = #{id}
     </update>

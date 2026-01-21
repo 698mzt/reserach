@@ -38,6 +38,17 @@
         </div>
         <div class="col-xs-6">
             <div class="form-group">
+                <label class="col-sm-4 control-label is-required">课题来源：</label>
+                <div class="col-sm-8">
+                    <select name="subjectSource" class="form-control" th:with="source=${@dict.getType('sci_subject_source')}" required>
+                        <option value="" selected>----请选择----</option>
+                        <option th:each="dict : ${source}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-6">
+            <div class="form-group">
                 <label class="col-sm-4 control-label is-required">课题名称：</label>
                 <div class="col-sm-8">
                     <input name="topName" class="form-control" type="text" required  maxlength="50">
