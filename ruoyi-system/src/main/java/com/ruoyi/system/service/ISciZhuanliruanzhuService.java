@@ -58,7 +58,7 @@ public interface ISciZhuanliruanzhuService
     public int deleteSciZhuanliruanzhuByIds(String ids);
 
     /**
-     * 删除专利软著信息
+     * 删除专利软著
      * 
      * @param id 专利软著主键
      * @return 结果

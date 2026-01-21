@@ -195,7 +195,7 @@ public class SciZhuanliruanzhu extends BaseEntity
         this.firstPersonId = firstPersonId;
     }
 
-    private String secondPersonId;  // 成员1
+    private String secondPersonId;  //  成员1
 
     public String getSecondPersonId() {
         return secondPersonId;

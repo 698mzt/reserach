@@ -169,7 +169,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         ${params.dataScope}
         order by
         case
---         待科研处审
+--        待科研处审
         when state = 4 then 1
 --         科研处通过
         when state in (6) then 2

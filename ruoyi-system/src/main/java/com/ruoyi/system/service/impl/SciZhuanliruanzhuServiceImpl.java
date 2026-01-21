@@ -88,7 +88,7 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
 
         int a = sciZhuanliruanzhuMapper.insertSciZhuanliruanzhu(sciZhuanliruanzhu);
         int id = sciZhuanliruanzhu.getId();
-        // 添加这一行：设置默认状态为草稿箱
+        // 设置默认状态为草稿箱
         sciZhuanliruanzhu.setState("0");
 
         SciZhuanliruanzhuPiyue sciZhuanliruanzhuPiyue = new SciZhuanliruanzhuPiyue();
