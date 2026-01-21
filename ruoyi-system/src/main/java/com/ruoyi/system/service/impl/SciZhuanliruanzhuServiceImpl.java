@@ -161,8 +161,6 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
         return 0; // 未匹配到规则返回0分
     }
 
-// 移除原有的审核通过时的积分计算逻辑
-// 在 hxPass 方法的 chayue 分支中，注释掉积分计算代码
 
     /**
      * 修改专利软著

@@ -409,7 +409,7 @@ public class SciZhuanliruanzhuController extends BaseController
         List<SciZhuanliruanzhuPiyue> list = piyueService.selectSciZhuanliruanzhuPiyueList(ob);
         return getDataTable(list);
     }
-// 添加积分计算
+    // 添加积分计算
     @PostMapping("/getScore")
     @ResponseBody
     public AjaxResult getScore(String fenlei, String paiming) {
