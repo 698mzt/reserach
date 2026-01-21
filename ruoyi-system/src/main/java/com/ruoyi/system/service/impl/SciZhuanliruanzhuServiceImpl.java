@@ -183,7 +183,7 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
     }
 
     /**
-     * 批量删除专利软著
+     * 批量删除专利
      *
      * @param ids 需要删除的专利软著主键
      * @return 结果
