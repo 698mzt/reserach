@@ -83,48 +83,87 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
     @Override
     public int insertSciZhuanliruanzhu(SciZhuanliruanzhu sciZhuanliruanzhu)
     {
+        // 在插入前先计算积分
+        calculateAndSetScore(sciZhuanliruanzhu);
+
         int a = sciZhuanliruanzhuMapper.insertSciZhuanliruanzhu(sciZhuanliruanzhu);
         int id = sciZhuanliruanzhu.getId();
+
         SciZhuanliruanzhuPiyue sciZhuanliruanzhuPiyue = new SciZhuanliruanzhuPiyue();
         sciZhuanliruanzhuPiyue.setUid(Long.valueOf(sciZhuanliruanzhu.getUserId()));
         sciZhuanliruanzhuPiyue.setHxktId(id);
         sciZhuanliruanzhuPiyue.setConcate("新增");
         sciZhuanliruanzhuPiyue.setState("新增");
         sciZhuanliruanzhuPiyueMapper.insertSciZhuanliruanzhuPiyue(sciZhuanliruanzhuPiyue);
-        // 新增：处理成员积分计算
-        if (a > 0) {
-            calculateMemberScores(sciZhuanliruanzhu);
-        }
+
         return a;
     }
-
-    // 新增方法
-    private void calculateMemberScores(SciZhuanliruanzhu sciZhuanliruanzhu) {
-        // 获取积分配置
-        SciZhuanliruanzhuScoreCfg scoreCfg = new SciZhuanliruanzhuScoreCfg();
-        scoreCfg.setFenLei(sciZhuanliruanzhu.getFenlei());
-        scoreCfg.setPaiMing(sciZhuanliruanzhu.getPaiming());
-        List<SciZhuanliruanzhuScoreCfg> configs = sciZhuanliruanzhuScoreCfgMapper.selectSciZhuanliruanzhuScoreCfgList(scoreCfg);
-
-        if (configs.isEmpty()) return;
-
-        int baseScore = Integer.parseInt(configs.get(0).getTotalScore());
-
-        // 为各个成员分配积分（根据排名递减）
-        if (sciZhuanliruanzhu.getFirstPersonId() != null && !sciZhuanliruanzhu.getFirstPersonId().isEmpty()) {
-            // 第一作者100%积分
-        }
-        if (sciZhuanliruanzhu.getSecondPersonId() != null && !sciZhuanliruanzhu.getSecondPersonId().isEmpty()) {
-            // 成员1 80%积分
-        }
-        if (sciZhuanliruanzhu.getThirdPersonId() != null && !sciZhuanliruanzhu.getThirdPersonId().isEmpty()) {
-            // 成员2 60%积分
-        }
-        if (sciZhuanliruanzhu.getFourthPersonId() != null && !sciZhuanliruanzhu.getFourthPersonId().isEmpty()) {
-            // 成员3 40%积分
-        }
-        // 处理更多成员的积分分配
+    @Override
+    public int getScoreByFenleiAndPaiming(String fenlei, String paiming) {
+        return getScoreByRule(fenlei, paiming);
     }
+
+    // 新增方法：根据积分规则表计算积分
+    private void calculateAndSetScore(SciZhuanliruanzhu sciZhuanliruanzhu) {
+        try {
+            String fenlei = sciZhuanliruanzhu.getFenlei();
+            String paiming = sciZhuanliruanzhu.getPaiming();
+
+            if (fenlei != null && paiming != null) {
+                int score = getScoreByRule(fenlei, paiming);
+                sciZhuanliruanzhu.setJifen(String.valueOf(score));
+                System.out.println("计算积分: 分类=" + fenlei + ", 排名=" + paiming + ", 积分=" + score);
+            } else {
+                sciZhuanliruanzhu.setJifen("0");
+            }
+        } catch (Exception e) {
+            System.err.println("计算积分失败: " + e.getMessage());
+            sciZhuanliruanzhu.setJifen("0");
+        }
+    }
+
+    // 根据积分规则表计算积分
+    private int getScoreByRule(String fenlei, String paiming) {
+        // 根据你提供的积分规则表
+        if ("1".equals(fenlei)) { // 授权发明专利
+            switch (paiming) {
+                case "1": return 600; // 排名第一
+                case "2": return 240; // 排名第二
+                case "3": return 120; // 排名第三
+                case "4": return 60;  // 排名第四
+                default: return 0;
+            }
+        } else if ("2".equals(fenlei)) { // 实用新型专利
+            switch (paiming) {
+                case "1": return 200; // 排名第一
+                case "2": return 100; // 排名第二
+                case "3": return 50;  // 排名第三
+                case "4": return 20;  // 排名第四
+                default: return 0;
+            }
+        } else if ("3".equals(fenlei)) { // 外型设计专利
+            switch (paiming) {
+                case "1": return 50;  // 排名第一
+                case "2": return 20;  // 排名第二
+                case "3": return 10;  // 排名第三
+                case "4": return 5;   // 排名第四
+                default: return 0;
+            }
+        } else if ("4".equals(fenlei)) { // 计算机软件著作权
+            switch (paiming) {
+                case "1": return 30;  // 排名第一
+                case "2": return 15;  // 排名第二
+                case "3": return 10;  // 排名第三
+                case "4": return 5;   // 排名第四
+                default: return 0;
+            }
+        }
+        return 0; // 未匹配到规则返回0分
+    }
+
+// 移除原有的审核通过时的积分计算逻辑
+// 在 hxPass 方法的 chayue 分支中，注释掉积分计算代码
+
     /**
      * 修改专利软著
      *
@@ -193,21 +232,21 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
         }
         else if(urlFlag.equals("chayue")) {
             state = "6";
-            SciZhuanliruanzhu sciZhuanliruanzhu = sciZhuanliruanzhuMapper.selectSciZhuanliruanzhuById(Integer.valueOf(id));
-            String a = sciZhuanliruanzhu.getFenlei();
-            String b = sciZhuanliruanzhu.getPaiming();
-            SciZhuanliruanzhuScoreCfg sciZhuanliruanzhuScoreCfg = new SciZhuanliruanzhuScoreCfg();
-            sciZhuanliruanzhuScoreCfg.setFenLei(a);
-            sciZhuanliruanzhuScoreCfg.setPaiMing(b);
-            List<SciZhuanliruanzhuScoreCfg> c = sciZhuanliruanzhuScoreCfgMapper.selectSciZhuanliruanzhuScoreCfgList(sciZhuanliruanzhuScoreCfg);
-
-            int jifen = 0;
-            for (SciZhuanliruanzhuScoreCfg cfg : c) {
-                jifen = Integer.parseInt(cfg.getTotalScore());
-                System.out.println("Jifen: " + jifen);
-            }
-            sciZhuanliruanzhuMapper.updateJifen(Long.valueOf(id), jifen);
-
+//            SciZhuanliruanzhu sciZhuanliruanzhu = sciZhuanliruanzhuMapper.selectSciZhuanliruanzhuById(Integer.valueOf(id));
+//            String a = sciZhuanliruanzhu.getFenlei();
+//            String b = sciZhuanliruanzhu.getPaiming();
+//            SciZhuanliruanzhuScoreCfg sciZhuanliruanzhuScoreCfg = new SciZhuanliruanzhuScoreCfg();
+//            sciZhuanliruanzhuScoreCfg.setFenLei(a);
+//            sciZhuanliruanzhuScoreCfg.setPaiMing(b);
+//            List<SciZhuanliruanzhuScoreCfg> c = sciZhuanliruanzhuScoreCfgMapper.selectSciZhuanliruanzhuScoreCfgList(sciZhuanliruanzhuScoreCfg);
+//
+//            int jifen = 0;
+//            for (SciZhuanliruanzhuScoreCfg cfg : c) {
+//                jifen = Integer.parseInt(cfg.getTotalScore());
+//                System.out.println("Jifen: " + jifen);
+//            }
+//            sciZhuanliruanzhuMapper.updateJifen(Long.valueOf(id), jifen);
+//
 
         }
 
