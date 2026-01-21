@@ -198,6 +198,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="paiming != null and paiming != ''">paiming,</if>
             <if test="jifen != null and jifen != ''">jifen,</if>
             <if test="wenjian != null and wenjian != ''">wenjian,</if>
+            <if test="state != null and state != ''">state,</if>
 
             <if test="firstPersonId != null and firstPersonId != ''">first_person_id,</if>
             <if test="secondPersonId != null and secondPersonId != ''">second_person_id,</if>
@@ -218,6 +219,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="paiming != null and paiming != ''">#{paiming},</if>
             <if test="jifen != null and jifen != ''">#{jifen},</if>
             <if test="wenjian != null and wenjian != ''">#{wenjian},</if>
+            <if test="state != null and state != ''">#{state},</if>
 
             <if test="firstPersonId != null and firstPersonId != ''">#{firstPersonId},</if>
             <if test="secondPersonId != null and secondPersonId != ''">#{secondPersonId},</if>
