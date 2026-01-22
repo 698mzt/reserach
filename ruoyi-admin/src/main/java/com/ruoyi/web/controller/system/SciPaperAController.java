@@ -665,4 +665,24 @@ public class SciPaperAController extends BaseController {
         System.out.println("list = " + list);
         return list;
     }
+
+    /**
+     * 实时计算科研分
+     */
+    @PostMapping("/calculateScore")
+    @ResponseBody
+    public AjaxResult calculateScore(@RequestBody Map<String, Object> params) {
+        try {
+            String paperCategory = (String) params.get("paperCategory");
+            Map<String, String> authors = (Map<String, String>) params.get("authors");
+            String communicationAuthorId = (String) params.get("communicationAuthorId");
+            
+            // 调用服务层计算科研分
+            Map<String, Integer> scores = sciPaperAService.calculatePaperScore(paperCategory, authors, communicationAuthorId);
+            
+            return AjaxResult.success(scores);
+        } catch (Exception e) {
+            return AjaxResult.error("计算科研分失败：" + e.getMessage());
+        }
+    }
 }
