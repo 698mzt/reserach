@@ -226,15 +226,15 @@ public class SciJiaocairuanzhuController extends BaseController
 
 
     /**
-     * 检查专利名称与负责人级别是否重复
+     * 检查教材名称与负责人级别是否重复
      */
     @RequiresPermissions("system:jiaocairuanzhu:add")
     @PostMapping("/checkDuplicate")
     @ResponseBody
-    public AjaxResult checkDuplicate(@RequestParam String mingcheng, @RequestParam String paiming) {
-        boolean exists = sciJiaocairuanzhuService.checkExist(mingcheng, paiming);
+    public AjaxResult checkDuplicate(@RequestParam String mingcheng, @RequestParam(required = false) String paiming) {
+        boolean exists = sciJiaocairuanzhuService.checkExist(mingcheng, paiming, getUserId());
         if (exists) {
-            return AjaxResult.error("该专利名称的该负责人级别已存在，不可重复添加");
+            return AjaxResult.error("该教材名称的该负责人级别已存在，不可重复添加");
         } else {
             return AjaxResult.success(); // code == 0
         }
@@ -269,9 +269,26 @@ public class SciJiaocairuanzhuController extends BaseController
     @Log(title = "教材软著", businessType = BusinessType.INSERT)
     @PostMapping("/add")
     @ResponseBody
-    public AjaxResult addSave(SciJiaocairuanzhu sciJiaocairuanzhu)
+    public AjaxResult addSave(SciJiaocairuanzhu sciJiaocairuanzhu, 
+                              @RequestParam(value = "members", required = false) String members, 
+                              @RequestParam(value = "totalScore", required = false) String totalScore)
     {
+        // 设置科研总分，如果没有传递则默认为0
+        if (totalScore != null && !totalScore.isEmpty()) {
+            sciJiaocairuanzhu.setJifen(totalScore);
+        } else {
+            sciJiaocairuanzhu.setJifen("0");
+        }
+        
+        // 保存教材著作基本信息
         sciJiaocairuanzhuService.insertSciJiaocairuanzhu(sciJiaocairuanzhu);
+        
+        // 保存成员信息
+        if (members != null && !members.isEmpty()) {
+            sciJiaocairuanzhuService.saveJiaocairuanzhuMembers(sciJiaocairuanzhu.getId(), members);
+        }
+        
+        // 保存批阅记录
         SciJiaocairuanzhuPiyue sciJiaocairuanzhuPiyue = new SciJiaocairuanzhuPiyue();
         sciJiaocairuanzhuPiyue.setJiaocai_id(sciJiaocairuanzhu.getId());
         sciJiaocairuanzhuPiyue.setConcate("新增教材专著草稿");
@@ -306,9 +323,26 @@ public class SciJiaocairuanzhuController extends BaseController
     @Log(title = "教材软著", businessType = BusinessType.UPDATE)
     @PostMapping("/edit")
     @ResponseBody
-    public AjaxResult editSave(SciJiaocairuanzhu sciJiaocairuanzhu)
+    public AjaxResult editSave(SciJiaocairuanzhu sciJiaocairuanzhu, 
+                              @RequestParam(value = "members", required = false) String members, 
+                              @RequestParam(value = "totalScore", required = false) String totalScore)
     {
-        return toAjax(sciJiaocairuanzhuService.updateSciJiaocairuanzhu(sciJiaocairuanzhu));
+        // 设置科研总分，如果没有传递则默认为0
+        if (totalScore != null && !totalScore.isEmpty()) {
+            sciJiaocairuanzhu.setJifen(totalScore);
+        } else {
+            sciJiaocairuanzhu.setJifen("0");
+        }
+        
+        // 保存教材著作基本信息
+        int result = sciJiaocairuanzhuService.updateSciJiaocairuanzhu(sciJiaocairuanzhu);
+        
+        // 保存成员信息
+        if (members != null && !members.isEmpty()) {
+            sciJiaocairuanzhuService.saveJiaocairuanzhuMembers(sciJiaocairuanzhu.getId(), members);
+        }
+        
+        return toAjax(result);
     }
 
     /**

@@ -79,12 +79,63 @@
             </div>
         </div>
 
+        <!-- 成员管理 -->
+        <div class="form-group">
+            <label class="col-sm-2 control-label">成员管理：</label>
+            <div class="col-sm-10">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <select id="memberSelect" class="form-control">
+                                    <option value="" selected>--选择成员--</option>
+                                    <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}"></option>
+                                </select>
+                            </div>
+                            <div class="col-sm-2">
+                                <input type="number" id="memberRanking" class="form-control" placeholder="排名" min="1">
+                            </div>
+                            <div class="col-sm-2">
+                                <button type="button" class="btn btn-primary" onclick="addMember()">添加成员</button>
+                            </div>
+                            <div class="col-sm-4">
+                                <div class="alert alert-info" role="alert">
+                                    当前科研总分：<span id="totalScore" th:text="${sciJiaocairuanzhu.jifen}"></span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <table class="table table-bordered table-hover mt-3" id="membersTable">
+                            <thead>
+                                <tr>
+                                    <th>序号</th>
+                                    <th>成员姓名</th>
+                                    <th>排名</th>
+                                    <th>科研分数</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="membersTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 主编和副主编选择 -->
         <div class="form-group">
             <div class="col-sm-6">
-                <label class="col-sm-4 control-label is-required">排名：</label>
+                <label class="col-sm-4 control-label">主编：</label>
                 <div class="col-sm-8">
-                    <select name="paiming" class="form-control" th:with="type=${@dict.getType('sys_jiaocairuanzhu_fzr')}" required>
-                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}" th:field="*{paiming}"></option>
+                    <select name="zhubian" id="zhubian" class="form-control select2" multiple="multiple">
+                    </select>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <label class="col-sm-4 control-label">副主编：</label>
+                <div class="col-sm-8">
+                    <select name="fuzhubian" id="fuzhubian" class="form-control select2" multiple="multiple">
                     </select>
                 </div>
             </div>
@@ -104,6 +155,10 @@
                 <!-- 可以在这里添加另一个输入框，如果没有则留空 -->
             </div>
         </div>
+        
+        <!-- 隐藏字段 -->
+        <input type="hidden" name="members" id="membersInput">
+        <input type="hidden" name="totalScore" id="totalScoreInput" th:value="${sciJiaocairuanzhu.jifen}">
 
     </form>
 </div>
@@ -119,23 +174,257 @@
 <th:block th:include="include :: bootstrap-fileinput-js"/>
 <script th:inline="javascript">
     var prefix = ctx + "system/jiaocairuanzhu";
+    var members = [];
+    var userIdToName = {};
+    
+    // 初始化用户ID到姓名的映射
+    $(document).ready(function() {
+        // 从选择框中获取所有用户信息
+        $('#memberSelect option').each(function() {
+            var userId = $(this).val();
+            var userName = $(this).text();
+            if (userId) {
+                userIdToName[userId] = userName;
+            }
+        });
+        
+        // 初始化Select2组件
+        $('#zhubian, #fuzhubian').select2({
+            placeholder: '请选择',
+            allowClear: true
+        });
+        
+        // 监听主编和副主编的变化，实现互斥选择
+        $('#zhubian').on('change', updateFuzhubianOptions);
+        $('#fuzhubian').on('change', updateZhubianOptions);
+        
+        // 初始化成员列表（这里需要从后端获取已有的成员信息）
+        // 目前暂时模拟数据，后续需要修改为从后端获取
+        initMembers();
+        updateMembersTable();
+        updateEditorOptions();
+    });
+    
     $("#form-jiaocairuanzhu-edit").validate({
         focusCleanup: true
     });
 
-
+    // 初始化成员列表（从后端获取已有的成员信息）
+    function initMembers() {
+        // 这里需要从后端获取已有的成员信息
+        // 实际实现时，应该通过AJAX请求获取
+        // 目前暂时使用模拟数据，后续需要修改为从后端获取
+        members = [];
+        // 假设从后端获取到的成员数据存储在sciJiaocairuanzhu.members中
+        // 这里需要根据实际情况调整
+    }
+    
+    // 添加成员
+    function addMember() {
+        var memberId = $('#memberSelect').val();
+        var ranking = $('#memberRanking').val();
+        
+        if (!memberId || !ranking) {
+            $.modal.alertWarning("请选择成员并输入排名");
+            return;
+        }
+        
+        // 检查是否已添加该成员
+        for (var i = 0; i < members.length; i++) {
+            if (members[i].memberId == memberId) {
+                $.modal.alertWarning("该成员已添加");
+                return;
+            }
+        }
+        
+        // 检查排名是否已存在
+        for (var i = 0; i < members.length; i++) {
+            if (members[i].ranking == ranking) {
+                $.modal.alertWarning("该排名已存在");
+                return;
+            }
+        }
+        
+        var memberName = userIdToName[memberId];
+        var researchScore = calculateResearchScore(ranking);
+        
+        var member = {
+            memberId: memberId,
+            memberName: memberName,
+            ranking: ranking,
+            researchScore: researchScore
+        };
+        
+        members.push(member);
+        updateMembersTable();
+        updateTotalScore();
+        updateEditorOptions();
+        
+        // 清空输入框
+        $('#memberSelect').val('');
+        $('#memberRanking').val('');
+    }
+    
+    // 计算科研分数
+    function calculateResearchScore(ranking) {
+        // 根据排名计算科研分数，这里可以根据实际需求调整计算规则
+        var score = 0;
+        switch (ranking) {
+            case '1':
+                score = 10;
+                break;
+            case '2':
+                score = 8;
+                break;
+            case '3':
+                score = 6;
+                break;
+            case '4':
+                score = 4;
+                break;
+            default:
+                score = 2;
+        }
+        return score;
+    }
+    
+    // 更新成员表格
+    function updateMembersTable() {
+        var tbody = $('#membersTableBody');
+        tbody.empty();
+        
+        for (var i = 0; i < members.length; i++) {
+            var member = members[i];
+            var tr = $('<tr></tr>');
+            tr.html(
+                '<td>' + (i + 1) + '</td>' +
+                '<td>' + member.memberName + '</td>' +
+                '<td>' + member.ranking + '</td>' +
+                '<td>' + member.researchScore + '</td>' +
+                '<td><button type="button" class="btn btn-danger btn-xs" onclick="removeMember(' + i + ')">删除</button></td>'
+            );
+            tbody.append(tr);
+        }
+    }
+    
+    // 删除成员
+    function removeMember(index) {
+        members.splice(index, 1);
+        updateMembersTable();
+        updateTotalScore();
+        updateEditorOptions();
+        updateFuzhubianOptions();
+        updateZhubianOptions();
+    }
+    
+    // 更新科研总分
+    function updateTotalScore() {
+        var totalScore = 0;
+        for (var i = 0; i < members.length; i++) {
+            totalScore += parseInt(members[i].researchScore);
+        }
+        $('#totalScore').text(totalScore);
+        $('#totalScoreInput').val(totalScore);
+    }
+    
+    // 更新主编和副主编的可选选项
+    function updateEditorOptions() {
+        var zhubian = $('#zhubian');
+        var fuzhubian = $('#fuzhubian');
+        
+        // 保存当前选中的值
+        var currentZhubianValues = zhubian.val() || [];
+        var currentFuzhubianValues = fuzhubian.val() || [];
+        
+        // 清空现有选项
+        zhubian.empty();
+        fuzhubian.empty();
+        
+        // 添加新选项
+        for (var i = 0; i < members.length; i++) {
+            var member = members[i];
+            zhubian.append('<option value="' + member.memberId + '">' + member.memberName + '</option>');
+            fuzhubian.append('<option value="' + member.memberId + '">' + member.memberName + '</option>');
+        }
+        
+        // 恢复选中状态，不重新初始化Select2以避免重复选项
+        zhubian.val(currentZhubianValues).trigger('change.select2');
+        fuzhubian.val(currentFuzhubianValues).trigger('change.select2');
+    }
+    
+    // 更新副主编的可选选项（排除已选为主编的成员）
+    function updateFuzhubianOptions() {
+        var zhubianValues = $('#zhubian').val() || [];
+        var fuzhubian = $('#fuzhubian');
+        var fuzhubianValues = fuzhubian.val() || [];
+        
+        // 保存当前选中的副主编值
+        var currentFuzhubianValues = [];
+        for (var i = 0; i < fuzhubianValues.length; i++) {
+            if (zhubianValues.indexOf(fuzhubianValues[i]) === -1) {
+                currentFuzhubianValues.push(fuzhubianValues[i]);
+            }
+        }
+        
+        // 更新副主编选项的禁用状态
+        fuzhubian.find('option').each(function() {
+            var value = $(this).val();
+            if (zhubianValues.indexOf(value) !== -1) {
+                $(this).prop('disabled', true);
+            } else {
+                $(this).prop('disabled', false);
+            }
+        });
+        
+        // 更新Select2并设置选中值，不重新初始化以避免重复选项
+        fuzhubian.val(currentFuzhubianValues).trigger('change.select2');
+    }
+    
+    // 更新主编的可选选项（排除已选为副主编的成员）
+    function updateZhubianOptions() {
+        var fuzhubianValues = $('#fuzhubian').val() || [];
+        var zhubian = $('#zhubian');
+        var zhubianValues = zhubian.val() || [];
+        
+        // 保存当前选中的主编值
+        var currentZhubianValues = [];
+        for (var i = 0; i < zhubianValues.length; i++) {
+            if (fuzhubianValues.indexOf(zhubianValues[i]) === -1) {
+                currentZhubianValues.push(zhubianValues[i]);
+            }
+        }
+        
+        // 更新主编选项的禁用状态
+        zhubian.find('option').each(function() {
+            var value = $(this).val();
+            if (fuzhubianValues.indexOf(value) !== -1) {
+                $(this).prop('disabled', true);
+            } else {
+                $(this).prop('disabled', false);
+            }
+        });
+        
+        // 更新Select2并设置选中值，不重新初始化以避免重复选项
+        zhubian.val(currentZhubianValues).trigger('change.select2');
+    }
+    
     function submitHandler() {
         if ($.validate.form()) {
             // 检查文件输入框的值，而不是隐藏字段
             if ($("input[name='wenjian']").val() == "")
                 return $.modal.alertError("请上传软件文件");
+            
+            // 检查是否添加了成员
+            if (members.length === 0) {
+                return $.modal.alertWarning("请至少添加一个成员");
+            }
+            
+            // 将成员信息转换为JSON字符串
+            $('#membersInput').val(JSON.stringify(members));
+            
             $.operate.saveTab(prefix + "/edit", $('#form-jiaocairuanzhu-edit').serialize());
-            // if ($.validate.form()) {
-            //     $.operate.save(prefix + "/add", $('#form-jiaocairuanzhu-add').serialize());
-            // }
         }
     }
-
 
     $(".file-upload").each(function (i) {
         var val = $("input[name='" + this.id + "']").val()

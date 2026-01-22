@@ -114,20 +114,81 @@
                 </div>
             </div>
         </div>
-
-        <div class="form-group">
+        <div class="form-group row">
             <div class="col-sm-6">
                 <label class="col-sm-4 control-label is-required">排名：</label>
                 <div class="col-sm-8">
                     <select name="paiming" class="form-control" th:with="type=${@dict.getType('sys_jiaocairuanzhu_fzr')}" required>
-                        <option value="" selected>--请输入--</option>
-
                         <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
                     </select>
                 </div>
             </div>
         </div>
 
+        <!-- 成员管理 -->
+        <div class="form-group">
+            <label class="col-sm-2 control-label">成员管理：</label>
+            <div class="col-sm-10">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <select id="memberSelect" class="form-control">
+                                    <option value="" selected>--选择成员--</option>
+                                    <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}"></option>
+                                </select>
+                            </div>
+                            <div class="col-sm-2">
+                                <input type="number" id="memberRanking" class="form-control" placeholder="排名" min="1">
+                            </div>
+                            <div class="col-sm-2">
+                                <button type="button" class="btn btn-primary" onclick="addMember()">添加成员</button>
+                            </div>
+                            <div class="col-sm-4">
+                                <div class="alert alert-info" role="alert">
+                                    当前科研总分：<span id="totalScore">0</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <table class="table table-bordered table-hover mt-3" id="membersTable">
+                            <thead>
+                                <tr>
+                                    <th>序号</th>
+                                    <th>成员姓名</th>
+                                    <th>排名</th>
+                                    <th>科研分数</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="membersTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 主编选择 -->
+        <div class="form-group">
+            <label class="col-sm-3 control-label is-required">主编：</label>
+            <div class="col-sm-8">
+                <select name="zhubian" id="editorSelect" class="form-control" required>
+                    <option value="" selected>--选择主编--</option>
+                </select>
+            </div>
+        </div>
+        
+        <!-- 副主编选择 -->
+        <div class="form-group">
+            <label class="col-sm-3 control-label">副主编：</label>
+            <div class="col-sm-8">
+                <select name="fuzhubian" id="viceEditorSelect" class="form-control">
+                    <option value="" selected>--选择副主编--</option>
+                </select>
+            </div>
+        </div>
+        
         <div class="form-group row">
             <div class="col-sm-6">
                 <label class="col-sm-4 control-label is-required">教材文件：</label>
@@ -142,6 +203,10 @@
                 <!-- 可以在这里添加另一个输入框，如果没有则留空 -->
             </div>
         </div>
+        
+        <!-- 隐藏字段 -->
+        <input type="hidden" name="members" id="membersInput">
+        <input type="hidden" name="totalScore" id="totalScoreInput">
 
     </form>
 </div>
@@ -157,10 +222,260 @@
 <th:block th:include="include :: bootstrap-fileinput-js"/>
 <script th:inline="javascript">
     var prefix = ctx + "system/jiaocairuanzhu"
+    var members = [];
+    var userIdToName = {};
+    
+    // 初始化用户ID到姓名的映射
+    $(document).ready(function() {
+        // 从选择框中获取所有用户信息
+        $('#memberSelect option').each(function() {
+            var userId = $(this).val();
+            var userName = $(this).text();
+            if (userId) {
+                userIdToName[userId] = userName;
+            }
+        });
+        
+        // 添加主编和副主编的互斥选择监听
+        $('#editorSelect').on('change', function() {
+            updateViceEditorOptions();
+        });
+        
+        $('#viceEditorSelect').on('change', function() {
+            updateEditorOptions();
+        });
+    });
+    
     $("#form-jiaocairuanzhu-add").validate({
         focusCleanup: true
     });
 
+    // 添加成员
+    function addMember() {
+        var memberId = $('#memberSelect').val();
+        var ranking = $('#memberRanking').val();
+        
+        if (!memberId || !ranking) {
+            $.modal.alertWarning("请选择成员并输入排名");
+            return;
+        }
+        
+        // 检查是否已添加该成员
+        for (var i = 0; i < members.length; i++) {
+            if (members[i].memberId == memberId) {
+                $.modal.alertWarning("该成员已添加");
+                return;
+            }
+        }
+        
+        // 检查排名是否已存在
+        for (var i = 0; i < members.length; i++) {
+            if (members[i].ranking == ranking) {
+                $.modal.alertWarning("该排名已存在");
+                return;
+            }
+        }
+        
+        var memberName = userIdToName[memberId];
+        var researchScore = calculateResearchScore(ranking);
+        
+        var member = {
+            memberId: memberId,
+            memberName: memberName,
+            ranking: ranking,
+            researchScore: researchScore
+        };
+        
+        members.push(member);
+        updateMembersTable();
+        updateTotalScore();
+        
+        // 清空输入框和选择框
+        $('#memberSelect').val('').trigger('change');
+        $('#memberRanking').val('');
+    }
+    
+    // 计算科研分数
+    function calculateResearchScore(ranking) {
+        // 根据排名计算科研分数，这里可以根据实际需求调整计算规则
+        var score = 0;
+        switch (ranking) {
+            case '1':
+                score = 10;
+                break;
+            case '2':
+                score = 8;
+                break;
+            case '3':
+                score = 6;
+                break;
+            case '4':
+                score = 4;
+                break;
+            default:
+                score = 2;
+        }
+        return score;
+    }
+    
+    // 更新成员表格
+    function updateMembersTable() {
+        var tbody = $('#membersTableBody');
+        tbody.empty();
+        
+        for (var i = 0; i < members.length; i++) {
+            var member = members[i];
+            var tr = $('<tr></tr>');
+            tr.html(
+                '<td>' + (i + 1) + '</td>' +
+                '<td>' + member.memberName + '</td>' +
+                '<td>' + member.ranking + '</td>' +
+                '<td>' + member.researchScore + '</td>' +
+                '<td><button type="button" class="btn btn-danger btn-xs" onclick="removeMember(' + i + ')">删除</button></td>'
+            );
+            tbody.append(tr);
+        }
+        
+        // 更新主编选择列表
+        updateEditorSelect();
+    }
+    
+    // 更新主编和副主编选择列表
+    function updateEditorSelect() {
+        var editorSelect = $('#editorSelect');
+        var viceEditorSelect = $('#viceEditorSelect');
+        var currentEditor = editorSelect.val();
+        var currentViceEditor = viceEditorSelect.val();
+        
+        // 清空现有选项，保留默认选项
+        editorSelect.empty();
+        editorSelect.append('<option value="" selected>--选择主编--</option>');
+        
+        viceEditorSelect.empty();
+        viceEditorSelect.append('<option value="" selected>--选择副主编--</option>');
+        
+        // 添加已添加的成员作为选项
+        for (var i = 0; i < members.length; i++) {
+            var member = members[i];
+            editorSelect.append('<option value="' + member.memberId + '">' + member.memberName + '</option>');
+            viceEditorSelect.append('<option value="' + member.memberId + '">' + member.memberName + '</option>');
+        }
+        
+        // 恢复之前的主编选择（如果该成员仍然存在）
+        if (currentEditor) {
+            var memberExists = false;
+            for (var i = 0; i < members.length; i++) {
+                if (members[i].memberId == currentEditor) {
+                    memberExists = true;
+                    break;
+                }
+            }
+            if (memberExists) {
+                editorSelect.val(currentEditor);
+            }
+        }
+        
+        // 恢复之前的副主编选择（如果该成员仍然存在）
+        if (currentViceEditor) {
+            var memberExists = false;
+            for (var i = 0; i < members.length; i++) {
+                if (members[i].memberId == currentViceEditor) {
+                    memberExists = true;
+                    break;
+                }
+            }
+            if (memberExists) {
+                viceEditorSelect.val(currentViceEditor);
+            }
+        }
+        
+        // 更新互斥选项
+        updateViceEditorOptions();
+        updateEditorOptions();
+    }
+    
+    // 更新副主编选项，排除已选为主编的成员
+    function updateViceEditorOptions() {
+        var editor = $('#editorSelect').val();
+        var viceEditorSelect = $('#viceEditorSelect');
+        var currentViceEditor = viceEditorSelect.val();
+        
+        // 清空现有选项，保留默认选项
+        viceEditorSelect.empty();
+        viceEditorSelect.append('<option value="" selected>--选择副主编--</option>');
+        
+        // 添加已添加的成员作为选项，但排除已选为主编的成员
+        for (var i = 0; i < members.length; i++) {
+            var member = members[i];
+            if (member.memberId != editor) {
+                viceEditorSelect.append('<option value="' + member.memberId + '">' + member.memberName + '</option>');
+            }
+        }
+        
+        // 恢复之前的副主编选择（如果该成员仍然存在且未被选为副主编）
+        if (currentViceEditor && currentViceEditor != editor) {
+            var memberExists = false;
+            for (var i = 0; i < members.length; i++) {
+                if (members[i].memberId == currentViceEditor) {
+                    memberExists = true;
+                    break;
+                }
+            }
+            if (memberExists) {
+                viceEditorSelect.val(currentViceEditor);
+            }
+        }
+    }
+    
+    // 更新主编选项，排除已选为副主编的成员
+    function updateEditorOptions() {
+        var viceEditor = $('#viceEditorSelect').val();
+        var editorSelect = $('#editorSelect');
+        var currentEditor = editorSelect.val();
+        
+        // 清空现有选项，保留默认选项
+        editorSelect.empty();
+        editorSelect.append('<option value="" selected>--选择主编--</option>');
+        
+        // 添加已添加的成员作为选项，但排除已选为副主编的成员
+        for (var i = 0; i < members.length; i++) {
+            var member = members[i];
+            if (member.memberId != viceEditor) {
+                editorSelect.append('<option value="' + member.memberId + '">' + member.memberName + '</option>');
+            }
+        }
+        
+        // 恢复之前的主编选择（如果该成员仍然存在且未被选为副主编）
+        if (currentEditor && currentEditor != viceEditor) {
+            var memberExists = false;
+            for (var i = 0; i < members.length; i++) {
+                if (members[i].memberId == currentEditor) {
+                    memberExists = true;
+                    break;
+                }
+            }
+            if (memberExists) {
+                editorSelect.val(currentEditor);
+            }
+        }
+    }
+    
+    // 删除成员
+    function removeMember(index) {
+        members.splice(index, 1);
+        updateMembersTable();
+        updateTotalScore();
+    }
+    
+    // 更新科研总分
+    function updateTotalScore() {
+        var totalScore = 0;
+        for (var i = 0; i < members.length; i++) {
+            totalScore += parseInt(members[i].researchScore);
+        }
+        $('#totalScore').text(totalScore);
+        $('#totalScoreInput').val(totalScore);
+    }
 
     function submitHandler() {
         if ($.validate.form()) {
@@ -168,8 +483,32 @@
             if ($("input[name='wenjian']").val() == "") {
                 return $.modal.alertError("请上传教材文件");
             }
-
-            // 获取教材名称和负责人级别
+            
+            // 检查是否添加了成员
+            if (members.length === 0) {
+                return $.modal.alertWarning("请至少添加一个成员");
+            }
+            
+            // 获取主编和副主编的选择
+            const editor = $("#editorSelect").val();
+            const viceEditor = $("#viceEditorSelect").val();
+            
+            // 为成员设置角色
+            for (var i = 0; i < members.length; i++) {
+                var member = members[i];
+                if (member.memberId == editor) {
+                    member.role = "主编";
+                } else if (member.memberId == viceEditor) {
+                    member.role = "副主编";
+                } else {
+                    member.role = "成员";
+                }
+            }
+            
+            // 将成员信息转换为JSON字符串
+            $('#membersInput').val(JSON.stringify(members));
+            
+            // 获取教材名称和排名
             const mingcheng = $("input[name='mingcheng']").val();
             const paiming = $("select[name='paiming']").val();
 
@@ -185,7 +524,40 @@
                         $.modal.alertWarning(res.msg);
                     } else {
                         // 否则正常提交
-                        $.operate.saveTab(prefix + "/add", $('#form-jiaocairuanzhu-add').serialize());
+                        // 手动构建表单数据，确保所有字段都被包含
+                        var formData = {
+                            mingcheng: mingcheng,
+                            paiming: paiming,
+                            zhubian: editor,
+                            fuzhubian: viceEditor,
+                            members: JSON.stringify(members),
+                            totalScore: $('#totalScoreInput').val(),
+                            // 其他表单字段
+                            userId: $('select[name="userId"]').val(),
+                            isbn: $('input[name="isbn"]').val(),
+                            chubanshijian: $('input[name="chubanshijian"]').val(),
+                            chubanshe: $('input[name="chubanshe"]').val(),
+                            benxiaoshifoyongshu: $('input[name="benxiaoshifoyongshu"]:checked').val(),
+                            fenlei: $('select[name="fenlei"]').val(),
+                            wenjian: $('input[name="wenjian"]').val()
+                        };
+                        
+                        $.ajax({
+                            url: prefix + "/add",
+                            type: "POST",
+                            data: formData,
+                            success: function (res) {
+                                if (res.code === 0) {
+                                    $.modal.msgSuccess("保存成功");
+                                    $.operate.closeTab();
+                                } else {
+                                    $.modal.alertError(res.msg);
+                                }
+                            },
+                            error: function () {
+                                $.modal.alertError("系统异常，请稍后再试");
+                            }
+                        });
                     }
                 },
                 error: function () {
@@ -201,8 +573,6 @@
         minView: "month",
         autoclose: true
     });
-
-
 
     $(".file-upload").fileinput({
         uploadUrl: ctx + 'common/upload/jcrz',
