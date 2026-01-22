@@ -554,6 +554,7 @@
     var topTypeDatas = [[${@dict.getType('sci_vertical_type')}]];
     var datas = [[${@dict.getType('sci_vertical_tasks')}]];
     var datas1 = [[${@dict.getType('sci_crosswise_tasks')}]];
+    var subjectSourceDatas = [[${@dict.getType('sci_subject_source')}]];
 
 
     var prefix = ctx + "system/apply_vertical";
@@ -649,9 +650,12 @@
                     title: '结项日期'
                 },
                 {
-                    field: 'amount',
+                    field: 'subjectSource',
                     align: 'center',
-                    title: '项目金额'
+                    title: '课题来源',
+                    formatter: function(value, row, index) {
+                        return $.table.selectDictLabel(subjectSourceDatas, value);
+                    }
                 },
                 {
                     align: 'center',
@@ -778,9 +782,12 @@
                     title: '立项日期'
                 },
                 {
-                    field: 'amount',
+                    field: 'subjectSource',
                     align: 'center',
-                    title: '项目金额'
+                    title: '课题来源',
+                    formatter: function(value, row, index) {
+                        return $.table.selectDictLabel(subjectSourceDatas, value);
+                    }
                 },
                 {
                     align: 'center',
@@ -954,9 +961,9 @@
                     title: '结项日期'
                 },
                 {
-                    field: 'amount',
+                    field: 'subjectSource',
                     align: 'center',
-                    title: '项目金额'
+                    title: '课题来源'
                 },
                 {
                     align: 'center',
