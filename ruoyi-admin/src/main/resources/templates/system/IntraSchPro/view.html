@@ -349,19 +349,6 @@
     <div class="row">
 
         <div class="tabs-container">
-            <ul class="nav nav-tabs">
-                <li class="active"><a data-toggle="tab" href="#tab-0" onclick="$.table.refresh('bootstrap-table0')"
-                                      aria-expanded="true">已完结</a>
-                </li>
-                <li class=""><a data-toggle="tab" href="#tab-1" onclick="$.table.refresh('bootstrap-table1')"
-                                aria-expanded="false"> 立项申请</a>
-                </li>
-
-                <li class=""><a data-toggle="tab" href="#tab-2" onclick="$.table.refresh('bootstrap-table2')"
-                                aria-expanded="false">结项申请</a>
-                </li>
-
-            </ul>
             <div class="tab-content">
                 <div id="tab-0" class="tab-pane active">
                     <div class="panel-body">
@@ -409,9 +396,9 @@
 
                                 <div class="btn-group-sm" id="toolbar0" role="group"
                                      style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                                    <!--                                    <a class="btn btn-success" onclick="$.operate.addTab()" shiro:hasPermission="system:apply:add">-->
-                                    <!--                                        <i class="fa fa-plus"></i> 添加-->
-                                    <!--                                    </a>-->
+                                    <a class="btn btn-success" onclick="$.operate.addTab()" shiro:hasPermission="system:apply:add">
+                                        <i class="fa fa-plus"></i> 添加
+                                    </a>
                                     <!--                <a class="btn btn-primary single disabled" onclick="$.operate.editTab()" shiro:hasPermission="system:apply:edit">-->
                                     <!--                    <i class="fa fa-edit"></i> 修改-->
                                     <!--                </a>-->
@@ -549,9 +536,9 @@
 <!--                                </div>-->
 
                                 <div class="btn-group-sm" id="toolbar2" role="group">
-                                    <!--                                    <a class="btn btn-success" onclick="$.operate.addTab()">-->
-                                    <!--                                        <i class="fa fa-plus"></i> 添加-->
-                                    <!--                                    </a>-->
+                                    <a class="btn btn-success" onclick="$.operate.addTab()">
+                                        <i class="fa fa-plus"></i> 添加
+                                    </a>
                                     <!--                <a class="btn btn-primary single disabled" onclick="$.operate.editTab()" shiro:hasPermission="system:apply:edit">-->
                                     <!--                    <i class="fa fa-edit"></i> 修改-->
                                     <!--                </a>-->
@@ -742,20 +729,14 @@
                 {
                     field: 'topName',
                     align: 'center',
-                    title: '课题名称'
+                    title: '成果名称'
                 },
-                // {
-                //     field: 'topType',
-                //     title: '课题类型',
-                //     formatter: function(value, row, index) {
-                //        return $.table.selectDictLabel(topTypeDatas, value);
-                //     }
-                // },
+
 
                 {
                     field: 'signingData',
                     align: 'center',
-                    title: '签订日期'
+                    title: '转化日期'
                 },
                 {
                     field: 'amount',
@@ -873,20 +854,14 @@
                 {
                     field: 'topName',
                     align: 'center',
-                    title: '课题名称'
+                    title: '成果名称'
                 },
-                // {
-                //     field: 'topType',
-                //     title: '课题类型',
-                //     formatter: function(value, row, index) {
-                //        return $.table.selectDictLabel(topTypeDatas, value);
-                //     }
-                // },
+
 
                 {
                     field: 'signingData',
                     align: 'center',
-                    title: '签订日期'
+                    title: '转化日期'
                 },
                 {
                     field: 'amount',
@@ -922,15 +897,35 @@
                     }
                 },
                 {
-                    field: 'responsibilityTier',
-                    title: '积分',
+                    field: 'firstPoints',
+                    title: '第一成员积分',
                     align: 'center',
                     formatter: function (value, row, index) {
-                        if (row.state == 4) {
-                            return row.firstPersonId == row.uid ? row.firstPoints : row.secondPersonId == row.uid ? row.secondPoints : row.thirdPersonId == row.uid ? row.thirdPoints : row.fourthPersonId == row.uid ? row.forthPoints : 0;
-                        } else {
-                            return 0;
-                        }
+                        return row.firstPoints || 0;
+                    }
+                },
+                {
+                    field: 'secondPoints',
+                    title: '第二成员积分',
+                    align: 'center',
+                    formatter: function (value, row, index) {
+                        return row.secondPoints || 0;
+                    }
+                },
+                {
+                    field: 'thirdPoints',
+                    title: '第三成员积分',
+                    align: 'center',
+                    formatter: function (value, row, index) {
+                        return row.thirdPoints || 0;
+                    }
+                },
+                {
+                    field: 'forthPoints',
+                    title: '第四成员积分',
+                    align: 'center',
+                    formatter: function (value, row, index) {
+                        return row.forthPoints || 0;
                     }
                 },
                 {
@@ -1150,20 +1145,14 @@
                 {
                     field: 'topName',
                     align: 'center',
-                    title: '课题名称'
+                    title: '成果名称'
                 },
-                // {
-                //     field: 'topType',
-                //     title: '课题类型',
-                //     formatter: function(value, row, index) {
-                //        return $.table.selectDictLabel(topTypeDatas, value);
-                //     }
-                // },
+
 
                 {
                     field: 'signingData',
                     align: 'center',
-                    title: '签订日期'
+                    title: '转化日期'
                 },
                 {
                     field: 'amount',
@@ -1197,15 +1186,35 @@
                     }
                 },
                 {
-                    field: 'responsibilityTier',
-                    title: '积分',
+                    field: 'firstPoints',
+                    title: '第一成员积分',
                     align: 'center',
                     formatter: function (value, row, index) {
-                        if (row.state == 6) {
-                            return row.firstPersonId == row.uid ? row.firstPoints : row.secondPersonId == row.uid ? row.secondPoints : row.thirdPersonId == row.uid ? row.thirdPoints : row.fourthPersonId == row.uid ? row.forthPoints : 0;
-                        } else {
-                            return 0;
-                        }
+                        return row.firstPoints || 0;
+                    }
+                },
+                {
+                    field: 'secondPoints',
+                    title: '第二成员积分',
+                    align: 'center',
+                    formatter: function (value, row, index) {
+                        return row.secondPoints || 0;
+                    }
+                },
+                {
+                    field: 'thirdPoints',
+                    title: '第三成员积分',
+                    align: 'center',
+                    formatter: function (value, row, index) {
+                        return row.thirdPoints || 0;
+                    }
+                },
+                {
+                    field: 'forthPoints',
+                    title: '第四成员积分',
+                    align: 'center',
+                    formatter: function (value, row, index) {
+                        return row.forthPoints || 0;
                     }
                 },
                 {
@@ -1389,6 +1398,7 @@
                         // //             actions.push('<a class="btn btn-danger btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"> </i>删除</a>');
                         // //             actions.push('<a   class="btn btn-success btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> 编辑</a> ');
                         // //             if( row.state == '9'|| row.state == '10') {
+                        // //                 actions.push('<a class="btn btn-success btn-xs" href="javascript:void(0)" onclick="submitto(\'' + row.id + '\', \'' + row.state + '\')">  提交</a>');
                         // //                 actions.push('<a class="btn btn-success btn-xs" href="javascript:void(0)" onclick="submitto(\'' + row.id + '\', \'' + row.state + '\')">  提交</a>');
                         // //             }
                         // //         }else {
@@ -1589,7 +1599,6 @@
             });
         }
     }
-
 
 </script>
 </body>

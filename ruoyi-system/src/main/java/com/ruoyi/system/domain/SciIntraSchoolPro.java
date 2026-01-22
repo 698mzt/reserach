@@ -3,6 +3,8 @@ package com.ruoyi.system.domain;
 import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
 
+import java.util.List;
+
 public class SciIntraSchoolPro extends BaseEntity {
     private static final long serialVersionUID = 1L;
 
@@ -158,20 +160,20 @@ public class SciIntraSchoolPro extends BaseEntity {
     }
 
     private Integer userId;
-    /** 课题名称 */
-    @Excel(name = "成果转化名称", sort = 7)
+    /** 成果名称 */
+    @Excel(name = "成果名称", sort = 7)
     private String topName;
 
-    /** 课题类型 */
-    @Excel(name = "分类", sort = 13)
-    private String topType;
+    // 删除课题类型字段
+    // @Excel(name = "分类", sort = 13)
+    // private String topType;
 
-    /** 签订日期 */
-    @Excel(name = "开题时间", sort = 11)
+    /** 转化日期 */
+    @Excel(name = "转化日期", sort = 11)
     private String signingData;
 
-    /** 合同有效日期 */
-    @Excel(name = "结项时间", sort = 12)
+    /** 合同有效日期 - 不再使用 */
+    @Excel(name = "合同有效日期", sort = 12)
     private String validityDate;
 
     private String createtime;
@@ -198,7 +200,8 @@ public class SciIntraSchoolPro extends BaseEntity {
     //  @Excel(name = "第四负责人")
     private String fourthPersonId;
 
-
+    /** 动态添加的成员IDs - 用于存储第五及以后的负责人ID */
+    private List<String> members;
 
     /** 项目金额 */
     @Excel(name = "项目金额", sort = 10)
@@ -347,6 +350,8 @@ public class SciIntraSchoolPro extends BaseEntity {
         return topName;
     }
 
+    // 删除课题类型相关方法
+    /*
     public void setTopType(String topType)
     {
         this.topType = topType;
@@ -356,6 +361,7 @@ public class SciIntraSchoolPro extends BaseEntity {
     {
         return topType;
     }
+    */
 
 
 
@@ -421,7 +427,19 @@ public class SciIntraSchoolPro extends BaseEntity {
         return fourthPersonId;
     }
 
+    /**
+     * 获取动态添加的成员IDs
+     */
+    public List<String> getMembers() {
+        return members;
+    }
 
+    /**
+     * 设置动态添加的成员IDs
+     */
+    public void setMembers(List<String> members) {
+        this.members = members;
+    }
 
     public void setAmount(String amount)
     {
@@ -534,7 +552,6 @@ public class SciIntraSchoolPro extends BaseEntity {
                 ", userName='" + userName + '\'' +
                 ", userId=" + userId +
                 ", topName='" + topName + '\'' +
-                ", topType='" + topType + '\'' +
                 ", signingData='" + signingData + '\'' +
                 ", validityDate='" + validityDate + '\'' +
                 ", createtime='" + createtime + '\'' +
