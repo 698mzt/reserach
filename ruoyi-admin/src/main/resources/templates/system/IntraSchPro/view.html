@@ -770,19 +770,6 @@
                     }
                 },
                 {
-                    field: 'responsibilityTier',
-                    title: '积分',
-                    align: 'center',
-                    formatter: function (value, row, index) {
-                        //console.log("row=",row)
-                        if (row.state == 6) {
-                            return row.firstPersonId == row.uid ? row.firstPoints : row.secondPersonId == row.uid ? row.secondPoints : row.thirdPersonId == row.uid ? row.thirdPoints : row.fourthPersonId == row.uid ? row.forthPoints : 0;
-                        } else {
-                            return 0;
-                        }
-                    }
-                },
-                {
                     title: '操作',
                     align: 'center',
                     formatter: function (value, row, index) {
@@ -897,6 +884,13 @@
                     }
                 },
                 {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function (value, row, index) {
+                        return '<a href="#" class="edit" data-id="' + row.id + '">编辑</a> <a href="#" class="delete" data-id="' + row.id + '">删除</a>';
+                    }
+                },
+                {
                     field: 'firstPoints',
                     title: '第一成员积分',
                     align: 'center',
@@ -910,6 +904,45 @@
                     align: 'center',
                     formatter: function (value, row, index) {
                         return row.secondPoints || 0;
+                    }
+                },
+                {
+                    field: 'thirdPoints',
+                    title: '第三成员积分',
+                    align: 'center',
+                    formatter: function (value, row, index) {
+                        return row.thirdPoints || 0;
+                    }
+                },
+                {
+                    field: 'fourthPoints',
+                    title: '第四成员积分',
+                    align: 'center',
+                    formatter: function (value, row, index) {
+                        return row.fourthPoints || 0;
+                    }
+                },
+                {
+                    field: 'totalPoints',
+                    title: '总积分',
+                    align: 'center',
+                    formatter: function (value, row, index) {
+                        return row.totalPoints || 0;
+                    }
+                },
+                {
+                    field: 'createdAt',
+                    title: '创建时间',
+                    align: 'center',
+                    formatter: function (value, row, index) {
+                        return moment(value).format('YYYY-MM-DD HH:mm:ss');
+                    }
+                },
+                {
+                    field: 'updatedAt',
+                    title: '更新时间',
+                    align: 'center',
+                    formatter: function (value, row, index) {
                     }
                 },
                 {

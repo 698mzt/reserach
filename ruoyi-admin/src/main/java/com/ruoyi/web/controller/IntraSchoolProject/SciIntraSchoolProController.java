@@ -337,7 +337,7 @@ public class SciIntraSchoolProController extends BaseController {
       return prefix + "/edit";
     } else if (sciIntraSchoolPro.getState().equals("6")) {
       System.out.println("2");
-      return prefix + "/is_Over";
+      return prefix + "/is_Over";  // 恢复原状
     } else {
       System.out.println("3");
       return prefix + "/edit_Over";
@@ -429,6 +429,20 @@ public class SciIntraSchoolProController extends BaseController {
     return getDataTable(list);
   }
 
+  /**
+   * 流程记录
+   *
+   * @param kid
+   * @return
+   */
+  @PostMapping("/processRecord/{kid}")
+  @ResponseBody
+  public TableDataInfo processRecord(@PathVariable("kid") Integer kid) {
+    SciIntraSchProPiyue ob = new SciIntraSchProPiyue();
+    ob.setSchxktId(kid);
+    List<SciIntraSchProPiyue> list = piyueService.selectIntraSchProPiyueList(ob);
+    return getDataTable(list);
+  }
 
   /**
    * 更改自己的草稿状态，提交到教研室，加入操作记录
@@ -687,6 +701,25 @@ public class SciIntraSchoolProController extends BaseController {
 
     return resp;
 
+  }
+
+  /**
+   * 将已完结项目转为草稿状态（重构功能）
+   *
+   * @param id
+   * @return
+   */
+  @PostMapping("/convertToDraft/{id}")
+  @ResponseBody
+  public AjaxResult convertToDraft(@PathVariable("id") Integer id) {
+      SciIntraSchoolPro sciIntraSchoolPro = sciIntraSchProApplyService.sel_IntraSchPro_by_id(id);
+      // 只有已完结状态（6）的项目才能转为草稿状态
+      if ("6".equals(sciIntraSchoolPro.getState())) {
+          sciIntraSchoolPro.setState("15"); // 设置为草稿箱状态
+          return toAjax(sciIntraSchProApplyService.updateIntraSchoolApply(sciIntraSchoolPro));
+      } else {
+          return AjaxResult.error("只有已完结状态的项目才能转为草稿状态！");
+      }
   }
 
 }

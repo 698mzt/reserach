@@ -28,6 +28,12 @@
         margin: 3px 0;
     }
 </style>
+<style>
+    .btn-primary.color:hover {
+        background-color: #5cb85c;
+        border-color: #4cae4c;
+    }
+</style>
 <body class="white-bg">
 <div class="wrapper wrapper-content animated fadeInRight ibox-content">
     <form class="form-horizontal m" id="form-apply-edit" th:object="${sciIntraSchoolPro}">
@@ -93,24 +99,12 @@
                             <input readonly th:field="*{signingData}"
                                    th:value="${#dates.format(signingData, 'yyyy-MM-dd')}" class="form-control"
                                    placeholder="yyyy-MM-dd" type="text" required>
-                           <!-- <span class="input-group-addon"><i class="fa fa-calendar"></i></span>-->
+                           <span class="input-group-addon" style="background-color: #f5f5f5; border-color: #ddd;"><i class="fa fa-calendar"></i></span>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-xs-6">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">合同有效日期：</label>
-                    <div class="col-sm-8">
-                        <div class="input-group date">
-                            <input readonly th:field="*{createtime}"
-                                   th:value="${#dates.format(createtime, 'yyyy-MM-dd ')}" class="form-control"
-                                   placeholder="yyyy-MM-dd " type="text" required>
-                            <!--<span class="input-group-addon"><i class="fa fa-calendar"></i></span>-->
-                        </div>
-                    </div>
-                </div>
-            </div>
+
             <div class="col-xs-6">
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">第一负责人：</label>
@@ -195,12 +189,14 @@
                         <!--                    <span id="filingFileName" class="form-control" readonly></span>-->
                         <div style="display:inline-block;">
                             <div id="filingFileName" style="display: inline; margin-right: 5px;"></div>
+                        </div>
+                        <div>
                             <button onclick="chakan()"
-                                    class="btn btn-primary">
+                                    class="btn btn-sm btn-primary color">
                                 预览
                             </button>
                             <button onclick="downloadFile('filing')"
-                                    class="btn btn-primary">
+                                    class="btn btn-sm btn-primary color" style="margin-left: 5px;">
                                 下载
                             </button>
                         </div>
@@ -214,12 +210,14 @@
                         <input th:field="*{overFiling}" hidden id="contract" type="text">
                         <div style="display: inline-block;">
                             <div id="contractFileName" style="display: inline; margin-right: 5px;"></div>
+                        </div>
+                        <div>
                             <button onclick="beian()"
-                                    class="btn btn-primary">
+                                    class="btn btn-sm btn-primary color">
                                 预览
                             </button>
                             <button onclick="downloadFile('contract')"
-                                    class="btn btn-primary">
+                                    class="btn btn-sm btn-primary color" style="margin-left: 5px;">
                                 下载
                             </button>
                         </div>
