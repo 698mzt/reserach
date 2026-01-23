@@ -72,6 +72,14 @@
                 </div>
             </div>
         </div>
+        <div class="col-xs-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">预期科研分：</label>
+                <div class="col-sm-8">
+                    <input id="expectedScore" name="expectedScore"  class="form-control" type="text" readonly placeholder="选择课题类型和填写金额后自动计算">
+                </div>
+            </div>
+        </div>
 
 
         <div class="col-xs-6">
@@ -266,6 +274,48 @@
         autoclose: true
     });
 
+    // 计算预期积分
+    function calculateExpectedScore() {
+        const topType = $(".form-control[name='topType']").val();
+        const subjectSource = $(".form-control[name='subjectSource']").val();
+        const amount = $(".form-control[name='amount']").val();
+        
+        // 如果必填字段未填写，不计算积分
+        if (!topType || !amount) {
+            $("#expectedScore").val("");
+            return;
+        }
+        
+        // 发送AJAX请求计算积分
+        $.ajax({
+            url: prefix + "/calculateScore",
+            type: "POST",
+            data: {
+                topType: topType,
+                subjectSource: subjectSource,
+                amount: parseFloat(amount)
+            },
+            dataType: "json",
+            success: function(result) {
+                console.log("AJAX Success - Result:", result);
+                if (result && result.code === 0 && result.data !== undefined) {
+                    $("#expectedScore").val(result.data);
+                } else {
+                    console.error("Invalid result format:", result);
+                    $("#expectedScore").val(0);
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error("AJAX Error:", status, error);
+                $("#expectedScore").val(0);
+            }
+        });
+    }
+    
+    // 为相关字段添加change事件监听器
+    $("select[name='topType'], select[name='subjectSource'], input[name='amount']").on("change", calculateExpectedScore);
+    $("input[name='amount']").on("input", calculateExpectedScore);
+    
     $(".file-upload").fileinput({
         uploadUrl: ctx + 'common/upload/zxkt',
         initialPreviewAsData: true,
@@ -275,7 +325,7 @@
         allowedFileExtensions: ["pdf"],
         slugCallback: function(filename) {
             if ($("input[name='topName']").val()===""){
-                $(".file-upload").fileinput('clear');
+                $(this).fileinput('clear');
                 $.modal.alertError("请先输入课题名称");
                 return false;
             }
@@ -284,7 +334,7 @@
             const year = new Date().getFullYear();
             const newName = year +"-"+ $("input[name='topName']").val() +"-"+ "立项文件"+ "." + fileExtension;
             return newName;
-        },
+        }
     }).on('fileuploaded', function (event, data, previewId, index) {
         $("input[type='hidden'][name='file']").val(data.response.url)
     }).on('fileremoved', function (event, id, index) {
