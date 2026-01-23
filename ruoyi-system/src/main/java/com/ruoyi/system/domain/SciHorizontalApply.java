@@ -108,6 +108,9 @@ public class SciHorizontalApply extends BaseEntity
     /** 到账金额 */
     private String creditedAmount;
 
+    /** 科研分 */
+    private String researchScore;
+
     /** 课题类型 */
     // @Excel(name = "课题类型")
     private String topType;
@@ -540,6 +543,14 @@ public class SciHorizontalApply extends BaseEntity
 
     public void setTopNumber(String topNumber) {
         this.topNumber = topNumber;
+    }
+
+    public String getResearchScore() {
+        return researchScore;
+    }
+
+    public void setResearchScore(String researchScore) {
+        this.researchScore = researchScore;
     }
 
 
