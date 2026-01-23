@@ -107,7 +107,7 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
      * @return 结果
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public int deleteSciPaperAByIds(String ids) {
         paperUserScoreServiceImplMapper.deletePaperUserScoreByPaperId(Long.valueOf(ids));
         return sciPaperAMapper.deleteSciPaperAByIds(Convert.toStrArray(ids));
@@ -124,48 +124,68 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
         return sciPaperAMapper.deleteSciPaperAById(id);
     }
 
+    /**
+     * 更新论文状态
+     * @param id 论文ID
+     * @return 更新结果
+     */
     @Override
     public int updateSciPaperAState(Integer id) {
-        int a = sciPaperAMapper.updateSciPaperAState(id);
-        return a;
+        return sciPaperAMapper.updateSciPaperAState(id);
     }
 
+    /**
+     * 查询论文列表（查询列表）
+     * @param sciPaperA 论文实体
+     * @return 论文列表
+     */
     @Override
     @DataScope(deptAlias = "pt", userAlias = "u")
     public List<SciPaperA> selectSciPaperAListCxList(SciPaperA sciPaperA) {
         return sciPaperAMapper.selectSciPaperAListCxList(sciPaperA);
     }
 
+    /**
+     * 根据用户ID查询论文角色
+     * @param userId 用户ID
+     * @return 论文列表
+     */
     @Override
     public List<SciPaperA> selectSciPaperArole(Long userId) {
         return sciPaperAMapper.selectSciPaperArole(userId);
     }
 
-    /*通过uderId查*/
+    /**
+     * 根据用户ID查询论文列表
+     * @param sciPaperA 论文实体
+     * @return 论文列表
+     */
     @Override
-    //  @DataScope(deptAlias = "d",userAlias = "u")
     public List<SciPaperA> selectSciPaperAListCx(SciPaperA sciPaperA) {
         return sciPaperAMapper.selectSciPaperAListCx(sciPaperA);
     }
 
+    /**
+     * 根据用户ID查询角色ID列表
+     * @param userId 用户ID
+     * @return 角色ID列表
+     */
     @Override
-    // @DataScope(deptAlias = "d",userAlias = "u")
     public List<String> selectSciPaperAByroleId(Long userId) {
-        //数据权限
-        List<String> a = sciPaperAMapper.selectSciPaperAByroleId(userId);
-        return a;
+        return sciPaperAMapper.selectSciPaperAByroleId(userId);
     }
 
     /**
      * 论文批阅点击通过
-     * @param id
-     * @param uid
-     * @param urlFlag
-     * @param order
-     * @param user_order
-     * @return
+     * @param id 论文ID
+     * @param uid 用户ID
+     * @param urlFlag URL标识
+     * @param order 论文类别
+     * @param user_order 用户排名
+     * @return 操作结果
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int pytg(String id, Long uid, String urlFlag, String order, String user_order) {
         String state = "0";
         SciPaperAr sciPaperAr = new SciPaperAr();
@@ -178,12 +198,7 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
         } else if (urlFlag.equals("kytg")) {
             state = "8"; //科研处通过
             sciPaperAr.setConcate("科研处通过");
-            // 原来积分设置
-            //int points = sciPaperACfgMapper.selectSciPaperACfgPoints(order, user_order);
-            //System.out.println("points = " + points);
-            //int b = sciPaperAMapper.updateSciPaperArs(id, points);
-
-            //查询积分表
+            // 查询积分表
             List<Integer> point_list = sciPaperACfgMapper.selectSciPaperACfgPointList(order);
             // 通过之后设置积分
             int res = setPaperUserScore(id, point_list);
@@ -535,21 +550,21 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
     }
     /**
      * 通过批阅点击驳回 , 或者通过撤回点击驳回
-     * @param id
-     * @param userId
-     * @param remark
-     * @param urlFlag
-     * @return
+     * @param id 论文ID
+     * @param userId 用户ID
+     * @param remark 备注信息
+     * @param urlFlag URL标识
+     * @return 操作结果
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int pybh(String id, Long userId, String remark, String urlFlag) {
         String state = "0";
         SciPaperAr sciPaperAr = new SciPaperAr();
-        System.out.println("urlFlag = " + urlFlag);
-        if (urlFlag.equals("xytg")  ) {
+        if (urlFlag.equals("xytg")) {
             sciPaperAr.setState("学院驳回");
             state = "5";
-        } else if ( urlFlag.equals("xyth")) {
+        } else if (urlFlag.equals("xyth")) {
             sciPaperAr.setState("学院撤回");
             state = "2";
         } else if (urlFlag.equals("pro")) {
@@ -561,7 +576,7 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
         } else if (urlFlag.equals("kytg")) {
             sciPaperAr.setState("科研处驳回");
             state = "7";
-        }else if (urlFlag.equals("kyth")) {
+        } else if (urlFlag.equals("kyth")) {
             sciPaperAr.setState("科研处撤回");
             state = "4";
             int points = 0;
@@ -571,10 +586,7 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
 
         sciPaperAr.setUid(userId);
         sciPaperAr.setAr_id(Integer.valueOf(id));
-        //System.out.println("remark132131 = " + remark);
-
         sciPaperAr.setConcate(remark);
-
 
         sciPaperAMapper.insertSciPaperAr(sciPaperAr);
         return a;
@@ -590,12 +602,14 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
         return sciPaperAMapper.selectAllPaperName(query);
     }
 
+    /**
+     * 检查论文是否存在
+     * @param paper 论文实体
+     * @return 存在数量
+     */
     @Override
     public Integer selectSciPaperA(SciPaperA paper) {
-        System.out.println("--------------------------");
-        Integer a = sciPaperAMapper.selectSciPaperA(paper);
-        System.out.println("a = " + a);
-        return a;
+        return sciPaperAMapper.selectSciPaperA(paper);
     }
 
     @Override
