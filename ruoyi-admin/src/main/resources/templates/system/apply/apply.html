@@ -1186,6 +1186,17 @@
                     title: '追加金额'
                 },
                 {
+                    field: 'researchScore',
+                    align: 'center',
+                    title: '科研分',
+                    formatter: function(value, row, index) {
+                        if (value && value !== '0' && value !== '') {
+                            return value;
+                        }
+                        return '-';
+                    }
+                },
+                {
                     align: 'center',
                     title: '个人排名',
                     formatter: function(value, row, index) {

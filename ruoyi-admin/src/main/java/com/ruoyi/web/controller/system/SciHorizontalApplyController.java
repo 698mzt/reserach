@@ -513,7 +513,7 @@ public class SciHorizontalApplyController extends BaseController
         SciHorizontalApply sciHorizontalApply = sciHorizontalApplyService.selectSciHorizontalApplyById(id);
         List<SysUser> userList1 =  userService.selectAllUser();
         sciHorizontalApply.setUrlFlag(urlFlag);
-        //        创建一个“其他”
+        //        创建一个"其他"
         SysUser other = new SysUser();
         other.setUserId(-1L);
         other.setUserName("其他");
@@ -522,6 +522,8 @@ public class SciHorizontalApplyController extends BaseController
 
         mmap.put("sysUsers1",userList1);
         mmap.put("sciHorizontalApply", sciHorizontalApply);
+        // 传递当前登录用户ID，用于权限判断
+        mmap.put("currentUserId", getUserId());
         // 查询全部成员并注入第5位及以后
         java.util.List<String> allMemberIds = sciHorizontalApplyService.selectPersionIdsByApplyId(id);
         java.util.List<String> extraMembers = new java.util.ArrayList<>();
@@ -548,6 +550,8 @@ public class SciHorizontalApplyController extends BaseController
 
         mmap.put("sysUsers1",userList1);
         mmap.put("sciHorizontalApply", sciHorizontalApply);
+        // 传递当前登录用户ID，用于权限判断
+        mmap.put("currentUserId", getUserId());
         // 查询全部成员并注入第5位及以后
         List<String> allMemberIds = sciHorizontalApplyService.selectPersionIdsByApplyId(id);
         List<String> extraMembers = new java.util.ArrayList<>();
@@ -908,6 +912,8 @@ public class SciHorizontalApplyController extends BaseController
 
         mmap.put("sysUsers1",userList1);
         mmap.put("sciHorizontalApply", sciHorizontalApply);
+        // 传递当前登录用户ID，用于权限判断
+        mmap.put("currentUserId", getUserId());
         // 查询全部成员并注入第5位及以后
         List<String> allMemberIds = sciHorizontalApplyService.selectPersionIdsByApplyId(sciHorizontalApply.getId());
         List<String> extraMembers = new java.util.ArrayList<>();
