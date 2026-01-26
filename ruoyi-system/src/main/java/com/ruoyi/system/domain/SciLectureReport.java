@@ -105,6 +105,12 @@ public class SciLectureReport extends BaseEntity
     /** 该条记录的报告对应的积分id */
     private int repIntId;
 
+    /** 分类名称（从积分管理表关联查询） */
+    private String classificationName;
+
+    /** 积分值（从积分管理表关联查询） */
+    private String integralValue;
+
     /**
      * get---set方法
      * */
@@ -318,6 +324,22 @@ public class SciLectureReport extends BaseEntity
     public String getReportKeyanfen() 
     {
         return reportKeyanfen;
+    }
+
+    public String getClassificationName() {
+        return classificationName;
+    }
+
+    public void setClassificationName(String classificationName) {
+        this.classificationName = classificationName;
+    }
+
+    public String getIntegralValue() {
+        return integralValue;
+    }
+
+    public void setIntegralValue(String integralValue) {
+        this.integralValue = integralValue;
     }
 
     @Override

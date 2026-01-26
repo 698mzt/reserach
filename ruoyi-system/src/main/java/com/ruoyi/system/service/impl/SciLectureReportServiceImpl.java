@@ -205,6 +205,10 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService
         } catch (DateTimeParseException e) {
             System.err.println("时间格式错误！请使用 yyyy-MM-dd HH:mm 格式。");
         }
+        
+        // 根据讲座报告分类同步积分
+        syncLectureReportIntegral(sciLectureReport);
+        
         int number =sciLectureReportMapper.insertSciLectureReport(sciLectureReport);
 
         SciLectureReportOpinion sciLectureReportOpinion = new SciLectureReportOpinion();
@@ -261,6 +265,9 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService
     @Transactional
     public int updateSciLectureReport(SciLectureReport sciLectureReport)
     {
+        // 根据讲座报告分类同步积分
+        syncLectureReportIntegral(sciLectureReport);
+        
         int number = sciLectureReportMapper.updateSciLectureReport(sciLectureReport);
         if (sciLectureReport.getUrlFlag().equals("gengxin")){
             SciLectureReportOpinion sciLectureReportOpinion = new SciLectureReportOpinion();
@@ -358,8 +365,13 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService
         }else if (urlFlag.equals("check")){
             state = "4"; // 科研室通过
             SciLectureReport report = sciLectureReportMapper.selectSciLectureReportById(rid);
-            SciLectureReportIntegral sciLectureReportIntegral = reportIntegralMapper.selectSciLectureReportIntegralById(report.getRepIntId());
-            int kyf = sciLectureReportMapper.reportKeyanfen(rid, sciLectureReportIntegral.getIntegral());
+            if (report != null && report.getReportClassify() != null && !report.getReportClassify().isEmpty()) {
+                Integer classifyId = Integer.parseInt(report.getReportClassify());
+                SciLectureReportIntegral sciLectureReportIntegral = reportIntegralMapper.selectSciLectureReportIntegralById(classifyId);
+                if (sciLectureReportIntegral != null && sciLectureReportIntegral.getIntegral() != null) {
+                    int kyf = sciLectureReportMapper.reportKeyanfen(rid, sciLectureReportIntegral.getIntegral());
+                }
+            }
         } else if (urlFlag.equals("xypro")) {
             state = "2"; // 学院通过
         } else {
@@ -434,6 +446,48 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService
         // 手动处理数据权限，因为 @DataScope 只支持 BaseEntity 类型，而这里使用的是 Map
         DataScopeUtils.applyDataScopeToMap(params, "d", "u", "");
         return sciLectureReportMapper.getStatsQueryToCheck(params);
+    }
+
+    /**
+     * 同步讲座报告积分
+     * 根据讲座报告的分类，从积分管理表中获取对应的积分值并设置到讲座报告中
+     * 
+     * @param sciLectureReport 讲座报告对象
+     */
+    private void syncLectureReportIntegral(SciLectureReport sciLectureReport) {
+        if (sciLectureReport.getReportClassify() != null && !sciLectureReport.getReportClassify().isEmpty()) {
+            try {
+                // 将分类字符串转换为整数
+                Integer classifyId = Integer.parseInt(sciLectureReport.getReportClassify());
+                
+                // 根据分类ID查询对应的积分
+                SciLectureReportIntegral integral = reportIntegralMapper.selectSciLectureReportIntegralById(classifyId);
+                
+                if (integral != null && integral.getIntegral() != null) {
+                    // 设置积分值到讲座报告
+                    sciLectureReport.setReportKeyanfen(integral.getIntegral());
+                    // 同时设置积分值字段
+                    sciLectureReport.setIntegralValue(integral.getIntegral());
+                    // 设置分类名称
+                    sciLectureReport.setClassificationName(integral.getClassification());
+                } else {
+                    // 如果没有找到对应的积分，设置为0
+                    sciLectureReport.setReportKeyanfen("0");
+                    sciLectureReport.setIntegralValue("0");
+                    sciLectureReport.setClassificationName("未知分类");
+                }
+            } catch (NumberFormatException e) {
+                // 如果分类ID不是有效的数字，设置为0
+                sciLectureReport.setReportKeyanfen("0");
+                sciLectureReport.setIntegralValue("0");
+                sciLectureReport.setClassificationName("无效分类");
+            }
+        } else {
+            // 如果没有设置分类，设置为0
+            sciLectureReport.setReportKeyanfen("0");
+            sciLectureReport.setIntegralValue("0");
+            sciLectureReport.setClassificationName("未选择分类");
+        }
     }
 
 }
