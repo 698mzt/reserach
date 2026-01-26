@@ -55,6 +55,23 @@
     .url-link-container {
         line-height: 34px !important;
     }
+    /* 作者分数样式 */
+    .author-score {
+        background-color: #5cb85c;
+        color: white;
+        font-weight: bold;
+        border-radius: 0 4px 4px 0;
+        min-width: 80px;
+        text-align: center;
+        display: inline-block;
+        padding: 6px 12px;
+        margin-left: 10px;
+    }
+    /* 通讯作者样式 */
+    .corresponding-author-label {
+        color: #5cb85c;
+        font-weight: bold;
+    }
 </style>
 <body class="white-bg">
 <div class="wrapper wrapper-content animated fadeInRight ibox-content">
@@ -214,6 +231,8 @@
                     <label class="col-sm-4 control-label">一作：</label>
                     <div class="col-sm-8">
                         <input disabled name="firstAuthorName" th:field="*{firstAuthorName}" class="form-control" type="text">
+                        <span class="author-score" id="firstAuthorScore">0分</span>
+                        <input type="hidden" id="firstPersonId" th:field="*{firstPersonId}" th:value="*{firstPersonId}">
                     </div>
                 </div>
             </div>
@@ -222,6 +241,8 @@
                     <label class="col-sm-4 control-label">二作：</label>
                     <div class="col-sm-8">
                         <input disabled name="secondAuthorName" th:field="*{secondAuthorName}" class="form-control" type="text">
+                        <span class="author-score" id="secondAuthorScore">0分</span>
+                        <input type="hidden" id="secondPersonId" th:field="*{secondPersonId}" th:value="*{secondPersonId}">
                     </div>
                 </div>
             </div>
@@ -230,6 +251,8 @@
                     <label class="col-sm-4 control-label">三作：</label>
                     <div class="col-sm-8">
                         <input disabled name="thirdAuthorName" th:field="*{thirdAuthorName}" class="form-control" type="text">
+                        <span class="author-score" id="thirdAuthorScore">0分</span>
+                        <input type="hidden" id="thirdPersonId" th:field="*{thirdPersonId}" th:value="*{thirdPersonId}">
                     </div>
                 </div>
             </div>
@@ -238,6 +261,8 @@
                     <label class="col-sm-4 control-label">四作：</label>
                     <div class="col-sm-8">
                         <input disabled name="fourthAuthorName" th:field="*{fourthAuthorName}" class="form-control" type="text">
+                        <span class="author-score" id="fourthAuthorScore">0分</span>
+                        <input type="hidden" id="fourthPersonId" th:field="*{fourthPersonId}" th:value="*{fourthPersonId}">
                     </div>
                 </div>
             </div>
@@ -246,6 +271,7 @@
                     <label class="col-sm-4 control-label">通讯作者：</label>
                     <div class="col-sm-8">
                         <input disabled name="correspondingAuthorName" th:field="*{correspondingAuthorName}" class="form-control" type="text">
+                        <input type="hidden" id="correspondingAuthorId" th:field="*{communicationAuthorId}" th:value="*{communicationAuthorId}">
                     </div>
                 </div>
             </div>
@@ -420,7 +446,7 @@
 
     $(function() {
         var pid = $("#pid").val();
-        console.log("pid:",pid);
+        // console.log("pid:",pid);
         var options = {
             url: prefix + "/bhxs/" + pid,
             showSearch: false,
@@ -461,7 +487,7 @@
             const state = $("#state").val();
             const urlFlag = $("#urlFlag").val();
 
-            console.log("State:", state);
+            // console.log("State:", state);
             //关闭
             $("#btn3").show();
             if (urlFlag === 'chakan' || urlFlag === 'LW') {
@@ -536,14 +562,12 @@
     function submitHandler() {
         var urlFlag = $("#urlFlag").val();
         var paperCategory = $("#paperCategory").val();
-        var paperRanking = $("#paperRanking").val();
-        console.log("paperCategory:", paperCategory);
-        console.log("paperRanking:", paperRanking);
+        // console.log("paperCategory:", paperCategory);
         // 构建完整的URL
         var Url = prefix + "/pytg/" + encodeURIComponent($("#pid").val());
 
-        $.operate.saveTab(Url, {"urlFlag": urlFlag,"paperCategory":paperCategory,"paperRanking":paperRanking}, function(response){
-            console.log("Server response:", response);
+        $.operate.saveTab(Url, {"urlFlag": urlFlag,"paperCategory":paperCategory}, function(response){
+            // console.log("Server response:", response);
         });
     }
 
@@ -578,7 +602,7 @@
 
 
         } else {
-            console.error("Form validation failed");
+            // console.error("Form validation failed");
         }
     }
 
@@ -655,7 +679,105 @@
     window.onload = function() {
         displayFileName('text_paper', 'contractFileName');
         displayFileName('word_paper', 'wordFileName');
+        calculateAndUpdateScores();
     };
+    
+    // 获取当前作者信息
+    function getCurrentAuthors() {
+        const authors = {
+            '1': $('#firstPersonId').val(),
+            '2': $('#secondPersonId').val(),
+            '3': $('#thirdPersonId').val(),
+            '4': $('#fourthPersonId').val()
+        };
+        return authors;
+    }
+    
+    // 计算并更新分数
+    function calculateAndUpdateScores() {
+        const paperCategory = $('select[name="paperCategory"]').val();
+        const authors = getCurrentAuthors();
+        const communicationAuthorId = $('#correspondingAuthorId').val();
+        
+        // console.log('=== 开始计算分数 ===');
+        // console.log('论文类别:', paperCategory);
+        // console.log('作者信息:', authors);
+        // console.log('通讯作者ID:', communicationAuthorId);
+        
+        // 如果论文类别未选择，不计算分数
+        if (!paperCategory) {
+            // console.log('论文类别未选择，不计算分数');
+            return;
+        }
+        
+        // 构造请求数据
+        const requestData = {
+            paperCategory: paperCategory,
+            authors: authors,
+            communicationAuthorId: communicationAuthorId || ''
+        };
+        
+        // console.log('请求数据:', requestData);
+        
+        // 调用后端API计算分数
+        $.ajax({
+            url: prefix + '/calculateScore',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(requestData),
+            success: function(response) {
+                // console.log('API响应:', response);
+                
+                if (response.code === 0) {
+                    const scores = response.data;
+                    // console.log('分数数据:', scores);
+                    
+                    // 更新各作者分数显示
+                    updateAuthorScores(scores, authors);
+                } else {
+                    // console.error('API返回错误:', response.msg);
+                }
+            },
+            error: function(xhr, status, error) {
+                // console.error('计算科研分失败:', status, error);
+                // console.error('XHR状态:', xhr.status);
+                // console.error('XHR响应文本:', xhr.responseText);
+            }
+        });
+    }
+    
+    // 更新作者分数显示
+    function updateAuthorScores(scores, authors) {
+        // console.log('=== 更新作者分数 ===');
+        // console.log('分数数据:', scores);
+        // console.log('作者信息:', authors);
+        
+        // 更新一作分数
+        const firstKey = '1_' + authors['1'];
+        const firstAuthorScore = scores[firstKey] || 0;
+        // console.log('一作分数计算:', firstKey, '=>', firstAuthorScore);
+        $('#firstAuthorScore').text(firstAuthorScore + '分');
+        
+        // 更新二作分数
+        const secondKey = '2_' + authors['2'];
+        const secondAuthorScore = scores[secondKey] || 0;
+        // console.log('二作分数计算:', secondKey, '=>', secondAuthorScore);
+        $('#secondAuthorScore').text(secondAuthorScore + '分');
+        
+        // 更新三作分数
+        const thirdKey = '3_' + authors['3'];
+        const thirdAuthorScore = scores[thirdKey] || 0;
+        // console.log('三作分数计算:', thirdKey, '=>', thirdAuthorScore);
+        $('#thirdAuthorScore').text(thirdAuthorScore + '分');
+        
+        // 更新四作分数
+        const fourthKey = '4_' + authors['4'];
+        const fourthAuthorScore = scores[fourthKey] || 0;
+        // console.log('四作分数计算:', fourthKey, '=>', fourthAuthorScore);
+        $('#fourthAuthorScore').text(fourthAuthorScore + '分');
+        
+        // console.log('=== 分数更新完成 ===');
+    }
 </script>
 </body>
 </html>
