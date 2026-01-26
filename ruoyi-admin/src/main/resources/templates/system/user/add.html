@@ -37,16 +37,18 @@
 <!--                        <label class="col-sm-4 control-label">行政职务：</label>-->
                         <label class="col-sm-4 control-label is-required">岗类：</label>
                         <div class="col-sm-8">
-                            <select name="adminstrativeTitle" class="form-control" th:with="type=${@dict.getType('sys_adminstrative_title')}" required>
+                            <select name="adminstrativeTitle" class="form-control" required>
                                 <option value="">---请选择--</option>
-                                <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
+                                <option value="行政">行政</option>
+                                <option value="教师">教师</option>
+                                <option value="教学管理">教学管理</option>
                             </select>
                         </div>
                     </div>
                 </div>
                 <div class="col-sm-6">
                     <div class="form-group">
-                        <label class="col-sm-4 control-label is-required">科研方向：</label>
+                        <label class="col-sm-4 control-label is-required">科研团队：</label>
                         <div class="col-sm-8">
                             <select name="reserchDirection" class="form-control" th:with="type=${@dict.getType('sci_reserch_direction')}" required>
                                 <option value="">---请选择--</option>

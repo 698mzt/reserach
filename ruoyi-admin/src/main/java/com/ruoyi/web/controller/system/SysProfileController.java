@@ -45,13 +45,36 @@ public class SysProfileController extends BaseController
     private SysPasswordService passwordService;
 
     /**
+     * 计算年龄
+     * @param dateOfBirth 出生日期，格式为yyyy-MM-dd
+     * @return 年龄
+     */
+    private Integer calculateAge(String dateOfBirth) {
+        if (StringUtils.isEmpty(dateOfBirth)) {
+            return null;
+        }
+        try {
+            java.util.Date birthDate = DateUtils.parseDate(dateOfBirth, "yyyy-MM-dd");
+            java.util.Date now = new java.util.Date();
+            long diff = now.getTime() - birthDate.getTime();
+            long age = diff / (1000L * 60 * 60 * 24 * 365);
+            return (int) age;
+        } catch (Exception e) {
+            log.error("计算年龄失败：{}", e.getMessage());
+            return null;
+        }
+    }
+
+    /**
      * 个人信息
      */
     @GetMapping()
     public String profile(ModelMap mmap)
     {
         SysUser user = getSysUser();
+        Integer age = calculateAge(user.getDateOfBirth());
         mmap.put("user", user);
+        mmap.put("age", age);
         mmap.put("roleGroup", userService.selectUserRoleGroup(user.getUserId()));
         mmap.put("postGroup", userService.selectUserPostGroup(user.getUserId()));
         return prefix + "/profile";

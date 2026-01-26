@@ -27,12 +27,18 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="year" column="year" /> <!-- 确保映射正确 -->
         <result  property="parentId" column="parent_id" />
 
+        <result property="firstPersonId" column="first_person_id"/>
+        <result property="secondPersonId" column="second_person_id"/>
+        <result property="thirdPersonId" column="third_person_id"/>
+        <result property="fourthPersonId" column="fourth_person_id"/>
+        <result property="members" column="members"/>
+
 
 
     </resultMap>
 
     <sql id="selectSciZhuanliruanzhuVo">
-        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.mingcheng, s.shoquanhao, s.huopishijain, s.shifouyingyon, s.hangyelianhe, s.fenlei, s.state,s.jifen,s.paiming,s.wenjian,s.createtime
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.mingcheng, s.shoquanhao, s.huopishijain, s.shifouyingyon, s.hangyelianhe, s.fenlei, s.state,s.jifen,s.paiming,s.wenjian,s.createtime,s.first_person_id,s.second_person_id,s.third_person_id,s.fourth_person_id,s.members
         from sci_zhuanliruanzhu s left join sys_user u on  s.user_id=u.user_id
                                   left join sys_dept d on u.dept_id = d.dept_id
                                   left join sys_dept p on d.parent_id =p.dept_id
@@ -41,7 +47,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 <!--    导出语句-->
     <select id="selectSciZhuanliruanzhuList" parameterType="SciZhuanliruanzhu" resultMap="SciZhuanliruanzhuResult">
         <include refid="selectSciZhuanliruanzhuVo"/>
-        where state in (1,2,3,4,5,6,7)
+        where (state in (1,2,3,4,5,6,7)) or (state = 0 and s.user_id = #{uid})
         <if test="jiaoyanshi != null  and jiaoyanshi != ''">and  d.dept_name like concat('%', #{jiaoyanshi}, '%')</if>
         <if test="xingming != null  and xingming != ''">and  u.user_name like concat('%', #{xingming}, '%')</if>
         <if test="mingcheng != null  and mingcheng != ''"> and mingcheng like concat('%', #{mingcheng}, '%')</if>
@@ -163,7 +169,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         ${params.dataScope}
         order by
         case
---         待科研处审核
+--        待科研处审
         when state = 4 then 1
 --         科研处通过
         when state in (6) then 2
@@ -192,7 +198,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="paiming != null and paiming != ''">paiming,</if>
             <if test="jifen != null and jifen != ''">jifen,</if>
             <if test="wenjian != null and wenjian != ''">wenjian,</if>
+            <if test="state != null and state != ''">state,</if>
 
+            <if test="firstPersonId != null and firstPersonId != ''">first_person_id,</if>
+            <if test="secondPersonId != null and secondPersonId != ''">second_person_id,</if>
+            <if test="thirdPersonId != null and thirdPersonId != ''">third_person_id,</if>
+            <if test="fourthPersonId != null and fourthPersonId != ''">fourth_person_id,</if>
+            <if test="members != null and members != ''">members,</if>
 
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -207,7 +219,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="paiming != null and paiming != ''">#{paiming},</if>
             <if test="jifen != null and jifen != ''">#{jifen},</if>
             <if test="wenjian != null and wenjian != ''">#{wenjian},</if>
+            <if test="state != null and state != ''">#{state},</if>
 
+            <if test="firstPersonId != null and firstPersonId != ''">#{firstPersonId},</if>
+            <if test="secondPersonId != null and secondPersonId != ''">#{secondPersonId},</if>
+            <if test="thirdPersonId != null and thirdPersonId != ''">#{thirdPersonId},</if>
+            <if test="fourthPersonId != null and fourthPersonId != ''">#{fourthPersonId},</if>
+            <if test="members != null and members != ''">#{members},</if>
 
         </trim>
     </insert>
@@ -228,6 +246,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="fenlei != null and fenlei != ''">fenlei = #{fenlei},</if>
             <if test="paiming != null and paiming != ''">paiming = #{paiming},</if>
             <if test="wenjian != null and wenjian != ''">wenjian = #{wenjian},</if>
+
+            <if test="firstPersonId != null and firstPersonId != ''">first_person_id = #{firstPersonId},</if>
+            <if test="secondPersonId != null and secondPersonId != ''">second_person_id = #{secondPersonId},</if>
+            <if test="thirdPersonId != null and thirdPersonId != ''">third_person_id = #{thirdPersonId},</if>
+            <if test="fourthPersonId != null and fourthPersonId != ''">fourth_person_id = #{fourthPersonId},</if>
+            <if test="members != null and members != ''">members = #{members},</if>
             state = "0"
 
         </trim>

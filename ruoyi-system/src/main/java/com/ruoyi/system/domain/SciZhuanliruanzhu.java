@@ -185,6 +185,56 @@ public class SciZhuanliruanzhu extends BaseEntity
         this.userId = userId;
     }
 
+    private String firstPersonId;   // 第一作者
+
+    public String getFirstPersonId() {
+        return firstPersonId;
+    }
+
+    public void setFirstPersonId(String firstPersonId) {
+        this.firstPersonId = firstPersonId;
+    }
+
+    private String secondPersonId;  // 成员1
+
+    public String getSecondPersonId() {
+        return secondPersonId;
+    }
+
+    public void setSecondPersonId(String secondPersonId) {
+        this.secondPersonId = secondPersonId;
+    }
+
+    private String thirdPersonId;   // 成员2
+
+    public String getThirdPersonId() {
+        return thirdPersonId;
+    }
+
+    public void setThirdPersonId(String thirdPersonId) {
+        this.thirdPersonId = thirdPersonId;
+    }
+
+    private String fourthPersonId;  // 成员3
+
+    public String getFourthPersonId() {
+        return fourthPersonId;
+    }
+
+    public void setFourthPersonId(String fourthPersonId) {
+        this.fourthPersonId = fourthPersonId;
+    }
+
+    private String members;         // 更多成员(JSON格式)
+
+    public String getMembers() {
+        return members;
+    }
+
+    public void setMembers(String members) {
+        this.members = members;
+    }
+
     private Integer userId;
 
 

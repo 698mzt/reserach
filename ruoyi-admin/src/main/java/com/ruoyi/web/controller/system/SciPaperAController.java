@@ -72,49 +72,53 @@ public class SciPaperAController extends BaseController {
     private List<Long> collage_role_ids = new ArrayList<>(Arrays.asList(103L, 104L, 105L, 106L, 107L, 108L, 116L, 117L, 118L, 119L));
 
 
+    /**
+     * 论文页面入口
+     * 根据用户角色返回不同的论文页面
+     * @return 页面路径
+     */
     @RequiresPermissions("system:paper:view")
+    @Log(title = "论文页面", businessType = BusinessType.OTHER)
     @GetMapping()
     public String paper() {
         Long userId = getUserId();
-        System.out.println("userId = " + userId);
         List<String> roleId = sciPaperAService.selectSciPaperAByroleId(userId);
         //教研室+普通老师身份
 
         if (roleId.contains("102") && roleId.contains("100")&&!roleId.contains("101")) {
-            System.out.println("教研室+普通老师身份");
             return prefix + "/paper_jy";
         }
         //单独教研室身份
         else if (roleId.contains("102")&& !roleId.contains("100")&&!roleId.contains("101")) {
-            System.out.println("单独教研室身份");
-
             return prefix + "/paper";
         }
         //科研处+普通老师身份
         else if (roleId.contains("101") && roleId.contains("100")) {
-            System.out.println("科研处+普通老师身份");
-
             return prefix + "/paper_ky";
         }
         //学院+普通老师身份
         else if ((roleId.contains("103") || roleId.contains("104") || roleId.contains("105") || roleId.contains("106") || roleId.contains("107") || roleId.contains("108")|| roleId.contains("116L")|| roleId.contains("117")|| roleId.contains("118")|| roleId.contains("119")|| roleId.contains("120")) && roleId.contains("100")) {
-            System.out.println("学院+普通老师身份");
             return prefix + "/paper_xy";
         }
         //学院
         else if ((roleId.contains("103") || roleId.contains("104") || roleId.contains("105") || roleId.contains("106") || roleId.contains("107") || roleId.contains("108")|| roleId.contains("116L")|| roleId.contains("117")|| roleId.contains("118")|| roleId.contains("119")|| roleId.contains("120"))) {
-            System.out.println("学院身份");
             return prefix + "/paper_xy";
         } else if (roleId.contains("100") && roleId.size() == 1) {
-            System.out.println("普通老师身份");
             return prefix + "/paper_pt";
         } else {
             return prefix + "/paper";
-            //return "error/404";
         }
 
     }
 
+    /**
+     * 上传文件
+     * @param file 上传的文件
+     * @param model 模型类型
+     * @return 上传结果
+     * @throws Exception 上传异常
+     */
+    @Log(title = "论文文件上传", businessType = BusinessType.OTHER)
     @PostMapping("/upload/{model}")
     @ResponseBody
     public AjaxResult uploadFile(MultipartFile file, @PathVariable("model") String model) throws Exception {
@@ -122,7 +126,6 @@ public class SciPaperAController extends BaseController {
             // 上传文件路径
             String filePath = RuoYiConfig.getUploadPath();
             // 上传并返回新文件名称
-//            String fileName = FileUploadUtils.upload(filePath, file);
             String fileName = FileUploadUtils.newupload(filePath, file, model);
             String url = serverConfig.getUrl() + fileName;
             AjaxResult ajax = AjaxResult.success();
@@ -138,23 +141,26 @@ public class SciPaperAController extends BaseController {
 
     /**
      * 查询论文列表
+     * @param sciPaperA 论文实体
+     * @param year 年份
+     * @param pageNum 页码
+     * @param pageSize 每页条数
+     * @return 论文列表数据
      */
     @RequiresPermissions("system:paper:list")
+    @Log(title = "论文列表查询", businessType = BusinessType.OTHER)
     @PostMapping("/list")
     @ResponseBody
     public TableDataInfo list(SciPaperA sciPaperA, String year ,@RequestParam(defaultValue = "1") int pageNum,
                               @RequestParam(defaultValue = "10") int pageSize) {
         Long userId = getUserId();
-        System.out.println("userId = " + userId);
         List<String> roleId = sciPaperAService.selectSciPaperAByroleId(userId);
-        System.out.println("roleId = " + roleId);
         sciPaperA.setUid(userId);
         sciPaperA.setYear(year);
 
         List<SciPaperA> list = new ArrayList<>();
         // 所有的审核方都会有普通老师身份，单身份的判断暂时先留着，除非增加审核方的时候少给他加上普通老师身份，否则不会报错
         //教研室+普通老师身份
-        // or((pa1.user_id = #{uid} or  pa2.user_id = #{uid}) or pa3.user_id = #{uid}  or pa4.user_id = #{uid} or pac.user_id = #{uid})
         if (roleId.contains("102") && roleId.contains("100")&& !roleId.contains("101")) {
             PageHelper.startPage(pageNum, pageSize);
             list = sciPaperAService.selectSciPaperAListCxList(sciPaperA);
@@ -166,7 +172,6 @@ public class SciPaperAController extends BaseController {
         }
         //科研处+普通老师身份
         else if (roleId.contains("101") && roleId.contains("100")) {
-            System.out.println("roleId = " + roleId);
             PageHelper.startPage(pageNum, pageSize);
             list = sciPaperAService.selectSciPaperAListKY(sciPaperA);
         }
@@ -177,17 +182,14 @@ public class SciPaperAController extends BaseController {
             sciPaperA.setCollegeId(String.valueOf(user.getParentId()));
             PageHelper.startPage(pageNum, pageSize);
             list = sciPaperAService.selectSciPaperAListXY(sciPaperA);
-            System.out.println("list = " + list);
         }else if ((roleId.contains("103") || roleId.contains("104") || roleId.contains("105") || roleId.contains("106") || roleId.contains("107") || roleId.contains("108")|| roleId.contains("116L")|| roleId.contains("117")|| roleId.contains("118")|| roleId.contains("109")|| roleId.contains("119") ||roleId.contains("120")  )) {
             //单独学院身份
             SysUser user = getSysUser();
             sciPaperA.setCollegeId(String.valueOf(user.getParentId()));
             PageHelper.startPage(pageNum, pageSize);
             list = sciPaperAService.selectSciPaperAListXY(sciPaperA);
-            System.out.println("list = " + list);
         } else if (roleId.contains("100") && roleId.size() == 1) {
-            System.out.println("单个老师进入方法");
-            //System.out.println(" sciPaperA=" + sciPaperAService.selectSciPaperAListCx(sciPaperA));
+            //普通老师身份
             PageHelper.startPage(pageNum, pageSize);
             list = sciPaperAService.selectSciPaperAListCx(sciPaperA);
         } else if (userId == 1L) {
@@ -195,8 +197,6 @@ public class SciPaperAController extends BaseController {
             PageHelper.startPage(pageNum, pageSize);
             list = sciPaperAService.selectSciPaperAList(sciPaperA);
         }
-
-        System.out.println("year = " + year);
         
         return getDataTable(list);
     }
@@ -531,12 +531,16 @@ public class SciPaperAController extends BaseController {
     }
 
     /**
-     * 批阅+查看
+     * 论文详情查看
+     * @param id 论文ID
+     * @param urlFlag URL标识
+     * @param mmap 模型映射
+     * @return 详情页面
      */
     @RequiresPermissions(value = {"system:paper:xypy", "system:paper:process", "system:paper:kypy", "system:paper:info"}, logical = Logical.OR)
+    @Log(title = "论文详情查看", businessType = BusinessType.OTHER)
     @GetMapping("/detail/{id}/{urlFlag}")
     public String detail(@PathVariable("id") Long id, @PathVariable("urlFlag") String urlFlag, ModelMap mmap) {
-        System.out.println("urlFlag = " + urlFlag);
         SciPaperA sciPaperA = sciPaperAService.selectSciPaperAById(id);
         if (sciPaperA == null) {
             return prefix + "/paper";
@@ -629,20 +633,29 @@ public class SciPaperAController extends BaseController {
     }
 
 
+    /**
+     * 查看驳回信息
+     * @param arid 论文审核记录ID
+     * @return 审核记录列表
+     */
     @RequiresPermissions("system:apply:edit")
-    @PostMapping("/bhxs/{kid}")//驳回显示
+    @Log(title = "论文驳回信息查看", businessType = BusinessType.OTHER)
+    @PostMapping("/bhxs/{kid}")
     @ResponseBody
     public TableDataInfo bhxs(@PathVariable("kid") String arid) {
         SciPaperAr sciPaperAr = new SciPaperAr();
         sciPaperAr.setAr_id(Integer.valueOf(arid));
         List<SciPaperAr> list = sciPaperAService.selectSciPaperArList(sciPaperAr);
-        System.out.println("list = " + list);
         return getDataTable(list);
     }
 
     /**
-     * 提交后将state状态设置为1
+     * 提交论文草稿
+     * 将论文状态设置为1，并添加提交记录
+     * @param id 论文ID
+     * @return 提交结果
      */
+    @Log(title = "论文草稿提交", businessType = BusinessType.UPDATE)
     @PostMapping("/tj/{id}")
     @ResponseBody
     public AjaxResult tj(@PathVariable("id") Integer id) {
@@ -656,13 +669,38 @@ public class SciPaperAController extends BaseController {
     }
 
     /**
-     * 查询所有的论文名称并需要进行模糊查询
+     * 查询论文名称（模糊查询）
+     * @param query 查询关键词
+     * @return 论文名称列表
      */
+    @Log(title = "论文名称查询", businessType = BusinessType.OTHER)
     @PostMapping("/queryName/{query}")
     @ResponseBody
     public List<SciPaperA> selectAllPaperName(@PathVariable("query") String query) {
         List<SciPaperA> list = sciPaperAService.selectAllPaperName(query);
-        System.out.println("list = " + list);
         return list;
+    }
+
+    /**
+     * 实时计算论文科研分
+     * @param params 计算参数
+     * @return 科研分计算结果
+     */
+    @Log(title = "论文科研分计算", businessType = BusinessType.OTHER)
+    @PostMapping("/calculateScore")
+    @ResponseBody
+    public AjaxResult calculateScore(@RequestBody Map<String, Object> params) {
+        try {
+            String paperCategory = (String) params.get("paperCategory");
+            Map<String, String> authors = (Map<String, String>) params.get("authors");
+            String communicationAuthorId = (String) params.get("communicationAuthorId");
+            
+            // 调用服务层计算科研分
+            Map<String, Integer> scores = sciPaperAService.calculatePaperScore(paperCategory, authors, communicationAuthorId);
+            
+            return AjaxResult.success(scores);
+        } catch (Exception e) {
+            return AjaxResult.error("计算科研分失败：" + e.getMessage());
+        }
     }
 }

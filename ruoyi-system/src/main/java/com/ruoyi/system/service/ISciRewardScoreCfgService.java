@@ -59,4 +59,7 @@ public interface ISciRewardScoreCfgService
      * @return 结果
      */
     public int deleteSciRewardScoreCfgById(Long id);
+
+
+    String calculateScore(String fenLei, String dengJi, String paiMing);
 }

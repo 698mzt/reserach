@@ -76,6 +76,69 @@
                 </div>
             </div>
 
+
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">主持人：</label>
+                    <div class="col-sm-8">
+                        <div th:each="user : ${sysUsers}" th:if="${user.flag}">
+                            <input  class="form-control" type="text" th:value="${user.userName}" readonly>
+                            <input name="firstPersonId" class="form-control" type="hidden" th:value="${user.userId}">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">成员1：</label>
+                    <div class="col-sm-8">
+                        <select id="member1Select" name="secondPersonId" class="form-control m-b" onchange="updateMemberLists()" required>
+                            <option value="">---请选择--</option>
+                            <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}"  th:if="${user.userId} != 1 and ${user.flag != true}" ></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">成员2：</label>
+                    <div class="col-sm-8">
+                        <select id="member2Select" name="thirdPersonId" class="form-control m-b" onchange="updateMemberLists()" required>
+                            <option value="">---请选择--</option>
+                            <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}" th:if="${user.userId} != 1 and ${user.flag != true}"></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">成员3：</label>
+                    <div class="col-sm-8">
+                        <select id="member3Select" name="fourthPersonId" class="form-control m-b" onchange="updateMemberLists()" required>
+                            <option value="">---请选择--</option>
+                            <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}" th:if="${user.userId} != 1 and ${user.flag != true}"></option>
+                        </select>
+                    </div>
+                </div>
+
+            </div>
+            <!-- 第5位及以后 -->
+            <div class="col-xs-12">
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">更多成员：</label>
+                    <div class="col-sm-10">
+                        <div id="memberContainer" class="row"></div>
+                        <button type="button" id="addMemberBtn" class="btn btn-white btn-sm" title="新增成员">
+                            <a href="#"><i class="fa fa-plus-circle" ></i>增加成员</a>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+
+
             <div class="form-group row">
                 <div class="col-sm-6">
                     <label class="col-sm-4 control-label is-required">排名：</label>
@@ -113,6 +176,8 @@
     <th:block th:include="include :: footer" />
     <th:block th:include="include :: datetimepicker-js" />
     <th:block th:include="include :: bootstrap-fileinput-js"/>
+    <th:block th:include="include :: select2-css" />
+    <th:block th:include="include :: select2-js" />
     <script th:inline="javascript">
         var prefix = ctx + "system/zhuanliruanzhu"
         $("#form-zhuanliruanzhu-add").validate({
@@ -149,6 +214,195 @@
                     }
                 });
 
+            }
+        }
+
+
+        // 动态新增成员下拉（第5位起）
+        $('#addMemberBtn').on('click', function(){
+            // 获取原始选项数据
+            var originalOptions = $('#member1Select').data('original-options');
+            var memberCount = $('.member-item').length + 1; // 计算当前成员数量
+            var memberId = 'dynamicMember' + memberCount; // 为每个动态成员生成唯一ID
+
+            var tpl = '\
+    <div class="col-xs-3 m-b-xs member-item">\
+        <div class="input-group">\
+            <select id="' + memberId + '" name="members" class="form-control m-b member-select select2-select" onchange="updateMemberLists()">\
+                <option value="">---请选择--</option>\
+            </select>\
+            <span class="input-group-btn">\
+                <button class="btn btn-danger btn-sm remove-member" type="button" title="移除"><i class="fa fa-minus"></i></button>\
+            </span>\
+        </div>\
+    </div>';
+
+            $('#memberContainer').append(tpl);
+
+            // 初始化新添加的下拉框选项
+            updateDynamicMemberList($('#' + memberId)[0]);
+
+            // 初始化Select2
+            $('#' + memberId).select2({
+                placeholder: "---请选择--",
+                allowClear: true,
+                width: "100%"
+            });
+        });
+
+        // 移除成员项
+        $(document).on('click', '.remove-member', function(){
+            $(this).closest('.member-item').remove();
+        });
+
+        // 成员下拉框联动功能
+        // 页面加载完成后保存原始选项并初始化联动
+        $(document).ready(function() {
+            // 保存原始选项数据
+            $('#member1Select, #member2Select, #member3Select').each(function() {
+                var originalOptions = $(this).html();
+                $(this).data('original-options', originalOptions);
+            });
+
+            // 初始化联动效果
+            updateMemberLists();
+
+            // 初始化Select2组件以支持搜索功能
+            $('#member1Select, #member2Select, #member3Select').select2({
+                placeholder: "---请选择--",
+                allowClear: true,
+                width: "100%"
+            });
+        });
+
+        // 更新成员下拉框列表
+        function updateMemberLists() {
+            // 获取所有已选中的成员ID（使用Set自动去重）
+            var selectedIds = new Set();
+
+            // 获取三个固定成员下拉框的值
+            var member1Value = $('#member1Select').val();
+            var member2Value = $('#member2Select').val();
+            var member3Value = $('#member3Select').val();
+
+            // 将非空值添加到Set中
+            if (member1Value) selectedIds.add(member1Value);
+            if (member2Value) selectedIds.add(member2Value);
+            if (member3Value) selectedIds.add(member3Value);
+
+            // 添加动态成员的选中值
+            $('.member-select').each(function() {
+                var value = $(this).val();
+                if (value) {
+                    selectedIds.add(value);
+                }
+            });
+
+            // 为每个固定下拉框更新选项
+            updateSelectOptions('#member1Select', member1Value, selectedIds);
+            updateSelectOptions('#member2Select', member2Value, selectedIds);
+            updateSelectOptions('#member3Select', member3Value, selectedIds);
+
+            // 为每个动态下拉框更新选项
+            $('.member-select').each(function() {
+                updateDynamicSelectOptions($(this), $(this).val(), selectedIds);
+            });
+        }
+
+        // 更新单个下拉框的选项
+        function updateSelectOptions(selectId, currentValue, selectedIds) {
+            var selectElement = $(selectId);
+            var originalOptions = selectElement.data('original-options');
+            var isCurrentlySelected = selectElement.val(); // 保存当前选中的值
+
+            // 清空当前选项（保留第一个提示选项）
+            selectElement.find('option:not(:first)').remove();
+
+            // 解析原始选项
+            var tempDiv = $('<div>' + originalOptions + '</div>');
+            var hasBlankOption = false; // 标记是否已添加空选项
+            tempDiv.find('option').each(function() {
+                var option = $(this);
+                var value = option.val();
+                // 只有当选项值为空（请选择）或未被其他下拉框选中时才添加
+                // currentValue（当前下拉框已选中的值）总是会被保留，如果它不在其他下拉框中
+                if (value === "" && !hasBlankOption) {
+                    // 只添加一次空选项
+                    selectElement.append(option.clone());
+                    hasBlankOption = true;
+                } else if (value !== "" && (!selectedIds.has(value) || value === currentValue || value === "-1")) {
+                    // 添加非空选项，如果它未被其他下拉框选中，或者是当前下拉框已选中的值，或者userId为-1（其他）
+                    selectElement.append(option.clone());
+                }
+            });
+
+            // 重新设置选中状态，确保选中的值仍然被选中
+            if (isCurrentlySelected) {
+                selectElement.val(isCurrentlySelected);
+            }
+        }
+
+        // 更新动态添加的成员下拉框
+        function updateDynamicMemberList(element) {
+            var selectElement = $(element);
+            var currentValue = selectElement.val();
+            var allSelectedIds = getSelectedIds();
+
+            // 为动态成员下拉框更新选项
+            updateDynamicSelectOptions(selectElement, currentValue, allSelectedIds);
+        }
+
+        // 获取所有已选中的ID（包括固定成员和动态成员）
+        function getSelectedIds() {
+            var selectedIds = new Set();
+
+            // 添加固定成员的选中值
+            var member1Value = $('#member1Select').val();
+            var member2Value = $('#member2Select').val();
+            var member3Value = $('#member3Select').val();
+
+            if (member1Value) selectedIds.add(member1Value);
+            if (member2Value) selectedIds.add(member2Value);
+            if (member3Value) selectedIds.add(member3Value);
+
+            // 添加动态成员的选中值
+            $('.member-select').each(function() {
+                var value = $(this).val();
+                if (value) {
+                    selectedIds.add(value);
+                }
+            });
+            return selectedIds;
+        }
+
+        // 更新动态下拉框的选项
+        function updateDynamicSelectOptions(selectElement, currentValue, selectedIds) {
+            var originalOptions = $('#member1Select').data('original-options');
+            var isCurrentlySelected = selectElement.val(); // 保存当前选中的值
+
+            // 清空当前选项（保留第一个提示选项）
+            selectElement.find('option:not(:first)').remove();
+            // 解析原始选项
+            var tempDiv = $('<div>' + originalOptions + '</div>');
+            var hasBlankOption = false; // 标记是否已添加空选项
+            tempDiv.find('option').each(function() {
+                var option = $(this);
+                var value = option.val();
+                // 只有当选项值为空（请选择）或未被其他下拉框选中时才添加
+                // currentValue（当前下拉框已选中的值）总是会被保留，如果它不在其他下拉框中
+                if (value === "" && !hasBlankOption) {
+                    // 只添加一次空选项
+                    selectElement.append(option.clone());
+                    hasBlankOption = true;
+                } else if (value !== "" && (!selectedIds.has(value) || value === currentValue || value === "-1")) {
+                    // 添加非空选项，如果它未被其他下拉框选中，或者是当前下拉框已选中的值，或者userId为-1（其他）
+                    selectElement.append(option.clone());
+                }
+            });
+
+            // 重新设置选中状态，确保选中的值仍然被选中
+            if (isCurrentlySelected) {
+                selectElement.val(isCurrentlySelected);
             }
         }
 
