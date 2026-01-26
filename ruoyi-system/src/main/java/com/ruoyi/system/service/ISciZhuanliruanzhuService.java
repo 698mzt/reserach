@@ -65,6 +65,13 @@ public interface ISciZhuanliruanzhuService
      */
     public int deleteSciZhuanliruanzhuById(Integer id);
 
+    /**
+     * 根据分类和排名获取
+     * @param fenlei 分类
+     * @param paiming 排名
+     * @return 积分值
+     */
+    int getScoreByFenleiAndPaiming(String fenlei, String paiming);
 
 
     int hxPass(String id,Long uid,String urlFlag);
