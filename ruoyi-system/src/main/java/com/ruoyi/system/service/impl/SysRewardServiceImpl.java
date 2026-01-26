@@ -3,13 +3,13 @@ package com.ruoyi.system.service.impl;
 import com.ruoyi.common.annotation.DataScope;
 import com.ruoyi.common.utils.DataScopeUtils;
 import com.ruoyi.common.core.text.Convert;
-import com.ruoyi.system.domain.SciHorizontalPiyue;
 import com.ruoyi.system.domain.SciRewardScoreCfg;
 import com.ruoyi.system.domain.SysReward;
 import com.ruoyi.system.domain.SysRewardPiyue;
 import com.ruoyi.system.mapper.SciRewardScoreCfgMapper;
 import com.ruoyi.system.mapper.SysRewardMapper;
 import com.ruoyi.system.mapper.SysRewardPiyueMapper;
+import com.ruoyi.system.service.ISciRewardScoreCfgService; // 【新增】导入积分服务接口
 import com.ruoyi.system.service.ISysRewardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,12 +19,12 @@ import java.util.Map;
 
 /**
  * 奖励Service业务层处理
- * 
+ *
  * @author ruoyi
  * @date 2024-12-23
  */
 @Service
-public class SysRewardServiceImpl implements ISysRewardService 
+public class SysRewardServiceImpl implements ISysRewardService
 {
     @Autowired
     private SysRewardMapper sysRewardMapper;
@@ -33,22 +33,25 @@ public class SysRewardServiceImpl implements ISysRewardService
     @Autowired
     private SciRewardScoreCfgMapper sciRewardScoreCfgMapper;
 
+    // 【新增】注入积分配置服务，用于自动计算积分
+    @Autowired
+    private ISciRewardScoreCfgService scoreCfgService;
+
     /**
      * 查询奖励
-     * 
+     *
      * @param id 奖励主键
      * @return 奖励
      */
     @Override
     public SysReward selectSysRewardById(Long id)
     {
-
         return sysRewardMapper.selectSysRewardById(id);
     }
 
     /**
      * 查询奖励列表
-     * 
+     *
      * @param sysReward 奖励
      * @return 奖励
      */
@@ -77,46 +80,32 @@ public class SysRewardServiceImpl implements ISysRewardService
         return sysRewardMapper.selectSysRewardListByXUE(sysReward);
     }
 
-//    @Override
-//    @DataScope(deptAlias = "d", userAlias = "u")
-//    public List<SysReward> selectSysRewardListByOverReward(SysReward sysReward) {
-//        return sysRewardMapper.selectSysRewardList(sysReward);
-//    }
-//
-//    @Override
-//    @DataScope(deptAlias = "d", userAlias = "u")
-//    public List<SysReward> selectSysRewardListByOverRewardJYS(SysReward sysReward) {
-//        return sysRewardMapper.selectSysRewardList(sysReward);
-//    }
-//
-//    @Override
-//    @DataScope(deptAlias = "d", userAlias = "u")
-//    public List<SysReward> selectSysRewardListByOverRewardKYC(SysReward sysReward) {
-//        return sysRewardMapper.selectSysRewardList(sysReward);
-//    }
-//
-//    @Override
-//    @DataScope(deptAlias = "d", userAlias = "u")
-//    public List<SysReward> selectSysRewardListByOVER(SysReward sysReward) {
-//        return sysRewardMapper.selectSysRewardList(sysReward);
-//    }
-
     @Override
     public int overReward(String id, String state) {
         return sysRewardMapper.overReward(id,state);
     }
 
-
-
     /**
-     * 新增奖励
-     * 
+     * 【修改】新增奖励 - 自动计算积分
+     *
      * @param sysReward 奖励
      * @return 结果
      */
     @Override
     public int insertSysReward(SysReward sysReward)
     {
+        // 【核心新增】根据分类、等级、排名自动计算积分
+        // 调用积分配置服务查询对应的积分值
+        String jifen = scoreCfgService.calculateScore(
+                sysReward.getRewardFenlei(),  // 奖励分类
+                sysReward.getRewardDengji(),  // 奖励等级
+                sysReward.getRewardPaiming()  // 奖励排名
+        );
+
+        // 【核心新增】将计算出的积分设置到奖励对象中
+        sysReward.setJifen(jifen);
+
+        // 原有保存逻辑
         int a = sysRewardMapper.insertSysReward(sysReward);
         int id = Integer.parseInt(sysReward.getId().toString());
         SysRewardPiyue sysRewardPiyue = new SysRewardPiyue();
@@ -129,14 +118,26 @@ public class SysRewardServiceImpl implements ISysRewardService
     }
 
     /**
-     * 修改奖励
-     * 
+     * 【修改】修改奖励 - 重新计算积分（防止分类/等级/排名被修改）
+     *
      * @param sysReward 奖励
      * @return 结果
      */
     @Override
     public int updateSysReward(SysReward sysReward)
     {
+        // 【核心新增】重新计算积分
+        // 如果用户修改了分类、等级或排名，积分需要重新计算
+        String jifen = scoreCfgService.calculateScore(
+                sysReward.getRewardFenlei(),
+                sysReward.getRewardDengji(),
+                sysReward.getRewardPaiming()
+        );
+
+        // 【核心新增】更新积分值
+        sysReward.setJifen(jifen);
+
+        // 原有更新逻辑
         sysRewardMapper.updateSysReward(sysReward);
         SysRewardPiyue sysRewardPiyue = new SysRewardPiyue();
         sysRewardPiyue.setUid(sysReward.getUserId());
@@ -153,7 +154,7 @@ public class SysRewardServiceImpl implements ISysRewardService
 
     /**
      * 批量删除奖励
-     * 
+     *
      * @param ids 需要删除的奖励主键
      * @return 结果
      */
@@ -165,7 +166,7 @@ public class SysRewardServiceImpl implements ISysRewardService
 
     /**
      * 删除奖励信息
-     * 
+     *
      * @param id 奖励主键
      * @return 结果
      */
@@ -174,7 +175,11 @@ public class SysRewardServiceImpl implements ISysRewardService
     {
         return sysRewardMapper.deleteSysRewardById(id);
     }
-//
+
+    /**
+     * 审批通过（科研处查阅时计算积分）
+     * 注意：这里保留原有逻辑，在state=6（chayue）时计算积分
+     */
     @Override
     public int hxPass(String id, Long uid, String urlFlag) {
         String state = "0";
@@ -185,6 +190,7 @@ public class SysRewardServiceImpl implements ISysRewardService
         }
         else if(urlFlag.equals("chayue")) {
             state = "6";
+            // 原有逻辑：科研处审批通过时计算积分
             SysReward sysReward = sysRewardMapper.selectSysRewardById(Long.valueOf(id));
             String a = sysReward.getRewardFenlei();
             String b = sysReward.getRewardDengji();
@@ -200,8 +206,7 @@ public class SysRewardServiceImpl implements ISysRewardService
                 jifen = Integer.parseInt(cfg.getTotalScore());
                 System.out.println("Jifen: " + jifen);
             }
-           sysRewardMapper.updateJifen(Long.valueOf(id), jifen);
-
+            sysRewardMapper.updateJifen(Long.valueOf(id), jifen);
         }
         int a =  sysRewardMapper.hxPass(id,state);
         SysRewardPiyue sysRewardPiyue = new SysRewardPiyue();
@@ -213,20 +218,6 @@ public class SysRewardServiceImpl implements ISysRewardService
         return a;
     }
 
-
-//    @Override
-//    public int hxover(String id, Long uid, String urlFlag) {
-//        String state = "0";
-//        if(urlFlag.equals("JYSOVER")){
-//            state ="8";
-//        }else if(urlFlag.equals("KYCOVER")){
-//            state ="6";
-//        }
-//        int a =  sysRewardMapper.hxPass(id,state);
-//        System.out.println(a);
-//        return a;
-//    }
-//
     @Override
     public int hxBh(String id, Long uid, String remark, String urlFlag) {
         String state = "0";
@@ -246,22 +237,20 @@ public class SysRewardServiceImpl implements ISysRewardService
         sysRewardPiyueMapper.insertSysRewardPiyue(sysRewardPiyue);
         return a;
     }
-//撤销
+
+    //撤销
     @Override
     public int recall(Integer id, String state,Long uid, String remark, String urlFlag) {
         String newState = state;
         switch (state) {
-//            教研室
             case "2":
             case "3":
                 newState = "1";
                 break;
-            //            学院
             case "4":
             case "5":
                 newState = "2";
                 break;
-            //            科研处
             case "6":
             case "7":
                 newState = "4";
@@ -271,19 +260,16 @@ public class SysRewardServiceImpl implements ISysRewardService
             sysRewardMapper.resetJifenById(Long.valueOf(id));
         }
 
-
-//        设置状态
-    int a =sysRewardMapper.hxPass(id.toString(),newState);
-    //        插入日志
-    SysRewardPiyue sysRewardPiyue = new SysRewardPiyue();
+        int a =sysRewardMapper.hxPass(id.toString(),newState);
+        SysRewardPiyue sysRewardPiyue = new SysRewardPiyue();
         sysRewardPiyue.setUid(uid);
         sysRewardPiyue.setRewardId(Integer.valueOf(id));
         sysRewardPiyue.setConcate(remark);
         sysRewardPiyue.setState("撤回");
         sysRewardPiyueMapper.insertSysRewardPiyue(sysRewardPiyue);
         return a;
-
     }
+
     @Override
     public List<SysReward> getStatsQuery(Map<String, String> params) {
         return sysRewardMapper.getStatsQuery(params);
@@ -292,7 +278,6 @@ public class SysRewardServiceImpl implements ISysRewardService
     @Override
     @DataScope(deptAlias = "d",userAlias = "u")
     public List<SysReward> getStatsQueryToCheck(Map<String, String> params) {
-        // 手动处理数据权限，因为 @DataScope 只支持 BaseEntity 类型，而这里使用的是 Map
         DataScopeUtils.applyDataScopeToMap(params, "d", "u", "");
         return sysRewardMapper.getStatsQueryToCheck(params);
     }
