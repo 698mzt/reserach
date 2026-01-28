@@ -88,6 +88,15 @@ public interface ISciPaperAService
     public List<SciPaperA> selectSciPaperAListCxList(SciPaperA sciPaperA);
 
     public Integer selectSciPaperA(SciPaperA paper);
+    
+    /**
+     * 实时计算论文科研分
+     * @param paperCategory 论文类别
+     * @param authors 作者信息，key为作者排名，value为用户ID
+     * @param communicationAuthorId 通讯作者ID
+     * @return 各作者科研分，key为作者排名+用户ID，value为分数
+     */
+    public Map<String, Integer> calculatePaperScore(String paperCategory, Map<String, String> authors, String communicationAuthorId);
 
     /**
      * 统计查询论文数据

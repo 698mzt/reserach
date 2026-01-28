@@ -360,7 +360,7 @@
 
                                 <div id="toolbar0" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
 <!--                                    <div class="btn-group-sm"  role="group" style="display: inline-flex; gap: 4px;">-->
-<!--                                        <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:apply:export">-->
+<!--                                        <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:apply_vertical:export">-->
 <!--                                            <i class="fa fa-download"></i> 导出-->
 <!--                                        </a>-->
 <!--                                    </div>-->
@@ -409,10 +409,12 @@
 
                                 <div id="toolbar1" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
                                 <div class="btn-group-sm"  role="group" style="display: inline-flex; gap: 4px;">
-                                    <a class="btn btn-success" onclick="$.operate.addTab()" shiro:hasPermission="system:apply:add">
+                                    <a class="btn btn-success"
+                                       th:if="${@permission.hasPermi('system:apply_vertical:add')}"
+                                       onclick="$.operate.addTab()">
                                         <i class="fa fa-plus"></i> 添加
                                     </a>
-<!--                                    <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:apply:export">-->
+<!--                                    <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:apply_vertical:export">-->
 <!--                                        <i class="fa fa-download"></i> 导出-->
 <!--                                    </a>-->
                                 </div>
@@ -554,6 +556,7 @@
     var topTypeDatas = [[${@dict.getType('sci_vertical_type')}]];
     var datas = [[${@dict.getType('sci_vertical_tasks')}]];
     var datas1 = [[${@dict.getType('sci_crosswise_tasks')}]];
+    var subjectSourceDatas = [[${@dict.getType('sci_subject_source')}]];
 
 
     var prefix = ctx + "system/apply_vertical";
@@ -649,9 +652,12 @@
                     title: '结项日期'
                 },
                 {
-                    field: 'amount',
+                    field: 'subjectSource',
                     align: 'center',
-                    title: '项目金额'
+                    title: '课题来源',
+                    formatter: function(value, row, index) {
+                        return $.table.selectDictLabel(subjectSourceDatas, value);
+                    }
                 },
                 {
                     align: 'center',
@@ -778,9 +784,12 @@
                     title: '立项日期'
                 },
                 {
-                    field: 'amount',
+                    field: 'subjectSource',
                     align: 'center',
-                    title: '项目金额'
+                    title: '课题来源',
+                    formatter: function(value, row, index) {
+                        return $.table.selectDictLabel(subjectSourceDatas, value);
+                    }
                 },
                 {
                     align: 'center',
@@ -954,9 +963,9 @@
                     title: '结项日期'
                 },
                 {
-                    field: 'amount',
+                    field: 'subjectSource',
                     align: 'center',
-                    title: '项目金额'
+                    title: '课题来源'
                 },
                 {
                     align: 'center',
@@ -1182,9 +1191,24 @@
     }
 
 
+    // 定义getCurrentTime函数
+    function getCurrentTime() {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+        return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
         // 初始化显示当前时间
-        document.getElementById('current-time').textContent = getCurrentTime();
+        const currentTimeElement = document.getElementById('current-time');
+        if (currentTimeElement) {
+            currentTimeElement.textContent = getCurrentTime();
+        }
     });
 </script>
 </body>

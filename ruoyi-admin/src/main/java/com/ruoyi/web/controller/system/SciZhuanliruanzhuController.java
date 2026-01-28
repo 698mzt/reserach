@@ -252,6 +252,7 @@ public class SciZhuanliruanzhuController extends BaseController
         return prefix + "/add";
     }
 
+
     /**
      * 新增保存专利软著
      */
@@ -259,9 +260,26 @@ public class SciZhuanliruanzhuController extends BaseController
     @Log(title = "专利软著", businessType = BusinessType.INSERT)
     @PostMapping("/add")
     @ResponseBody
-    public AjaxResult addSave(SciZhuanliruanzhu sciZhuanliruanzhu)
+    public AjaxResult addSave(SciZhuanliruanzhu sciZhuanliruanzhu, String[] members)
     {
         sciZhuanliruanzhu.setUserId(getUserId().intValue());
+
+        // 处理成员数据
+        if (members != null && members.length > 0) {
+            // 将成员数组转换为JSON字符串
+            StringBuilder membersJson = new StringBuilder("[");
+            for (int i = 0; i < members.length; i++) {
+                if (members[i] != null && !members[i].isEmpty()) {
+                    membersJson.append("\"").append(members[i]).append("\"");
+                    if (i < members.length - 1) {
+                        membersJson.append(",");
+                    }
+                }
+            }
+            membersJson.append("]");
+            sciZhuanliruanzhu.setMembers(membersJson.toString());
+        }
+
         return toAjax(sciZhuanliruanzhuService.insertSciZhuanliruanzhu(sciZhuanliruanzhu));
     }
 
@@ -391,7 +409,17 @@ public class SciZhuanliruanzhuController extends BaseController
         List<SciZhuanliruanzhuPiyue> list = piyueService.selectSciZhuanliruanzhuPiyueList(ob);
         return getDataTable(list);
     }
-
+    // 添加积分计算
+    @PostMapping("/getScore")
+    @ResponseBody
+    public AjaxResult getScore(String fenlei, String paiming) {
+        try {
+            int score = sciZhuanliruanzhuService.getScoreByFenleiAndPaiming(fenlei, paiming);
+            return AjaxResult.success("获取成功", score);
+        } catch (Exception e) {
+            return AjaxResult.error("获取积分失败");
+        }
+    }
 
 
 

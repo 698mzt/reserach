@@ -11,19 +11,19 @@ import java.util.List;
 
 /**
  * 奖励积分管理Service业务层处理
- * 
+ *
  * @author ruoyi
  * @date 2025-02-24
  */
 @Service
-public class SciRewardScoreCfgServiceImpl implements ISciRewardScoreCfgService 
+public class SciRewardScoreCfgServiceImpl implements ISciRewardScoreCfgService
 {
     @Autowired
     private SciRewardScoreCfgMapper sciRewardScoreCfgMapper;
 
     /**
      * 查询奖励积分管理
-     * 
+     *
      * @param id 奖励积分管理主键
      * @return 奖励积分管理
      */
@@ -35,7 +35,7 @@ public class SciRewardScoreCfgServiceImpl implements ISciRewardScoreCfgService
 
     /**
      * 查询奖励积分管理列表
-     * 
+     *
      * @param sciRewardScoreCfg 奖励积分管理
      * @return 奖励积分管理
      */
@@ -47,7 +47,7 @@ public class SciRewardScoreCfgServiceImpl implements ISciRewardScoreCfgService
 
     /**
      * 新增奖励积分管理
-     * 
+     *
      * @param sciRewardScoreCfg 奖励积分管理
      * @return 结果
      */
@@ -59,7 +59,7 @@ public class SciRewardScoreCfgServiceImpl implements ISciRewardScoreCfgService
 
     /**
      * 修改奖励积分管理
-     * 
+     *
      * @param sciRewardScoreCfg 奖励积分管理
      * @return 结果
      */
@@ -71,7 +71,7 @@ public class SciRewardScoreCfgServiceImpl implements ISciRewardScoreCfgService
 
     /**
      * 批量删除奖励积分管理
-     * 
+     *
      * @param ids 需要删除的奖励积分管理主键
      * @return 结果
      */
@@ -83,7 +83,7 @@ public class SciRewardScoreCfgServiceImpl implements ISciRewardScoreCfgService
 
     /**
      * 删除奖励积分管理信息
-     * 
+     *
      * @param id 奖励积分管理主键
      * @return 结果
      */
@@ -91,5 +91,11 @@ public class SciRewardScoreCfgServiceImpl implements ISciRewardScoreCfgService
     public int deleteSciRewardScoreCfgById(Long id)
     {
         return sciRewardScoreCfgMapper.deleteSciRewardScoreCfgById(id);
+    }
+
+    @Override
+    public String calculateScore(String fenLei, String dengJi, String paiMing) {
+        SciRewardScoreCfg config = sciRewardScoreCfgMapper.selectScoreConfig(fenLei, dengJi, paiMing);
+        return config != null ? config.getTotalScore() : "0";
     }
 }

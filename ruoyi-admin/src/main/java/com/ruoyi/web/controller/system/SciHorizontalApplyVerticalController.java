@@ -16,6 +16,7 @@ import com.ruoyi.system.mapper.SciProjectScoreCfgMapper;
 import com.ruoyi.system.mapper.SciUserScoreMapper;
 import com.ruoyi.system.service.ISciHorizontalApplyVerticalService;
 import com.ruoyi.system.service.ISciHorizontalPiyueService;
+import com.ruoyi.system.service.ISciProjectScoreCfgService;
 import com.ruoyi.system.service.ISysUserService;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -43,6 +44,8 @@ public class SciHorizontalApplyVerticalController extends BaseController {
     @Autowired
     private ISciHorizontalApplyVerticalService sciHorizontalApplyVerticalService;
 
+    @Autowired
+    private ISciProjectScoreCfgService sciProjectScoreCfgService;
 
     @Autowired
     private ISciHorizontalPiyueService piyueService;
@@ -52,6 +55,62 @@ public class SciHorizontalApplyVerticalController extends BaseController {
 
     @Autowired
     private SciProjectScoreCfgMapper sciProjectScoreCfgMapper;
+
+    /**
+     * 计算纵向课题预期积分
+     */
+    @PostMapping("/calculateScore")
+    @ResponseBody
+    public AjaxResult calculateScore(@RequestParam(required = false) String topType,
+                                     @RequestParam(required = false) String subjectSource,
+                                     @RequestParam(required = false) Double amount) {
+        try {
+            // 打印日志，方便调试
+            System.out.println("calculateScore called with topType: " + topType + ", subjectSource: " + subjectSource + ", amount: " + amount);
+            
+            // 直接使用selectVerticalScoreCfgList方法查询纵向课题积分配置
+            SciProjectScoreCfg scoreCfg = new SciProjectScoreCfg();
+            scoreCfg.setFundsType(topType); // 课题类型作为经费类型
+            List<SciProjectScoreCfg> scoreCfgs = sciProjectScoreCfgMapper.selectVerticalScoreCfgList(scoreCfg);
+            
+            // 打印查询结果数量
+            System.out.println("selectVerticalScoreCfgList returned " + (scoreCfgs != null ? scoreCfgs.size() : 0) + " records");
+            
+            // 如果没有找到配置，返回默认积分
+            if (scoreCfgs == null || scoreCfgs.isEmpty()) {
+                return AjaxResult.success(0);
+            }
+            
+            // 这里简化处理，实际应该根据金额范围和配置计算积分
+            // 假设第一个配置为默认配置（第1负责人）
+            SciProjectScoreCfg cfg = scoreCfgs.get(0);
+            System.out.println("First config: id=" + cfg.getId() + ", userOrder=" + cfg.getUserOrder() + ", totalScore=" + cfg.getTotalScore());
+            
+            Double expectedScore = 0.0;
+            
+            // 尝试解析总分为Double
+            if (cfg.getTotalScore() != null) {
+                try {
+                    expectedScore = Double.parseDouble(cfg.getTotalScore());
+                } catch (NumberFormatException e) {
+                    System.out.println("Failed to parse totalScore: " + cfg.getTotalScore());
+                    expectedScore = 0.0;
+                }
+            } else {
+                System.out.println("totalScore is null");
+            }
+            
+            System.out.println("Calculated expectedScore: " + expectedScore);
+            
+            // 可以根据金额、课题来源等进一步调整积分计算逻辑
+            // 这里简化处理，直接返回配置的总分
+            
+            return AjaxResult.success(expectedScore.intValue());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return AjaxResult.error("积分计算失败: " + e.getMessage());
+        }
+    }
 
     // 设置角色集合。若后期需要添加新的学院管理员角色，将其权限字符添加到集合中即可
     private static final Set<String> TEACHER_ROLES = new HashSet<>(Arrays.asList(

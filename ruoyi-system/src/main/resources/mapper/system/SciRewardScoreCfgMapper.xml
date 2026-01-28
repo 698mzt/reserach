@@ -69,4 +69,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </foreach>
     </delete>
 
+    <!-- 【新增】根据分类、等级、排名精确查询积分配置 -->
+    <select id="selectScoreConfig" resultMap="SciRewardScoreCfgResult">
+        SELECT id, fen_lei, pai_ming, deng_ji, total_score
+        FROM sci_reward_score_cfg
+        WHERE fen_lei = #{fenLei}
+          AND deng_ji = #{dengJi}
+          AND pai_ming = #{paiMing}
+            LIMIT 1
+    </select>
+
 </mapper>

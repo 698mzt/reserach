@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
-PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.system.mapper.SysRewardMapper">
-    
+
     <resultMap type="SysReward" id="SysRewardResult">
         <result property="id"    column="id"    />
         <result property="userId"    column="user_id"    />
@@ -22,10 +22,16 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result  property="parentId" column="parent_id" />
         <result  property="dname" column="dname" />
         <result  property="yname" column="yname" />
+        <!-- 新增四个负责人字段 -->
+        <result property="firstPersonId" column="first_person_id" />
+        <result property="secondPersonId" column="second_person_id" />
+        <result property="thirdPersonId" column="third_person_id" />
+        <result property="fourthPersonId" column="fourth_person_id" />
     </resultMap>
 
     <sql id="selectSysRewardVo">
-        select #{uid} uid,s.id, u.user_name username, d.dept_name dname,p.dept_name yname,s.jifen,s.user_id,s.reward_name, s.reward_danwei, s.reward_leixing, s.reward_wenjian, s.reward_time, s.reward_fenlei, s.reward_dengji, s.reward_paiming, s.reward_jibie,s.state
+        select #{uid} uid,s.id, u.user_name username, d.dept_name dname,p.dept_name yname,s.jifen,s.user_id,s.reward_name, s.reward_danwei, s.reward_leixing, s.reward_wenjian, s.reward_time, s.reward_fenlei, s.reward_dengji, s.reward_paiming, s.reward_jibie,s.state,
+               s.first_person_id, s.second_person_id, s.third_person_id, s.fourth_person_id
         from sys_reward s left join sys_user u on  s.user_id= u.user_id
                           left join sys_dept d on u.dept_id = d.dept_id
                           left join sys_dept p on d.parent_id =p.dept_id
@@ -34,24 +40,21 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectSysRewardList" parameterType="SysReward" resultMap="SysRewardResult">
         <include refid="selectSysRewardVo"/>
         <where>
---             (state in (1,2,3,4,5,6,7,11))
+            <!-- <if test="userId != null "> and user_id = #{userId}</if> -->
             (state in (1,2,3,4,5,6,7,11) and s.user_id = #{uid})
-            <if test="userId != null">
-                AND s.user_id = #{userId}
-            </if>
             <if test="rewardName != null  and rewardName != ''"> and reward_name like concat('%', #{rewardName}, '%')</if>
             <if test="yname != null  and yname != ''"> and yname = #{yname}</if>
             <if test="dname != null and dname != ''">
                 AND d.dept_name = #{dname}
             </if>
---             <if test="rewardDanwei != null  and rewardDanwei != ''"> and reward_danwei = #{rewardDanwei}</if>
---             <if test="rewardLeixing != null  and rewardLeixing != ''"> and reward_leixing = #{rewardLeixing}</if>
---             <if test="rewardWenjian != null  and rewardWenjian != ''"> and reward_wenjian = #{rewardWenjian}</if>
+            <!-- <if test="rewardDanwei != null  and rewardDanwei != ''"> and reward_danwei = #{rewardDanwei}</if> -->
+            <!-- <if test="rewardLeixing != null  and rewardLeixing != ''"> and reward_leixing = #{rewardLeixing}</if> -->
+            <!-- <if test="rewardWenjian != null  and rewardWenjian != ''"> and reward_wenjian = #{rewardWenjian}</if> -->
             <if test="rewardTime != null "> and reward_time = #{rewardTime}</if>
---             <if test="rewardFenlei != null  and rewardFenlei != ''"> and reward_fenlei = #{rewardFenlei}</if>
+            <!-- <if test="rewardFenlei != null  and rewardFenlei != ''"> and reward_fenlei = #{rewardFenlei}</if> -->
             <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
---             <if test="rewardDengji != null  and rewardDengji != ''"> and reward_dengji like concat('%', #{rewardDengji}, '%')</if>
---             <if test="rewardPaiming != null  and rewardPaiming != ''"> and reward_paiming = #{rewardPaiming}</if>
+            <!-- <if test="rewardDengji != null  and rewardDengji != ''"> and reward_dengji like concat('%', #{rewardDengji}, '%')</if> -->
+            <!-- <if test="rewardPaiming != null  and rewardPaiming != ''"> and reward_paiming = #{rewardPaiming}</if> -->
             <if test="rewardJibie != null  and rewardJibie != ''"> and like concat('%', #{rewardJibie}, '%')</if>
             <if test="state != null  and state != ''"> and state = #{state}</if>
 
@@ -60,12 +63,15 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             order  by state ,reward_time desc
         </where>
     </select>
-    
+
     <select id="selectSysRewardById" parameterType="Long" resultMap="SysRewardResult">
         <include refid="selectSysRewardVo"/>
         where id = #{id}
     </select>
-        
+
+    <!-- ================================================================================= -->
+    <!-- 核心修改1：在插入语句中添加jifen字段，确保添加奖励时积分能保存到数据库 -->
+    <!-- ================================================================================= -->
     <insert id="insertSysReward" parameterType="SysReward" useGeneratedKeys="true" keyProperty="id">
         insert into sys_reward
         <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -79,8 +85,15 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="rewardDengji != null and rewardDengji != ''">reward_dengji,</if>
             <if test="rewardPaiming != null and rewardPaiming != ''">reward_paiming,</if>
             <if test="rewardJibie != null and rewardJibie != ''">reward_jibie,</if>
+            <!-- 💡 关键补充：添加积分字段，后端计算的积分值将由此保存到数据库 -->
+            <if test="jifen != null">jifen,</if>
             <if test="state != null and state != ''">state,</if>
-         </trim>
+            <!-- 新增四个负责人字段 -->
+            <if test="firstPersonId != null and firstPersonId != ''">first_person_id,</if>
+            <if test="secondPersonId != null and secondPersonId != ''">second_person_id,</if>
+            <if test="thirdPersonId != null and thirdPersonId != ''">third_person_id,</if>
+            <if test="fourthPersonId != null and fourthPersonId != ''">fourth_person_id,</if>
+        </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="userId != null">#{userId},</if>
             <if test="rewardName != null and rewardName != ''">#{rewardName},</if>
@@ -92,10 +105,20 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="rewardDengji != null and rewardDengji != ''">#{rewardDengji},</if>
             <if test="rewardPaiming != null and rewardPaiming != ''">#{rewardPaiming},</if>
             <if test="rewardJibie != null and rewardJibie != ''">#{rewardJibie},</if>
+            <!-- 💡 关键补充：添加积分参数，对应后端的jifen属性值 -->
+            <if test="jifen != null">#{jifen},</if>
             <if test="state != null and state != ''">#{state},</if>
-         </trim>
+            <!-- 新增四个负责人字段 -->
+            <if test="firstPersonId != null and firstPersonId != ''">#{firstPersonId},</if>
+            <if test="secondPersonId != null and secondPersonId != ''">#{secondPersonId},</if>
+            <if test="thirdPersonId != null and thirdPersonId != ''">#{thirdPersonId},</if>
+            <if test="fourthPersonId != null and fourthPersonId != ''">#{fourthPersonId},</if>
+        </trim>
     </insert>
 
+    <!-- ================================================================================= -->
+    <!-- 核心修改2：在更新语句中添加jifen字段，确保编辑奖励时积分能更新到数据库 -->
+    <!-- ================================================================================= -->
     <update id="updateSysReward" parameterType="SysReward">
         update sys_reward
         <trim prefix="SET" suffixOverrides=",">
@@ -109,7 +132,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="rewardDengji != null and rewardDengji != ''">reward_dengji = #{rewardDengji},</if>
             <if test="rewardPaiming != null and rewardPaiming != ''">reward_paiming = #{rewardPaiming},</if>
             <if test="rewardJibie != null and rewardJibie != ''">reward_jibie = #{rewardJibie},</if>
+            <!-- 💡 关键补充：添加积分更新字段，编辑时重新计算的积分将由此更新 -->
+            <if test="jifen != null">jifen = #{jifen},</if>
             <if test="state != null and state != ''">state=#{state},</if>
+            <!-- 新增四个负责人字段 -->
+            <if test="firstPersonId != null and firstPersonId != ''">first_person_id = #{firstPersonId},</if>
+            <if test="secondPersonId != null and secondPersonId != ''">second_person_id = #{secondPersonId},</if>
+            <if test="thirdPersonId != null and thirdPersonId != ''">third_person_id = #{thirdPersonId},</if>
+            <if test="fourthPersonId != null and fourthPersonId != ''">fourth_person_id = #{fourthPersonId},</if>
         </trim>
         where id = #{id}
     </update>
@@ -119,20 +149,20 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </delete>
 
     <delete id="deleteSysRewardByIds" parameterType="String">
-        delete from sys_reward where id in 
+        delete from sys_reward where id in
         <foreach item="id" collection="array" open="(" separator="," close=")">
             #{id}
         </foreach>
     </delete>
 
-
     <select id="selectSysRewardListByJYS" parameterType="SysReward" resultMap="SysRewardResult">
-        select #{uid} uid,s.id, u.user_name username, d.dept_name dname,p.dept_name yname,s.user_id,s.jifen,s.reward_name, s.reward_danwei, s.reward_leixing, s.reward_wenjian, s.reward_time, s.reward_fenlei, s.reward_dengji, s.reward_paiming, s.reward_jibie,s.state
+        select #{uid} uid,s.id, u.user_name username, d.dept_name dname,p.dept_name yname,s.user_id,s.jifen,s.reward_name, s.reward_danwei, s.reward_leixing, s.reward_wenjian, s.reward_time, s.reward_fenlei, s.reward_dengji, s.reward_paiming, s.reward_jibie,s.state,
+        s.first_person_id, s.second_person_id, s.third_person_id, s.fourth_person_id
         from sys_reward s left join sys_user u on  s.user_id= u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
         where s.user_id = #{uid} or state in (1,2)
-        <!--            <if test="userId != null "> and user_id = #{userId}</if>-->
+        <!-- <if test="userId != null "> and user_id = #{userId}</if> -->
         <if test="yname != null  and yname != ''"> and yname = #{yname}</if>
         <if test="rewardName != null  and rewardName != ''"> and reward_name like concat('%', #{rewardName}, '%')</if>
         <if test="rewardTime != null "> and reward_time = #{rewardTime}</if>
@@ -148,14 +178,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         order  by state ,reward_time desc
     </select>
 
-
     <select id="selectSysRewardListByXUE" parameterType="SysReward" resultMap="SysRewardResult">
-        select #{uid} uid,s.id, u.user_name username, d.dept_name dname,p.dept_name yname,s.user_id,s.jifen,s.reward_name, s.reward_danwei, s.reward_leixing, s.reward_wenjian, s.reward_time, s.reward_fenlei, s.reward_dengji, s.reward_paiming, s.reward_jibie,s.state
+        select #{uid} uid,s.id, u.user_name username, d.dept_name dname,p.dept_name yname,s.user_id,s.jifen,s.reward_name, s.reward_danwei, s.reward_leixing, s.reward_wenjian, s.reward_time, s.reward_fenlei, s.reward_dengji, s.reward_paiming, s.reward_jibie,s.state,
+        s.first_person_id, s.second_person_id, s.third_person_id, s.fourth_person_id
         from sys_reward s left join sys_user u on  s.user_id= u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
         where (s.user_id = #{uid} or (state in (2,4) and d.parent_id = #{parentId}))
-        <!--            <if test="userId != null "> and user_id = #{userId}</if>-->
+        <!-- <if test="userId != null "> and user_id = #{userId}</if> -->
         <if test="yname != null  and yname != ''"> and yname = #{yname}</if>
         <if test="rewardName != null  and rewardName != ''"> and reward_name like concat('%', #{rewardName}, '%')</if>
         <if test="rewardTime != null "> and reward_time = #{rewardTime}</if>
@@ -166,14 +196,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         order  by state ,reward_time desc
     </select>
 
-
     <select id="selectSysRewardListByKYC" parameterType="SysReward" resultMap="SysRewardResult">
-        select #{uid} uid,s.id, u.user_name username, d.dept_name dname,p.dept_name yname,s.user_id,s.jifen,s.reward_name, s.reward_danwei, s.reward_leixing, s.reward_wenjian, s.reward_time, s.reward_fenlei, s.reward_dengji, s.reward_paiming, s.reward_jibie,s.state
+        select #{uid} uid,s.id, u.user_name username, d.dept_name dname,p.dept_name yname,s.user_id,s.jifen,s.reward_name, s.reward_danwei, s.reward_leixing, s.reward_wenjian, s.reward_time, s.reward_fenlei, s.reward_dengji, s.reward_paiming, s.reward_jibie,s.state,
+        s.first_person_id, s.second_person_id, s.third_person_id, s.fourth_person_id
         from sys_reward s left join sys_user u on  s.user_id= u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
         where s.state in (4,6)
-        <!--            <if test="userId != null "> and user_id = #{userId}</if>-->
+        <!-- <if test="userId != null "> and user_id = #{userId}</if> -->
         <if test="yname != null  and yname != ''"> and yname = #{yname}</if>
         <if test="rewardName != null  and rewardName != ''"> and reward_name like concat('%', #{rewardName}, '%')</if>
         <if test="rewardTime != null "> and reward_time = #{rewardTime}</if>
@@ -186,57 +216,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         order  by state ,reward_time desc
     </select>
 
-
-<!--    <select id="selectSciHorizontalApplyListByOverApply" parameterType="SciHorizontalApply" resultMap="SciHorizontalApplyResult">-->
-<!--        select  #{uid} uid, s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,  s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.contract, s.filing, s.state-->
-<!--        from sci_horizontal_apply s left join sys_user u on  s.user_id=u.user_id-->
-<!--        left join sys_dept d on u.dept_id = d.dept_id-->
-<!--        left join sys_dept p on d.parent_id =p.dept_id-->
-<!--        where s.state in(7,8,9,10)-->
-<!--        &lt;!&ndash;            <if test="userId != null "> and user_id = #{userId}</if>&ndash;&gt;-->
-<!--        <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>-->
-
-<!--        <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>-->
-<!--        <if test="state != null  and state != ''"> and state = #{state}</if>-->
-<!--        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>-->
-<!--        ${params.dataScope}-->
-<!--        order  by s.createtime desc-->
-<!--    </select>-->
-
-
-<!--    <select id="selectSciHorizontalApplyListByOverApplyJYS" parameterType="SciHorizontalApply" resultMap="SciHorizontalApplyResult">-->
-<!--        select  #{uid} uid, s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,  s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.contract, s.filing, s.state-->
-<!--        from sci_horizontal_apply s left join sys_user u on  s.user_id=u.user_id-->
-<!--        left join sys_dept d on u.dept_id = d.dept_id-->
-<!--        left join sys_dept p on d.parent_id =p.dept_id-->
-<!--        where s.state in(7,9)-->
-<!--        &lt;!&ndash;            <if test="userId != null "> and user_id = #{userId}</if>&ndash;&gt;-->
-<!--        <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>-->
-
-<!--        <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>-->
-<!--        <if test="state != null  and state != ''"> and state = #{state}</if>-->
-<!--        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>-->
-<!--        ${params.dataScope}-->
-<!--        order  by s.createtime desc-->
-<!--    </select>-->
-
-<!--    <select id="selectSciHorizontalApplyListByOverApplyKYC" parameterType="SciHorizontalApply" resultMap="SciHorizontalApplyResult">-->
-<!--        select  #{uid} uid, s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,  s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.contract, s.filing, s.state-->
-<!--        from sci_horizontal_apply s left join sys_user u on  s.user_id=u.user_id-->
-<!--        left join sys_dept d on u.dept_id = d.dept_id-->
-<!--        left join sys_dept p on d.parent_id =p.dept_id-->
-<!--        where s.state in(8,10)-->
-<!--        &lt;!&ndash;            <if test="userId != null "> and user_id = #{userId}</if>&ndash;&gt;-->
-<!--        <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>-->
-
-<!--        <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>-->
-<!--        <if test="state != null  and state != ''"> and state = #{state}</if>-->
-<!--        <if test="year != null  and year != ''"> and YEAR(signing_data) = #{year}</if>-->
-<!--        ${params.dataScope}-->
-<!--        order  by s.createtime desc-->
-<!--    </select>-->
-
-
     <update id="updateJifen">
         update sys_reward set jifen = #{jifen} where id = #{id}
     </update>
@@ -247,12 +226,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         WHERE id = #{id}
     </update>
 
-
-
     <update id="hxPass" >
         update sys_reward set state = #{state} where id = #{id}
     </update>
-
 
     <update id="overApply" >
         update sys_reward set state = #{state} where id = #{id}
@@ -352,6 +328,5 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </if>
         order by yname asc,dname asc,u.login_name asc
     </select>
-
 
 </mapper>
