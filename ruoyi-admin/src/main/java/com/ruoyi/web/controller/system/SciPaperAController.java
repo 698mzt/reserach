@@ -296,6 +296,8 @@ public class SciPaperAController extends BaseController {
                     throw new RuntimeException("未找到论文类型");
                 }else if (i==-5){
                     throw new RuntimeException("作者重复");
+                } else if (i==-6){
+                    throw new RuntimeException("一作和通讯作者都是校外人员，只能录入本校论文");
                 }
 
                 SciPaperAr sciPaperAr = new SciPaperAr();
@@ -374,6 +376,12 @@ public class SciPaperAController extends BaseController {
             }
         }
 
+        // 验证：如果一作和通讯都是校外，不让录入
+        boolean isFirstAuthorExternal = sciPaperA.getFirstPersonId() != null && sciPaperA.getFirstPersonId().equals("-1");
+        boolean isCorrespondingAuthorExternal = sciPaperA.getCommunicationAuthorId() != null && sciPaperA.getCommunicationAuthorId().equals("-1");
+        if (isFirstAuthorExternal && isCorrespondingAuthorExternal) {
+            return -6; // 返回错误码-6表示一作和通讯都是校外
+        }
 
         List<Paper_user_score> paperUserScoreList = new ArrayList<>();
         int res = 0;
@@ -578,6 +586,8 @@ public class SciPaperAController extends BaseController {
                     throw new RuntimeException("保存作者信息失败");
                 } else if (authorResult == -1) {
                     throw new RuntimeException("你不能添加自己不是作者的论文");
+                } else if (authorResult == -6) {
+                    throw new RuntimeException("一作和通讯作者都是校外人员，只能录入本校论文");
                 }
             }
             
