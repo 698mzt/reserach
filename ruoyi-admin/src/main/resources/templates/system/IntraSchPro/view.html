@@ -935,7 +935,11 @@
                     title: '创建时间',
                     align: 'center',
                     formatter: function (value, row, index) {
-                        return moment(value).format('YYYY-MM-DD HH:mm:ss');
+                        if (value) {
+                            var date = new Date(value);
+                            return date.format('yyyy-MM-dd hh:mm:ss');
+                        }
+                        return '';
                     }
                 },
                 {
@@ -943,6 +947,11 @@
                     title: '更新时间',
                     align: 'center',
                     formatter: function (value, row, index) {
+                        if (value) {
+                            var date = new Date(value);
+                            return date.format('yyyy-MM-dd hh:mm:ss');
+                        }
+                        return '';
                     }
                 },
                 {
@@ -1634,5 +1643,31 @@
     }
 
 </script>
+<script th:inline="javascript">
+    // 添加日期格式化函数以替代moment.js的功能
+    Date.prototype.format = function(fmt) {
+        var o = {
+            "M+": this.getMonth() + 1,                 //月份
+            "d+": this.getDate(),                      //日
+            "h+": this.getHours(),                     //小时
+            "m+": this.getMinutes(),                   //分
+            "s+": this.getSeconds(),                   //秒
+            "q+": Math.floor((this.getMonth() + 3) / 3), //季度
+            "S": this.getMilliseconds()                //毫秒
+        };
+
+        if (/(y+)/.test(fmt)) {
+            fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+        }
+
+        for (var k in o) {
+            if (new RegExp("(" + k + ")").test(fmt)) {
+                fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+            }
+        }
+        return fmt;
+    }
+</script>
+<th:block th:include="include :: footer"/>
 </body>
 </html>
