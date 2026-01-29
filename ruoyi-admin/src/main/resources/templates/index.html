@@ -254,8 +254,6 @@
     </div>
     <!--右侧部分结束-->
 </div>
-<!-- 全局css -->
-<link th:href="@{/ajax/libs/select2/select2.min.css}" rel="stylesheet" type="text/css" />
 
 <!-- 全局js -->
 <script th:src="@{/js/jquery.min.js}"></script>
@@ -289,18 +287,6 @@ var historyPath = storage.get("historyPath");
 var isLinkage = true;
 // 是否页签切换滚动到顶部
 var isScrollToTop = true;
-
-// 获取当前时间的函数
-function getCurrentTime() {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const day = String(now.getDate()).padStart(2, '0');
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    const seconds = String(now.getSeconds()).padStart(2, '0');
-    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-}
 
 // 本地主题优先，未设置取系统配置
 if($.common.isNotEmpty(skin)){

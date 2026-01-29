@@ -449,17 +449,17 @@
 
     $(function() {
         var options = {
-            // url:getUrl($('table').attr('id')),
-            createUrl: prefix + "/add",
-            detailUrl: prefix + "/detail/{id}",
-            updateUrl: prefix + "/edit/{id}",
-            removeUrl: prefix + "/remove",
-            exportUrl: prefix + "/export",
-            modalName: "论文",
-            clickToSelect: true,
-            rowStyle: rowStyle0,
-            pagination:true,
-            pageSize: 10,
+        // url:getUrl($('table').attr('id')),
+        createUrl: prefix + "/add",
+        detailUrl: prefix + "/detail/{id}",
+        updateUrl: prefix + "/edit/{id}",
+        removeUrl: prefix + "/remove",
+        exportUrl: prefix + "/export",
+        modalName: "论文",
+        clickToSelect: true,
+        rowStyle: rowStyle0,
+        pagination:true,
+        pageSize: 10,
             onCheck: function(row) {
                 ListRowId.push(row.id);
                 // console.log(ListRowId);

@@ -12,22 +12,24 @@
         <result property="xingming" column="userName"/><!-- 姓名 -->
         <result property="loginName" column="login_name"/><!-- 工号 -->
         <result property="mingcheng"    column="mingcheng"    />
-        <result property="leixing"    column="leixing"    />
+        <result property="leixing" column="leixing"    />
         <result property="isbn"    column="isbn"    />
-        <result property="chubanshijian"    column="chubanshijian"    />
-        <result property="chubanshe"    column="chubanshe"    />
-        <result property="benxiaoshifoyongshu"    column="benxiaoshifoyongshu"    />
-        <result property="fenlei"    column="fenlei"    />
-        <result property="state"    column="state"    />
-        <result property="paiming"    column="paiming"    />
-        <result property="jifen"    column="jifen"    />
-        <result property="wenjian"    column="wenjian"    />
+        <result property="chubanshijian" column="chubanshijian"    />
+        <result property="chubanshe" column="chubanshe"    />
+        <result property="benxiaoshifoyongshu" column="benxiaoshifoyongshu"    />
+        <result property="fenlei" column="fenlei"    />
+        <result property="state" column="state"    />
+        <result property="paiming" column="paiming"    />
+        <result property="jifen" column="jifen"    />
+        <result property="wenjian" column="wenjian"    />
         <result property="createtime" column="createtime" />
         <result property="year" column="year" /><!-- 确保映射正确 -->
         <result property="parentId" column="parent_id" />
+        <result property="zhubian" column="zhubian" />
+        <result property="fuzhubian" column="fuzhubian" />
     </resultMap>
     <sql id="selectSciJiaocairuanzhuVo">
-        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname,p.dept_id parent_id, s.user_id, s.mingcheng, s.isbn, s.chubanshijian, s.chubanshe, s.benxiaoshifoyongshu, s.fenlei, s.state,s.jifen,s.paiming,s.wenjian,s.createtime
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname,p.dept_id parent_id, s.user_id, s.mingcheng, s.isbn, s.chubanshijian, s.chubanshe, s.benxiaoshifoyongshu, s.fenlei, s.state,s.jifen,s.paiming,s.wenjian,s.createtime,s.zhubian,s.fuzhubian
         from sci_jiaocairuanzhu s left join sys_user u on  s.user_id=u.user_id
                                   left join sys_dept d on u.dept_id = d.dept_id
                                   left join sys_dept p on d.parent_id =p.dept_id

@@ -397,4 +397,9 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
         
         return membersArray.size();
     }
+
+    @Override
+    public List<SciJiaocairuanzhuMember> getJiaocairuanzhuMembers(Integer jiaocaiId) {
+        return sciJiaocairuanzhuMemberMapper.selectSciJiaocairuanzhuMemberByJiaocaiId(jiaocaiId);
+    }
 }
