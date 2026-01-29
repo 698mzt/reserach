@@ -5,7 +5,7 @@ import java.util.Map;
 
 import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.system.domain.SciJiaocairuanzhu;
-import com.ruoyi.system.domain.SciJiaocairuanzhu;
+import com.ruoyi.system.domain.SciJiaocairuanzhuMember;
 
 /**
  * 教材软著Service接口
@@ -124,6 +124,14 @@ public interface ISciJiaocairuanzhuService
      * @return 教材专著集合
      */
     List<SciJiaocairuanzhu> getStatsQueryToCheck(Map<String, String> params);
+
+    /**
+     * 获取教材著作成员列表
+     *
+     * @param jiaocaiId 教材著作ID
+     * @return 教材著作成员列表
+     */
+    List<SciJiaocairuanzhuMember> getJiaocairuanzhuMembers(Integer jiaocaiId);
 
 
 }
