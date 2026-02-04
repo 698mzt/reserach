@@ -55,6 +55,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <if test="fenlei != null  and fenlei != ''"> and fenlei = #{fenlei}</if>
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(createtime,INTERVAL 1 MONTH)) = #{year}</if>
         <if test="userId != null  and userId != ''">and s.user_id = #{uid}</if>
+        ${params.dataScope}
         order by
         s.createtime desc
     </select>
@@ -68,6 +69,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <if test="fenlei != null  and fenlei != ''"> and fenlei = #{fenlei}</if>
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(createtime,INTERVAL 1 MONTH)) = #{year}</if>
         <if test="userId != null  and userId != ''">and s.user_id = #{uid}</if>
+        ${params.dataScope}
         order by
         s.createtime desc
     </select>
@@ -81,6 +83,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <if test="fenlei != null  and fenlei != ''"> and fenlei = #{fenlei}</if>
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(createtime,INTERVAL 1 MONTH)) = #{year}</if>
         <if test="userId != null  and userId != ''">and s.user_id = #{uid}</if>
+        ${params.dataScope}
         order by
         s.createtime desc
     </select>
@@ -94,6 +97,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="huopishijain != null "> and huopishijain = #{huopishijain}</if>
             <if test="fenlei != null  and fenlei != ''"> and fenlei = #{fenlei}</if>
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(createtime,INTERVAL 1 MONTH)) = #{year}</if>
+        ${params.dataScope}
         order by
         case
 --         草稿箱
@@ -118,6 +122,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <if test="huopishijain != null "> and huopishijain = #{huopishijain}</if>
         <if test="fenlei != null  and fenlei != ''"> and fenlei = #{fenlei}</if>
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(createtime,INTERVAL 1 MONTH)) = #{year}</if>
+        ${params.dataScope}
         order by
         case
 --         待教研室审核
@@ -141,6 +146,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <if test="huopishijain != null "> and huopishijain = #{huopishijain}</if>
         <if test="fenlei != null  and fenlei != ''"> and fenlei = #{fenlei}</if>
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(createtime,INTERVAL 1 MONTH)) = #{year}</if>
+        ${params.dataScope}
         order by
         case
 --         待学院审核
@@ -246,6 +252,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="fenlei != null and fenlei != ''">fenlei = #{fenlei},</if>
             <if test="paiming != null and paiming != ''">paiming = #{paiming},</if>
             <if test="wenjian != null and wenjian != ''">wenjian = #{wenjian},</if>
+            <if test="jifen != null and jifen != ''">jifen = #{jifen},</if>
 
             <if test="firstPersonId != null and firstPersonId != ''">first_person_id = #{firstPersonId},</if>
             <if test="secondPersonId != null and secondPersonId != ''">second_person_id = #{secondPersonId},</if>
@@ -339,6 +346,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <if test='state != null and state != "" and state!="null" and state =="3"'>
             AND s.state in (6)
         </if>
+        ${_dataScope}
         order by s.createtime desc
     </select>
     <select id="getStatsQueryToExcil" parameterType="map" resultMap="SciZhuanliruanzhuResult">
@@ -386,6 +394,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <if test='state != null and state != "" and state!="null" and state =="3"'>
             AND s.state in (6)
         </if>
+        ${_dataScope}
         order by s.jifen desc limit 10
     </select>
 
