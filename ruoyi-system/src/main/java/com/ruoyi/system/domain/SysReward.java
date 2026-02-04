@@ -6,7 +6,10 @@ import com.ruoyi.common.core.domain.BaseEntity;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 奖励对象 sys_reward
@@ -96,6 +99,15 @@ public class SysReward extends BaseEntity
 
     /** 第四负责人 */
     private String fourthPersonId;
+
+    /** 更多成员（第5位及以后），逗号分隔存储 */
+    @Excel(name = "其他成员")
+    private String extraMemberIds;
+
+
+    // 用于前端展示的列表（不映射数据库）
+    @Excel(name = "其他成员列表")
+    private List<String> extraMembers;
 
     /** 状态 */
     @Excel(name = "状态")
@@ -304,6 +316,30 @@ public class SysReward extends BaseEntity
         this.role = role;
     }
 
+    public String getExtraMemberIds() {
+        return extraMemberIds;
+    }
+
+    public void setExtraMemberIds(String extraMemberIds) {
+        this.extraMemberIds = extraMemberIds;
+        // 自动解析为列表
+        if (extraMemberIds != null && !extraMemberIds.isEmpty()) {
+            this.extraMembers = Arrays.asList(extraMemberIds.split(","));
+        } else {
+            this.extraMembers = new ArrayList<>();
+        }
+    }
+    public List<String> getExtraMembers() {
+        return extraMembers;
+    }
+
+    public void setExtraMembers(List<String> extraMembers) {
+        this.extraMembers = extraMembers;
+        // 反向转换为字符串
+        if (extraMembers != null && !extraMembers.isEmpty()) {
+            this.extraMemberIds = String.join(",", extraMembers);
+        }
+    }
     @Override
     public String toString() {
         return new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE)
@@ -330,6 +366,7 @@ public class SysReward extends BaseEntity
                 .append("secondPersonId", getSecondPersonId())
                 .append("thirdPersonId", getThirdPersonId())
                 .append("fourthPersonId", getFourthPersonId())
+                .append("extraMemberIds", getExtraMemberIds())
                 .append("state", getState())
                 .append("role", getRole())
                 .toString();

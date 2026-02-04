@@ -276,6 +276,7 @@ public class SysRewardController extends BaseController
         List<SysUser> userList1 =  userService.selectAllUser();
         mmap.put("sysUsers1",userList1);
         mmap.put("sysReward", sysReward);
+        mmap.put("extraMembers", sysReward.getExtraMembers());
         return prefix + "/edit";
     }
 
@@ -327,6 +328,7 @@ public class SysRewardController extends BaseController
         sysReward.setUrlFlag(urlFlag);
         mmap.put("sysUsers1",userList1);
         mmap.put("sysReward", sysReward);
+        mmap.put("extraMembers", sysReward.getExtraMembers());
         return prefix + "/detail";
     }
 
@@ -360,6 +362,7 @@ public class SysRewardController extends BaseController
         List<SysUser> userList1 =  userService.selectAllUser();
         mmap.put("sysUsers1",userList1);
         mmap.put("sysReward", sysReward);
+        mmap.put("extraMembers", sysReward.getExtraMembers());
         return prefix + "/recall";
     }
     @RequiresPermissions(value={"system:reward:hecha","system:reward:process","system:reward:chayue"},logical= Logical.OR)

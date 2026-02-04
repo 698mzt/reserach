@@ -27,11 +27,12 @@
         <result property="secondPersonId" column="second_person_id" />
         <result property="thirdPersonId" column="third_person_id" />
         <result property="fourthPersonId" column="fourth_person_id" />
+        <result property="extraMemberIds" column="extra_member_ids" />
     </resultMap>
 
     <sql id="selectSysRewardVo">
         select #{uid} uid,s.id, u.user_name username, d.dept_name dname,p.dept_name yname,s.jifen,s.user_id,s.reward_name, s.reward_danwei, s.reward_leixing, s.reward_wenjian, s.reward_time, s.reward_fenlei, s.reward_dengji, s.reward_paiming, s.reward_jibie,s.state,
-               s.first_person_id, s.second_person_id, s.third_person_id, s.fourth_person_id
+               s.first_person_id, s.second_person_id, s.third_person_id, s.fourth_person_id,s.extra_member_ids
         from sys_reward s left join sys_user u on  s.user_id= u.user_id
                           left join sys_dept d on u.dept_id = d.dept_id
                           left join sys_dept p on d.parent_id =p.dept_id
@@ -66,7 +67,7 @@
 
     <select id="selectSysRewardById" parameterType="Long" resultMap="SysRewardResult">
         <include refid="selectSysRewardVo"/>
-        where id = #{id}
+        where s.id = #{id}
     </select>
 
     <!-- ================================================================================= -->
@@ -93,6 +94,8 @@
             <if test="secondPersonId != null and secondPersonId != ''">second_person_id,</if>
             <if test="thirdPersonId != null and thirdPersonId != ''">third_person_id,</if>
             <if test="fourthPersonId != null and fourthPersonId != ''">fourth_person_id,</if>
+            <!-- 【新增】更多成员 -->
+            <if test="extraMemberIds != null and extraMemberIds != ''">extra_member_ids,</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="userId != null">#{userId},</if>
@@ -113,6 +116,8 @@
             <if test="secondPersonId != null and secondPersonId != ''">#{secondPersonId},</if>
             <if test="thirdPersonId != null and thirdPersonId != ''">#{thirdPersonId},</if>
             <if test="fourthPersonId != null and fourthPersonId != ''">#{fourthPersonId},</if>
+            <!-- 【新增】更多成员 -->
+            <if test="extraMemberIds != null and extraMemberIds != ''">#{extraMemberIds},</if>
         </trim>
     </insert>
 
@@ -140,6 +145,7 @@
             <if test="secondPersonId != null and secondPersonId != ''">second_person_id = #{secondPersonId},</if>
             <if test="thirdPersonId != null and thirdPersonId != ''">third_person_id = #{thirdPersonId},</if>
             <if test="fourthPersonId != null and fourthPersonId != ''">fourth_person_id = #{fourthPersonId},</if>
+            <if test="extraMemberIds != null">extra_member_ids = #{extraMemberIds},</if>
         </trim>
         where id = #{id}
     </update>
