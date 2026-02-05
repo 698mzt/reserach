@@ -540,16 +540,20 @@ public class SciPaperAController extends BaseController {
 
     /**
      * 论文详情查看
-     * @param id 论文ID
-     * @param urlFlag URL标识
+     * @param id 论文ID和URL标识（格式：id/urlFlag）
      * @param mmap 模型映射
      * @return 详情页面
      */
     @RequiresPermissions(value = {"system:paper:xypy", "system:paper:process", "system:paper:kypy", "system:paper:info"}, logical = Logical.OR)
     @Log(title = "论文详情查看", businessType = BusinessType.OTHER)
-    @GetMapping("/detail/{id}/{urlFlag}")
-    public String detail(@PathVariable("id") Long id, @PathVariable("urlFlag") String urlFlag, ModelMap mmap) {
-        SciPaperA sciPaperA = sciPaperAService.selectSciPaperAById(id);
+    @GetMapping("/detail/{id}")
+    public String detail(@PathVariable("id") String id, ModelMap mmap) {
+        // 解析id和urlFlag
+        String[] parts = id.split("/");
+        Long paperId = Long.parseLong(parts[0]);
+        String urlFlag = parts.length > 1 ? parts[1] : ""; 
+        
+        SciPaperA sciPaperA = sciPaperAService.selectSciPaperAById(paperId);
         if (sciPaperA == null) {
             return prefix + "/paper";
         }

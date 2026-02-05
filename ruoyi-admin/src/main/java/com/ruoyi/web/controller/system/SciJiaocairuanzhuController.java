@@ -1,6 +1,7 @@
 package com.ruoyi.web.controller.system;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import com.ruoyi.common.core.domain.entity.SysRole;
@@ -226,15 +227,15 @@ public class SciJiaocairuanzhuController extends BaseController
 
 
     /**
-     * 检查专利名称与负责人级别是否重复
+     * 检查教材名称与负责人级别是否重复
      */
     @RequiresPermissions("system:jiaocairuanzhu:add")
     @PostMapping("/checkDuplicate")
     @ResponseBody
-    public AjaxResult checkDuplicate(@RequestParam String mingcheng, @RequestParam String paiming) {
-        boolean exists = sciJiaocairuanzhuService.checkExist(mingcheng, paiming);
+    public AjaxResult checkDuplicate(@RequestParam String mingcheng, @RequestParam(required = false) String paiming) {
+        boolean exists = sciJiaocairuanzhuService.checkExist(mingcheng, paiming, getUserId());
         if (exists) {
-            return AjaxResult.error("该专利名称的该负责人级别已存在，不可重复添加");
+            return AjaxResult.error("该教材名称的该负责人级别已存在，不可重复添加");
         } else {
             return AjaxResult.success(); // code == 0
         }
@@ -269,9 +270,26 @@ public class SciJiaocairuanzhuController extends BaseController
     @Log(title = "教材软著", businessType = BusinessType.INSERT)
     @PostMapping("/add")
     @ResponseBody
-    public AjaxResult addSave(SciJiaocairuanzhu sciJiaocairuanzhu)
+    public AjaxResult addSave(SciJiaocairuanzhu sciJiaocairuanzhu, 
+                              @RequestParam(value = "members", required = false) String members, 
+                              @RequestParam(value = "totalScore", required = false) String totalScore)
     {
+        // 设置科研总分，如果没有传递则默认为0
+        if (totalScore != null && !totalScore.isEmpty()) {
+            sciJiaocairuanzhu.setJifen(totalScore);
+        } else {
+            sciJiaocairuanzhu.setJifen("0");
+        }
+        
+        // 保存教材著作基本信息
         sciJiaocairuanzhuService.insertSciJiaocairuanzhu(sciJiaocairuanzhu);
+        
+        // 保存成员信息
+        if (members != null && !members.isEmpty()) {
+            sciJiaocairuanzhuService.saveJiaocairuanzhuMembers(sciJiaocairuanzhu.getId(), members);
+        }
+        
+        // 保存批阅记录
         SciJiaocairuanzhuPiyue sciJiaocairuanzhuPiyue = new SciJiaocairuanzhuPiyue();
         sciJiaocairuanzhuPiyue.setJiaocai_id(sciJiaocairuanzhu.getId());
         sciJiaocairuanzhuPiyue.setConcate("新增教材专著草稿");
@@ -291,12 +309,40 @@ public class SciJiaocairuanzhuController extends BaseController
         mmap.put("sciJiaocairuanzhu", sciJiaocairuanzhu);
 
         // 获取用户列表并添加到模型中
-//        List<SysUser> sysUsers = userService.selectUserList(null);
-//        mmap.put("sysUsers", sysUsers);
-        List<SysUser> userList1 =  userService.selectAllUser();
-        mmap.put("sysUsers1",userList1);
+        SysUser user = new SysUser();
+        user.setParams(new HashMap<String, Object>());
+        List<SysUser> sysUsers = userService.selectUserList(user);
+        mmap.put("sysUsers1", sysUsers);
+        
+        // 获取所有用户列表用于成员选择
+        List<SysUser> allUsers = userService.selectAllUserSchPro(getUserId());
+        // 设置当前用户为主持人
+        for (int a = 0; a<allUsers.size();a++) {
+            if(allUsers.get(a).getUserId().equals(sciJiaocairuanzhu.getUserId())){
+                SysUser currentUser = allUsers.get(a);
+                currentUser.setFlag(true);
+                allUsers.set(a,currentUser);
+                break;
+            }
+        }
+        mmap.put("sysUsers", allUsers);
+
+        // 获取教材著作成员列表
+        List<com.ruoyi.system.domain.SciJiaocairuanzhuMember> members = sciJiaocairuanzhuService.getJiaocairuanzhuMembers(id);
+        mmap.put("members", members);
 
         return prefix + "/edit";
+    }
+
+    /**
+     * 获取教材著作成员列表
+     */
+    @GetMapping("/getMembers/{id}")
+    @ResponseBody
+    public AjaxResult getMembers(@PathVariable("id") Integer id)
+    {
+        List<com.ruoyi.system.domain.SciJiaocairuanzhuMember> members = sciJiaocairuanzhuService.getJiaocairuanzhuMembers(id);
+        return AjaxResult.success(members);
     }
 
     /**
@@ -306,9 +352,26 @@ public class SciJiaocairuanzhuController extends BaseController
     @Log(title = "教材软著", businessType = BusinessType.UPDATE)
     @PostMapping("/edit")
     @ResponseBody
-    public AjaxResult editSave(SciJiaocairuanzhu sciJiaocairuanzhu)
+    public AjaxResult editSave(SciJiaocairuanzhu sciJiaocairuanzhu, 
+                              @RequestParam(value = "members", required = false) String members, 
+                              @RequestParam(value = "totalScore", required = false) String totalScore)
     {
-        return toAjax(sciJiaocairuanzhuService.updateSciJiaocairuanzhu(sciJiaocairuanzhu));
+        // 设置科研总分，如果没有传递则默认为0
+        if (totalScore != null && !totalScore.isEmpty()) {
+            sciJiaocairuanzhu.setJifen(totalScore);
+        } else {
+            sciJiaocairuanzhu.setJifen("0");
+        }
+        
+        // 保存教材著作基本信息
+        int result = sciJiaocairuanzhuService.updateSciJiaocairuanzhu(sciJiaocairuanzhu);
+        
+        // 保存成员信息
+        if (members != null && !members.isEmpty()) {
+            sciJiaocairuanzhuService.saveJiaocairuanzhuMembers(sciJiaocairuanzhu.getId(), members);
+        }
+        
+        return toAjax(result);
     }
 
     /**
@@ -333,7 +396,10 @@ public class SciJiaocairuanzhuController extends BaseController
     public String detail(@PathVariable("id") Integer id,@PathVariable("urlFlag") String urlFlag, ModelMap mmap)
     {
         SciJiaocairuanzhu sciJiaocairuanzhu = sciJiaocairuanzhuService.selectSciJiaocairuanzhuById(id);
-        List<SysUser> userList1 =  userService.selectAllUser();
+        // 创建一个初始化了params的SysUser对象，避免MyBatis参数解析错误
+        SysUser user = new SysUser();
+        user.setParams(new HashMap<String, Object>());
+        List<SysUser> userList1 = userService.selectUserList(user);
         sciJiaocairuanzhu.setUrlFlag(urlFlag);
         mmap.put("sysUsers1",userList1);
         mmap.put("sciJiaocairuanzhu", sciJiaocairuanzhu);
@@ -374,9 +440,12 @@ public class SciJiaocairuanzhuController extends BaseController
     public String recall(@PathVariable("id") Integer id, ModelMap mmap)
     {
         SciJiaocairuanzhu sciJiaocairuanzhu = sciJiaocairuanzhuService.selectSciJiaocairuanzhuById(id);
-        List<SysUser> userList1 =  userService.selectAllUser();
+        List<SysUser> userList1 =  userService.selectUserList(null);
+        // 获取教材著作成员列表
+        List<com.ruoyi.system.domain.SciJiaocairuanzhuMember> members = sciJiaocairuanzhuService.getJiaocairuanzhuMembers(id);
         mmap.put("sysUsers1",userList1);
         mmap.put("sciJiaocairuanzhu", sciJiaocairuanzhu);
+        mmap.put("members", members);
         return prefix + "/recall";
     }
 

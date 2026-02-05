@@ -242,6 +242,12 @@ public class SciJiaocairuanzhu extends BaseEntity
     /** 排名 */
     private String paiming;
 
+    /** 主编 */
+    private String zhubian;
+
+    /** 副主编 */
+    private String fuzhubian;
+
     /** 科研分 */
     @Excel(name = "积分", sort = 5)
     private String jifen;
@@ -418,6 +424,27 @@ public class SciJiaocairuanzhu extends BaseEntity
     {
         return paiming;
     }
+
+    public String getZhubian()
+    {
+        return zhubian;
+    }
+
+    public void setZhubian(String zhubian)
+    {
+        this.zhubian = zhubian;
+    }
+
+    public String getFuzhubian()
+    {
+        return fuzhubian;
+    }
+
+    public void setFuzhubian(String fuzhubian)
+    {
+        this.fuzhubian = fuzhubian;
+    }
+
     public String getStateDes() {
         if (this.state == null) {
             return "";

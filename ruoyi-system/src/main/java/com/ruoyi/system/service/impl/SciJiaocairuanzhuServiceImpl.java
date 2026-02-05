@@ -3,13 +3,18 @@ package com.ruoyi.system.service.impl;
 import java.util.List;
 import java.util.Map;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.ruoyi.common.annotation.DataScope;
 import com.ruoyi.common.utils.DataScopeUtils;
 import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.system.domain.SciHorizontalPiyue;
+import com.ruoyi.system.domain.SciJiaocairuanzhuMember;
 import com.ruoyi.system.domain.SciJiaocairuanzhuPiyue;
 import com.ruoyi.system.domain.SciJiaocairuanzhuScoreCfg;
 import com.ruoyi.system.mapper.SciHorizontalPiyueMapper;
+import com.ruoyi.system.mapper.SciJiaocairuanzhuMemberMapper;
 import com.ruoyi.system.mapper.SciJiaocairuanzhuPiyueMapper;
 import com.ruoyi.system.mapper.SciJiaocairuanzhuScoreCfgMapper;
 import com.ruoyi.system.service.ISysUserService;
@@ -35,10 +40,11 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
     @Autowired
     private SciJiaocairuanzhuPiyueMapper sciJiaocairuanzhuPiyueMapper;
 
-
     @Autowired
     private SciJiaocairuanzhuScoreCfgMapper sciJiaocairuanzhuScoreCfgMapper;
 
+    @Autowired
+    private SciJiaocairuanzhuMemberMapper sciJiaocairuanzhuMemberMapper;
 
 //    @Autowired
 //    private SciJiaocairuanzhuMapper sciJiaocairuanzhuMapper;
@@ -330,8 +336,8 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
 
 
     @Override
-    public boolean checkExist(String mingcheng, String paiming) {
-        return sciJiaocairuanzhuMapper.checkExist(mingcheng, paiming) > 0;
+    public boolean checkExist(String mingcheng, String paiming, Long userId) {
+        return sciJiaocairuanzhuMapper.checkExist(mingcheng, paiming, userId) > 0;
     }
 
     @Override
@@ -345,5 +351,55 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
         // 手动处理数据权限，因为 @DataScope 只支持 BaseEntity 类型，而这里使用的是 Map
         DataScopeUtils.applyDataScopeToMap(params, "d", "u", "");
         return sciJiaocairuanzhuMapper.getStatsQueryToCheck(params);
+    }
+    
+    @Override
+    public int saveJiaocairuanzhuMembers(Integer jiaocaiId, String membersJson) {
+        // 先删除该教材著作已有的成员信息
+        sciJiaocairuanzhuMemberMapper.deleteSciJiaocairuanzhuMemberByJiaocaiId(jiaocaiId);
+        
+        // 解析JSON字符串，获取成员列表
+        JSONArray membersArray = JSON.parseArray(membersJson);
+        
+        // 遍历成员列表，插入新的成员信息
+        for (int i = 0; i < membersArray.size(); i++) {
+            JSONObject memberObj = membersArray.getJSONObject(i);
+            SciJiaocairuanzhuMember member = new SciJiaocairuanzhuMember();
+            member.setJiaocaiId(jiaocaiId);
+            member.setMemberId(memberObj.getString("memberId"));
+            member.setMemberName(memberObj.getString("memberName"));
+            member.setRanking(memberObj.getString("ranking"));
+            member.setResearchScore(memberObj.getString("researchScore"));
+            
+            // 根据角色设置对应的字段
+            String role = memberObj.getString("role");
+            if ("主编".equals(role)) {
+                member.setIsChiefEditor(1);
+                member.setIsAssociateEditor(0);
+                member.setIsMember(0);
+            } else if ("副主编".equals(role)) {
+                member.setIsChiefEditor(0);
+                member.setIsAssociateEditor(1);
+                member.setIsMember(0);
+            } else if ("成员".equals(role)) {
+                member.setIsChiefEditor(0);
+                member.setIsAssociateEditor(0);
+                member.setIsMember(1);
+            } else {
+                // 默认设置为成员
+                member.setIsChiefEditor(0);
+                member.setIsAssociateEditor(0);
+                member.setIsMember(1);
+            }
+            
+            sciJiaocairuanzhuMemberMapper.insertSciJiaocairuanzhuMember(member);
+        }
+        
+        return membersArray.size();
+    }
+
+    @Override
+    public List<SciJiaocairuanzhuMember> getJiaocairuanzhuMembers(Integer jiaocaiId) {
+        return sciJiaocairuanzhuMemberMapper.selectSciJiaocairuanzhuMemberByJiaocaiId(jiaocaiId);
     }
 }

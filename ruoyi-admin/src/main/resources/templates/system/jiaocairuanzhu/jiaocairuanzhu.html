@@ -573,15 +573,33 @@
   var prefix = ctx + "system/jiaocairuanzhu";
 
   $(function () {
-    function initTable(options) {
-      var tableId = options.id;
-      options.url = getUrl(tableId);
-      $.table.init(options);
+    // 设置默认年份
+    if (!localStorage.getItem("year")) {
+      var currentYear = new Date().getFullYear();
+      localStorage.setItem("year", currentYear);
     }
 
-    function getUrl(tableId) {
+    function initTable(options) {
+      var tableId = options.id;
+      options.url = getUrl();
+      // 添加加载状态处理
+    options.onLoadSuccess = function(data) {
+      if (data && data.rows && data.rows.length === 0) {
+        $.modal.msgSuccess("当前年份没有数据");
+      }
+    };
+    
+    options.onLoadError = function(status, jqXHR) {
+      $.modal.msgError("数据加载失败，请稍后重试");
+      console.error("表格数据加载失败:", status, jqXHR);
+    };
+    
+    $.table.init(options);
+    }
+
+    function getUrl() {
       var year = localStorage.getItem("year");
-      return prefix + "/list/?year=" + year;
+      return prefix + "/list";
     }
 
     var options = {
@@ -594,6 +612,15 @@
       recallUrl: prefix + "/recall/{id}",
       rowStyle: rowStyle0,
       modalName: "教材专著",
+      queryParams: function(params) {
+        return {
+          pageNum: params.pageNumber,
+          pageSize: params.pageSize,
+          orderByColumn: params.sortName,
+          isAsc: params.sortOrder,
+          year: localStorage.getItem("year")
+        };
+      },
       columns: [
         {
           field: 'number',
@@ -854,6 +881,18 @@
     }
   }
 
+
+  // 获取当前时间的函数
+  function getCurrentTime() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+  }
 
   document.addEventListener('DOMContentLoaded', function () {
     // 初始化显示当前时间

@@ -93,7 +93,7 @@ public interface SciJiaocairuanzhuMapper
     /**
      * 查询是否存在相同专利名称和负责人级别
      */
-    int checkExist(@Param("mingcheng") String mingcheng, @Param("paiming") String paiming);
+    int checkExist(@Param("mingcheng") String mingcheng, @Param("paiming") String paiming, @Param("userId") Long userId);
 
     /**
      * 统计查询教材专著数据

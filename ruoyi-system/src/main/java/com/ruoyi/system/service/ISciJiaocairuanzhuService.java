@@ -5,7 +5,7 @@ import java.util.Map;
 
 import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.system.domain.SciJiaocairuanzhu;
-import com.ruoyi.system.domain.SciJiaocairuanzhu;
+import com.ruoyi.system.domain.SciJiaocairuanzhuMember;
 
 /**
  * 教材软著Service接口
@@ -96,9 +96,18 @@ public interface ISciJiaocairuanzhuService
      * 检查是否已存在相同专利名称和负责人级别
      * @param mingcheng 专利名称
      * @param paiming 负责人级别
+     * @param userId 用户ID
      * @return 是否存在
      */
-    boolean checkExist(String mingcheng, String paiming);
+    boolean checkExist(String mingcheng, String paiming, Long userId);
+    
+    /**
+     * 保存教材著作成员信息
+     * @param jiaocaiId 教材著作ID
+     * @param membersJson 成员信息JSON字符串
+     * @return 结果
+     */
+    int saveJiaocairuanzhuMembers(Integer jiaocaiId, String membersJson);
 
     /**
      * 统计查询教材专著数据
@@ -115,6 +124,14 @@ public interface ISciJiaocairuanzhuService
      * @return 教材专著集合
      */
     List<SciJiaocairuanzhu> getStatsQueryToCheck(Map<String, String> params);
+
+    /**
+     * 获取教材著作成员列表
+     *
+     * @param jiaocaiId 教材著作ID
+     * @return 教材著作成员列表
+     */
+    List<SciJiaocairuanzhuMember> getJiaocairuanzhuMembers(Integer jiaocaiId);
 
 
 }
