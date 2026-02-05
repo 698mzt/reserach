@@ -24,75 +24,6 @@
                 </div>
             </div>
 
-            <!-- 第一负责人 -->
-            <div class="col-xs-6">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">第一负责人：</label>
-                    <div class="col-sm-8">
-                        <select id="firstPersonSelect" name="firstPersonId" class="form-control m-b" required>
-                            <option value="">---请选择--</option>
-                            <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}"
-                                    th:if="${user.userId} != 1 and ${user.flag != true}"></option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 成员1（第二负责人） -->
-            <div class="col-xs-6">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">成员1：</label>
-                    <div class="col-sm-8">
-                        <select id="member1Select" name="secondPersonId" class="form-control m-b" required>
-                            <option value="">---请选择--</option>
-                            <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}"
-                                    th:if="${user.userId} != 1 and ${user.flag != true}"></option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 成员2（第三负责人） -->
-            <div class="col-xs-6">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">成员2：</label>
-                    <div class="col-sm-8">
-                        <select id="member2Select" name="thirdPersonId" class="form-control m-b" required>
-                            <option value="">---请选择--</option>
-                            <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}"
-                                    th:if="${user.userId} != 1 and ${user.flag != true}"></option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 成员3（第四负责人） -->
-            <div class="col-xs-6">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">成员3：</label>
-                    <div class="col-sm-8">
-                        <select id="member3Select" name="fourthPersonId" class="form-control m-b" required>
-                            <option value="">--请选择--</option>
-                            <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}"
-                                    th:if="${user.userId} != 1 and ${user.flag != true}"></option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 动态添加更多成员 -->
-            <div class="col-xs-12">
-                <div class="form-group">
-                    <label class="col-sm-2 control-label">更多成员：</label>
-                    <div class="col-sm-10">
-                        <div id="memberContainer" class="row"></div>
-                        <button type="button" id="addMemberBtn" class="btn btn-white btn-sm" title="新增成员">
-                            <i class="fa fa-plus-circle"></i> 增加成员
-                        </button>
-                        <input type="hidden" name="extraMemberIds" id="extraMemberIds">
-                    </div>
-                </div>
-            </div>
 
             <!-- 其他字段... -->
             <div class="col-xs-6">
@@ -150,12 +81,84 @@
 
             <div class="col-xs-6">
                 <div class="form-group">
-                    <label class="col-sm-4 control-label is-required" for="rewardJibie">级别：</label>
+                    <label class="col-sm-4 control-label is-required">等级：</label>
                     <div class="col-sm-8">
-                        <select id="rewardJibie" name="rewardJibie" class="form-control" required>
-                            <option value="校级">校级</option>
-                            <option value="省级">省级</option>
+                        <select id="rewarDengji" name="rewardDengji" class="form-control" th:with="type=${@dict.getType('sys_reward_dengji')}" required>
+                            <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
                         </select>
+                    </div>
+                </div>
+            </div>
+
+<!--            <div class="col-xs-6">-->
+<!--                <div class="form-group">-->
+<!--                    <label class="col-sm-4 control-label is-required" for="rewardJibie">级别：</label>-->
+<!--                    <div class="col-sm-8">-->
+<!--                        <select id="rewardJibie" name="rewardJibie" class="form-control" required>-->
+<!--                            <option value="校级">校级</option>-->
+<!--                            <option value="省级">省级</option>-->
+<!--                        </select>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
+
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">主持人：</label>
+                    <div class="col-sm-8">
+                        <div th:each="user : ${sysUsers}" th:if="${user.flag}">
+                            <input  class="form-control" type="text" th:value="${user.userName}" readonly>
+                            <input name="firstPersonId" class="form-control" type="hidden" th:value="${user.userId}">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">成员1：</label>
+                    <div class="col-sm-8">
+                        <select id="member1Select" name="secondPersonId" class="form-control m-b" onchange="updateMemberLists()" required>
+                            <option value="">---请选择--</option>
+                            <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}"  th:if="${user.userId} != 1 and ${user.flag != true}" ></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">成员2：</label>
+                    <div class="col-sm-8">
+                        <select id="member2Select" name="thirdPersonId" class="form-control m-b" onchange="updateMemberLists()" required>
+                            <option value="">---请选择--</option>
+                            <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}" th:if="${user.userId} != 1 and ${user.flag != true}"></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">成员3：</label>
+                    <div class="col-sm-8">
+                        <select id="member3Select" name="fourthPersonId" class="form-control m-b" onchange="updateMemberLists()" required>
+                            <option value="">---请选择--</option>
+                            <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}" th:if="${user.userId} != 1 and ${user.flag != true}"></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <!-- 【添加】隐藏域，用于收集所有额外成员ID，以逗号分隔 -->
+            <input type="hidden" name="extraMemberIds" id="extraMemberIds">
+            <!-- 第5位及以后：可动态添加 -->
+            <div class="col-xs-12">
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">更多成员：</label>
+                    <div class="col-sm-10">
+                        <div id="memberContainer" class="row"></div>
+                        <button type="button" id="addMemberBtn" class="btn btn-white btn-sm" title="新增成员">
+                            <a href="#"><i class="fa fa-plus-circle" ></i>增加成员</a>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -172,16 +175,7 @@
                 </div>
             </div>
 
-            <div class="col-xs-6">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">等级：</label>
-                    <div class="col-sm-8">
-                        <select id="rewarDengji" name="rewardDengji" class="form-control" th:with="type=${@dict.getType('sys_reward_dengji')}" required>
-                            <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
-                        </select>
-                    </div>
-                </div>
-            </div>
+
 
         </div>
     </form>
@@ -230,13 +224,13 @@
 
     // 添加成员下拉框
     function appendMemberSelect() {
-        var memberCount = $('.member-item').length + 4; // 从第4位开始计数
+        var memberCount = $('.member-item').length + 5; // 从第5位开始计数（前面有主持人+成员1-3=4人）
         var memberId = 'dynamicMember' + memberCount;
 
         var $tpl = $('<div class="col-xs-6 member-item m-b-xs">\
                 <div class="input-group">\
                     <label class="input-group-addon" style="min-width: 90px;">成员' + memberCount + '：</label>\
-                    <select id="' + memberId + '" name="members" class="form-control member-select" onchange="updateMemberLists()">\
+                    <select id="' + memberId + '" name="extraMemberIds" class="form-control member-select" onchange="updateMemberLists()">\
                         <option value="">---请选择--</option>\
                     </select>\
                     <span class="input-group-btn">\
@@ -324,6 +318,8 @@
             if (val) extraIds.push(val);
         });
         $("#extraMemberIds").val(extraIds.join(","));
+        // 将数组转为逗号分隔的字符串，存入隐藏域
+        console.log("extraMemberIds:", extraIds.join(","));
     }
 
     $("#form-reward-add").validate({

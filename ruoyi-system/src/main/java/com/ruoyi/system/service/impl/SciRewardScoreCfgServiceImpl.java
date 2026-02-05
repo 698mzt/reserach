@@ -6,6 +6,7 @@ import com.ruoyi.system.mapper.SciRewardScoreCfgMapper;
 import com.ruoyi.system.service.ISciRewardScoreCfgService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -93,7 +94,16 @@ public class SciRewardScoreCfgServiceImpl implements ISciRewardScoreCfgService
         return sciRewardScoreCfgMapper.deleteSciRewardScoreCfgById(id);
     }
 
+    /**
+     * 根据条件计算奖励积分
+     *
+     * @param fenLei 奖励分类
+     * @param dengJi 奖励等级
+     * @param paiMing 奖励排名
+     * @return 对应积分值，未找到配置返回"0"
+     */
     @Override
+    @Transactional
     public String calculateScore(String fenLei, String dengJi, String paiMing) {
         SciRewardScoreCfg config = sciRewardScoreCfgMapper.selectScoreConfig(fenLei, dengJi, paiMing);
         return config != null ? config.getTotalScore() : "0";
