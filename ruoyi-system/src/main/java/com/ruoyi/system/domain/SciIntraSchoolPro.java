@@ -227,9 +227,9 @@ public class SciIntraSchoolPro extends BaseEntity {
     //判定登陆人的 专业/学院 是否和当前课题负责人的 专业/学院  是否相等
     private String deptNamekey;
 
-    //结项合同
+    //结项成果扫描件
     private String overContract;
-    //结项备案表
+    //结项成果登记表
     private String overFiling;
 
     //第一负责人获得积分  这几个字段没有用到

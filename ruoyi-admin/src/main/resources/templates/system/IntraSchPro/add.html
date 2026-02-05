@@ -110,7 +110,7 @@
                         <input autocomplete="off" name="signingData" class="form-control" placeholder="yyyy-MM-dd"
                                type="text"
                                required>
-                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                        <span class="input-group-addon" style="background-color: #f5f5f5; border-color: #ddd;"><i class="fa fa-calendar"></i></span>
                     </div>
                 </div>
             </div>
@@ -167,6 +167,7 @@
                 <label class="col-sm-4 control-label ">第三负责人：</label>
                 <div class="col-sm-8">
                     <select name="thirdPersonId" class="form-control m-b" id="thirdPersonId" onchange="updateMemberLists()">
+                        <option value="" selected>---其他--</option>
                         <option th:each="user : ${sysUsers}"
                                 th:text="${user.userName}"
                                 th:value="${user.userId}"
@@ -571,7 +572,6 @@
 
     // 动态新增负责人下拉（第5位起）
     $('#addMemberBtn').on('click', function(){
-        var originalOptions = $('#secondPersonId').data('original-options');
         var memberCount = $('.member-item').length + 1; // 计算当前成员数量
         var memberId = 'dynamicMember' + memberCount; // 为每个动态成员生成唯一ID
 
@@ -589,8 +589,9 @@
 
         $('#memberContainer').append(tpl);
 
-        // 初始化新添加的下拉框选项
-        updateDynamicMemberList($('#' + memberId)[0]);
+        // 为新添加的下拉框设置选项
+        var dynamicTemplateOptions = $(document).data('dynamic-template-options');
+        $('#' + memberId).html(dynamicTemplateOptions);
 
         // 初始化Select2
         $('#' + memberId).select2({
@@ -598,6 +599,9 @@
             allowClear: true,
             width: "100%"
         });
+        
+        // 更新成员列表
+        updateMemberLists();
     });
 
     // 移除成员项
@@ -707,14 +711,15 @@
 
     // 更新动态下拉框的选项
     function updateDynamicSelectOptions(selectElement, currentValue, selectedIds) {
-        var originalOptions = $('#secondPersonId').data('original-options');
+        // 获取动态下拉框的模板选项
+        var dynamicTemplateOptions = $(document).data('dynamic-template-options');
         var isCurrentlySelected = selectElement.val(); // 保存当前选中的值
 
         // 清空当前选项（保留第一个提示选项）
         selectElement.find('option:not(:first)').remove();
         
-        // 解析原始选项
-        var tempDiv = $('<div>' + originalOptions + '</div>');
+        // 解析模板选项
+        var tempDiv = $('<div>' + dynamicTemplateOptions + '</div>');
         var hasBlankOption = false; // 标记是否已添加空选项
         tempDiv.find('option').each(function() {
             var option = $(this);
@@ -733,7 +738,7 @@
 
         // 重新设置选中状态，确保选中的值仍然被选中
         if (isCurrentlySelected) {
-            selectElement.val(isCurrentSelected);
+            selectElement.val(isCurrentlySelected);
         }
     }
 
@@ -745,6 +750,10 @@
             var originalOptions = $(this).html();
             $(this).data('original-options', originalOptions);
         });
+
+        // 为动态添加的下拉框也保存原始选项（使用第二个负责人作为模板）
+        var dynamicTemplateOptions = $('#secondPersonId').html();
+        $(document).data('dynamic-template-options', dynamicTemplateOptions);
 
         // 初始化联动效果
         updateMemberLists();

@@ -43,6 +43,7 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
     }
 
     @Override
+    @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciIntraSchoolPro> sel_IntraSchPro_approval_ky(SciIntraSchoolPro sciIntraSchoolPro) {
         return sciIntraSchProApplyMapper.sel_IntraSchPro_approval_ky(sciIntraSchoolPro);
     }
@@ -60,6 +61,7 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
     }
 
     @Override
+    @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciIntraSchoolPro> sel_IntraSchPro_closure_ky(SciIntraSchoolPro sciIntraSchoolPro) {
         return sciIntraSchProApplyMapper.sel_IntraSchPro_closure_ky(sciIntraSchoolPro);
     }
@@ -337,16 +339,19 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
 
 
     @Override
+    @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciIntraSchoolPro> sel_IntraSchPro_isOVER_admin(SciIntraSchoolPro sciIntraSchoolPro) {
         return sciIntraSchProApplyMapper.sel_IntraSchPro_isOVER_admin(sciIntraSchoolPro);
     }
 
     @Override
+    @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciIntraSchoolPro> sel_IntraSchPro_approval_admin(SciIntraSchoolPro sciIntraSchoolPro) {
         return sciIntraSchProApplyMapper.sel_IntraSchPro_approval_admin(sciIntraSchoolPro);
     }
 
     @Override
+    @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciIntraSchoolPro> sel_IntraSchPro_closure_admin(SciIntraSchoolPro sciIntraSchoolPro) {
         return sciIntraSchProApplyMapper.sel_IntraSchPro_closure_admin(sciIntraSchoolPro);
     }

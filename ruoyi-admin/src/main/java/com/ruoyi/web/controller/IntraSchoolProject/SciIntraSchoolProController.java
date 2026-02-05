@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.ruoyi.common.annotation.DataScope;
 import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.domain.entity.SysRole;
@@ -53,16 +54,14 @@ public class SciIntraSchoolProController extends BaseController {
     Map<String, Object> userData = new HashMap();
     userData.put("userName", userService.selectUserById(getUserId()).getUserName());
     userData.put("userId", userService.selectUserById(getUserId()).getUserId());
-    //System.out.println("userService.selectUserById(getUserId())="+userService.selectUserById(getUserId()).getUserName() );
-
     return userData;
   }
-
   /**
    * 查询校内横向课题列表
    */
   @PostMapping("/list/{tableId}")
   @ResponseBody
+  @DataScope(deptAlias = "d", userAlias = "u")
   public TableDataInfo list(@PathVariable("tableId") String tableId, String year, SciIntraSchoolPro sciIntraSchoolPro) {
 
     sciIntraSchoolPro.setYear(year);
@@ -186,9 +185,9 @@ public class SciIntraSchoolProController extends BaseController {
    */
   private String panRole_str() {
     String role_str = "";
-    List<Long> collage_role_ids = new ArrayList<>(Arrays.asList(103L, 104L, 105L, 106L, 107L, 108L, 116L, 117L, 118L, 119L,120L));
+    List<Long> collage_role_ids = new ArrayList<>(Arrays.asList(103L, 104L, 105L, 106L, 107L, 108L, 116L, 117L, 118L, 119L, 120L));
 
-      //当前登陆角色列表，如果一个人有多个角色，列表就多一项
+    //当前登陆角色列表，如果一个人有多个角色，列表就多一项
     List<SysRole> roles = getSysUser().getRoles();
     //代表六个身份
     List<Integer> roles_list = new ArrayList<>(Arrays.asList(0, 0, 0, 0, 0, 0));
@@ -238,8 +237,8 @@ public class SciIntraSchoolProController extends BaseController {
     }
 
     String rolesString = roles_list.stream()
-      .map(String::valueOf)
-      .collect(Collectors.joining(""));
+            .map(String::valueOf)
+            .collect(Collectors.joining(""));
     //只是普通教师
     if (rolesString.equals("001000")) {
       role_str = "teacher";
@@ -262,10 +261,10 @@ public class SciIntraSchoolProController extends BaseController {
         break;
       }
     }
-      SysUser other = new SysUser();
-      other.setUserId(-1L);
-      other.setUserName("其他");
-      userList.add(other);
+    SysUser other = new SysUser();
+    other.setUserId(-1L);
+    other.setUserName("其他");
+    userList.add(other);
     mmap.put("sysUsers", userList);
     return prefix + "/add";
   }
@@ -280,29 +279,29 @@ public class SciIntraSchoolProController extends BaseController {
   public AjaxResult addSave(SciIntraSchoolPro sciIntraSchoolPro, @RequestParam(value = "members", required = false) List<String> members) throws IOException {
     // 处理动态添加的成员
     sciIntraSchoolPro.setMembers(members);
-    
+
     //sciIntraSchProScoreService.set_SchPro_score_noScore(sciIntraSchoolPro);
 //        return toAjax(sciIntraSchProApplyService.insert_SchPro_Apply(sciIntraSchoolPro));
 
     //数据库里面这个的默认值是15 草稿
     //System.out.println("addSave:"+sciIntraSchoolPro.getState());
-      Set<String> countAuthors = new HashSet<>();
-      countAuthors.add(sciIntraSchoolPro.getFirstPersonId());
-      countAuthors.add(sciIntraSchoolPro.getSecondPersonId());
-      countAuthors.add(sciIntraSchoolPro.getThirdPersonId());
-      countAuthors.add(sciIntraSchoolPro.getFourthPersonId());
-      
-      // 添加动态成员到集合中进行重复检查（可选）
-      if (members != null && !members.isEmpty()) {
-          countAuthors.addAll(members);
-      }
-      
+    Set<String> countAuthors = new HashSet<>();
+    countAuthors.add(sciIntraSchoolPro.getFirstPersonId());
+    countAuthors.add(sciIntraSchoolPro.getSecondPersonId());
+    countAuthors.add(sciIntraSchoolPro.getThirdPersonId());
+    countAuthors.add(sciIntraSchoolPro.getFourthPersonId());
+
+    // 添加动态成员到集合中进行重复检查（可选）
+    if (members != null && !members.isEmpty()) {
+      countAuthors.addAll(members);
+    }
+
 //      if (countAuthors.size() < 4){
 //          return error("负责人不能少于四个");
 //      }
-    //插入这个课题，设置状态为"6"（完结），让它立即显示，不需要开题和结项
+    //插入这个课题，设置状态为"15"（草稿状态），符合项目规范
     sciIntraSchoolPro.setUid(getUserId());
-    sciIntraSchoolPro.setState("6");
+    sciIntraSchoolPro.setState("15");
     int id = sciIntraSchProApplyService.insert_SchPro_Apply(sciIntraSchoolPro);
 
     //插入这个课题的积分明细
@@ -337,7 +336,7 @@ public class SciIntraSchoolProController extends BaseController {
       return prefix + "/edit";
     } else if (sciIntraSchoolPro.getState().equals("6")) {
       System.out.println("2");
-      return prefix + "/is_Over";
+      return prefix + "/is_Over";  // 恢复原状
     } else {
       System.out.println("3");
       return prefix + "/edit_Over";
@@ -367,15 +366,15 @@ public class SciIntraSchoolProController extends BaseController {
     } else {
       sciIntraSchoolPro.setDeptNamekey("0");
     }
-    
+
     // 查询并设置额外成员信息（第5位及以后）
     List<String> allMemberIds = sciIntraSchProApplyService.selectPersionIdsByIntraSchId(id);
     List<String> extraMembers = new ArrayList<>();
     if (allMemberIds != null && allMemberIds.size() > 4) {
-        extraMembers = allMemberIds.subList(4, allMemberIds.size());
+      extraMembers = allMemberIds.subList(4, allMemberIds.size());
     }
     mmap.put("extraMembers", extraMembers);
-    
+
     mmap.put("sciIntraSchoolPro", sciIntraSchoolPro);
     //mmap.put("urlFlag",urlFlag);
     System.out.println("SciIntraSchoolProController.detail");
@@ -399,15 +398,15 @@ public class SciIntraSchoolProController extends BaseController {
     System.out.println("sciIntraSchoolPro = " + sciIntraSchoolPro);
     List<SysUser> userList1 = userService.selectAllUser();
     sciIntraSchoolPro.setUrlFlag(urlFlag);
-    
+
     // 查询并设置额外成员信息（第5位及以后）
     List<String> allMemberIds = sciIntraSchProApplyService.selectPersionIdsByIntraSchId(id);
     List<String> extraMembers = new ArrayList<>();
     if (allMemberIds != null && allMemberIds.size() > 4) {
-        extraMembers = allMemberIds.subList(4, allMemberIds.size());
+      extraMembers = allMemberIds.subList(4, allMemberIds.size());
     }
     mmap.put("extraMembers", extraMembers);
-    
+
     mmap.put("sysUsers1", userList1);
     mmap.put("sciIntraSchoolPro", sciIntraSchoolPro);
     //mmap.put("urlFlag",urlFlag);
@@ -429,10 +428,25 @@ public class SciIntraSchoolProController extends BaseController {
     return getDataTable(list);
   }
 
+  /**
+   * 流程记录
+   *
+   * @param kid
+   * @return
+   */
+  @PostMapping("/processRecord/{kid}")
+  @ResponseBody
+  public TableDataInfo processRecord(@PathVariable("kid") Integer kid) {
+    SciIntraSchProPiyue ob = new SciIntraSchProPiyue();
+    ob.setSchxktId(kid);
+    List<SciIntraSchProPiyue> list = piyueService.selectIntraSchProPiyueList(ob);
+    return getDataTable(list);
+  }
 
   /**
    * 更改自己的草稿状态，提交到教研室，加入操作记录
-   *只用在view页面点击确认就可以直接提交草稿  view.html
+   * 只用在view页面点击确认就可以直接提交草稿  view.html
+   *
    * @param id
    * @return
    */
@@ -451,7 +465,7 @@ public class SciIntraSchoolProController extends BaseController {
     } else if (sciIntraSchoolPro.getState().equals("16")) {
       state = "7";
     }
-    return toAjax(sciIntraSchProApplyService.subDraft(sid, getUserId(),state));
+    return toAjax(sciIntraSchProApplyService.subDraft(sid, getUserId(), state));
   }
 
   /**
@@ -608,7 +622,7 @@ public class SciIntraSchoolProController extends BaseController {
     //System.out.println("state = " + state);
     String id = String.valueOf(sciIntraSchoolPro.getId());
     // 修改课题状态，插入流程记录
-    sciIntraSchProApplyService.overApply(id, state,getUserId());
+    sciIntraSchProApplyService.overApply(id, state, getUserId());
     //增加结题文件等新的字段
     return toAjax(sciIntraSchProApplyService.update_IntraSchPro_OverApply(sciIntraSchoolPro));
   }
