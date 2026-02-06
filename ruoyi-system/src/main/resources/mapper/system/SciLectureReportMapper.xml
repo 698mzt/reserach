@@ -334,6 +334,9 @@
         <if test="userId != null and userId != ''">
             and  u.user_id = #{userId}
         </if>
+        <if test="teacherName != null and teacherName != ''">
+            and u.user_name like concat('%', #{teacherName}, '%')
+        </if>
         <if test="startTime != null and startTime != ''">
             and s.createtime >= #{startTime}
         </if>

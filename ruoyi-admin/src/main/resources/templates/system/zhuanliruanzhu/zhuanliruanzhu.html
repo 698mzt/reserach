@@ -551,21 +551,21 @@
 
 <th:block th:include="include :: footer" />
 <script th:inline="javascript">
-    var editFlag = [[${@permission.hasPermi('system:zhuanliruanzhu:edit')}]];
-    var removeFlag = [[${@permission.hasPermi('system:zhuanliruanzhu:remove')}]];
-    var xueyuanDatas = [[${@dict.getType('sys_xueyuan')}]];
-    var leixingDatas = [[${@dict.getType('sys_zhuanli_leibie')}]];
-    var shifouyingyonDatas = [[${@dict.getType('sys_yes_no')}]];
-    var hangyelianheDatas = [[${@dict.getType('sys_yes_no')}]];
-    var fenleiDatas = [[${@dict.getType('sys_zhuanli_fenlei')}]];
-    var datas = [[${@dict.getType('sys_zhuanli_zd')}]];
-    var paiMingDatas = [[${@dict.getType('sys_zhuanliruanzhu_fzr')}]];
-    var proFlag = [[${@permission.hasPermi('system:zhuanliruanzhu:process')}]];
-    var editInfo = [[${@permission.hasPermi('system:zhuanliruanzhu:info')}]];
-    var hechaFlag = [[${@permission.hasPermi('system:zhuanliruanzhu:hecha')}]];
-    var createFlag = [[${@permission.hasPermi('system:zhuanliruanzhu:add')}]];
-    var chayueFlag = [[${@permission.hasPermi('system:zhuanliruanzhu:chayue')}]];
-    var chexiaoFlag = [[${@permission.hasPermi('system:zhuanliruanzhu:chexiao')}]];
+    var editFlag = /*[[${@permission.hasPermi('system:zhuanliruanzhu:edit')}]]*/ '';
+    var removeFlag = /*[[${@permission.hasPermi('system:zhuanliruanzhu:remove')}]]*/ '';
+    var xueyuanDatas = /*[[${@dict.getType('sys_xueyuan')}]]*/ [];
+    var leixingDatas = /*[[${@dict.getType('sys_zhuanli_leibie')}]]*/ [];
+    var shifouyingyonDatas = /*[[${@dict.getType('sys_yes_no')}]]*/ [];
+    var hangyelianheDatas = /*[[${@dict.getType('sys_yes_no')}]]*/ [];
+    var fenleiDatas = /*[[${@dict.getType('sys_zhuanli_fenlei')}]]*/ [];
+    var datas = /*[[${@dict.getType('sys_zhuanli_zd')}]]*/ [];
+    var paiMingDatas = /*[[${@dict.getType('sys_zhuanliruanzhu_fzr')}]]*/ [];
+    var proFlag = /*[[${@permission.hasPermi('system:zhuanliruanzhu:process')}]]*/ '';
+    var editInfo = /*[[${@permission.hasPermi('system:zhuanliruanzhu:info')}]]*/ '';
+    var hechaFlag = /*[[${@permission.hasPermi('system:zhuanliruanzhu:hecha')}]]*/ '';
+    var createFlag = /*[[${@permission.hasPermi('system:zhuanliruanzhu:add')}]]*/ '';
+    var chayueFlag = /*[[${@permission.hasPermi('system:zhuanliruanzhu:chayue')}]]*/ '';
+    var chexiaoFlag = /*[[${@permission.hasPermi('system:zhuanliruanzhu:chexiao')}]]*/ '';
 
     var prefix = ctx + "system/zhuanliruanzhu";
 
@@ -840,6 +840,17 @@
         }
     }
 
+
+    function getCurrentTime() {
+        var now = new Date();
+        var year = now.getFullYear();
+        var month = ('0' + (now.getMonth() + 1)).slice(-2);
+        var day = ('0' + now.getDate()).slice(-2);
+        var hours = ('0' + now.getHours()).slice(-2);
+        var minutes = ('0' + now.getMinutes()).slice(-2);
+        var seconds = ('0' + now.getSeconds()).slice(-2);
+        return year + '-' + month + '-' + day + ' ' + hours + ':' + minutes + ':' + seconds;
+    }
 
     document.addEventListener('DOMContentLoaded', function () {
         // 初始化显示当前时间

@@ -59,10 +59,10 @@
     </div>
     <th:block th:include="include :: footer" />
     <script th:inline="javascript">
-        var editFlag = [[${@permission.hasPermi('system:zhuanliruanzhuCfg:edit')}]];
-        var removeFlag = [[${@permission.hasPermi('system:zhuanliruanzhuCfg:remove')}]];
-        var fenLeiDatas = [[${@dict.getType('sys_zhuanli_fenlei')}]];
-        var paiMingDatas = [[${@dict.getType('sys_zhuanliruanzhu_fzr')}]];
+        var editFlag = /*[[${@permission.hasPermi('system:zhuanliruanzhuCfg:edit')}]]*/ '';
+        var removeFlag = /*[[${@permission.hasPermi('system:zhuanliruanzhuCfg:remove')}]]*/ '';
+        var fenLeiDatas = /*[[${@dict.getType('sys_zhuanli_fenlei')}]]*/ [];
+        var paiMingDatas = /*[[${@dict.getType('sys_zhuanliruanzhu_fzr')}]]*/ [];
         var prefix = ctx + "system/zhuanliruanzhuCfg";
 
         $(function() {

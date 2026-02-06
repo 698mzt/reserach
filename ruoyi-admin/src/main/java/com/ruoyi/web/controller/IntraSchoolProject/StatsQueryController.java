@@ -59,7 +59,19 @@ public class StatsQueryController extends BaseController {
     
     @GetMapping("")
     String view(ModelMap mmap) {
+        List<SysUser> userList = userService.selectAllUserSchPro(getUserId());
+        mmap.put("sysUsers", userList);
+        
+        // 获取学院专业数据
+        List<Map<String, Object>> collegeMajorData = buildCollegeMajorData();
+        mmap.put("collegeMajorData", collegeMajorData);
 
+        String roleStr = panRole_str();
+        SysUser sysUser = getSysUser();
+        mmap.put("roleStr", roleStr);
+        mmap.put("defaultCollegeId", sysUser.getParentId() == null ? "" : sysUser.getParentId().toString());
+        mmap.put("defaultMajorId", sysUser.getDeptId() == null ? "" : sysUser.getDeptId().toString());
+        
         return prefix + "/view";
     }
 
@@ -80,6 +92,12 @@ public class StatsQueryController extends BaseController {
         // 获取学院专业数据
         List<Map<String, Object>> collegeMajorData = buildCollegeMajorData();
         mmap.put("collegeMajorData", collegeMajorData);
+
+        String roleStr = panRole_str();
+        SysUser sysUser = getSysUser();
+        mmap.put("roleStr", roleStr);
+        mmap.put("defaultCollegeId", sysUser.getParentId() == null ? "" : sysUser.getParentId().toString());
+        mmap.put("defaultMajorId", sysUser.getDeptId() == null ? "" : sysUser.getDeptId().toString());
         
         return prefix + "/viewToCheck";
     }
@@ -165,29 +183,76 @@ public class StatsQueryController extends BaseController {
         if ("true".equals(params.get("noData"))) {
             return getDataTable(new ArrayList<>());
         }
+        
+        // 记录查询日志
+        logger.info("StatsQuery list params: {}", params);
+
+        // 输入参数安全校验
+        validateQueryParams(params);
+        
         params.put("uid",getUserId().toString());
         //判断身份
         String role_str = panRole_str();
         SysUser sysUser = getSysUser();
-        //学院
-        if (role_str.equals("dept_teacher")) {
-            params.put("Pcollege",sysUser.getParentId().toString());
-        }
-        //科研处
-        else if (role_str.equals("sci_tesearch")) {
 
-        }
-        //        教研室
-        else if (role_str.equals("research")) {
-            params.put("major",sysUser.getDeptId().toString());
-        }
-        //admin
-        else if (role_str.equals("admin")) {
+        // 根据角色限制查询条件
+        // 教师：只能按课题名称查询
+        // 教研室：按主持人/第一作者、课题名称查询
+        // 学院：按专业、主持人/第一作者、课题名称查询
+        // 科研处：按学院、专业、主持人/第一作者、课题名称查询
 
-        }
-        else if (role_str.equals("teacher")) {
+        // 教师角色
+        if (role_str.equals("teacher")) {
+            // 教师只能查看自己的数据，只能按课题名称查询
             params.put("userId",getUserId().toString());
-
+            // 清除其他查询条件，只保留课题名称
+            params.remove("teacherName");
+            params.remove("teacherId");
+            params.remove("college");
+            params.remove("major");
+            params.remove("Pcollege");
+            params.remove("jobTitle");
+            params.remove("startTime");
+            params.remove("endTime");
+            params.remove("year");
+            params.remove("state");
+        }
+        // 教研室角色
+        else if (role_str.equals("research")) {
+            // 教研室只能查看本教研室的数据，按主持人/第一作者、课题名称查询
+            params.put("major",sysUser.getDeptId().toString());
+            // 清除学院、日期等查询条件
+            params.remove("college");
+            params.remove("Pcollege");
+            params.remove("teacherId");
+            params.remove("jobTitle");
+            params.remove("startTime");
+            params.remove("endTime");
+            params.remove("year");
+            params.remove("state");
+        }
+        // 学院角色
+        else if (role_str.equals("dept_teacher")) {
+            // 学院可以查看本学院所有专业的数据，按专业、主持人/第一作者、课题名称查询
+            params.put("Pcollege",sysUser.getParentId().toString());
+            params.remove("college");
+            // 清除日期等查询条件
+            params.remove("teacherId");
+            params.remove("jobTitle");
+            params.remove("startTime");
+            params.remove("endTime");
+            params.remove("year");
+            params.remove("state");
+        }
+        // 科研处角色
+        else if (role_str.equals("sci_tesearch")) {
+            // 科研处可以使用所有查询条件
+            // 不需要清除任何参数
+        }
+        // admin角色
+        else if (role_str.equals("admin")) {
+            // admin可以使用所有查询条件
+            // 不需要清除任何参数
         }
         // 获取分页参数，添加默认值避免 null
         String offsetStr = params.getOrDefault("offset", "0");
@@ -263,26 +328,46 @@ public class StatsQueryController extends BaseController {
         //判断身份
         String role_str = panRole_str();
         SysUser sysUser = getSysUser();
-        //学院
-        if (role_str.equals("dept_teacher")) {
-            params.put("Pcollege",sysUser.getParentId().toString());
-        }
-        //科研处
-        else if (role_str.equals("sci_tesearch")) {
 
+        // 根据角色限制查询条件（与list方法保持一致）
+        // 教师角色
+        if (role_str.equals("teacher")) {
+            params.put("userId",getUserId().toString());
+            params.remove("teacherName");
+            params.remove("teacherId");
+            params.remove("college");
+            params.remove("major");
+            params.remove("Pcollege");
+            params.remove("jobTitle");
+            params.remove("startTime");
+            params.remove("endTime");
+            params.remove("year");
+            params.remove("state");
         }
-        //        教研室
+        // 教研室角色
         else if (role_str.equals("research")) {
             params.put("major",sysUser.getDeptId().toString());
+            params.remove("college");
+            params.remove("Pcollege");
+            params.remove("teacherId");
+            params.remove("jobTitle");
+            params.remove("startTime");
+            params.remove("endTime");
+            params.remove("year");
+            params.remove("state");
         }
-        //admin
-        else if (role_str.equals("admin")) {
-
+        // 学院角色
+        else if (role_str.equals("dept_teacher")) {
+            params.put("Pcollege",sysUser.getParentId().toString());
+            params.remove("college");
+            params.remove("teacherId");
+            params.remove("jobTitle");
+            params.remove("startTime");
+            params.remove("endTime");
+            params.remove("year");
+            params.remove("state");
         }
-        else if (role_str.equals("teacher")) {
-            params.put("userId",getUserId().toString());
-
-        }
+        // 科研处和admin角色可以使用所有查询条件
 
         try {
             // 获取项目类别参数
@@ -387,26 +472,44 @@ public class StatsQueryController extends BaseController {
         //判断身份
         String role_str = panRole_str();
         SysUser sysUser = getSysUser();
-        //学院
-        if (role_str.equals("dept_teacher")) {
-            params.put("college",sysUser.getParentId().toString());
-        }
-        //科研处
-        else if (role_str.equals("sci_tesearch")) {
 
+        // 根据角色限制查询条件（与list方法保持一致）
+        // 教师角色
+        if (role_str.equals("teacher")) {
+            params.put("userId",getUserId().toString());
+            params.remove("teacherName");
+            params.remove("teacherId");
+            params.remove("college");
+            params.remove("major");
+            params.remove("Pcollege");
+            params.remove("jobTitle");
+            params.remove("startTime");
+            params.remove("endTime");
+            params.remove("state");
         }
-        //        教研室
+        // 教研室角色
         else if (role_str.equals("research")) {
             params.put("major",sysUser.getDeptId().toString());
+            params.remove("college");
+            params.remove("Pcollege");
+            params.remove("teacherId");
+            params.remove("jobTitle");
+            params.remove("startTime");
+            params.remove("endTime");
+            params.remove("state");
         }
-        //admin
-        else if (role_str.equals("admin")) {
+        // 学院角色
+        else if (role_str.equals("dept_teacher")) {
+            params.put("college",sysUser.getParentId().toString());
+            params.remove("Pcollege");
+            params.remove("teacherId");
+            params.remove("jobTitle");
+            params.remove("startTime");
+            params.remove("endTime");
+            params.remove("state");
+        }
+        // 科研处和admin角色可以使用所有查询条件
 
-        }
-        else if (role_str.equals("teacher")) {
-            params.put("userId",getUserId().toString());
-
-        }
         if (year!=null){
             params.put("year",year);
         }
@@ -489,25 +592,43 @@ public class StatsQueryController extends BaseController {
             //判断身份
             String role_str = panRole_str();
             SysUser sysUser = getSysUser();
-            //学院
-            if (role_str.equals("dept_teacher")) {
-                params.put("Pcollege", sysUser.getParentId().toString());
-            }
-            //科研处
-            else if (role_str.equals("sci_tesearch")) {
 
+            // 根据角色限制查询条件（与list方法保持一致）
+            // 教师角色
+            if (role_str.equals("teacher")) {
+                params.put("userId", getUserId().toString());
+                params.remove("teacherName");
+                params.remove("teacherId");
+                params.remove("college");
+                params.remove("major");
+                params.remove("Pcollege");
+                params.remove("jobTitle");
+                params.remove("startTime");
+                params.remove("endTime");
+                params.remove("state");
             }
-            //        教研室
+            // 教研室角色
             else if (role_str.equals("research")) {
                 params.put("major", sysUser.getDeptId().toString());
+                params.remove("college");
+                params.remove("Pcollege");
+                params.remove("teacherId");
+                params.remove("jobTitle");
+                params.remove("startTime");
+                params.remove("endTime");
+                params.remove("state");
             }
-            //admin
-            else if (role_str.equals("admin")) {
-
+            // 学院角色
+            else if (role_str.equals("dept_teacher")) {
+                params.put("college", sysUser.getParentId().toString());
+                params.remove("Pcollege");
+                params.remove("teacherId");
+                params.remove("jobTitle");
+                params.remove("startTime");
+                params.remove("endTime");
+                params.remove("state");
             }
-            else if (role_str.equals("teacher")) {
-                params.put("userId", getUserId().toString());
-            }
+            // 科研处和admin角色可以使用所有查询条件
             
             // 根据项目类别返回不同的数据
             if (remark != null && !remark.isEmpty()) {
@@ -942,5 +1063,35 @@ public class StatsQueryController extends BaseController {
     }
 
 
+    /**
+     * 校验查询参数，防止恶意输入
+     */
+    private void validateQueryParams(Map<String, String> params) {
+        // 校验课题名称长度
+        String topicName = params.get("topicName");
+        if (topicName != null && topicName.length() > 100) {
+            throw new IllegalArgumentException("课题名称过长");
+        }
+
+        // 校验主持人姓名长度
+        String teacherName = params.get("teacherName");
+        if (teacherName != null && teacherName.length() > 50) {
+            throw new IllegalArgumentException("姓名过长");
+        }
+
+        // 校验年份格式 (4位数字)
+        String year = params.get("year");
+        if (year != null && !year.isEmpty() && !year.matches("^\\d{4}$")) {
+            throw new IllegalArgumentException("年份格式不正确");
+        }
+
+        // 简单防SQL注入校验 (虽然MyBatis已处理，但作为双重保障)
+        // 检查常见危险字符
+        for (String value : params.values()) {
+            if (value != null && (value.contains(";") || value.contains("--"))) {
+                throw new IllegalArgumentException("包含非法字符");
+            }
+        }
+    }
 
 }

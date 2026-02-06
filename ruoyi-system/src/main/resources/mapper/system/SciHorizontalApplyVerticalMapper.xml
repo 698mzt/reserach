@@ -396,9 +396,13 @@
         from  sci_horizontal_apply_vertical s left join sys_user u on  s.user_id=u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
+        left join sys_user u_host on s.first_person_id = u_host.user_id
         where 1=1
         <if test="userId != null and userId != ''">
             and s.user_id = #{userId}
+        </if>
+        <if test="teacherName != null and teacherName != ''">
+            and u_host.user_name like concat('%', #{teacherName}, '%')
         </if>
         <if test="startTime != null and startTime != ''">
             and s.createtime >= #{startTime}
@@ -429,6 +433,9 @@
         </if>
         <if test='state != null and state != "" and state!="null" and state =="3"'>
             and s.state in (66,6)
+        </if>
+        <if test="year != null and year != ''">
+            AND YEAR(DATE_ADD(s.signing_data, INTERVAL 1 MONTH)) = #{year}
         </if>
         order by s.createtime desc
     </select>
