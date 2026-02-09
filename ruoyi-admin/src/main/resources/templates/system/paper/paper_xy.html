@@ -380,30 +380,30 @@
 <body class="gray-bg">
 <div class="container-div">
   <div class="row">
-<!--    <div class="col-sm-12 search-collapse" shiro:hasPermission="system:paper:chaxun">-->
-<!--      <form id="formId">-->
-<!--        <div class="select-list" >-->
-<!--          <ul>-->
-<!--            <li>-->
-<!--              <label>学院：</label>-->
-<!--              <input type="text" name="college"/>-->
-<!--            </li>-->
-<!--            <li>-->
-<!--              <label>教师姓名：</label>-->
-<!--              <input type="text" name="teacherName"/>-->
-<!--            </li>-->
-<!--            <li>-->
-<!--              <label>教研室：</label>-->
-<!--              <input type="text" name="roleName"/>-->
-<!--            </li>-->
-<!--            <li>-->
-<!--              <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>-->
-<!--              <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>-->
-<!--            </li>-->
-<!--          </ul>-->
-<!--        </div>-->
-<!--      </form>-->
-<!--    </div>-->
+    <div class="col-sm-12 search-collapse">
+      <form id="formId">
+        <div class="select-list" >
+          <ul>
+            <li>
+              <label>专业：</label>
+              <input type="text" name="researchRoom" placeholder="请输入专业名称"/>
+            </li>
+            <li>
+              <label>第一作者：</label>
+              <input type="text" name="firstAuthorName" placeholder="请输入第一作者姓名"/>
+            </li>
+            <li>
+              <label>课题名称：</label>
+              <input type="text" name="paperTitle" placeholder="请输入课题名称"/>
+            </li>
+            <li>
+              <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search('formId','bootstrap-table')"><i class="fa fa-search"></i>&nbsp;搜索</a>
+              <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset('formId')"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+            </li>
+          </ul>
+        </div>
+      </form>
+    </div>
 
     <div class="btn-group-sm" id="toolbar" role="group">
       <a class="btn btn-success" onclick="$.operate.addTab()" shiro:hasPermission="system:paper:add">
