@@ -24,6 +24,7 @@ import com.ruoyi.system.mapper.SciJiaocairuanzhuMapper;
 import com.ruoyi.system.domain.SciJiaocairuanzhu;
 import com.ruoyi.system.service.ISciJiaocairuanzhuService;
 import com.ruoyi.common.core.text.Convert;
+import org.springframework.transaction.annotation.Transactional;
 
 
 /**
@@ -174,7 +175,7 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
 
 
     @Override
-
+    @Transactional
     public int hxPass(String id, Long uid, String urlFlag) {
         String state = "8";
 //        SciJiaocairuanzhu sciJiaocairuanzhu = new SciJiaocairuanzhu();
@@ -187,7 +188,7 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
             state = "1";
 
         } else if (urlFlag.equals("pro")) {
-            // 待教研室处理 -- 	待学院处理
+            // 待教研室处理 -- 待学院处理
             state = "2";
         } else if (urlFlag.equals("chayue")) {
             // 待科研处处理 -->科研处通过
@@ -242,6 +243,7 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
 
 
     @Override
+    @Transactional
     public int hxBh(String id, Long uid, String remark, String urlFlag) {
         String state = "8";
         SciJiaocairuanzhuPiyue sciJiaocairuanzhuPiyue = new SciJiaocairuanzhuPiyue();
@@ -287,6 +289,37 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
         return sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuList1(sciJiaocairuanzhu);
     }
 
+    // 新方法：教师查询
+    @Override
+    public List<SciJiaocairuanzhu> selectSciPaperAListCx(SciJiaocairuanzhu sciJiaocairuanzhu) {
+        return sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuList1(sciJiaocairuanzhu);
+    }
+
+    // 新方法：教研室查询
+    @Override
+    public List<SciJiaocairuanzhu> selectSciPaperAListCxList(SciJiaocairuanzhu sciJiaocairuanzhu) {
+        return sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuList2(sciJiaocairuanzhu);
+    }
+
+    // 新方法：学院查询
+    @Override
+    public List<SciJiaocairuanzhu> selectSciPaperAListXY(SciJiaocairuanzhu sciJiaocairuanzhu) {
+        return sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuList3(sciJiaocairuanzhu);
+    }
+
+    // 新方法：科研处查询
+    @Override
+    @DataScope(deptAlias = "d",userAlias = "u")
+    public List<SciJiaocairuanzhu> selectSciPaperAListKY(SciJiaocairuanzhu sciJiaocairuanzhu) {
+        return sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuList4(sciJiaocairuanzhu);
+    }
+
+    // 新方法：管理员查询
+    @Override
+    public List<SciJiaocairuanzhu> selectSciPaperAList(SciJiaocairuanzhu sciJiaocairuanzhu) {
+        return sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuList(sciJiaocairuanzhu);
+    }
+
 
     @Override
     public List<SciJiaocairuanzhu> selectSciJiaocairuanzhuList31(SciJiaocairuanzhu sciJiaocairuanzhu) {
@@ -299,6 +332,7 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
     }
 
     @Override
+    @Transactional
     public int recall(Integer id, String state, Long uid, String remark, String urlFlag) {
         String newState = state;
         SciJiaocairuanzhuPiyue sciJiaocairuanzhuPiyue = new SciJiaocairuanzhuPiyue();
@@ -354,6 +388,7 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
     }
     
     @Override
+    @Transactional
     public int saveJiaocairuanzhuMembers(Integer jiaocaiId, String membersJson) {
         // 先删除该教材著作已有的成员信息
         sciJiaocairuanzhuMemberMapper.deleteSciJiaocairuanzhuMemberByJiaocaiId(jiaocaiId);

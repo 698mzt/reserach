@@ -88,6 +88,21 @@ public interface ISciJiaocairuanzhuService
 
     List<SciJiaocairuanzhu> selectSciJiaocairuanzhuList21(SciJiaocairuanzhu sciJiaocairuanzhu);
 
+    // 新方法：教师查询
+    List<SciJiaocairuanzhu> selectSciPaperAListCx(SciJiaocairuanzhu sciJiaocairuanzhu);
+
+    // 新方法：教研室查询
+    List<SciJiaocairuanzhu> selectSciPaperAListCxList(SciJiaocairuanzhu sciJiaocairuanzhu);
+
+    // 新方法：学院查询
+    List<SciJiaocairuanzhu> selectSciPaperAListXY(SciJiaocairuanzhu sciJiaocairuanzhu);
+
+    // 新方法：科研处查询
+    List<SciJiaocairuanzhu> selectSciPaperAListKY(SciJiaocairuanzhu sciJiaocairuanzhu);
+
+    // 新方法：管理员查询
+    List<SciJiaocairuanzhu> selectSciPaperAList(SciJiaocairuanzhu sciJiaocairuanzhu);
+
     int recall(Integer id, String state, Long userId, String remark, String urlFlag);
 //    int hxoverBh(String id, Long userId, String remark, String urlFlag);
 
