@@ -33,6 +33,19 @@
                 </div>
             </div>
         </div>
+
+        <div class="col-xs-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label is-required">课题来源：</label>
+                <div class="col-sm-8">
+                    <select name="subjectSource" class="form-control" th:with="source=${@dict.getType('sci_subject_source')}" disabled>
+                        <option value="" selected>----请选择----</option>
+                        <option th:each="dict : ${source}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}" th:field="*{subjectSource}"></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
         <div class="col-xs-6">
             <div class="form-group">
                 <label class="col-sm-4 control-label is-required">课题名称：</label>
@@ -147,31 +160,26 @@
             </div>
         </div>
 
-        <!-- “积分权重”下拉，样式限制三行 -->
-        <div class="col-xs-6" shiro:hasPermission="system:score:weight" id="score-weight-wrapper">
-            <div class="form-group">
-                <label class="col-sm-4 control-label is-required">积分权重：</label>
-                <div class="col-sm-8">
-                    <select id="weight" name="weight" class="form-control" th:with="type=${@dict.getType('sci_score_weight')}" required>
-                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
-                    </select>
+        <!-- “积分权重”下拉 -->
+            <div class="col-xs-6"
+                 th:if="${@permission.hasPermi('system:score:weight')}"
+                 id="score-weight-wrapper">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">积分权重：</label>
+                    <div class="col-sm-8">
+                        <select id="weight" name="weight" class="form-control"
+                                th:with="type=${@dict.getType('sci_score_weight')}" required>
+                            <option th:each="dict : ${type}"
+                                    th:text="${dict.dictLabel}"
+                                    th:value="${dict.dictValue}"></option>
+                        </select>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="col-xs-6">
-            <div class="form-group">
-                <label class="col-sm-4 control-label is-required">课题来源：</label>
-                <div class="col-sm-8">
-                    <select name="subjectSource" class="form-control" th:with="source=${@dict.getType('sci_subject_source')}" disabled>
-                        <option value="" selected>----请选择----</option>
-                        <option th:each="dict : ${source}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}" th:field="*{subjectSource}"></option>
-                    </select>
-                </div>
-            </div>
-        </div>
 
-        <div class="col-xs-6">
+
+            <div class="col-xs-6">
             <div class="form-group">
                 <label class="col-sm-4 control-label is-required">立项文件：</label>
                 <div class="col-sm-8">

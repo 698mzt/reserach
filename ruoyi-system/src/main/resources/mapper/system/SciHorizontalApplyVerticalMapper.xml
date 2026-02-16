@@ -36,6 +36,12 @@
         <result property="ranking"    column="ranking"    />
     </resultMap>
 
+    <!--
+     * 查询纵向课题全部列表（导出用）
+     * 功能：查询所有非草稿状态的纵向课题，用于导出数据
+     * 查询条件：非草稿状态(state != 99)，可按教研室ID和学院ID筛选
+     * 返回字段：课题基本信息、申请人信息、部门信息、文件信息、课题来源
+     -->
     <select id="selectSciHorizontalApplyVerticalAllList" resultType="SciHorizontalApplyVertical" resultMap="SciHorizontalApplyVerticalResult">
         select s.id,u.user_name userName,d.dept_id,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,s.top_number ,s.top_type,  s.signing_data, s.validity_data, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file,s.open_file,s.mid_file,s.over_file, s.subject_source
         from  sci_horizontal_apply_vertical s left join sci_persion pe on pe.apply_id = s.id
@@ -48,6 +54,13 @@
         order  by createtime desc
     </select>
 
+    <!--
+     * 查询纵向课题列表
+     * 功能：查询纵向课题列表，支持多条件筛选和排序
+     * 查询条件：状态在(1,2,3,4,5,6,7,99)，可按年份、申请人、课题名称、教研室名称、课题编号、状态筛选
+     * 排序规则：按状态优先级排序（草稿箱 > 被驳回 > 申请结项 > 审核中），再按创建时间倒序
+     * 返回字段：课题基本信息、申请人信息、部门信息、文件信息、课题来源
+     -->
     <select id="selectSciHorizontalApplyVerticalList"  resultType="SciHorizontalApplyVertical" resultMap="SciHorizontalApplyVerticalResult">
         select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,s.top_number, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file,s.open_file,s.mid_file,s.over_file, s.subject_source
         from  sci_horizontal_apply_vertical s left join sys_user u on  s.user_id=u.user_id
@@ -55,10 +68,11 @@
                                               left join sys_dept p on d.parent_id =p.dept_id
         where  s.state in (1,2,3,4,5,6,7,99)
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
-        <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
-        <if  test="dname != null  and dname != ''"> and d.dept_name like concat('%', #{dname}, '%')</if>
-        <if test="topNumber != null  and topNumber != ''"> or top_number =  #{topNumber}</if>
+        <if test="topNumber != null  and topNumber != ''"> and top_number =  #{topNumber}</if>
+        <if test="userName != null  and userName != ''"> and u.user_name like concat('%', #{userName}, '%')</if>
+        <if test="dname != null  and dname != ''"> and d.dept_name like concat('%', #{dname}, '%')</if>
+        <if test="yname != null  and yname != ''"> and p.dept_name like concat('%', #{yname}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
         ${params.dataScope}
         order by
@@ -75,6 +89,13 @@
         s.createtime desc
     </select>
 
+    <!--
+     * 查询纵向课题列表（教研室视角）
+     * 功能：查询教研室视角的纵向课题列表，只显示待教研室审核和教研室已通过的课题
+     * 查询条件：状态在(1,2)，可按年份、申请人、教研室名称、课题名称、状态筛选
+     * 排序规则：按状态优先级排序（待教研室审核 > 教研室通过），再按创建时间倒序
+     * 返回字段：课题基本信息、申请人信息、部门信息、文件信息、课题来源
+     -->
     <select id="selectSciHorizontalApplyVerticalListJYS"  resultType="SciHorizontalApplyVertical" resultMap="SciHorizontalApplyVerticalResult">
         select #{uid} uid,s.id,u.user_name userName,d.dept_id,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,s.top_number, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file,s.open_file,s.mid_file,s.over_file, s.subject_source
         from  sci_horizontal_apply_vertical s left join sys_user u on  s.user_id=u.user_id
@@ -82,9 +103,8 @@
                                               left join sys_dept p on d.parent_id =p.dept_id
         where  s.state in (1,2)
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
-        <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
-        <if  test="dname != null  and dname != ''"> and d.dept_name like concat('%', #{dname}, '%')</if>
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
+        <if test="userName != null  and userName != ''"> and u.user_name like concat('%', #{userName}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
         ${params.dataScope}
         order by
@@ -104,9 +124,9 @@
         left join sys_dept p on d.parent_id =p.dept_id
         where  s.state in (2,4)
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
-        <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
-        <if  test="dname != null  and dname != ''"> and d.dept_name like concat('%', #{dname}, '%')</if>
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
+        <if test="dname != null  and dname != ''"> and d.dept_name like concat('%', #{dname}, '%')</if>
+        <if test="userName != null  and userName != ''"> and u.user_name like concat('%', #{userName}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
         ${params.dataScope}
         order by
@@ -126,8 +146,10 @@
                                               left join sys_dept p on d.parent_id =p.dept_id
         where  s.state in (4,6)
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
-        <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
+        <if test="yname != null  and yname != ''"> and p.dept_name like concat('%', #{yname}, '%')</if>
+        <if test="dname != null  and dname != ''"> and d.dept_name like concat('%', #{dname}, '%')</if>
+        <if test="userName != null  and userName != ''"> and u.user_name like concat('%', #{userName}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
             ${params.dataScope}
         order by
@@ -150,7 +172,6 @@
         <if test="year != null and year != ''">
             AND YEAR(DATE_ADD(COALESCE(validity_data, signing_data), INTERVAL 1 MONTH)) = #{year}
         </if>
-        <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
         ${params.dataScope}
@@ -173,8 +194,8 @@
         <if test="year != null and year != ''">
             AND YEAR(DATE_ADD(COALESCE(validity_data, signing_data), INTERVAL 1 MONTH)) = #{year}
         </if>
-        <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
+        <if test="userName != null  and userName != ''"> and u.user_name like concat('%', #{userName}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
         ${params.dataScope}
         order by
@@ -196,9 +217,9 @@
         <if test="year != null and year != ''">
             AND YEAR(DATE_ADD(COALESCE(validity_data, signing_data), INTERVAL 1 MONTH)) = #{year}
         </if>
-        <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
-        <if  test="dname != null  and dname != ''"> and d.dept_name like concat('%', #{dname}, '%')</if>
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
+        <if test="dname != null  and dname != ''"> and d.dept_name like concat('%', #{dname}, '%')</if>
+        <if test="userName != null  and userName != ''"> and u.user_name like concat('%', #{userName}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
         ${params.dataScope}
         order by
@@ -220,9 +241,10 @@
         <if test="year != null and year != ''">
             AND YEAR(DATE_ADD(COALESCE(validity_data, signing_data), INTERVAL 1 MONTH)) = #{year}
         </if>
-        <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
-        <if  test="dname != null  and dname != ''"> and d.dept_name like concat('%', #{dname}, '%')</if>
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
+        <if test="yname != null  and yname != ''"> and p.dept_name like concat('%', #{yname}, '%')</if>
+        <if test="dname != null  and dname != ''"> and d.dept_name like concat('%', #{dname}, '%')</if>
+        <if test="userName != null  and userName != ''"> and u.user_name like concat('%', #{userName}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
         ${params.dataScope}
         order by s.createtime desc
@@ -237,14 +259,21 @@
         <if test="year != null and year != ''">
             AND YEAR(DATE_ADD(COALESCE(validity_data, signing_data), INTERVAL 1 MONTH)) = #{year}
         </if>
-        <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
-        <if  test="dname != null  and dname != ''"> and d.dept_name like concat('%', #{dname}, '%')</if>
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
+        <if test="yname != null  and yname != ''"> and p.dept_name like concat('%', #{yname}, '%')</if>
+        <if test="dname != null  and dname != ''"> and d.dept_name like concat('%', #{dname}, '%')</if>
+        <if test="userName != null  and userName != ''"> and u.user_name like concat('%', #{userName}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
         ${params.dataScope}
         order by s.createtime desc
     </select>
 
+    <!--
+     * 插入纵向课题
+     * 功能：插入新的纵向课题申请信息
+     * 插入字段：用户ID、课题名称、课题编号、课题类型、立项日期、成员ID、金额、文件、状态、课题来源
+     * 返回：自增的课题ID
+     -->
     <insert id="insertSciHorizontalApplyVertical" parameterType="SciHorizontalApplyVertical" useGeneratedKeys="true" keyProperty="id">
         insert into sci_horizontal_apply_vertical
         <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -279,6 +308,12 @@
         </trim>
     </insert>
 
+    <!--
+     * 根据ID查询纵向课题
+     * 功能：根据课题ID查询纵向课题详细信息
+     * 查询条件：课题ID
+     * 返回字段：课题基本信息、申请人信息、部门信息、文件信息、课题来源
+     -->
     <select id="selectSciHorizontalApplyVerticalById" resultMap="SciHorizontalApplyVerticalResult" parameterType="Integer">
         select s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,s.top_number, s.top_type,  s.signing_data, s.validity_data,  s.first_person_id,  s.second_person_id, s.third_person_id, s.fourth_person_id, s.amount, s.state,s.file,s.open_file,s.mid_file,s.over_file,s.subject_source
         from  sci_horizontal_apply_vertical s left join sys_user u on  s.user_id=u.user_id
@@ -287,6 +322,12 @@
         where s.id=#{id}
     </select>
 
+    <!--
+     * 更新纵向课题
+     * 功能：更新纵向课题申请信息
+     * 更新字段：用户ID、课题名称、课题编号、课题类型、立项日期、结项日期、成员ID、金额、文件、状态、课题来源
+     * 更新条件：课题ID
+     -->
     <update id="updateSciHorizontalApplyVertical" parameterType="SciHorizontalApplyVertical">
         update  sci_horizontal_apply_vertical
         <trim prefix="SET" suffixOverrides=",">
@@ -318,6 +359,12 @@
         </foreach>
     </delete>
 
+    <!--
+     * 纵向课题申请通过
+     * 功能：更新纵向课题申请状态为通过，设置课题来源
+     * 更新字段：状态、课题来源
+     * 更新条件：课题ID
+     -->
     <update id="applyPass" >
         update sci_horizontal_apply_vertical
         <trim prefix="SET" suffixOverrides=",">
@@ -327,6 +374,12 @@
         where id = #{id}
     </update>
 
+    <!--
+     * 纵向课题结项通过
+     * 功能：更新纵向课题结项状态为通过，设置课题来源
+     * 更新字段：状态、课题来源
+     * 更新条件：课题ID
+     -->
     <update id="overPass" >
         update sci_horizontal_apply_vertical
         <trim prefix="SET" suffixOverrides=",">
@@ -336,6 +389,12 @@
         where id = #{id}
     </update>
 
+    <!--
+     * 插入纵向课题成员
+     * 功能：插入纵向课题的成员信息
+     * 插入字段：成员ID、纵向课题ID、排名
+     * 返回：自增的成员记录ID
+     -->
     <insert id="insertPersionVertical" useGeneratedKeys="true" keyProperty="id">
         insert into sci_persion_vertical
         <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -350,6 +409,12 @@
         </trim>
     </insert>
 
+    <!--
+     * 查询用户参与的其他纵向课题列表
+     * 功能：查询用户作为成员参与的纵向课题列表
+     * 查询条件：成员ID，可按状态类型、年份、教研室名称、课题名称、申请人筛选
+     * 返回字段：课题基本信息、申请人信息、部门信息、文件信息、课题来源
+     -->
     <select id="selectOtherListByUid" parameterType="Long" resultMap="SciHorizontalApplyVerticalResult">
         select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,s.top_number, s.top_type,  s.signing_data, s.validity_data, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file,s.over_file, s.subject_source
         from sci_horizontal_apply_vertical s left join sci_persion_vertical pe on pe.vertical_id = s.id
@@ -375,7 +440,7 @@
         </if>
         <if  test="dname != null  and dname != ''"> and d.dept_name like concat('%', #{dname}, '%')</if>
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
-        <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+        <if test="userName != null  and userName != ''"> and u.user_name like concat('%', #{userName}, '%')</if>
         order  by createtime desc
     </select>
 

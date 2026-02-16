@@ -62,6 +62,7 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
      * @return 结果
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int insertSciHorizontalApplyVertical(SciHorizontalApplyVertical sciHorizontalApplyVertical) {
         // 新增：插入前查重
         SciHorizontalApplyVertical query = new SciHorizontalApplyVertical();
@@ -107,6 +108,7 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void saveVerticalPersons(Integer verticalId, java.util.List<String> personIds) {
         if (verticalId == null || personIds == null || personIds.isEmpty()){
             return;
@@ -127,7 +129,14 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
         }
     }
 
+    /**
+     * 重置纵向课题成员
+     * 功能：重置纵向课题的成员列表，先删除原有成员，再插入新成员
+     * SQL：DELETE FROM sci_persion_vertical WHERE verticalid = ?
+     * SQL：INSERT INTO sci_persion_vertical
+     */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void resetVerticalPersons(Integer verticalId, java.util.List<String> personIds) {
         if (verticalId == null) {
             return;
@@ -161,7 +170,14 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
         return sciHorizontalApplyVerticalMapper.selectPersionIdsByVerticalId(verticalId);
     }
 
+    /**
+     * 修改申请
+     * 功能：更新纵向课题申请信息，添加审批记录
+     * SQL：UPDATE sci_horizontal_apply_vertical
+     * SQL：INSERT INTO sci_horizontal_piyue
+     */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int updateSciHorizontalApplyVertical(SciHorizontalApplyVertical sciHorizontalApplyVertical) {
         SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
         sciHorizontalPiyue.setUid(getSysUser().getUserId());
@@ -226,7 +242,16 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
         return sciHorizontalApplyVerticalMapper.deleteSciHorizontalApplyVerticalByIds(Convert.toStrArray(ids));
     }
 
+    /**
+     * 纵向课题申请通过
+     * 功能：审批通过纵向课题申请，计算并分配科研分
+     * SQL：DELETE FROM sci_user_score WHERE vertical_id = ? AND change_status = ?
+     * SQL：INSERT INTO sci_user_score
+     * SQL：UPDATE sci_horizontal_apply_vertical SET state = ?, subject_source = ? WHERE id = ?
+     * SQL：INSERT INTO sci_horizontal_piyue
+     */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int applyPass(String id, Long userId, String urlFlag,List score,List persion,String verticalId,String SubjectSource) {
         String state = "0";
         SciUserScore sciUserScore = new SciUserScore();
@@ -259,7 +284,14 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
         return a;
     }
 
+    /**
+     * 纵向课题申请驳回
+     * 功能：驳回纵向课题申请，添加审批记录
+     * SQL：UPDATE sci_horizontal_apply_vertical SET state = ? WHERE id = ?
+     * SQL：INSERT INTO sci_horizontal_piyue
+     */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int applyBh(String id, Long userId, String remark, String urlFlag) {
         String state = "0";
         if(urlFlag.equals("JYS")){
@@ -315,7 +347,14 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
         return a;
     }
 
+    /**
+     * 纵向课题结项申请驳回
+     * 功能：驳回纵向课题结项申请，添加审批记录
+     * SQL：UPDATE sci_horizontal_apply_vertical SET state = ? WHERE id = ?
+     * SQL：INSERT INTO sci_horizontal_piyue
+     */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int overBh(String id, Long userId, String remark, String urlFlag) {
         String state = "0";
         if(urlFlag.equals("JYS")){
@@ -372,7 +411,15 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
         return sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalAllList(sciHorizontalApplyVertical);
     }
 
+    /**
+     * 撤回操作
+     * 功能：撤回纵向课题申请，删除积分记录，添加审批记录
+     * SQL：DELETE FROM sci_user_score WHERE vertical_id = ? AND change_status = ?
+     * SQL：INSERT INTO sci_horizontal_piyue
+     * SQL：UPDATE sci_horizontal_apply_vertical SET state = ? WHERE id = ?
+     */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int recall(Integer id, String state, Long userId, String remark, String urlFlag) {
         String newState = state;
         switch (state){
