@@ -312,34 +312,42 @@
     </style>
 </head>
 <body class="gray-bg">
-<div class="container-div">
-    <div class="row">
-<!--        <div class="col-sm-12 search-collapse">-->
-<!--            <form id="formId">-->
-<!--                <div class="select-list">-->
-<!--                    <ul>-->
-<!--                        <shiro:hasAnyRoles name="sci_tesearch,dept_teacher,research">-->
-<!--                        <li>-->
-<!--                            <label>荣誉名称：</label>-->
-<!--                            <input type="text" name="rewardName"/>-->
-<!--                        </li>-->
-<!--                        <li>-->
-<!--                            <label>申请人：</label>-->
-<!--                            <input type="text" name="userName"/>-->
-<!--                        </li>-->
-<!--                        <li>-->
-<!--                            <label>专业：</label>-->
-<!--                            <input type="text" name="dname" oninput="$.table.search()" />-->
-<!--                        </li>-->
-<!--                        <li>-->
-<!--                            <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>-->
-<!--                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>-->
-<!--                        </li>-->
-<!--                        </shiro:hasAnyRoles>-->
-<!--                    </ul>-->
-<!--                </div>-->
-<!--            </form>-->
-<!--        </div>-->
+        <div class="container-div">
+            <div class="row">
+                <div class="col-sm-12 search-collapse" shiro:hasAnyPermissions="system:reward:like">
+                    <form id="formId"  >
+                        <div class="select-list">
+                            <ul>
+                                <li>
+                                    <label>课题名称：</label>
+                                    <input type="text" name="rewardName" placeholder="请输入课题名称"/>
+                                </li>
+
+                                <!-- 主持人/第一作者查询 - 教研室、学院、科研处可见 -->
+                                <li shiro:hasAnyPermissions="system:reward:jys,system:reward:xueyuan,system:reward:kyc">
+                                    <label>主持人：</label>
+                                    <input type="text" name="userName" placeholder="请输入主持人姓名"/>
+                                </li>
+
+                                <!-- 专业查询 - 学院、科研处可见 -->
+                                <li shiro:hasAnyPermissions="system:reward:xueyuan,system:reward:kyc">
+                                    <label>专业：</label>
+                                    <input type="text" name="dname" placeholder="请输入专业名称"/>
+                                </li>
+
+                                <!-- 学院查询 - 仅科研处可见 -->
+                                <li shiro:hasPermission="system:reward:kyc">
+                                    <label>学院：</label>
+                                    <input type="text" name="yname" placeholder="请输入学院名称"/>
+                                </li>
+                                <li>
+                                    <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                                    <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </form>
+                </div>
 
         <div id="toolbar"  style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
             <div class="btn-group-sm" role="group" style="display: inline-flex; gap: 8px;">
