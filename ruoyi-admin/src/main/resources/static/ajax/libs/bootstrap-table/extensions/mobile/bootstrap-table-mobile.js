@@ -4,7 +4,7 @@
  * @update zhixin wen <wenzhixin2010@gmail.com>
  */
 
-const debounce = (func, wait) => {
+var debounce = (func, wait) => {
   let timeout = 0
 
   return (...args) => {

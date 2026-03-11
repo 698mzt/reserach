@@ -246,6 +246,12 @@
         <if test="userId != null and userId != ''">
             and u.user_id = #{userId}
         </if>
+        <if test="teacherName != null and teacherName != ''">
+            and u.user_name like concat('%', #{teacherName}, '%')
+        </if>
+        <if test="teacherId != null and teacherId != ''">
+            and u.user_id = #{teacherId}
+        </if>
         <if test="startTime != null and startTime != ''">
             and s.reward_time >= #{startTime}
         </if>
@@ -306,7 +312,7 @@
             AND d.dept_id = #{major}
         </if>
         <if test="teacherName != null and teacherName != '' and teacherName!='null'">
-            AND u.user_id = #{teacherName}
+            AND u.user_name like concat('%', #{teacherName}, '%')
         </if>
         <if test="startTime != null and startTime != ''">
             and s.reward_time >= #{startTime}
