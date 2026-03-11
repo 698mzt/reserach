@@ -1321,21 +1321,10 @@
         </foreach>
     </select>
     <select id="getStatsQuery" parameterType="map" resultMap="SciHorizontalApplyResult">
-        select #{uid} uid,s.id,u.user_name userName,s.top_number ,d.dept_id ,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,s.party_A,s.party_B, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, s.signing_data, s.validity_Date,  concat( s.amount,'万') amount, s.contract, s.filing, s.state,s.createtime
-        from sci_horizontal_apply s
-        left join sys_user u on  s.user_id=u.user_id
-        left join sys_dept d on u.dept_id = d.dept_id
-        left join sys_dept p on d.parent_id =p.dept_id
-        left join sys_user u_host on s.first_person_id = u_host.user_id
+        <include refid="selectSciHorizontalApplyVo"/>
         where 1=1
         <if test="userId != null and userId != ''">
             and s.user_id = #{userId}
-        </if>
-        <if test="teacherName != null and teacherName != ''">
-            and u_host.user_name like concat('%', #{teacherName}, '%')
-        </if>
-        <if test="teacherId != null and teacherId != ''">
-            and s.first_person_id = #{teacherId}
         </if>
         <if test='state != null and state != "" and state!="null" and state =="1" '>
             AND s.state in (3,5,9,10,12,14,4,15,16)
@@ -1366,9 +1355,6 @@
         </if>
         <if test="topicName != null and topicName != ''">
             and s.top_name like concat('%', #{topicName}, '%')
-        </if>
-        <if test="year != null and year != ''">
-            AND YEAR(DATE_ADD(s.signing_data, INTERVAL 1 MONTH)) = #{year}
         </if>
 
         order by s.createtime desc
@@ -1411,11 +1397,8 @@
         <if test="major != null and major != '' and major != 'null'">
             AND d.dept_id = #{major}
         </if>
-        <if test="teacherId != null and teacherId != '' and teacherId!='null'">
-            AND u.user_id = #{teacherId}
-        </if>
-        <if test="teacherName != null and teacherName != ''">
-            and u.user_name like concat('%', #{teacherName}, '%')
+        <if test="teacherName != null and teacherName != '' and teacherName!='null'">
+            AND u.user_id = #{teacherName}
         </if>
         <if test="startTime != null and startTime != ''">
             and s.createtime >= #{startTime}

@@ -571,14 +571,14 @@
                                                         </div>
                                                         <div class="first-row-item">
                                                             <label>数据状态：</label>
-                                                            <select name="state" class="form-control">
-                                                                <option value="">所有</option>
-                                                                <option value="1">待提交/被驳回</option>
-                                                                <option value="2">审核中</option>
-                                                                <option value="3">已完结</option>
+                                                            <select name="state" class="form-control"
+                                                                    th:with="type=${@dict.getType('sys_module_item_state')}">
+                                                                <option th:each="dict : ${type}"
+                                                                        th:text="${dict.dictLabel}"
+                                                                        th:value="${dict.dictValue}"></option>
                                                             </select>
                                                         </div>
-                                                        <div class="first-row-item" id="jobTitleItem" shiro:hasPermission="sys_job_title">
+                                                        <div class="first-row-item" shiro:hasPermission="sys_job_title">
                                                             <label>教师职称：</label>
                                                             <select name="job_title" class="form-control"
                                                                     th:with="type=${@dict.getType('sys_job_title')}">
@@ -587,25 +587,15 @@
                                                                         th:value="${dict.dictValue}"></option>
                                                             </select>
                                                         </div>
-                                                        <div class="first-row-item" id="topicNameItem">
+                                                        <div class="first-row-item">
                                                             <label>课题名称：</label>
                                                             <input type="text" class="input-sm form-control"
                                                                    id="topicName"
                                                                    name='topicName'/>
                                                         </div>
-                                                        <div class="first-row-item" id="teacherNameItem">
-                                                            <label>主持人：</label>
-                                                            <input type="text" class="input-sm form-control"
-                                                                   name='teacherName' placeholder="姓名"/>
-                                                        </div>
-                                                        <div class="first-row-item" id="yearItem">
-                                                            <label>年份：</label>
-                                                            <input type="text" class="input-sm form-control"
-                                                                   name='year' placeholder="yyyy"/>
-                                                        </div>
                                                     </div>
                                                 </li>
-                                                <li class="second-row date-range-item" id="dateRangeItem">
+                                                <li class="second-row date-range-item">
                                                     <label class="font-noraml">日期选择：</label>
                                                     <div class="input-group input-daterange">
                                                         <input type="text" class="input-sm form-control"
@@ -616,7 +606,7 @@
                                                                id="datetimepicker-endTime" placeholder="yyyy-MM-dd"/>
                                                     </div>
                                                 </li>
-                                                <li class="second-row college-major-item" id="collegeMajorItem" shiro:hasPermission="sys_collage_filter">
+                                                <li class="second-row college-major-item"  shiro:hasPermission="sys_collage_filter">
                                                     <div id="element2" class="row">
                                                         <label>学院专业：</label>
                                                         <div class="col-sm-3">
@@ -626,16 +616,6 @@
                                                             <select class="second form-control m-b"></select>
                                                         </div>
                                                     </div>
-                                                </li>
-                                                <li class="second-row college-major-item" id="teacherIdItem" shiro:hasPermission="sys_collage_filter">
-                                                    <label>姓名：</label>
-                                                    <select name="teacherId" class="form-control m-b select2-search" id="teacherId">
-                                                        <option value="">---其他--</option>
-                                                        <option th:each="user : ${sysUsers}"
-                                                                th:text="${user.userName}"
-                                                                th:value="${user.userId}"
-                                                                th:data-user-id="${user.userId}"></option>
-                                                    </select>
                                                 </li>
                                                 <li class="button-item">
                                                     <a class="btn btn-primary btn-rounded btn-sm"
@@ -686,120 +666,75 @@ $(document).ready(function() {
     });
 });
 
-    // 实时搜索防抖函数
-    function statsQueryDebounce(func, wait) {
-        var timeout;
-        return function() {
-            var context = this, args = arguments;
-            clearTimeout(timeout);
-            timeout = setTimeout(function() {
-                func.apply(context, args);
-            }, wait);
-        };
-    }
-
-    // 绑定课题名称实时搜索（延迟500ms）
-    $('#topicName').on('input', statsQueryDebounce(function() {
-        $.table.search();
-    }, 500));
-
-    // 从后端获取学院专业数据
-    var collegeMajorData = /*[[${collegeMajorData}]]*/ [];
-    var roleStr = /*[[${roleStr}]]*/ "";
-    var defaultCollegeId = /*[[${defaultCollegeId}]]*/ "";
-    var defaultMajorId = /*[[${defaultMajorId}]]*/ "";
-
     $('#element2').cxSelect({
         selects: ['first', 'second'],
         required: true,
         jsonValue: 'v',
-        data: collegeMajorData
+        data: [
+            {
+                'v': null, 'n': '学院', 's': [
+                    {'v': null, 'n': '专业 '}
+                ]
+            },
+            {
+                "v": "1139",
+                "n": "软件学院",
+                "s": [
+                    {'v': 'null', 'n': '空'},
+                    {"v": "1174", "n": "软件工程教研室"},
+                    {"v": "1179", "n": "计算机科学与技术教研室"},
+                    {"v": "1191", "n": "数据科学与大数据技术教研室"},
+                    {"v": "1207", "n": "智能科学与技术教研室"},
+                    {"v": "1210", "n": "虚拟现实技术教研室"},
+                    {"v": "1192", "n": "软件学院办公室"},
+                    {"v": "1196", "n": "软件学院学生管理办公室"}
+                ]
+            },
+            {
+                "v": "1140",
+                "n": "商学院",
+                "s": [
+                    {'v': 'null', 'n': '空'},
+                    {"v": "1175", "n": "电子商务教研室"},
+                    {"v": "1231", "n": "商学院办公室"},
+                    {"v": "1228", "n": "商学院学生管理办公室"},
+                    {"v": "1215", "n": "物流管理教研室"},
+                    {"v": "1194", "n": "网络与新媒体教研室"},
+                    {"v": "1181", "n": "财务管理教研室"}
+                ]
+            },
+            {
+                "v": "1145",
+                "n": "艺术设计学院",
+                "s": [
+                    {'v': 'null', 'n': '空'},
+                    {"v": "1188", "n": "环境设计教研室"},
+                    {"v": "1211", "n": "艺术设计学院学生管理办公室"},
+                    {"v": "1182", "n": "视觉传达设计教研室"}
+                ]
+            },
+            {
+                "v": "1147", "n": "电子工程学院",
+                "s": [
+                    {'v': 'null', 'n': '空'},
+                    {"v": "1187", "n": "人工智能教研室"},
+                    {"v": "1184", "n": "电子信息工程教研室"},
+                    {"v": "1222", "n": "电子工程学院学生管理办公室"},
+                    {"v": "1223", "n": "自动化教研室"},
+                    {"v": "1224", "n": "工程训练中心"},
+                    {"v": "1225", "n": "物理教研室"},
+                    {"v": "1233", "n": "资料室"},
+                    {"v": "1235", "n": "电子工程办公室"}
+                ]
+            }
+        ]
     });
-
-    function applyRoleUiRules() {
-        // 获取所有查询条件元素
-        var $topicNameItem = $("#topicNameItem");
-        var $teacherNameItem = $("#teacherNameItem");
-        var $collegeMajorItem = $("#collegeMajorItem");
-        var $teacherIdItem = $("#teacherIdItem");
-        var $dateRangeItem = $("#dateRangeItem");
-        var $yearItem = $("#yearItem");
-        var $jobTitleItem = $("#jobTitleItem");
-        var $stateSelect = $("select[name='state']").closest('.first-row-item');
-
-        // 修改标签文本
-        $teacherNameItem.find('label').text('主持人/第一作者：');
-        $teacherIdItem.find('label').text('主持人/第一作者：');
-
-        // 教师角色：只能按课题名称查询
-        if (roleStr === "teacher") {
-            // 隐藏其他所有查询条件，只保留课题名称
-            $teacherNameItem.hide();
-            $collegeMajorItem.hide();
-            $teacherIdItem.hide();
-            $dateRangeItem.hide();
-            $yearItem.hide();
-            $jobTitleItem.hide();
-            $stateSelect.hide();
-            return;
-        }
-
-        // 教研室角色：按主持人/第一作者、课题名称查询
-        if (roleStr === "research") {
-            // 隐藏学院专业、教师选择、日期范围、年份、职称
-            $collegeMajorItem.hide();
-            $teacherIdItem.hide();
-            $dateRangeItem.hide();
-            $yearItem.hide();
-            $jobTitleItem.hide();
-            $stateSelect.hide();
-            return;
-        }
-
-        // 学院角色：按专业、主持人/第一作者、课题名称查询
-        if (roleStr === "dept_teacher") {
-            // 隐藏日期范围、年份、职称、教师选择
-            $dateRangeItem.hide();
-            $yearItem.hide();
-            $jobTitleItem.hide();
-            $teacherIdItem.hide();
-            $stateSelect.hide();
-
-            // 设置默认学院并禁用学院选择
-            if (defaultCollegeId) {
-                $(".first").val(defaultCollegeId).trigger('change');
-            }
-            window.setTimeout(function () {
-                if (defaultMajorId) {
-                    $(".second").val(defaultMajorId).trigger('change');
-                }
-            }, 50);
-            $(".first").prop("disabled", true);
-            return;
-        }
-
-        // 科研处角色：可以使用所有查询条件
-        if (roleStr === "sci_tesearch" || roleStr === "admin") {
-            // 显示所有查询条件（默认就是全部显示）
-            if (defaultCollegeId) {
-                $(".first").val(defaultCollegeId).trigger('change');
-            }
-            window.setTimeout(function () {
-                if (defaultMajorId) {
-                    $(".second").val(defaultMajorId).trigger('change');
-                }
-            }, 50);
-            return;
-        }
-    }
-
-    applyRoleUiRules();
-    var datas = /*[[${@dict.getType('sys_intraschpro_tasks')}]]*/ [];
+    var datas = [[${@dict.getType('sys_intraschpro_tasks')}]];
     var prefix = ctx + "StatsQuery";
     var hasSearched = false; // 添加搜索状态标志  初始菜单不加载 ,点击搜索之后才会显示
-    var paiMingDatas = /*[[${@dict.getType('sys_jiaocairuanzhu_fzr')}]]*/ [];
-    var fenleiDatas = /*[[${@dict.getType('sys_zhuanli_fenlei')}]]*/ [];
-    var dengjiDatas = /*[[${@dict.getType('sys_reward_dengji')}]]*/ [];
+    var paiMingDatas = [[${@dict.getType('sys_jiaocairuanzhu_fzr')}]];
+    var fenleiDatas = [[${@dict.getType('sys_zhuanli_fenlei')}]];
+    var dengjiDatas = [[${@dict.getType('sys_reward_dengji')}]];
     var prefixZX = ctx + "system/apply_vertical";
     var prefixHX = ctx + "system/apply";
     var prefixCGZH = ctx + "IntraSchPro";
@@ -1377,8 +1312,6 @@ $(document).ready(function() {
             var major = $(".second").val(); // 专业
             var jobTitle = $("select[name='job_title']").val(); // 职称
             var topicName = $("#topicName").val(); // 课题名称
-            var teacherName = $("input[name='teacherName']").val(); // 姓名(文本)
-            var teacherId = $("select[name='teacherId']").val(); // 姓名(下拉)
 
             // 构造查询参数对象
             var params = {
@@ -1389,9 +1322,7 @@ $(document).ready(function() {
                 college: college,
                 major: major,
                 jobTitle: jobTitle,
-                topicName: topicName,
-                teacherName: teacherName,
-                teacherId: teacherId
+                topicName: topicName
             };
             console.log("搜索参数:", params)
             // 设置搜索状态为true
@@ -1490,9 +1421,7 @@ $(document).ready(function() {
                     college: params.college || '',
                     major: params.major || '',
                     jobTitle: params.jobTitle || '',
-                    topicName: params.topicName || '',
-                    teacherName: params.teacherName || '',
-                    teacherId: params.teacherId || ''
+                    topicName: params.topicName || ''
                 };
                 return searchParams;
             }
@@ -1729,6 +1658,42 @@ $(document).ready(function() {
         var endTime = event.date;
         $("#datetimepicker-startTime").datetimepicker('setEndDate', endTime);
     });
+    var startDate = laydate.render({
+        elem: '#laydate-startTime',
+        max: $('#laydate-endTime').val(),
+        theme: 'molv',
+        trigger: 'click',
+        done: function (value, date) {
+            // 结束时间大于开始时间
+            if (value !== '') {
+                endDate.config.min.year = date.year;
+                endDate.config.min.month = date.month - 1;
+                endDate.config.min.date = date.date;
+            } else {
+                endDate.config.min.year = '';
+                endDate.config.min.month = '';
+                endDate.config.min.date = '';
+            }
+        }
+    });
+    var endDate = laydate.render({
+        elem: '#laydate-endTime',
+        min: $('#laydate-startTime').val(),
+        theme: 'molv',
+        trigger: 'click',
+        done: function (value, date) {
+            // 开始时间小于结束时间
+            if (value !== '') {
+                startDate.config.max.year = date.year;
+                startDate.config.max.month = date.month - 1;
+                startDate.config.max.date = date.date;
+            } else {
+                startDate.config.max.year = '';
+                startDate.config.max.month = '';
+                startDate.config.max.date = '';
+            }
+        }
+    });
 
     function OpenDetailTab(id, remark) {
         // 纵向
@@ -1787,8 +1752,6 @@ $(document).ready(function() {
             var major = $(".second").val();
             var jobTitle = $("select[name='job_title']").val();
             var topicName = $("#topicName").val();
-            var teacherName = $("input[name='teacherName']").val();
-            var teacherId = $("select[name='teacherId']").val();
 
             // 设置参数，state使用dictLabel
             exportParams.remark = remark || '';
@@ -1799,8 +1762,6 @@ $(document).ready(function() {
             exportParams.major = major || '';
             exportParams.jobTitle = jobTitle || '';
             exportParams.topicName = topicName || '';
-            exportParams.teacherName = teacherName || '';
-            exportParams.teacherId = teacherId || '';
 
             // 添加表格当前的查询参数
             var tableOptions = $("#" + table.options.id).bootstrapTable('getOptions');

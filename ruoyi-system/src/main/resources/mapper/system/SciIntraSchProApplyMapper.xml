@@ -886,13 +886,9 @@
         LEFT JOIN sys_dept d ON u.dept_id = d.dept_id
         LEFT JOIN sys_dept p ON d.parent_id = p.dept_id
         LEFT JOIN sci_IntraSchPro_score sc ON sc.sciIntraSch_Id = s.id
-        LEFT JOIN sys_user u_host ON s.first_person_id = u_host.user_id
         <where>
             <if test="userId != null and userId != ''">
                 and  s.first_person_id = #{userId}
-            </if>
-            <if test="teacherName != null and teacherName != ''">
-                and u_host.user_name like concat('%', #{teacherName}, '%')
             </if>
             <if test='state != null and state != "" and state!="null" and state =="1" '>
                 AND s.state in (3,5,9,10,22,44,99)
@@ -923,9 +919,6 @@
             </if>
             <if test="topicName != null and topicName != ''">
                 AND s.top_name LIKE CONCAT('%', #{topicName}, '%')
-            </if>
-            <if test="year != null and year != ''">
-                and YEAR(DATE_ADD(s.signing_data,INTERVAL 1 MONTH)) = #{year}
             </if>
         </where>
         GROUP BY s.id, s.top_name, s.first_person_id, s.second_person_id, s.third_person_id, s.fourth_person_id, s.signing_data, s.amount, s.state, u.user_name, d.dept_name, p.dept_name

@@ -810,12 +810,6 @@
         <if test="userId != null and userId != ''">
             and p.user_id = #{userId}
         </if>
-        <if test="teacherName != null and teacherName != ''">
-            and pa1.user_name like concat('%', #{teacherName}, '%')
-        </if>
-        <if test="teacherId != null and teacherId != ''">
-            and p.user_id = #{teacherId}
-        </if>
         <if test="startTime != null and startTime != ''">
             and pac.createtime >= #{startTime}
         </if>
@@ -836,9 +830,6 @@
         </if>
         <if test="topicName != null and topicName != ''">
             and p.paper_title like concat('%', #{topicName}, '%')
-        </if>
-        <if test="year != null and year != ''">
-            AND YEAR(DATE_ADD(p.publication_time, INTERVAL 1 MONTH)) = #{year}
         </if>
         <if test='state != null and state != "" and state!="null" and state =="1" '>
             AND p.state in (3,5,7,9,10,22,44,99)
@@ -882,11 +873,8 @@
         <if test="major != null and major != '' and major!='null'">
             AND sd.dept_id = #{major}
         </if>
-        <if test="teacherId != null and teacherId != '' and teacherId!='null'">
-            AND su.user_id = #{teacherId}
-        </if>
         <if test="teacherName != null and teacherName != '' and teacherName!='null'">
-            and su.user_name like concat('%', #{teacherName}, '%')
+            AND su.user_id = #{teacherName}
         </if>
         <if test="startTime != null and startTime != ''">
             and spa.createtime >= #{startTime}
