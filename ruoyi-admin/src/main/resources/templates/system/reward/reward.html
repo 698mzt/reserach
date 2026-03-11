@@ -422,17 +422,17 @@
 </div>
     <th:block th:include="include :: footer" />
     <script th:inline="javascript">
-        var editFlag = /*[[${@permission.hasPermi('system:reward:edit')}]]*/ '';
-        var removeFlag = /*[[${@permission.hasPermi('system:reward:remove')}]]*/ '';
-        var proFlag = /*[[${@permission.hasPermi('system:reward:process')}]]*/ '';
-        var editInfo = /*[[${@permission.hasPermi('system:reward:info')}]]*/ '';
-        var hechaFlag = /*[[${@permission.hasPermi('system:reward:hecha')}]]*/ '';
-        var topTypeDatas = /*[[${@dict.getType('sci_top_type')}]]*/ [];
-        var datas = /*[[${@dict.getType('sys_reward_sg')}]]*/ [];
-        var chayueFlag = /*[[${@permission.hasPermi('system:reward:chayue')}]]*/ '';
-        var paimingDatas = /*[[${@dict.getType('sys_reward_paiming')}]]*/ [];
-        var fenleiDatas = /*[[${@dict.getType('sys_reward_fenlei')}]]*/ [];
-        var dengjiDatas = /*[[${@dict.getType('sys_reward_dengji')}]]*/ [];
+        var editFlag = [[${@permission.hasPermi('system:reward:edit')}]];
+        var removeFlag = [[${@permission.hasPermi('system:reward:remove')}]];
+        var proFlag = [[${@permission.hasPermi('system:reward:process')}]];
+        var editInfo = [[${@permission.hasPermi('system:reward:info')}]];
+        var hechaFlag = [[${@permission.hasPermi('system:reward:hecha')}]];
+        var topTypeDatas = [[${@dict.getType('sci_top_type')}]];
+        var datas = [[${@dict.getType('sys_reward_sg')}]];
+        var chayueFlag = [[${@permission.hasPermi('system:reward:chayue')}]];
+        var paimingDatas = [[${@dict.getType('sys_reward_paiming')}]];
+        var fenleiDatas = [[${@dict.getType('sys_reward_fenlei')}]];
+        var dengjiDatas = [[${@dict.getType('sys_reward_dengji')}]];
 
         var prefix = ctx + "system/reward";
         $(function() {
@@ -726,18 +726,7 @@
 
 
 
-        function getCurrentTime() {
-        var now = new Date();
-        var year = now.getFullYear();
-        var month = ('0' + (now.getMonth() + 1)).slice(-2);
-        var day = ('0' + now.getDate()).slice(-2);
-        var hours = ('0' + now.getHours()).slice(-2);
-        var minutes = ('0' + now.getMinutes()).slice(-2);
-        var seconds = ('0' + now.getSeconds()).slice(-2);
-        return year + '-' + month + '-' + day + ' ' + hours + ':' + minutes + ':' + seconds;
-    }
-
-    document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function () {
             // 初始化显示当前时间
             document.getElementById('current-time').textContent = getCurrentTime();
         });

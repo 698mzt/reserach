@@ -328,12 +328,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <if test="xingming != null and xingming != '' and xingming != 'null'">
             and u.user_name like concat('%', #{xingming}, '%')
         </if>
-        <if test="teacherName != null and teacherName != ''">
-            and u.user_name like concat('%', #{teacherName}, '%')
-        </if>
-        <if test="teacherId != null and teacherId != ''">
-            and s.user_id = #{teacherId}
-        </if>
         <if test="topicName != null and topicName != ''">
             and s.mingcheng like concat('%', #{topicName}, '%')
         </if>
@@ -382,14 +376,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <if test="xingming != null and xingming != '' and xingming != 'null'">
             and u.user_name like concat('%', #{xingming}, '%')
         </if>
-        <if test="teacherName != null and teacherName != ''">
-            and u.user_name like concat('%', #{teacherName}, '%')
-        </if>
-        <if test="teacherId != null and teacherId != ''">
-            and s.user_id = #{teacherId}
-        </if>
-        <if test="topicName != null and topicName != ''">
-            and s.mingcheng like concat('%', #{topicName}, '%')
+        <if test="mingcheng != null and mingcheng != ''">
+            and s.mingcheng like concat('%', #{mingcheng}, '%')
         </if>
         <if test="fenlei != null and fenlei != ''">
             and s.fenlei = #{fenlei}
@@ -435,11 +423,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <if test="major != null and major != '' and major!='null'">
             AND d.dept_id = #{major}
         </if>
-        <if test="teacherId != null and teacherId != '' and teacherId!='null'">
-            AND u.user_id = #{teacherId}
-        </if>
         <if test="teacherName != null and teacherName != '' and teacherName!='null'">
-            and u.user_name like concat('%', #{teacherName}, '%')
+            AND u.user_id = #{teacherName}
         </if>
         <if test="startTime != null and startTime != ''">
             and s.createtime >= #{startTime}

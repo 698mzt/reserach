@@ -258,9 +258,6 @@
         <if test="userId != null and userId != ''">
             and s.user_id = #{userId}
         </if>
-        <if test="teacherName != null and teacherName != ''">
-            and (u.user_name like concat('%', #{teacherName}, '%') or s.zhubian like concat('%', #{teacherName}, '%'))
-        </if>
         <if test="startTime != null and startTime != ''">
             and s.createtime >= #{startTime}
         </if>
@@ -320,7 +317,7 @@
             AND d.dept_id = #{major}
         </if>
         <if test="teacherName != null and teacherName != '' and teacherName!='null'">
-             AND (u.user_name like concat('%', #{teacherName}, '%') OR s.zhubian like concat('%', #{teacherName}, '%'))
+            AND u.user_id = #{teacherName}
         </if>
         <if test="startTime != null and startTime != ''">
             and s.createtime >= #{startTime}
