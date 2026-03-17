@@ -43,17 +43,27 @@
         <where>
             <!-- <if test="userId != null "> and user_id = #{userId}</if> -->
             (state in (1,2,3,4,5,6,7,11) and s.user_id = #{uid})
-            <if test="rewardName != null  and rewardName != ''"> and reward_name like concat('%', #{rewardName}, '%')</if>
-            <if test="yname != null  and yname != ''"> and yname = #{yname}</if>
+            <!-- 课题名称查询 -->
+            <if test="rewardName != null and rewardName != ''">
+                and s.reward_name like concat('%', #{rewardName}, '%')
+            </if>
+            <!-- 主持人查询（教师通常不需要查主持人，查自己即可，但保留兼容） -->
+            <if test="userName != null and userName != ''">
+                and u.user_name like concat('%', #{userName}, '%')
+            </if>
+            <!-- 专业查询 -->
             <if test="dname != null and dname != ''">
-                AND d.dept_name = #{dname}
+                and d.dept_name like concat('%', #{dname}, '%')
+            </if>
+            <!-- 学院查询 -->
+            <if test="yname != null and yname != ''">
+                and p.dept_name like concat('%', #{yname}, '%')
             </if>
             <!-- <if test="rewardDanwei != null  and rewardDanwei != ''"> and reward_danwei = #{rewardDanwei}</if> -->
             <!-- <if test="rewardLeixing != null  and rewardLeixing != ''"> and reward_leixing = #{rewardLeixing}</if> -->
             <!-- <if test="rewardWenjian != null  and rewardWenjian != ''"> and reward_wenjian = #{rewardWenjian}</if> -->
             <if test="rewardTime != null "> and reward_time = #{rewardTime}</if>
             <!-- <if test="rewardFenlei != null  and rewardFenlei != ''"> and reward_fenlei = #{rewardFenlei}</if> -->
-            <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
             <!-- <if test="rewardDengji != null  and rewardDengji != ''"> and reward_dengji like concat('%', #{rewardDengji}, '%')</if> -->
             <!-- <if test="rewardPaiming != null  and rewardPaiming != ''"> and reward_paiming = #{rewardPaiming}</if> -->
             <if test="rewardJibie != null  and rewardJibie != ''"> and like concat('%', #{rewardJibie}, '%')</if>
@@ -169,17 +179,26 @@
         left join sys_dept p on d.parent_id =p.dept_id
         where s.user_id = #{uid} or state in (1,2)
         <!-- <if test="userId != null "> and user_id = #{userId}</if> -->
-        <if test="yname != null  and yname != ''"> and yname = #{yname}</if>
-        <if test="rewardName != null  and rewardName != ''"> and reward_name like concat('%', #{rewardName}, '%')</if>
-        <if test="rewardTime != null "> and reward_time = #{rewardTime}</if>
-        <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
-        <if test="state != null  and state != ''"> and state = #{state}</if>
+        <!-- 课题名称查询 -->
+        <if test="rewardName != null and rewardName != ''">
+            and s.reward_name like concat('%', #{rewardName}, '%')
+        </if>
+        <!-- 主持人查询（第一作者） -->
+        <if test="userName != null and userName != ''">
+            and u.user_name like concat('%', #{userName}, '%')
+        </if>
+        <!-- 专业查询 -->
         <if test="dname != null and dname != ''">
-            AND d.dept_name = #{dname}
+            and d.dept_name like concat('%', #{dname}, '%')
         </if>
-        <if test="state != null and state != ''">
-            AND state = #{state}
+        <!-- 学院查询 -->
+        <if test="yname != null and yname != ''">
+            and p.dept_name like concat('%', #{yname}, '%')
         </if>
+<!--        <if test="rewardTime != null "> and reward_time = #{rewardTime}</if>-->
+<!--        <if test="state != null and state != ''">-->
+<!--            AND state = #{state}-->
+<!--        </if>-->
         ${params.dataScope}
         order  by state ,reward_time desc
     </select>
@@ -192,12 +211,25 @@
         left join sys_dept p on d.parent_id =p.dept_id
         where (s.user_id = #{uid} or (state in (2,4) and d.parent_id = #{parentId}))
         <!-- <if test="userId != null "> and user_id = #{userId}</if> -->
-        <if test="yname != null  and yname != ''"> and yname = #{yname}</if>
-        <if test="rewardName != null  and rewardName != ''"> and reward_name like concat('%', #{rewardName}, '%')</if>
-        <if test="rewardTime != null "> and reward_time = #{rewardTime}</if>
-        <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
-        <if test="state != null  and state != ''"> and state = #{state}</if>
-        <if test="dname != null and dname != ''"> AND d.dept_name = #{dname}</if>
+        <!-- 课题名称查询 -->
+        <if test="rewardName != null and rewardName != ''">
+            and s.reward_name like concat('%', #{rewardName}, '%')
+        </if>
+        <!-- 主持人查询（第一作者） -->
+        <if test="userName != null and userName != ''">
+            and u.user_name like concat('%', #{userName}, '%')
+        </if>
+        <!-- 专业查询 -->
+        <if test="dname != null and dname != ''">
+            and d.dept_name like concat('%', #{dname}, '%')
+        </if>
+        <!-- 学院查询 -->
+        <if test="yname != null and yname != ''">
+            and p.dept_name like concat('%', #{yname}, '%')
+        </if>
+<!--        <if test="rewardTime != null "> and reward_time = #{rewardTime}</if>-->
+<!--        <if test="state != null  and state != ''"> and state = #{state}</if>-->
+
 
         order  by state ,reward_time desc
     </select>
@@ -217,6 +249,22 @@
         <if test="state != null  and state != ''"> and state = #{state}</if>
         <if test="dname != null and dname != ''">
             AND d.dept_name = #{dname}
+        </if>
+        <!-- 课题名称查询：使用模糊匹配 -->
+        <if test="rewardName != null  and rewardName != ''">
+            and reward_name like concat('%', #{rewardName}, '%')
+        </if>
+        <!-- 主持人/申请人查询：使用模糊匹配 -->
+        <if test="userName != null  and userName != ''">
+            and user_name like concat('%', #{userName}, '%')
+        </if>
+        <!-- 专业查询：精确匹配教研室名称 -->
+        <if test="dname != null and dname != ''">
+            AND d.dept_name = #{dname}
+        </if>
+        <!-- 学院查询：精确匹配学院名称 -->
+        <if test="yname != null  and yname != ''">
+            and yname = #{yname}
         </if>
         ${params.dataScope}
         order  by state ,reward_time desc

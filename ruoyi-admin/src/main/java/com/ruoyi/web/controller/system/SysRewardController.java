@@ -71,11 +71,18 @@ public class SysRewardController extends BaseController
     @RequiresPermissions("system:reward:list")
     @PostMapping("/list")
     @ResponseBody
-    public TableDataInfo list(String time,SysReward sysReward, @RequestParam(value = "dname", required = false) String dname)
+    public TableDataInfo list(String time,SysReward sysReward, @RequestParam(value = "dname", required = false) String dname,
+                              @RequestParam(value = "rewardName", required = false) String rewardName,
+                              @RequestParam(value = "userName", required = false) String userName,
+                              @RequestParam(value = "yname", required = false) String yname)
     {
-//        sysReward.setRewardTime(time);
+        // 设置查询参数
         sysReward.setDname(dname);
+        sysReward.setRewardName(rewardName);
+        sysReward.setUserName(userName);
+        sysReward.setYname(yname);
         sysReward.setUid(getUserId());
+//        sysReward.setRewardTime(time);
         startPage();
 //        List<SysReward> list = sysRewardService.selectSysRewardList(sysReward);
 //        return getDataTable(list);
