@@ -117,6 +117,7 @@ public class SciPaperAController extends BaseController {
      * @param model 模型类型
      * @return 上传结果
      * @throws Exception 上传异常
+     * @SQL 无直接SQL操作，调用FileUploadUtils处理文件上传
      */
     @Log(title = "论文文件上传", businessType = BusinessType.OTHER)
     @PostMapping("/upload/{model}")
@@ -141,17 +142,23 @@ public class SciPaperAController extends BaseController {
 
     /**
      * 查询论文列表
-     * @param sciPaperA 论文实体
+     * @param sciPaperA 论文实体，包含查询条件
      * @param year 年份
      * @param pageNum 页码
      * @param pageSize 每页条数
      * @return 论文列表数据
+     * @SQL 根据用户角色不同，执行不同的查询：
+     * 1. 教师：执行selectSciPaperAListCx，支持课题名称查询
+     * 2. 教研室：执行selectSciPaperAListCxList，支持第一作者、课题名称查询
+     * 3. 学院：执行selectSciPaperAListXY，支持专业、第一作者、课题名称查询
+     * 4. 科研处：执行selectSciPaperAListKY，支持学院、专业、第一作者、课题名称查询
+     * 5. 管理员：执行selectSciPaperAList，支持所有条件查询
      */
     @RequiresPermissions("system:paper:list")
     @Log(title = "论文列表查询", businessType = BusinessType.OTHER)
     @PostMapping("/list")
     @ResponseBody
-    public TableDataInfo list(SciPaperA sciPaperA, String year ,@RequestParam(defaultValue = "1") int pageNum,
+    public TableDataInfo list(SciPaperA sciPaperA, String year, @RequestParam(defaultValue = "1") int pageNum,
                               @RequestParam(defaultValue = "10") int pageSize) {
         Long userId = getUserId();
         List<String> roleId = sciPaperAService.selectSciPaperAByroleId(userId);
@@ -159,41 +166,46 @@ public class SciPaperAController extends BaseController {
         sciPaperA.setYear(year);
 
         List<SciPaperA> list = new ArrayList<>();
-        // 所有的审核方都会有普通老师身份，单身份的判断暂时先留着，除非增加审核方的时候少给他加上普通老师身份，否则不会报错
-        //教研室+普通老师身份
-        if (roleId.contains("102") && roleId.contains("100")&& !roleId.contains("101")) {
-            PageHelper.startPage(pageNum, pageSize);
-            list = sciPaperAService.selectSciPaperAListCxList(sciPaperA);
-        }
-        //单独教研室身份 暂时不用写
-        else if (roleId.contains("102")&& !roleId.contains("100")&& !roleId.contains("101")) {
+        
+        // 管理员权限
+        if (userId == 1L) {
+            // 管理员：支持所有条件查询
             PageHelper.startPage(pageNum, pageSize);
             list = sciPaperAService.selectSciPaperAList(sciPaperA);
         }
-        //科研处+普通老师身份
-        else if (roleId.contains("101") && roleId.contains("100")) {
+        // 科研处权限
+        else if (roleId.contains("101")) {
+            // 科研处：学院、专业、第一作者、课题名称查询
             PageHelper.startPage(pageNum, pageSize);
             list = sciPaperAService.selectSciPaperAListKY(sciPaperA);
         }
-        //学院+普通老师身份
-        else if ((roleId.contains("103") || roleId.contains("104") || roleId.contains("105") || roleId.contains("106") || roleId.contains("107") || roleId.contains("108")|| roleId.contains("116L")|| roleId.contains("117")|| roleId.contains("118")|| roleId.contains("109")) && roleId.contains("100")) {
-            //学院身份
+        // 学院权限
+        else if (roleId.stream().anyMatch(role -> 
+            role.equals("103") || role.equals("104") || role.equals("105") || 
+            role.equals("106") || role.equals("107") || role.equals("108") || 
+            role.equals("116L") || role.equals("117") || role.equals("118") || 
+            role.equals("109") || role.equals("119") || role.equals("120")
+        )) {
+            // 学院：专业、第一作者、课题名称查询
             SysUser user = getSysUser();
             sciPaperA.setCollegeId(String.valueOf(user.getParentId()));
             PageHelper.startPage(pageNum, pageSize);
             list = sciPaperAService.selectSciPaperAListXY(sciPaperA);
-        }else if ((roleId.contains("103") || roleId.contains("104") || roleId.contains("105") || roleId.contains("106") || roleId.contains("107") || roleId.contains("108")|| roleId.contains("116L")|| roleId.contains("117")|| roleId.contains("118")|| roleId.contains("109")|| roleId.contains("119") ||roleId.contains("120")  )) {
-            //单独学院身份
-            SysUser user = getSysUser();
-            sciPaperA.setCollegeId(String.valueOf(user.getParentId()));
+        }
+        // 教研室权限
+        else if (roleId.contains("102")) {
+            // 教研室：第一作者、课题名称查询
             PageHelper.startPage(pageNum, pageSize);
-            list = sciPaperAService.selectSciPaperAListXY(sciPaperA);
-        } else if (roleId.contains("100") && roleId.size() == 1) {
-            //普通老师身份
+            list = sciPaperAService.selectSciPaperAListCxList(sciPaperA);
+        }
+        // 普通教师权限
+        else if (roleId.contains("100") && roleId.size() == 1) {
+            // 教师：课题名称查询
             PageHelper.startPage(pageNum, pageSize);
             list = sciPaperAService.selectSciPaperAListCx(sciPaperA);
-        } else if (userId == 1L) {
-            //admin进入
+        }
+        // 其他情况
+        else {
             PageHelper.startPage(pageNum, pageSize);
             list = sciPaperAService.selectSciPaperAList(sciPaperA);
         }
@@ -202,9 +214,13 @@ public class SciPaperAController extends BaseController {
     }
     /**
      * 导出论文列表
+     * @param ListRowId 论文ID列表
+     * @param sciPaperA 论文实体，包含查询条件
+     * @return 导出结果
+     * @SQL 执行selectSciPaperAExport查询需要导出的论文数据
      */
     @RequiresPermissions("system:paper:export")
-    @Log(title = "论文", businessType = BusinessType.EXPORT)
+    @Log(title = "论文导出", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     @ResponseBody
     public AjaxResult export(@RequestParam List<String> ListRowId, SciPaperA sciPaperA) {
@@ -219,8 +235,12 @@ public class SciPaperAController extends BaseController {
     }
 
     /**
-     * 新增论文
+     * 新增论文页面
+     * @param mmap 模型映射，用于传递数据到前端
+     * @return 新增论文页面路径
+     * @SQL 执行selectAllUserSchPro查询用户列表
      */
+    @Log(title = "论文新增页面", businessType = BusinessType.OTHER)
     @GetMapping("/add")
     public String add(ModelMap mmap) {
         List<SysUser> userList = userService.selectAllUserSchPro(getUserId());
@@ -242,10 +262,15 @@ public class SciPaperAController extends BaseController {
 
     /**
      * 新增保存论文
-     * 论文信息和积分在一张表里面
+     * @param sciPaperA 论文实体，包含论文信息
+     * @return 保存结果
+     * @SQL 1. 执行selectSciPaperA检查论文是否存在
+     * 2. 执行insertSciPaperA插入论文数据
+     * 3. 执行batchInsertPaperUserScore批量插入作者分数数据
+     * 4. 执行insertSciPaperAr插入论文操作记录
      */
     @RequiresPermissions("system:paper:add")
-    @Log(title = "论文", businessType = BusinessType.INSERT)
+    @Log(title = "论文新增", businessType = BusinessType.INSERT)
     @PostMapping("/add")
     @ResponseBody
     @Transactional(rollbackFor = Exception.class)
@@ -272,14 +297,6 @@ public class SciPaperAController extends BaseController {
 
                 //插入论文数据
                 int i1 = sciPaperAService.insertSciPaperA(sciPaperA);
-                if (i1==1){
-                    if (sciPaperA.getText_paper() == null || sciPaperA.getText_paper().length() <= 0){
-                        System.out.println("插入论文:收录通知为空");
-                    }
-                    if (sciPaperA.getWord_paper() == null || sciPaperA.getWord_paper().length() <= 0){
-                        System.out.println("插入论文:论文原文为空");
-                    }
-                }
                 
 
                 // 保存1-4作信息到Paper_user_score表
@@ -491,9 +508,16 @@ public class SciPaperAController extends BaseController {
     }
 
     /**
-     * 修改论文html
+     * 修改论文页面
+     * @param id 论文ID
+     * @param mmap 模型映射，用于传递数据到前端
+     * @return 修改论文页面路径
+     * @SQL 1. 执行selectAllUserSchPro查询用户列表
+     * 2. 执行selectSciPaperAById查询论文详情
+     * 3. 执行getPaperUserScoreListByPaperId查询作者信息
      */
     @RequiresPermissions("system:paper:edit")
+    @Log(title = "论文编辑页面", businessType = BusinessType.OTHER)
     @GetMapping("/edit/{id}")
     public String edit(@PathVariable("id") Long id, ModelMap mmap) {
         List<SysUser> userList = userService.selectAllUserSchPro(getUserId());
@@ -540,20 +564,16 @@ public class SciPaperAController extends BaseController {
 
     /**
      * 论文详情查看
-     * @param id 论文ID和URL标识（格式：id/urlFlag）
+     * @param id 论文ID
+     * @param urlFlag URL标识
      * @param mmap 模型映射
      * @return 详情页面
      */
     @RequiresPermissions(value = {"system:paper:xypy", "system:paper:process", "system:paper:kypy", "system:paper:info"}, logical = Logical.OR)
     @Log(title = "论文详情查看", businessType = BusinessType.OTHER)
-    @GetMapping("/detail/{id}")
-    public String detail(@PathVariable("id") String id, ModelMap mmap) {
-        // 解析id和urlFlag
-        String[] parts = id.split("/");
-        Long paperId = Long.parseLong(parts[0]);
-        String urlFlag = parts.length > 1 ? parts[1] : ""; 
-        
-        SciPaperA sciPaperA = sciPaperAService.selectSciPaperAById(paperId);
+    @GetMapping("/detail/{id}/{urlFlag}")
+    public String detail(@PathVariable("id") Long id, @PathVariable("urlFlag") String urlFlag, ModelMap mmap) {
+        SciPaperA sciPaperA = sciPaperAService.selectSciPaperAById(id);
         if (sciPaperA == null) {
             return prefix + "/paper";
         }
@@ -561,15 +581,39 @@ public class SciPaperAController extends BaseController {
         mmap.put("sciPaperA", sciPaperA);
         return prefix + "/detail";
     }
+    
+    /**
+     * 论文详情查看（无URL标识）
+     * @param id 论文ID
+     * @param mmap 模型映射
+     * @return 详情页面
+     */
+    @RequiresPermissions(value = {"system:paper:xypy", "system:paper:process", "system:paper:kypy", "system:paper:info"}, logical = Logical.OR)
+    @Log(title = "论文详情查看", businessType = BusinessType.OTHER)
+    @GetMapping("/detail/{id}")
+    public String detail(@PathVariable("id") Long id, ModelMap mmap) {
+        SciPaperA sciPaperA = sciPaperAService.selectSciPaperAById(id);
+        if (sciPaperA == null) {
+            return prefix + "/paper";
+        }
+        sciPaperA.setUrlFlag("");
+        mmap.put("sciPaperA", sciPaperA);
+        return prefix + "/detail";
+    }
 
     /**
-     * 修改保存论文 编辑
+     * 修改保存论文
+     * @param sciPaperA 论文实体，包含论文信息
+     * @return 保存结果
+     * @SQL 1. 执行updateSciPaperA更新论文数据
+     * 2. 执行deletePaperUserScoreByPaperId删除旧作者信息
+     * 3. 执行batchInsertPaperUserScore批量插入新作者分数数据
      */
     @RequiresPermissions("system:paper:edit")
-    @Log(title = "论文", businessType = BusinessType.UPDATE)
+    @Log(title = "论文修改", businessType = BusinessType.UPDATE)
     @PostMapping("/edit")
     @ResponseBody
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public AjaxResult editSave(SciPaperA sciPaperA) {
         try {
 //            if (!sciPaperA.getPaperCategory().equals("9")) {
@@ -607,9 +651,12 @@ public class SciPaperAController extends BaseController {
 
     /**
      * 删除论文
+     * @param ids 论文ID列表，逗号分隔
+     * @return 删除结果
+     * @SQL 执行deleteSciPaperAByIds批量删除论文数据
      */
     @RequiresPermissions("system:paper:remove")
-    @Log(title = "论文", businessType = BusinessType.DELETE)
+    @Log(title = "论文删除", businessType = BusinessType.DELETE)
     @PostMapping("/remove")
     @ResponseBody
     public AjaxResult remove(String ids) {
@@ -617,7 +664,15 @@ public class SciPaperAController extends BaseController {
     }
 
     /**
-     * 论文通过
+     * 论文审核通过
+     * @param id 论文ID
+     * @param urlFlag URL标识，用于区分审核类型
+     * @param paperCategory 论文类别
+     * @param paperRanking 论文排名
+     * @return 审核结果
+     * @SQL 1. 执行pytg更新论文状态
+     * 2. 执行insertSciPaperAr插入审核记录
+     * 3. 执行updateSciPaperArs更新论文积分（科研处审核时）
      */
     @RequiresPermissions(value = {"system:paper:xypy", "system:paper:process", "system:paper:kypy"}, logical = Logical.OR)
     @Log(title = "论文审核通过", businessType = BusinessType.UPDATE)
@@ -632,11 +687,14 @@ public class SciPaperAController extends BaseController {
     }
 
     /**
-     * 驳回+撤回
-     * @param id
-     * @param remark
-     * @param urlFlag
-     * @return
+     * 论文审核驳回或撤回
+     * @param id 论文ID
+     * @param remark 驳回或撤回原因
+     * @param urlFlag URL标识，用于区分操作类型
+     * @return 操作结果
+     * @SQL 1. 执行pybh更新论文状态
+     * 2. 执行insertSciPaperAr插入操作记录
+     * 3. 执行updateScoreByPaperId更新论文积分（科研处撤回时）
      */
     @RequiresPermissions(value = {"system:paper:xypy", "system:paper:process", "system:paper:kypy", "system:paper:xyrevoke", "system:paper:kyrevoke"}, logical = Logical.OR)
     @Log(title = "论文审核驳回", businessType = BusinessType.UPDATE)
@@ -651,6 +709,7 @@ public class SciPaperAController extends BaseController {
      * 查看驳回信息
      * @param arid 论文审核记录ID
      * @return 审核记录列表
+     * @SQL 执行selectSciPaperArList查询论文审核记录
      */
     @RequiresPermissions("system:apply:edit")
     @Log(title = "论文驳回信息查看", businessType = BusinessType.OTHER)
@@ -665,13 +724,15 @@ public class SciPaperAController extends BaseController {
 
     /**
      * 提交论文草稿
-     * 将论文状态设置为1，并添加提交记录
      * @param id 论文ID
      * @return 提交结果
+     * @SQL 1. 执行insertSciPaperAr插入草稿提交记录
+     * 2. 执行updateSciPaperAState更新论文状态为待审核
      */
     @Log(title = "论文草稿提交", businessType = BusinessType.UPDATE)
     @PostMapping("/tj/{id}")
     @ResponseBody
+    @Transactional(rollbackFor = Exception.class)
     public AjaxResult tj(@PathVariable("id") Integer id) {
         SciPaperAr sciPaperAr = new SciPaperAr();
         sciPaperAr.setAr_id(id);
@@ -686,6 +747,7 @@ public class SciPaperAController extends BaseController {
      * 查询论文名称（模糊查询）
      * @param query 查询关键词
      * @return 论文名称列表
+     * @SQL 执行selectAllPaperName模糊查询论文名称
      */
     @Log(title = "论文名称查询", businessType = BusinessType.OTHER)
     @PostMapping("/queryName/{query}")
@@ -697,8 +759,9 @@ public class SciPaperAController extends BaseController {
 
     /**
      * 实时计算论文科研分
-     * @param params 计算参数
-     * @return 科研分计算结果
+     * @param params 计算参数，包含paperCategory（论文类别）、authors（作者信息）、communicationAuthorId（通讯作者ID）
+     * @return 科研分计算结果，key为作者排名+用户ID，value为分数
+     * @SQL 执行selectSciPaperACfgPointList查询论文类别对应的分数配置
      */
     @Log(title = "论文科研分计算", businessType = BusinessType.OTHER)
     @PostMapping("/calculateScore")
