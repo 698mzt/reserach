@@ -17,6 +17,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="mingcheng"    column="mingcheng"    />
         <result property="leixing"    column="leixing"    />
         <result property="shoquanhao"    column="shoquanhao"    />
+        <result property="xueyuan"    column="xueyaun"    />
         <result property="huopishijain"    column="huopishijain"    />
         <result property="shifouyingyon"    column="shifouyingyon"    />
         <result property="hangyelianhe"    column="hangyelianhe"    />
@@ -47,9 +48,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 <!--    导出语句-->
     <select id="selectSciZhuanliruanzhuList" parameterType="SciZhuanliruanzhu" resultMap="SciZhuanliruanzhuResult">
         <include refid="selectSciZhuanliruanzhuVo"/>
-        where (state in (1,2,3,4,5,6,7)) or (state = 0 and s.user_id = #{uid})
+        where ((state in (1,2,3,4,5,6,7)) or (state = 0 and s.user_id = #{uid}))
         <if test="jiaoyanshi != null  and jiaoyanshi != ''">and  d.dept_name like concat('%', #{jiaoyanshi}, '%')</if>
         <if test="xingming != null  and xingming != ''">and  u.user_name like concat('%', #{xingming}, '%')</if>
+        <if test="xueyuan != null  and xueyuan != ''"> and p.dept_name like concat('%', #{xueyuan}, '%')</if>
         <if test="mingcheng != null  and mingcheng != ''"> and mingcheng like concat('%', #{mingcheng}, '%')</if>
         <if test="huopishijain != null "> and huopishijain = #{huopishijain}</if>
         <if test="fenlei != null  and fenlei != ''"> and fenlei = #{fenlei}</if>
@@ -117,7 +119,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectSciZhuanliruanzhuList2" parameterType="SciZhuanliruanzhu" resultMap="SciZhuanliruanzhuResult">
         <include refid="selectSciZhuanliruanzhuVo"/>
         where (s.user_id = #{uid} or (state in (1,2) and d.dept_id = #{deptId}))
-        <if test="xueyuan != null  and xueyuan != ''"> and xueyuan = #{xueyuan}</if>
+        <if test="xingming != null  and xingming != ''">and u.user_name like concat('%', #{xingming}, '%')</if>
         <if test="mingcheng != null  and mingcheng != ''"> and mingcheng like concat('%', #{mingcheng}, '%')</if>
         <if test="huopishijain != null "> and huopishijain = #{huopishijain}</if>
         <if test="fenlei != null  and fenlei != ''"> and fenlei = #{fenlei}</if>
@@ -166,7 +168,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where  s.user_id = #{uid} or state in (4,6)
         <if test="jiaoyanshi != null  and jiaoyanshi != ''">and  d.dept_name like concat('%', #{jiaoyanshi}, '%')</if>
         <if test="xingming != null  and xingming != ''">and  u.user_name like concat('%', #{xingming}, '%')</if>
-        <if test="xueyuan != null  and xueyuan != ''"> and xueyuan = #{xueyuan}</if>
+        <if test="xueyuan != null  and xueyuan != ''"> and p.dept_name = #{xueyuan}</if>
         <if test="mingcheng != null  and mingcheng != ''"> and mingcheng like concat('%', #{mingcheng}, '%')</if>
         <if test="huopishijain != null "> and huopishijain = #{huopishijain}</if>
         <if test="fenlei != null  and fenlei != ''"> and fenlei = #{fenlei}</if>
