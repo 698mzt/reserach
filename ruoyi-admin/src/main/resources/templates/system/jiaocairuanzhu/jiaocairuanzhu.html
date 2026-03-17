@@ -424,6 +424,44 @@
 <body class="gray-bg">
 <div class="container-div">
   <div class="row">
+    <div class="col-sm-12 search-collapse">
+      <form id="formId">
+        <div class="select-list">
+          <ul>
+            <!-- 学院字段 - 科研处和管理员可见 -->
+            <li th:if="${@permission.isAnyRoles('sci_tesearch,admin')}">
+              <label>学院：</label>
+              <select name="xueyuan" th:with="type=${@dict.getType('sys_xueyuan')}">
+                <option value="">所有</option>
+                <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
+              </select>
+            </li>
+            <!-- 专业字段 - 科研处、学院和管理员可见 -->
+            <li th:if="${@permission.isAnyRoles('sci_tesearch,dept_teacher,admin')}">
+              <label>专业：</label>
+              <select name="jiaoyanshi" th:with="type=${@dict.getType('sys_dept')}">
+                <option value="">所有</option>
+                <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
+              </select>
+            </li>
+            <!-- 第一作者字段 - 科研处、学院、教研室和管理员可见 -->
+            <li th:if="${@permission.isAnyRoles('sci_tesearch,dept_teacher,research,admin')}">
+              <label>第一作者：</label>
+              <input type="text" name="xingming"/>
+            </li>
+            <!-- 课题名称字段 - 所有角色可见 -->
+            <li>
+              <label>课题名称：</label>
+              <input type="text" name="mingcheng"/>
+            </li>
+            <li>
+              <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+              <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+            </li>
+          </ul>
+        </div>
+      </form>
+    </div>
 <!--    <div class="col-sm-12 search-collapse"-->
 <!--         shiro:hasAnyPermissions="system:Jiaocairuanzhu:hecha, system:Jiaocairuanzhu:chayue">-->
 <!--      <form id="formId">-->
@@ -613,13 +651,21 @@
       rowStyle: rowStyle0,
       modalName: "教材专著",
       queryParams: function(params) {
-        return {
+        var formData = $('#formId').serializeArray();
+        var queryParams = {
           pageNum: params.pageNumber,
           pageSize: params.pageSize,
           orderByColumn: params.sortName,
           isAsc: params.sortOrder,
           year: localStorage.getItem("year")
         };
+        
+        // 添加表单中的搜索字段
+        $.each(formData, function(index, field) {
+          queryParams[field.name] = field.value;
+        });
+        
+        return queryParams;
       },
       columns: [
         {
