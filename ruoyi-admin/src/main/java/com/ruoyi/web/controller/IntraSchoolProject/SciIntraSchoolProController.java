@@ -27,7 +27,7 @@ import static net.sf.jsqlparser.parser.feature.Feature.set;
 @RequestMapping("/IntraSchPro")
 public class SciIntraSchoolProController extends BaseController {
   private String prefix = "system/IntraSchPro";
-
+//
   @Autowired
   private ISciIntraSchProApplyService sciIntraSchProApplyService;
 
