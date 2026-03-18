@@ -3,8 +3,6 @@ package com.ruoyi.system.domain;
 import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
 
-import java.util.List;
-
 public class SciIntraSchoolPro extends BaseEntity {
     private static final long serialVersionUID = 1L;
 
@@ -23,29 +21,29 @@ public class SciIntraSchoolPro extends BaseEntity {
     /** 工号 */
     @Excel(name = "工号", sort = 3)
     private String loginName;
-    
+
     /** 行政职务 */
     @Excel(name = "行政职务", sort = 4)
     private String adminstrativeTitle;
-    
+
     /** 社会职称 */
     @Excel(name = "社会职称", sort = 5)
     private String socialTitle;
-    
+
     /** 校内职称 */
     @Excel(name = "校内职称", sort = 6)
     private String teaZhicheng;
-    
+
     /** 参与者用户ID（用于分组计算积分） */
     private Integer participantUserId;
-    
+
     /** 积分值 */
     private String changeValue;
-    
+
     /** 排名 */
     @Excel(name = "排名", sort = 14)
     private String ranking;
-    
+
     /** 积分总和（用于导出） */
     @Excel(name = "积分", sort = 15)
     private String totalScore;
@@ -74,7 +72,7 @@ public class SciIntraSchoolPro extends BaseEntity {
     public void setPb(String pb) {
         this.pb = pb;
     }
-    
+
     public String getLoginName() {
         return loginName;
     }
@@ -150,7 +148,7 @@ public class SciIntraSchoolPro extends BaseEntity {
     /** 申请人 */
     @Excel(name = "姓名", sort = 7)
     private String  userName;
-
+    /** 申请人ID */
     public String getUserName() {
         return userName;
     }
@@ -160,20 +158,20 @@ public class SciIntraSchoolPro extends BaseEntity {
     }
 
     private Integer userId;
-    /** 成果名称 */
-    @Excel(name = "成果名称", sort = 7)
+    /** 课题名称 */
+    @Excel(name = "成果转化名称", sort = 7)
     private String topName;
 
-    // 删除课题类型字段
-    // @Excel(name = "分类", sort = 13)
-    // private String topType;
+    /** 课题类型 */
+    @Excel(name = "分类", sort = 13)
+    private String topType;
 
-    /** 转化日期 */
-    @Excel(name = "转化日期", sort = 11)
+    /** 签订日期 */
+    @Excel(name = "开题时间", sort = 11)
     private String signingData;
 
-    /** 合同有效日期 - 不再使用 */
-    @Excel(name = "合同有效日期", sort = 12)
+    /** 合同有效日期 */
+    @Excel(name = "结项时间", sort = 12)
     private String validityDate;
 
     private String createtime;
@@ -200,8 +198,7 @@ public class SciIntraSchoolPro extends BaseEntity {
     //  @Excel(name = "第四负责人")
     private String fourthPersonId;
 
-    /** 动态添加的成员IDs - 用于存储第五及以后的负责人ID */
-    private List<String> members;
+
 
     /** 项目金额 */
     @Excel(name = "项目金额", sort = 10)
@@ -227,9 +224,9 @@ public class SciIntraSchoolPro extends BaseEntity {
     //判定登陆人的 专业/学院 是否和当前课题负责人的 专业/学院  是否相等
     private String deptNamekey;
 
-    //结项成果扫描件
+    //结项合同
     private String overContract;
-    //结项成果登记表
+    //结项备案表
     private String overFiling;
 
     //第一负责人获得积分  这几个字段没有用到
@@ -238,7 +235,7 @@ public class SciIntraSchoolPro extends BaseEntity {
     private String thirdPoints;
     private String forthPoints;
 
-  public String getFirstPoints() {
+    public String getFirstPoints() {
         return firstPoints;
     }
 
@@ -350,8 +347,6 @@ public class SciIntraSchoolPro extends BaseEntity {
         return topName;
     }
 
-    // 删除课题类型相关方法
-    /*
     public void setTopType(String topType)
     {
         this.topType = topType;
@@ -361,7 +356,6 @@ public class SciIntraSchoolPro extends BaseEntity {
     {
         return topType;
     }
-    */
 
 
 
@@ -427,19 +421,7 @@ public class SciIntraSchoolPro extends BaseEntity {
         return fourthPersonId;
     }
 
-    /**
-     * 获取动态添加的成员IDs
-     */
-    public List<String> getMembers() {
-        return members;
-    }
 
-    /**
-     * 设置动态添加的成员IDs
-     */
-    public void setMembers(List<String> members) {
-        this.members = members;
-    }
 
     public void setAmount(String amount)
     {
@@ -552,6 +534,7 @@ public class SciIntraSchoolPro extends BaseEntity {
                 ", userName='" + userName + '\'' +
                 ", userId=" + userId +
                 ", topName='" + topName + '\'' +
+                ", topType='" + topType + '\'' +
                 ", signingData='" + signingData + '\'' +
                 ", validityDate='" + validityDate + '\'' +
                 ", createtime='" + createtime + '\'' +

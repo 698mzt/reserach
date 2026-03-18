@@ -1,5 +1,6 @@
 package com.ruoyi.system.mapper;
 
+import com.ruoyi.system.domain.SciIntraSchoolPro;
 import com.ruoyi.system.domain.SciIntraSchoolScore;
 import com.ruoyi.system.domain.SciProjectScoreCfg;
 import org.apache.ibatis.annotations.Param;
@@ -8,6 +9,8 @@ import java.util.List;
 
 public interface SciIntraSchProScoreMapper {
 
+    // 获取积分
+    List<SciProjectScoreCfg> getUserScoreList(Integer amount);
 
     Integer getScoreById(@Param("id") Object id, @Param("uid")Long uid);
 
@@ -26,5 +29,5 @@ public interface SciIntraSchProScoreMapper {
      */
     Long getScoreByUId( @Param("uid")Long uid);
 
-  int update_SchPro_score_jt(@Param("sciIntraSch_Id")Integer sciIntraSch_Id, @Param("userid") int userid);
+    int update_SchPro_score_jt(@Param("sciIntraSch_Id")Integer sciIntraSch_Id, @Param("userid") int userid);
 }

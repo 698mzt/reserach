@@ -5,18 +5,6 @@
     <th:block th:include="include :: datetimepicker-css"/>
     <th:block th:include="include :: bootstrap-fileinput-css"/>
     <th:block th:include="include :: select2-css"/>
-    <style>
-        .score-display {
-            margin-top: 5px;
-            padding: 5px 10px;
-            background-color: #f5f5f5;
-            border-radius: 4px;
-            margin-bottom: 15px;
-        }
-        .score-item {
-            margin: 3px 0;
-        }
-    </style>
 </head>
 <body class="white-bg">
 <div class="wrapper wrapper-content animated fadeInRight ibox-content">
@@ -40,10 +28,21 @@
                 </div>
             </div>
 
-
             <div class="col-xs-6">
                 <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">成果名称：</label>
+                    <label class="col-sm-4 control-label is-required">课题类型：</label>
+                    <div class="col-sm-8">
+                        <select name="topType" class="form-control" th:with="type=${@dict.getType('sci_top_type')}"
+                                required>
+                            <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"
+                                    th:field="*{topType}"></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">课题名称：</label>
                     <div class="col-sm-8">
                         <input name="topName" th:field="*{topName}" class="form-control" type="text" required>
                     </div>
@@ -53,15 +52,15 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">项目金额：</label>
                     <div class="col-sm-8">
-                        <input name="amount" th:field="*{amount}" class="form-control" type="text" required oninput="updateScoreDisplay()">
-<!--                        <div class="input-group ">-->
-<!--                            <input name="amount" th:field="*{amount}" class="form-control" type="number" required>-->
+                        <input name="amount" th:field="*{amount}" class="form-control" type="text" required>
+                        <!--                        <div class="input-group ">-->
+                        <!--                            <input name="amount" th:field="*{amount}" class="form-control" type="number" required>-->
 
-<!--                                <span class="input-group-addon span1" >-->
-<!--                                    <a href="#" title="上传到账金额"  data-toggle="modal" data-target="#myModal" ><i class="fa fa-plus-circle" ></i>到账金额</a>-->
-<!--                                </span>-->
+                        <!--                                <span class="input-group-addon span1" >-->
+                        <!--                                    <a href="#" title="上传到账金额"  data-toggle="modal" data-target="#myModal" ><i class="fa fa-plus-circle" ></i>到账金额</a>-->
+                        <!--                                </span>-->
 
-<!--                        </div>-->
+                        <!--                        </div>-->
                     </div>
                 </div>
             </div>
@@ -86,18 +85,33 @@
 
             <div class="col-xs-6">
                 <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">转化日期：</label>
+                    <label class="col-sm-4 control-label is-required">申请日期：</label>
                     <div class="col-sm-8">
                         <div class="input-group date">
                             <input name="signingData" autocomplete="off" th:field="*{signingData}"
                                    th:value="${#dates.format(signingData, 'yyyy-MM-dd')}" class="form-control"
                                    placeholder="yyyy-MM-dd" type="text" required>
-                            <span class="input-group-addon" style="background-color: #f5f5f5; border-color: #ddd;"><i class="fa fa-calendar"></i></span>
+                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
                         </div>
                     </div>
                 </div>
             </div>
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">结束日期：</label>
+                    <div class="col-sm-8">
+                        <div class="input-group date">
+                            <input autocomplete="off" name="validityDate" th:field="*{validityDate}"
+                                   th:value="${#dates.format(validityDate, 'yyyy-MM-dd - yyyy-MM-dd')}"
+                                   class="form-control" id="laydate-demo-4" placeholder="yyyy-MM-dd - yyyy-MM-dd"
+                                   type="text" required>
+                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                            <!--                            <input  autocomplete="off" name="validityDatee" class="form-control" placeholder="待申请结项时填写" type="text" readonly>-->
 
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div class="col-xs-6">
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">第一负责人：</label>
@@ -116,7 +130,7 @@
                     <label class="col-sm-4 control-label is-required">第二负责人：</label>
                     <div class="col-sm-8">
                         <!--                        <input name="secondPersonTask" th:field="*{secondPersonTask}" class="form-control" type="text" required>-->
-                        <select name="secondPersonId" class="form-control m-b" onchange="updateScoreDisplay()">
+                        <select name="secondPersonId" class="form-control m-b">
                             <option value="">--其他--</option>
 
                             <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}"
@@ -131,7 +145,7 @@
                     <label class="col-sm-4 control-label is-required">第三负责人：</label>
                     <div class="col-sm-8">
                         <!--                        <input name="thirdPersonId" th:field="*{thirdPersonId}" class="form-control" type="text" required>-->
-                        <select name="thirdPersonId" class="form-control m-b" onchange="updateScoreDisplay()">
+                        <select name="thirdPersonId" class="form-control m-b">
                             <option value="">--其他--</option>
                             <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}"
                                     th:selected="${ #strings.toString(user.userId) == sciIntraSchoolPro.thirdPersonId}"></option>
@@ -145,7 +159,7 @@
                     <label class="col-sm-4 control-label is-required">第四负责人：</label>
                     <div class="col-sm-8">
                         <!--                        <input name="fourthPersonId" th:field="*{fourthPersonId}" class="form-control" type="text" required>-->
-                        <select name="fourthPersonId" class="form-control m-b" onchange="updateScoreDisplay()">
+                        <select name="fourthPersonId" class="form-control m-b">
                             <option value="">其他</option>
                             <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}"
                                     th:selected="${ #strings.toString(user.userId) == sciIntraSchoolPro.fourthPersonId}"></option>
@@ -154,26 +168,10 @@
                 </div>
             </div>
 
-            <!-- 科研分显示区域 -->
-            <div class="col-xs-12">
-                <div class="form-group">
-                    <label class="col-sm-2 control-label">科研分分配：</label>
-                    <div class="col-sm-10">
-                        <div class="score-display">
-                            <div class="score-item">
-                                <strong>科研分分配规则：</strong>根据项目金额，前四个负责人可获得相应科研分，后续添加成员不参与科研分分配。
-                            </div>
-                            <div class="score-item">
-                                <span id="score-info">项目金额未填写，科研分待计算</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
             <div class="col-xs-6">
                 <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">转化合同：</label>
+                    <label class="col-sm-4 control-label is-required">合同：</label>
                     <div class="col-sm-8">
                         <input type="hidden" name="contract" th:field="*{contract}">
                         <div class="file-loading">
@@ -184,22 +182,11 @@
             </div>
             <div class="col-xs-6">
                 <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">成果登记表：</label>
+                    <label class="col-sm-4 control-label is-required">备案表：</label>
                     <div class="col-sm-8">
                         <input type="hidden" name="filing" th:field="*{filing}">
                         <div class="file-loading">
                             <input class="form-control file-upload2" id="filing" name="file" type="file">
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xs-6">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">成果扫描件：</label>
-                    <div class="col-sm-8">
-                        <input type="hidden" name="overContract" th:field="*{overContract}">
-                        <div class="file-loading">
-                            <input class="form-control file-upload3" id="overContract" name="file" type="file">
                         </div>
                     </div>
                 </div>
@@ -309,86 +296,17 @@
                 }
                 //
                 // {
-                    field: 'status',
-                    title: '批阅状态',
-                    align: 'center',
-                    formatter: function(value, row, index) {
-                        return $.table.selectDictLabel(datas, value);
-                    }
-                //}
+                //     field: 'status',
+                //     title: '批阅状态',
+                //     align: 'center',
+                //     formatter: function(value, row, index) {
+                //         return $.table.selectDictLabel(datas, value);
+                //     }
+                // }
             ]
         };
         $.table.init(options);
-        
-        // 页面加载完成后更新分数显示
-        updateScoreDisplay();
     });
-    
-    // 根据项目金额计算科研分
-    function updateScoreDisplay() {
-        var amountStr = $("input[name='amount']").val().trim();
-        if (!amountStr) {
-            $("#score-info").text("项目金额未填写，科研分待计算");
-            return;
-        }
-        
-        var amount = parseFloat(amountStr);
-        if (isNaN(amount) || amount < 0) {
-            $("#score-info").text("项目金额格式错误");
-            return;
-        }
-        
-        // 根据金额范围计算科研分
-        var firstScore, secondScore, thirdScore, fourthScore;
-        
-        if (amount >= 20 && amount <= 50) {
-            // 经费到款20-50万元：第一排名：1540分，第二排名：700分，第三排名：280分，第四排名：140分
-            firstScore = 1540;
-            secondScore = 700;
-            thirdScore = 280;
-            fourthScore = 140;
-        } else if (amount >= 5 && amount < 10) {
-            // 经费到款5-10万元：第一排名：440分，第二排名：200分，第三排名：80分，第四排名：40分
-            firstScore = 440;
-            secondScore = 200;
-            thirdScore = 80;
-            fourthScore = 40;
-        } else if (amount >= 10 && amount < 20) {
-            // 对于10-20万之间的经费，按比例计算积分
-            var ratio = (20 - amount) / 10; // 金额越大，系数越小
-            firstScore = Math.round(440 + (1540 - 440) * (1 - ratio)); // 在440-1540之间插值
-            secondScore = Math.round(200 + (700 - 200) * (1 - ratio)); // 在200-700之间插值
-            thirdScore = Math.round(80 + (280 - 80) * (1 - ratio)); // 在80-280之间插值
-            fourthScore = Math.round(40 + (140 - 40) * (1 - ratio)); // 在40-140之间插值
-        } else if (amount > 50) {
-            // 对于超过50万的情况，使用最高积分
-            firstScore = 1540;
-            secondScore = 700;
-            thirdScore = 280;
-            fourthScore = 140;
-        } else if (amount >= 0.5 && amount < 5) {
-            // 对于0.5-5万之间的经费，按比例计算积分
-            firstScore = Math.round(440 * (amount / 5)); // 在0-440之间按比例计算
-            secondScore = Math.round(200 * (amount / 5)); // 在0-200之间按比例计算
-            thirdScore = Math.round(80 * (amount / 5)); // 在0-80之间按比例计算
-            fourthScore = Math.round(40 * (amount / 5)); // 在0-40之间按比例计算
-        } else {
-            // 低于0.5万或无效金额，返回0分
-            firstScore = 0;
-            secondScore = 0;
-            thirdScore = 0;
-            fourthScore = 0;
-        }
-        
-        $("#score-info").html(
-            "预计科研分分配：<br>" +
-            "第一负责人：" + firstScore + " 分，" +
-            "第二负责人：" + secondScore + " 分，" +
-            "第三负责人：" + thirdScore + " 分，" +
-            "第四负责人：" + fourthScore + " 分<br>" +
-            "<strong>注意：</strong>仅前四个负责人可获得科研分，后续添加成员不参与科研分分配。"
-        );
-    }
 </script>
 <script th:inline="javascript">
     var prefix = ctx + "IntraSchPro";
@@ -399,63 +317,6 @@
     function submitHandler() {
 
         if ($.validate.form()) {
-            // 编辑验证逻辑
-            // 1. 负责人不能相同
-            var first = $("select[name='firstPersonId']").val();
-            var second = $("select[name='secondPersonId']").val();
-            var third = $("select[name='thirdPersonId']").val();
-            var fourth = $("select[name='fourthPersonId']").val();
-
-            var fzrArray = [first, second, third, fourth].filter(item => item !== "");
-            var uniquefzr = [...new Set(fzrArray)];
-            if (uniquefzr.length < fzrArray.length) {
-                $.modal.alertWarning("负责人不能重复");
-                return;
-            }
-
-            // 2. 金额不能为负数
-            var amountStr = $("input[name='amount']").val().trim();
-            var amount = parseFloat($("input[name='amount']").val());
-            if (isNaN(amount) || amount < 0) {
-                $.modal.alertWarning("项目金额必须为非负数");
-                return;
-            }
-            // 检查小数点前后位数
-            if (amountStr.includes('.')) {
-                var parts = amountStr.split('.');
-                // 检查小数点前后的位数
-                if (parts[0].length > 4 || parts[1].length > 4 || parts[0].length <=0 || parts[1].length <=0) {
-                    $.modal.alertWarning("金额格式出错");
-                    return;
-                }
-            } else {
-                // 没有小数点的情况
-                if (amountStr.length > 4) {
-                    $.modal.alertWarning("金额格式出错");
-                    return;
-                }
-            }
-
-            // 3. 甲方乙方不能相同
-            var pa = $("input[name='pa']").val().trim();
-            var pb = $("input[name='pb']").val().trim();
-            if (pa === pb) {
-                $.modal.alertWarning("甲方和乙方不能相同");
-                return;
-            }
-
-            // 4. 文件上传验证
-            if ($("input[name='contract']").val() == "") {
-                $.modal.alertWarning("请上传转化合同");
-                return;
-            } else if ($("input[name='filing']").val() == "") {
-                $.modal.alertWarning("请上传成果登记表");
-                return;
-            } else if ($("input[name='overContract']").val() == "") {
-                $.modal.alertWarning("请上传成果扫描件");
-                return;
-            }
-
             $.operate.saveTab(prefix + "/sc_edit", $('#form-apply-edit').serialize());
         }
 
@@ -480,7 +341,7 @@
         slugCallback: function (filename) {
             if ($("input[name='topName']").val() === "") {
                 $(".file-upload1").fileinput('clear');
-                $.modal.alertError("请先输入成果名称");
+                $.modal.alertError("请先输入课题名称");
                 return false;
             }
             // 自定义文件名生成规则
@@ -512,13 +373,13 @@
         slugCallback: function (filename) {
             if ($("input[name='topName']").val() === "") {
                 $(".file-uploadb").fileinput('clear');
-                $.modal.alertError("请先输入成果名称");
+                $.modal.alertError("请先输入课题名称");
                 return false;
             }
             // 自定义文件名生成规则
             fileExtension = filename.split('.').pop();
             const year = new Date().getFullYear();
-            const newName = year + "-" + $("input[name='topName']").val() + "-" + "成果登记表" + "." + fileExtension;
+            const newName = year + "-" + $("input[name='topName']").val() + "-" + "备案表" + "." + fileExtension;
             return newName;
         },
     }).on('fileuploaded', function (event, data, previewId, index) {
@@ -529,39 +390,7 @@
         // 批量选择文件后立即上传
         $(this).fileinput('upload');
     }).on('fileselected', function(event) {
-        // 单个文件选择后立即上传
-        $(this).fileinput('upload');
-    })
-    
-    $(".file-upload3").fileinput({
-        //prefix+"/upload",
-        uploadUrl: ctx + 'common/upload/cgzh',
-        initialPreviewAsData: true,
-        maxFileCount: 1,
-        maxFileSize: 51200,
-        autoReplace: true,
-        allowedFileExtensions: ["pdf"],  //指定上传文件类型
-        slugCallback: function (filename) {
-            if ($("input[name='topName']").val() === "") {
-                $(".file-upload3").fileinput('clear');
-                $.modal.alertError("请先输入成果名称");
-                return false;
-            }
-            // 自定义文件名生成规则
-            fileExtension = filename.split('.').pop();
-            const year = new Date().getFullYear();
-            const newName = year + "-" + $("input[name='topName']").val() + "-" + "成果扫描件" + "." + fileExtension;
-            return newName;
-        },
-    }).on('fileuploaded', function (event, data, previewId, index) {
-        $("input[name='" + event.currentTarget.id + "']").val(data.response.url)
-    }).on('fileremoved', function (event, id, index) {
-        $("input[name='" + event.currentTarget.id + "']").val('')
-    }).on('filebatchselected', function(event) {
-        // 批量选择文件后立即上传
-        $(this).fileinput('upload');
-    }).on('fileselected', function(event) {
-        // 单个文件选择后立即上传
+        // 单个文件选择 立即上传
         $(this).fileinput('upload');
     })
 </script>
