@@ -56,25 +56,25 @@ public class SciHorizontalApplyVerticalController extends BaseController {
     @Autowired
     private SciProjectScoreCfgMapper sciProjectScoreCfgMapper;
 
+
+    // 计算纵向课题预期积分
+
     /**
      * 计算纵向课题预期积分
+     * 功能：根据课题类型查询积分配置，计算预期科研分
+     * SQL：SELECT * FROM sci_Vertical_score_cfg WHERE funds_type = ?
      */
     @PostMapping("/calculateScore")
     @ResponseBody
+    @Log(title = "积分计算", businessType = BusinessType.OTHER)
     public AjaxResult calculateScore(@RequestParam(required = false) String topType,
                                      @RequestParam(required = false) String subjectSource,
                                      @RequestParam(required = false) Double amount) {
         try {
-            // 打印日志，方便调试
-            System.out.println("calculateScore called with topType: " + topType + ", subjectSource: " + subjectSource + ", amount: " + amount);
-            
             // 直接使用selectVerticalScoreCfgList方法查询纵向课题积分配置
             SciProjectScoreCfg scoreCfg = new SciProjectScoreCfg();
             scoreCfg.setFundsType(topType); // 课题类型作为经费类型
             List<SciProjectScoreCfg> scoreCfgs = sciProjectScoreCfgMapper.selectVerticalScoreCfgList(scoreCfg);
-            
-            // 打印查询结果数量
-            System.out.println("selectVerticalScoreCfgList returned " + (scoreCfgs != null ? scoreCfgs.size() : 0) + " records");
             
             // 如果没有找到配置，返回默认积分
             if (scoreCfgs == null || scoreCfgs.isEmpty()) {
@@ -84,7 +84,6 @@ public class SciHorizontalApplyVerticalController extends BaseController {
             // 这里简化处理，实际应该根据金额范围和配置计算积分
             // 假设第一个配置为默认配置（第1负责人）
             SciProjectScoreCfg cfg = scoreCfgs.get(0);
-            System.out.println("First config: id=" + cfg.getId() + ", userOrder=" + cfg.getUserOrder() + ", totalScore=" + cfg.getTotalScore());
             
             Double expectedScore = 0.0;
             
@@ -93,21 +92,15 @@ public class SciHorizontalApplyVerticalController extends BaseController {
                 try {
                     expectedScore = Double.parseDouble(cfg.getTotalScore());
                 } catch (NumberFormatException e) {
-                    System.out.println("Failed to parse totalScore: " + cfg.getTotalScore());
                     expectedScore = 0.0;
                 }
-            } else {
-                System.out.println("totalScore is null");
             }
-            
-            System.out.println("Calculated expectedScore: " + expectedScore);
             
             // 可以根据金额、课题来源等进一步调整积分计算逻辑
             // 这里简化处理，直接返回配置的总分
             
             return AjaxResult.success(expectedScore.intValue());
         } catch (Exception e) {
-            e.printStackTrace();
             return AjaxResult.error("积分计算失败: " + e.getMessage());
         }
     }
@@ -125,6 +118,7 @@ public class SciHorizontalApplyVerticalController extends BaseController {
 
 //    访问的首页
     @RequiresPermissions("system:apply_vertical:view")
+    @Log(title = "访问纵向课题首页", businessType = BusinessType.OTHER)
     @GetMapping()
     public String apply()
     {
@@ -133,8 +127,11 @@ public class SciHorizontalApplyVerticalController extends BaseController {
 
     /**
      * 查询纵向课题列表
+     * 功能：根据角色和表格ID查询纵向课题列表
+     * SQL：根据角色不同，执行不同的查询语句
      */
     @RequiresPermissions("system:apply_vertical:list")
+    @Log(title = "查询纵向课题列表", businessType = BusinessType.OTHER)
     @PostMapping("/list/{tableId}")
     @ResponseBody
     public TableDataInfo list(@PathVariable("tableId") String tableId,String year ,SciHorizontalApplyVertical sciHorizontalApplyVertical)
@@ -339,8 +336,11 @@ public class SciHorizontalApplyVerticalController extends BaseController {
 
     /**
      * 新增立项申请课题
+     * 功能：跳转到新增纵向课题立项申请页面
+     * SQL：SELECT * FROM sys_user WHERE dept_id = ?
      */
     @RequiresPermissions("system:apply_vertical:add")
+    @Log(title = "跳转到新增纵向课题页面", businessType = BusinessType.OTHER)
     @GetMapping("/add")
     public String add( ModelMap mmap)
     {
@@ -367,6 +367,10 @@ public class SciHorizontalApplyVerticalController extends BaseController {
     }
     /**
      * 保存新增立项申请
+     * 功能：保存纵向课题立项申请信息，包括成员信息
+     * SQL：INSERT INTO sci_horizontal_apply_vertical
+     * SQL：INSERT INTO sci_persion_vertical
+     * SQL：INSERT INTO sci_horizontal_piyue
      */
     @RequiresPermissions("system:apply_vertical:add")
     @Log(title = "立项申请", businessType = BusinessType.INSERT)
@@ -407,9 +411,11 @@ public class SciHorizontalApplyVerticalController extends BaseController {
 
     /**
      * 提交申请进行审批
+     * 功能：提交纵向课题申请进行审批
+     * SQL：UPDATE sci_horizontal_apply_vertical SET state = ?, new_sql = ? WHERE id = ?
      */
     @RequiresPermissions("system:apply:add")
-    @Log(title = "申请横向课题", businessType = BusinessType.INSERT)
+    @Log(title = "提交纵向课题申请", businessType = BusinessType.UPDATE)
     @PostMapping("/push/{id}")
     @ResponseBody
     @Transactional
@@ -429,6 +435,7 @@ public class SciHorizontalApplyVerticalController extends BaseController {
      * 结项
      */
     @RequiresPermissions("system:apply_vertical:add")
+    @Log(title = "跳转到纵向课题结项页面", businessType = BusinessType.OTHER)
     @GetMapping("/overadd")
     public String overadd( Integer id, ModelMap mmap)
     {
@@ -467,8 +474,13 @@ public class SciHorizontalApplyVerticalController extends BaseController {
 
     /**
      * 修改申请
+     * 功能：跳转到修改纵向课题申请页面
+     * SQL：SELECT * FROM sci_horizontal_apply_vertical WHERE id = ?
+     * SQL：SELECT * FROM sys_user
+     * SQL：SELECT * FROM sci_persion_vertical WHERE verticalid = ?
      */
     @RequiresPermissions("system:apply_vertical:edit")
+    @Log(title = "跳转到修改纵向课题页面", businessType = BusinessType.OTHER)
     @GetMapping("/edit/{id}")
     public String edit(@PathVariable("id") Integer id, ModelMap mmap)
     {
@@ -494,7 +506,12 @@ public class SciHorizontalApplyVerticalController extends BaseController {
     }
 
     /**
-     *保存修改申请
+     * 保存修改申请
+     * 功能：保存修改后的纵向课题申请信息，包括成员信息
+     * SQL：UPDATE sci_horizontal_apply_vertical
+     * SQL：DELETE FROM sci_persion_vertical WHERE verticalid = ?
+     * SQL：INSERT INTO sci_persion_vertical
+     * SQL：INSERT INTO sci_horizontal_piyue
      */
     @RequiresPermissions("system:apply_vertical:edit")
     @Log(title = "更新立项申请", businessType = BusinessType.UPDATE)
@@ -537,6 +554,7 @@ public class SciHorizontalApplyVerticalController extends BaseController {
      * 修改结项
      */
     @RequiresPermissions("system:apply_vertical:edit")
+    @Log(title = "跳转到修改纵向课题结项页面", businessType = BusinessType.OTHER)
     @GetMapping("/overedit/{id}")
     public String overedit(@PathVariable("id") Integer id, ModelMap mmap)
     {
@@ -612,8 +630,15 @@ public class SciHorizontalApplyVerticalController extends BaseController {
     }
 
 
-    /**  查询要审批的纵向课题*/
+    /**
+     * 查询要审批的纵向课题
+     * 功能：跳转到纵向课题审批页面
+     * SQL：SELECT * FROM sci_horizontal_apply_vertical WHERE id = ?
+     * SQL：SELECT * FROM sys_user
+     * SQL：SELECT * FROM sci_persion_vertical WHERE verticalid = ?
+     */
     @RequiresPermissions("system:apply_vertical:info")
+    @Log(title = "跳转到纵向课题审批页面", businessType = BusinessType.OTHER)
     @GetMapping("/detail/{id}/{urlFlag}")
     public String detail(@PathVariable("id") Integer id,@PathVariable("urlFlag") String urlFlag, ModelMap mmap)
     {
@@ -638,6 +663,15 @@ public class SciHorizontalApplyVerticalController extends BaseController {
         mmap.put("extraMembers", extraMembers);
         return prefix + "/detail";
     }
+    /**
+     * 纵向课题申请通过
+     * 功能：审批通过纵向课题申请，计算并分配科研分
+     * SQL：SELECT * FROM sci_Vertical_score_cfg WHERE funds_type = ?
+     * SQL：DELETE FROM sci_user_score WHERE vertical_id = ? AND change_status = ?
+     * SQL：INSERT INTO sci_user_score
+     * SQL：UPDATE sci_horizontal_apply_vertical SET state = ?, subject_source = ? WHERE id = ?
+     * SQL：INSERT INTO sci_horizontal_piyue
+     */
     @RequiresPermissions(value={"system:apply_vertical:JYS","system:apply_vertical:KYC","system:apply_vertical:Dept"},logical= Logical.OR)
     @Log(title = "纵向课题申请通过", businessType = BusinessType.UPDATE)
     @PostMapping( "/applyPass")
@@ -687,6 +721,7 @@ public class SciHorizontalApplyVerticalController extends BaseController {
 
     //  结项批阅
     @RequiresPermissions("system:apply_vertical:info")
+    @Log(title = "跳转到纵向课题结项审批页面", businessType = BusinessType.OTHER)
     @GetMapping("/overdetail/{id}/{urlFlag}")
     public String overdetail(@PathVariable("id") Integer id,@PathVariable("urlFlag") String urlFlag, ModelMap mmap)
     {
@@ -762,6 +797,7 @@ public class SciHorizontalApplyVerticalController extends BaseController {
 
     /** 查看 */
     @RequiresPermissions("system:apply_vertical:info")
+    @Log(title = "跳转到纵向课题查看页面", businessType = BusinessType.OTHER)
     @GetMapping("/overView/{id}/{urlFlag}")
     public String overView(@PathVariable("id") Integer id, @PathVariable("urlFlag") String urlFlag,ModelMap mmap)
     {
@@ -791,6 +827,7 @@ public class SciHorizontalApplyVerticalController extends BaseController {
 
 
 
+    @Log(title = "查询纵向课题批阅意见", businessType = BusinessType.OTHER)
     @PostMapping("/abhyy/{kid}")
     @ResponseBody
     public TableDataInfo abhyy(@PathVariable("kid")Integer kid)
@@ -805,6 +842,7 @@ public class SciHorizontalApplyVerticalController extends BaseController {
      * 撤回操作
      */
     @RequiresPermissions(value={"system:apply_vertical:JYS","system:apply_vertical:KYC","system:apply_vertical:Dept"},logical= Logical.OR)
+    @Log(title = "跳转到纵向课题撤回页面", businessType = BusinessType.OTHER)
     @GetMapping("/recall/{id}")
     public String recall(@PathVariable("id") Integer id, ModelMap mmap)
     {
