@@ -465,6 +465,9 @@
         <if test="userId != null and userId != ''">
             and s.user_id = #{userId}
         </if>
+        <if test="teacherName != null and teacherName != '' and teacherName != 'null'">
+            and s.first_person_id = #{teacherName}
+        </if>
         <if test="startTime != null and startTime != ''">
             and s.createtime >= #{startTime}
         </if>
