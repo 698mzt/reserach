@@ -1,9 +1,6 @@
-<!--校内横向课题管理的页面，包含已完结，立项申请，结项申请的三个tab页面-->
 <!DOCTYPE html>
-<html lang="zh" xmlns:th="http://www.thymeleaf.org  "
-      xmlns:shiro="https://github.com/theborakompanioni/thymeleaf-extras-shiro  "
-      xmlns:padding="http://www.w3.org/1999/xhtml  ">
-
+<html lang="zh" xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="https://github.com/theborakompanioni/thymeleaf-extras-shiro">
 <head>
     <th:block th:include="include :: header('成果转化列表')"/>
 </head>
@@ -37,6 +34,12 @@
         color: #ff0000;
         cursor: pointer;
         font-size: inherit;
+    }
+
+    .action-item {
+        display: inline-block;
+        margin-right: 10px;
+        margin-bottom: 4px;
     }
 
     .modal-right {
@@ -175,11 +178,6 @@
         font-weight: bold;
     }
 
-    .buttons {
-        margin-top: 20px;
-        text-align: center;
-    }
-
     button {
         background: #2196F3;
         color: white;
@@ -205,7 +203,6 @@
         background: #757575;
     }
 
-    /* 新增的流程记录样式 */
     .timeline-title {
         font-weight: bold;
         font-size: 14px;
@@ -292,7 +289,6 @@
         transition: all 0.4s ease;
     }
 
-    /* 悬停效果 */
     .track-list li:hover {
         color: #333;
     }
@@ -305,108 +301,59 @@
     .track-list li:hover .time {
         color: #666;
     }
-
-    /* 新增审核状态样式 */
-    .approve-status {
-        margin-top: 10px;
-        text-align: center;
-    }
-
-    .approve-status label {
-        margin: 0 10px;
-        cursor: pointer;
-    }
-
-    .approve-status input {
-        margin-right: 5px;
-    }
 </style>
 <body class="gray-bg">
 <div class="wrapper wrapper-content animated fadeIn">
     <div class="row">
-        <div class="tabs-container">
-            <ul class="nav nav-tabs">
-                <li class="active"><a data-toggle="tab" href="#tab-0" onclick="$.table.refresh('bootstrap-table0')"
-                                      aria-expanded="true">已完结</a>
-                </li>
-                <li class=""><a data-toggle="tab" href="#tab-1" onclick="$.table.refresh('bootstrap-table1')"
-                                aria-expanded="false"> 立项申请</a>
-                </li>
-                <li class=""><a data-toggle="tab" href="#tab-2" onclick="$.table.refresh('bootstrap-table2')"
-                                aria-expanded="false">结项申请</a>
-                </li>
-            </ul>
-            <div class="tab-content">
-                <!-- 已完结 Tab -->
-                <div id="tab-0" class="tab-pane active">
-                    <div class="panel-body">
-                        <div class="container-div">
-                            <div class="row">
-                                <div id="toolbar0" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                                    <div class="btn-group-sm" role="group" style="display: inline-flex; gap: 4px;">
-                                        <a class="btn btn-primary" onclick="batchDownload('intraSch')">
-                                            <i class="fa fa-download"></i> 批量下载
-                                        </a>
-                                    </div>
-                                    <div style="display: flex; align-items: center; gap: 15px; padding: 6px 36px; border-radius: 4px;">
-                                        <th:block th:replace="include :: status-circles"/>
-                                    </div>
-                                </div>
-                                <div class="col-sm-12 select-table table-striped">
-                                    <table id="bootstrap-table0"></table>
-                                </div>
-                            </div>
+        <div class="container-div">
+            <div class="row">
+                <div class="col-sm-12 search-collapse">
+                    <form id="formId">
+                        <div class="select-list">
+                            <ul>
+                                <li th:if="${@permission.isAnyRoles('sci_tesearch,admin')}">
+                                    <label>学院：</label>
+                                    <input type="text" name="yname" placeholder="请输入学院名称"/>
+                                </li>
+                                <li th:if="${@permission.isAnyRoles('sci_tesearch,dept_teacher,admin')}">
+                                    <label>专业：</label>
+                                    <input type="text" name="dname" placeholder="请输入专业名称"/>
+                                </li>
+                                <li th:if="${@permission.isAnyRoles('sci_tesearch,dept_teacher,research,admin')}">
+                                    <label>申请人：</label>
+                                    <input type="text" name="userName" placeholder="请输入申请人姓名"/>
+                                </li>
+                                <li>
+                                    <label>成果名称：</label>
+                                    <input type="text" name="topName" placeholder="请输入成果转化名称"/>
+                                </li>
+                                <li>
+                                    <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search('formId', 'bootstrap-table')">
+                                        <i class="fa fa-search"></i>&nbsp;搜索
+                                    </a>
+                                    <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset('formId', 'bootstrap-table')">
+                                        <i class="fa fa-refresh"></i>&nbsp;重置
+                                    </a>
+                                </li>
+                            </ul>
                         </div>
+                    </form>
+                </div>
+                <div id="toolbar" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                    <div class="btn-group-sm" role="group" style="display: inline-flex; gap: 4px;">
+                        <a class="btn btn-success" onclick="$.operate.addTab()" shiro:hasPermission="system:apply:add">
+                            <i class="fa fa-plus"></i> 添加
+                        </a>
+                        <a class="btn btn-primary" onclick="batchDownload('intraSch')">
+                            <i class="fa fa-download"></i> 批量下载
+                        </a>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 15px; padding: 6px 36px; border-radius: 4px;">
+                        <th:block th:replace="include :: status-circles"/>
                     </div>
                 </div>
-
-                <!-- 立项申请 Tab -->
-                <div id="tab-1" class="tab-pane ">
-                    <div class="panel-body">
-                        <div class="container-div">
-                            <div class="row">
-                                <div id="toolbar1" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                                    <div class="btn-group-sm" role="group" style="display: inline-flex; gap: 4px;">
-                                        <a class="btn btn-success" onclick="$.operate.addTab()" shiro:hasPermission="system:apply:add">
-                                            <i class="fa fa-plus"></i> 添加
-                                        </a>
-                                        <a class="btn btn-primary" onclick="batchDownload('intraSch')">
-                                            <i class="fa fa-download"></i> 批量下载
-                                        </a>
-                                    </div>
-                                    <div style="display: flex; align-items: center; gap: 15px; padding: 6px 36px; border-radius: 4px;">
-                                        <th:block th:replace="include :: status-circles"/>
-                                    </div>
-                                </div>
-                                <div class="col-sm-12 select-table table-striped">
-                                    <table id="bootstrap-table1"></table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 结项申请 Tab -->
-                <div id="tab-2" class="tab-pane">
-                    <div class="panel-body">
-                        <div class="container-div">
-                            <div class="row">
-                                <div id="toolbar2" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                                    <div class="btn-group-sm" role="group" style="display: inline-flex; gap: 4px;">
-                                        <a class="btn btn-primary" onclick="batchDownload('intraSch')">
-                                            <i class="fa fa-download"></i> 批量下载
-                                        </a>
-                                    </div>
-                                    <div style="display: flex; align-items: center; gap: 15px; padding: 6px 36px; border-radius: 4px;">
-                                        <th:block th:replace="include :: status-circles"/>
-                                    </div>
-                                </div>
-                                <div class="col-sm-12 select-table table-striped">
-                                    <table id="bootstrap-table2"></table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <div class="col-sm-12 select-table table-striped">
+                    <table id="bootstrap-table"></table>
                 </div>
             </div>
         </div>
@@ -467,542 +414,259 @@
 
 <th:block th:include="include :: footer"/>
 <script th:inline="javascript">
-    var JYPY = [[${@permission.hasPermi('system:intraSch:JYPY')}]];
-    var XYPY = [[${@permission.hasPermi('system:intraSch:XYPY')}]];
-    var KYPY = [[${@permission.hasPermi('system:intraSch:KYPY')}]];
-
-    var JYCH = [[${@permission.hasPermi('system:intraSch:JYCH')}]];
-    var XYCH = [[${@permission.hasPermi('system:intraSch:XYCH')}]];
-    var KYCH = [[${@permission.hasPermi('system:intraSch:KYCH')}]];
-    var select = [[${@permission.hasPermi('system:intraSch:select')}]];
-
     var datas = [[${@dict.getType('sys_intraschpro_tasks')}]];
     var prefix = ctx + "IntraSchPro";
 
-    // 动态生成URL
-    function getUrl(tableId) {
+    function getUrl() {
         var year = localStorage.getItem("year");
-        return prefix + "/list/" + tableId + "?year=" + year;
+        return prefix + "/list?year=" + year;
     }
 
-    $(function () {
-        function initTable(options) {
-            var tableId = options.id;
-            options.url = getUrl(tableId);
-            $.table.init(options);
+    function normalizeState(state) {
+        return state == null ? "" : String(state);
+    }
+
+    function getStageKey(state) {
+        var normalizedState = normalizeState(state);
+        if (normalizedState === "6") {
+            return "completed";
+        }
+        if (["1", "2", "3", "4", "5", "11", "12", "15"].includes(normalizedState)) {
+            return "approval";
+        }
+        if (["7", "8", "9", "10", "13", "14", "16"].includes(normalizedState)) {
+            return "closure";
+        }
+        return "";
+    }
+
+    function getStageLabel(state) {
+        var stage = getStageKey(state);
+        if (stage === "completed") {
+            return "已完结";
+        }
+        if (stage === "approval") {
+            return "立项申请";
+        }
+        if (stage === "closure") {
+            return "结项申请";
+        }
+        return "";
+    }
+
+    function getStateLabel(value) {
+        var label = $.table.selectDictLabel(datas, value);
+        return label || value || "";
+    }
+
+    function isDeptMatched(row) {
+        return String(row.deptNamekey) === "1";
+    }
+
+    function getResponsibilityTier(row) {
+        if (row.firstPersonId == row.uid) {
+            return "第一负责人";
+        }
+        if (row.secondPersonId == row.uid) {
+            return "第二负责人";
+        }
+        if (row.thirdPersonId == row.uid) {
+            return "第三负责人";
+        }
+        if (row.fourthPersonId == row.uid) {
+            return "第四负责人";
+        }
+        return "不是负责人";
+    }
+
+    function getScore(row) {
+        var normalizedState = normalizeState(row.state);
+        if (!["4", "6"].includes(normalizedState)) {
+            return 0;
+        }
+        if (row.firstPersonId == row.uid) {
+            return row.firstPoints || 0;
+        }
+        if (row.secondPersonId == row.uid) {
+            return row.secondPoints || 0;
+        }
+        if (row.thirdPersonId == row.uid) {
+            return row.thirdPoints || 0;
+        }
+        if (row.fourthPersonId == row.uid) {
+            return row.forthPoints || 0;
+        }
+        return 0;
+    }
+
+    function openStagePage(id, state, urlFlag, title) {
+        var stage = getStageKey(state);
+        var detailPrefix = stage === "approval" ? prefix + "/detail/" : prefix + "/overdetail/";
+        $.modal.openTab(title || "查看成果转化", detailPrefix + id + "/" + urlFlag);
+    }
+
+    function buildApprovalActions(row, actions) {
+        var state = normalizeState(row.state);
+
+        if (state === "15") {
+            actions.push('<a class="link-button" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')">编辑</a>');
+            actions.push('<a class="link-button" href="javascript:void(0)" onclick="subDraft(\'' + row.id + '\')">提交</a>');
+            actions.push('<a class="del-link-button" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')">删除</a>');
         }
 
-        // tab-0 已完结
-        var options0 = {
-            id: "bootstrap-table0",
-            toolbar: "toolbar0",
-            url: getUrl($('table').attr('id')),
-            createUrl: prefix + "/add",
-            detailUrl: prefix + "/overdetail/{id}",
-            updateUrl: prefix + "/edit/{id}",
-            removeUrl: prefix + "/remove",
-            exportUrl: prefix + "/export",
-            rowStyle: rowStyle0,
-            modalName: "成果转化",
-            sortOrder: "asc",
-            columns: [{
-                checkbox: true,
-                align: 'center'
-            },
-                {
-                    field: 'number',
-                    title: '序号',
-                    width: 5,
-                    align: 'center',
-                    switchable: false,
-                    formatter: function (value, row, index) {
-                        return $.table.serialNumber(index);
-                    }
-                },
-                {
-                    field: 'id',
-                    title: 'id',
-                    visible: false
-                },
-                {
-                    field: 'yname',
-                    align: 'center',
-                    title: '学院'
-                },
-                {
-                    field: 'dname',
-                    align: 'center',
-                    title: '专业'
-                },
-                {
-                    field: 'userName',
-                    align: 'center',
-                    title: '申请人'
-                },
-                {
-                    field: 'topName',
-                    align: 'center',
-                    title: '课题名称'
-                },
-                {
-                    field: 'signingData',
-                    align: 'center',
-                    title: '签订日期'
-                },
-                {
-                    field: 'amount',
-                    align: 'center',
-                    title: '项目金额'
-                },
-                {
-                    field: 'responsibilityTier',
-                    title: '个人排名',
-                    align: 'center',
-                    formatter: function (value, row, index) {
-                        return row.firstPersonId == row.uid ? '第一负责人' : row.secondPersonId == row.uid ? '第二负责人' : row.thirdPersonId == row.uid ? "第三负责人" : row.fourthPersonId == row.uid ? "第四负责人" : "不是负责人";
-                    }
-                },
-                {
-                    field: 'responsibilityTier',
-                    title: '积分',
-                    align: 'center',
-                    formatter: function (value, row, index) {
-                        if (row.state == 6) {
-                            return row.firstPersonId == row.uid ? row.firstPoints : row.secondPersonId == row.uid ? row.secondPoints : row.thirdPersonId == row.uid ? row.thirdPoints : row.fourthPersonId == row.uid ? row.forthPoints : 0;
-                        } else {
-                            return 0;
-                        }
-                    }
-                },
-                {
-                    title: '操作',
-                    align: 'center',
-                    formatter: function (value, row, index) {
-                        var actions = [];
-                        if (row.state == 6) {
-                            actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')">查看</a> ');
-                        }
-                        return actions.join('');
-                    }
-                }]
-        };
-        initTable(options0);
-
-        // tab-1 立项申请
-        var options1 = {
-            id: "bootstrap-table1",
-            toolbar: "toolbar1",
-            url: getUrl($('table').attr('id')),
-            createUrl: prefix + "/add",
-            overUrl: prefix + "/overadd?id={id}",
-            detailUrl: prefix + "/detail/{id}",
-            updateUrl: prefix + "/edit/{id}",
-            removeUrl: prefix + "/remove",
-            exportUrl: prefix + "/export",
-            subDraftUrl: prefix + "/subDraft/",
-            rowStyle: rowStyle0,
-            modalName: "成果转化",
-            sortOrder: "asc",
-            columns: [{
-                checkbox: true,
-                align: 'center'
-            },
-                {
-                    field: 'number',
-                    title: '序号',
-                    width: 5,
-                    align: 'center',
-                    switchable: false,
-                    formatter: function (value, row, index) {
-                        return $.table.serialNumber(index);
-                    }
-                },
-                {
-                    field: 'id',
-                    title: 'id',
-                    visible: false
-                },
-                {
-                    field: 'yname',
-                    align: 'center',
-                    title: '学院'
-                },
-                {
-                    field: 'dname',
-                    align: 'center',
-                    title: '专业'
-                },
-                {
-                    field: 'userName',
-                    align: 'center',
-                    title: '申请人'
-                },
-                {
-                    field: 'topName',
-                    align: 'center',
-                    title: '课题名称'
-                },
-                {
-                    field: 'signingData',
-                    align: 'center',
-                    title: '签订日期'
-                },
-                {
-                    field: 'amount',
-                    align: 'center',
-                    title: '项目金额'
-                },
-                {
-                    field: 'responsibilityTier',
-                    title: '个人排名',
-                    align: 'center',
-                    formatter: function (value, row, index) {
-                        return row.firstPersonId == row.uid ? '第一负责人' : row.secondPersonId == row.uid ? '第二负责人' : row.thirdPersonId == row.uid ? "第三负责人" : row.fourthPersonId == row.uid ? "第四负责人" : "不是负责人";
-                    }
-                },
-                {
-                    field: 'responsibilityTier',
-                    title: '积分',
-                    align: 'center',
-                    formatter: function (value, row, index) {
-                        if (row.state == 4) {
-                            return row.firstPersonId == row.uid ? row.firstPoints : row.secondPersonId == row.uid ? row.secondPoints : row.thirdPersonId == row.uid ? row.thirdPoints : row.fourthPersonId == row.uid ? row.forthPoints : 0;
-                        } else {
-                            return 0;
-                        }
-                    }
-                },
-                {
-                    title: '操作',
-                    align: 'center',
-                    formatter: function (value, row, index) {
-                        var actions = [];
-                        actions.push('<a  class="link-button" data-toggle="modal" data-target="#myModal" onclick="loadReviewRecords(' + row.id + ', ' + row.state + ')">流程记录</a><br> ');
-                        actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"> 查看</a> &nbsp;&nbsp;&nbsp;');
-
-                        if (row.state == '15') {
-                            actions.push('<a   class="link-button' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')">编辑</a>');
-                            actions.push('<a   class="link-button' + '" href="javascript:void(0)" onclick="subDraft(\'' + row.id + '\')">提交</a> &nbsp;');
-                            actions.push('<a class="del-link-button' + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"> </i>删除</a>');
-                        }
-
-                        // 教研角色逻辑
-                        if (row.role === 'research') {
-                            if (row.deptNamekey === '1' && row.userId != row.uid) {
-                                if (row.state == '1') {
-                                    actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro' + '\')"> 批阅</a> ');
-                                } else if (row.state == '11') {
-                                    actions.push('<a  class="del-link-button ' + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro' + '\')"> 撤回</a> ');
-                                }
-                                if (row.userId == row.uid) {
-                                    actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> 编辑</a> <br>');
-                                    actions.push('<a class="del-link-button ' + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"> </i>删除</a>');
-                                }
-                            } else if (row.userId == row.uid) {
-                                if (row.state == '1') {
-                                    actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro' + '\')"> 批阅</a> ');
-                                } else if (row.state == '11') {
-                                    actions.push('<a  class="del-link-button ' + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro' + '\')"> 撤回</a> ');
-                                } else if (row.state == '4') {
-                                    actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.overTab(\'' + row.id + '\')"> 申请结项</a> ');
-                                } else if (row.state == '3' || row.state == '12' || row.state == '5') {
-                                    actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> 编辑</a> ');
-                                }
-                            }
-                        }
-                        // 学院角色逻辑
-                        else if (row.role === 'dept_teacher') {
-                            if (row.state == '11' && row.deptNamekey === '1') {
-                                actions.push('<a  class="link-button ' + XYPY + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/dept_teacher' + '\')"> 批阅</a> ');
-                            } else if (row.state == '2' && row.deptNamekey === '1') {
-                                actions.push('<a  class="del-link-button' + XYPY + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/dept_teacher' + '\')"> 撤回</a> ');
-                            } else {
-                                if (row.userId == row.uid) {
-                                    if (row.state == '9' || row.state == '10' || row.state == '14') {
-                                        actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> 编辑</a> ');
-                                    }
-                                }
-                            }
-                        }
-                        // 科研角色逻辑
-                        else if (row.role === 'sci_tesearch') {
-                            if (row.state == '2') {
-                                actions.push('<a  class="link-button ' + KYPY + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/hecha' + '\')"> 批阅</a> ');
-                            } else if (row.state == '4') {
-                                actions.push('<a  class="del-link-button ' + KYPY + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/hecha' + '\')"> 撤回</a> <br>');
-                                if (row.userId == row.uid) {
-                                    actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.overTab(\'' + row.id + '\')"> 申请结项</a> ');
-                                }
-                            } else {
-                                if (row.userId == row.uid) {
-                                    if (row.state == '3' || row.state == '12' || row.state == '5') {
-                                        actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> 编辑</a> ');
-                                    }
-                                }
-                            }
-                        }
-                        // admin角色
-                        else if (row.role === 'admin') {
-                            actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"> 查看</a> ');
-                        }
-                        // 教师角色
-                        else if (row.role === 'teacher') {
-                            if (row.userId == row.uid) {
-                                if (row.state == '4') {
-                                    actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.overTab(\'' + row.id + '\')"> 申请结项</a> ');
-                                } else if (row.state == '3' || row.state == '12' || row.state == '5') {
-                                    actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> 编辑</a> ');
-                                }
-                            }
-                        }
-                        return arrangeButtons(actions);
-                    }
-                }]
-        };
-        initTable(options1);
-
-        // tab-2 结项申请
-        var options2 = {
-            id: "bootstrap-table2",
-            toolbar: "toolbar2",
-            url: getUrl($('table').attr('id')),
-            createUrl: prefix + "/overadd?id={id}",
-            detailUrl: prefix + "/overdetail/{id}",
-            updateUrl: prefix + "/edit/{id}",
-            removeUrl: prefix + "/remove",
-            exportUrl: prefix + "/export",
-            subDraftUrl: prefix + "/subDraft/",
-            rowStyle: rowStyle0,
-            modalName: "成果转化结项",
-            sortOrder: "asc",
-            columns: [{
-                checkbox: true,
-                align: 'center'
-            },
-                {
-                    field: 'number',
-                    title: '序号',
-                    width: 5,
-                    align: 'center',
-                    switchable: false,
-                    formatter: function (value, row, index) {
-                        return $.table.serialNumber(index);
-                    }
-                },
-                {
-                    field: 'id',
-                    title: 'id',
-                    visible: false
-                },
-                {
-                    field: 'yname',
-                    align: 'center',
-                    title: '学院'
-                },
-                {
-                    field: 'dname',
-                    align: 'center',
-                    title: '专业'
-                },
-                {
-                    field: 'userName',
-                    align: 'center',
-                    title: '申请人'
-                },
-                {
-                    field: 'topName',
-                    align: 'center',
-                    title: '课题名称'
-                },
-                {
-                    field: 'signingData',
-                    align: 'center',
-                    title: '签订日期'
-                },
-                {
-                    field: 'amount',
-                    align: 'center',
-                    title: '项目金额'
-                },
-                {
-                    field: 'responsibilityTier',
-                    title: '个人排名',
-                    align: 'center',
-                    formatter: function (value, row, index) {
-                        return row.firstPersonId == row.uid ? '第一负责人' : row.secondPersonId == row.uid ? '第二负责人' : row.thirdPersonId == row.uid ? "第三负责人" : row.fourthPersonId == row.uid ? "第四负责人" : "不是负责人";
-                    }
-                },
-                {
-                    field: 'responsibilityTier',
-                    title: '积分',
-                    align: 'center',
-                    formatter: function (value, row, index) {
-                        if (row.state == 6) {
-                            return row.firstPersonId == row.uid ? row.firstPoints : row.secondPersonId == row.uid ? row.secondPoints : row.thirdPersonId == row.uid ? row.thirdPoints : row.fourthPersonId == row.uid ? row.forthPoints : 0;
-                        } else {
-                            return 0;
-                        }
-                    }
-                },
-                {
-                    title: '操作',
-                    align: 'center',
-                    formatter: function (value, row, index) {
-                        var actions = [];
-                        actions.push('<a  class="link-button" data-toggle="modal" data-target="#myModal" onclick="loadReviewRecords(' + row.id + ', ' + row.state + ')">流程记录</a><br> ');
-                        actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"> 查看</a>&nbsp;');
-
-                        // 教研角色
-                        if (row.role === 'research') {
-                            if (row.deptNamekey === '1') {
-                                if (row.state == '7') {
-                                    actions.push('<a  class="link-button ' + JYPY + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/JYSOVER' + '\')"> 批阅</a> ');
-                                } else if (row.state == '13') {
-                                    actions.push('<a  class="del-link-button ' + JYPY + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/JYSOVER' + '\')"> 撤回</a> ');
-                                }
-                            }
-                            if (row.userId == row.uid) {
-                                if (row.state == '9' || row.state == '10' || row.state == '14') {
-                                    actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> 编辑</a> ');
-                                } else if (row.state == '16') {
-                                    actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> 编辑</a><br> ');
-                                    actions.push('<a   class="link-button' + '" href="javascript:void(0)" onclick="subDraft(\'' + row.id + '\')">提交</a> &nbsp;');
-                                }
-                            }
-                        }
-                        // 学院角色
-                        else if (row.role === 'dept_teacher') {
-                            if (row.deptNamekey === '1') {
-                                if (row.state == '13') {
-                                    actions.push('<a  class="link-button ' + XYPY + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/dept_teacher' + '\')"> 批阅</a> ');
-                                } else if (row.state == '8') {
-                                    actions.push('<a  class="del-link-button ' + XYPY + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/dept_teacher' + '\')"> 撤回</a> ');
-                                } else {
-                                    if (row.userId == row.uid) {
-                                        if (row.state == '9' || row.state == '10' || row.state == '14') {
-                                            actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> 编辑</a> ');
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        // 科研角色
-                        else if (row.role === 'sci_tesearch') {
-                            if (row.state == '8') {
-                                actions.push('<a  class="link-button ' + KYPY + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/KYCOVER' + '\')"> 批阅</a> ');
-                            } else if (row.state == '6') {
-                                actions.push('<a  class="del-link-button ' + KYPY + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/KYCOVER' + '\')"> 撤回</a> ');
-                            } else {
-                                if (row.userId == row.uid) {
-                                    if (row.state == '9' || row.state == '10' || row.state == '14') {
-                                        actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> 编辑</a> ');
-                                    }
-                                }
-                            }
-                        }
-                        // admin角色
-                        else if (row.role === 'admin') {
-                            actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"> 查看</a> ');
-                        }
-                        // 普通教师
-                        else if (row.role === 'teacher') {
-                            if (row.userId == row.uid) {
-                                if (row.state == '16') {
-                                    actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> 编辑</a><br> ');
-                                    actions.push('<a   class="link-button' + '" href="javascript:void(0)" onclick="subDraft(\'' + row.id + '\')">提交</a> ');
-                                } else if (row.state == '9' || row.state == '10' || row.state == '14') {
-                                    actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> 编辑</a> ');
-                                }
-                            }
-                        }
-                        return actions.join('');
-                    }
-                }]
-        };
-        initTable(options2);
-
-        window.addEventListener("storage", function (event) {
-            if (event.key === "year") {
-                $('#bootstrap-table0').bootstrapTable('destroy');
-                initTable(options0)
-                $('#bootstrap-table1').bootstrapTable('destroy');
-                initTable(options1)
-                $('#bootstrap-table2').bootstrapTable('destroy');
-                initTable(options2)
+        if (row.role === "research") {
+            if (isDeptMatched(row) && row.userId != row.uid) {
+                if (state === "1") {
+                    actions.push('<a class="link-button" href="javascript:void(0)" onclick="openStagePage(' + row.id + ', \'' + state + '\', \'pro\', \'详细成果转化\')">批阅</a>');
+                } else if (state === "11") {
+                    actions.push('<a class="del-link-button" href="javascript:void(0)" onclick="openStagePage(' + row.id + ', \'' + state + '\', \'pro\', \'详细成果转化\')">撤回</a>');
+                }
+            } else if (row.userId == row.uid) {
+                if (state === "1") {
+                    actions.push('<a class="link-button" href="javascript:void(0)" onclick="openStagePage(' + row.id + ', \'' + state + '\', \'pro\', \'详细成果转化\')">批阅</a>');
+                } else if (state === "11") {
+                    actions.push('<a class="del-link-button" href="javascript:void(0)" onclick="openStagePage(' + row.id + ', \'' + state + '\', \'pro\', \'详细成果转化\')">撤回</a>');
+                } else if (state === "4") {
+                    actions.push('<a class="link-button" href="javascript:void(0)" onclick="$.operate.overTab(\'' + row.id + '\')">申请结项</a>');
+                } else if (["3", "12", "5"].includes(state)) {
+                    actions.push('<a class="link-button" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')">编辑</a>');
+                }
             }
-        })
-    });
-
-    /**
-     * 批量下载
-     */
-    function batchDownload(module) {
-        var activeTab = $('.nav-tabs .active a').attr('href');
-        var tableId = '';
-
-        if (activeTab === '#tab-0') {
-            tableId = 'bootstrap-table0';
-        } else if (activeTab === '#tab-1') {
-            tableId = 'bootstrap-table1';
-        } else if (activeTab === '#tab-2') {
-            tableId = 'bootstrap-table2';
+        } else if (row.role === "dept_teacher") {
+            if (state === "11" && isDeptMatched(row)) {
+                actions.push('<a class="link-button" href="javascript:void(0)" onclick="openStagePage(' + row.id + ', \'' + state + '\', \'dept_teacher\', \'详细成果转化\')">批阅</a>');
+            } else if (state === "2" && isDeptMatched(row)) {
+                actions.push('<a class="del-link-button" href="javascript:void(0)" onclick="openStagePage(' + row.id + ', \'' + state + '\', \'dept_teacher\', \'详细成果转化\')">撤回</a>');
+            } else if (row.userId == row.uid && ["9", "10", "14"].includes(state)) {
+                actions.push('<a class="link-button" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')">编辑</a>');
+            }
+        } else if (row.role === "sci_tesearch") {
+            if (state === "2") {
+                actions.push('<a class="link-button" href="javascript:void(0)" onclick="openStagePage(' + row.id + ', \'' + state + '\', \'hecha\', \'详细成果转化\')">批阅</a>');
+            } else if (state === "4") {
+                actions.push('<a class="del-link-button" href="javascript:void(0)" onclick="openStagePage(' + row.id + ', \'' + state + '\', \'hecha\', \'详细成果转化\')">撤回</a>');
+                if (row.userId == row.uid) {
+                    actions.push('<a class="link-button" href="javascript:void(0)" onclick="$.operate.overTab(\'' + row.id + '\')">申请结项</a>');
+                }
+            } else if (row.userId == row.uid && ["3", "12", "5"].includes(state)) {
+                actions.push('<a class="link-button" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')">编辑</a>');
+            }
+        } else if (row.role === "teacher") {
+            if (row.userId == row.uid) {
+                if (state === "4") {
+                    actions.push('<a class="link-button" href="javascript:void(0)" onclick="$.operate.overTab(\'' + row.id + '\')">申请结项</a>');
+                } else if (["3", "12", "5"].includes(state)) {
+                    actions.push('<a class="link-button" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')">编辑</a>');
+                }
+            }
         }
+    }
 
-        var selectedRows = $('#' + tableId).bootstrapTable('getSelections');
-        if (selectedRows.length === 0) {
-            $.modal.alertWarning("未选择数据");
-            return;
+    function buildClosureActions(row, actions) {
+        var state = normalizeState(row.state);
+
+        if (row.role === "research") {
+            if (isDeptMatched(row)) {
+                if (state === "7") {
+                    actions.push('<a class="link-button" href="javascript:void(0)" onclick="openStagePage(' + row.id + ', \'' + state + '\', \'JYSOVER\', \'详细成果转化\')">批阅</a>');
+                } else if (state === "13") {
+                    actions.push('<a class="del-link-button" href="javascript:void(0)" onclick="openStagePage(' + row.id + ', \'' + state + '\', \'JYSOVER\', \'详细成果转化\')">撤回</a>');
+                }
+            }
+            if (row.userId == row.uid) {
+                if (["9", "10", "14"].includes(state)) {
+                    actions.push('<a class="link-button" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')">编辑</a>');
+                } else if (state === "16") {
+                    actions.push('<a class="link-button" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')">编辑</a>');
+                    actions.push('<a class="link-button" href="javascript:void(0)" onclick="subDraft(\'' + row.id + '\')">提交</a>');
+                }
+            }
+        } else if (row.role === "dept_teacher") {
+            if (isDeptMatched(row)) {
+                if (state === "13") {
+                    actions.push('<a class="link-button" href="javascript:void(0)" onclick="openStagePage(' + row.id + ', \'' + state + '\', \'dept_teacher\', \'详细成果转化\')">批阅</a>');
+                } else if (state === "8") {
+                    actions.push('<a class="del-link-button" href="javascript:void(0)" onclick="openStagePage(' + row.id + ', \'' + state + '\', \'dept_teacher\', \'详细成果转化\')">撤回</a>');
+                } else if (row.userId == row.uid && ["9", "10", "14"].includes(state)) {
+                    actions.push('<a class="link-button" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')">编辑</a>');
+                }
+            }
+        } else if (row.role === "sci_tesearch") {
+            if (state === "8") {
+                actions.push('<a class="link-button" href="javascript:void(0)" onclick="openStagePage(' + row.id + ', \'' + state + '\', \'KYCOVER\', \'详细成果转化\')">批阅</a>');
+            } else if (row.userId == row.uid && ["9", "10", "14"].includes(state)) {
+                actions.push('<a class="link-button" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')">编辑</a>');
+            }
+        } else if (row.role === "teacher") {
+            if (row.userId == row.uid) {
+                if (state === "16") {
+                    actions.push('<a class="link-button" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')">编辑</a>');
+                    actions.push('<a class="link-button" href="javascript:void(0)" onclick="subDraft(\'' + row.id + '\')">提交</a>');
+                } else if (["9", "10", "14"].includes(state)) {
+                    actions.push('<a class="link-button" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')">编辑</a>');
+                }
+            }
         }
-
-        var ids = selectedRows.map(function(row) {
-            return row.id;
-        }).join(',');
-
-        // 构建下载链接
-        var downloadUrl = ctx + 'common/batchDownload?ids=' + ids + '&module=' + module;
-        window.location.href = downloadUrl;
     }
 
     function arrangeButtons(actions) {
-        let result = '';
-        for (let i = 0; i < actions.length; i++) {
+        var result = '';
+        for (var i = 0; i < actions.length; i++) {
             if (i > 0 && i % 3 === 0) {
                 result += '<br>';
             }
-            result += actions[i];
+            result += '<span class="action-item">' + actions[i] + '</span>';
         }
         return result;
     }
 
-    function submitto(id, state) {
-        var data = {"id": id, "state": state}
-        $.operate.save(prefix + "/change_sc_edit", data);
+    function getOperationButtons(row) {
+        var actions = [];
+        var stage = getStageKey(row.state);
+
+        if (stage !== "completed") {
+            actions.push('<a class="link-button" data-toggle="modal" data-target="#myModal" onclick="loadReviewRecords(' + row.id + ', \'' + normalizeState(row.state) + '\')">流程记录</a>');
+        }
+
+        actions.push('<a class="link-button" href="javascript:void(0)" onclick="openStagePage(' + row.id + ', \'' + normalizeState(row.state) + '\', \'chakan\', \'查看成果转化\')">查看</a>');
+
+        if (stage === "approval") {
+            buildApprovalActions(row, actions);
+        } else if (stage === "closure") {
+            buildClosureActions(row, actions);
+        }
+
+        return arrangeButtons(actions);
     }
 
     function rowStyle0(row, index) {
-        if (["6", "4"].includes(row.state)) {
-            return { css: {"color": '#67c23a'} };
-        } else if (["15", "4", "16"].includes(row.state)) {
-            return { css: {"color": '#c78045'} };
-        } else if (["1", "2", "11", "7", "8", "13"].includes(row.state)) {
-            return { css: {"color": '#2c99ff'} };
-        } else if (["3", "5", "12", "9", "10", "14"].includes(row.state)) {
-            return { css: {"color": '#c78045'} };
+        var state = normalizeState(row.state);
+        if (["6", "4"].includes(state)) {
+            return {css: {"color": "#67c23a"}};
+        }
+        if (["15", "16"].includes(state)) {
+            return {css: {"color": "#c78045"}};
+        }
+        if (["1", "2", "11", "7", "8", "13"].includes(state)) {
+            return {css: {"color": "#2c99ff"}};
+        }
+        if (["3", "5", "12", "9", "10", "14"].includes(state)) {
+            return {css: {"color": "#c78045"}};
         }
         return {};
     }
 
-    function loadReviewRecords(Id, state) {
+    function loadReviewRecords(id, state) {
         updateProgress(state);
         $.ajax({
-            url: prefix + "/bhyy/" + Id,
-            method: 'POST',
-            data: {kid: Id},
+            url: prefix + "/bhyy/" + id,
+            method: "POST",
+            data: {kid: id},
             success: function (response) {
-                const eventList = document.getElementById('event-list');
-                eventList.innerHTML = '';
+                var eventList = document.getElementById("event-list");
+                eventList.innerHTML = "";
                 response.rows.forEach(function (row) {
-                    const li = document.createElement('li');
+                    var li = document.createElement("li");
                     li.innerHTML = '<i class="node-icon"></i>' +
                         '<span class="time">' + row.createTime + '</span>' +
                         '<span class="txt">' + row.state + '</span>';
@@ -1010,42 +674,41 @@
                 });
             },
             error: function () {
-                alert('无法获取批阅记录');
+                alert("无法获取批阅记录");
             }
         });
     }
 
     function updateProgress(state) {
-        const steps = document.querySelectorAll('.progress_inner__step');
-        const progressBar = document.querySelector('.progress_inner__bar--progress');
-        steps.forEach(step => {
-            step.classList.remove('active', 'completed', 'pending');
-            step.querySelector('.status-text').classList.remove('active', 'completed');
+        var normalizedState = normalizeState(state);
+        var steps = document.querySelectorAll(".progress_inner__step");
+        var progressBar = document.querySelector(".progress_inner__bar--progress");
+        steps.forEach(function (step) {
+            step.classList.remove("active", "completed", "pending");
+            step.querySelector(".status-text").classList.remove("active", "completed");
         });
-        progressBar.style.width = '0';
+        progressBar.style.width = "0";
 
-        if ([15, 9].includes(state)) {
-            document.getElementById('step-1').classList.add('active');
-            document.getElementById('step-1').querySelector('.status-text').classList.add('active');
-            progressBar.style.width = '0';
-        } else if (state === 6 || state === 4) {
-            document.getElementById('step-1').classList.add('completed');
-            document.getElementById('step-1').querySelector('.status-text').classList.add('completed');
-            document.getElementById('step-2').classList.add('completed');
-            document.getElementById('step-2').querySelector('.status-text').classList.add('completed');
-            document.getElementById('step-3').classList.add('completed');
-            document.getElementById('step-3').querySelector('.status-text').classList.add('completed');
-            progressBar.style.width = '100%';
-        } else if ([1, 2, 7, 8, 11, 13].includes(state)) {
-            document.getElementById('step-1').classList.add('completed');
-            document.getElementById('step-1').querySelector('.status-text').classList.add('completed');
-            document.getElementById('step-2').classList.add('completed');
-            document.getElementById('step-2').querySelector('.status-text').classList.add('completed');
-            progressBar.style.width = '50%';
+        if (["15", "9", "16"].includes(normalizedState)) {
+            document.getElementById("step-1").classList.add("active");
+            document.getElementById("step-1").querySelector(".status-text").classList.add("active");
+        } else if (["6", "4"].includes(normalizedState)) {
+            document.getElementById("step-1").classList.add("completed");
+            document.getElementById("step-1").querySelector(".status-text").classList.add("completed");
+            document.getElementById("step-2").classList.add("completed");
+            document.getElementById("step-2").querySelector(".status-text").classList.add("completed");
+            document.getElementById("step-3").classList.add("completed");
+            document.getElementById("step-3").querySelector(".status-text").classList.add("completed");
+            progressBar.style.width = "100%";
+        } else if (["1", "2", "7", "8", "11", "13"].includes(normalizedState)) {
+            document.getElementById("step-1").classList.add("completed");
+            document.getElementById("step-1").querySelector(".status-text").classList.add("completed");
+            document.getElementById("step-2").classList.add("completed");
+            document.getElementById("step-2").querySelector(".status-text").classList.add("completed");
+            progressBar.style.width = "50%";
         } else {
-            steps.forEach(step => {
-                step.classList.add('pending');
-                step.querySelector('.status-text').classList.add('pending');
+            steps.forEach(function (step) {
+                step.classList.add("pending");
             });
         }
     }
@@ -1057,26 +720,232 @@
         });
     }
 
-    function getscore_evidence(id, responsibilityTier) {
-        if (responsibilityTier === 0) {
-            resolve("未参与");
-        } else {
-            $.ajax({
-                type: "POST",
-                url: prefix + "/getscore_byId",
-                contentType: "application/json",
-                data: JSON.stringify({'id': id}),
-                async: true,
-                // 请求失败
-                error: function (request) {
-                    reject("系统错误");
-                },
-                success: function (data) {
-                    resolve(data.score);
-                }
-            });
+    var batchDownloadInProgress = false;
+
+    function parseDownloadFileName(contentDisposition) {
+        if (!contentDisposition) {
+            return "";
         }
+
+        var utf8Match = contentDisposition.match(/filename\*=UTF-8''([^;]+)/i);
+        if (utf8Match && utf8Match[1]) {
+            return decodeURIComponent(utf8Match[1]).replace(/["]/g, "");
+        }
+
+        var fileNameMatch = contentDisposition.match(/filename="?([^";]+)"?/i);
+        return fileNameMatch && fileNameMatch[1] ? decodeURIComponent(fileNameMatch[1]) : "";
     }
+
+    function readBlobAsText(blob, callback) {
+        if (!blob) {
+            callback("");
+            return;
+        }
+
+        var reader = new FileReader();
+        reader.onload = function () {
+            callback(reader.result || "");
+        };
+        reader.onerror = function () {
+            callback("");
+        };
+        reader.readAsText(blob, "utf-8");
+    }
+
+    function extractDownloadErrorMessage(text) {
+        if (!text) {
+            return "批量下载失败，请稍后重试";
+        }
+
+        try {
+            var result = JSON.parse(text);
+            if (result && result.msg) {
+                return result.msg;
+            }
+        } catch (e) {
+        }
+
+        return text.replace(/<[^>]+>/g, "").trim() || "批量下载失败，请稍后重试";
+    }
+
+    function triggerBlobDownload(blob, fileName) {
+        var resolvedFileName = fileName || "成果转化_批量下载.zip";
+        if (window.navigator.msSaveOrOpenBlob) {
+            window.navigator.msSaveOrOpenBlob(blob, resolvedFileName);
+            return;
+        }
+
+        var downloadUrl = window.URL.createObjectURL(blob);
+        var link = document.createElement("a");
+        link.style.display = "none";
+        link.href = downloadUrl;
+        link.download = resolvedFileName;
+        document.body.appendChild(link);
+        link.click();
+        setTimeout(function () {
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(downloadUrl);
+        }, 100);
+    }
+
+    function finishBatchDownload() {
+        batchDownloadInProgress = false;
+        $.modal.closeLoading();
+    }
+
+    function batchDownload(module) {
+        var ids = $.table.selectColumns("id", false);
+        if (!ids || ids.length === 0) {
+            $.modal.alertWarning("未选择数据");
+            return;
+        }
+        if (batchDownloadInProgress) {
+            $.modal.alertWarning("批量下载正在处理中，请稍候...");
+            return;
+        }
+
+        batchDownloadInProgress = true;
+        $.modal.loading("正在打包下载，请稍候...");
+
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", ctx + "common/batchDownload?ids=" + encodeURIComponent(ids.join(",")) + "&module=" + encodeURIComponent(module), true);
+        xhr.responseType = "blob";
+        xhr.timeout = 10 * 60 * 1000;
+
+        xhr.onload = function () {
+            var blob = xhr.response;
+            var contentDisposition = xhr.getResponseHeader("Content-Disposition") || "";
+            var contentType = xhr.getResponseHeader("Content-Type") || "";
+            var isDownloadResponse = contentDisposition.indexOf("attachment") !== -1
+                || contentType.indexOf("application/zip") !== -1
+                || contentType.indexOf("application/octet-stream") !== -1;
+
+            if (xhr.status >= 200 && xhr.status < 300 && isDownloadResponse) {
+                triggerBlobDownload(blob, parseDownloadFileName(contentDisposition));
+                finishBatchDownload();
+                return;
+            }
+
+            readBlobAsText(blob, function (text) {
+                $.modal.alertError(extractDownloadErrorMessage(text));
+                finishBatchDownload();
+            });
+        };
+
+        xhr.onerror = function () {
+            $.modal.alertError("批量下载失败，请检查网络或稍后重试");
+            finishBatchDownload();
+        };
+
+        xhr.ontimeout = function () {
+            $.modal.alertError("批量下载超时，请稍后重试");
+            finishBatchDownload();
+        };
+
+        xhr.send();
+    }
+
+    $(function () {
+        function initTable() {
+            var options = {
+                id: "bootstrap-table",
+                toolbar: "toolbar",
+                formId: "formId",
+                url: getUrl(),
+                createUrl: prefix + "/add",
+                overUrl: prefix + "/overadd?id={id}",
+                updateUrl: prefix + "/edit/{id}",
+                removeUrl: prefix + "/remove",
+                exportUrl: prefix + "/export",
+                subDraftUrl: prefix + "/subDraft/",
+                rowStyle: rowStyle0,
+                modalName: "成果转化",
+                sortOrder: "desc",
+                columns: [{
+                    checkbox: true,
+                    align: "center"
+                }, {
+                    field: "number",
+                    title: "序号",
+                    width: 5,
+                    align: "center",
+                    switchable: false,
+                    formatter: function (value, row, index) {
+                        return $.table.serialNumber(index);
+                    }
+                }, {
+                    field: "id",
+                    title: "id",
+                    visible: false
+                }, {
+                    title: "流程阶段",
+                    align: "center",
+                    formatter: function (value, row) {
+                        return getStageLabel(row.state);
+                    }
+                }, {
+                    field: "state",
+                    title: "当前状态",
+                    align: "center",
+                    formatter: function (value) {
+                        return getStateLabel(value);
+                    }
+                }, {
+                    field: "yname",
+                    align: "center",
+                    title: "学院"
+                }, {
+                    field: "dname",
+                    align: "center",
+                    title: "专业"
+                }, {
+                    field: "userName",
+                    align: "center",
+                    title: "申请人"
+                }, {
+                    field: "topName",
+                    align: "center",
+                    title: "课题名称"
+                }, {
+                    field: "signingData",
+                    align: "center",
+                    title: "签订日期"
+                }, {
+                    field: "amount",
+                    align: "center",
+                    title: "项目金额"
+                }, {
+                    title: "个人排名",
+                    align: "center",
+                    formatter: function (value, row) {
+                        return getResponsibilityTier(row);
+                    }
+                }, {
+                    title: "积分",
+                    align: "center",
+                    formatter: function (value, row) {
+                        return getScore(row);
+                    }
+                }, {
+                    title: "操作",
+                    align: "center",
+                    formatter: function (value, row) {
+                        return getOperationButtons(row);
+                    }
+                }]
+            };
+            $.table.init(options);
+        }
+
+        initTable();
+
+        window.addEventListener("storage", function (event) {
+            if (event.key === "year") {
+                $("#bootstrap-table").bootstrapTable("destroy");
+                initTable();
+            }
+        });
+    });
 </script>
 </body>
 </html>

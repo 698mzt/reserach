@@ -703,7 +703,7 @@ public class CommonController extends BaseController
                     handleVerticalBatchDownload(idList, zos);
                 } else if ("horizontal".equals(normalizedModule) || "横向课题".equals(module)) {
                     handleHorizontalBatchDownload(idList, zos);
-                } else if ("achievement".equals(normalizedModule) || "成果转化".equals(module)) {
+                } else if ("achievement".equals(normalizedModule) || "intrasch".equals(normalizedModule) || "成果转化".equals(module)) {
                     handleIntraSchProBatchDownload(idList, zos);
                 } else if ("paper".equals(normalizedModule) || "论文".equals(module)) {
                     handlePaperBatchDownload(idList, zos);
@@ -1049,7 +1049,7 @@ public class CommonController extends BaseController
             return "纵向课题";
         } else if ("horizontal".equals(normalizedModule) || "横向课题".equals(module)) {
             return "横向课题";
-        } else if ("achievement".equals(normalizedModule) || "成果转化".equals(module)) {
+        } else if ("achievement".equals(normalizedModule) || "intrasch".equals(normalizedModule) || "成果转化".equals(module)) {
             return "成果转化";
         } else if ("paper".equals(normalizedModule) || "论文".equals(module)) {
             return "论文";

@@ -19,6 +19,8 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.page.TableDataInfo;
+import com.ruoyi.common.core.page.PageDomain;
+import com.ruoyi.common.core.page.TableSupport;
 
 import static net.sf.jsqlparser.parser.feature.Feature.set;
 
@@ -27,7 +29,7 @@ import static net.sf.jsqlparser.parser.feature.Feature.set;
 @RequestMapping("/IntraSchPro")
 public class SciIntraSchoolProController extends BaseController {
   private String prefix = "system/IntraSchPro";
-//
+  //
   @Autowired
   private ISciIntraSchProApplyService sciIntraSchProApplyService;
 
@@ -79,103 +81,114 @@ public class SciIntraSchoolProController extends BaseController {
     //判断当前用户的角色
     String role_str = panRole_str();
     System.out.println("role_str = " + role_str);
-    List<SciIntraSchoolPro> list = new ArrayList<>();
-
-    //学院
-    if (role_str.equals("dept_teacher")) {
-
-      System.out.println("this is 学院负责人");
-      switch (tableId) {
-        case "bootstrap-table0":
-          list = sciIntraSchProApplyService.sel_IntraSchPro_isOVER_dept_teacher(sciIntraSchoolPro);
-          System.out.println("list = " + list);
-          break;
-        case "bootstrap-table1":
-          list = sciIntraSchProApplyService.sel_IntraSchPro_approval_dept_teacher(sciIntraSchoolPro);
-          break;
-        case "bootstrap-table2":
-          list = sciIntraSchProApplyService.sel_IntraSchPro_closure_dept_teacher(sciIntraSchoolPro);
-          break;
-      }
-    }
-// /      科研处
-    else if (role_str.equals("sci_tesearch")) {
-
-      System.out.println("this is 科研");
-      switch (tableId) {
-        case "bootstrap-table0":
-          list = sciIntraSchProApplyService.sel_IntraSchPro_isOVER(sciIntraSchoolPro);
-          System.out.println("list = " + list);
-          break;
-        case "bootstrap-table1":
-          list = sciIntraSchProApplyService.sel_IntraSchPro_approval_ky(sciIntraSchoolPro);
-          break;
-        case "bootstrap-table2":
-          list = sciIntraSchProApplyService.sel_IntraSchPro_closure_ky(sciIntraSchoolPro);
-          break;
-      }
-    }
-//        教研室
-    else if (role_str.equals("research")) {
-      System.out.println("this is 教研");
-
-      switch (tableId) {
-        case "bootstrap-table0":
-          list = sciIntraSchProApplyService.sel_IntraSchPro_isOVER(sciIntraSchoolPro);
-          //System.out.println("this is table0 list = " + list);
-          System.out.println("this is table0 list = " + list);
-          break;
-        case "bootstrap-table1":
-          list = sciIntraSchProApplyService.sel_IntraSchPro_approval_jy(sciIntraSchoolPro);
-          // System.out.println("this is table1 list = " + list);
-          System.out.println("this is table1 list = ");
-          break;
-        case "bootstrap-table2":
-          list = sciIntraSchProApplyService.sel_IntraSchPro_closure_jy(sciIntraSchoolPro);
-          //System.out.println("this is table2 list = " + list);
-          System.out.println("this is table2 list = " + list);
-          System.out.println(" = ");
-          break;
-      }
-    }
-    //admin
-    else if (role_str.equals("admin")) {
-      System.out.println("this is admin");
-
-      switch (tableId) {
-        case "bootstrap-table0":
-          list = sciIntraSchProApplyService.sel_IntraSchPro_isOVER_admin(sciIntraSchoolPro);
-          System.out.println("list = " + list);
-          break;
-        case "bootstrap-table1":
-          list = sciIntraSchProApplyService.sel_IntraSchPro_approval_admin(sciIntraSchoolPro);
-          break;
-        case "bootstrap-table2":
-          list = sciIntraSchProApplyService.sel_IntraSchPro_closure_admin(sciIntraSchoolPro);
-          break;
-      }
-    }
-
-    if (role_str.equals("teacher")) {
-
-      System.out.println("this is 普通教师");
-      switch (tableId) {
-        case "bootstrap-table0":
-          list = sciIntraSchProApplyService.sel_my_IntraSchPro_isOVER(sciIntraSchoolPro);
-          System.out.println("list = " + list);
-          break;
-        case "bootstrap-table1":
-          list = sciIntraSchProApplyService.sel_IntraSchPro_approval_my(sciIntraSchoolPro);
-          break;
-        case "bootstrap-table2":
-          list = sciIntraSchProApplyService.sel_IntraSchPro_closure_my(sciIntraSchoolPro);
-          break;
-      }
-    }
+    List<SciIntraSchoolPro> list = selectListByRole(role_str, tableId, sciIntraSchoolPro);
     TableDataInfo data = getDataTable(list);
 
     //System.out.println("data = " + data);
     return data;
+  }
+
+  @PostMapping("/list")
+  @ResponseBody
+  public TableDataInfo listAll(String year, SciIntraSchoolPro sciIntraSchoolPro) {
+    sciIntraSchoolPro.setYear(year);
+    sciIntraSchoolPro.setUid(getUserId());
+
+    String roleStr = panRole_str();
+    List<SciIntraSchoolPro> mergedList = new ArrayList<>();
+    mergedList.addAll(selectListByRole(roleStr, "bootstrap-table0", sciIntraSchoolPro));
+    mergedList.addAll(selectListByRole(roleStr, "bootstrap-table1", sciIntraSchoolPro));
+    mergedList.addAll(selectListByRole(roleStr, "bootstrap-table2", sciIntraSchoolPro));
+
+    Map<Integer, SciIntraSchoolPro> distinctMap = new LinkedHashMap<>();
+    for (SciIntraSchoolPro item : mergedList) {
+      if (item != null && item.getId() != null && !distinctMap.containsKey(item.getId())) {
+        distinctMap.put(item.getId(), item);
+      }
+    }
+
+    List<SciIntraSchoolPro> distinctList = new ArrayList<>(distinctMap.values());
+    distinctList.sort(Comparator.comparing(SciIntraSchoolPro::getId, Comparator.nullsLast(Comparator.reverseOrder())));
+
+    PageDomain pageDomain = TableSupport.buildPageRequest();
+    Integer pageNum = pageDomain.getPageNum();
+    Integer pageSize = pageDomain.getPageSize();
+    Integer total = distinctList.size();
+
+    int fromIndex = (pageNum - 1) * pageSize;
+    int toIndex = Math.min(pageNum * pageSize, total);
+
+    if (fromIndex > total) {
+      distinctList = new ArrayList<>();
+    } else {
+      distinctList = distinctList.subList(fromIndex, toIndex);
+    }
+
+    TableDataInfo data = getDataTable(distinctList);
+    data.setTotal(total);
+    return data;
+  }
+
+  private List<SciIntraSchoolPro> selectListByRole(String roleStr, String tableId, SciIntraSchoolPro sciIntraSchoolPro) {
+    switch (roleStr) {
+      case "dept_teacher":
+        switch (tableId) {
+          case "bootstrap-table0":
+            return sciIntraSchProApplyService.sel_IntraSchPro_isOVER_dept_teacher(sciIntraSchoolPro);
+          case "bootstrap-table1":
+            return sciIntraSchProApplyService.sel_IntraSchPro_approval_dept_teacher(sciIntraSchoolPro);
+          case "bootstrap-table2":
+            return sciIntraSchProApplyService.sel_IntraSchPro_closure_dept_teacher(sciIntraSchoolPro);
+          default:
+            return new ArrayList<>();
+        }
+      case "sci_tesearch":
+        switch (tableId) {
+          case "bootstrap-table0":
+            return sciIntraSchProApplyService.sel_IntraSchPro_isOVER(sciIntraSchoolPro);
+          case "bootstrap-table1":
+            return sciIntraSchProApplyService.sel_IntraSchPro_approval_ky(sciIntraSchoolPro);
+          case "bootstrap-table2":
+            return sciIntraSchProApplyService.sel_IntraSchPro_closure_ky(sciIntraSchoolPro);
+          default:
+            return new ArrayList<>();
+        }
+      case "research":
+        switch (tableId) {
+          case "bootstrap-table0":
+            return sciIntraSchProApplyService.sel_IntraSchPro_isOVER(sciIntraSchoolPro);
+          case "bootstrap-table1":
+            return sciIntraSchProApplyService.sel_IntraSchPro_approval_jy(sciIntraSchoolPro);
+          case "bootstrap-table2":
+            return sciIntraSchProApplyService.sel_IntraSchPro_closure_jy(sciIntraSchoolPro);
+          default:
+            return new ArrayList<>();
+        }
+      case "admin":
+        switch (tableId) {
+          case "bootstrap-table0":
+            return sciIntraSchProApplyService.sel_IntraSchPro_isOVER_admin(sciIntraSchoolPro);
+          case "bootstrap-table1":
+            return sciIntraSchProApplyService.sel_IntraSchPro_approval_admin(sciIntraSchoolPro);
+          case "bootstrap-table2":
+            return sciIntraSchProApplyService.sel_IntraSchPro_closure_admin(sciIntraSchoolPro);
+          default:
+            return new ArrayList<>();
+        }
+      case "teacher":
+        switch (tableId) {
+          case "bootstrap-table0":
+            return sciIntraSchProApplyService.sel_my_IntraSchPro_isOVER(sciIntraSchoolPro);
+          case "bootstrap-table1":
+            return sciIntraSchProApplyService.sel_IntraSchPro_approval_my(sciIntraSchoolPro);
+          case "bootstrap-table2":
+            return sciIntraSchProApplyService.sel_IntraSchPro_closure_my(sciIntraSchoolPro);
+          default:
+            return new ArrayList<>();
+        }
+      default:
+        return new ArrayList<>();
+    }
   }
 
   /**
