@@ -444,9 +444,9 @@
                 <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
               </select>
             </li>
-            <!-- 第一作者字段 - 科研处、学院、教研室和管理员可见 -->
+            <!-- 主持人字段 - 科研处、学院、教研室和管理员可见 -->
             <li th:if="${@permission.isAnyRoles('sci_tesearch,dept_teacher,research,admin')}">
-              <label>第一作者：</label>
+              <label>主持人：</label>
               <input type="text" name="xingming"/>
             </li>
             <!-- 课题名称字段 - 所有角色可见 -->
