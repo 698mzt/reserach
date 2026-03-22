@@ -168,7 +168,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where  s.user_id = #{uid} or state in (4,6)
         <if test="jiaoyanshi != null  and jiaoyanshi != ''">and  d.dept_name like concat('%', #{jiaoyanshi}, '%')</if>
         <if test="xingming != null  and xingming != ''">and  u.user_name like concat('%', #{xingming}, '%')</if>
-        <if test="xueyuan != null  and xueyuan != ''"> and p.dept_name = #{xueyuan}</if>
+        <if test="xueyuan != null  and xueyuan != ''"> and p.dept_name like concat('%', #{xueyuan}, '%')</if>
         <if test="mingcheng != null  and mingcheng != ''"> and mingcheng like concat('%', #{mingcheng}, '%')</if>
         <if test="huopishijain != null "> and huopishijain = #{huopishijain}</if>
         <if test="fenlei != null  and fenlei != ''"> and fenlei = #{fenlei}</if>
