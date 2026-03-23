@@ -72,73 +72,110 @@
                 </div>
             </div>
         </div>
-        <div class="col-xs-6">
-            <div class="form-group">
-                <label class="col-sm-4 control-label">预期科研分：</label>
-                <div class="col-sm-8">
-                    <input id="expectedScore" name="expectedScore"  class="form-control" type="text" readonly placeholder="选择课题类型和填写金额后自动计算">
-                </div>
-            </div>
-        </div>
 
 
-        <div class="col-xs-6">
-            <div class="form-group">
-                <label class="col-sm-4 control-label is-required">立项日期：</label>
-                <div class="col-sm-8">
-                    <div class="input-group date">
-                        <input autocomplete="off" name="signingData" class="form-control" placeholder="yyyy-MM-dd" type="text" required>
-                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+        <div class="row">
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">立项日期：</label>
+                    <div class="col-sm-8">
+                        <div class="input-group date">
+                            <input autocomplete="off" name="signingData" class="form-control" placeholder="yyyy-MM-dd" type="text" required>
+                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="col-xs-6">
-            <div class="form-group">
-                <label class="col-sm-4 control-label is-required">主持人：</label>
-                <div class="col-sm-8">
-                    <div th:each="user : ${sysUsers}" th:if="${user.flag}">
-                        <input  class="form-control" type="text" th:value="${user.userName}" readonly>
-                        <input name="firstPersonId" class="form-control" type="hidden" th:value="${user.userId}">
+        <!-- 主持人和预期科研分 -->
+        <div class="row">
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">主持人：</label>
+                    <div class="col-sm-8">
+                        <div th:each="user : ${sysUsers}" th:if="${user.flag}">
+                            <input  class="form-control" type="text" th:value="${user.userName}" readonly>
+                            <input name="firstPersonId" class="form-control" type="hidden" th:value="${user.userId}">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">预期科研分：</label>
+                    <div class="col-sm-8">
+                        <input id="expectedScore1" class="form-control" type="text" readonly placeholder="选择课题类型和填写金额后自动计算">
                     </div>
                 </div>
             </div>
         </div>
 
-
-        <div class="col-xs-6">
-            <div class="form-group">
-                <label class="col-sm-4 control-label is-required">成员1：</label>
-                <div class="col-sm-8">
-                    <select id="member1Select" name="secondPersonId" class="form-control m-b" onchange="updateMemberLists()" required>
-                        <option value="">---请选择--</option>
-                        <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}"  th:if="${user.userId} != 1 and ${user.flag != true}" ></option>
-                    </select>
+        <!-- 成员1和预期科研分 -->
+        <div class="row">
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">成员1：</label>
+                    <div class="col-sm-8">
+                        <select id="member1Select" name="secondPersonId" class="form-control m-b" onchange="updateMemberLists()" required>
+                            <option value="">---请选择--</option>
+                            <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}"  th:if="${user.userId} != 1 and ${user.flag != true}" ></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">预期科研分：</label>
+                    <div class="col-sm-8">
+                        <input id="expectedScore2" class="form-control" type="text" readonly placeholder="选择课题类型和填写金额后自动计算">
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="col-xs-6">
-            <div class="form-group">
-                <label class="col-sm-4 control-label is-required">成员2：</label>
-                <div class="col-sm-8">
-                    <select id="member2Select" name="thirdPersonId" class="form-control m-b" onchange="updateMemberLists()" required>
-                        <option value="">---请选择--</option>
-                        <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}"  th:if="${user.userId} != 1 and ${user.flag != true}" ></option>
-                    </select>
+        <!-- 成员2和预期科研分 -->
+        <div class="row">
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">成员2：</label>
+                    <div class="col-sm-8">
+                        <select id="member2Select" name="thirdPersonId" class="form-control m-b" onchange="updateMemberLists()" required>
+                            <option value="">---请选择--</option>
+                            <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}"  th:if="${user.userId} != 1 and ${user.flag != true}" ></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">预期科研分：</label>
+                    <div class="col-sm-8">
+                        <input id="expectedScore3" class="form-control" type="text" readonly placeholder="选择课题类型和填写金额后自动计算">
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="col-xs-6">
-            <div class="form-group">
-                <label class="col-sm-4 control-label is-required">成员3：</label>
-                <div class="col-sm-8">
-                    <select id="member3Select" name="fourthPersonId" class="form-control m-b" onchange="updateMemberLists()" required>
-                        <option value="">--请选择--</option>
-                        <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}"  th:if="${user.userId} != 1 and ${user.flag != true}" ></option>
-                    </select>
+        <!-- 成员3和预期科研分 -->
+        <div class="row">
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">成员3：</label>
+                    <div class="col-sm-8">
+                        <select id="member3Select" name="fourthPersonId" class="form-control m-b" onchange="updateMemberLists()" required>
+                            <option value="">--请选择--</option>
+                            <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}"  th:if="${user.userId} != 1 and ${user.flag != true}" ></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">预期科研分：</label>
+                    <div class="col-sm-8">
+                        <input id="expectedScore4" class="form-control" type="text" readonly placeholder="选择课题类型和填写金额后自动计算">
+                    </div>
                 </div>
             </div>
         </div>
@@ -276,18 +313,21 @@
 
     // 计算预期积分
     function calculateExpectedScore() {
-        const topType = $("select[name='topType']").val();
-        const subjectSource = $("select[name='subjectSource']").val();
-        const amount = $("input[name='amount']").val();
+        const topType = $ ("select[name='topType']").val();
+        const subjectSource = $ ("select[name='subjectSource']").val();
+        const amount = $ ("input[name='amount']").val();
 
         // 如果必填字段未填写，不计算积分
         if (!topType || !amount) {
-            $("#expectedScore").val("");
+            $ ("#expectedScore1").val("");
+            $ ("#expectedScore2").val("");
+            $ ("#expectedScore3").val("");
+            $ ("#expectedScore4").val("");
             return;
         }
 
         // 发送AJAX请求计算积分
-        $.ajax({
+        $ .ajax({
             url: prefix + "/calculateScore",
             type: "POST",
             data: {
@@ -299,22 +339,35 @@
             success: function(result) {
                 console.log("AJAX Success - Result:", result);
                 if (result && result.code === 0 && result.data !== undefined) {
-                    $("#expectedScore").val(result.data);
+                    // 主持人（排名第一）
+                    $ ("#expectedScore1").val(result.data[0]);
+                    // 成员1（排名第二）
+                    $ ("#expectedScore2").val(result.data[1]);
+                    // 成员2（排名第三）
+                    $ ("#expectedScore3").val(result.data[2]);
+                    // 成员3（排名第四）
+                    $ ("#expectedScore4").val(result.data[3]);
                 } else {
                     console.error("Invalid result format:", result);
-                    $("#expectedScore").val(0);
+                    $ ("#expectedScore1").val(0);
+                    $ ("#expectedScore2").val(0);
+                    $ ("#expectedScore3").val(0);
+                    $ ("#expectedScore4").val(0);
                 }
             },
             error: function(xhr, status, error) {
                 console.error("AJAX Error:", status, error);
-                $("#expectedScore").val(0);
+                $ ("#expectedScore1").val(0);
+                $ ("#expectedScore2").val(0);
+                $ ("#expectedScore3").val(0);
+                $ ("#expectedScore4").val(0);
             }
         });
     }
 
     // 为相关字段添加change事件监听器
-    $("select[name='topType'], select[name='subjectSource'], input[name='amount']").on("change", calculateExpectedScore);
-    $("input[name='amount']").on("input", calculateExpectedScore);
+    $ ("select[name='topType'], select[name='subjectSource'], input[name='amount']").on("change", calculateExpectedScore);
+    $ ("input[name='amount']").on("input", calculateExpectedScore);
 
     // 初始化文件上传组件
     $("#file").fileinput({
