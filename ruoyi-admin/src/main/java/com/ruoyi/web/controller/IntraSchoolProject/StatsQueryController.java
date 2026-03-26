@@ -1,24 +1,20 @@
 package com.ruoyi.web.controller.IntraSchoolProject;
 
 
-import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
+import com.ruoyi.common.core.domain.entity.SysDept;
 import com.ruoyi.common.core.domain.entity.SysRole;
 import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.system.domain.*;
-import com.ruoyi.common.core.domain.entity.SysDept;
 import com.ruoyi.system.service.*;
-import org.apache.ibatis.annotations.Param;
-import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,14 +23,14 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/StatsQuery")
 public class StatsQueryController extends BaseController {
-    private String prefix = "system/StatsQuery";
-    @Autowired // 纵向课题 1
-    private ISysUserService sysUserService;
+    private final String prefix = "system/StatsQuery";
+
     @Autowired // 纵向课题 1
     private ISciHorizontalApplyVerticalService sciHorizontalApplyVerticalService;
     @Autowired // 横向课题 2
@@ -57,31 +53,49 @@ public class StatsQueryController extends BaseController {
     @Autowired
     private ISysDeptService deptService;
     
+    /**
+     * 跳转统计查询页面
+     *
+     * @param mmap 页面模型
+     * @return 页面路径
+     */
+    @Log(title = "统计查询页面", businessType = BusinessType.OTHER)
     @GetMapping("")
-    String view(ModelMap mmap) {
-
+    public String view(ModelMap mmap) {
+        preloadQueryData(mmap);
         return prefix + "/view";
     }
 
+    /**
+     * 跳转核算查询页面
+     *
+     * @param mmap 页面模型
+     * @return 页面路径
+     */
+    @Log(title = "核算查询页面", businessType = BusinessType.OTHER)
     @GetMapping("/ToCheck")
-    String viewToCheck(ModelMap mmap) {
-        List<SysUser> userList = userService.selectAllUserSchPro(getUserId());
-        // todo: 不知道为啥要这样处理 很迷 !!!
-//        for (int a = 0; a < userList.size(); a++) {
-//            if (userList.get(a).getUserId() == getUserId()) {
-//                SysUser user = userList.get(a);
-//                user.setFlag(true);
-//                userList.set(a, user);
-//                break;
-//            }
-//        }
-        mmap.put("sysUsers", userList);
-        
-        // 获取学院专业数据
-        List<Map<String, Object>> collegeMajorData = buildCollegeMajorData();
-        mmap.put("collegeMajorData", collegeMajorData);
-        
+    public String viewToCheck(ModelMap mmap) {
+        preloadQueryData(mmap);
         return prefix + "/viewToCheck";
+    }
+
+    private void preloadQueryData(ModelMap mmap) {
+        List<SysUser> userList = userService.selectAllUserSchPro(getUserId());
+        mmap.put("sysUsers", userList);
+        mmap.put("collegeMajorData", buildCollegeMajorData());
+        String role = resolveQueryRole();
+        mmap.put("queryRole", role);
+        if ("dept_teacher".equals(role)) {
+            Long collegeId = resolveCollegeId(getSysUser());
+            if (collegeId != null) {
+                mmap.put("fixedCollegeId", String.valueOf(collegeId));
+            }
+        } else if ("research".equals(role)) {
+            SysUser sysUser = getSysUser();
+            if (sysUser != null && sysUser.getDeptId() != null) {
+                mmap.put("fixedMajorId", String.valueOf(sysUser.getDeptId()));
+            }
+        }
     }
     
     /**
@@ -158,216 +172,103 @@ public class StatsQueryController extends BaseController {
         
         return result;
     }
+
+    /**
+     * 查询统计列表（跨模块统一查询入口）
+     *
+     * @param params 查询参数
+     * @return 分页结果
+     */
+    @Log(title = "统计查询", businessType = BusinessType.OTHER)
     @PostMapping("/list")
     @ResponseBody
     public TableDataInfo list(@RequestParam Map<String, String> params) {
-        // 如果前端传递了noData标志，说明是初始加载，返回空数据
-        if ("true".equals(params.get("noData"))) {
-            return getDataTable(new ArrayList<>());
-        }
-        params.put("uid",getUserId().toString());
-        //判断身份
-        String role_str = panRole_str();
-        SysUser sysUser = getSysUser();
-        //学院
-        if (role_str.equals("dept_teacher")) {
-            params.put("Pcollege",sysUser.getParentId().toString());
-        }
-        //科研处
-        else if (role_str.equals("sci_tesearch")) {
-
-        }
-        //        教研室
-        else if (role_str.equals("research")) {
-            params.put("major",sysUser.getDeptId().toString());
-        }
-        //admin
-        else if (role_str.equals("admin")) {
-
-        }
-        else if (role_str.equals("teacher")) {
-            params.put("userId",getUserId().toString());
-
-        }
-        // 获取分页参数，添加默认值避免 null
-        String offsetStr = params.getOrDefault("offset", "0");
-        String limitStr = params.getOrDefault("limit", "10");
-        // 解析为整数
-        int offset = Integer.parseInt(offsetStr);
-        int limit = Integer.parseInt(limitStr);
-        // 计算分页参数
-        int pageNum = offset / limit + 1;
-        int pageSize = limit;
-        // 使用 PageHelper 进行分页
-        PageHelper.startPage(pageNum, pageSize);
-
-
-        // 获取项目类别参数
-        String remark = params.get("remark");
-        //System.out.println("项目类别: " + remark);
-
-        List<Object> list = new ArrayList<>();
-        // 根据项目类别返回不同的数据
-        if (remark != null && !remark.isEmpty()) {
-            if ("1".equals(remark)) {
-                // 获取项目类别1的数据（纵向课题）
-                List<SciHorizontalApplyVertical> statsQuery = sciHorizontalApplyVerticalService.getStatsQuery(params);
-                return getDataTable(statsQuery);
-            } else if ("2".equals(remark)) {
-                // 获取项目类别2的数据（横向课题）
-                List<SciHorizontalApply> statsQuery = sciHorizontalApplyService.getStatsQuery(params);
-                return getDataTable(statsQuery);
-            } else if ("3".equals(remark)) {
-                // 查询项目类别3的数据（成果转化）
-                List<SciIntraSchoolPro> statsQuery = sciIntraSchProApplyService.getStatsQuery(params);
-                return getDataTable(statsQuery);
-            } else if ("4".equals(remark)) {
-                // 获取项目类别4的数据（论文）
-                List<SciPaperA> statsQuery = sciPaperAService.getStatsQuery(params);
-                return getDataTable(statsQuery);
-            } else if ("5".equals(remark)) {
-                // 获取项目类别5的数据（教材专著）
-                List<SciJiaocairuanzhu> statsQuery = sciJiaocairuanzhuService.getStatsQuery(params);
-                return getDataTable(statsQuery);
-            } else if ("6".equals(remark)) {
-                // 获取项目类别6的数据（专利软著）
-                List<SciZhuanliruanzhu> statsQuery = sciZhuanliruanzhuService.getStatsQuery(params);
-                return getDataTable(statsQuery);
-            } else if ("7".equals(remark)) {
-                // 获取项目类别7的数据（奖励）
-                List<SysReward> statsQuery = sysRewardService.getStatsQuery(params);
-                return getDataTable(statsQuery);
-            } else if ("8".equals(remark)) {
-                // 获取项目类别8的数据（讲座报告） SciLectureReportOpinion
-                List<SciLectureReport> statsQuery = sciLectureReportService.getStatsQuery(params);
-                return getDataTable(statsQuery);
-            }
-        } else {
-            // 如果没有选择项目类别，返回空数据
-            list = new ArrayList<>();
-        }
-
-        return getDataTable(list);
+        return queryList(params, false);
     }
 
     /**
-     * 导出列表
+     * 导出统计列表
+     *
+     * @param params 查询参数
+     * @return 导出结果
      */
-
-    //@RequiresPermissions("system:statsquery:export")
     @Log(title = "统计导出", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     @ResponseBody
     public AjaxResult export(@RequestParam Map<String, String> params) {
-        params.put("uid",getUserId().toString());
-        //判断身份
-        String role_str = panRole_str();
-        SysUser sysUser = getSysUser();
-        //学院
-        if (role_str.equals("dept_teacher")) {
-            params.put("Pcollege",sysUser.getParentId().toString());
-        }
-        //科研处
-        else if (role_str.equals("sci_tesearch")) {
-
-        }
-        //        教研室
-        else if (role_str.equals("research")) {
-            params.put("major",sysUser.getDeptId().toString());
-        }
-        //admin
-        else if (role_str.equals("admin")) {
-
-        }
-        else if (role_str.equals("teacher")) {
-            params.put("userId",getUserId().toString());
-
-        }
-
         try {
-            // 获取项目类别参数
-            String remark = params.get("remark");
-            // 根据项目类别返回不同的数据
-            if (remark != null && !remark.isEmpty()) {
-                if ("1".equals(remark)) {
-                    // 获取项目类别1的数据（纵向课题）导出
-                    List<SciHorizontalApplyVertical> exportList = sciHorizontalApplyVerticalService.getStatsQuery(params);
-                    exportList = exportList.stream().map(item -> {
-                        item.setState(item.getStateDes());
-                        return item;
-                    }).collect(Collectors.toList());
-                    ExcelUtil<SciHorizontalApplyVertical> util = new ExcelUtil<SciHorizontalApplyVertical>(SciHorizontalApplyVertical.class);
-                    return util.exportExcel(exportList, "纵向课题数据");
-                } else if ("2".equals(remark)) {
-                    // 获取项目类别2的数据（横向课题）导出
-                    List<SciHorizontalApply> exportList = sciHorizontalApplyService.getStatsQuery(params);
-                    exportList = exportList.stream().map(item -> {
-                        item.setState(item.getStateDes());
-                        return item;
-                    }).collect(Collectors.toList());
-                    ExcelUtil<SciHorizontalApply> util = new ExcelUtil<SciHorizontalApply>(SciHorizontalApply.class);
-                    return util.exportExcel(exportList, "横向课题数据");
-                } else if ("3".equals(remark)) {
-                    // 查询项目类别3的数据（成果转化）导出
-                    List<SciIntraSchoolPro> exportList = sciIntraSchProApplyService.getStatsQuery(params);
-                    exportList = exportList.stream().map(item -> {
-                        item.setState(item.getStateDes());
-                        return item;
-                    }).collect(Collectors.toList());
-                    ExcelUtil<SciIntraSchoolPro> util = new ExcelUtil<SciIntraSchoolPro>(SciIntraSchoolPro.class);
-                    return util.exportExcel(exportList, "成果转化数据");
-                } else if ("4".equals(remark)) {
-                    // 获取项目类别4的数据（论文）导出
-                    List<SciPaperA> exportList = sciPaperAService.getStatsQuery( params);
-                    exportList = exportList.stream().map(item -> {
-                        item.setState(item.getStateDes());
-                        return item;
-                    }).collect(Collectors.toList());
-                    ExcelUtil<SciPaperA> util = new ExcelUtil<SciPaperA>(SciPaperA.class);
-                    return util.exportExcel(exportList, "论文数据");
-                } else if ("5".equals(remark)) {
-                    // 获取项目类别5的数据（教材专著）导出
-                    List<SciJiaocairuanzhu> exportList = sciJiaocairuanzhuService.getStatsQuery( params);
-                    exportList = exportList.stream().map(item -> {
-                        item.setState(item.getStateDes());
-                        return item;
-                    }).collect(Collectors.toList());
-                    ExcelUtil<SciJiaocairuanzhu> util = new ExcelUtil<SciJiaocairuanzhu>(SciJiaocairuanzhu.class);
-                    return util.exportExcel(exportList, "教材专著数据");
-                } else if ("6".equals(remark)) {
-                    // 获取项目类别6的数据（专利软著）导出
-                    List<SciZhuanliruanzhu> exportList = new ArrayList<>();
-                    if (params.get("userId")!=null && !params.get("userId").isEmpty()){
-                          exportList = sciZhuanliruanzhuService.getStatsQueryToExcil( params);
-                    }else{
-                          exportList = sciZhuanliruanzhuService.getStatsQuery( params);
+            Map<String, String> queryParams = new HashMap<>(params);
+            normalizeParams(queryParams);
+            applyRoleScope(queryParams, false);
 
-                    }
-                    exportList = exportList.stream().map(item -> {
-                        item.setState(item.getStateDes());
-                        return item;
-                    }).collect(Collectors.toList());
-                    ExcelUtil<SciZhuanliruanzhu> util = new ExcelUtil<SciZhuanliruanzhu>(SciZhuanliruanzhu.class);
-                    return util.exportExcel(exportList, "专利软著数据");
-                } else if ("7".equals(remark)) {
-                    // 获取项目类别7的数据（奖励）导出
-                    List<SysReward> exportList = sysRewardService.getStatsQuery( params);
-                    exportList = exportList.stream().map(item -> {
-                        item.setState(item.getStateDes());
-                        return item;
-                    }).collect(Collectors.toList());
-                    ExcelUtil<SysReward> util = new ExcelUtil<SysReward>(SysReward.class);
-                    return util.exportExcel(exportList, "奖励数据");
-                } else if ("8".equals(remark)) {
-                    // 获取项目类别8的数据（讲座报告）导出
-                    List<SciLectureReport> exportList = sciLectureReportService.getStatsQuery( params);
-                    exportList = exportList.stream().map(item -> {
-                        item.setState(item.getStateDes());
-                        return item;
-                    }).collect(Collectors.toList());
-                    ExcelUtil<SciLectureReport> util = new ExcelUtil<SciLectureReport>(SciLectureReport.class);
-                    return util.exportExcel(exportList, "讲座报告数据");
+            String remark = queryParams.get("remark");
+            if (remark == null || remark.isEmpty()) {
+                return error("未指定导出模块或模块不存在");
+            }
+
+            if ("6".equals(remark) && queryParams.get("userId") != null && !queryParams.get("userId").isEmpty()) {
+                List<SciZhuanliruanzhu> exportList = sciZhuanliruanzhuService.getStatsQueryToExcil(queryParams);
+                exportList = exportList.stream().map(item -> {
+                    item.setState(item.getStateDes());
+                    return item;
+                }).collect(Collectors.toList());
+                ExcelUtil<SciZhuanliruanzhu> util = new ExcelUtil<>(SciZhuanliruanzhu.class);
+                return util.exportExcel(exportList, "专利软著数据");
+            }
+
+            List<?> exportList = queryByRemark(remark, queryParams, false);
+            exportList = ((List<?>) exportList).stream().map(item -> {
+                if (item instanceof SciHorizontalApplyVertical) {
+                    ((SciHorizontalApplyVertical) item).setState(((SciHorizontalApplyVertical) item).getStateDes());
+                } else if (item instanceof SciHorizontalApply) {
+                    ((SciHorizontalApply) item).setState(((SciHorizontalApply) item).getStateDes());
+                } else if (item instanceof SciIntraSchoolPro) {
+                    ((SciIntraSchoolPro) item).setState(((SciIntraSchoolPro) item).getStateDes());
+                } else if (item instanceof SciPaperA) {
+                    ((SciPaperA) item).setState(((SciPaperA) item).getStateDes());
+                } else if (item instanceof SciJiaocairuanzhu) {
+                    ((SciJiaocairuanzhu) item).setState(((SciJiaocairuanzhu) item).getStateDes());
+                } else if (item instanceof SciZhuanliruanzhu) {
+                    ((SciZhuanliruanzhu) item).setState(((SciZhuanliruanzhu) item).getStateDes());
+                } else if (item instanceof SysReward) {
+                    ((SysReward) item).setState(((SysReward) item).getStateDes());
+                } else if (item instanceof SciLectureReport) {
+                    ((SciLectureReport) item).setState(((SciLectureReport) item).getStateDes());
                 }
+                return item;
+            }).collect(Collectors.toList());
+
+            if ("1".equals(remark)) {
+                ExcelUtil<SciHorizontalApplyVertical> util = new ExcelUtil<>(SciHorizontalApplyVertical.class);
+                return util.exportExcel((List<SciHorizontalApplyVertical>) exportList, "纵向课题数据");
+            }
+            if ("2".equals(remark)) {
+                ExcelUtil<SciHorizontalApply> util = new ExcelUtil<>(SciHorizontalApply.class);
+                return util.exportExcel((List<SciHorizontalApply>) exportList, "横向课题数据");
+            }
+            if ("3".equals(remark)) {
+                ExcelUtil<SciIntraSchoolPro> util = new ExcelUtil<>(SciIntraSchoolPro.class);
+                return util.exportExcel((List<SciIntraSchoolPro>) exportList, "成果转化数据");
+            }
+            if ("4".equals(remark)) {
+                ExcelUtil<SciPaperA> util = new ExcelUtil<>(SciPaperA.class);
+                return util.exportExcel((List<SciPaperA>) exportList, "论文数据");
+            }
+            if ("5".equals(remark)) {
+                ExcelUtil<SciJiaocairuanzhu> util = new ExcelUtil<>(SciJiaocairuanzhu.class);
+                return util.exportExcel((List<SciJiaocairuanzhu>) exportList, "教材专著数据");
+            }
+            if ("6".equals(remark)) {
+                ExcelUtil<SciZhuanliruanzhu> util = new ExcelUtil<>(SciZhuanliruanzhu.class);
+                return util.exportExcel((List<SciZhuanliruanzhu>) exportList, "专利软著数据");
+            }
+            if ("7".equals(remark)) {
+                ExcelUtil<SysReward> util = new ExcelUtil<>(SysReward.class);
+                return util.exportExcel((List<SysReward>) exportList, "奖励数据");
+            }
+            if ("8".equals(remark)) {
+                ExcelUtil<SciLectureReport> util = new ExcelUtil<>(SciLectureReport.class);
+                return util.exportExcel((List<SciLectureReport>) exportList, "讲座报告数据");
             }
             return error("未指定导出模块或模块不存在");
         } catch (Exception e) {
@@ -375,100 +276,22 @@ public class StatsQueryController extends BaseController {
         }
     }
 
+    /**
+     * 查询核算列表（跨模块统一查询入口）
+     *
+     * @param params 查询参数
+     * @param year 年度
+     * @return 分页结果
+     */
+    @Log(title = "核算查询", businessType = BusinessType.OTHER)
     @PostMapping("/listToCheck")
     @ResponseBody
-    public TableDataInfo listToCheck(@RequestParam Map<String, String> params,String year) {
-        System.out.println("year = " + year);
-        // 如果前端传递了noData标志，说明是初始加载，返回空数据
-        if ("true".equals(params.get("noData"))) {
-            return getDataTable(new ArrayList<>());
+    public TableDataInfo listToCheck(@RequestParam Map<String, String> params, String year) {
+        Map<String, String> queryParams = new HashMap<>(params);
+        if (year != null && !year.isEmpty()) {
+            queryParams.put("year", year);
         }
-        params.put("uid",getUserId().toString());
-        //判断身份
-        String role_str = panRole_str();
-        SysUser sysUser = getSysUser();
-        //学院
-        if (role_str.equals("dept_teacher")) {
-            params.put("college",sysUser.getParentId().toString());
-        }
-        //科研处
-        else if (role_str.equals("sci_tesearch")) {
-
-        }
-        //        教研室
-        else if (role_str.equals("research")) {
-            params.put("major",sysUser.getDeptId().toString());
-        }
-        //admin
-        else if (role_str.equals("admin")) {
-
-        }
-        else if (role_str.equals("teacher")) {
-            params.put("userId",getUserId().toString());
-
-        }
-        if (year!=null){
-            params.put("year",year);
-        }
-        // 获取分页参数，添加默认值避免 null
-        String offsetStr = params.getOrDefault("offset", "0");
-        String limitStr = params.getOrDefault("limit", "10");
-        // 解析为整数
-        int offset = Integer.parseInt(offsetStr);
-        int limit = Integer.parseInt(limitStr);
-        // 计算分页参数
-        int pageNum = offset / limit + 1;
-        int pageSize = limit;
-        // 使用 PageHelper 进行分页
-        PageHelper.startPage(pageNum, pageSize);
-
-
-        // 获取项目类别参数
-        String remark = params.get("remark");
-        //System.out.println("项目类别: " + remark);
-
-        List<Object> list = new ArrayList<>();
-        // 根据项目类别返回不同的数据
-        if (remark != null && !remark.isEmpty()) {
-            if ("1".equals(remark)) {
-                // 获取项目类别1的数据（纵向课题）
-                List<SciHorizontalApplyVertical> statsQuery = sciHorizontalApplyVerticalService.getStatsQueryToCheck(params);
-                return getDataTable(statsQuery);
-            } else if ("2".equals(remark)) {
-                // 获取项目类别2的数据（横向课题）
-                List<SciHorizontalApply> statsQuery = sciHorizontalApplyService.getStatsQueryToCheck(params);
-                return getDataTable(statsQuery);
-            } else if ("3".equals(remark)) {
-                // 查询项目类别3的数据（成果转化）
-                List<SciIntraSchoolPro> statsQuery = sciIntraSchProApplyService.getStatsQueryToCheck(params);
-                return getDataTable(statsQuery);
-            } else if ("4".equals(remark)) {
-                // 获取项目类别4的数据（论文）
-                List<SciPaperA> statsQuery = sciPaperAService.getStatsQueryToCheck(params);
-                return getDataTable(statsQuery);
-            } else if ("5".equals(remark)) {
-                // 获取项目类别5的数据（教材专著）
-                List<SciJiaocairuanzhu> statsQuery = sciJiaocairuanzhuService.getStatsQueryToCheck(params);
-                return getDataTable(statsQuery);
-            } else if ("6".equals(remark)) {
-                // 获取项目类别6的数据（专利软著）
-                List<SciZhuanliruanzhu> statsQuery = sciZhuanliruanzhuService.getStatsQueryToCheck(params);
-                return getDataTable(statsQuery);
-            } else if ("7".equals(remark)) {
-                // 获取项目类别7的数据（奖励）
-                List<SysReward> statsQuery = sysRewardService.getStatsQueryToCheck(params);
-                return getDataTable(statsQuery);
-            } else if ("8".equals(remark)) {
-                // 获取项目类别8的数据（讲座报告） SciLectureReportOpinion
-                List<SciLectureReport> statsQuery = sciLectureReportService.getStatsQueryToCheck(params);
-                return getDataTable(statsQuery);
-            }
-        } else {
-            // 如果没有选择项目类别，返回空数据
-            list = new ArrayList<>();
-        }
-
-        return getDataTable(list);
+        return queryList(queryParams, true);
     }
 
     /**
@@ -484,36 +307,15 @@ public class StatsQueryController extends BaseController {
         String remark = params.get("remark");
 
         try {
-            // 使用与listToCheck相同的参数处理逻辑
-            params.put("uid", getUserId().toString());
-            //判断身份
-            String role_str = panRole_str();
-            SysUser sysUser = getSysUser();
-            //学院
-            if (role_str.equals("dept_teacher")) {
-                params.put("Pcollege", sysUser.getParentId().toString());
-            }
-            //科研处
-            else if (role_str.equals("sci_tesearch")) {
-
-            }
-            //        教研室
-            else if (role_str.equals("research")) {
-                params.put("major", sysUser.getDeptId().toString());
-            }
-            //admin
-            else if (role_str.equals("admin")) {
-
-            }
-            else if (role_str.equals("teacher")) {
-                params.put("userId", getUserId().toString());
-            }
+            Map<String, String> queryParams = new HashMap<>(params);
+            normalizeParams(queryParams);
+            applyRoleScope(queryParams, true);
             
             // 根据项目类别返回不同的数据
             if (remark != null && !remark.isEmpty()) {
                 if ("1".equals(remark)) {
                     // 获取项目类别1的数据（纵向课题）导出
-                    List<SciHorizontalApplyVertical> exportList = sciHorizontalApplyVerticalService.getStatsQueryToCheck(params);
+                    List<SciHorizontalApplyVertical> exportList = sciHorizontalApplyVerticalService.getStatsQueryToCheck(queryParams);
 
                     // 处理状态描述
                     exportList = exportList.stream().map(item -> {
@@ -586,7 +388,7 @@ public class StatsQueryController extends BaseController {
                 else if ("2".equals(remark)) {
 
                     // 获取项目类别2的数据（横向课题）导出
-                    List<SciHorizontalApply> exportList = sciHorizontalApplyService.getStatsQueryToCheck(params);
+                    List<SciHorizontalApply> exportList = sciHorizontalApplyService.getStatsQueryToCheck(queryParams);
 
                     // 处理状态描述
                     exportList = exportList.stream().map(item -> {
@@ -657,7 +459,7 @@ public class StatsQueryController extends BaseController {
                 }
                 else if ("3".equals(remark)) {
                     // 查询项目类别3的数据（成果转化）导出
-                    List<SciIntraSchoolPro> exportList = sciIntraSchProApplyService.getStatsQueryToCheck(params);
+                    List<SciIntraSchoolPro> exportList = sciIntraSchProApplyService.getStatsQueryToCheck(queryParams);
 
                     // 处理状态描述
                     exportList = exportList.stream().map(item -> {
@@ -728,7 +530,7 @@ public class StatsQueryController extends BaseController {
                 }
                 else if ("4".equals(remark)) {
                     // 获取项目类别4的数据（论文）导出
-                    List<SciPaperA> exportList = sciPaperAService.getStatsQueryToCheck(params);
+                    List<SciPaperA> exportList = sciPaperAService.getStatsQueryToCheck(queryParams);
                     
                     // 处理状态描述
                     exportList = exportList.stream().map(item -> {
@@ -768,7 +570,7 @@ public class StatsQueryController extends BaseController {
                 }
                 else if ("5".equals(remark)) {
                     // 获取项目类别5的数据（教材专著）导出
-                    List<SciJiaocairuanzhu> exportList = sciJiaocairuanzhuService.getStatsQueryToCheck(params);
+                    List<SciJiaocairuanzhu> exportList = sciJiaocairuanzhuService.getStatsQueryToCheck(queryParams);
                     
                     // 处理状态描述
                     exportList = exportList.stream().map(item -> {
@@ -808,7 +610,7 @@ public class StatsQueryController extends BaseController {
                 }
                 else if ("6".equals(remark)) {
                     // 获取项目类别6的数据（专利软著）导出
-                    List<SciZhuanliruanzhu> exportList = sciZhuanliruanzhuService.getStatsQueryToCheck(params);
+                    List<SciZhuanliruanzhu> exportList = sciZhuanliruanzhuService.getStatsQueryToCheck(queryParams);
                     
                     // 处理状态描述
                     exportList = exportList.stream().map(item -> {
@@ -848,7 +650,7 @@ public class StatsQueryController extends BaseController {
                 }
                 else if ("7".equals(remark)) {
                     // 获取项目类别7的数据（奖励）导出
-                    List<SysReward> exportList = sysRewardService.getStatsQueryToCheck(params);
+                    List<SysReward> exportList = sysRewardService.getStatsQueryToCheck(queryParams);
                     exportList = exportList.stream().map(item -> {
                         item.setState(item.getStateDes());
                         return item;
@@ -858,7 +660,7 @@ public class StatsQueryController extends BaseController {
                 }
                 else if ("8".equals(remark)) {
                     // 获取项目类别8的数据（讲座报告）导出 SciLectureReport
-                    List<SciLectureReport> exportList = sciLectureReportService.getStatsQueryToCheck(params);
+                    List<SciLectureReport> exportList = sciLectureReportService.getStatsQueryToCheck(queryParams);
                     exportList = exportList.stream().map(item -> {
                         item.setState(item.getStateDes());
                         return item;
@@ -872,73 +674,171 @@ public class StatsQueryController extends BaseController {
             return error(e.getMessage());
         }
     }
+
+    private TableDataInfo queryList(Map<String, String> params, boolean checkMode) {
+        if ("true".equals(params.get("noData"))) {
+            return getDataTable(new ArrayList<>());
+        }
+
+        Map<String, String> queryParams = new HashMap<>(params);
+        normalizeParams(queryParams);
+        applyRoleScope(queryParams, checkMode);
+        startPageFromParams(queryParams);
+
+        String remark = queryParams.get("remark");
+        if (remark == null || remark.isEmpty()) {
+            return getDataTable(new ArrayList<>());
+        }
+
+        return getDataTable(queryByRemark(remark, queryParams, checkMode));
+    }
+
+    private List<?> queryByRemark(String remark, Map<String, String> params, boolean checkMode) {
+        if ("1".equals(remark)) {
+            return checkMode ? sciHorizontalApplyVerticalService.getStatsQueryToCheck(params) : sciHorizontalApplyVerticalService.getStatsQuery(params);
+        }
+        if ("2".equals(remark)) {
+            return checkMode ? sciHorizontalApplyService.getStatsQueryToCheck(params) : sciHorizontalApplyService.getStatsQuery(params);
+        }
+        if ("3".equals(remark)) {
+            return checkMode ? sciIntraSchProApplyService.getStatsQueryToCheck(params) : sciIntraSchProApplyService.getStatsQuery(params);
+        }
+        if ("4".equals(remark)) {
+            return checkMode ? sciPaperAService.getStatsQueryToCheck(params) : sciPaperAService.getStatsQuery(params);
+        }
+        if ("5".equals(remark)) {
+            return checkMode ? sciJiaocairuanzhuService.getStatsQueryToCheck(params) : sciJiaocairuanzhuService.getStatsQuery(params);
+        }
+        if ("6".equals(remark)) {
+            return checkMode ? sciZhuanliruanzhuService.getStatsQueryToCheck(params) : sciZhuanliruanzhuService.getStatsQuery(params);
+        }
+        if ("7".equals(remark)) {
+            return checkMode ? sysRewardService.getStatsQueryToCheck(params) : sysRewardService.getStatsQuery(params);
+        }
+        if ("8".equals(remark)) {
+            return checkMode ? sciLectureReportService.getStatsQueryToCheck(params) : sciLectureReportService.getStatsQuery(params);
+        }
+        return new ArrayList<>();
+    }
+
+    private void normalizeParams(Map<String, String> params) {
+        params.put("uid", String.valueOf(getUserId()));
+        if (params.get("jobTitle") == null && params.get("job_title") != null) {
+            params.put("jobTitle", params.get("job_title"));
+        }
+    }
+
+    private void applyRoleScope(Map<String, String> params, boolean checkMode) {
+        String role = resolveQueryRole();
+        SysUser sysUser = getSysUser();
+
+        if ("teacher".equals(role)) {
+            params.put("userId", String.valueOf(getUserId()));
+            return;
+        }
+
+        if ("research".equals(role)) {
+            if (sysUser.getDeptId() != null) {
+                params.put("major", String.valueOf(sysUser.getDeptId()));
+            }
+            return;
+        }
+
+        if ("dept_teacher".equals(role)) {
+            Long collegeId = resolveCollegeId(sysUser);
+            if (collegeId != null) {
+                params.put("college", String.valueOf(collegeId));
+                params.put("Pcollege", String.valueOf(collegeId));
+            }
+        }
+    }
+
+    private Long resolveCollegeId(SysUser sysUser) {
+        if (sysUser == null) {
+            return null;
+        }
+        if (sysUser.getParentId() != null && !Objects.equals(sysUser.getParentId(), 100L)) {
+            return sysUser.getParentId();
+        }
+        if (sysUser.getDeptId() != null) {
+            return sysUser.getDeptId();
+        }
+        return null;
+    }
+
+    private void startPageFromParams(Map<String, String> params) {
+        String offsetStr = params.get("offset");
+        String limitStr = params.get("limit");
+        if (offsetStr != null && limitStr != null) {
+            int offset = Integer.parseInt(offsetStr);
+            int limit = Integer.parseInt(limitStr);
+            int pageNum = offset / limit + 1;
+            PageHelper.startPage(pageNum, limit);
+            return;
+        }
+        startPage();
+    }
+
     /**
      * 判断当前登陆用户的身份
      * dept_teacher，sci_tesearch，research，admin，teacher
      *
      * @return
      */
-    private String panRole_str() {
-        String role_str = "";
-        //当前登陆角色列表，如果一个人有多个角色，列表就多一项
+    private String resolveQueryRole() {
         List<SysRole> roles = getSysUser().getRoles();
-        //代表六个身份
-        List<Integer> roles_list = new ArrayList<>(Arrays.asList(0, 0, 0, 0, 0, 0));
+        if (roles == null || roles.isEmpty()) {
+            return "teacher";
+        }
+
+        boolean isAdmin = false;
+        boolean isTeacher = false;
+        boolean isSciResearch = false;
+        boolean isResearchRoom = false;
+        boolean isCollegeLeader = false;
 
         for (SysRole r : roles) {
-            System.out.println("r.getRoleKey()=" + r.getRoleKey());
-            //普通教师
-            if (r.getRoleId() == 100) {
-                roles_list.set(2, 1);
+            if (r == null || r.getRoleId() == null) {
+                continue;
             }
-            //科研处
-            if (r.getRoleId() == 101) {
-                roles_list.set(3, 1);
+            if (Objects.equals(r.getRoleId(), 1L)) {
+                isAdmin = true;
             }
-            //教研室
-            if (r.getRoleId() == 102) {
-                roles_list.set(4, 1);
+            if (Objects.equals(r.getRoleId(), 100L)) {
+                isTeacher = true;
             }
-            //学院负责人
-            if (r.getRoleId() == 103 || r.getRoleId() == 104 || r.getRoleId() == 105 || r.getRoleId() == 106 || r.getRoleId() == 107 || r.getRoleId() == 108) {
-                roles_list.set(5, 1);
+            if (Objects.equals(r.getRoleId(), 101L)) {
+                isSciResearch = true;
             }
-            //超级管理员
-            if (r.getRoleId() == 1) {
-                roles_list.set(1, 1);
+            if (Objects.equals(r.getRoleId(), 102L)) {
+                isResearchRoom = true;
+            }
+            if (Objects.equals(r.getRoleId(), 103L)
+                    || Objects.equals(r.getRoleId(), 104L)
+                    || Objects.equals(r.getRoleId(), 105L)
+                    || Objects.equals(r.getRoleId(), 106L)
+                    || Objects.equals(r.getRoleId(), 107L)
+                    || Objects.equals(r.getRoleId(), 108L)) {
+                isCollegeLeader = true;
             }
         }
-        //学院
-        if (roles_list.get(5) == 1) {
-            role_str = "dept_teacher";
+
+        if (isCollegeLeader) {
+            return "dept_teacher";
         }
-//        科研处
-        else if (roles_list.get(3) == 1) {
-            role_str = "sci_tesearch";
-
+        if (isSciResearch) {
+            return "sci_tesearch";
         }
-//        教研室
-        else if (roles_list.get(4) == 1) {
-            System.out.println("this is 教研");
-            role_str = "research";
-
+        if (isResearchRoom) {
+            return "research";
         }
-        //admin
-        else if (roles_list.get(1) == 1) {
-            role_str = "admin";
-
+        if (isAdmin) {
+            return "admin";
         }
-
-        String rolesString = roles_list.stream()
-                .map(String::valueOf)
-                .collect(Collectors.joining(""));
-        //只是普通教师
-        if (rolesString.equals("001000")) {
-            role_str = "teacher";
+        if (isTeacher && roles.size() == 1) {
+            return "teacher";
         }
-        return role_str;
-
-
+        return "teacher";
     }
 
 

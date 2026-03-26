@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <!--<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">-->
 <html lang="zh" xmlns:th="http://www.thymeleaf.org"
-      xmlns:shiro="https://github.com/theborakompanioni/thymeleaf-extras-shiro"
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro"
       xmlns:padding="http://www.w3.org/1999/xhtml">
 
 <head>
@@ -606,7 +606,9 @@
                                                                id="datetimepicker-endTime" placeholder="yyyy-MM-dd"/>
                                                     </div>
                                                 </li>
-                                                <li class="second-row college-major-item"  shiro:hasPermission="sys_collage_filter">
+                                                <li class="second-row college-major-item"
+                                                    shiro:hasPermission="sys_collage_filter"
+                                                    th:if="${queryRole != 'teacher' and queryRole != 'research'}">
                                                     <div id="element2" class="row">
                                                         <label>学院专业：</label>
                                                         <div class="col-sm-3">
@@ -617,7 +619,7 @@
                                                         </div>
                                                     </div>
                                                 </li>
-                                                <li class="second-row college-major-item"  shiro:hasPermission="sys_collage_filter">
+                                                <li class="second-row college-major-item" th:if="${queryRole != 'teacher'}">
                                                     <label>姓名：</label>
                                                     <select name="teacherName" class="form-control m-b select2-search" id="teacherName">
                                                         <option value="">---其他--</option>
@@ -678,6 +680,8 @@
 
     // 从后端获取学院专业数据
     var collegeMajorData = /*[[${collegeMajorData}]]*/ [];
+    var fixedCollegeId = /*[[${fixedCollegeId}]]*/ null;
+    var fixedMajorId = /*[[${fixedMajorId}]]*/ null;
     
     $('#element2').cxSelect({
         selects: ['first', 'second'],
@@ -685,6 +689,14 @@
         jsonValue: 'v',
         data: collegeMajorData
     });
+    if (fixedCollegeId) {
+        $('.first').val(fixedCollegeId).trigger('change');
+    }
+    if (fixedMajorId) {
+        setTimeout(function () {
+            $('.second').val(fixedMajorId).trigger('change');
+        }, 0);
+    }
     var datas = [[${@dict.getType('sys_intraschpro_tasks')}]];
     var prefix = ctx + "StatsQuery";
     var hasSearched = false; // 添加搜索状态标志  初始菜单不加载 ,点击搜索之后才会显示
@@ -1260,8 +1272,8 @@
             var state = $("select[name='state']").val(); // 项目类别
             var startTime = $("#datetimepicker-startTime").val(); // 开始时间
             var endTime = $("#datetimepicker-endTime").val(); // 结束时间
-            var college = $(".first").val(); // 学院
-            var major = $(".second").val(); // 专业
+            var college = $(".first").val() || ''; // 学院
+            var major = $(".second").val() || ''; // 专业
             var jobTitle = $("select[name='job_title']").val(); // 职称
             var topicName = $("#topicName").val(); // 课题名称
             var teacherName = $("#teacherName").val(); // 姓名
@@ -1279,7 +1291,6 @@
                 jobTitle: jobTitle,
                 topicName: topicName
             };
-            console.log("搜索参数:", params)
             // 设置搜索状态为true
             hasSearched = true;
 
@@ -1320,8 +1331,9 @@
                         endTime: '',
                         college: '',
                         major: '',
-                        jobtitle: 'id',
+                        jobTitle: '',
                         topicName: '',
+                        teacherName: '',
                         noData: true
                     };
                 }
@@ -1360,6 +1372,7 @@
                         major: '',
                         jobTitle: '',
                         topicName: '',
+                        teacherName: '',
                         noData: true // 添加标志告诉后端不返回数据
                     };
                 }
@@ -1376,7 +1389,8 @@
                     college: params.college || '',
                     major: params.major || '',
                     jobTitle: params.jobTitle || '',
-                    topicName: params.topicName || ''
+                    topicName: params.topicName || '',
+                    teacherName: params.teacherName || ''
                 };
                 return searchParams;
             }
@@ -1613,42 +1627,6 @@
         var endTime = event.date;
         $("#datetimepicker-startTime").datetimepicker('setEndDate', endTime);
     });
-    var startDate = laydate.render({
-        elem: '#laydate-startTime',
-        max: $('#laydate-endTime').val(),
-        theme: 'molv',
-        trigger: 'click',
-        done: function (value, date) {
-            // 结束时间大于开始时间
-            if (value !== '') {
-                endDate.config.min.year = date.year;
-                endDate.config.min.month = date.month - 1;
-                endDate.config.min.date = date.date;
-            } else {
-                endDate.config.min.year = '';
-                endDate.config.min.month = '';
-                endDate.config.min.date = '';
-            }
-        }
-    });
-    var endDate = laydate.render({
-        elem: '#laydate-endTime',
-        min: $('#laydate-startTime').val(),
-        theme: 'molv',
-        trigger: 'click',
-        done: function (value, date) {
-            // 开始时间小于结束时间
-            if (value !== '') {
-                startDate.config.max.year = date.year;
-                startDate.config.max.month = date.month - 1;
-                startDate.config.max.date = date.date;
-            } else {
-                startDate.config.max.year = '';
-                startDate.config.max.month = '';
-                startDate.config.max.date = '';
-            }
-        }
-    });
 
     function OpenDetailTab(id, remark) {
         // 纵向
@@ -1703,10 +1681,11 @@
             var state = $("select[name='state']").val();
             var startTime = $("#datetimepicker-startTime").val();
             var endTime = $("#datetimepicker-endTime").val();
-            var college = $(".first").val();
-            var major = $(".second").val();
+            var college = $(".first").val() || '';
+            var major = $(".second").val() || '';
             var jobTitle = $("select[name='job_title']").val();
             var topicName = $("#topicName").val();
+            var teacherName = $("#teacherName").val();
 
             // 设置参数，state使用dictLabel
             exportParams.remark = remark || '';
@@ -1717,6 +1696,7 @@
             exportParams.major = major || '';
             exportParams.jobTitle = jobTitle || '';
             exportParams.topicName = topicName || '';
+            exportParams.teacherName = teacherName || '';
 
             // 添加表格当前的查询参数
             var tableOptions = $("#" + table.options.id).bootstrapTable('getOptions');

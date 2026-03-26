@@ -294,6 +294,9 @@
         <if test="userId != null and userId != ''">
             and u.user_id = #{userId}
         </if>
+        <if test="teacherName != null and teacherName != '' and teacherName != 'null'">
+            and u.user_id = #{teacherName}
+        </if>
         <if test="startTime != null and startTime != ''">
             and s.reward_time >= #{startTime}
         </if>
