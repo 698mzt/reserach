@@ -822,9 +822,6 @@
         <if test="userId != null and userId != ''">
             and p.user_id = #{userId}
         </if>
-        <if test="teacherName != null and teacherName != '' and teacherName != 'null'">
-            and pa1.user_id = #{teacherName}
-        </if>
         <if test="startTime != null and startTime != ''">
             and pac.createtime >= #{startTime}
         </if>
