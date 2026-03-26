@@ -916,9 +916,6 @@
             <if test="userId != null and userId != ''">
                 and  s.first_person_id = #{userId}
             </if>
-            <if test="teacherName != null and teacherName != '' and teacherName != 'null'">
-                and s.first_person_id = #{teacherName}
-            </if>
             <if test='state != null and state != "" and state!="null" and state =="1" '>
                 AND s.state in (3,5,9,10,22,44,99)
             </if>
@@ -992,9 +989,6 @@
             </if>
             <if test="major != null and major != '' and major!='null'">
                 AND d.dept_id = #{major}
-            </if>
-            <if test="teacherName != null and teacherName != '' and teacherName!='null'">
-                AND u.user_id = #{teacherName}
             </if>
             <if test="topicName != null and topicName != ''">
                 AND s.top_name LIKE CONCAT('%', #{topicName}, '%')

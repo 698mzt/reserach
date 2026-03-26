@@ -136,7 +136,9 @@ public class SysIndexController extends BaseController
         // 取身份信息
         SysUser user = getSysUser();
         mmap.put("user", user);
-        return "redirect:/StatsQuery";
+        //首页设置
+        return prefix;
+        //return "main_v2";
     }
 
     // content-main class
