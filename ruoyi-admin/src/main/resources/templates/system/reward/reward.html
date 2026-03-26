@@ -312,56 +312,59 @@
     </style>
 </head>
 <body class="gray-bg">
-        <div class="container-div">
-            <div class="row">
-                <div class="col-sm-12 search-collapse" shiro:hasAnyPermissions="system:reward:like">
-                    <form id="formId"  >
-                        <div class="select-list">
-                            <ul>
-                                <li>
-                                    <label>课题名称：</label>
-                                    <input type="text" name="rewardName" placeholder="请输入课题名称"/>
-                                </li>
+<div class="container-div">
+    <div class="row">
+        <!-- ========== 核心修改1：放宽搜索表单的权限控制 ========== -->
+        <!-- 原权限：仅 system:reward:like 可看 -->
+        <!-- 新权限：所有拥有奖励列表查看权限的角色都能看到搜索表单（包含教师/教研室/学院/科研处） -->
+        <div class="col-sm-12 search-collapse" shiro:hasAnyPermissions="system:reward:like,system:reward:list,system:reward:jys,system:reward:xueyuan,system:reward:kyc">
+            <form id="formId"  >
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            <label>课题名称：</label>
+                            <input type="text" name="rewardName" placeholder="请输入课题名称"/>
+                        </li>
 
-                                <!-- 主持人/第一作者查询 - 教研室、学院、科研处可见 -->
-                                <li shiro:hasAnyPermissions="system:reward:jys,system:reward:xueyuan,system:reward:kyc">
-                                    <label>主持人：</label>
-                                    <input type="text" name="userName" placeholder="请输入主持人姓名"/>
-                                </li>
+                        <!-- 主持人/第一作者查询 - 教研室、学院、科研处可见 -->
+                        <li shiro:hasAnyPermissions="system:reward:jys,system:reward:xueyuan,system:reward:kyc">
+                            <label>主持人：</label>
+                            <input type="text" name="userName" placeholder="请输入主持人姓名"/>
+                        </li>
 
-                                <!-- 专业查询 - 学院、科研处可见 -->
-                                <li shiro:hasAnyPermissions="system:reward:xueyuan,system:reward:kyc">
-                                    <label>专业：</label>
-                                    <input type="text" name="dname" placeholder="请输入专业名称"/>
-                                </li>
+                        <!-- 专业查询 - 学院、科研处可见 -->
+                        <li shiro:hasAnyPermissions="system:reward:xueyuan,system:reward:kyc">
+                            <label>专业：</label>
+                            <input type="text" name="dname" placeholder="请输入专业名称"/>
+                        </li>
 
-                                <!-- 学院查询 - 仅科研处可见 -->
-                                <li shiro:hasPermission="system:reward:kyc">
-                                    <label>学院：</label>
-                                    <input type="text" name="yname" placeholder="请输入学院名称"/>
-                                </li>
-                                <li>
-                                    <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
-                                    <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
-                                </li>
-                            </ul>
-                        </div>
-                    </form>
+                        <!-- 学院查询 - 仅科研处可见 -->
+                        <li shiro:hasPermission="system:reward:kyc">
+                            <label>学院：</label>
+                            <input type="text" name="yname" placeholder="请输入学院名称"/>
+                        </li>
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                        </li>
+                    </ul>
                 </div>
+            </form>
+        </div>
 
         <div id="toolbar"  style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
             <div class="btn-group-sm" role="group" style="display: inline-flex; gap: 8px;">
-            <a class="btn btn-success" onclick="$.operate.addTab()" shiro:hasPermission="system:reward:add">
-                <i class="fa fa-plus"></i> 添加
-            </a>
-<!--                <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:reward:export">-->
-<!--                    <i class="fa fa-download"></i> 导出-->
-<!--                </a>-->
+                <a class="btn btn-success" onclick="$.operate.addTab()" shiro:hasPermission="system:reward:add">
+                    <i class="fa fa-plus"></i> 添加
+                </a>
+                <!--                <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:reward:export">-->
+                <!--                    <i class="fa fa-download"></i> 导出-->
+                <!--                </a>-->
             </div>
 
-                <div style="display: flex; align-items: center; gap: 15px; padding: 6px 36px; border-radius: 4px;">
-                    <th:block th:replace="include :: status-circles"/>
-                </div>
+            <div style="display: flex; align-items: center; gap: 15px; padding: 6px 36px; border-radius: 4px;">
+                <th:block th:replace="include :: status-circles"/>
+            </div>
 
         </div>
 
@@ -428,165 +431,165 @@
         </div>
     </div>
 </div>
-    <th:block th:include="include :: footer" />
-    <script th:inline="javascript">
-        var editFlag = [[${@permission.hasPermi('system:reward:edit')}]];
-        var removeFlag = [[${@permission.hasPermi('system:reward:remove')}]];
-        var proFlag = [[${@permission.hasPermi('system:reward:process')}]];
-        var editInfo = [[${@permission.hasPermi('system:reward:info')}]];
-        var hechaFlag = [[${@permission.hasPermi('system:reward:hecha')}]];
-        var topTypeDatas = [[${@dict.getType('sci_top_type')}]];
-        var datas = [[${@dict.getType('sys_reward_sg')}]];
-        var chayueFlag = [[${@permission.hasPermi('system:reward:chayue')}]];
-        var paimingDatas = [[${@dict.getType('sys_reward_paiming')}]];
-        var fenleiDatas = [[${@dict.getType('sys_reward_fenlei')}]];
-        var dengjiDatas = [[${@dict.getType('sys_reward_dengji')}]];
+<th:block th:include="include :: footer" />
+<script th:inline="javascript">
+    var editFlag = [[${@permission.hasPermi('system:reward:edit')}]];
+    var removeFlag = [[${@permission.hasPermi('system:reward:remove')}]];
+    var proFlag = [[${@permission.hasPermi('system:reward:process')}]];
+    var editInfo = [[${@permission.hasPermi('system:reward:info')}]];
+    var hechaFlag = [[${@permission.hasPermi('system:reward:hecha')}]];
+    var topTypeDatas = [[${@dict.getType('sci_top_type')}]];
+    var datas = [[${@dict.getType('sys_reward_sg')}]];
+    var chayueFlag = [[${@permission.hasPermi('system:reward:chayue')}]];
+    var paimingDatas = [[${@dict.getType('sys_reward_paiming')}]];
+    var fenleiDatas = [[${@dict.getType('sys_reward_fenlei')}]];
+    var dengjiDatas = [[${@dict.getType('sys_reward_dengji')}]];
 
-        var prefix = ctx + "system/reward";
-        $(function() {
+    var prefix = ctx + "system/reward";
+    $(function() {
 
-            function initTable(options) {
-                // 获取当前表格的ID
-                var tableId = options.id;
-                // 根据表格ID生成URL
-                options.url = getUrl(tableId);
-                // 使用生成的选项初始化表格
-                $.table.init(options);
-            }
+        function initTable(options) {
+            // 获取当前表格的ID
+            var tableId = options.id;
+            // 根据表格ID生成URL
+            options.url = getUrl(tableId);
+            // 使用生成的选项初始化表格
+            $.table.init(options);
+        }
 
-            function getUrl(tableId) {
-                var year = localStorage.getItem("year");
+        function getUrl(tableId) {
+            var year = localStorage.getItem("year");
 
-                return prefix + "/list/"+tableId+"?year=" + year;
+            return prefix + "/list/"+tableId+"?year=" + year;
 
-            }
+        }
 
-            var options = {
-                url: prefix + "/list",
-                createUrl: prefix + "/add",
-                updateUrl: prefix + "/edit/{id}",
-                removeUrl: prefix + "/remove",
-                exportUrl: prefix + "/export",
-                detailUrl: prefix + "/detail/{id}",
-                recallUrl: prefix + "/recall/{id}",
-                pushUrl: prefix + "/push/{id}",
-                addUrl: prefix + "/add",
-                modalName: "奖励",
-                rowStyle: rowStyle0,
-                columns: [
-                    // {
-                    // checkbox: false
-                    // },
-                    {
-                        field: 'number',
-                        title: '序号',
-                        width:5 ,
-                        align:'center',
-                        switchable:false,
-                        formatter:function(value,row,index){
-                            //return index+1; //序号正序排序从1开始
+        var options = {
+            url: prefix + "/list",
+            createUrl: prefix + "/add",
+            updateUrl: prefix + "/edit/{id}",
+            removeUrl: prefix + "/remove",
+            exportUrl: prefix + "/export",
+            detailUrl: prefix + "/detail/{id}",
+            recallUrl: prefix + "/recall/{id}",
+            pushUrl: prefix + "/push/{id}",
+            addUrl: prefix + "/add",
+            modalName: "奖励",
+            rowStyle: rowStyle0,
+            columns: [
+                // {
+                // checkbox: false
+                // },
+                {
+                    field: 'number',
+                    title: '序号',
+                    width:5 ,
+                    align:'center',
+                    switchable:false,
+                    formatter:function(value,row,index){
+                        //return index+1; //序号正序排序从1开始
 
-                            //通过表的#id 可以得到每页多少条
-                            var pageSize=$('#bootstrap-table').bootstrapTable('getOptions').pageSize;
-                            //通过表的#id 可以得到当前第几页
-                            var pageNumber=$('#bootstrap-table').bootstrapTable('getOptions').pageNumber;
-                            //返回每条的序号： 每页条数 * （当前页 - 1 ）+ 序号
-                            return pageSize * (pageNumber - 1) + index + 1;
-                        }
-                    },
-                    {
-                        field: 'id',
-                        title: 'id',
-                        visible: false
-                    },
-                    {
-                        field: 'yname',
-                        align: 'center',
-                        title: '学院'
-                    },
-                    {
-                        field: 'dname',
-                        align: 'center',
-                        title: '专业'
-                    },
-                    {
-                        field: 'userName',
-                        title: '申请人'
-                    },
-                    {
-                        field: 'rewardName',
-                        title: '荣誉名称'
-                    },
-                    {
-                        field: 'rewardFenlei',
-                        title: '分类',
-                        formatter: function(value, row, index) {
-                            return $.table.selectDictLabel(fenleiDatas, value);
-                        }
-                    },
-                    {
-                        field: 'rewardDengji',
-                        title: '等级',
-                        formatter: function(value, row, index) {
-                            return $.table.selectDictLabel(dengjiDatas, value);
-                        }
-                    },
-                    {
-                        field: 'rewardPaiming',
-                        title: '排名',
-                        formatter: function(value, row, index) {
-                            return $.table.selectDictLabel(paimingDatas, value);
-                        }
-                    },
-                    {
-                        field: 'jifen',
-                        title: '积分'
-                    },
-                    {
-                        title: '操作',
-                        align: 'center',
-                        formatter: function(value, row, index) {
-                            var actions = [];
-                            var huanhang = false;
-                            if(row.state == 11 ){
-                                if (row.userId == row.uid){
-                                    actions.push('<a class="' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.push(\'' + row.id + '\')">提交&nbsp;&nbsp;&nbsp;&nbsp;</a>');
-                                    actions.push('<a class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')">编辑&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                                    actions.push('<a class="' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')" style="color : #c90000">删除</a>');
-                                }
-                                huanhang = true;
-                            }else
-
-                            if(row.state == 1 ){
-                                console.log(row)
-                                if (proFlag != 'hidden'){
-                                actions.push('<a  class="' + proFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro' + '\')">批阅&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                                    huanhang = true;
-                                }
-
-                            }else
-                            if((row.state == 3 || row.state == 5 || row.state == 7)) {
-                                if (row.userId == row.uid) {
-                                    actions.push('<a   class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')">编辑&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                                    huanhang = true;
-                                }
-                                // actions.push('<a  class="' + proFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000">撤回&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
+                        //通过表的#id 可以得到每页多少条
+                        var pageSize=$('#bootstrap-table').bootstrapTable('getOptions').pageSize;
+                        //通过表的#id 可以得到当前第几页
+                        var pageNumber=$('#bootstrap-table').bootstrapTable('getOptions').pageNumber;
+                        //返回每条的序号： 每页条数 * （当前页 - 1 ）+ 序号
+                        return pageSize * (pageNumber - 1) + index + 1;
+                    }
+                },
+                {
+                    field: 'id',
+                    title: 'id',
+                    visible: false
+                },
+                {
+                    field: 'yname',
+                    align: 'center',
+                    title: '学院'
+                },
+                {
+                    field: 'dname',
+                    align: 'center',
+                    title: '专业'
+                },
+                {
+                    field: 'userName',
+                    title: '申请人'
+                },
+                {
+                    field: 'rewardName',
+                    title: '荣誉名称'
+                },
+                {
+                    field: 'rewardFenlei',
+                    title: '分类',
+                    formatter: function(value, row, index) {
+                        return $.table.selectDictLabel(fenleiDatas, value);
+                    }
+                },
+                {
+                    field: 'rewardDengji',
+                    title: '等级',
+                    formatter: function(value, row, index) {
+                        return $.table.selectDictLabel(dengjiDatas, value);
+                    }
+                },
+                {
+                    field: 'rewardPaiming',
+                    title: '排名',
+                    formatter: function(value, row, index) {
+                        return $.table.selectDictLabel(paimingDatas, value);
+                    }
+                },
+                {
+                    field: 'jifen',
+                    title: '积分'
+                },
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                        var actions = [];
+                        var huanhang = false;
+                        if(row.state == 11 ){
+                            if (row.userId == row.uid){
+                                actions.push('<a class="' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.push(\'' + row.id + '\')">提交&nbsp;&nbsp;&nbsp;&nbsp;</a>');
+                                actions.push('<a class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')">编辑&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
+                                actions.push('<a class="' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')" style="color : #c90000">删除</a>');
                             }
+                            huanhang = true;
+                        }else
+
+                        if(row.state == 1 ){
+                            console.log(row)
+                            if (proFlag != 'hidden'){
+                                actions.push('<a  class="' + proFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro' + '\')">批阅&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
+                                huanhang = true;
+                            }
+
+                        }else
+                        if((row.state == 3 || row.state == 5 || row.state == 7)) {
+                            if (row.userId == row.uid) {
+                                actions.push('<a   class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')">编辑&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
+                                huanhang = true;
+                            }
+                            // actions.push('<a  class="' + proFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000">撤回&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
+                        }
 
                             // else if(row.state == 3 || row.state == 5 || row.state == 7){
                             //     if (row.userId == row.uid){
                             //     actions.push('<a  class="' + proFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000">撤回&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                             //     huanhang = true;
                             //     }
-                            // }
-                            else if(row.state ==  2){
-                                actions.push('<a  class="' + proFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000">撤回&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                                if (hechaFlag != 'hidden'){
+                        // }
+                        else if(row.state ==  2){
+                            actions.push('<a  class="' + proFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000">撤回&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
+                            if (hechaFlag != 'hidden'){
                                 actions.push('<a  class="' + hechaFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/hecha' + '\')">批阅&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                                }
-                                huanhang = true;
-                            }else
-                            if(row.state ==  4) {
+                            }
+                            huanhang = true;
+                        }else
+                        if(row.state ==  4) {
                             if(hechaFlag != 'hidden') {
                                 actions.push('<a  class="' + hechaFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000">撤回&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                                 huanhang = true;
@@ -595,87 +598,87 @@
                                 actions.push('<a  class="' + chayueFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chayue' + '\')">批阅&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                                 huanhang = true;
                             }
-                            }
+                        }
 
-                            else if(row.state ==  6){
-                                if (chayueFlag != 'hidden') {
+                        else if(row.state ==  6){
+                            if (chayueFlag != 'hidden') {
                                 actions.push('<a  class="' + chayueFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000">撤回&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                                 huanhang = true;
-                              }}
+                            }}
 
-                            if (huanhang) {
-                                actions.push('<br>'); // 只有前面有按钮时才换行
-
-                            }
-                            actions.push('<a class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
-
-                            return actions.join('');
+                        if (huanhang) {
+                            actions.push('<br>'); // 只有前面有按钮时才换行
 
                         }
-                    }]
-            };
-            $.table.init(options);
-            window.addEventListener("storage",function (event){
-                if (event.key==="year"){
-                    // 销毁表格，再初始化
-                    $('#bootstrap-table').bootstrapTable('destroy');
-                    initTable(options)
-                }
+                        actions.push('<a class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
+                        actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
 
-            })
-        });
-    </script>
-    <script>
-        function downloadFiles(id) {
-            window.location.href = ctx + 'common/HXdownloadZip?id='+id;
-        }
-    </script>
-    <script>
-        function downloadFiles(id) {
-            window.location.href = ctx + 'common/HXdownloadZip?id='+id;
-        }
+                        return actions.join('');
 
-        function rowStyle0(row, index) {
-            // 定义状态值与颜色的映射关系
-            const stateColorMap = {
-                6: '#67c23a', // 完结 绿色
-                3: '#e6a344', 5: '#e6a344', 7: '#e6a344',11: '#e6a344', // 被驳回，草稿 黄色
-                1: '#2c99ff', 2: '#2c99ff', 4: '#2c99ff', // 审核中 蓝色
-            };
-
-            // 统一将 row.state 转换为字符串进行查找
-            const state = String(row.state);
-
-            // 根据状态值查找对应的颜色
-            if (state in stateColorMap) {
-                return {
-                    css: { color: stateColorMap[state] }
-                };
+                    }
+                }]
+        };
+        $.table.init(options);
+        window.addEventListener("storage",function (event){
+            if (event.key==="year"){
+                // 销毁表格，再初始化
+                $('#bootstrap-table').bootstrapTable('destroy');
+                initTable(options)
             }
 
-            // 默认样式（可自定义）
+        })
+    });
+</script>
+<script>
+    function downloadFiles(id) {
+        window.location.href = ctx + 'common/HXdownloadZip?id='+id;
+    }
+</script>
+<script>
+    function downloadFiles(id) {
+        window.location.href = ctx + 'common/HXdownloadZip?id='+id;
+    }
+
+    function rowStyle0(row, index) {
+        // 定义状态值与颜色的映射关系
+        const stateColorMap = {
+            6: '#67c23a', // 完结 绿色
+            3: '#e6a344', 5: '#e6a344', 7: '#e6a344',11: '#e6a344', // 被驳回，草稿 黄色
+            1: '#2c99ff', 2: '#2c99ff', 4: '#2c99ff', // 审核中 蓝色
+        };
+
+        // 统一将 row.state 转换为字符串进行查找
+        const state = String(row.state);
+
+        // 根据状态值查找对应的颜色
+        if (state in stateColorMap) {
             return {
-                css: { color: '#000000' } // 默认黑色
+                css: { color: stateColorMap[state] }
             };
         }
 
-        function showhistory(id,state) {
-            updateProgressStepColor(state)
-            //查询配乐记录
-            $.ajax({
-                url: prefix + '/bhyy/'+id,
-                type: 'POST',
-                data: {
-                    kid: id
-                },
-                success: function (response) {
-                    const eventList = document.getElementById('event-list');
-                    eventList.innerHTML = '';
-                    response.rows.sort((a, b) => new Date(b.createTime) - new Date(a.createTime));
-                    response.rows.forEach(function (row) {
-                        const li = document.createElement('li');
-                        li.innerHTML = `
+        // 默认样式（可自定义）
+        return {
+            css: { color: '#000000' } // 默认黑色
+        };
+    }
+
+    function showhistory(id,state) {
+        updateProgressStepColor(state)
+        //查询配乐记录
+        $.ajax({
+            url: prefix + '/bhyy/'+id,
+            type: 'POST',
+            data: {
+                kid: id
+            },
+            success: function (response) {
+                const eventList = document.getElementById('event-list');
+                eventList.innerHTML = '';
+                response.rows.sort((a, b) => new Date(b.createTime) - new Date(a.createTime));
+                response.rows.forEach(function (row) {
+                    const li = document.createElement('li');
+                    li.innerHTML = `
                                    <div class="event-item">
                             <div class="event-content">
                                 <i class="node-icon"></i>
@@ -684,69 +687,72 @@
                             </div>
                         </div>
                     `;
-                        eventList.appendChild(li);
-                    });
-                },
-                error: function () {
-                    alert('Failed to fetch event history.');
-                }
-            });
-        }
-
-        function updateProgressStepColor(state) {
-            // 获取所有步骤元素
-            const steps = document.querySelectorAll('.progress_inner__step');
-            const progressBar = document.querySelector('.progress_inner__bar--progress');
-
-            // 遍历所有步骤，重置样式
-            steps.forEach(step => {
-                step.classList.remove('active', 'completed', 'pending');
-                step.querySelector('.status-text').classList.remove('active', 'completed');
-            });
-
-            // 根据 state 设置相应的步骤颜色
-            if([11, 3, 5, 7].includes(state)) {
-                document.getElementById('step-1').classList.add('active');
-                document.getElementById('step-1').querySelector('.status-text').classList.add('active');
-                progressBar.style.width = '0';
-            } else if (state === 6) {
-                document.getElementById('step-1').classList.add('completed');
-                document.getElementById('step-1').querySelector('.status-text').classList.add('completed');
-                document.getElementById('step-2').classList.add('completed');
-                document.getElementById('step-2').querySelector('.status-text').classList.add('completed');
-                document.getElementById('step-3').classList.add('completed');
-                document.getElementById('step-3').querySelector('.status-text').classList.add('completed');
-                progressBar.style.width = '100%';
-            } else if ([1, 2, 4 ].includes(state)) {
-                document.getElementById('step-1').classList.add('completed');
-                document.getElementById('step-1').querySelector('.status-text').classList.add('completed');
-                document.getElementById('step-2').classList.add('active');
-                document.getElementById('step-2').querySelector('.status-text').classList.add('active');
-                progressBar.style.width = '50%';
-            } else {
-                // 默认情况下，所有步骤为灰色
-                steps.forEach(step => {
-                    step.classList.add('pending');
-                    step.querySelector('.status-text').classList.add('pending');
+                    eventList.appendChild(li);
                 });
+            },
+            error: function () {
+                alert('Failed to fetch event history.');
             }
-        }
-
-
-
-        document.addEventListener('DOMContentLoaded', function () {
-            // 初始化显示当前时间
-            document.getElementById('current-time').textContent = getCurrentTime();
         });
-    </script>
+    }
+
+    function updateProgressStepColor(state) {
+        // 获取所有步骤元素
+        const steps = document.querySelectorAll('.progress_inner__step');
+        const progressBar = document.querySelector('.progress_inner__bar--progress');
+
+        // 遍历所有步骤，重置样式
+        steps.forEach(step => {
+            step.classList.remove('active', 'completed', 'pending');
+            step.querySelector('.status-text').classList.remove('active', 'completed');
+        });
+
+        // 根据 state 设置相应的步骤颜色
+        if([11, 3, 5, 7].includes(state)) {
+            document.getElementById('step-1').classList.add('active');
+            document.getElementById('step-1').querySelector('.status-text').classList.add('active');
+            progressBar.style.width = '0';
+        } else if (state === 6) {
+            document.getElementById('step-1').classList.add('completed');
+            document.getElementById('step-1').querySelector('.status-text').classList.add('completed');
+            document.getElementById('step-2').classList.add('completed');
+            document.getElementById('step-2').querySelector('.status-text').classList.add('completed');
+            document.getElementById('step-3').classList.add('completed');
+            document.getElementById('step-3').querySelector('.status-text').classList.add('completed');
+            progressBar.style.width = '100%';
+        } else if ([1, 2, 4 ].includes(state)) {
+            document.getElementById('step-1').classList.add('completed');
+            document.getElementById('step-1').querySelector('.status-text').classList.add('completed');
+            document.getElementById('step-2').classList.add('active');
+            document.getElementById('step-2').querySelector('.status-text').classList.add('active');
+            progressBar.style.width = '50%';
+        } else {
+            // 默认情况下，所有步骤为灰色
+            steps.forEach(step => {
+                step.classList.add('pending');
+                step.querySelector('.status-text').classList.add('pending');
+            });
+        }
+    }
+
+
+
+    document.addEventListener('DOMContentLoaded', function () {
+        // 初始化显示当前时间
+        document.getElementById('current-time').textContent = getCurrentTime();
+    });
+</script>
 <script>
     var options = {
-    url: prefix + "/list",
-    queryParams: function(params) {
-        params.dname = $('input[name="dname"]').val(); // 将输入框的值传给后端
-        return params;
-    }
-};
+        url: prefix + "/list",
+        queryParams: function(params) {
+            params.dname = $('input[name="dname"]').val(); // 将输入框的值传给后端
+            params.yname = $('input[name="yname"]').val(); // ========== 补充：学院查询参数传递 ==========
+            params.userName = $('input[name="userName"]').val(); // ========== 补充：主持人查询参数传递 ==========
+            params.rewardName = $('input[name="rewardName"]').val(); // ========== 补充：课题名称查询参数传递 ==========
+            return params;
+        }
+    };
 
 </script>
 </body>
