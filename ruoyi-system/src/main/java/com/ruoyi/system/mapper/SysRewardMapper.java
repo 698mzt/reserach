@@ -1,8 +1,6 @@
 package com.ruoyi.system.mapper;
-
 import com.ruoyi.system.domain.SysReward;
 import org.apache.ibatis.annotations.Param;
-
 import java.util.List;
 import java.util.Map;
 
@@ -23,12 +21,44 @@ public interface SysRewardMapper
     public SysReward selectSysRewardById(Long id);
 
     /**
-     * 查询奖励列表
+     * 管理员：所有条件查询奖励列表
      *
      * @param sysReward 奖励
      * @return 奖励集合
      */
     public List<SysReward> selectSysRewardList(SysReward sysReward);
+
+    /**
+     * 教师：仅课题名称查询奖励列表
+     *
+     * @param sysReward 奖励
+     * @return 奖励集合
+     */
+    public List<SysReward> selectSysRewardListCx(SysReward sysReward);
+
+    /**
+     * 教研室：课题名称+主持人查询奖励列表
+     *
+     * @param sysReward 奖励
+     * @return 奖励集合
+     */
+    public List<SysReward> selectSysRewardListCxList(SysReward sysReward);
+
+    /**
+     * 学院：课题名称+主持人+专业查询奖励列表
+     *
+     * @param sysReward 奖励
+     * @return 奖励集合
+     */
+    public List<SysReward> selectSysRewardListxY(SysReward sysReward);
+
+    /**
+     * 科研处：课题名称+主持人+专业+学院查询奖励列表
+     *
+     * @param sysReward 奖励
+     * @return 奖励集合
+     */
+    public List<SysReward> selectSysRewardListKY(SysReward sysReward);
 
     /**
      * 新增奖励
@@ -63,6 +93,7 @@ public interface SysRewardMapper
     public int deleteSysRewardByIds(String[] ids);
 
     int hxPass(@Param("id") String id, @Param("state") String state);
+
     int hxBh(@Param("id") String id,@Param("state") String state);
 
     List<SysReward> selectSysRewardListByKYC(SysReward sysReward);
@@ -74,14 +105,12 @@ public interface SysRewardMapper
 //    List<SysReward> selectSysRewardListByOverReward(SysReward sysReward);
 //    List<SysReward> selectSysRewardListByOverRewardJYS(SysReward sysReward);
 //    List<SysReward> selectSysRewardListByOverRewardKYC(SysReward sysReward);
-
-
 //    List<SysReward> selectSysRewardListByOVER(SysReward sysReward);
 
     int overReward(@Param("id") String id,@Param("state") String state);
 
-
     void updateJifen(@Param("id")  Long id,@Param("jifen") int jifen);
+
     void resetJifenById(@Param("id") Long id);
 
     /**

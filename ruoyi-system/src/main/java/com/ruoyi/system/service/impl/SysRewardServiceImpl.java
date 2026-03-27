@@ -9,7 +9,7 @@ import com.ruoyi.system.domain.SysRewardPiyue;
 import com.ruoyi.system.mapper.SciRewardScoreCfgMapper;
 import com.ruoyi.system.mapper.SysRewardMapper;
 import com.ruoyi.system.mapper.SysRewardPiyueMapper;
-import com.ruoyi.system.service.ISciRewardScoreCfgService; // 【新增】导入积分服务接口
+import com.ruoyi.system.service.ISciRewardScoreCfgService;
 import com.ruoyi.system.service.ISysRewardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,12 +28,14 @@ public class SysRewardServiceImpl implements ISysRewardService
 {
     @Autowired
     private SysRewardMapper sysRewardMapper;
+
     @Autowired
     private SysRewardPiyueMapper sysRewardPiyueMapper;
+
     @Autowired
     private SciRewardScoreCfgMapper sciRewardScoreCfgMapper;
 
-    // 【新增】注入积分配置服务，用于自动计算积分
+    // 注入积分配置服务，用于自动计算积分
     @Autowired
     private ISciRewardScoreCfgService scoreCfgService;
 
@@ -53,7 +55,7 @@ public class SysRewardServiceImpl implements ISysRewardService
      * 查询奖励列表
      *
      * @param sysReward 奖励
-     * @return 奖励
+     * @return 奖励列表
      */
     @Override
     @DataScope(deptAlias = "d", userAlias = "u")
@@ -86,7 +88,7 @@ public class SysRewardServiceImpl implements ISysRewardService
     }
 
     /**
-     * 【修改】新增奖励 - 自动计算积分
+     * 新增奖励 - 自动计算积分
      *
      * @param sysReward 奖励
      * @return 结果
@@ -94,15 +96,14 @@ public class SysRewardServiceImpl implements ISysRewardService
     @Override
     public int insertSysReward(SysReward sysReward)
     {
-        // 【核心新增】根据分类、等级、排名自动计算积分
-        // 调用积分配置服务查询对应的积分值
+        // 根据分类、等级、排名自动计算积分
         String jifen = scoreCfgService.calculateScore(
-                sysReward.getRewardFenlei(),  // 奖励分类
-                sysReward.getRewardDengji(),  // 奖励等级
-                sysReward.getRewardPaiming()  // 奖励排名
+                sysReward.getRewardFenlei(),
+                sysReward.getRewardDengji(),
+                sysReward.getRewardPaiming()
         );
 
-        // 【核心新增】将计算出的积分设置到奖励对象中
+        // 将计算出的积分设置到奖励对象中
         sysReward.setJifen(jifen);
 
         // 原有保存逻辑
@@ -118,7 +119,7 @@ public class SysRewardServiceImpl implements ISysRewardService
     }
 
     /**
-     * 【修改】修改奖励 - 重新计算积分（防止分类/等级/排名被修改）
+     * 修改奖励 - 重新计算积分（防止分类/等级/排名被修改）
      *
      * @param sysReward 奖励
      * @return 结果
@@ -126,15 +127,14 @@ public class SysRewardServiceImpl implements ISysRewardService
     @Override
     public int updateSysReward(SysReward sysReward)
     {
-        // 【核心新增】重新计算积分
-        // 如果用户修改了分类、等级或排名，积分需要重新计算
+        // 重新计算积分
         String jifen = scoreCfgService.calculateScore(
                 sysReward.getRewardFenlei(),
                 sysReward.getRewardDengji(),
                 sysReward.getRewardPaiming()
         );
 
-        // 【核心新增】更新积分值
+        // 更新积分值
         sysReward.setJifen(jifen);
 
         // 原有更新逻辑
@@ -145,7 +145,7 @@ public class SysRewardServiceImpl implements ISysRewardService
         if (sysReward.getState().equals("1")) {
             sysRewardPiyue.setConcate("提交");
             sysRewardPiyue.setState("提交");
-        }else {
+        } else {
             sysRewardPiyue.setConcate("修改");
             sysRewardPiyue.setState("修改");
         }
@@ -178,19 +178,17 @@ public class SysRewardServiceImpl implements ISysRewardService
 
     /**
      * 审批通过（科研处查阅时计算积分）
-     * 注意：这里保留原有逻辑，在state=6（chayue）时计算积分
      */
     @Override
     public int hxPass(String id, Long uid, String urlFlag) {
         String state = "0";
-        if(urlFlag.equals("hecha")){
-            state ="4";
-        }else if(urlFlag.equals("pro")) {
+        if (urlFlag.equals("hecha")) {
+            state = "4";
+        } else if (urlFlag.equals("pro")) {
             state = "2";
-        }
-        else if(urlFlag.equals("chayue")) {
+        } else if (urlFlag.equals("chayue")) {
             state = "6";
-            // 原有逻辑：科研处审批通过时计算积分
+            // 科研处审批通过时计算积分
             SysReward sysReward = sysRewardMapper.selectSysRewardById(Long.valueOf(id));
             String a = sysReward.getRewardFenlei();
             String b = sysReward.getRewardDengji();
@@ -208,7 +206,7 @@ public class SysRewardServiceImpl implements ISysRewardService
             }
             sysRewardMapper.updateJifen(Long.valueOf(id), jifen);
         }
-        int a =  sysRewardMapper.hxPass(id,state);
+        int a = sysRewardMapper.hxPass(id, state);
         SysRewardPiyue sysRewardPiyue = new SysRewardPiyue();
         sysRewardPiyue.setUid(uid);
         sysRewardPiyue.setRewardId(Integer.valueOf(id));
@@ -221,14 +219,14 @@ public class SysRewardServiceImpl implements ISysRewardService
     @Override
     public int hxBh(String id, Long uid, String remark, String urlFlag) {
         String state = "0";
-        if(urlFlag.equals("hecha")){
-            state ="5";
-        }else if(urlFlag.equals("pro")){
-            state ="3";
-        }else if(urlFlag.equals("chayue")){
-            state ="7";
+        if (urlFlag.equals("hecha")) {
+            state = "5";
+        } else if (urlFlag.equals("pro")) {
+            state = "3";
+        } else if (urlFlag.equals("chayue")) {
+            state = "7";
         }
-        int a = sysRewardMapper.hxPass(id,state);
+        int a = sysRewardMapper.hxPass(id, state);
         SysRewardPiyue sysRewardPiyue = new SysRewardPiyue();
         sysRewardPiyue.setUid(uid);
         sysRewardPiyue.setRewardId(Integer.valueOf(id));
@@ -238,9 +236,9 @@ public class SysRewardServiceImpl implements ISysRewardService
         return a;
     }
 
-    //撤销
+    // 撤销奖励
     @Override
-    public int recall(Integer id, String state,Long uid, String remark, String urlFlag) {
+    public int recall(Integer id, String state, Long uid, String remark, String urlFlag) {
         String newState = state;
         switch (state) {
             case "2":
@@ -256,11 +254,12 @@ public class SysRewardServiceImpl implements ISysRewardService
                 newState = "4";
                 break;
         }
+        // 撤销已查阅通过的奖励时，重置积分
         if (state.equals("6")) {
             sysRewardMapper.resetJifenById(Long.valueOf(id));
         }
 
-        int a =sysRewardMapper.hxPass(id.toString(),newState);
+        int a = sysRewardMapper.hxPass(id.toString(), newState);
         SysRewardPiyue sysRewardPiyue = new SysRewardPiyue();
         sysRewardPiyue.setUid(uid);
         sysRewardPiyue.setRewardId(Integer.valueOf(id));
@@ -276,7 +275,7 @@ public class SysRewardServiceImpl implements ISysRewardService
     }
 
     @Override
-    @DataScope(deptAlias = "d",userAlias = "u")
+    @DataScope(deptAlias = "d", userAlias = "u")
     public List<SysReward> getStatsQueryToCheck(Map<String, String> params) {
         DataScopeUtils.applyDataScopeToMap(params, "d", "u", "");
         return sysRewardMapper.getStatsQueryToCheck(params);
