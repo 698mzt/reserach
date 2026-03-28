@@ -431,18 +431,12 @@
             <!-- 学院字段 - 科研处和管理员可见 -->
             <li th:if="${@permission.isAnyRoles('sci_tesearch,admin')}">
               <label>学院：</label>
-              <select name="xueyuan" th:with="type=${@dict.getType('sys_xueyuan')}">
-                <option value="">所有</option>
-                <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
-              </select>
+              <input type="text" name="xueyuan" placeholder="请输入学院名称"/>
             </li>
             <!-- 专业字段 - 科研处、学院和管理员可见 -->
             <li th:if="${@permission.isAnyRoles('sci_tesearch,dept_teacher,admin')}">
               <label>专业：</label>
-              <select name="jiaoyanshi" th:with="type=${@dict.getType('sys_dept')}">
-                <option value="">所有</option>
-                <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
-              </select>
+              <input type="text" name="jiaoyanshi" placeholder="请输入专业名称"/>
             </li>
             <!-- 主持人字段 - 科研处、学院、教研室和管理员可见 -->
             <li th:if="${@permission.isAnyRoles('sci_tesearch,dept_teacher,research,admin')}">
@@ -493,7 +487,7 @@
 
     <div id="toolbar" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
       <div class="btn-group-sm" role="group" style="display: inline-flex; gap: 4px;">
-        <a class="btn btn-success" onclick="$.operate.addTab()" shiro:hasPermission="system:jiaocairuanzhu:add">
+        <a class="btn btn-success" onclick="$.operate.addTab()">
           <i class="fa fa-plus"></i> 添加
         </a>
 <!--        <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:jiaocairuanzhu:export">-->
@@ -865,7 +859,11 @@
         const eventList = document.getElementById('event-list');
         eventList.innerHTML = '';
         console.log(response.rows);
-        response.rows.forEach(function (row) {
+        // 按创建时间倒序排序
+        var sortedRows = response.rows.sort(function(a, b) {
+          return new Date(b.createTime) - new Date(a.createTime);
+        });
+        sortedRows.forEach(function (row) {
           console.log(response.rows);
 
           const li = document.createElement('li');
@@ -879,7 +877,7 @@
                             </div>
                         </div>
                     `;
-          eventList.insertBefore(li, eventList.firstChild);
+          eventList.appendChild(li);
         });
       },
       error: function () {

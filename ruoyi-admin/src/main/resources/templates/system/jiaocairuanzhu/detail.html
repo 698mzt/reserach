@@ -242,12 +242,21 @@
             showToggle: false,
             showColumns: false,
             pagination:false,
+            responseHandler: function(res) {
+                if (res.code == 0 && res.rows) {
+                    res.rows.sort(function(a, b) {
+                        return new Date(b.createTime) - new Date(a.createTime);
+                    });
+                }
+                return res;
+            },
             columns: [
 
                 {
                     field : 'createTime',
                     title : '批阅时间',
-                    width: 200
+                    width: 200,
+                    sortable: true
 
                 } ,
                 {
