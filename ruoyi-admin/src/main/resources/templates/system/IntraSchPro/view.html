@@ -480,23 +480,7 @@
     }
 
     function getScore(row) {
-        var normalizedState = normalizeState(row.state);
-        if (!["4", "6"].includes(normalizedState)) {
-            return 0;
-        }
-        if (row.firstPersonId == row.uid) {
-            return row.firstPoints || 0;
-        }
-        if (row.secondPersonId == row.uid) {
-            return row.secondPoints || 0;
-        }
-        if (row.thirdPersonId == row.uid) {
-            return row.thirdPoints || 0;
-        }
-        if (row.fourthPersonId == row.uid) {
-            return row.forthPoints || 0;
-        }
-        return 0;
+        return row.firstPoints || 0;
     }
 
     function openStagePage(id, state, urlFlag, title) {
@@ -518,14 +502,10 @@
             if (isDeptMatched(row) && row.userId != row.uid) {
                 if (state === "1") {
                     actions.push('<a class="link-button" href="javascript:void(0)" onclick="openStagePage(' + row.id + ', \'' + state + '\', \'pro\', \'详细成果转化\')">批阅</a>');
-                } else if (state === "11") {
-                    actions.push('<a class="del-link-button" href="javascript:void(0)" onclick="openStagePage(' + row.id + ', \'' + state + '\', \'pro\', \'详细成果转化\')">撤回</a>');
                 }
             } else if (row.userId == row.uid) {
                 if (state === "1") {
                     actions.push('<a class="link-button" href="javascript:void(0)" onclick="openStagePage(' + row.id + ', \'' + state + '\', \'pro\', \'详细成果转化\')">批阅</a>');
-                } else if (state === "11") {
-                    actions.push('<a class="del-link-button" href="javascript:void(0)" onclick="openStagePage(' + row.id + ', \'' + state + '\', \'pro\', \'详细成果转化\')">撤回</a>');
                 } else if (state === "4") {
                     actions.push('<a class="link-button" href="javascript:void(0)" onclick="$.operate.overTab(\'' + row.id + '\')">申请结项</a>');
                 } else if (["3", "12", "5"].includes(state)) {
@@ -535,8 +515,6 @@
         } else if (row.role === "dept_teacher") {
             if (state === "11" && isDeptMatched(row)) {
                 actions.push('<a class="link-button" href="javascript:void(0)" onclick="openStagePage(' + row.id + ', \'' + state + '\', \'dept_teacher\', \'详细成果转化\')">批阅</a>');
-            } else if (state === "2" && isDeptMatched(row)) {
-                actions.push('<a class="del-link-button" href="javascript:void(0)" onclick="openStagePage(' + row.id + ', \'' + state + '\', \'dept_teacher\', \'详细成果转化\')">撤回</a>');
             } else if (row.userId == row.uid && ["9", "10", "14"].includes(state)) {
                 actions.push('<a class="link-button" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')">编辑</a>');
             }
@@ -544,7 +522,6 @@
             if (state === "2") {
                 actions.push('<a class="link-button" href="javascript:void(0)" onclick="openStagePage(' + row.id + ', \'' + state + '\', \'hecha\', \'详细成果转化\')">批阅</a>');
             } else if (state === "4") {
-                actions.push('<a class="del-link-button" href="javascript:void(0)" onclick="openStagePage(' + row.id + ', \'' + state + '\', \'hecha\', \'详细成果转化\')">撤回</a>');
                 if (row.userId == row.uid) {
                     actions.push('<a class="link-button" href="javascript:void(0)" onclick="$.operate.overTab(\'' + row.id + '\')">申请结项</a>');
                 }
@@ -569,8 +546,6 @@
             if (isDeptMatched(row)) {
                 if (state === "7") {
                     actions.push('<a class="link-button" href="javascript:void(0)" onclick="openStagePage(' + row.id + ', \'' + state + '\', \'JYSOVER\', \'详细成果转化\')">批阅</a>');
-                } else if (state === "13") {
-                    actions.push('<a class="del-link-button" href="javascript:void(0)" onclick="openStagePage(' + row.id + ', \'' + state + '\', \'JYSOVER\', \'详细成果转化\')">撤回</a>');
                 }
             }
             if (row.userId == row.uid) {
@@ -585,8 +560,6 @@
             if (isDeptMatched(row)) {
                 if (state === "13") {
                     actions.push('<a class="link-button" href="javascript:void(0)" onclick="openStagePage(' + row.id + ', \'' + state + '\', \'dept_teacher\', \'详细成果转化\')">批阅</a>');
-                } else if (state === "8") {
-                    actions.push('<a class="del-link-button" href="javascript:void(0)" onclick="openStagePage(' + row.id + ', \'' + state + '\', \'dept_teacher\', \'详细成果转化\')">撤回</a>');
                 } else if (row.userId == row.uid && ["9", "10", "14"].includes(state)) {
                     actions.push('<a class="link-button" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')">编辑</a>');
                 }

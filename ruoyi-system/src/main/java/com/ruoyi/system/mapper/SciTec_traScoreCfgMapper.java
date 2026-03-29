@@ -3,9 +3,8 @@ package com.ruoyi.system.mapper;
 import com.ruoyi.system.domain.SciProjectScoreCfg;
 import com.ruoyi.system.domain.SciTec_traScoreCfg;
 import org.apache.ibatis.annotations.Delete;
-import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
@@ -56,4 +55,11 @@ public interface SciTec_traScoreCfgMapper {
     @Delete("  delete from sci_technology_transfer_cfg   " +
             "where funds_max = #{funds_max} and funds_min = #{funds_min}")
     int deleteSciTec_traScoreCfgByFunds(Map map);
+
+    @Select("SELECT user_order, total_score, start_score, end_score " +
+            "FROM sci_technology_transfer_cfg " +
+            "WHERE CAST(funds_min AS DECIMAL) <= #{amount} " +
+            "AND CAST(funds_max AS DECIMAL) > #{amount} " +
+            "ORDER BY user_order + 0 ASC")
+    List<Map<String, Object>> selectScoreByAmount(@Param("amount") double amount);
 }
