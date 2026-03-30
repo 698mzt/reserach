@@ -27,7 +27,7 @@
             <div class="form-group">
                 <label class="col-sm-4 control-label is-required">课题类型：</label>
                 <div class="col-sm-8">
-                    <select id="topType" readonly class="form-control" th:with="type=${@dict.getType('sci_vertical_type')}" required disabled>
+                    <select id="topType" name="topType" readonly class="form-control" th:with="type=${@dict.getType('sci_vertical_type')}" required disabled>
                         <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}" th:field="*{topType}"></option>
                     </select>
                 </div>
@@ -66,10 +66,11 @@
             <div class="form-group">
                 <label class="col-sm-4 control-label is-required">项目金额(万)：</label>
                 <div class="col-sm-8">
-                    <input readonly th:field="*{amount}" class="form-control" type="text" required>
+                    <input name="amount" readonly th:field="*{amount}" class="form-control" type="text" required>
                 </div>
             </div>
         </div>
+        <div class="row">
         <div class="col-xs-6">
             <div class="form-group">
                 <label class="col-sm-4 control-label is-required">立项日期：</label>
@@ -80,6 +81,7 @@
                     </div>
                 </div>
             </div>
+        </div>
         </div>
 <!--        <div class="col-xs-6">-->
 <!--            <div class="form-group">-->
@@ -92,54 +94,97 @@
 <!--                </div>-->
 <!--            </div>-->
 <!--        </div>-->
-        <div class="col-xs-6">
-            <div class="form-group">
-                <label class="col-sm-4 control-label is-required">主持人：</label>
-                <div class="col-sm-8">
-
-                    <!--                        <input name="firstPersonId" th:field="*{firstPersonId}" class="form-control" type="text" required>-->
-                    <select name="firstPersonId" class="form-control m-b" disabled>
-                        <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ #strings.toString(user.userId) == sciHorizontalApplyVertical.firstPersonId}"></option>
-                    </select>
+        <!-- 主持人和预期科研分 -->
+        <div class="row">
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">主持人：</label>
+                    <div class="col-sm-8">
+                        <!--                        <input name="firstPersonId" th:field="*{firstPersonId}" class="form-control" type="text" required>-->
+                        <select name="firstPersonId" class="form-control m-b" disabled>
+                            <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ #strings.toString(user.userId) == sciHorizontalApplyVertical.firstPersonId}"></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">预期科研分：</label>
+                    <div class="col-sm-8">
+                        <input id="expectedScore1" class="form-control" type="text" readonly placeholder="自动计算">
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="col-xs-6">
-            <div class="form-group">
-                <label class="col-sm-4 control-label is-required">成员1：</label>
-                <div class="col-sm-8">
-                    <!--                        <input name="secondPersonTask" th:field="*{secondPersonTask}" class="form-control" type="text" required>-->
-                    <select name="secondPersonId" class="form-control m-b" disabled >
-                        <option value="">无</option>
-                        <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ #strings.toString(user.userId) == sciHorizontalApplyVertical.secondPersonId}" ></option>
-                    </select>
+        <!-- 成员1和预期科研分 -->
+        <div class="row">
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">成员1：</label>
+                    <div class="col-sm-8">
+                        <!--                        <input name="secondPersonTask" th:field="*{secondPersonTask}" class="form-control" type="text" required>-->
+                        <select name="secondPersonId" class="form-control m-b" disabled >
+                            <option value="">无</option>
+                            <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ #strings.toString(user.userId) == sciHorizontalApplyVertical.secondPersonId}" ></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">预期科研分：</label>
+                    <div class="col-sm-8">
+                        <input id="expectedScore2" class="form-control" type="text" readonly placeholder="自动计算">
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="col-xs-6">
-            <div class="form-group">
-                <label class="col-sm-4 control-label is-required">成员2：</label>
-                <div class="col-sm-8">
-                    <!--                        <input name="thirdPersonId" th:field="*{thirdPersonId}" class="form-control" type="text" required>-->
-                    <select  class="form-control m-b" disabled>
-                        <option value="">无</option>
-                        <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ #strings.toString(user.userId) == sciHorizontalApplyVertical.thirdPersonId}"  ></option>
-                    </select>
+        <!-- 成员2和预期科研分 -->
+        <div class="row">
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">成员2：</label>
+                    <div class="col-sm-8">
+                        <!--                        <input name="thirdPersonId" th:field="*{thirdPersonId}" class="form-control" type="text" required>-->
+                        <select  class="form-control m-b" disabled>
+                            <option value="">无</option>
+                            <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ #strings.toString(user.userId) == sciHorizontalApplyVertical.thirdPersonId}"  ></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">预期科研分：</label>
+                    <div class="col-sm-8">
+                        <input id="expectedScore3" class="form-control" type="text" readonly placeholder="自动计算">
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="col-xs-6">
-            <div class="form-group">
-                <label class="col-sm-4 control-label is-required">成员3：</label>
-                <div class="col-sm-8">
-                    <!--                        <input name="fourthPersonId" th:field="*{fourthPersonId}" class="form-control" type="text" required>-->
-                    <select  class="form-control m-b" disabled>
-                        <option value="">无</option>
-                        <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ #strings.toString(user.userId) == sciHorizontalApplyVertical.fourthPersonId}"  ></option>
-                    </select>
+        <!-- 成员3和预期科研分 -->
+        <div class="row">
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">成员3：</label>
+                    <div class="col-sm-8">
+                        <!--                        <input name="fourthPersonId" th:field="*{fourthPersonId}" class="form-control" type="text" required>-->
+                        <select  class="form-control m-b" disabled>
+                            <option value="">无</option>
+                            <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ #strings.toString(user.userId) == sciHorizontalApplyVertical.fourthPersonId}"  ></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">预期科研分：</label>
+                    <div class="col-sm-8">
+                        <input id="expectedScore4" class="form-control" type="text" readonly placeholder="自动计算">
+                    </div>
                 </div>
             </div>
         </div>
@@ -319,6 +364,60 @@
             alert("网址无效");
         }
     }
+    // 计算预期积分
+    function calculateExpectedScore() {
+        const topType = $("select[name='topType']").val();
+        const subjectSource = $("select[name='subjectSource']").val();
+        const amount = $("input[name='amount']").val();
+
+        // 如果必填字段未填写，不计算积分
+        if (!topType || !amount) {
+            $("#expectedScore1").val("");
+            $("#expectedScore2").val("");
+            $("#expectedScore3").val("");
+            $("#expectedScore4").val("");
+            return;
+        }
+
+        // 发送AJAX请求计算积分
+        $.ajax({
+            url: prefix + "/calculateScore",
+            type: "POST",
+            data: {
+                topType: topType,
+                subjectSource: subjectSource,
+                amount: parseFloat(amount)
+            },
+            dataType: "json",
+            success: function(result) {
+                console.log("AJAX Success - Result:", result);
+                if (result && result.code === 0 && result.data !== undefined) {
+                    // 主持人（排名第一）
+                    $("#expectedScore1").val(result.data[0]);
+                    // 成员1（排名第二）
+                    $("#expectedScore2").val(result.data[1]);
+                    // 成员2（排名第三）
+                    $("#expectedScore3").val(result.data[2]);
+                    // 成员3（排名第四）
+                    $("#expectedScore4").val(result.data[3]);
+                } else {
+                    console.error("Invalid result format:", result);
+                    $("#expectedScore1").val(0);
+                    $("#expectedScore2").val(0);
+                    $("#expectedScore3").val(0);
+                    $("#expectedScore4").val(0);
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error("AJAX Error:", status, error);
+                $("#expectedScore1").val(0);
+                $("#expectedScore2").val(0);
+                $("#expectedScore3").val(0);
+                $("#expectedScore4").val(0);
+            }
+        });
+    }
+
     $(function(){
         var kid = $("#ktid").val();
         var options = {
@@ -379,8 +478,8 @@
 
         });
 
-
-
+        // 页面加载时计算预期科研分
+        calculateExpectedScore();
 
         <!-- laydate示例 -->
         layui.use('laydate', function(){

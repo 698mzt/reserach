@@ -61,8 +61,8 @@ public class SciHorizontalApplyVerticalController extends BaseController {
 
     /**
      * 计算纵向课题预期积分
-     * 功能：根据课题类型查询积分配置，计算预期科研分
-     * SQL：SELECT * FROM sci_Vertical_score_cfg WHERE funds_type = ?
+     * 功能：根据课题类型和排名计算预期科研分
+     * 按照2026年度新的科研分计算标准
      */
     @PostMapping("/calculateScore")
     @ResponseBody
@@ -71,37 +71,101 @@ public class SciHorizontalApplyVerticalController extends BaseController {
                                      @RequestParam(required = false) String subjectSource,
                                      @RequestParam(required = false) Double amount) {
         try {
-            // 直接使用selectVerticalScoreCfgList方法查询纵向课题积分配置
-            SciProjectScoreCfg scoreCfg = new SciProjectScoreCfg();
-            scoreCfg.setFundsType(topType); // 课题类型作为经费类型
-            List<SciProjectScoreCfg> scoreCfgs = sciProjectScoreCfgMapper.selectVerticalScoreCfgList(scoreCfg);
+            // 计算每位成员的预期科研分
+            List<Integer> expectedScores = new ArrayList<>();
+            // 主持人（排名第一）
+            expectedScores.add(calculateScoreByTypeAndRank(topType, 1).intValue());
+            // 成员1（排名第二）
+            expectedScores.add(calculateScoreByTypeAndRank(topType, 2).intValue());
+            // 成员2（排名第三）
+            expectedScores.add(calculateScoreByTypeAndRank(topType, 3).intValue());
+            // 成员3（排名第四）
+            expectedScores.add(calculateScoreByTypeAndRank(topType, 4).intValue());
             
-            // 如果没有找到配置，返回默认积分
-            if (scoreCfgs == null || scoreCfgs.isEmpty()) {
-                return AjaxResult.success(0);
-            }
-            
-            // 这里简化处理，实际应该根据金额范围和配置计算积分
-            // 假设第一个配置为默认配置（第1负责人）
-            SciProjectScoreCfg cfg = scoreCfgs.get(0);
-            
-            Double expectedScore = 0.0;
-            
-            // 尝试解析总分为Double
-            if (cfg.getTotalScore() != null) {
-                try {
-                    expectedScore = Double.parseDouble(cfg.getTotalScore());
-                } catch (NumberFormatException e) {
-                    expectedScore = 0.0;
-                }
-            }
-            
-            // 可以根据金额、课题来源等进一步调整积分计算逻辑
-            // 这里简化处理，直接返回配置的总分
-            
-            return AjaxResult.success(expectedScore.intValue());
+            return AjaxResult.success(expectedScores);
         } catch (Exception e) {
             return AjaxResult.error("积分计算失败: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * 根据课题类型和排名计算积分
+     * 按照2026年度新的科研分计算标准
+     */
+    private Double calculateScoreByTypeAndRank(String topType, int rank) {
+        // 映射数字类型的topType到课题类型标签
+        String typeLabel = mapTopTypeToLabel(topType);
+        
+        // 根据课题类型和排名计算积分
+        switch (typeLabel) {
+            case "主持国家基金科研项目":
+                switch (rank) {
+                    case 1: return 8000.0;
+                    case 2: return 3200.0;
+                    case 3: return 1600.0;
+                    case 4: return 800.0;
+                    default: return 0.0;
+                }
+            case "主持省部级基金科研项目":
+                switch (rank) {
+                    case 1: return 4000.0;
+                    case 2: return 1600.0;
+                    case 3: return 800.0;
+                    case 4: return 400.0;
+                    default: return 0.0;
+                }
+            case "主持省部级教改项目":
+            case "主持省部级纵向科研项目":
+                switch (rank) {
+                    case 1: return 400.0;
+                    case 2: return 160.0;
+                    case 3: return 80.0;
+                    case 4: return 40.0;
+                    default: return 0.0;
+                }
+            case "主持厅局级、学会级纵向科研项目":
+                switch (rank) {
+                    case 1: return 300.0;
+                    case 2: return 120.0;
+                    case 3: return 60.0;
+                    case 4: return 30.0;
+                    default: return 0.0;
+                }
+            case "主持校级教学（管理）改革项目（含实验室建设项目）1万元以上（含1万元）":
+                switch (rank) {
+                    case 1: return 30.0;
+                    case 2: return 12.0;
+                    case 3: return 6.0;
+                    case 4: return 3.0;
+                    default: return 0.0;
+                }
+            case "主持校级教学（管理）改革项目（含实验室建设项目）1万元以下":
+                switch (rank) {
+                    case 1: return 20.0;
+                    case 2: return 8.0;
+                    case 3: return 4.0;
+                    case 4: return 2.0;
+                    default: return 0.0;
+                }
+            default:
+                return 0.0;
+        }
+    }
+    
+    /**
+     * 映射数字类型的topType到课题类型标签
+     */
+    private String mapTopTypeToLabel(String topType) {
+        // 根据实际的sci_vertical_type字典值进行映射
+        switch (topType) {
+            case "1": return "主持国家基金科研项目";
+            case "2": return "主持省部级基金科研项目";
+            case "3": return "主持省部级教改项目";
+            case "4": return "主持省部级纵向科研项目";
+            case "5": return "主持厅局级、学会级纵向科研项目";
+            case "6": return "主持校级教学（管理）改革项目（含实验室建设项目）1万元以上（含1万元）";
+            case "7": return "主持校级教学（管理）改革项目（含实验室建设项目）1万元以下";
+            default: return topType; // 如果是文本类型，直接返回
         }
     }
 
@@ -666,11 +730,7 @@ public class SciHorizontalApplyVerticalController extends BaseController {
     /**
      * 纵向课题申请通过
      * 功能：审批通过纵向课题申请，计算并分配科研分
-     * SQL：SELECT * FROM sci_Vertical_score_cfg WHERE funds_type = ?
-     * SQL：DELETE FROM sci_user_score WHERE vertical_id = ? AND change_status = ?
-     * SQL：INSERT INTO sci_user_score
-     * SQL：UPDATE sci_horizontal_apply_vertical SET state = ?, subject_source = ? WHERE id = ?
-     * SQL：INSERT INTO sci_horizontal_piyue
+     * 按照2026年度新的科研分计算标准
      */
     @RequiresPermissions(value={"system:apply_vertical:JYS","system:apply_vertical:KYC","system:apply_vertical:Dept"},logical= Logical.OR)
     @Log(title = "纵向课题申请通过", businessType = BusinessType.UPDATE)
@@ -678,33 +738,55 @@ public class SciHorizontalApplyVerticalController extends BaseController {
     @ResponseBody
     public AjaxResult applyPass(String id,String urlFlag,String type,String weight,SciProjectScoreCfg sciProjectScoreCfg, SciHorizontalApplyVertical sciHorizontalApplyVertical1)
     {
-        sciProjectScoreCfg.setFundsType(type);
-        List<SciProjectScoreCfg> list = sciProjectScoreCfgMapper.selectVerticalScoreCfgList(sciProjectScoreCfg);
         SciHorizontalApplyVertical sciHorizontalApplyVertical = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalById(Integer.valueOf(id));
         String verticalId = String.valueOf(sciHorizontalApplyVertical.getId());
-        java.math.BigDecimal weightVal;
-        try {
-            weightVal = new java.math.BigDecimal(weight);
-        } catch (Exception e) {
-            return AjaxResult.error("审核失败，请联系管理员解决");
-        }
+        
+        // 计算积分（开题70%）
         List score = new ArrayList();
         List persion = new ArrayList();
-        for (SciProjectScoreCfg scoreCfg : list) {
-            java.math.BigDecimal end = new java.math.BigDecimal(scoreCfg.getStartScore());
-            score.add(end.multiply(weightVal).toPlainString());
+        
+        // 映射数字类型的type到课题类型标签
+        String mappedType = mapTopTypeToLabel(type);
+        
+        // 检查是否为2026年度国家基金项目、省级基金项目与外单位联合申报
+        boolean is2026JointProject = false;
+        // 这里需要根据实际情况判断，暂时假设subjectSource包含"联合申报"字样
+        if (sciHorizontalApplyVertical1.getSubjectSource() != null && sciHorizontalApplyVertical1.getSubjectSource().contains("联合申报")) {
+            // 检查是否为国家基金项目或省级基金项目
+            if (mappedType.equals("主持国家基金科研项目") || mappedType.equals("主持省部级基金科研项目")) {
+                is2026JointProject = true;
+            }
         }
+        
+        // 计算各排名的积分
+        double openingRatio = is2026JointProject ? 1.0 : 0.7;
+        
+        // 主持人（排名第一）
         if (sciHorizontalApplyVertical.getFirstPersonId() != null && !sciHorizontalApplyVertical.getFirstPersonId().isEmpty()) {
             persion.add(sciHorizontalApplyVertical.getFirstPersonId());
+            double score1 = calculateScoreByTypeAndRank(type, 1) * openingRatio;
+            score.add(String.valueOf(score1));
         }
+        
+        // 成员1（排名第二）
         if (sciHorizontalApplyVertical.getSecondPersonId() != null && !sciHorizontalApplyVertical.getSecondPersonId().isEmpty()) {
             persion.add(sciHorizontalApplyVertical.getSecondPersonId());
+            double score2 = calculateScoreByTypeAndRank(type, 2) * openingRatio;
+            score.add(String.valueOf(score2));
         }
+        
+        // 成员2（排名第三）
         if (sciHorizontalApplyVertical.getThirdPersonId() != null && !sciHorizontalApplyVertical.getThirdPersonId().isEmpty()) {
             persion.add(sciHorizontalApplyVertical.getThirdPersonId());
+            double score3 = calculateScoreByTypeAndRank(type, 3) * openingRatio;
+            score.add(String.valueOf(score3));
         }
+        
+        // 成员3（排名第四）
         if (sciHorizontalApplyVertical.getFourthPersonId() != null && !sciHorizontalApplyVertical.getFourthPersonId().isEmpty()) {
             persion.add(sciHorizontalApplyVertical.getFourthPersonId());
+            double score4 = calculateScoreByTypeAndRank(type, 4) * openingRatio;
+            score.add(String.valueOf(score4));
         }
 
         return toAjax(sciHorizontalApplyVerticalService.applyPass(id,getUserId(),urlFlag,score,persion,verticalId,sciHorizontalApplyVertical1.getSubjectSource()));
@@ -754,34 +836,57 @@ public class SciHorizontalApplyVerticalController extends BaseController {
     @ResponseBody
     public AjaxResult overPass(String id,String urlFlag,String type,String weight,SciProjectScoreCfg sciProjectScoreCfg,SciHorizontalApplyVertical sciHorizontalApplyVertical1)
     {
-        sciProjectScoreCfg.setFundsType(type);
-        List<SciProjectScoreCfg> list = sciProjectScoreCfgMapper.selectVerticalScoreCfgList(sciProjectScoreCfg);
         SciHorizontalApplyVertical sciHorizontalApplyVertical = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalById(Integer.valueOf(id));
         String verticalId = String.valueOf(sciHorizontalApplyVertical.getId());
-        java.math.BigDecimal weightVal;
-        try {
-            weightVal = new java.math.BigDecimal(weight);
-        } catch (Exception e) {
-            return AjaxResult.error("审核失败，请联系管理员解决");
-        }
+        
+        // 计算积分（结项30%）
         List score = new ArrayList();
         List persion = new ArrayList();
-        for (SciProjectScoreCfg scoreCfg : list) {
-            java.math.BigDecimal end = new java.math.BigDecimal(scoreCfg.getEndScore());
-            score.add(end.multiply(weightVal).toPlainString());
+        
+        // 映射数字类型的type到课题类型标签
+        String mappedType = mapTopTypeToLabel(type);
+        
+        // 检查是否为2026年度国家基金项目、省级基金项目与外单位联合申报
+        boolean is2026JointProject = false;
+        // 这里需要根据实际情况判断，暂时假设subjectSource包含"联合申报"字样
+        if (sciHorizontalApplyVertical1.getSubjectSource() != null && sciHorizontalApplyVertical1.getSubjectSource().contains("联合申报")) {
+            // 检查是否为国家基金项目或省级基金项目
+            if (mappedType.equals("主持国家基金科研项目") || mappedType.equals("主持省部级基金科研项目")) {
+                is2026JointProject = true;
+            }
         }
+        
+        // 计算各排名的积分
+        double closingRatio = is2026JointProject ? 1.0 : 0.3;
+        
+        // 主持人（排名第一）
         if (sciHorizontalApplyVertical.getFirstPersonId() != null && !sciHorizontalApplyVertical.getFirstPersonId().isEmpty()) {
             persion.add(sciHorizontalApplyVertical.getFirstPersonId());
+            double score1 = calculateScoreByTypeAndRank(type, 1) * closingRatio;
+            score.add(String.valueOf(score1));
         }
+        
+        // 成员1（排名第二）
         if (sciHorizontalApplyVertical.getSecondPersonId() != null && !sciHorizontalApplyVertical.getSecondPersonId().isEmpty()) {
             persion.add(sciHorizontalApplyVertical.getSecondPersonId());
+            double score2 = calculateScoreByTypeAndRank(type, 2) * closingRatio;
+            score.add(String.valueOf(score2));
         }
+        
+        // 成员2（排名第三）
         if (sciHorizontalApplyVertical.getThirdPersonId() != null && !sciHorizontalApplyVertical.getThirdPersonId().isEmpty()) {
             persion.add(sciHorizontalApplyVertical.getThirdPersonId());
+            double score3 = calculateScoreByTypeAndRank(type, 3) * closingRatio;
+            score.add(String.valueOf(score3));
         }
+        
+        // 成员3（排名第四）
         if (sciHorizontalApplyVertical.getFourthPersonId() != null && !sciHorizontalApplyVertical.getFourthPersonId().isEmpty()) {
             persion.add(sciHorizontalApplyVertical.getFourthPersonId());
+            double score4 = calculateScoreByTypeAndRank(type, 4) * closingRatio;
+            score.add(String.valueOf(score4));
         }
+        
         int result = sciHorizontalApplyVerticalService.overPass(id, getUserId(), urlFlag, score, persion, verticalId, sciHorizontalApplyVertical1.getSubjectSource());
         return toAjax(result);
     }
