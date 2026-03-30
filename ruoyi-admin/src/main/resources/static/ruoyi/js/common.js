@@ -586,3 +586,286 @@ $.ajaxSetup({
         }
     }
 });
+
+// 科研分计算工具
+var researchScore = {
+    configData: null,
+    tableName: "",
+
+    // 初始化：从后端获取配置数据
+    init: function() {
+        // 检查ctx变量是否存在，如果不存在则尝试从window获取
+        var contextPath = typeof ctx !== 'undefined' ? ctx : (typeof window.ctx !== 'undefined' ? window.ctx : '');
+        console.log("ctx变量值:", ctx);
+        console.log("window.ctx变量值:", window.ctx);
+        console.log("计算得到的contextPath:", contextPath);
+        
+        // 直接使用后端服务的实际地址，确保在其他界面也能正确访问
+        var apiUrl = "/Keyan/system/projectScoreCfg/getCfgCard";
+        console.log("最终构造的API URL:", apiUrl);
+        console.log("当前页面URL:", window.location.href);
+
+        $.ajax({
+            url: apiUrl,
+            type: "POST",
+            async: false, // 同步请求，确保配置数据在计算前加载完成
+            success: function(data) {
+                console.log("科研分配置数据返回：", data);
+                if (data.code === "0" && data.data) {
+                    researchScore.configData = data.data;
+                    researchScore.tableName = "sci_project_score_cfg (横向课题得分配置表)";
+                    console.log("成功加载科研分配置数据");
+                    console.log("配置来源表:", researchScore.tableName);
+                } else {
+                    console.warn("科研分配置数据格式错误或为空，code:", data.code, "data:", data.data);
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error("获取科研分配置数据失败，状态:", status, "错误:", error);
+                console.error("请求URL:", apiUrl);
+                console.error("XHR状态:", xhr.status);
+                console.error("XHR响应文本:", xhr.responseText);
+            }
+        });
+    },
+
+    // 根据项目金额计算科研分
+    calculate: function(amount) {
+        console.log("开始计算科研分，金额:", amount);
+        console.log("配置数据状态:", this.configData ? "已加载" : "未加载");
+
+        if (!amount || isNaN(amount) || amount < 0) {
+            console.warn("金额无效，返回0分");
+            return {
+                firstScore: 0,
+                secondScore: 0,
+                thirdScore: 0,
+                fourthScore: 0,
+                valid: false
+            };
+        }
+
+        // 使用后端配置数据计算
+        if (this.configData && this.configData.fundsList && this.configData.fundsList.length > 0) {
+            console.log("使用数据库配置数据进行计算");
+            var fundsList = this.configData.fundsList;
+
+            for (var i = 0; i < fundsList.length; i++) {
+                var fundsConfig = fundsList[i];
+                var min = parseFloat(fundsConfig.funds_min);
+                var max = fundsConfig.funds_max ? parseFloat(fundsConfig.funds_max) : null;
+
+                console.log("检查配置", i, ": funds_min=", min, "funds_max=", max);
+
+                // 检查金额是否在当前配置范围内
+                if (amount >= min && (max === null || amount <= max)) {
+                    console.log("找到匹配的配置:", fundsConfig);
+                    var userScoreList = fundsConfig.userScoreList;
+                    console.log("用户得分配置列表:", userScoreList);
+                    console.log("用户得分配置数量:", userScoreList ? userScoreList.length : 0);
+
+                    // 定义金额区间文本（用于返回对象）
+                    var rangeText = max === null ? (min + "万元及以上") : (min + "万元 - " + max + "万元");
+
+                    // 获取前四个负责人的得分配置
+                    var firstConfig = this.getUserScoreByOrder(userScoreList, 1);
+                    var secondConfig = this.getUserScoreByOrder(userScoreList, 2);
+                    var thirdConfig = this.getUserScoreByOrder(userScoreList, 3);
+                    var fourthConfig = this.getUserScoreByOrder(userScoreList, 4);
+
+                    console.log("主持人配置:", firstConfig);
+                    console.log("成员1配置:", secondConfig);
+                    console.log("成员2配置:", thirdConfig);
+                    console.log("成员3配置:", fourthConfig);
+
+                    var firstScore, secondScore, thirdScore, fourthScore;
+
+                    // 计算主持人得分
+                    if (firstConfig) {
+                        firstScore = this.calculateScore(firstConfig, min, max, amount);
+                        console.log("主持人得分:", firstScore);
+                    } else {
+                        firstScore = 0;
+                        console.log("未找到主持人配置");
+                    }
+
+                    // 计算成员1得分
+                    if (secondConfig) {
+                        secondScore = this.calculateScore(secondConfig, min, max, amount);
+                        console.log("成员1得分:", secondScore);
+                    } else {
+                        secondScore = 0;
+                        console.log("未找到成员1配置");
+                    }
+
+                    // 计算成员2得分
+                    if (thirdConfig) {
+                        thirdScore = this.calculateScore(thirdConfig, min, max, amount);
+                        console.log("成员2得分:", thirdScore);
+                    } else {
+                        thirdScore = 0;
+                        console.log("未找到成员2配置");
+                    }
+
+                    // 计算成员3得分
+                    if (fourthConfig) {
+                        fourthScore = this.calculateScore(fourthConfig, min, max, amount);
+                        console.log("成员3得分:", fourthScore);
+                    } else {
+                        fourthScore = 0;
+                        console.log("未找到成员3配置");
+                    }
+
+                    return {
+                        firstScore: Math.round(firstScore),
+                        secondScore: Math.round(secondScore),
+                        thirdScore: Math.round(thirdScore),
+                        fourthScore: Math.round(fourthScore),
+                        valid: true,
+                        rangeText: rangeText,
+                        tableName: this.tableName
+                    };
+                }
+            }
+
+            // 无匹配配置时使用默认计算逻辑
+            console.warn("没有找到匹配的配置，使用默认计算逻辑");
+            return this.calculateDefault(amount);
+        } else {
+            // 配置数据未加载时使用默认值
+            console.warn("配置数据未加载，使用默认值进行计算");
+            return this.calculateDefault(amount);
+        }
+    },
+
+    // 默认计算逻辑
+    calculateDefault: function(amount) {
+        var firstScore, secondScore, thirdScore, fourthScore;
+
+        if (amount >= 20 && amount <= 50) {
+            firstScore = 1540;
+            secondScore = 700;
+            thirdScore = 280;
+            fourthScore = 140;
+        } else if (amount >= 5 && amount < 10) {
+            firstScore = 440;
+            secondScore = 200;
+            thirdScore = 80;
+            fourthScore = 40;
+        } else if (amount >= 10 && amount < 20) {
+            var ratio = (20 - amount) / 10;
+            firstScore = Math.round(440 + (1540 - 440) * (1 - ratio));
+            secondScore = Math.round(200 + (700 - 200) * (1 - ratio));
+            thirdScore = Math.round(80 + (280 - 80) * (1 - ratio));
+            fourthScore = Math.round(40 + (140 - 40) * (1 - ratio));
+        } else if (amount > 50) {
+            firstScore = 1540;
+            secondScore = 700;
+            thirdScore = 280;
+            fourthScore = 140;
+        } else if (amount >= 0.5 && amount < 5) {
+            firstScore = Math.round(440 * (amount / 5));
+            secondScore = Math.round(200 * (amount / 5));
+            thirdScore = Math.round(80 * (amount / 5));
+            fourthScore = Math.round(40 * (amount / 5));
+        } else {
+            firstScore = 0;
+            secondScore = 0;
+            thirdScore = 0;
+            fourthScore = 0;
+        }
+
+        return {
+            firstScore: firstScore,
+            secondScore: secondScore,
+            thirdScore: thirdScore,
+            fourthScore: fourthScore,
+            valid: true
+        };
+    },
+
+    // 根据用户顺序获取得分配置
+    getUserScoreByOrder: function(userScoreList, order) {
+        if (!userScoreList || userScoreList.length === 0) {
+            return null;
+        }
+        for (var i = 0; i < userScoreList.length; i++) {
+            var item = userScoreList[i];
+            var userOrder = item.userOrder || item.user_order;
+            console.log("检查用户配置", i, ": userOrder=", userOrder, "item=", item);
+            if (parseInt(userOrder) === order) {
+                return item;
+            }
+        }
+        return null;
+    },
+
+    // 计算单个负责人的得分
+    calculateScore: function(config, min, max, amount) {
+        var totalScore = parseFloat(config.totalScore || config.total_score);
+        var startScore = config.startScore || config.start_score;
+        var endScore = config.endScore || config.end_score;
+        startScore = startScore ? parseFloat(startScore) : null;
+        endScore = endScore ? parseFloat(endScore) : null;
+
+        console.log("计算得分配置:", config);
+        console.log("总分:", totalScore, "开题得分:", startScore, "结题得分:", endScore);
+
+        // 如果金额在配置的区间内，直接使用总分
+        if (totalScore !== null) {
+            console.log("金额在配置区间内，直接使用总分:", totalScore);
+            return totalScore;
+        } else if (startScore !== null && endScore !== null) {
+            // 如果没有总分但有开题和结题得分，取平均值
+            console.log("使用开题得分和结题得分的平均值:", (startScore + endScore) / 2);
+            return (startScore + endScore) / 2;
+        } else {
+            console.warn("配置数据无效，缺少必要字段");
+            return 0;
+        }
+    },
+
+    // 更新科研分显示
+    updateDisplay: function(amount, scoreElementId) {
+        var scoreElement = document.getElementById(scoreElementId || 'score-info');
+        if (!scoreElement) {
+            console.error("未找到显示元素:", scoreElementId || 'score-info');
+            return;
+        }
+
+        console.log("更新科研分显示，金额:", amount);
+
+        if (!amount || amount === '') {
+            scoreElement.innerHTML = "项目金额未填写，科研分待计算";
+            return;
+        }
+
+        var amountNum = parseFloat(amount);
+        console.log("解析后的金额:", amountNum);
+        
+        if (isNaN(amountNum) || amountNum < 0) {
+            scoreElement.innerHTML = "项目金额格式错误，请输入有效数字";
+            return;
+        }
+
+        var scores = this.calculate(amountNum);
+        console.log("计算结果:", scores);
+        
+        var displayHtml = 
+            "预计科研分分配：<br>" +
+            "主持人：<strong>" + scores.firstScore + " 分</strong>，" +
+            "成员1：<strong>" + scores.secondScore + " 分</strong>，" +
+            "成员2：<strong>" + scores.thirdScore + " 分</strong>，" +
+            "成员3：<strong>" + scores.fourthScore + " 分</strong><br>" +
+            "<small class=\"text-muted\">注意：后续添加成员不参与科研分分配。</small>";
+        
+        scoreElement.innerHTML = displayHtml;
+        console.log("显示已更新");
+    }
+};
+
+// 自动初始化科研分配置数据
+$(function() {
+    console.log("开始初始化科研分配置数据");
+    researchScore.init();
+});
