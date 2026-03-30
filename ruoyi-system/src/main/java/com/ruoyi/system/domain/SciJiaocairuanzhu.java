@@ -445,6 +445,19 @@ public class SciJiaocairuanzhu extends BaseEntity
         this.fuzhubian = fuzhubian;
     }
 
+    /** 项目金额(万) */
+    private String amount;
+
+    public String getAmount()
+    {
+        return amount;
+    }
+
+    public void setAmount(String amount)
+    {
+        this.amount = amount;
+    }
+
     public String getStateDes() {
         if (this.state == null) {
             return "";

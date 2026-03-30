@@ -431,18 +431,12 @@
             <!-- 学院字段 - 科研处和管理员可见 -->
             <li th:if="${@permission.isAnyRoles('sci_tesearch,admin')}">
               <label>学院：</label>
-              <select name="xueyuan" th:with="type=${@dict.getType('sys_xueyuan')}">
-                <option value="">所有</option>
-                <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
-              </select>
+              <input type="text" name="xueyuan" placeholder="请输入学院名称"/>
             </li>
             <!-- 专业字段 - 科研处、学院和管理员可见 -->
             <li th:if="${@permission.isAnyRoles('sci_tesearch,dept_teacher,admin')}">
               <label>专业：</label>
-              <select name="jiaoyanshi" th:with="type=${@dict.getType('sys_dept')}">
-                <option value="">所有</option>
-                <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
-              </select>
+              <input type="text" name="jiaoyanshi" placeholder="请输入专业名称"/>
             </li>
             <!-- 主持人字段 - 科研处、学院、教研室和管理员可见 -->
             <li th:if="${@permission.isAnyRoles('sci_tesearch,dept_teacher,research,admin')}">
@@ -493,12 +487,15 @@
 
     <div id="toolbar" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
       <div class="btn-group-sm" role="group" style="display: inline-flex; gap: 4px;">
-        <a class="btn btn-success" onclick="$.operate.addTab()" shiro:hasPermission="system:jiaocairuanzhu:add">
+        <a class="btn btn-success" onclick="$.operate.addTab()">
           <i class="fa fa-plus"></i> 添加
         </a>
-<!--        <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:jiaocairuanzhu:export">-->
-<!--          <i class="fa fa-download"></i> 导出-->
-<!--        </a>-->
+        <a class="btn btn-primary" onclick="batchDownload('textbook')">
+          <i class="fa fa-download"></i> 批量下载
+        </a>
+<!--        <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:jiaocairuanzhu:export">-->  
+<!--          <i class="fa fa-download"></i> 导出-->  
+<!--        </a>-->  
       </div>
       <div style="display: flex; align-items: center; gap: 15px; padding: 6px 36px; border-radius: 4px;">
         <th:block th:replace="include :: status-circles"/>
@@ -668,6 +665,9 @@
         return queryParams;
       },
       columns: [
+        {
+          checkbox: true
+        },
         {
           field: 'number',
           title: '序号',
@@ -865,7 +865,11 @@
         const eventList = document.getElementById('event-list');
         eventList.innerHTML = '';
         console.log(response.rows);
-        response.rows.forEach(function (row) {
+        // 按创建时间倒序排序
+        var sortedRows = response.rows.sort(function(a, b) {
+          return new Date(b.createTime) - new Date(a.createTime);
+        });
+        sortedRows.forEach(function (row) {
           console.log(response.rows);
 
           const li = document.createElement('li');
@@ -879,7 +883,7 @@
                             </div>
                         </div>
                     `;
-          eventList.insertBefore(li, eventList.firstChild);
+          eventList.appendChild(li);
         });
       },
       error: function () {
@@ -962,6 +966,150 @@
 
   }
 
+  // 批量下载状态变量
+  var batchDownloadInProgress = false;
+
+  /**
+   * 批量下载功能
+   * @param {string} module - 模块类型，如：'textbook'等
+   */
+  function batchDownload(module) {
+    // 1. 获取选中的数据ID列表
+    var ids = $.table.selectColumns("id", false);
+    
+    // 2. 校验：未选择数据时提示
+    if (!ids || ids.length === 0) {
+      $.modal.alertWarning("未选择数据");
+      return;
+    }
+    
+    // 3. 防止重复提交
+    if (batchDownloadInProgress) {
+      $.modal.alertWarning("批量下载正在处理中，请稍候...");
+      return;
+    }
+    
+    batchDownloadInProgress = true;
+    $.modal.loading("正在打包下载，请稍候...");
+    
+    // 4. 创建XMLHttpRequest发送请求
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", ctx + "common/batchDownload?ids="
+      + encodeURIComponent(ids.join(","))
+      + "&module=" + encodeURIComponent(module), true);
+    
+    // 5. 设置响应类型为blob（二进制流）
+    xhr.responseType = "blob";
+    xhr.timeout = 10 * 60 * 1000; // 10分钟超时
+    
+    // 6. 请求成功回调
+    xhr.onload = function () {
+      var blob = xhr.response;
+      var contentDisposition = xhr.getResponseHeader("Content-Disposition") || "";
+      var contentType = xhr.getResponseHeader("Content-Type") || "";
+      
+      // 判断是否为文件下载响应
+      var isDownloadResponse = contentDisposition.indexOf("attachment") !== -1
+        || contentType.indexOf("application/zip") !== -1;
+      
+      if (xhr.status >= 200 && xhr.status < 300 && isDownloadResponse) {
+        // 触发文件下载
+        triggerBlobDownload(blob, parseDownloadFileName(contentDisposition));
+        finishBatchDownload();
+      } else {
+        // 处理错误响应
+        readBlobAsText(blob, function (text) {
+          $.modal.alertError(extractDownloadErrorMessage(text));
+          finishBatchDownload();
+        });
+      }
+    };
+    
+    // 7. 错误处理
+    xhr.onerror = function () {
+      $.modal.alertError("批量下载失败，请检查网络或稍后重试");
+      finishBatchDownload();
+    };
+    
+    xhr.ontimeout = function () {
+      $.modal.alertError("批量下载超时，请稍后重试");
+      finishBatchDownload();
+    };
+    
+    // 8. 发送请求
+    xhr.send();
+  }
+
+  // 辅助函数：触发Blob文件下载
+  function triggerBlobDownload(blob, fileName) {
+    var resolvedFileName = fileName || "批量下载.zip";
+    
+    // IE浏览器兼容
+    if (window.navigator.msSaveOrOpenBlob) {
+      window.navigator.msSaveOrOpenBlob(blob, resolvedFileName);
+      return;
+    }
+    
+    // 标准浏览器
+    var downloadUrl = window.URL.createObjectURL(blob);
+    var link = document.createElement("a");
+    link.style.display = "none";
+    link.href = downloadUrl;
+    link.download = resolvedFileName;
+    document.body.appendChild(link);
+    link.click();
+    
+    // 清理
+    setTimeout(function () {
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(downloadUrl);
+    }, 100);
+  }
+
+  // 辅助函数：从Content-Disposition解析文件名
+  function parseDownloadFileName(contentDisposition) {
+    if (!contentDisposition) return "";
+    
+    // 尝试UTF-8编码的文件名
+    var utf8Match = contentDisposition.match(/filename\*=UTF-8''([^;]+)/i);
+    if (utf8Match && utf8Match[1]) {
+      return decodeURIComponent(utf8Match[1]).replace(/["\"]/g, "");
+    }
+    
+    // 尝试普通文件名
+    var fileNameMatch = contentDisposition.match(/filename="?([^";]+)"?/i);
+    return fileNameMatch && fileNameMatch[1]
+      ? decodeURIComponent(fileNameMatch[1])
+      : "";
+  }
+
+  // 辅助函数：读取Blob为文本
+  function readBlobAsText(blob, callback) {
+    var reader = new FileReader();
+    reader.onload = function (e) {
+      callback(e.target.result);
+    };
+    reader.onerror = function () {
+      callback("");
+    };
+    reader.readAsText(blob);
+  }
+
+  // 辅助函数：提取下载错误信息
+  function extractDownloadErrorMessage(text) {
+    try {
+      var errorObj = JSON.parse(text);
+      return errorObj.message || errorObj.msg || "下载失败";
+    } catch (e) {
+      return text || "下载失败";
+    }
+  }
+
+  // 辅助函数：重置下载状态
+  function finishBatchDownload() {
+    batchDownloadInProgress = false;
+    $.modal.closeLoading();
+  }
 
 </script>
 </body>
