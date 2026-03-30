@@ -75,18 +75,51 @@ public class SciHorizontalApplyController extends BaseController
             "marxism_college", // 马克思主义学院管理员
             "general" //综合院部管理员
     ));
+    
+    /**
+     * 基于角色的查询字段白名单校验
+     * 教师角色：仅允许通过"课题名称"检索
+     * 教研室角色：允许通过"主持人（论文对应第一作者）"+"课题名称"检索
+     * 学院角色：允许通过"专业"+"主持人（论文对应第一作者）"+"课题名称"检索
+     * 科研处角色：允许通过"学院"+"专业"+"主持人（论文对应第一作者）"+"课题名称"全维度检索
+     * 
+     * @param sciHorizontalApply 查询条件对象
+     * @param role 用户角色
+     */
+    private void validateQueryFieldsByRole(SciHorizontalApply sciHorizontalApply, String role) {
+        if ("teacher".equals(role)) {
+            // 教师：只保留课题名称，清空其他字段
+            sciHorizontalApply.setUserName(null);
+            sciHorizontalApply.setDnameId(null);
+            sciHorizontalApply.setYnameId(null);
+        } else if ("research".equals(role)) {
+            // 教研室：只保留主持人 + 课题名称，清空其他字段
+            sciHorizontalApply.setDnameId(null);
+            sciHorizontalApply.setYnameId(null);
+        } else if ("dept_teacher".equals(role)) {
+            // 学院：保留专业 + 主持人 + 课题名称，清空学院字段
+            sciHorizontalApply.setYnameId(null);
+        }
+        // 科研处角色 (sci_tesearch) 可以使用所有字段，无需清空
+    }
 
     @RequiresPermissions("system:apply:view")
     @GetMapping()
-    public String apply()
+    public String apply(ModelMap mmap)
     {
+        // 将当前用户信息传递到模板，用于前端角色识别
+        mmap.put("user", getSysUser());
         return prefix + "/apply";
     }
 
     /**
      * 查询横向课题列表
+     * 功能描述：根据角色权限动态查询横向课题数据
+     * @param tableId 表格 ID
+     * @param year 年份
+     * @param sciHorizontalApply 查询条件对象
+     * @return TableDataInfo 分页数据对象
      */
-
     @RequiresPermissions("system:apply:list")
     @PostMapping("/list/{tableId}")
     @ResponseBody
@@ -110,6 +143,10 @@ public class SciHorizontalApplyController extends BaseController
         }
         sciHorizontalApply.setRole(role);
         sciHorizontalApply.setTableId(tableId);
+        
+        // 基于角色的查询字段白名单校验
+        validateQueryFieldsByRole(sciHorizontalApply, role);
+        
         List<SciHorizontalApply> list = new ArrayList<>();
         List<SciHorizontalApply> Alist = new ArrayList<>();
 //        科研处

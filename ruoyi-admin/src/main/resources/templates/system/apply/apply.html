@@ -334,37 +334,42 @@
                     <div class="panel-body">
                         <div class="container-div">
                             <div class="row">
-<!--                                <div class="col-sm-12 search-collapse " shiro:hasPermission="system:apply:select">-->
-<!--                                    <form id="formId0">-->
-<!--                                        <div class="select-list">-->
-<!--                                            <ul>-->
-<!--                                                <li>-->
-<!--                                                    <label>申请人：</label>-->
-<!--                                                    <input type="text" name="userName"/>-->
-<!--                                                </li>-->
-<!--                                                <li>-->
-<!--                                                    <label>课题：</label>-->
-<!--                                                    <input type="text" name="topName"/>-->
-<!--                                                </li>-->
-<!--                                                <li shiro:hasPermission="system:apply:dname">-->
-<!--                                                    <label>教研室：</label>-->
-<!--                                                    <input type="text" name="dname"   />-->
-<!--                                                </li>-->
-<!--&lt;!&ndash;                                                <li>&ndash;&gt;-->
-<!--&lt;!&ndash;                                                    <label>状态：</label>&ndash;&gt;-->
-<!--&lt;!&ndash;                                                    <select name="state" th:with="type=${@dict.getType('sci_crosswise_tasks')}">&ndash;&gt;-->
-<!--&lt;!&ndash;                                                        <option value="">所有</option>&ndash;&gt;-->
-<!--&lt;!&ndash;                                                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>&ndash;&gt;-->
-<!--&lt;!&ndash;                                                    </select>&ndash;&gt;-->
-<!--&lt;!&ndash;                                                </li>&ndash;&gt;-->
-<!--                                                <li>-->
-<!--                                                    <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search('formId0','bootstrap-table0')"><i class="fa fa-search"></i>&nbsp;搜索</a>-->
-<!--                                                    <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset('formId0')"><i class="fa fa-refresh"></i>&nbsp;重置</a>-->
-<!--                                                </li>-->
-<!--                                            </ul>-->
-<!--                                        </div>-->
-<!--                                    </form>-->
-<!--                                </div>-->
+                                <div class="col-sm-12 search-collapse">
+                                    <form id="formId0">
+                                        <div class="select-list">
+                                            <ul>
+                                                <!-- 课题名称：所有角色可见 -->
+                                                <li>
+                                                    <label>课题：</label>
+                                                    <input type="text" name="topName"/>
+                                                </li>
+                                                <!-- 主持人：教研室、学院、科研处可见 -->
+                                                <li class="host-name-field" style="display:none;">
+                                                    <label>主持人：</label>
+                                                    <input type="text" name="userName"/>
+                                                </li>
+                                                <!-- 专业：学院、科研处可见 -->
+                                                <li class="major-field" style="display:none;">
+                                                    <label>专业：</label>
+                                                    <select name="dnameId" class="select-major">
+                                                        <option value="">请选择专业</option>
+                                                    </select>
+                                                </li>
+                                                <!-- 学院：仅科研处可见 -->
+                                                <li class="college-field" style="display:none;">
+                                                    <label>学院：</label>
+                                                    <select name="ynameId" class="select-college">
+                                                        <option value="">请选择学院</option>
+                                                    </select>
+                                                </li>
+                                                <li>
+                                                    <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search('formId0','bootstrap-table0')"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                                                    <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset('formId0')"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </form>
+                                </div>
 
                                 <div id="toolbar0" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
 <!--                                    <div class="btn-group-sm"  role="group" style="display: inline-flex; gap: 4px;">-->
@@ -389,30 +394,42 @@
                     <div class="panel-body">
                         <div class="container-div">
                             <div class="row">
-<!--                                <div class="col-sm-12 search-collapse" shiro:hasPermission="system:apply:select">-->
-<!--                                    <form id="formId1">-->
-<!--                                        <div class="select-list">-->
-<!--                                            <ul>-->
-<!--                                                <li>-->
-<!--                                                    <label>申请人：</label>-->
-<!--                                                    <input type="text" name="userName"/>-->
-<!--                                                </li>-->
-<!--                                                <li>-->
-<!--                                                    <label>课题：</label>-->
-<!--                                                    <input type="text" name="topName"/>-->
-<!--                                                </li>-->
-<!--                                                <li shiro:hasPermission="system:apply:dname">-->
-<!--                                                    <label>教研室：</label>-->
-<!--                                                    <input type="text" name="dname"   />-->
-<!--                                                </li>-->
-<!--                                                <li>-->
-<!--                                                    <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search('formId1','bootstrap-table1')"><i class="fa fa-search"></i>&nbsp;搜索</a>-->
-<!--                                                    <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset('formId1')"><i class="fa fa-refresh"></i>&nbsp;重置</a>-->
-<!--                                                </li>-->
-<!--                                            </ul>-->
-<!--                                        </div>-->
-<!--                                    </form>-->
-<!--                                </div>-->
+                                <div class="col-sm-12 search-collapse">
+                                    <form id="formId1">
+                                        <div class="select-list">
+                                            <ul>
+                                                <!-- 课题名称：所有角色可见 -->
+                                                <li>
+                                                    <label>课题：</label>
+                                                    <input type="text" name="topName"/>
+                                                </li>
+                                                <!-- 主持人：教研室、学院、科研处可见 -->
+                                                <li class="host-name-field" style="display:none;">
+                                                    <label>主持人：</label>
+                                                    <input type="text" name="userName"/>
+                                                </li>
+                                                <!-- 专业：学院、科研处可见 -->
+                                                <li class="major-field" style="display:none;">
+                                                    <label>专业：</label>
+                                                    <select name="dnameId" class="select-major">
+                                                        <option value="">请选择专业</option>
+                                                    </select>
+                                                </li>
+                                                <!-- 学院：仅科研处可见 -->
+                                                <li class="college-field" style="display:none;">
+                                                    <label>学院：</label>
+                                                    <select name="ynameId" class="select-college">
+                                                        <option value="">请选择学院</option>
+                                                    </select>
+                                                </li>
+                                                <li>
+                                                    <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search('formId1','bootstrap-table1')"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                                                    <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset('formId1')"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </form>
+                                </div>
 
                                 <div id="toolbar1" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
                                     <div class="btn-group-sm"  role="group" style="display: inline-flex; gap: 4px;">
@@ -438,30 +455,42 @@
                     <div class="panel-body">
                         <div class="container-div">
                             <div class="row">
-<!--                                <div class="col-sm-12 search-collapse" shiro:hasPermission="system:apply:select">-->
-<!--                                    <form id="formId2">-->
-<!--                                        <div class="select-list">-->
-<!--                                            <ul>-->
-<!--                                                <li>-->
-<!--                                                    <label>申请人：</label>-->
-<!--                                                    <input type="text" name="userName"/>-->
-<!--                                                </li>-->
-<!--                                                <li>-->
-<!--                                                    <label>课题：</label>-->
-<!--                                                    <input type="text" name="topName"/>-->
-<!--                                                </li>-->
-<!--                                                <li shiro:hasPermission="system:apply:dname">-->
-<!--                                                    <label>教研室：</label>-->
-<!--                                                    <input type="text" name="dname"   />-->
-<!--                                                </li>-->
-<!--                                                <li>-->
-<!--                                                    <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search('formId2','bootstrap-table2')"><i class="fa fa-search"></i>&nbsp;搜索</a>-->
-<!--                                                    <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset('formId2')"><i class="fa fa-refresh"></i>&nbsp;重置</a>-->
-<!--                                                </li>-->
-<!--                                            </ul>-->
-<!--                                        </div>-->
-<!--                                    </form>-->
-<!--                                </div>-->
+                                <div class="col-sm-12 search-collapse">
+                                    <form id="formId2">
+                                        <div class="select-list">
+                                            <ul>
+                                                <!-- 课题名称：所有角色可见 -->
+                                                <li>
+                                                    <label>课题：</label>
+                                                    <input type="text" name="topName"/>
+                                                </li>
+                                                <!-- 主持人：教研室、学院、科研处可见 -->
+                                                <li class="host-name-field" style="display:none;">
+                                                    <label>主持人：</label>
+                                                    <input type="text" name="userName"/>
+                                                </li>
+                                                <!-- 专业：学院、科研处可见 -->
+                                                <li class="major-field" style="display:none;">
+                                                    <label>专业：</label>
+                                                    <select name="dnameId" class="select-major">
+                                                        <option value="">请选择专业</option>
+                                                    </select>
+                                                </li>
+                                                <!-- 学院：仅科研处可见 -->
+                                                <li class="college-field" style="display:none;">
+                                                    <label>学院：</label>
+                                                    <select name="ynameId" class="select-college">
+                                                        <option value="">请选择学院</option>
+                                                    </select>
+                                                </li>
+                                                <li>
+                                                    <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search('formId2','bootstrap-table2')"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                                                    <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset('formId2')"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </form>
+                                </div>
 
                                 <div id="toolbar2" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
 <!--                                    <div class="btn-group-sm"  role="group" style="display: inline-flex; gap: 4px;">-->
@@ -484,30 +513,42 @@
                     <div class="panel-body">
                         <div class="container-div">
                             <div class="row">
-<!--                                <div class="col-sm-12 search-collapse" shiro:hasPermission="system:apply:select">-->
-<!--                                    <form id="formId3">-->
-<!--                                        <div class="select-list">-->
-<!--                                            <ul>-->
-<!--                                                <li>-->
-<!--                                                    <label>申请人：</label>-->
-<!--                                                    <input type="text" name="userName"/>-->
-<!--                                                </li>-->
-<!--                                                <li>-->
-<!--                                                    <label>课题：</label>-->
-<!--                                                    <input type="text" name="topName"/>-->
-<!--                                                </li>-->
-<!--                                                <li shiro:hasPermission="system:apply:dname">-->
-<!--                                                    <label>教研室：</label>-->
-<!--                                                    <input type="text" name="dname"/>-->
-<!--                                                </li>-->
-<!--                                                <li>-->
-<!--                                                    <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search('formId3','bootstrap-table3')"><i class="fa fa-search"></i>&nbsp;搜索</a>-->
-<!--                                                    <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset('formId3')"><i class="fa fa-refresh"></i>&nbsp;重置</a>-->
-<!--                                                </li>-->
-<!--                                            </ul>-->
-<!--                                        </div>-->
-<!--                                    </form>-->
-<!--                                </div>-->
+                                <div class="col-sm-12 search-collapse">
+                                    <form id="formId3">
+                                        <div class="select-list">
+                                            <ul>
+                                                <!-- 课题名称：所有角色可见 -->
+                                                <li>
+                                                    <label>课题：</label>
+                                                    <input type="text" name="topName"/>
+                                                </li>
+                                                <!-- 主持人：教研室、学院、科研处可见 -->
+                                                <li class="host-name-field" style="display:none;">
+                                                    <label>主持人：</label>
+                                                    <input type="text" name="userName"/>
+                                                </li>
+                                                <!-- 专业：学院、科研处可见 -->
+                                                <li class="major-field" style="display:none;">
+                                                    <label>专业：</label>
+                                                    <select name="dnameId" class="select-major">
+                                                        <option value="">请选择专业</option>
+                                                    </select>
+                                                </li>
+                                                <!-- 学院：仅科研处可见 -->
+                                                <li class="college-field" style="display:none;">
+                                                    <label>学院：</label>
+                                                    <select name="ynameId" class="select-college">
+                                                        <option value="">请选择学院</option>
+                                                    </select>
+                                                </li>
+                                                <li>
+                                                    <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search('formId3','bootstrap-table3')"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                                                    <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset('formId3')"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </form>
+                                </div>
 
                                 <div id="toolbar3" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
 <!--                                    <div class="btn-group-sm"  role="group" style="display: inline-flex; gap: 4px;">-->
@@ -612,7 +653,31 @@
 
     var prefix = ctx + "system/apply";
 
-    // 动态生成URL
+    // 获取当前用户角色信息
+    var userRole = '';
+    var userRoles = [[${user.roles}]];  // 从后端获取的角色列表
+    if (userRoles) {
+        for (var i = 0; i < userRoles.length; i++) {
+            var roleKey = userRoles[i].roleKey;
+            if (roleKey === 'sci_tesearch') {
+                userRole = 'sci_tesearch';  // 科研处
+                break;
+            } else if (roleKey === 'research') {
+                userRole = 'research';  // 教研室
+                break;
+            } else if (['dept_teacher', 'discuss_college', 'dzgc_college', 'yssj_college', 
+                       'student_college', 'marxism_college', 'general'].indexOf(roleKey) !== -1) {
+                userRole = 'dept_teacher';  // 学院
+                break;
+            }
+        }
+    }
+    // 默认为教师角色
+    if (!userRole) {
+        userRole = 'teacher';
+    }
+
+    // 动态生成 URL
     function getUrl(tableId) {
         var year = localStorage.getItem("year");
         return prefix+"/list/"+tableId+"?year="+year;
@@ -621,6 +686,86 @@
 
 
     $(function() {
+        // 根据角色动态渲染搜索区域
+        function initSearchFields() {
+            // 角色 - 查询字段映射规则
+            // 教师角色：仅允许通过"课题名称"检索
+            // 教研室角色：允许通过"主持人"+"课题名称"检索
+            // 学院角色：允许通过"专业"+"主持人"+"课题名称"检索
+            // 科研处角色：允许通过"学院"+"专业"+"主持人"+"课题名称"全维度检索
+            
+            if (userRole === 'teacher') {
+                // 教师：只显示课题名称，其他隐藏
+                $('.host-name-field').hide();
+                $('.major-field').hide();
+                $('.college-field').hide();
+            } else if (userRole === 'research') {
+                // 教研室：显示主持人 + 课题名称
+                $('.host-name-field').show();
+                $('.major-field').hide();
+                $('.college-field').hide();
+            } else if (userRole === 'dept_teacher') {
+                // 学院：显示专业 + 主持人 + 课题名称
+                $('.host-name-field').show();
+                $('.major-field').show();
+                $('.college-field').hide();
+                // 加载专业数据
+                loadMajors();
+            } else if (userRole === 'sci_tesearch') {
+                // 科研处：显示所有字段
+                $('.host-name-field').show();
+                $('.major-field').show();
+                $('.college-field').show();
+                // 加载学院和专业数据
+                loadCollegesAndMajors();
+            }
+        }
+        
+        // 加载专业列表
+        function loadMajors() {
+            $.ajax({
+                url: ctx + 'system/dept/list',
+                type: 'get',
+                dataType: 'json',
+                success: function(response) {
+                    if (response && response.rows) {
+                        var options = '<option value="">请选择专业</option>';
+                        response.rows.forEach(function(dept) {
+                            options += '<option value="' + dept.deptId + '">' + dept.deptName + '</option>';
+                        });
+                        $('.select-major').html(options);
+                    }
+                }
+            });
+        }
+        
+        // 加载学院和专业列表
+        function loadCollegesAndMajors() {
+            $.ajax({
+                url: ctx + 'system/dept/list',
+                type: 'get',
+                dataType: 'json',
+                success: function(response) {
+                    if (response && response.rows) {
+                        // 填充专业下拉框
+                        var majorOptions = '<option value="">请选择专业</option>';
+                        response.rows.forEach(function(dept) {
+                            majorOptions += '<option value="' + dept.deptId + '">' + dept.deptName + '</option>';
+                        });
+                        $('.select-major').html(majorOptions);
+                        
+                        // 填充学院下拉框（这里假设 parent_id 为 0 的是学院，具体根据实际情况调整）
+                        var collegeOptions = '<option value="">请选择学院</option>';
+                        response.rows.forEach(function(dept) {
+                            if (dept.parentId == 0 || dept.parentId == null) {
+                                collegeOptions += '<option value="' + dept.deptId + '">' + dept.deptName + '</option>';
+                            }
+                        });
+                        $('.select-college').html(collegeOptions);
+                    }
+                }
+            });
+        }
 
         function initTable(options) {
             // 获取当前表格的ID
@@ -751,6 +896,9 @@
         };
 
         initTable(options0);
+        
+        // 初始化搜索区域
+        initSearchFields();
 
         // tab-1
         var options1 = {
