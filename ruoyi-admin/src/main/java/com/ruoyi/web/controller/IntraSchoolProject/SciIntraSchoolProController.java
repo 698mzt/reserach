@@ -10,7 +10,6 @@ import com.ruoyi.common.core.domain.entity.SysRole;
 import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.system.domain.*;
-import com.ruoyi.system.mapper.SciTec_traScoreCfgMapper;
 import com.ruoyi.system.service.*;
 import io.swagger.models.auth.In;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,9 +42,6 @@ public class SciIntraSchoolProController extends BaseController {
 
   @Autowired
   private SciIntraSchProScoreService sciIntraSchProScoreService;
-
-  @Autowired
-  private SciTec_traScoreCfgMapper sciTecTraScoreCfgMapper;
 
   //private String role_str="";
   @GetMapping("")
@@ -86,7 +82,6 @@ public class SciIntraSchoolProController extends BaseController {
     String role_str = panRole_str();
     System.out.println("role_str = " + role_str);
     List<SciIntraSchoolPro> list = selectListByRole(role_str, tableId, sciIntraSchoolPro);
-    populateScores(list);
     TableDataInfo data = getDataTable(list);
 
     //System.out.println("data = " + data);
@@ -131,40 +126,7 @@ public class SciIntraSchoolProController extends BaseController {
 
     TableDataInfo data = getDataTable(distinctList);
     data.setTotal(total);
-    populateScores(distinctList);
     return data;
-  }
-
-  /**
-   * 为列表中的每条记录填充积分字段
-   */
-  private void populateScores(List<SciIntraSchoolPro> list) {
-    for (SciIntraSchoolPro item : list) {
-      try {
-        String amountStr = item.getAmount();
-        if (amountStr == null || amountStr.isEmpty()) continue;
-        // 去除非数字字符（如"万"）
-        amountStr = amountStr.replaceAll("[^0-9.]", "");
-        if (amountStr.isEmpty()) continue;
-        double amount = Double.parseDouble(amountStr);
-        System.out.println("populateScores: id=" + item.getId() + ", amount=" + amount);
-        List<Map<String, Object>> scores = sciTecTraScoreCfgMapper.selectScoreByAmount(amount);
-        System.out.println("populateScores: scores size=" + scores.size());
-        for (Map<String, Object> row : scores) {
-          String order = String.valueOf(row.get("user_order"));
-          String score = String.valueOf(row.get("total_score"));
-          switch (order) {
-            case "1": item.setFirstPoints(score); break;
-            case "2": item.setSecondPoints(score); break;
-            case "3": item.setThirdPoints(score); break;
-            case "4": item.setForthPoints(score); break;
-          }
-        }
-        System.out.println("populateScores: firstPoints=" + item.getFirstPoints());
-      } catch (Exception e) {
-        System.out.println("populateScores error: " + e.getMessage());
-      }
-    }
   }
 
   private List<SciIntraSchoolPro> selectListByRole(String roleStr, String tableId, SciIntraSchoolPro sciIntraSchoolPro) {
@@ -435,21 +397,6 @@ public class SciIntraSchoolProController extends BaseController {
     mmap.put("sciIntraSchoolPro", sciIntraSchoolPro);
     //mmap.put("urlFlag",urlFlag);
     return prefix + "/overdetail";
-  }
-
-  /**
-   * 根据项目金额计算各负责人积分
-   */
-  @PostMapping("/calculateScore")
-  @ResponseBody
-  public AjaxResult calculateScore(@RequestParam("amount") double amount) {
-    List<Map<String, Object>> scores = sciTecTraScoreCfgMapper.selectScoreByAmount(amount);
-    Map<String, Object> result = new HashMap<>();
-    for (Map<String, Object> row : scores) {
-      String order = String.valueOf(row.get("user_order"));
-      result.put(order, row.get("total_score"));
-    }
-    return AjaxResult.success(result);
   }
 
   /**
