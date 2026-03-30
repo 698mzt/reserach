@@ -6,24 +6,25 @@ import com.ruoyi.system.mapper.SciRewardScoreCfgMapper;
 import com.ruoyi.system.service.ISciRewardScoreCfgService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 /**
  * 奖励积分管理Service业务层处理
- * 
+ *
  * @author ruoyi
  * @date 2025-02-24
  */
 @Service
-public class SciRewardScoreCfgServiceImpl implements ISciRewardScoreCfgService 
+public class SciRewardScoreCfgServiceImpl implements ISciRewardScoreCfgService
 {
     @Autowired
     private SciRewardScoreCfgMapper sciRewardScoreCfgMapper;
 
     /**
      * 查询奖励积分管理
-     * 
+     *
      * @param id 奖励积分管理主键
      * @return 奖励积分管理
      */
@@ -35,7 +36,7 @@ public class SciRewardScoreCfgServiceImpl implements ISciRewardScoreCfgService
 
     /**
      * 查询奖励积分管理列表
-     * 
+     *
      * @param sciRewardScoreCfg 奖励积分管理
      * @return 奖励积分管理
      */
@@ -47,7 +48,7 @@ public class SciRewardScoreCfgServiceImpl implements ISciRewardScoreCfgService
 
     /**
      * 新增奖励积分管理
-     * 
+     *
      * @param sciRewardScoreCfg 奖励积分管理
      * @return 结果
      */
@@ -59,7 +60,7 @@ public class SciRewardScoreCfgServiceImpl implements ISciRewardScoreCfgService
 
     /**
      * 修改奖励积分管理
-     * 
+     *
      * @param sciRewardScoreCfg 奖励积分管理
      * @return 结果
      */
@@ -71,7 +72,7 @@ public class SciRewardScoreCfgServiceImpl implements ISciRewardScoreCfgService
 
     /**
      * 批量删除奖励积分管理
-     * 
+     *
      * @param ids 需要删除的奖励积分管理主键
      * @return 结果
      */
@@ -83,7 +84,7 @@ public class SciRewardScoreCfgServiceImpl implements ISciRewardScoreCfgService
 
     /**
      * 删除奖励积分管理信息
-     * 
+     *
      * @param id 奖励积分管理主键
      * @return 结果
      */
@@ -91,5 +92,20 @@ public class SciRewardScoreCfgServiceImpl implements ISciRewardScoreCfgService
     public int deleteSciRewardScoreCfgById(Long id)
     {
         return sciRewardScoreCfgMapper.deleteSciRewardScoreCfgById(id);
+    }
+
+    /**
+     * 根据条件计算奖励积分
+     *
+     * @param fenLei 奖励分类
+     * @param dengJi 奖励等级
+     * @param paiMing 奖励排名
+     * @return 对应积分值，未找到配置返回"0"
+     */
+    @Override
+    @Transactional
+    public String calculateScore(String fenLei, String dengJi, String paiMing) {
+        SciRewardScoreCfg config = sciRewardScoreCfgMapper.selectScoreConfig(fenLei, dengJi, paiMing);
+        return config != null ? config.getTotalScore() : "0";
     }
 }

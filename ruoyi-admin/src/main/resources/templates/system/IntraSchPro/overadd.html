@@ -76,22 +76,22 @@
                     <div class="col-sm-8">
                         <div class="input-group date" >
                             <input readonly name="signingData" autocomplete="off" th:field="*{signingData}" th:value="${#dates.format(signingData, 'yyyy-MM-dd')}" class="form-control" placeholder="yyyy-MM-dd" type="text" required>
-                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                            <span class="input-group-addon" style="background-color: #f5f5f5; border-color: #ddd;"><i class="fa fa-calendar"></i></span>
                         </div>
                     </div>
                 </div>
             </div>
-<!--            <div class="col-xs-6">-->
-<!--                <div class="form-group">-->
-<!--                    <label class="col-sm-4 control-label is-required">结项日期：</label>-->
-<!--                    <div class="col-sm-8">-->
-<!--                        <div class="input-group date">-->
-<!--                            <input autocomplete="off" name="validityDate" class="form-control" placeholder="yyyy-MM-dd" type="text" required>-->
-<!--                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>-->
-<!--                        </div>-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--            </div>-->
+            <!--            <div class="col-xs-6">-->
+            <!--                <div class="form-group">-->
+            <!--                    <label class="col-sm-4 control-label is-required">结项日期：</label>-->
+            <!--                    <div class="col-sm-8">-->
+            <!--                        <div class="input-group date">-->
+            <!--                            <input autocomplete="off" name="validityDate" class="form-control" placeholder="yyyy-MM-dd" type="text" required>-->
+            <!--                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>-->
+            <!--                        </div>-->
+            <!--                    </div>-->
+            <!--                </div>-->
+            <!--            </div>-->
             <div class="col-xs-6">
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">结项日期：</label>
@@ -156,9 +156,9 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">合同：</label>
                     <div class="col-sm-8">
-                        <input type="hidden" name="overContract">
+                        <input type="hidden" name="overContract" id="overContractHidden">
                         <div class="file-loading">
-                            <input class="form-control file-upload1" id="overContract" name="file" type="file">
+                            <input class="form-control file-upload1" id="overContractUpload" name="file" type="file">
                         </div>
                     </div>
                 </div>
@@ -204,7 +204,7 @@
                 $.modal.alertWarning("请上传备案表");
                 return;
             }
-          $.operate.saveTab(prefix + "/sch_overadd", $('#form-apply-add').serialize(),"function");
+            $.operate.saveTab(prefix + "/sch_overadd", $('#form-apply-add').serialize(),"function");
         }
     }
     $("input[name='validityDate']").datetimepicker({
@@ -217,7 +217,7 @@
     // $(".file-upload").fileinput({
     //     uploadUrl: ctx + 'common/upload',
     //     maxFileCount: 1,
-        //maxFileSize: 51200,
+    //maxFileSize: 51200,
     //     autoReplace: true,
     //     allowedFileExtensions: ["pdf"]  //指定上传文件类型
     // }).on('fileuploaded', function (event, data, previewId, index) {
@@ -245,9 +245,10 @@
             return newName;
         },
     }).on('fileuploaded', function (event, data, previewId, index) {
-        $("input[name='" + event.currentTarget.id + "']").val(data.response.url)
+        // 修复ID冲突：将值设置到隐藏字段
+        $("#overContractHidden").val(data.response.url);
     }).on('fileremoved', function (event, id, index) {
-        $("input[name='" + event.currentTarget.id + "']").val('')
+        $("#overContractHidden").val('');
     }).on('filebatchselected', function(event) {
         // 批量选择文件后立即上传
         $(this).fileinput('upload');

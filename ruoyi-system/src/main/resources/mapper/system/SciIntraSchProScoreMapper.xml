@@ -54,20 +54,6 @@
             <if test="earnedJTPoints != null and earnedJTPoints != ''">#{earnedJTPoints},</if>
         </trim>
     </insert>
-<!--&lt;-->
-    <select id="getUserScoreList"  resultMap="SciProjectScoreCfgProResult">
-        SELECT
-        *
-        FROM
-        sci_technology_transfer_cfg
-        WHERE
-        ( #{amount} >= funds_min AND #{amount} &lt; funds_max )
-        OR (
-        funds_min > funds_max
-        AND ( #{amount} >= funds_min AND funds_max = 0 ))
-        ORDER BY
-        user_order;
-    </select>
 
     <select id="getScoreById" >
         SELECT
@@ -91,7 +77,7 @@
   <update id="update_SchPro_score_jt" >
     update sci_IntraSchPro_score
     set earnedJT_Points=0
-    where sciIntraSch_Id = #{sciIntraSch_Id} and userid = #{userid}
+    where sci_IntraSch_Id = #{sciIntraSch_Id} and userid = #{userid}
   </update>
   <select id="getScoreByUId" resultType="java.lang.Long">
     select

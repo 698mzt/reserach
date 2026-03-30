@@ -45,7 +45,7 @@
                         </select>
 
 
-<!--                        <input readonly th:field="*{topType}" class="form-control" type="text" required>-->
+                        <!--                        <input readonly th:field="*{topType}" class="form-control" type="text" required>-->
                     </div>
                 </div>
             </div>
@@ -228,10 +228,10 @@
 <div class="row">
     <div class="col-sm-offset-5 col-sm-10">
         <button type="button" id="btn1" style="display:none;" class="btn btn-sm btn-primary" onclick="submitHandler()">
-              通 过
+            通 过
         </button>&nbsp;
         <button type="button" id="btn2" style="display:none;" class="btn btn-sm btn-danger" onclick="submitHandlerBH()">
-             驳 回
+            驳 回
         </button>
         <button type="button" id="btn3" style="display:none;" class="btn btn-sm btn-warning" onclick="closeItem()">关 闭
         </button>
@@ -267,7 +267,7 @@
             alert("没有可预览的文件！");
             return;
         }
-        
+
         // 检查是否为MinIO文件（路径以/minio/开头）
         if (relativePath.startsWith('/minio/')) {
             // 对于MinIO文件，使用新的预览接口
@@ -288,7 +288,7 @@
             alert("没有可预览的文件！");
             return;
         }
-        
+
         // 检查是否为MinIO文件（路径以/minio/开头）
         if (relativePath.startsWith('/minio/')) {
             // 对于MinIO文件，使用新的预览接口
@@ -309,7 +309,7 @@
             alert("没有可下载的文件！");
             return;
         }
-        
+
         var downloadUrl;
         // 检查是否为MinIO文件（路径以/minio/开头）
         if (relativePath.startsWith('/minio/')) {
@@ -321,7 +321,7 @@
             var contextPath = '/' + window.location.pathname.split('/')[1];
             downloadUrl = window.location.origin + contextPath + relativePath;
         }
-        
+
         if(downloadUrl){
             var a = document.createElement("a");
             a.href=downloadUrl;
@@ -558,7 +558,7 @@
             initialPreviewAsData: true,
             initialPreview: [val],
             maxFileCount: 1,
-        maxFileSize: 51200,
+            maxFileSize: 51200,
             autoReplace: true
         }).on('fileuploaded', function (event, data, previewId, index) {
             $("input[name='" + event.currentTarget.id + "']").val(data.response.url)
@@ -567,7 +567,7 @@
         })
         $(this).fileinput('_initFileActions');
     });
-    // 页面加载时显示文件名
+    // 页面加载时显示文 件名
     window.onload = function () {
         displayFileName('contract', 'contractFileName');
         displayFileName('filing', 'filingFileName');

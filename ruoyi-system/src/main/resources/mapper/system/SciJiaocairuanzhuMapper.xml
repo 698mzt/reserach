@@ -7,27 +7,29 @@
     <resultMap type="SciJiaocairuanzhu" id="SciJiaocairuanzhuResult">
         <result property="id"    column="id"    />
         <result property="userId"    column="user_id"    />
-        <result property="xueyuan" column="yname"/> <!-- 学院 -->
-        <result property="jiaoyanshi" column="dname"/> <!-- 教研室 -->
-        <result property="xingming" column="userName"/> <!-- 姓名 -->
-        <result property="loginName" column="login_name"/> <!-- 工号 -->
+        <result property="xueyuan" column="yname"/><!-- 学院 -->
+        <result property="jiaoyanshi" column="dname"/><!-- 教研室 -->
+        <result property="xingming" column="userName"/><!-- 姓名 -->
+        <result property="loginName" column="login_name"/><!-- 工号 -->
         <result property="mingcheng"    column="mingcheng"    />
-        <result property="leixing"    column="leixing"    />
+        <result property="leixing" column="leixing"    />
         <result property="isbn"    column="isbn"    />
-        <result property="chubanshijian"    column="chubanshijian"    />
-        <result property="chubanshe"    column="chubanshe"    />
-        <result property="benxiaoshifoyongshu"    column="benxiaoshifoyongshu"    />
-        <result property="fenlei"    column="fenlei"    />
-        <result property="jifen"    column="jifen"    />
-        <result property="wenjian"    column="wenjian"    />
+        <result property="chubanshijian" column="chubanshijian"    />
+        <result property="chubanshe" column="chubanshe"    />
+        <result property="benxiaoshifoyongshu" column="benxiaoshifoyongshu"    />
+        <result property="fenlei" column="fenlei"    />
+        <result property="state" column="state"    />
+        <result property="paiming" column="paiming"    />
+        <result property="jifen" column="jifen"    />
+        <result property="wenjian" column="wenjian"    />
         <result property="createtime" column="createtime" />
-        <result property="year" column="year" /> <!-- 确保映射正确 -->
-        <result property="year" column="year" /> <!-- 确保映射正确 -->
-        <result  property="parentId" column="parent_id" />
-        
+        <result property="year" column="year" /><!-- 确保映射正确 -->
+        <result property="parentId" column="parent_id" />
+        <result property="zhubian" column="zhubian" />
+        <result property="fuzhubian" column="fuzhubian" />
     </resultMap>
     <sql id="selectSciJiaocairuanzhuVo">
-        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname,p.dept_id parent_id, s.user_id, s.mingcheng, s.isbn, s.chubanshijian, s.chubanshe, s.benxiaoshifoyongshu, s.fenlei, s.state,s.jifen,s.paiming,s.wenjian,s.createtime
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname,p.dept_id parent_id, s.user_id, s.mingcheng, s.isbn, s.chubanshijian, s.chubanshe, s.benxiaoshifoyongshu, s.fenlei, s.state,s.jifen,s.paiming,s.wenjian,s.createtime,s.zhubian,s.fuzhubian
         from sci_jiaocairuanzhu s left join sys_user u on  s.user_id=u.user_id
                                   left join sys_dept d on u.dept_id = d.dept_id
                                   left join sys_dept p on d.parent_id =p.dept_id
@@ -107,7 +109,7 @@
         <include refid="selectSciJiaocairuanzhuVo"/>
         where (s.user_id = #{uid} or (state in (1,2) and d.dept_id = #{deptId}))
 
-        <if test="xueyuan != null  and xueyuan != ''"> and xueyuan = #{xueyuan}</if>
+        <if test="xueyuan != null  and xueyuan != ''"> and p.dept_name = #{xueyuan}</if>
 
 
         <if test="mingcheng != null  and mingcheng != ''"> and mingcheng like concat('%', #{mingcheng}, '%')</if>
@@ -143,7 +145,7 @@
         where  s.user_id = #{uid} or state in (4,6)
         <if test="jiaoyanshi != null  and jiaoyanshi != ''">and  d.dept_name like concat('%', #{jiaoyanshi}, '%')</if>
         <if test="xingming != null  and xingming != ''">and  u.user_name like concat('%', #{xingming}, '%')</if>
-        <if test="xueyuan != null  and xueyuan != ''"> and xueyuan = #{xueyuan}</if>
+        <if test="xueyuan != null  and xueyuan != ''"> and p.dept_name = #{xueyuan}</if>
 
 
         <if test="mingcheng != null  and mingcheng != ''"> and mingcheng like concat('%', #{mingcheng}, '%')</if>
@@ -154,6 +156,72 @@
 
         ${params.dataScope}
         order by state, createtime desc
+    </select>
+
+    <!-- 新方法：教师查询 -->
+    <select id="selectSciPaperAListCx" parameterType="SciJiaocairuanzhu" resultMap="SciJiaocairuanzhuResult">
+        <include refid="selectSciJiaocairuanzhuVo"/>
+        where (state in (0,1,2,3,4,5,6,7) and s.user_id = #{uid})
+        <if test="userId != null  and userId != ''">and s.user_id = #{uid}</if>
+        <if test="mingcheng != null  and mingcheng != ''"> and mingcheng like concat('%', #{mingcheng}, '%')</if>
+        <if test="chubanshijian != null "> and chubanshijian = #{chubanshijian}</if>
+        <if test="fenlei != null  and fenlei != ''"> and fenlei = #{fenlei}</if>
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(createtime,INTERVAL 1 MONTH)) = #{year}</if>
+        order by state, createtime desc
+    </select>
+
+    <!-- 新方法：教研室查询 -->
+    <select id="selectSciPaperAListCxList" parameterType="SciJiaocairuanzhu" resultMap="SciJiaocairuanzhuResult">
+        <include refid="selectSciJiaocairuanzhuVo"/>
+        where (s.user_id = #{uid} or (state in (1,2) and d.dept_id = #{deptId}))
+        <if test="xueyuan != null  and xueyuan != ''"> and p.dept_name = #{xueyuan}</if>
+        <if test="mingcheng != null  and mingcheng != ''"> and mingcheng like concat('%', #{mingcheng}, '%')</if>
+        <if test="chubanshijian != null "> and chubanshijian = #{chubanshijian}</if>
+        <if test="fenlei != null  and fenlei != ''"> and fenlei = #{fenlei}</if>
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(createtime,INTERVAL 1 MONTH)) = #{year}</if>
+        order by state, createtime desc
+    </select>
+
+    <!-- 新方法：学院查询 -->
+    <select id="selectSciPaperAListXY" parameterType="SciJiaocairuanzhu" resultMap="SciJiaocairuanzhuResult">
+        <include refid="selectSciJiaocairuanzhuVo"/>
+        where  (s.user_id = #{uid} or (state in (2,4) and d.parent_id = #{parentId}))
+        <if test="jiaoyanshi != null  and jiaoyanshi != ''">and  d.dept_name like concat('%', #{jiaoyanshi}, '%')</if>
+        <if test="xingming != null  and xingming != ''">and  u.user_name like concat('%', #{xingming}, '%')</if>
+        <if test="mingcheng != null  and mingcheng != ''"> and mingcheng like concat('%', #{mingcheng}, '%')</if>
+        <if test="chubanshijian != null "> and chubanshijian = #{chubanshijian}</if>
+        <if test="fenlei != null  and fenlei != ''"> and fenlei = #{fenlei}</if>
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(createtime,INTERVAL 1 MONTH)) = #{year}</if>
+        order by state, createtime desc
+    </select>
+
+    <!-- 新方法：科研处查询 -->
+    <select id="selectSciPaperAListKY" parameterType="SciJiaocairuanzhu" resultMap="SciJiaocairuanzhuResult">
+        <include refid="selectSciJiaocairuanzhuVo"/>
+        where  s.user_id = #{uid} or state in (4,6)
+        <if test="jiaoyanshi != null  and jiaoyanshi != ''">and  d.dept_name like concat('%', #{jiaoyanshi}, '%')</if>
+        <if test="xingming != null  and xingming != ''">and  u.user_name like concat('%', #{xingming}, '%')</if>
+        <if test="xueyuan != null  and xueyuan != ''"> and p.dept_name = #{xueyuan}</if>
+        <if test="mingcheng != null  and mingcheng != ''"> and mingcheng like concat('%', #{mingcheng}, '%')</if>
+        <if test="chubanshijian != null "> and chubanshijian = #{chubanshijian}</if>
+        <if test="fenlei != null  and fenlei != ''"> and fenlei = #{fenlei}</if>
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(createtime,INTERVAL 1 MONTH)) = #{year}</if>
+        <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+        ${params.dataScope}
+        order by state, createtime desc
+    </select>
+
+    <!-- 新方法：管理员查询 -->
+    <select id="selectSciPaperAList" parameterType="SciJiaocairuanzhu" resultMap="SciJiaocairuanzhuResult">
+        <include refid="selectSciJiaocairuanzhuVo"/>
+        where state in (1,2,3,4,5,6,7)
+        <if test="jiaoyanshi != null  and jiaoyanshi != ''">and  d.dept_name like concat('%', #{jiaoyanshi}, '%')</if>
+        <if test="xingming != null  and xingming != ''">and  u.user_name like concat('%', #{xingming}, '%')</if>
+        <if test="mingcheng != null  and mingcheng != ''"> and mingcheng like concat('%', #{mingcheng}, '%')</if>
+        <if test="chubanshijian != null "> and chubanshijian = #{chubanshijian}</if>
+        <if test="fenlei != null  and fenlei != ''"> and fenlei = #{fenlei}</if>
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(createtime,INTERVAL 1 MONTH)) = #{year}</if>
+        <if test="userId != null  and userId != ''">and s.user_id = #{uid}</if>
     </select>
 
     <select id="selectSciJiaocairuanzhuById" parameterType="Integer" resultMap="SciJiaocairuanzhuResult">
@@ -173,9 +241,10 @@
             <if test="benxiaoshifoyongshu != null">benxiaoshifoyongshu,</if>
             <if test="fenlei != null and fenlei != ''">fenlei,</if>
             <if test="paiming != null and paiming != ''">paiming,</if>
+            <if test="zhubian != null and zhubian != ''">zhubian,</if>
+            <if test="fuzhubian != null and fuzhubian != ''">fuzhubian,</if>
             <if test="jifen != null and jifen != ''">jifen,</if>
             <if test="wenjian != null and wenjian != ''">wenjian,</if>
-
 
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -188,9 +257,10 @@
             <if test="benxiaoshifoyongshu != null">#{benxiaoshifoyongshu},</if>
             <if test="fenlei != null and fenlei != ''">#{fenlei},</if>
             <if test="paiming != null and paiming != ''">#{paiming},</if>
+            <if test="zhubian != null and zhubian != ''">#{zhubian},</if>
+            <if test="fuzhubian != null and fuzhubian != ''">#{fuzhubian},</if>
             <if test="jifen != null and jifen != ''">#{jifen},</if>
             <if test="wenjian != null and wenjian != ''">#{wenjian},</if>
-
 
         </trim>
     </insert>
@@ -198,10 +268,7 @@
     <update id="updateSciJiaocairuanzhu" parameterType="SciJiaocairuanzhu">
         update sci_jiaocairuanzhu
         <trim prefix="SET" suffixOverrides=",">
-
-
             <if test="userId != null">user_id = #{userId},</if>
-
             <if test="mingcheng != null and mingcheng != ''">mingcheng = #{mingcheng},</if>
             <if test="leixing != null and leixing != ''">leixing = #{leixing},</if>
             <if test="isbn != null">isbn = #{isbn},</if>
@@ -210,6 +277,8 @@
             <if test="benxiaoshifoyongshu != null">benxiaoshifoyongshu = #{benxiaoshifoyongshu},</if>
             <if test="fenlei != null and fenlei != ''">fenlei = #{fenlei},</if>
             <if test="paiming != null and paiming != ''">paiming = #{paiming},</if>
+            <if test="zhubian != null and zhubian != ''">zhubian = #{zhubian},</if>
+            <if test="fuzhubian != null and fuzhubian != ''">fuzhubian = #{fuzhubian},</if>
             <if test="wenjian != null and wenjian != ''">wenjian = #{wenjian},</if>
             state = "0"
 
@@ -245,7 +314,8 @@
     <select id="checkExist" resultType="int">
         SELECT COUNT(*) FROM sci_jiaocairuanzhu
         WHERE mingcheng = #{mingcheng}
-          AND paiming = #{paiming}
+          AND (paiming = #{paiming} OR paiming IS NULL AND #{paiming} IS NULL)
+          AND user_id = #{userId}
     </select>
 
     <select id="getStatsQuery" parameterType="map" resultMap="SciJiaocairuanzhuResult">

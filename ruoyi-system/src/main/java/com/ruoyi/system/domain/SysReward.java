@@ -6,11 +6,14 @@ import com.ruoyi.common.core.domain.BaseEntity;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 奖励对象 sys_reward
- * 
+ *
  * @author ruoyi
  * @date 2024-12-23
  */
@@ -27,52 +30,34 @@ public class SysReward extends BaseEntity
     private Long userId;
 
     /** 申请人 */
-    private String  userName;
+    @Excel(name = "申请人")
+    private String userName;
 
     /** 判断教研室还是科研处 */
     private String urlFlag;
 
     @Excel(name = "学院")
-    private String  yname;
+    private String yname;
+
     @Excel(name = "教研室")
-    private String  dname;
+    private String dname;
 
-    public Long getDeptId() {
-        return deptId;
-    }
-
-    public void setDeptId(Long deptId) {
-        this.deptId = deptId;
-    }
-
+    /** 部门ID */
     private Long deptId;
 
-    public Long getParentId() {
-        return parentId;
-    }
-
-    public void setParentId(Long parentId) {
-        this.parentId = parentId;
-    }
-
+    /** 父部门ID */
     private Long parentId;
 
+    /** 积分 */
     @Excel(name = "积分")
-    private String  jifen;
-
-    public String getJifen() {
-        return jifen;
-    }
-
-    public void setJifen(String jifen) {
-        this.jifen = jifen;
-    }
+    private String jifen;
 
     /** 荣誉名称 */
     @Excel(name = "荣誉名称")
     private String rewardName;
 
     /** 颁发单位 */
+    @Excel(name = "颁发单位")
     private String rewardDanwei;
 
     /** 奖励类型 */
@@ -84,20 +69,45 @@ public class SysReward extends BaseEntity
 
     /** 颁发时间 */
     @JsonFormat(pattern = "yyyy-MM-dd")
+    @Excel(name = "颁发时间", width = 30, dateFormat = "yyyy-MM-dd")
     private Date rewardTime;
 
     /** 分类 */
+    @Excel(name = "分类")
     private String rewardFenlei;
 
     /** 等级 */
+    @Excel(name = "等级")
     private String rewardDengji;
 
     /** 排名 */
+    @Excel(name = "排名")
     private String rewardPaiming;
 
     /** 级别 */
+    @Excel(name = "级别")
     private String rewardJibie;
 
+    /** 第一负责人 */
+    private String firstPersonId;
+
+    /** 第二负责人 */
+    private String secondPersonId;
+
+    /** 第三负责人 */
+    private String thirdPersonId;
+
+    /** 第四负责人 */
+    private String fourthPersonId;
+
+    /** 更多成员（第5位及以后），逗号分隔存储 */
+    @Excel(name = "其他成员")
+    private String extraMemberIds;
+
+
+    // 用于前端展示的列表（不映射数据库）
+    @Excel(name = "其他成员列表")
+    private List<String> extraMembers;
 
     /** 状态 */
     @Excel(name = "状态")
@@ -105,6 +115,46 @@ public class SysReward extends BaseEntity
 
     /** 用户角色字段 */
     private String role;
+
+    public Long getUid() {
+        return uid;
+    }
+
+    public void setUid(Long uid) {
+        this.uid = uid;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public String getUrlFlag() {
+        return urlFlag;
+    }
+
+    public void setUrlFlag(String urlFlag) {
+        this.urlFlag = urlFlag;
+    }
 
     public String getYname() {
         return yname;
@@ -122,122 +172,140 @@ public class SysReward extends BaseEntity
         this.dname = dname;
     }
 
-    public Long getUid() {
-        return uid;
+    public Long getDeptId() {
+        return deptId;
     }
 
-    public void setUid(Long uid) {
-        this.uid = uid;
-    }
-    public String getState() {return state;}
-
-    public String getUserName() {
-        return userName;
+    public void setDeptId(Long deptId) {
+        this.deptId = deptId;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public Long getParentId() {
+        return parentId;
     }
 
-    public void setState(String state) {this.state = state;}
-    public void setId(Long id) 
-    {
-        this.id = id;
+    public void setParentId(Long parentId) {
+        this.parentId = parentId;
     }
 
-    public Long getId() 
-    {
-        return id;
-    }
-    public void setUserId(Long userId) 
-    {
-        this.userId = userId;
+    public String getJifen() {
+        return jifen;
     }
 
-    public Long getUserId() 
-    {
-        return userId;
+    public void setJifen(String jifen) {
+        this.jifen = jifen;
     }
-    public void setRewardName(String rewardName) 
-    {
+
+    public String getRewardName() {
+        return rewardName;
+    }
+
+    public void setRewardName(String rewardName) {
         this.rewardName = rewardName;
     }
 
-    public String getRewardName() 
-    {
-        return rewardName;
+    public String getRewardDanwei() {
+        return rewardDanwei;
     }
-    public void setRewardDanwei(String rewardDanwei) 
-    {
+
+    public void setRewardDanwei(String rewardDanwei) {
         this.rewardDanwei = rewardDanwei;
     }
 
-    public String getRewardDanwei() 
-    {
-        return rewardDanwei;
+    public String getRewardLeixing() {
+        return rewardLeixing;
     }
-    public void setRewardLeixing(String rewardLeixing) 
-    {
+
+    public void setRewardLeixing(String rewardLeixing) {
         this.rewardLeixing = rewardLeixing;
     }
 
-    public String getRewardLeixing() 
-    {
-        return rewardLeixing;
+    public String getRewardWenjian() {
+        return rewardWenjian;
     }
-    public void setRewardWenjian(String rewardWenjian) 
-    {
+
+    public void setRewardWenjian(String rewardWenjian) {
         this.rewardWenjian = rewardWenjian;
     }
 
-    public String getRewardWenjian() 
-    {
-        return rewardWenjian;
+    public Date getRewardTime() {
+        return rewardTime;
     }
-    public void setRewardTime(Date rewardTime) 
-    {
+
+    public void setRewardTime(Date rewardTime) {
         this.rewardTime = rewardTime;
     }
 
-    public Date getRewardTime() 
-    {
-        return rewardTime;
+    public String getRewardFenlei() {
+        return rewardFenlei;
     }
-    public void setRewardFenlei(String rewardFenlei) 
-    {
+
+    public void setRewardFenlei(String rewardFenlei) {
         this.rewardFenlei = rewardFenlei;
     }
 
-    public String getRewardFenlei() 
-    {
-        return rewardFenlei;
+    public String getRewardDengji() {
+        return rewardDengji;
     }
-    public void setRewardDengji(String rewardDengji) 
-    {
+
+    public void setRewardDengji(String rewardDengji) {
         this.rewardDengji = rewardDengji;
     }
 
-    public String getRewardDengji() 
-    {
-        return rewardDengji;
+    public String getRewardPaiming() {
+        return rewardPaiming;
     }
-    public void setRewardPaiming(String rewardPaiming) 
-    {
+
+    public void setRewardPaiming(String rewardPaiming) {
         this.rewardPaiming = rewardPaiming;
     }
 
-    public String getRewardPaiming() 
-    {
-        return rewardPaiming;
+    public String getRewardJibie() {
+        return rewardJibie;
     }
-    public void setRewardJibie(String rewardJibie) 
-    {
+
+    public void setRewardJibie(String rewardJibie) {
         this.rewardJibie = rewardJibie;
     }
 
-    public String getRewardJibie() 
-    {
-        return rewardJibie;
+    public String getFirstPersonId() {
+        return firstPersonId;
+    }
+
+    public void setFirstPersonId(String firstPersonId) {
+        this.firstPersonId = firstPersonId;
+    }
+
+    public String getSecondPersonId() {
+        return secondPersonId;
+    }
+
+    public void setSecondPersonId(String secondPersonId) {
+        this.secondPersonId = secondPersonId;
+    }
+
+    public String getThirdPersonId() {
+        return thirdPersonId;
+    }
+
+    public void setThirdPersonId(String thirdPersonId) {
+        this.thirdPersonId = thirdPersonId;
+    }
+
+    public String getFourthPersonId() {
+        return fourthPersonId;
+    }
+
+    public void setFourthPersonId(String fourthPersonId) {
+        this.fourthPersonId = fourthPersonId;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
     }
 
     public String getRole() {
@@ -248,65 +316,76 @@ public class SysReward extends BaseEntity
         this.role = role;
     }
 
-
-    public String getUrlFlag() {
-        return urlFlag;
+    public String getExtraMemberIds() {
+        return extraMemberIds;
     }
 
-    public void setUrlFlag(String urlFlag) {
-        this.urlFlag = urlFlag;
+    public void setExtraMemberIds(String extraMemberIds) {
+        this.extraMemberIds = extraMemberIds;
+        // 自动解析为列表
+        if (extraMemberIds != null && !extraMemberIds.isEmpty()) {
+            this.extraMembers = Arrays.asList(extraMemberIds.split(","));
+        } else {
+            this.extraMembers = new ArrayList<>();
+        }
+    }
+    public List<String> getExtraMembers() {
+        return extraMembers;
     }
 
+    public void setExtraMembers(List<String> extraMembers) {
+        this.extraMembers = extraMembers;
+        // 反向转换为字符串
+        if (extraMembers != null && !extraMembers.isEmpty()) {
+            this.extraMemberIds = String.join(",", extraMembers);
+        }
+    }
     @Override
     public String toString() {
-        return "SysReward{" +
-                "uid=" + uid +
-                ", id=" + id +
-                ", userId=" + userId +
-                ", userName='" + userName + '\'' +
-                ", urlFlag='" + urlFlag + '\'' +
-                ", yname='" + yname + '\'' +
-                ", dname='" + dname + '\'' +
-                ", deptId=" + deptId +
-                ", parentId=" + parentId +
-                ", jifen='" + jifen + '\'' +
-                ", rewardName='" + rewardName + '\'' +
-                ", rewardDanwei='" + rewardDanwei + '\'' +
-                ", rewardLeixing='" + rewardLeixing + '\'' +
-                ", rewardWenjian='" + rewardWenjian + '\'' +
-                ", rewardTime=" + rewardTime +
-                ", rewardFenlei='" + rewardFenlei + '\'' +
-                ", rewardDengji='" + rewardDengji + '\'' +
-                ", rewardPaiming='" + rewardPaiming + '\'' +
-                ", rewardJibie='" + rewardJibie + '\'' +
-                ", state='" + state + '\'' +
-                ", role='" + role + '\'' +
-                '}';
+        return new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE)
+                .append("uid", getUid())
+                .append("id", getId())
+                .append("userId", getUserId())
+                .append("userName", getUserName())
+                .append("urlFlag", getUrlFlag())
+                .append("yname", getYname())
+                .append("dname", getDname())
+                .append("deptId", getDeptId())
+                .append("parentId", getParentId())
+                .append("jifen", getJifen())
+                .append("rewardName", getRewardName())
+                .append("rewardDanwei", getRewardDanwei())
+                .append("rewardLeixing", getRewardLeixing())
+                .append("rewardWenjian", getRewardWenjian())
+                .append("rewardTime", getRewardTime())
+                .append("rewardFenlei", getRewardFenlei())
+                .append("rewardDengji", getRewardDengji())
+                .append("rewardPaiming", getRewardPaiming())
+                .append("rewardJibie", getRewardJibie())
+                .append("firstPersonId", getFirstPersonId())
+                .append("secondPersonId", getSecondPersonId())
+                .append("thirdPersonId", getThirdPersonId())
+                .append("fourthPersonId", getFourthPersonId())
+                .append("extraMemberIds", getExtraMemberIds())
+                .append("state", getState())
+                .append("role", getRole())
+                .toString();
     }
+
     public String getStateDes() {
         if (this.state == null) {
             return "";
         }
         switch (this.state) {
-
-            case "1":
-                return "待教研室处理";
-            case "2":
-                return "待学院审核";
-            case "3":
-                return "教研室退回";
-            case "4":
-                return "待科研处审核";
-            case "5":
-                return "学院退回";
-            case "6":
-                return "科研处通过";
-            case "7":
-                return "科研处退回";
-            case "11":
-                return "草稿箱";
-
+            case "1": return "待教研室处理";
+            case "2": return "待学院审核";
+            case "3": return "教研室退回";
+            case "4": return "待科研处审核";
+            case "5": return "学院退回";
+            case "6": return "科研处通过";
+            case "7": return "科研处退回";
+            case "11": return "草稿箱";
+            default: return this.state;
         }
-        return this.state;
     }
 }

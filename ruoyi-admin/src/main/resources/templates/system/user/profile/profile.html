@@ -47,8 +47,8 @@
                             <p class="pull-right" th:title="${user.email}">[[${#strings.abbreviate(user.email, 16)}]]</p>
                         </li>
                         <li class="list-group-item"><i class="fa fa-calendar"></i>
-                            <b  class="font-noraml">创建时间：</b>
-                            <p class="pull-right">[[${#dates.format(user.createTime, 'yyyy-MM-dd')}]]</p>
+                            <b  class="font-noraml">年龄：</b>
+                            <p class="pull-right">[[${age != null ? age + '岁' : ''}]]</p>
                         </li>
                     </ul>
                 </div>
@@ -94,9 +94,11 @@
                                     <div class="form-group"  th:style="${user.loginName == 'admin' ? 'display: none;' : ''}">
                                         <label class="col-sm-2 control-label">岗类：</label>
                                         <div class="col-sm-10">
-                                            <select name="adminstrativeTitle" class="form-control" th:with="type=${@dict.getType('sys_adminstrative_title')}" required>
+                                            <select name="adminstrativeTitle" class="form-control" required>
                                                 <option value="">请选择岗类</option>
-                                                <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}" th:selected="${dict.dictValue == user.adminstrativeTitle}"></option>
+                                                <option value="行政" th:selected="${user.adminstrativeTitle == '行政'}">行政</option>
+                                                <option value="教师" th:selected="${user.adminstrativeTitle == '教师'}">教师</option>
+                                                <option value="教学管理" th:selected="${user.adminstrativeTitle == '教学管理'}">教学管理</option>
                                             </select>
                                         </div>
                                     </div>
@@ -121,10 +123,10 @@
                                         </div>
                                     </div>
                                     <div class="form-group" th:style="${user.loginName == 'admin' ? 'display: none;' : ''}">
-                                        <label class="col-sm-2 control-label">科研方向：</label>
+                                        <label class="col-sm-2 control-label">科研团队：</label>
                                         <div class="col-sm-10">
                                             <select name="reserchDirection" class="form-control" th:with="type=${@dict.getType('sci_reserch_direction')}" required>
-                                                <option value="">请选择科研方向</option>
+                                                <option value="">请选择科研团队</option>
                                                 <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}" th:selected="${dict.dictValue == user.reserchDirection}"></option>
                                             </select>
                                         </div>

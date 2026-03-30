@@ -424,6 +424,44 @@
 <body class="gray-bg">
 <div class="container-div">
   <div class="row">
+    <div class="col-sm-12 search-collapse">
+      <form id="formId">
+        <div class="select-list">
+          <ul>
+            <!-- 学院字段 - 科研处和管理员可见 -->
+            <li th:if="${@permission.isAnyRoles('sci_tesearch,admin')}">
+              <label>学院：</label>
+              <select name="xueyuan" th:with="type=${@dict.getType('sys_xueyuan')}">
+                <option value="">所有</option>
+                <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
+              </select>
+            </li>
+            <!-- 专业字段 - 科研处、学院和管理员可见 -->
+            <li th:if="${@permission.isAnyRoles('sci_tesearch,dept_teacher,admin')}">
+              <label>专业：</label>
+              <select name="jiaoyanshi" th:with="type=${@dict.getType('sys_dept')}">
+                <option value="">所有</option>
+                <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
+              </select>
+            </li>
+            <!-- 主持人字段 - 科研处、学院、教研室和管理员可见 -->
+            <li th:if="${@permission.isAnyRoles('sci_tesearch,dept_teacher,research,admin')}">
+              <label>主持人：</label>
+              <input type="text" name="xingming"/>
+            </li>
+            <!-- 课题名称字段 - 所有角色可见 -->
+            <li>
+              <label>课题名称：</label>
+              <input type="text" name="mingcheng"/>
+            </li>
+            <li>
+              <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+              <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+            </li>
+          </ul>
+        </div>
+      </form>
+    </div>
 <!--    <div class="col-sm-12 search-collapse"-->
 <!--         shiro:hasAnyPermissions="system:Jiaocairuanzhu:hecha, system:Jiaocairuanzhu:chayue">-->
 <!--      <form id="formId">-->
@@ -573,15 +611,33 @@
   var prefix = ctx + "system/jiaocairuanzhu";
 
   $(function () {
-    function initTable(options) {
-      var tableId = options.id;
-      options.url = getUrl(tableId);
-      $.table.init(options);
+    // 设置默认年份
+    if (!localStorage.getItem("year")) {
+      var currentYear = new Date().getFullYear();
+      localStorage.setItem("year", currentYear);
     }
 
-    function getUrl(tableId) {
+    function initTable(options) {
+      var tableId = options.id;
+      options.url = getUrl();
+      // 添加加载状态处理
+    options.onLoadSuccess = function(data) {
+      if (data && data.rows && data.rows.length === 0) {
+        $.modal.msgSuccess("当前年份没有数据");
+      }
+    };
+    
+    options.onLoadError = function(status, jqXHR) {
+      $.modal.msgError("数据加载失败，请稍后重试");
+      console.error("表格数据加载失败:", status, jqXHR);
+    };
+    
+    $.table.init(options);
+    }
+
+    function getUrl() {
       var year = localStorage.getItem("year");
-      return prefix + "/list/?year=" + year;
+      return prefix + "/list";
     }
 
     var options = {
@@ -594,6 +650,23 @@
       recallUrl: prefix + "/recall/{id}",
       rowStyle: rowStyle0,
       modalName: "教材专著",
+      queryParams: function(params) {
+        var formData = $('#formId').serializeArray();
+        var queryParams = {
+          pageNum: params.pageNumber,
+          pageSize: params.pageSize,
+          orderByColumn: params.sortName,
+          isAsc: params.sortOrder,
+          year: localStorage.getItem("year")
+        };
+        
+        // 添加表单中的搜索字段
+        $.each(formData, function(index, field) {
+          queryParams[field.name] = field.value;
+        });
+        
+        return queryParams;
+      },
       columns: [
         {
           field: 'number',
@@ -854,6 +927,18 @@
     }
   }
 
+
+  // 获取当前时间的函数
+  function getCurrentTime() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+  }
 
   document.addEventListener('DOMContentLoaded', function () {
     // 初始化显示当前时间

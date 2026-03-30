@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.SciJiaocairuanzhuMemberMapper">
+    
+    <!-- 新增教材著作成员 -->
+    <insert id="insertSciJiaocairuanzhuMember" parameterType="com.ruoyi.system.domain.SciJiaocairuanzhuMember">
+        insert into sci_jiaocairuanzhu_member (jiaocai_id, member_id, member_name, ranking, research_score, is_chief_editor, is_associate_editor, is_member)
+        values (#{jiaocaiId}, #{memberId}, #{memberName}, #{ranking}, #{researchScore}, #{isChiefEditor}, #{isAssociateEditor}, #{isMember})
+    </insert>
+    
+    <!-- 批量删除教材著作成员 -->
+    <delete id="deleteSciJiaocairuanzhuMemberByJiaocaiId" parameterType="int">
+        delete from sci_jiaocairuanzhu_member where jiaocai_id = #{jiaocaiId}
+    </delete>
+    
+    <!-- 查询教材著作成员列表 -->
+    <select id="selectSciJiaocairuanzhuMemberByJiaocaiId" parameterType="int" resultType="com.ruoyi.system.domain.SciJiaocairuanzhuMember">
+        select id, jiaocai_id as jiaocaiId, member_id as memberId, member_name as memberName, ranking, research_score as researchScore, 
+               is_chief_editor as isChiefEditor, is_associate_editor as isAssociateEditor, is_member as isMember
+        from sci_jiaocairuanzhu_member
+        where jiaocai_id = #{jiaocaiId}
+        order by cast(ranking as unsigned) asc
+    </select>
+</mapper>

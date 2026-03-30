@@ -90,10 +90,25 @@ public interface SciJiaocairuanzhuMapper
     public List<SciJiaocairuanzhu> selectSciJiaocairuanzhuList1(SciJiaocairuanzhu sciJiaocairuanzhu);
     public List<SciJiaocairuanzhu> selectSciJiaocairuanzhuList31(SciJiaocairuanzhu sciJiaocairuanzhu);
     public List<SciJiaocairuanzhu> selectSciJiaocairuanzhuList21(SciJiaocairuanzhu sciJiaocairuanzhu);
+    
+    // 新方法：教师查询
+    public List<SciJiaocairuanzhu> selectSciPaperAListCx(SciJiaocairuanzhu sciJiaocairuanzhu);
+    
+    // 新方法：教研室查询
+    public List<SciJiaocairuanzhu> selectSciPaperAListCxList(SciJiaocairuanzhu sciJiaocairuanzhu);
+    
+    // 新方法：学院查询
+    public List<SciJiaocairuanzhu> selectSciPaperAListXY(SciJiaocairuanzhu sciJiaocairuanzhu);
+    
+    // 新方法：科研处查询
+    public List<SciJiaocairuanzhu> selectSciPaperAListKY(SciJiaocairuanzhu sciJiaocairuanzhu);
+    
+    // 新方法：管理员查询
+    public List<SciJiaocairuanzhu> selectSciPaperAList(SciJiaocairuanzhu sciJiaocairuanzhu);
     /**
      * 查询是否存在相同专利名称和负责人级别
      */
-    int checkExist(@Param("mingcheng") String mingcheng, @Param("paiming") String paiming);
+    int checkExist(@Param("mingcheng") String mingcheng, @Param("paiming") String paiming, @Param("userId") Long userId);
 
     /**
      * 统计查询教材专著数据

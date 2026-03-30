@@ -38,15 +38,6 @@
                 </div>
                 </div>
 
-                <div class="col-xs-6">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">奖励类型：</label>
-                    <div class="col-sm-8">
-                        <input name="rewardLeixing" th:field="*{rewardLeixing}" class="form-control" type="text" required maxlength="500">
-                    </div>
-                </div>
-                </div>
-
 
                 <div class="col-xs-6">
                 <div class="form-group">
@@ -96,18 +87,97 @@
                 </div>
                 </div>
 
-            <div class="col-xs-6">
-            <div class="form-group">
-                <label class="col-sm-4 control-label is-required" for="rewardJibie">级别：</label>
-                <div class="col-sm-8">
-                    <select id="rewardJibie" th:field="*{rewardJibie}" class="form-control" required>
-                        <option value="校级">校级</option>
-                        <option value="省级">省级</option>
-                    </select>
+<!--            <div class="col-xs-6">-->
+<!--            <div class="form-group">-->
+<!--                <label class="col-sm-4 control-label is-required" for="rewardJibie">级别：</label>-->
+<!--                <div class="col-sm-8">-->
+<!--                    <select id="rewardJibie" th:field="*{rewardJibie}" class="form-control" required>-->
+<!--                        <option value="校级">校级</option>-->
+<!--                        <option value="省级">省级</option>-->
+<!--                    </select>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--            </div>-->
+
+                <div class="col-xs-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label is-required">等级：</label>
+                        <div class="col-sm-8">
+                            <select id="rewarDengji"  th:field="*{rewardDengji}" class="form-control" type="text" th:with="type=${@dict.getType('sys_reward_dengji')}" required>
+                                <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
             </div>
+
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">主持人：</label>
+                    <div class="col-sm-8">
+                        <select id="firstPersonSelect" name="firstPersonId_disabled" class="form-control m-b" onchange="updateMemberLists()" required disabled="true">
+                            <option value="">无</option>
+                            <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ #strings.toString(user.userId) == sysReward.firstPersonId}"></option>
+                        </select>
+                        <input type="hidden" name="firstPersonId" th:value="*{firstPersonId}">
+                    </div>
+                </div>
             </div>
 
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">成员1：</label>
+                    <div class="col-sm-8">
+                        <select id="member1Select" name="secondPersonId" class="form-control m-b" onchange="updateMemberLists()" required>
+                            <option value="">无</option>
+                            <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ #strings.toString(user.userId) == sysReward.secondPersonId}" ></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">成员2：</label>
+                    <div class="col-sm-8">
+                        <select id="member2Select" name="thirdPersonId" class="form-control m-b" onchange="updateMemberLists()" required>
+                            <option value="">无</option>
+                            <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ #strings.toString(user.userId) == sysReward.thirdPersonId}"  ></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">成员3：</label>
+                    <div class="col-sm-8">
+                        <select id="member3Select" name="fourthPersonId" class="form-control m-b" onchange="updateMemberLists()" required>
+                            <option value="">无</option>
+                            <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ #strings.toString(user.userId) == sysReward.fourthPersonId}"  ></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 第5位及以后：可动态添加 -->
+            <div class="col-xs-12">
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">更多成员：</label>
+                    <div class="col-sm-10">
+                        <div id="memberContainer" class="row" ></div>
+                        <button type="button" id="addMemberBtn" class="btn btn-white btn-sm" title="新增成员">
+                            <i class="fa fa-plus-circle" ></i>增加成员
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
             <div class="col-xs-6">
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">证书文件：</label>
@@ -122,18 +192,8 @@
                     </div>
                 </div>
             </div>
+            </div>
 
-            <div class="col-xs-6">
-            <div class="form-group">
-                <label class="col-sm-4 control-label is-required">等级：</label>
-                <div class="col-sm-8">
-                    <select id="rewarDengji"  th:field="*{rewardDengji}" class="form-control" type="text" th:with="type=${@dict.getType('sys_reward_dengji')}" required>
-                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
-                    </select>
-                </div>
-            </div>
-            </div>
-        </div>
 
             <h4 class="form-header h4">批阅记录</h4>
             <div class="row">
@@ -195,6 +255,229 @@
     </script>
     <script th:inline="javascript">
         var prefix = ctx + "system/reward";
+
+        /**
+         * 【页面加载完成后执行】初始化成员联动功能
+         */
+        $(function(){
+            // 【步骤1】保存成员1-3的原始选项（包含所有用户），用于后续过滤
+            $('#member1Select, #member2Select, #member3Select').each(function() {
+                var originalOptions = $(this).html();
+                $(this).data('original-options', originalOptions);
+            });
+
+            // 【步骤2】加载已有动态成员（从后端 extraMembers 数据）
+            initExtraMembers();
+
+            // 【步骤3】执行一次联动，过滤已被选中的成员
+            updateMemberLists();
+
+            // 【步骤4】绑定"增加成员"按钮点击事件
+            $('#addMemberBtn').on('click', function(){
+                appendMemberSelect();
+            });
+
+            // 【步骤5】事件委托：绑定动态生成的删除按钮点击事件
+            $(document).on('click', '.remove-member', function(){
+                $(this).closest('.member-item').remove();  // 删除整行
+                updateMemberLists();  // 更新联动（释放被占用的选项）
+            });
+        });
+
+        /**
+         * 【初始化动态成员】从后端 extraMembers 加载第5位及以后的成员
+         */
+        function initExtraMembers() {
+            // 通过 Thymeleaf 内联语法获取后端数据
+            var extraMembers = /*[[${extraMembers}]]*/ [];
+
+            if (extraMembers && extraMembers.length > 0) {
+                for (var i = 0; i < extraMembers.length; i++) {
+                    // 成员编号从5开始（前面有主持人、成员1-3）
+                    appendMemberSelectWithValue(extraMembers[i], i + 5);
+                }
+            }
+        }
+
+        /**
+         * 【核心函数】更新所有成员下拉框，排除已选的人，避免重复选择
+         */
+        function updateMemberLists() {
+            var selectedIds = new Set();  // 使用Set存储已选ID，自动去重
+
+            // 【1】收集固定成员的选中值
+            var firstValue = $('input[name="firstPersonId"]').val();   // 主持人
+            var member1Value = $('#member1Select').val();              // 成员1
+            var member2Value = $('#member2Select').val();              // 成员2
+            var member3Value = $('#member3Select').val();              // 成员3
+
+            // 添加到已选集合（排除空值）
+            if (firstValue) selectedIds.add(firstValue);
+            if (member1Value) selectedIds.add(member1Value);
+            if (member2Value) selectedIds.add(member2Value);
+            if (member3Value) selectedIds.add(member3Value);
+
+            // 【2】收集动态成员（更多成员）的选中值
+            $('.member-select').each(function() {
+                var value = $(this).val();
+                if (value) selectedIds.add(value);
+            });
+
+            // 【3】更新固定成员下拉框
+            updateSelectOptions('#member1Select', member1Value, selectedIds);
+            updateSelectOptions('#member2Select', member2Value, selectedIds);
+            updateSelectOptions('#member3Select', member3Value, selectedIds);
+
+            // 【4】更新所有动态成员下拉框
+            $('.member-select').each(function() {
+                rebuildSelectOptions($(this), $(this).val(), selectedIds);
+            });
+        }
+
+        /**
+         * 【辅助函数】更新指定下拉框的选项
+         * @param selectId - jQuery选择器，如 '#member1Select'
+         * @param currentValue - 当前选中的值（必须保留）
+         * @param selectedIds - 已选成员ID集合（需要排除的）
+         */
+        function updateSelectOptions(selectId, currentValue, selectedIds) {
+            var $select = $(selectId);
+            var originalOptions = $('#member1Select').data('original-options');
+
+            if (!originalOptions) return;
+
+            // 清空现有选项（保留第一个"无"选项）
+            $select.find('option:not(:first)').remove();
+
+            // 从原始选项中重建，过滤已选的但保留当前值
+            var tempDiv = $('<div>').html(originalOptions);
+            tempDiv.find('option').each(function() {
+                var value = $(this).val();
+                var text = $(this).text();
+
+                // 保留条件：有值 且 （未被选中 或 是当前选中的值）
+                if (value && (!selectedIds.has(value) || value === currentValue)) {
+                    $select.append($('<option></option>').val(value).text(text));
+                }
+            });
+
+            // 恢复当前选中的值
+            if (currentValue) {
+                $select.val(currentValue);
+            }
+        }
+
+        /**
+         * 【辅助函数】重建下拉框选项（用于动态成员）
+         */
+        function rebuildSelectOptions($select, currentValue, selectedIds) {
+            var originalOptions = $('#member1Select').data('original-options');
+            if (!originalOptions) return;
+
+            $select.find('option:not(:first)').remove();
+
+            var tempDiv = $('<div>').html(originalOptions);
+            tempDiv.find('option').each(function() {
+                var value = $(this).val();
+                var text = $(this).text();
+                if (value && (!selectedIds.has(value) || value === currentValue)) {
+                    $select.append($('<option></option>').val(value).text(text));
+                }
+            });
+
+            if (currentValue) {
+                $select.val(currentValue);
+            }
+        }
+
+        /**
+         * 【添加新成员】点击"增加成员"按钮调用
+         * 创建第5位及以后的成员选择框
+         */
+        function appendMemberSelect() {
+            // 计算新成员编号
+            var existingCount = $('.member-item').length;
+            var memberNumber = existingCount + 5;  // 成员5、成员6...
+            var memberId = 'dynamicMember' + memberNumber;
+
+            // 构建HTML
+            var html = '<div class="col-xs-6 member-item m-b-xs">' +
+                '<div class="input-group">' +
+                '<label class="input-group-addon" style="min-width: 90px;">成员' + memberNumber + '：</label>' +
+                '<select id="' + memberId + '" name="extraMemberIds" class="form-control member-select" onchange="updateMemberLists()">' +
+                '<option value="">---请选择--</option>' +
+                '</select>' +
+                '<span class="input-group-btn">' +
+                '<button class="btn btn-danger btn-sm remove-member" type="button" title="移除"><i class="fa fa-minus"></i></button>' +
+                '</span>' +
+                '</div>' +
+                '</div>';
+
+            var $tpl = $(html);
+            var $select = $tpl.find('select.member-select');
+
+            // 填充所有选项
+            var originalOptions = $('#member1Select').data('original-options');
+            if (originalOptions) {
+                var tempDiv = $('<div>').html(originalOptions);
+                tempDiv.find('option').each(function() {
+                    var value = $(this).val();
+                    var text = $(this).text();
+                    if (value) {
+                        $select.append($('<option></option>').val(value).text(text));
+                    }
+                });
+            }
+
+            // 添加到页面
+            $('#memberContainer').append($tpl);
+
+            // 更新联动（过滤已被占用的选项）
+            updateMemberLists();
+        }
+
+        /**
+         * 【带值添加成员】用于初始化时加载已有数据
+         */
+        function appendMemberSelectWithValue(selectedValue, memberNumber) {
+            var memberId = 'dynamicMember' + memberNumber;
+
+            var html = '<div class="col-xs-6 member-item m-b-xs">' +
+                '<div class="input-group">' +
+                '<label class="input-group-addon" style="min-width: 90px;">成员' + memberNumber + '：</label>' +
+                '<select id="' + memberId + '" name="extraMemberIds" class="form-control member-select" onchange="updateMemberLists()">' +
+                '<option value="">---请选择--</option>' +
+                '</select>' +
+                '<span class="input-group-btn">' +
+                '<button class="btn btn-danger btn-sm remove-member" type="button" title="移除"><i class="fa fa-minus"></i></button>' +
+                '</span>' +
+                '</div>' +
+                '</div>';
+
+            var $tpl = $(html);
+            var $select = $tpl.find('select.member-select');
+
+            // 填充所有选项
+            var originalOptions = $('#member1Select').data('original-options');
+            if (originalOptions) {
+                var tempDiv = $('<div>').html(originalOptions);
+                tempDiv.find('option').each(function() {
+                    var value = $(this).val();
+                    var text = $(this).text();
+                    if (value) {
+                        $select.append($('<option></option>').val(value).text(text));
+                    }
+                });
+            }
+
+            // 设置选中值
+            if (selectedValue) {
+                $select.val(selectedValue);
+            }
+
+            $('#memberContainer').append($tpl);
+        }
+
         $("#form-reward-edit").validate({
             focusCleanup: true
         });

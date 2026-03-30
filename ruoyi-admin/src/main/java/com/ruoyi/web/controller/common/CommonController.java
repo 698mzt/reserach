@@ -17,8 +17,20 @@ import javax.servlet.http.HttpServletResponse;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.system.domain.SciHorizontalApply;
 import com.ruoyi.system.domain.SciHorizontalApplyVertical;
+import com.ruoyi.system.domain.SciIntraSchoolPro;
+import com.ruoyi.system.domain.SciPaperA;
+import com.ruoyi.system.domain.SciJiaocairuanzhu;
+import com.ruoyi.system.domain.SciZhuanliruanzhu;
+import com.ruoyi.system.domain.SysReward;
+import com.ruoyi.system.domain.SciLectureReport;
 import com.ruoyi.system.service.ISciHorizontalApplyService;
 import com.ruoyi.system.service.ISciHorizontalApplyVerticalService;
+import com.ruoyi.system.service.ISciIntraSchProApplyService;
+import com.ruoyi.system.service.ISciPaperAService;
+import com.ruoyi.system.service.ISciJiaocairuanzhuService;
+import com.ruoyi.system.service.ISciZhuanliruanzhuService;
+import com.ruoyi.system.service.ISysRewardService;
+import com.ruoyi.system.service.ISciLectureReportService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +49,7 @@ import com.ruoyi.common.utils.file.MinIOUtils;
 
 /**
  * 通用请求处理
- * 
+ *
  * @author ruoyi
  */
 @Controller
@@ -55,11 +67,31 @@ public class CommonController extends BaseController
     @Autowired
     private ISciHorizontalApplyService sciHorizontalApplyService;
 
+    // 正确的Service依赖注入
+    @Autowired
+    private ISciIntraSchProApplyService sciIntraSchProApplyService;
+
+    @Autowired
+    private ISciPaperAService sciPaperAService;
+
+    @Autowired
+    private ISciJiaocairuanzhuService sciJiaocairuanzhuService;
+
+    @Autowired
+    private ISciZhuanliruanzhuService sciZhuanliruanzhuService;
+
+    @Autowired
+    private ISysRewardService sysRewardService;
+
+    @Autowired
+    private ISciLectureReportService sciLectureReportService;
+
+
     private static final String FILE_DELIMETER = ",";
 
     /**
      * 通用下载请求
-     * 
+     *
      * @param fileName 文件名称
      * @param delete 是否删除
      */
@@ -88,13 +120,13 @@ public class CommonController extends BaseController
                         String fileNameWithExt = fullPath.substring(fullPath.lastIndexOf("/") + 1);
                         String nameWithoutExt = fileNameWithExt.substring(0, fileNameWithExt.lastIndexOf("."));
                         String extension = fileNameWithExt.substring(fileNameWithExt.lastIndexOf("."));
-                        
+
                         // 查找最后一个下划线的位置，移除序列号部分（如 _4）
                         int lastUnderscoreIndex = nameWithoutExt.lastIndexOf("_");
                         if (lastUnderscoreIndex != -1) {
                             String prefix = nameWithoutExt.substring(0, lastUnderscoreIndex);
                             String suffix = nameWithoutExt.substring(lastUnderscoreIndex + 1);
-                            
+
                             // 如果下划线后的部分是数字，则认为是序列号，移除它
                             if (suffix.matches("\\d+")) {
                                 nameWithoutExt = prefix;
@@ -103,7 +135,7 @@ public class CommonController extends BaseController
                                 nameWithoutExt = nameWithoutExt;
                             }
                         }
-                        
+
                         String realFileName = nameWithoutExt + extension;
                         response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
                         FileUtils.setAttachmentResponseHeader(response, realFileName);
@@ -127,13 +159,13 @@ public class CommonController extends BaseController
                 String fileNameWithExt = fileName.substring(fileName.lastIndexOf("/") + 1);
                 String nameWithoutExt = fileNameWithExt.substring(0, fileNameWithExt.lastIndexOf("."));
                 String extension = fileNameWithExt.substring(fileNameWithExt.lastIndexOf("."));
-                
+
                 // 查找最后一个下划线的位置，移除序列号部分（如 _4）
                 int lastUnderscoreIndex = nameWithoutExt.lastIndexOf("_");
                 if (lastUnderscoreIndex != -1) {
                     String prefix = nameWithoutExt.substring(0, lastUnderscoreIndex);
                     String suffix = nameWithoutExt.substring(lastUnderscoreIndex + 1);
-                    
+
                     // 如果下划线后的部分是数字，则认为是序列号，移除它
                     if (suffix.matches("\\d+")) {
                         nameWithoutExt = prefix;
@@ -142,7 +174,7 @@ public class CommonController extends BaseController
                         nameWithoutExt = nameWithoutExt;
                     }
                 }
-                
+
                 String realFileName = nameWithoutExt + extension;
                 String filePath = RuoYiConfig.getDownloadPath() + fileName;
 
@@ -350,7 +382,7 @@ public class CommonController extends BaseController
                         String fileExtension = getFileExtension(objectName);
                         String contentType = getContentTypeByExtension(fileExtension);
                         response.setContentType(contentType);
-                        
+
                         // 将文件流写入响应输出流
                         byte[] buffer = new byte[8192];
                         int bytesRead;
@@ -724,6 +756,17 @@ public class CommonController extends BaseController
 
     public String getFileName(String url)
     {
+        if (StringUtils.isEmpty(url)) {
+            return "";
+        }
+
+        // 处理 MinIO 路径
+        if (url.startsWith("/minio/")) {
+            // 直接返回 /minio/ 之后的路径，用于后续处理
+            return url;
+        }
+
+        // 原有的本地文件处理逻辑
         String fileName = "";
         String[] name = url.split("/");
         int index =-1;
@@ -737,6 +780,420 @@ public class CommonController extends BaseController
             fileName = String.join("/", Arrays.copyOfRange(name, index, name.length));
         }
         return fileName;
+    }
+
+    /**
+     * 批量下载请求
+     *
+     * @param ids 数据ID列表
+     * @param module 模块类型
+     */
+    @GetMapping("/batchDownload")
+    public void batchDownload(@RequestParam("ids") String ids, @RequestParam("module") String module, HttpServletRequest request, HttpServletResponse response)  throws ServletException, IOException {
+        try {
+            log.info("开始批量下载请求，模块: {}, IDs: {}", module, ids);
+            log.info("上传路径配置: {}", RuoYiConfig.getUploadPath());
+
+            if (StringUtils.isEmpty(ids)) {
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "未选择数据");
+                return;
+            }
+
+            List<String> idList = Arrays.asList(ids.split(","));
+            if (idList.isEmpty()) {
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "未选择数据");
+                return;
+            }
+
+            // 创建临时压缩包文件
+            String zipFileName = getModuleName(module) + "_批量下载.zip";
+            // 确保文件名合法
+            zipFileName = zipFileName.replaceAll("[^a-zA-Z0-9\u4e00-\u9fa5_.-]", "_");
+
+            // 获取上传路径并确保目录存在
+            String uploadPath = RuoYiConfig.getUploadPath();
+            // 确保路径末尾有正确的分隔符
+            if (!uploadPath.endsWith("/") && !uploadPath.endsWith("\\")) {
+                uploadPath = uploadPath + "/";
+            }
+            File uploadDir = new File(uploadPath);
+            if (!uploadDir.exists()) {
+                uploadDir.mkdirs();
+            }
+
+            String zipFilePath = uploadPath + zipFileName;
+            log.info("创建压缩包文件路径: {}", zipFilePath);
+
+            // 创建压缩包
+            try (FileOutputStream fos = new FileOutputStream(zipFilePath);
+                 ZipOutputStream zos = new ZipOutputStream(fos)) {
+
+                // 处理不同模块的数据
+                String normalizedModule = module.toLowerCase();
+                if ("vertical".equals(normalizedModule) || "纵向课题".equals(module)) {
+                    handleVerticalBatchDownload(idList, zos);
+                } else if ("horizontal".equals(normalizedModule) || "横向课题".equals(module)) {
+                    handleHorizontalBatchDownload(idList, zos);
+                } else if ("achievement".equals(normalizedModule) || "intrasch".equals(normalizedModule) || "成果转化".equals(module)) {
+                    handleIntraSchProBatchDownload(idList, zos);
+                } else if ("paper".equals(normalizedModule) || "论文".equals(module)) {
+                    handlePaperBatchDownload(idList, zos);
+                } else if ("textbook".equals(normalizedModule) || "教材软著".equals(module)) {
+                    handleJiaocairuanzhuBatchDownload(idList, zos);
+                } else if ("patent".equals(normalizedModule) || "专利软著".equals(module)) {
+                    handleZhuanliruanzhuBatchDownload(idList, zos);
+                } else if ("reward".equals(normalizedModule) || "奖励".equals(module)) {
+                    handleRewardBatchDownload(idList, zos);
+                } else if ("report".equals(normalizedModule) || "讲座报告".equals(module)) {
+                    handleReportBatchDownload(idList, zos);
+                }
+            } catch (IOException e) {
+                log.error("创建压缩包失败", e);
+                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "创建压缩包失败");
+                return;
+            }
+
+            // 设置响应头，使浏览器下载文件
+            response.setContentType("application/zip");
+            String encodedFileName = URLEncoder.encode(zipFileName, StandardCharsets.UTF_8.toString());
+            response.setHeader("Content-Disposition", "attachment; filename=\"" + encodedFileName + "\"; filename*=UTF-8''" + encodedFileName);
+            response.getOutputStream().flush();
+
+            // 设置输入流和输出流
+            try (FileInputStream inStream = new FileInputStream(zipFilePath);
+                 OutputStream outStream = response.getOutputStream()) {
+
+                byte[] buffer = new byte[1024];
+                int bytesRead;
+                while ((bytesRead = inStream.read(buffer)) != -1) {
+                    outStream.write(buffer, 0, bytesRead);
+                }
+                outStream.flush();
+            } catch (IOException e) {
+                log.error("下载压缩包失败", e);
+                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "下载压缩包失败");
+            } finally {
+                // 删除临时压缩包
+                try {
+                    File zipFile = new File(zipFilePath);
+                    if (zipFile.exists()) {
+                        boolean deleted = zipFile.delete();
+                        if (!deleted) {
+                            log.warn("无法删除临时压缩包文件: {}", zipFilePath);
+                            // 如果立即删除失败，尝试延时删除
+                            zipFile.deleteOnExit();
+                        } else {
+                            log.info("成功删除临时压缩包文件: {}", zipFilePath);
+                        }
+                    }
+                } catch (Exception e) {
+                    log.error("删除临时压缩包文件时发生错误: {}", zipFilePath, e);
+                }
+            }
+        } catch (Exception e) {
+            log.error("批量下载失败", e);
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "批量下载失败");
+        }
+    }
+
+    /**
+     * 处理纵向课题批量下载
+     */
+    private void handleVerticalBatchDownload(List<String> idList, ZipOutputStream zos) throws IOException {
+        for (String id : idList) {
+            try {
+                SciHorizontalApplyVertical sciHorizontalApplyVertical = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalById(Integer.parseInt(id));
+                if (sciHorizontalApplyVertical != null) {
+                    String folderName = sciHorizontalApplyVertical.getUserName() + "-" + sciHorizontalApplyVertical.getTopName();
+                    folderName = folderName.replaceAll("[\\/:*?\"<>|]", "_"); // 移除非法字符
+
+                    // 添加文件到压缩包
+                    addFileToZip(zos, folderName, sciHorizontalApplyVertical.getFile());
+                    addFileToZip(zos, folderName, sciHorizontalApplyVertical.getOpenfile());
+                    addFileToZip(zos, folderName, sciHorizontalApplyVertical.getMidfile());
+                    addFileToZip(zos, folderName, sciHorizontalApplyVertical.getOverfile());
+                }
+            } catch (Exception e) {
+                log.error("处理纵向课题ID: {} 失败", id, e);
+            }
+        }
+    }
+
+    /**
+     * 处理横向课题批量下载
+     */
+    private void handleHorizontalBatchDownload(List<String> idList, ZipOutputStream zos) throws IOException {
+        for (String id : idList) {
+            try {
+                SciHorizontalApply sciHorizontalApply = sciHorizontalApplyService.selectSciHorizontalApplyById(Integer.parseInt(id));
+                if (sciHorizontalApply != null) {
+                    String folderName = sciHorizontalApply.getUserName() + "-" + sciHorizontalApply.getTopName();
+                    folderName = folderName.replaceAll("[\\/:*?\"<>|]", "_"); // 移除非法字符
+
+                    // 添加文件到压缩包
+                    addFileToZip(zos, folderName, sciHorizontalApply.getFiling());
+                    addFileToZip(zos, folderName, sciHorizontalApply.getContract());
+                    addFileToZip(zos, folderName, sciHorizontalApply.getFilingurl());
+                    addFileToZip(zos, folderName, sciHorizontalApply.getAgreeurl());
+                }
+            } catch (Exception e) {
+                log.error("处理横向课题ID: {} 失败", id, e);
+            }
+        }
+    }
+
+    /**
+     * 添加文件到压缩包
+     */
+    private void addFileToZip(ZipOutputStream zos, String folderName, String fileUrl) throws IOException {
+        if (StringUtils.isEmpty(fileUrl)) {
+            return;
+        }
+
+        try {
+            // 处理 MinIO 路径
+            if (fileUrl.startsWith("/minio/")) {
+                // 从 MinIO 路径中提取实际的对象名称
+                // 路径格式: /minio/{bucket}/{objectPath}
+                // 需要去掉 /minio/ 前缀和 bucket 名称
+                String[] parts = fileUrl.substring("/minio/".length()).split("/", 2);
+                if (parts.length == 2) {
+                    String bucketName = parts[0];
+                    String objectName = parts[1];
+                    String fileName = objectName.substring(objectName.lastIndexOf("/") + 1);
+                    String entryName = folderName + "/" + fileName;
+
+                    ZipEntry zipEntry = new ZipEntry(entryName);
+                    zos.putNextEntry(zipEntry);
+
+                    // 从 MinIO 下载文件
+                    try (InputStream inputStream = MinIOUtils.download(objectName)) {
+                        byte[] bytes = new byte[1024];
+                        int length;
+                        while ((length = inputStream.read(bytes)) >= 0) {
+                            zos.write(bytes, 0, length);
+                        }
+                        log.info("成功从MinIO下载文件: {}, bucket: {}, object: {}", fileUrl, bucketName, objectName);
+                    } catch (Exception e) {
+                        log.error("从MinIO下载文件失败: {}, bucket: {}, object: {}", fileUrl, bucketName, objectName, e);
+                        // 即使某个文件下载失败，也要关闭entry，继续处理其他文件
+                        zos.closeEntry();
+                        return;
+                    }
+                    zos.closeEntry();
+                    log.info("成功添加 MinIO 文件到压缩包: {}", fileUrl);
+                    return;
+                } else {
+                    log.error("MinIO文件路径格式不正确: {}", fileUrl);
+                    return;
+                }
+            }
+
+            // 处理本地文件路径
+            String fileName = getFileName(fileUrl);
+            if (StringUtils.isEmpty(fileName)) {
+                return;
+            }
+
+            String entryName = folderName + "/" + fileName.substring(fileName.lastIndexOf("/") + 1);
+            ZipEntry zipEntry = new ZipEntry(entryName);
+            zos.putNextEntry(zipEntry);
+
+            String filePath = RuoYiConfig.getUploadPath() + fileName;
+            File file = new File(filePath);
+            if (file.exists()) {
+                try (FileInputStream fis = new FileInputStream(file)) {
+                    byte[] bytes = new byte[1024];
+                    int length;
+                    while ((length = fis.read(bytes)) >= 0) {
+                        zos.write(bytes, 0, length);
+                    }
+                }
+                log.info("成功添加本地文件到压缩包: {}", filePath);
+            } else {
+                log.warn("本地文件不存在: {}", filePath);
+            }
+            zos.closeEntry();
+        } catch (Exception e) {
+            log.error("添加文件到压缩包失败: {}", fileUrl, e);
+        }
+    }
+
+    /**
+     * 从MinIO路径中获取对象名称
+     * 路径格式: /minio/{bucket}/{objectPath}
+     * 返回: {objectPath}
+     */
+    private String getMinIOObjectName(String fileUrl) {
+        if (fileUrl.startsWith("/minio/")) {
+            String[] parts = fileUrl.substring("/minio/".length()).split("/", 2);
+            if (parts.length == 2) {
+                return parts[1];
+            }
+        }
+        return fileUrl;
+    }
+
+    /**
+     * 处理成果转化批量下载代码
+     */
+    private void handleIntraSchProBatchDownload(List<String> idList, ZipOutputStream zos) throws IOException {
+        int successCount = 0;
+        int totalCount = idList.size();
+
+        for (String id : idList) {
+            try {
+                SciIntraSchoolPro sciIntraSchoolPro = sciIntraSchProApplyService.sel_IntraSchPro_by_id(Integer.parseInt(id));
+                if (sciIntraSchoolPro != null) {
+                    String folderName = sciIntraSchoolPro.getUserName() + "-" + sciIntraSchoolPro.getTopName();
+                    folderName = folderName.replaceAll("[\\/:*?\"<>|]", "_"); // 移除非法字符
+
+                    // 添加文件到压缩包
+                    addFileToZip(zos, folderName, sciIntraSchoolPro.getContract());
+                    addFileToZip(zos, folderName, sciIntraSchoolPro.getFiling());
+                    addFileToZip(zos, folderName, sciIntraSchoolPro.getOverContract());
+                    addFileToZip(zos, folderName, sciIntraSchoolPro.getOverFiling());
+                    successCount++;
+                }
+            } catch (Exception e) {
+                log.error("处理成果转化ID: {} 失败", id, e);
+            }
+        }
+
+        log.info("成果转化批量下载完成: 成功处理 {}/{} 条记录", successCount, totalCount);
+    }
+
+    /**
+     * 处理论文批量下载
+     */
+    private void handlePaperBatchDownload(List<String> idList, ZipOutputStream zos) throws IOException {
+        for (String id : idList) {
+            try {
+                SciPaperA sciPaperA = sciPaperAService.selectSciPaperAById(Long.parseLong(id));
+                if (sciPaperA != null) {
+                    String folderName = sciPaperA.getUserName() + "-" + sciPaperA.getPaperTitle();
+                    folderName = folderName.replaceAll("[\\/:*?\"<>|]", "_"); // 移除非法字符
+
+                    // 添加文件到压缩包
+                    addFileToZip(zos, folderName, sciPaperA.getText_paper());
+                    addFileToZip(zos, folderName, sciPaperA.getWord_paper());
+                }
+            } catch (Exception e) {
+                log.error("处理论文ID: {} 失败", id, e);
+            }
+        }
+    }
+
+    /**
+     * 处理教材软著批量下载
+     */
+    private void handleJiaocairuanzhuBatchDownload(List<String> idList, ZipOutputStream zos) throws IOException {
+        for (String id : idList) {
+            try {
+                SciJiaocairuanzhu sciJiaocairuanzhu = sciJiaocairuanzhuService.selectSciJiaocairuanzhuById(Integer.parseInt(id));
+                if (sciJiaocairuanzhu != null) {
+                    String folderName = sciJiaocairuanzhu.getXingming() + "-" + sciJiaocairuanzhu.getMingcheng();
+                    folderName = folderName.replaceAll("[\\/:*?\"<>|]", "_"); // 移除非法字符
+
+                    // 添加文件到压缩包
+                    addFileToZip(zos, folderName, sciJiaocairuanzhu.getWenjian());
+                }
+            } catch (Exception e) {
+                log.error("处理教材软著ID: {} 失败", id, e);
+            }
+        }
+    }
+
+    /**
+     * 处理专利软著批量下载
+     */
+    private void handleZhuanliruanzhuBatchDownload(List<String> idList, ZipOutputStream zos) throws IOException {
+        int successCount = 0;
+        int totalCount = idList.size();
+
+        for (String id : idList) {
+            try {
+                SciZhuanliruanzhu sciZhuanliruanzhu = sciZhuanliruanzhuService.selectSciZhuanliruanzhuById(Integer.parseInt(id));
+                if (sciZhuanliruanzhu != null) {
+                    String folderName = sciZhuanliruanzhu.getXingming() + "-" + sciZhuanliruanzhu.getMingcheng();
+                    folderName = folderName.replaceAll("[\\/:*?\"<>|]", "_"); // 移除非法字符
+
+                    // 添加文件到压缩包
+                    addFileToZip(zos, folderName, sciZhuanliruanzhu.getWenjian());
+                    successCount++;
+                    log.info("成功处理专利软著ID: {}, 文件路径: {}", id, sciZhuanliruanzhu.getWenjian());
+                }
+            } catch (Exception e) {
+                log.error("处理专利软著ID: {} 失败", id, e);
+            }
+        }
+
+        log.info("专利软著批量下载完成: 成功处理 {}/{} 条记录", successCount, totalCount);
+    }
+
+    /**
+     * 处理奖励批量下载
+     */
+    private void handleRewardBatchDownload(List<String> idList, ZipOutputStream zos) throws IOException {
+        for (String id : idList) {
+            try {
+                SysReward sysReward = sysRewardService.selectSysRewardById(Long.parseLong(id));
+                if (sysReward != null) {
+                    String folderName = sysReward.getUserName() + "-" + sysReward.getRewardName();
+                    folderName = folderName.replaceAll("[\\/:*?\"<>|]", "_"); // 移除非法字符
+
+                    // 添加文件到压缩包
+                    addFileToZip(zos, folderName, sysReward.getRewardWenjian());
+                }
+            } catch (Exception e) {
+                log.error("处理奖励ID: {} 失败", id, e);
+            }
+        }
+    }
+
+    /**
+     * 处理讲座报告批量下载
+     */
+    private void handleReportBatchDownload(List<String> idList, ZipOutputStream zos) throws IOException {
+        for (String id : idList) {
+            try {
+                SciLectureReport sciLectureReport = sciLectureReportService.selectSciLectureReportById(Integer.parseInt(id));
+                if (sciLectureReport != null) {
+                    String folderName = sciLectureReport.getTeacherName() + "-" + sciLectureReport.getReportTheme();
+                    folderName = folderName.replaceAll("[\\/:*?\"<>|]", "_"); // 移除非法字符
+
+                    // 添加文件到压缩包
+                    addFileToZip(zos, folderName, sciLectureReport.getReportUrl());
+                }
+            } catch (Exception e) {
+                log.error("处理讲座报告ID: {} 失败", id, e);
+            }
+        }
+    }
+
+    /**
+     * 获取模块名称
+     */
+    private String getModuleName(String module) {
+        String normalizedModule = module.toLowerCase();
+        if ("vertical".equals(normalizedModule) || "纵向课题".equals(module)) {
+            return "纵向课题";
+        } else if ("horizontal".equals(normalizedModule) || "横向课题".equals(module)) {
+            return "横向课题";
+        } else if ("achievement".equals(normalizedModule) || "intrasch".equals(normalizedModule) || "成果转化".equals(module)) {
+            return "成果转化";
+        } else if ("paper".equals(normalizedModule) || "论文".equals(module)) {
+            return "论文";
+        } else if ("textbook".equals(normalizedModule) || "教材软著".equals(module)) {
+            return "教材软著";
+        } else if ("patent".equals(normalizedModule) || "zhuanliruanzhu".equals(normalizedModule) || "专利软著".equals(module)) {
+            return "专利软著";
+        } else if ("reward".equals(normalizedModule) || "奖励".equals(module)) {
+            return "奖励";
+        } else if ("report".equals(normalizedModule) || "讲座报告".equals(module)) {
+            return "讲座报告";
+        }
+        return "批量下载";
     }
 
 }

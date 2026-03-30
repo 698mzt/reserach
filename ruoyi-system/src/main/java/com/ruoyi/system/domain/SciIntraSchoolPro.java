@@ -21,29 +21,29 @@ public class SciIntraSchoolPro extends BaseEntity {
     /** 工号 */
     @Excel(name = "工号", sort = 3)
     private String loginName;
-    
+
     /** 行政职务 */
     @Excel(name = "行政职务", sort = 4)
     private String adminstrativeTitle;
-    
+
     /** 社会职称 */
     @Excel(name = "社会职称", sort = 5)
     private String socialTitle;
-    
+
     /** 校内职称 */
     @Excel(name = "校内职称", sort = 6)
     private String teaZhicheng;
-    
+
     /** 参与者用户ID（用于分组计算积分） */
     private Integer participantUserId;
-    
+
     /** 积分值 */
     private String changeValue;
-    
+
     /** 排名 */
     @Excel(name = "排名", sort = 14)
     private String ranking;
-    
+
     /** 积分总和（用于导出） */
     @Excel(name = "积分", sort = 15)
     private String totalScore;
@@ -72,7 +72,7 @@ public class SciIntraSchoolPro extends BaseEntity {
     public void setPb(String pb) {
         this.pb = pb;
     }
-    
+
     public String getLoginName() {
         return loginName;
     }
@@ -148,7 +148,7 @@ public class SciIntraSchoolPro extends BaseEntity {
     /** 申请人 */
     @Excel(name = "姓名", sort = 7)
     private String  userName;
-
+    /** 申请人ID */
     public String getUserName() {
         return userName;
     }
@@ -235,7 +235,7 @@ public class SciIntraSchoolPro extends BaseEntity {
     private String thirdPoints;
     private String forthPoints;
 
-  public String getFirstPoints() {
+    public String getFirstPoints() {
         return firstPoints;
     }
 

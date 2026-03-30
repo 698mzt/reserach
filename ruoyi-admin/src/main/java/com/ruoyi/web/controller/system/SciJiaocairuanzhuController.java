@@ -1,6 +1,7 @@
 package com.ruoyi.web.controller.system;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import com.ruoyi.common.core.domain.entity.SysRole;
@@ -51,38 +52,35 @@ public class SciJiaocairuanzhuController extends BaseController
     @Autowired
     private SciJiaocairuanzhuMapper sciJiaocairuanzhuMapper;
 
+    /**
+     * 跳转到教材软著页面
+     */
     @RequiresPermissions("system:jiaocairuanzhu:view")
+    @Log(title = "教材软著", businessType = BusinessType.OTHER)
     @GetMapping()
     public String jiaocairuanzhu()
     {
         return prefix + "/jiaocairuanzhu";
     }
 
-    /**f
+    /**
      * 查询教材软著列表
+     * 根据用户角色和部门信息查询对应的教材软著数据
      */
-
     @RequiresPermissions("system:jiaocairuanzhu:list")
+    @Log(title = "教材软著查找", businessType = BusinessType.OTHER)
     @PostMapping("/list")
     @ResponseBody
-    public TableDataInfo list(SciJiaocairuanzhu sciJiaocairuanzhu,String year)
-
+    public TableDataInfo list(SciJiaocairuanzhu sciJiaocairuanzhu, String year)
     {
-//        System.out.println("Received tableId: " + tableId);
-        System.out.println("Received year: " + year);
         sciJiaocairuanzhu.setYear(year);
         sciJiaocairuanzhu.setUid(getUserId());
-        System.out.println("SciJiaocairuanzhu object: " + sciJiaocairuanzhu);
-
-
-//        startPage();
-//        List<SciJiaocairuanzhu> list = sciJiaocairuanzhuService.selectSciJiaocairuanzhuList(sciJiaocairuanzhu);
 
         startPage();
         List<SysRole> roles = getSysUser().getRoles();
         String role = "";
         label:
-        for (SysRole r :roles){
+        for (SysRole r : roles){
             switch (r.getRoleKey()) {
                 case "sci_tesearch":
                     role = "sci_tesearch";
@@ -111,54 +109,43 @@ public class SciJiaocairuanzhuController extends BaseController
         //设置部门id，传输过去用来为查询设置部门限制
         sciJiaocairuanzhu.setDeptId(getSysUser().getDeptId());
 
-//          无用了//设置部门父id，传输过去用来为查询设置部门限制，这个是为查询部门负责人时，查询出部门负责人的部门，并设置查询条件，查询出部门负责人的部门下的所有子部门，
+        //设置部门父id，传输过去用来为查询设置部门限制
         sciJiaocairuanzhu.setParentId(user.getDept().getParentId());
-//        sciJiaocairuanzhu.setParentId(getSysUser().getAncestors());
-//        System.out.println(getSysUser());
-//        System.out.println(user.getDept().getParentId());
-
-
-
-
-//        System.out.println(sciJiaocairuanzhu);
 
         List<SciJiaocairuanzhu> list = new ArrayList<>();
-//        科研处
+        //根据角色查询不同范围的数据
         switch (role) {
             case "sci_tesearch":
-
-                list = sciJiaocairuanzhuService.selectSciJiaocairuanzhuList4(sciJiaocairuanzhu);
+                //科研处查询
+                list = sciJiaocairuanzhuService.selectSciPaperAListKY(sciJiaocairuanzhu);
                 break;
-            //      学院负责人
             case "dept_teacher":
-                list = sciJiaocairuanzhuService.selectSciJiaocairuanzhuList3(sciJiaocairuanzhu);
+                //学院负责人查询
+                list = sciJiaocairuanzhuService.selectSciPaperAListXY(sciJiaocairuanzhu);
                 break;
-//        教研室
             case "research":
-                list = sciJiaocairuanzhuService.selectSciJiaocairuanzhuList2(sciJiaocairuanzhu);
+                //教研室查询
+                list = sciJiaocairuanzhuService.selectSciPaperAListCxList(sciJiaocairuanzhu);
                 break;
-
-
             case "admin":
-                list = sciJiaocairuanzhuService.selectSciJiaocairuanzhuList(sciJiaocairuanzhu);
+                //管理员查询
+                list = sciJiaocairuanzhuService.selectSciPaperAList(sciJiaocairuanzhu);
                 break;
-            //        教师
             default:
-                list = sciJiaocairuanzhuService.selectSciJiaocairuanzhuList1(sciJiaocairuanzhu);
+                //教师查询
+                list = sciJiaocairuanzhuService.selectSciPaperAListCx(sciJiaocairuanzhu);
                 break;
         }
-
-
-
 
         return getDataTable(list);
     }
 
     /**
      * 导出教材软著列表
+     * 根据用户角色导出对应的教材软著数据为Excel文件
      */
     @RequiresPermissions("system:jiaocairuanzhu:export")
-    @Log(title = "教材软著", businessType = BusinessType.EXPORT)
+    @Log(title = "教材软著导出", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     @ResponseBody
     public AjaxResult export(SciJiaocairuanzhu sciJiaocairuanzhu)
@@ -226,52 +213,72 @@ public class SciJiaocairuanzhuController extends BaseController
 
 
     /**
-     * 检查专利名称与负责人级别是否重复
+     * 检查教材名称与负责人级别是否重复
+     * 防止同一教材名称下重复的负责人级别
      */
     @RequiresPermissions("system:jiaocairuanzhu:add")
+    @Log(title = "防止教材软著重复", businessType = BusinessType.OTHER)
     @PostMapping("/checkDuplicate")
     @ResponseBody
-    public AjaxResult checkDuplicate(@RequestParam String mingcheng, @RequestParam String paiming) {
-        boolean exists = sciJiaocairuanzhuService.checkExist(mingcheng, paiming);
+    public AjaxResult checkDuplicate(@RequestParam String mingcheng, @RequestParam(required = false) String paiming) {
+        boolean exists = sciJiaocairuanzhuService.checkExist(mingcheng, paiming, getUserId());
         if (exists) {
-            return AjaxResult.error("该专利名称的该负责人级别已存在，不可重复添加");
+            return AjaxResult.error("该教材名称的该负责人级别已存在，不可重复添加");
         } else {
-            return AjaxResult.success(); // code == 0
+            return AjaxResult.success();
         }
     }
 
     /**
-     * 新增教材软著
+     * 跳转到新增教材软著页面
+     * 加载用户列表供选择
      */
-
     //get请求一般是加载表单页面，而不是处理表单提交
+    @Log(title = "新增教材软著", businessType = BusinessType.OTHER)
     @GetMapping("/add")
-    public String add( ModelMap mmap)
+    public String add(ModelMap mmap)
     {
-
         List<SysUser> userList = userService.selectAllUserSchPro(getUserId());
-        for (int a = 0; a<userList.size();a++) {
+        for (int a = 0; a < userList.size(); a++) {
             if(userList.get(a).getUserId().equals(getUserId())){
                 SysUser user = userList.get(a);
                 user.setFlag(true);
-                userList.set(a,user);
+                userList.set(a, user);
                 break;
             }
         }
-        mmap.put("sysUsers",userList);
+        mmap.put("sysUsers", userList);
         return prefix + "/add";
     }
 
     /**
      * 新增保存教材软著
+     * 保存教材著作基本信息、成员信息和批阅记录
      */
     @RequiresPermissions("system:jiaocairuanzhu:add")
     @Log(title = "教材软著", businessType = BusinessType.INSERT)
     @PostMapping("/add")
     @ResponseBody
-    public AjaxResult addSave(SciJiaocairuanzhu sciJiaocairuanzhu)
+    public AjaxResult addSave(SciJiaocairuanzhu sciJiaocairuanzhu, 
+                              @RequestParam(value = "members", required = false) String members, 
+                              @RequestParam(value = "totalScore", required = false) String totalScore)
     {
+        // 设置科研总分，如果没有传递则默认为0
+        if (totalScore != null && !totalScore.isEmpty()) {
+            sciJiaocairuanzhu.setJifen(totalScore);
+        } else {
+            sciJiaocairuanzhu.setJifen("0");
+        }
+        
+        // 保存教材著作基本信息
         sciJiaocairuanzhuService.insertSciJiaocairuanzhu(sciJiaocairuanzhu);
+        
+        // 保存成员信息
+        if (members != null && !members.isEmpty()) {
+            sciJiaocairuanzhuService.saveJiaocairuanzhuMembers(sciJiaocairuanzhu.getId(), members);
+        }
+        
+        // 保存批阅记录
         SciJiaocairuanzhuPiyue sciJiaocairuanzhuPiyue = new SciJiaocairuanzhuPiyue();
         sciJiaocairuanzhuPiyue.setJiaocai_id(sciJiaocairuanzhu.getId());
         sciJiaocairuanzhuPiyue.setConcate("新增教材专著草稿");
@@ -281,9 +288,11 @@ public class SciJiaocairuanzhuController extends BaseController
     }
 
     /**
-     * 修改教材软著
+     * 跳转到修改教材软著页面
+     * 加载教材软著详情、用户列表和成员列表
      */
     @RequiresPermissions("system:jiaocairuanzhu:edit")
+    @Log(title = "修改教材软著", businessType = BusinessType.OTHER)
     @GetMapping("/edit/{id}")
     public String edit(@PathVariable("id") Integer id, ModelMap mmap)
     {
@@ -291,28 +300,77 @@ public class SciJiaocairuanzhuController extends BaseController
         mmap.put("sciJiaocairuanzhu", sciJiaocairuanzhu);
 
         // 获取用户列表并添加到模型中
-//        List<SysUser> sysUsers = userService.selectUserList(null);
-//        mmap.put("sysUsers", sysUsers);
-        List<SysUser> userList1 =  userService.selectAllUser();
-        mmap.put("sysUsers1",userList1);
+        SysUser user = new SysUser();
+        user.setParams(new HashMap<String, Object>());
+        List<SysUser> sysUsers = userService.selectUserList(user);
+        mmap.put("sysUsers1", sysUsers);
+        
+        // 获取所有用户列表用于成员选择
+        List<SysUser> allUsers = userService.selectAllUserSchPro(getUserId());
+        // 设置当前用户为主持人
+        for (int a = 0; a < allUsers.size(); a++) {
+            if(allUsers.get(a).getUserId().equals(sciJiaocairuanzhu.getUserId())){
+                SysUser currentUser = allUsers.get(a);
+                currentUser.setFlag(true);
+                allUsers.set(a, currentUser);
+                break;
+            }
+        }
+        mmap.put("sysUsers", allUsers);
+
+        // 获取教材著作成员列表
+        List<com.ruoyi.system.domain.SciJiaocairuanzhuMember> members = sciJiaocairuanzhuService.getJiaocairuanzhuMembers(id);
+        mmap.put("members", members);
 
         return prefix + "/edit";
     }
 
     /**
+     * 获取教材著作成员列表
+     * 根据教材著作ID查询对应的成员信息
+     */
+    @Log(title = "获取教材著作成员列表", businessType = BusinessType.OTHER)
+    @GetMapping("/getMembers/{id}")
+    @ResponseBody
+    public AjaxResult getMembers(@PathVariable("id") Integer id)
+    {
+        List<com.ruoyi.system.domain.SciJiaocairuanzhuMember> members = sciJiaocairuanzhuService.getJiaocairuanzhuMembers(id);
+        return AjaxResult.success(members);
+    }
+
+    /**
      * 修改保存教材软著
+     * 更新教材著作基本信息和成员信息
      */
     @RequiresPermissions("system:jiaocairuanzhu:edit")
-    @Log(title = "教材软著", businessType = BusinessType.UPDATE)
+    @Log(title = "更新教材软著信息", businessType = BusinessType.UPDATE)
     @PostMapping("/edit")
     @ResponseBody
-    public AjaxResult editSave(SciJiaocairuanzhu sciJiaocairuanzhu)
+    public AjaxResult editSave(SciJiaocairuanzhu sciJiaocairuanzhu, 
+                              @RequestParam(value = "members", required = false) String members, 
+                              @RequestParam(value = "totalScore", required = false) String totalScore)
     {
-        return toAjax(sciJiaocairuanzhuService.updateSciJiaocairuanzhu(sciJiaocairuanzhu));
+        // 设置科研总分，如果没有传递则默认为0
+        if (totalScore != null && !totalScore.isEmpty()) {
+            sciJiaocairuanzhu.setJifen(totalScore);
+        } else {
+            sciJiaocairuanzhu.setJifen("0");
+        }
+        
+        // 保存教材著作基本信息
+        int result = sciJiaocairuanzhuService.updateSciJiaocairuanzhu(sciJiaocairuanzhu);
+        
+        // 保存成员信息
+        if (members != null && !members.isEmpty()) {
+            sciJiaocairuanzhuService.saveJiaocairuanzhuMembers(sciJiaocairuanzhu.getId(), members);
+        }
+        
+        return toAjax(result);
     }
 
     /**
      * 删除教材软著
+     * 批量删除教材软著数据
      */
     @RequiresPermissions("system:jiaocairuanzhu:remove")
     @Log(title = "教材软著", businessType = BusinessType.DELETE)
@@ -327,13 +385,21 @@ public class SciJiaocairuanzhuController extends BaseController
 
 //    @RequiresPermissions("system:jiaocairuanzhu:process","system:jiaocairuanzhu:info")
 
+    /**
+     * 跳转到教材软著详情页面
+     * 用于批阅和查看教材软著详情
+     */
     //批阅
     @RequiresPermissions(value={"system:jiaocairuanzhu:process","system:jiaocairuanzhu:info"},logical= Logical.OR)
+    @Log(title = "教材软著详情页面", businessType = BusinessType.OTHER)
     @GetMapping("/detail/{id}/{urlFlag}")
     public String detail(@PathVariable("id") Integer id,@PathVariable("urlFlag") String urlFlag, ModelMap mmap)
     {
         SciJiaocairuanzhu sciJiaocairuanzhu = sciJiaocairuanzhuService.selectSciJiaocairuanzhuById(id);
-        List<SysUser> userList1 =  userService.selectAllUser();
+        // 创建一个初始化了params的SysUser对象，避免MyBatis参数解析错误
+        SysUser user = new SysUser();
+        user.setParams(new HashMap<String, Object>());
+        List<SysUser> userList1 = userService.selectUserList(user);
         sciJiaocairuanzhu.setUrlFlag(urlFlag);
         mmap.put("sysUsers1",userList1);
         mmap.put("sciJiaocairuanzhu", sciJiaocairuanzhu);
@@ -344,54 +410,77 @@ public class SciJiaocairuanzhuController extends BaseController
 
 
 
+    /**
+     * 教材软著审核通过
+     * 根据不同的审核阶段更新状态并记录审批记录
+     */
     @RequiresPermissions(value={"system:jiaocairuanzhu:hecha","system:jiaocairuanzhu:process","system:jiaocairuanzhu:chayue","system:jiaocairuanzhu:info"},logical= Logical.OR)
     @Log(title = "教材软著审核通过", businessType = BusinessType.UPDATE)
     @PostMapping( "/hxPass")
     @ResponseBody
     public AjaxResult hxPass(String id, String urlFlag, String amount, SciProjectScoreCfg sciProjectScoreCfg)
     {
-
-        return toAjax(sciJiaocairuanzhuService.hxPass(id,getUserId(),urlFlag));
+        return toAjax(sciJiaocairuanzhuService.hxPass(id, getUserId(), urlFlag));
     }
 
 
+    /**
+     * 教材软著审核驳回
+     * 根据不同的审核阶段驳回并记录驳回原因
+     */
     @RequiresPermissions(value={"system:jiaocairuanzhu:hecha","system:jiaocairuanzhu:process","system:jiaocairuanzhu:chayue"},logical= Logical.OR)
     @Log(title = "教材软著被驳回", businessType = BusinessType.UPDATE)
     @PostMapping( "/hxBh")
     @ResponseBody
-    public AjaxResult hxBh(String id,String remark,String urlFlag)
+    public AjaxResult hxBh(String id, String remark, String urlFlag)
     {
-
-        return toAjax(sciJiaocairuanzhuService.hxBh(id,getUserId(),remark,urlFlag));
+        return toAjax(sciJiaocairuanzhuService.hxBh(id, getUserId(), remark, urlFlag));
     }
 
 
 
 
 
+    /**
+     * 跳转到教材软著撤回页面
+     * 用于撤回已提交的教材软著申请
+     */
     @RequiresPermissions(value={"system:jiaocairuanzhu:hecha","system:jiaocairuanzhu:process","system:jiaocairuanzhu:chayue"},logical= Logical.OR)
+    @Log(title = "教材软著", businessType = BusinessType.OTHER)
     @GetMapping("/recall/{id}")
     public String recall(@PathVariable("id") Integer id, ModelMap mmap)
     {
         SciJiaocairuanzhu sciJiaocairuanzhu = sciJiaocairuanzhuService.selectSciJiaocairuanzhuById(id);
-        List<SysUser> userList1 =  userService.selectAllUser();
+        List<SysUser> userList1 =  userService.selectUserList(null);
+        // 获取教材著作成员列表
+        List<com.ruoyi.system.domain.SciJiaocairuanzhuMember> members = sciJiaocairuanzhuService.getJiaocairuanzhuMembers(id);
         mmap.put("sysUsers1",userList1);
         mmap.put("sciJiaocairuanzhu", sciJiaocairuanzhu);
+        mmap.put("members", members);
         return prefix + "/recall";
     }
 
 
+    /**
+     * 保存教材软著撤回操作
+     * 撤回已提交的教材软著申请并记录撤回原因
+     */
     @RequiresPermissions(value={"system:jiaocairuanzhu:hecha","system:jiaocairuanzhu:process","system:jiaocairuanzhu:chayue"},logical= Logical.OR)
     @Log(title = "撤销", businessType = BusinessType.UPDATE)
     @PostMapping( "/recallsave")
     @ResponseBody
-    public AjaxResult recallSave(Integer id,String state,String remark,String urlFlag)
+    public AjaxResult recallSave(Integer id, String state, String remark, String urlFlag)
     {
-        return toAjax(sciJiaocairuanzhuService.recall(id,state,getUserId(),remark,urlFlag));
+        return toAjax(sciJiaocairuanzhuService.recall(id, state, getUserId(), remark, urlFlag));
     }
 
 
+    /**
+     * 获取教材软著驳回原因
+     * 根据教材著作ID查询对应的驳回记录
+     */
     @RequiresPermissions(value={"system:jiaocairuanzhu:hecha","system:jiaocairuanzhu:process","system:jiaocairuanzhu:edit","system:jiaocairuanzhu:chayue"},logical= Logical.OR)
+    @Log(title = "教材软著", businessType = BusinessType.OTHER)
     @PostMapping("/bhyy/{kid}")
     @ResponseBody
     public TableDataInfo bhyy(@PathVariable("kid")Integer kid)

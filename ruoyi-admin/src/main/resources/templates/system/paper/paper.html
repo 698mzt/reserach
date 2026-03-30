@@ -366,30 +366,34 @@
 <body class="gray-bg">
 <div class="container-div">
     <div class="row">
-<!--        <div class="col-sm-12 search-collapse" shiro:hasPermission="system:paper:chaxun">-->
-<!--            <form id="formId">-->
-<!--                <div class="select-list" >-->
-<!--                    <ul>-->
-<!--                        <li>-->
-<!--                            <label>学院：</label>-->
-<!--                            <input type="text" name="college"/>-->
-<!--                        </li>-->
-<!--                        <li>-->
-<!--                            <label>教师姓名：</label>-->
-<!--                            <input type="text" name="teacherName"/>-->
-<!--                        </li>-->
-<!--                        <li>-->
-<!--                            <label>教研室：</label>-->
-<!--                            <input type="text" name="roleName"/>-->
-<!--                        </li>-->
-<!--                        <li>-->
-<!--                            <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>-->
-<!--                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>-->
-<!--                        </li>-->
-<!--                    </ul>-->
-<!--                </div>-->
-<!--            </form>-->
-<!--        </div>-->
+        <div class="col-sm-12 search-collapse">
+            <form id="formId">
+                <div class="select-list" >
+                    <ul>
+                        <li>
+                            <label>学院：</label>
+                            <input type="text" name="college" placeholder="请输入学院名称"/>
+                        </li>
+                        <li>
+                            <label>专业：</label>
+                            <input type="text" name="researchRoom" placeholder="请输入专业名称"/>
+                        </li>
+                        <li>
+                            <label>第一作者：</label>
+                            <input type="text" name="firstAuthorName" placeholder="请输入第一作者姓名"/>
+                        </li>
+                        <li>
+                            <label>课题名称：</label>
+                            <input type="text" name="paperTitle" placeholder="请输入课题名称"/>
+                        </li>
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
 
         <div class="btn-group-sm" id="toolbar" role="group">
             <a class="btn btn-success" onclick="$.operate.addTab()" shiro:hasPermission="system:paper:add">
@@ -436,40 +440,40 @@
 
 
     var rowSelected=$("#bootstrap-table").bootstrapTable('getSelections');
-    console.log(rowSelected);
+    // console.log(rowSelected);
     var ListRowId = [];
     function getUrl() {
         var year = localStorage.getItem("year");
         return prefix+"/list/?year="+year;
     }
-    function initTable(options) {
+  function initTable(options) {
         options.url = getUrl();
         $.table.init(options);
-    }
+  }
 
     $(function() {
         var options = {
-            // url:getUrl($('table').attr('id')),
-            createUrl: prefix + "/add",
-            detailUrl: prefix + "/detail/{id}",
-            updateUrl: prefix + "/edit/{id}",
-            removeUrl: prefix + "/remove",
-            exportUrl: prefix + "/export",
-            modalName: "论文",
-            clickToSelect: true,
-            rowStyle: rowStyle0,
-            pagination:true,
-            pageSize: 10,
+        // url:getUrl($('table').attr('id')),
+        createUrl: prefix + "/add",
+        detailUrl: prefix + "/detail/{id}",
+        updateUrl: prefix + "/edit/{id}",
+        removeUrl: prefix + "/remove",
+        exportUrl: prefix + "/export",
+        modalName: "论文",
+        clickToSelect: true,
+        rowStyle: rowStyle0,
+        pagination:true,
+        pageSize: 10,
             onCheck: function(row) {
                 ListRowId.push(row.id);
-                console.log(ListRowId);
+                // console.log(ListRowId);
             },
             onUncheck:function (row){
                 var index = ListRowId.indexOf(row.id);
                 if (index > -1) {
                     ListRowId.splice(index, 1);
                 }
-                console.log(ListRowId);
+                // console.log(ListRowId);
             },
             columns: [
                 // {
@@ -609,7 +613,6 @@
                             });
                         });
                         var actions = [];
-                        actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="viewProcess(\'' + row.id +','+row.state+ '\')"></i>查看流程</a><br>');
 
                       if(row.state == 99){
                             actions.push('<a class="' + editFlag + '" href="javascript:void(0)" onclick="pushTh(\'' + row.id + '\')"></i>提交</a>&nbsp;&nbsp;&nbsp;');
@@ -684,7 +687,7 @@
         });
     }
     function  exportExcel(formId,ListRowId) {
-        console.log('typeof formId:', typeof formId);
+        // console.log('typeof formId:', typeof formId);
         table.set();
         $.modal.confirm("确定导出" + table.options.modalName + "吗？", function() {
             var currentId = $.common.isEmpty(formId) ? $('form').attr('id') : formId;
@@ -692,7 +695,7 @@
             var dataParam = $("#" + currentId).serializeArray();
             dataParam.push({ "name": "orderByColumn", "value": params.sortName });
             dataParam.push({ "name": "isAsc", "value": params.sortOrder });
-            console.log("dataParam:1:",dataParam);
+            // console.log("dataParam:1:",dataParam);
             // 添加选中行的ID到参数中
             if (ListRowId.length > 0) {
                 dataParam.push({ "name": "ListRowId", "value": ListRowId.join(',') });
@@ -729,7 +732,7 @@
                 $("#event-list").append(newLi);
             });
             const steps = document.querySelectorAll('.progress_inner__step');
-            console.log("steps:"+steps.values())
+            // console.log("steps:"+steps.values())
         }
 
 
@@ -766,7 +769,7 @@
                 segment.classList.remove('highlight');
             });
 
-            console.log("state$:"+state)
+            // console.log("state$:"+state)
 
             switch (state) { // 根据 state 更新状态
 
@@ -797,7 +800,7 @@
                     markCompleted(0); // step-1 完成
                     markCompleted(1); // step-2 完成
                     highlightStep(2); // 高亮第三个步骤
-                    markCompleted(2) // step-3 完成
+                    markCompleted(2); // step-3 完成
                     // 高亮所有连接线
                     segments.forEach(segment => {
                         segment.classList.add('highlight');
@@ -805,7 +808,7 @@
                     break;
 
                 default:
-                    console.error('未知状态:', state);
+                    // console.error('未知状态:', state);
             }
         }
         function highlightStep(index) { // 高亮指定步骤
@@ -836,19 +839,19 @@
             method: 'POST',
             dataType: 'json',
             success: function (data) {
-                console.log(data);
+                // console.log(data);
                 // 检查返回的数据是否有效
                 if (data && Array.isArray(data.rows)) {
                     // 更新页面上的数据
                     updateEventData(data.rows);
                     updateProgressState(state);
                 } else {
-                    console.error("返回的数据格式不正确");
+                    // console.error("返回的数据格式不正确");
                     updateEventData([]); // 清空列表
                 }
             },
             error: function (xhr, status, error) {
-                console.error('请求失败:', error);
+                // console.error('请求失败:', error);
                 updateEventData([]); // 清空列表
             }
         });

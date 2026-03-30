@@ -1,10 +1,6 @@
-<!--校内横向课题管理的页面，包含已完结，立项申请，结项申请的三个tab页面-->
 <!DOCTYPE html>
-<!--<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">-->
 <html lang="zh" xmlns:th="http://www.thymeleaf.org"
-      xmlns:shiro="https://github.com/theborakompanioni/thymeleaf-extras-shiro"
-      xmlns:padding="http://www.w3.org/1999/xhtml">
-
+      xmlns:shiro="https://github.com/theborakompanioni/thymeleaf-extras-shiro">
 <head>
     <th:block th:include="include :: header('成果转化列表')"/>
 </head>
@@ -13,10 +9,6 @@
         width: 100%;
         max-width: 500px;
         margin: 20px auto;
-        /*width: 450px;*/
-        /*!*border: 1px solid #eee;*!*/
-        /*margin: 20px auto;*/
-        /*background: transparent;*/
         max-height: 400px;
         overflow-y: auto;
     }
@@ -44,6 +36,11 @@
         font-size: inherit;
     }
 
+    .action-item {
+        display: inline-block;
+        margin-right: 10px;
+        margin-bottom: 4px;
+    }
 
     .modal-right {
         position: fixed;
@@ -164,7 +161,6 @@
         transition: width 0.6s ease;
     }
 
-
     .status-text {
         color: #9E9E9E;
         font-weight: normal;
@@ -180,11 +176,6 @@
     .status-text.completed {
         color: #4CAF50;
         font-weight: bold;
-    }
-
-    .buttons {
-        margin-top: 20px;
-        text-align: center;
     }
 
     button {
@@ -212,7 +203,6 @@
         background: #757575;
     }
 
-    /* 新增的流程记录样式 */
     .timeline-title {
         font-weight: bold;
         font-size: 14px;
@@ -233,22 +223,11 @@
         bottom: 0;
         width: 100%;
         height: 0.5px;
-        /*background: linear-gradient(to right, #e0e0e0, #a0a0a0, #e0e0e0);*/
         background: linear-gradient(to right,
         rgba(224, 224, 224, 0.8),
         rgba(224, 224, 224, 0.8),
-        rgba(224, 224, 224, 0.8)); /* 添加透明度使线条更柔和 */
+        rgba(224, 224, 224, 0.8));
         box-shadow: 0 0.5px 1px rgba(0, 0, 0, 0.07);
-    }
-
-    .track-rcol {
-        width: 100%;
-        max-width: 500px;
-        margin: 20px auto;
-        /*width: 450px;*/
-        /*!*border: 1px solid #eee;*!*/
-        /*margin: 20px auto;*/
-        /*background: transparent;*/
     }
 
     .track-list {
@@ -268,31 +247,29 @@
         border-left: 2px solid #d9d9d9;
         color: #666;
         list-style: none;
-        /*text-align: left;*/
-        transition: all 0.4s ease; /* 添加过渡效果 */
+        transition: all 0.4s ease;
     }
 
     .track-list li.first {
         color: #666;
         padding-top: 0;
-        /*border-left-color: #fff;*/
     }
 
     .track-list li .node-icon {
         position: absolute;
         left: -6px;
         top: 18px;
-        width: 8px; /* 调圆点*/
+        width: 8px;
         height: 8px;
         background: #C0C0C0;
         border-radius: 50%;
-        transition: all 0.4s ease; /* 添加过渡效果 */
+        transition: all 0.4s ease;
         border: 2px solid #E0E0E0;
         box-sizing: content-box;
     }
 
     .track-list li.first .node-icon {
-        background: #C0C0C0; /* 天蓝色 */
+        background: #C0C0C0;
         width: 8px;
         height: 8px;
         left: -8px;
@@ -303,16 +280,15 @@
         margin-bottom: 3px;
         font-size: 11px;
         color: #888;
-        transition: all 0.4s ease; /* 添加过渡效果 */
+        transition: all 0.4s ease;
     }
 
     .track-list li .txt {
         display: block;
         font-size: 12px;
-        transition: all 0.4s ease; /* 添加过渡效果 */
+        transition: all 0.4s ease;
     }
 
-    /* 悬停效果 */
     .track-list li:hover {
         color: #333;
     }
@@ -325,262 +301,64 @@
     .track-list li:hover .time {
         color: #666;
     }
-
-    /* 新增审核状态样式 */
-    .approve-status {
-        margin-top: 10px;
-        text-align: center;
-    }
-
-    .approve-status label {
-        margin: 0 10px;
-        cursor: pointer;
-    }
-
-    .approve-status input {
-        margin-right: 5px;
-    }
-
-
 </style>
 <body class="gray-bg">
 <div class="wrapper wrapper-content animated fadeIn">
-
     <div class="row">
-
-        <div class="tabs-container">
-            <ul class="nav nav-tabs">
-                <li class="active"><a data-toggle="tab" href="#tab-0" onclick="$.table.refresh('bootstrap-table0')"
-                                      aria-expanded="true">已完结</a>
-                </li>
-                <li class=""><a data-toggle="tab" href="#tab-1" onclick="$.table.refresh('bootstrap-table1')"
-                                aria-expanded="false"> 立项申请</a>
-                </li>
-
-                <li class=""><a data-toggle="tab" href="#tab-2" onclick="$.table.refresh('bootstrap-table2')"
-                                aria-expanded="false">结项申请</a>
-                </li>
-
-            </ul>
-            <div class="tab-content">
-                <div id="tab-0" class="tab-pane active">
-                    <div class="panel-body">
-                        <div class="container-div">
-                            <div class="row">
-                                <!--                                <div class="col-sm-12 search-collapse" shiro:hasPermission="['system:intraSch:select']">-->
-                                <!--                                    <form id="formId0">-->
-                                <!--                                        &lt;!&ndash;                                        <div class="select-list"+[[${@permission.hasPermi('system:intraSch:select')}]]>&ndash;&gt;-->
-                                <!--                                        <div class="select-list" v-hasPermi="['system:intraSch:select']">-->
-                                <!--                                            <ul>-->
-                                <!--                                                <li>-->
-                                <!--                                                    <label>申请人：</label>-->
-                                <!--                                                    <input type="text" name="userName"/>-->
-                                <!--                                                </li>-->
-                                <!--                                                <li>-->
-                                <!--                                                    <label>课题名称：</label>-->
-                                <!--                                                    <input type="text" name="topName"/>-->
-                                <!--                                                </li>-->
-                                <!--                                                <li>-->
-                                <!--                                                    <label>专业名称：</label>-->
-                                <!--                                                    <input type="text" name="deptname"/>-->
-                                <!--                                                </li>-->
-                                <!--                                                &lt;!&ndash;                                                <li>&ndash;&gt;-->
-                                <!--                                                &lt;!&ndash;                                                    <label>状态：</label>&ndash;&gt;-->
-                                <!--                                                &lt;!&ndash;                                                    <select name="state"&ndash;&gt;-->
-                                <!--                                                &lt;!&ndash;                                                            th:with="type=${@dict.getType('sys_intraschpro_tasks')}">&ndash;&gt;-->
-                                <!--                                                &lt;!&ndash;                                                        <option value="">所有</option>&ndash;&gt;-->
-                                <!--                                                &lt;!&ndash;                                                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}"&ndash;&gt;-->
-                                <!--                                                &lt;!&ndash;                                                                th:value="${dict.dictValue}"></option>&ndash;&gt;-->
-                                <!--                                                &lt;!&ndash;                                                    </select>&ndash;&gt;-->
-                                <!--                                                &lt;!&ndash;                                                </li>&ndash;&gt;-->
-
-
-                                <!--                                                <li>-->
-                                <!--                                                    <a class="btn btn-primary btn-rounded btn-sm"-->
-                                <!--                                                       onclick="$.table.search('formId0','bootstrap-table0')"><i-->
-                                <!--                                                            class="fa fa-search"></i>&nbsp;搜索</a>-->
-                                <!--                                                    <a class="btn btn-warning btn-rounded btn-sm"-->
-                                <!--                                                       onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>-->
-                                <!--                                                </li>-->
-                                <!--                                            </ul>-->
-                                <!--                                        </div>-->
-                                <!--                                    </form>-->
-                                <!--                                </div>-->
-
-                                <div class="btn-group-sm" id="toolbar0" role="group"
-                                     style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                                    <!--                                    <a class="btn btn-success" onclick="$.operate.addTab()" shiro:hasPermission="system:apply:add">-->
-                                    <!--                                        <i class="fa fa-plus"></i> 添加-->
-                                    <!--                                    </a>-->
-                                    <!--                <a class="btn btn-primary single disabled" onclick="$.operate.editTab()" shiro:hasPermission="system:apply:edit">-->
-                                    <!--                    <i class="fa fa-edit"></i> 修改-->
-                                    <!--                </a>-->
-                                    <!--                <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()" shiro:hasPermission="system:apply:remove">-->
-                                    <!--                     </i> 删除-->
-                                    <!--                </a>-->
-                                    <!--<a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:apply:list">
-                                        <i class="fa fa-download"></i> 导出
-                                    </a>-->
-                                    <div
-                                            style="display: flex; align-items: center; gap: 15px; background: #f8f9fa; padding: 6px 12px; border-radius: 4px;">
-                                        <th:block th:replace="include :: status-circles"/>
-                                    </div>
-                                </div>
-                                <div class="col-sm-12 select-table table-striped">
-                                    <table id="bootstrap-table0"></table>
-                                </div>
-                            </div>
-                        </div>
-
-
-                    </div>
-                </div>
-                <div id="tab-1" class="tab-pane ">
-                    <div class="panel-body">
-                        <div class="container-div">
-                            <div class="row">
-<!--                                <div class="col-sm-12 search-collapse" shiro:hasPermission="['system:intraSch:select']">-->
-<!--                                    <form id="formId1">-->
-<!--                                        &lt;!&ndash;                                        <div class="select-list">&ndash;&gt;-->
-<!--                                        <div class="select-list">-->
-<!--                                            <ul>-->
-<!--                                                <li>-->
-<!--                                                    <label>申请人：</label>-->
-<!--                                                    <input type="text" name="userName"/>-->
-<!--                                                </li>-->
-<!--                                                <li>-->
-<!--                                                    <label>课题名称：</label>-->
-<!--                                                    <input type="text" name="topName"/>-->
-<!--                                                </li>-->
-<!--                                                <li>-->
-<!--                                                    <label>专业名称：</label>-->
-<!--                                                    <input type="text" name="dname"/>-->
-<!--                                                </li>-->
-<!--                                                &lt;!&ndash;                                                <li>&ndash;&gt;-->
-<!--                                                &lt;!&ndash;                                                    <label>状态：</label>&ndash;&gt;-->
-<!--                                                &lt;!&ndash;                                                    <select name="state"&ndash;&gt;-->
-<!--                                                &lt;!&ndash;                                                            th:with="type=${@dict.getType('sys_intraschpro_tasks')}">&ndash;&gt;-->
-<!--                                                &lt;!&ndash;                                                        <option value="">所有</option>&ndash;&gt;-->
-<!--                                                &lt;!&ndash;                                                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}"&ndash;&gt;-->
-<!--                                                &lt;!&ndash;                                                                th:value="${dict.dictValue}"></option>&ndash;&gt;-->
-<!--                                                &lt;!&ndash;                                                    </select>&ndash;&gt;-->
-<!--                                                &lt;!&ndash;                                                </li>&ndash;&gt;-->
-
-<!--                                                <li>-->
-<!--                                                    <a class="btn btn-primary btn-rounded btn-sm"-->
-<!--                                                       onclick="$.table.search('formId1','bootstrap-table1')"><i-->
-<!--                                                            class="fa fa-search"></i>&nbsp;搜索</a>-->
-<!--                                                    <a class="btn btn-warning btn-rounded btn-sm"-->
-<!--                                                       onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>-->
-<!--                                                </li>-->
-<!--                                            </ul>-->
-<!--                                        </div>-->
-<!--                                    </form>-->
-<!--                                </div>-->
-
-                                <div class="btn-group-sm" id="toolbar1" role="group"
-                                     style="display: inline-flex; gap: 4px; ">
-                                    <a class="btn btn-success " padding="10px 10px" onclick="$.operate.addTab()"
-                                       shiro:hasPermission="system:apply:add">
-                                        <i class="fa fa-plus"></i> 添加
+        <div class="container-div">
+            <div class="row">
+                <div class="col-sm-12 search-collapse">
+                    <form id="formId">
+                        <div class="select-list">
+                            <ul>
+                                <li th:if="${@permission.isAnyRoles('sci_tesearch,admin')}">
+                                    <label>学院：</label>
+                                    <input type="text" name="yname" placeholder="请输入学院名称"/>
+                                </li>
+                                <li th:if="${@permission.isAnyRoles('sci_tesearch,dept_teacher,admin')}">
+                                    <label>专业：</label>
+                                    <input type="text" name="dname" placeholder="请输入专业名称"/>
+                                </li>
+                                <li th:if="${@permission.isAnyRoles('sci_tesearch,dept_teacher,research,admin')}">
+                                    <label>申请人：</label>
+                                    <input type="text" name="userName" placeholder="请输入申请人姓名"/>
+                                </li>
+                                <li>
+                                    <label>成果名称：</label>
+                                    <input type="text" name="topName" placeholder="请输入成果转化名称"/>
+                                </li>
+                                <li>
+                                    <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search('formId', 'bootstrap-table')">
+                                        <i class="fa fa-search"></i>&nbsp;搜索
                                     </a>
-                                    <!--                <a class="btn btn-primary single disabled" onclick="$.operate.editTab()" shiro:hasPermission="system:apply:edit">-->
-                                    <!--                    <i class="fa fa-edit"></i> 修改-->
-                                    <!--                </a>-->
-                                    <!--                <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()" shiro:hasPermission="system:apply:remove">-->
-                                    <!--                     </i> 删除-->
-                                    <!--                </a>-->
-                                    <!--                                    <a class="btn btn-warning" onclick="$.table.exportExcel()"-->
-                                    <!--                                       shiro:hasPermission="system:apply:export">-->
-                                    <!--                                        <i class="fa fa-download"></i> 导出-->
-                                    <!--                                    </a>-->
-                                    <div
-                                            style="display: flex; align-items: center; gap: 15px; background: #f8f9fa; padding: 6px 12px; border-radius: 4px;">
-                                        <th:block th:replace="include :: status-circles"/>
-                                    </div>
-                                </div>
-
-                                <div class="col-sm-12 select-table table-striped">
-                                    <table id="bootstrap-table1"></table>
-                                </div>
-                            </div>
+                                    <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset('formId', 'bootstrap-table')">
+                                        <i class="fa fa-refresh"></i>&nbsp;重置
+                                    </a>
+                                </li>
+                            </ul>
                         </div>
+                    </form>
+                </div>
+                <div id="toolbar" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                    <div class="btn-group-sm" role="group" style="display: inline-flex; gap: 4px;">
+                        <a class="btn btn-success" onclick="$.operate.addTab()" shiro:hasPermission="system:apply:add">
+                            <i class="fa fa-plus"></i> 添加
+                        </a>
+                        <a class="btn btn-primary" onclick="batchDownload('intraSch')">
+                            <i class="fa fa-download"></i> 批量下载
+                        </a>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 15px; padding: 6px 36px; border-radius: 4px;">
+                        <th:block th:replace="include :: status-circles"/>
                     </div>
                 </div>
-                <div id="tab-2" class="tab-pane">
-                    <div class="panel-body">
-                        <div class="container-div">
-                            <div class="row">
-<!--                                <div class="col-sm-12 search-collapse" shiro:hasPermission="['system:intraSch:select']">-->
-<!--                                    <form id="formId2">-->
-<!--                                        <div class="select-list">-->
-<!--                                            <ul>-->
-<!--                                                <li>-->
-<!--                                                    <label>申请人：</label>-->
-<!--                                                    <input type="text" name="userName"/>-->
-<!--                                                </li>-->
-<!--                                                <li>-->
-<!--                                                    <label>课题名称：</label>-->
-<!--                                                    <input type="text" name="topName"/>-->
-<!--                                                </li>-->
-<!--                                                <li>-->
-<!--                                                    <label>专业名称：</label>-->
-<!--                                                    <input type="text" name="deptname"/>-->
-<!--                                                </li>-->
-<!--                                                &lt;!&ndash;                                                <li>&ndash;&gt;-->
-<!--                                                &lt;!&ndash;                                                    <label>状态：</label>&ndash;&gt;-->
-<!--                                                &lt;!&ndash;                                                    <select name="state"&ndash;&gt;-->
-<!--                                                &lt;!&ndash;                                                            th:with="type=${@dict.getType('sys_intraschpro_tasks')}">&ndash;&gt;-->
-<!--                                                &lt;!&ndash;                                                        <option value="">所有</option>&ndash;&gt;-->
-<!--                                                &lt;!&ndash;                                                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}"&ndash;&gt;-->
-<!--                                                &lt;!&ndash;                                                                th:value="${dict.dictValue}"></option>&ndash;&gt;-->
-<!--                                                &lt;!&ndash;                                                    </select>&ndash;&gt;-->
-<!--                                                &lt;!&ndash;                                                </li>&ndash;&gt;-->
-<!--                                                <li>-->
-<!--                                                    <a class="btn btn-primary btn-rounded btn-sm"-->
-<!--                                                       onclick="$.table.search('formId2','bootstrap-table2')"><i-->
-<!--                                                            class="fa fa-search"></i>&nbsp;搜索</a>-->
-<!--                                                    <a class="btn btn-warning btn-rounded btn-sm"-->
-<!--                                                       onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>-->
-<!--                                                </li>-->
-<!--                                            </ul>-->
-<!--                                        </div>-->
-<!--                                    </form>-->
-<!--                                </div>-->
-
-                                <div class="btn-group-sm" id="toolbar2" role="group">
-                                    <!--                                    <a class="btn btn-success" onclick="$.operate.addTab()">-->
-                                    <!--                                        <i class="fa fa-plus"></i> 添加-->
-                                    <!--                                    </a>-->
-                                    <!--                <a class="btn btn-primary single disabled" onclick="$.operate.editTab()" shiro:hasPermission="system:apply:edit">-->
-                                    <!--                    <i class="fa fa-edit"></i> 修改-->
-                                    <!--                </a>-->
-                                    <!--                <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()" shiro:hasPermission="system:apply:remove">-->
-                                    <!--                     </i> 删除-->
-                                    <!--                </a>-->
-                                    <!--                                    <a class="btn btn-warning" onclick="$.table.exportExcel()"-->
-                                    <!--                                       shiro:hasPermission="system:apply:export">-->
-                                    <!--                                        <i class="fa fa-download"></i> 导出-->
-                                    <!--                                    </a>-->
-                                    <div
-                                            style="display: flex; align-items: center; gap: 15px; background: #f8f9fa; padding: 6px 12px; border-radius: 4px;">
-                                        <th:block th:replace="include :: status-circles"/>
-                                    </div>
-                                </div>
-                                <div class="col-sm-12 select-table table-striped">
-                                    <table id="bootstrap-table2"></table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <div class="col-sm-12 select-table table-striped">
+                    <table id="bootstrap-table"></table>
                 </div>
-
-
             </div>
         </div>
     </div>
 </div>
-
 
 <div class="wrapper wrapper-content fadeInRight" style="position: absolute; left: -9999px;">
     <div class="row">
@@ -591,17 +369,11 @@
                         <div class="modal-dialog modal-right">
                             <div class="modal-content animated bounceInRight">
                                 <div class="modal-header">
-                                    <!--                                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span-->
-                                    <!--                                            class="sr-only">关闭</span>-->
-                                    <!--                                    </button>-->
                                     <div class="timeline-title">流程记录</div>
-
-                                    <!-- 原有的流程进度条部分 -->
                                     <div>
                                         <div class='progress_inner'>
                                             <div class='progress_inner__step active' id='step-1'>
-                                                <label for='step-1'><span
-                                                        class="status-text active">待提交</span></label>
+                                                <label for='step-1'><span class="status-text active">待提交</span></label>
                                             </div>
                                             <div class='progress_inner__step pending' id='step-2'>
                                                 <label for='step-2'><span class="status-text">审核中</span></label>
@@ -616,8 +388,6 @@
                                     </div>
                                 </div>
                                 <div class="modal-body">
-                                    <!-- 流程记录标题 - 放在左上角 -->
-                                    <!-- 流程记录内容 - 放在流程图下方 -->
                                     <div class="track-rcol">
                                         <div class="track-list">
                                             <ul id="event-list">
@@ -629,17 +399,6 @@
                                             </ul>
                                         </div>
                                     </div>
-
-                                    <!--                                    <div class="approve-status">-->
-                                    <!--                                        <label><input type="radio" name="approve" value="pass" checked> 审核通过</label>-->
-                                    <!--                                        <label><input type="radio" name="approve" value="reject"> 审核未通过</label>-->
-                                    <!--                                    </div>-->
-
-                                    <!--                                    <div class="buttons">-->
-                                    <!--                                        <button onclick="submitForm()">提交</button>-->
-                                    <!--                                        <button onclick="approveForm()">审核</button>-->
-                                    <!--                                        <button onclick="resetForm()">重置</button>-->
-                                    <!--                                    </div>-->
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-white but" data-dismiss="modal">关闭</button>
@@ -647,7 +406,6 @@
                             </div>
                         </div>
                     </div>
-
                 </div>
             </div>
         </div>
@@ -656,854 +414,259 @@
 
 <th:block th:include="include :: footer"/>
 <script th:inline="javascript">
-    var JYPY = [[${@permission.hasPermi('system:intraSch:JYPY')}]];
-    var XYPY = [[${@permission.hasPermi('system:intraSch:XYPY')}]];
-    var KYPY = [[${@permission.hasPermi('system:intraSch:KYPY')}]];
-
-    var JYCH = [[${@permission.hasPermi('system:intraSch:JYCH')}]];
-    var XYCH = [[${@permission.hasPermi('system:intraSch:XYCH')}]];
-    var KYCH = [[${@permission.hasPermi('system:intraSch:KYCH')}]];
-    var select = [[${@permission.hasPermi('system:intraSch:select')}]];
-
-    //var datas = [[${@dict.getType('sys_intraschpro_tasks')}]];
-    //科研项目的状态，在sys_dict_data,sys_dict_type(横向课题状态)
     var datas = [[${@dict.getType('sys_intraschpro_tasks')}]];
     var prefix = ctx + "IntraSchPro";
 
-    // 动态生成URL
-    function getUrl(tableId) {
+    function getUrl() {
         var year = localStorage.getItem("year");
-        return prefix + "/list/" + tableId + "?year=" + year;
+        return prefix + "/list?year=" + year;
     }
 
-    $(function () {
+    function normalizeState(state) {
+        return state == null ? "" : String(state);
+    }
 
-        function initTable(options) {
-            // 获取当前表格的ID
-            var tableId = options.id;
-            // 根据表格ID生成URL
-            options.url = getUrl(tableId);
-            // 使用生成的选项初始化表格
-            $.table.init(options);
+    function getStageKey(state) {
+        var normalizedState = normalizeState(state);
+        if (normalizedState === "6") {
+            return "completed";
+        }
+        if (["1", "2", "3", "4", "5", "11", "12", "15"].includes(normalizedState)) {
+            return "approval";
+        }
+        if (["7", "8", "9", "10", "13", "14", "16"].includes(normalizedState)) {
+            return "closure";
+        }
+        return "";
+    }
+
+    function getStageLabel(state) {
+        var stage = getStageKey(state);
+        if (stage === "completed") {
+            return "已完结";
+        }
+        if (stage === "approval") {
+            return "立项申请";
+        }
+        if (stage === "closure") {
+            return "结项申请";
+        }
+        return "";
+    }
+
+    function getStateLabel(value) {
+        var label = $.table.selectDictLabel(datas, value);
+        return label || value || "";
+    }
+
+    function isDeptMatched(row) {
+        return String(row.deptNamekey) === "1";
+    }
+
+    function getResponsibilityTier(row) {
+        if (row.firstPersonId == row.uid) {
+            return "第一负责人";
+        }
+        if (row.secondPersonId == row.uid) {
+            return "第二负责人";
+        }
+        if (row.thirdPersonId == row.uid) {
+            return "第三负责人";
+        }
+        if (row.fourthPersonId == row.uid) {
+            return "第四负责人";
+        }
+        return "不是负责人";
+    }
+
+    function getScore(row) {
+        var normalizedState = normalizeState(row.state);
+        if (!["4", "6"].includes(normalizedState)) {
+            return 0;
+        }
+        if (row.firstPersonId == row.uid) {
+            return row.firstPoints || 0;
+        }
+        if (row.secondPersonId == row.uid) {
+            return row.secondPoints || 0;
+        }
+        if (row.thirdPersonId == row.uid) {
+            return row.thirdPoints || 0;
+        }
+        if (row.fourthPersonId == row.uid) {
+            return row.forthPoints || 0;
+        }
+        return 0;
+    }
+
+    function openStagePage(id, state, urlFlag, title) {
+        var stage = getStageKey(state);
+        var detailPrefix = stage === "approval" ? prefix + "/detail/" : prefix + "/overdetail/";
+        $.modal.openTab(title || "查看成果转化", detailPrefix + id + "/" + urlFlag);
+    }
+
+    function buildApprovalActions(row, actions) {
+        var state = normalizeState(row.state);
+
+        if (state === "15") {
+            actions.push('<a class="link-button" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')">编辑</a>');
+            actions.push('<a class="link-button" href="javascript:void(0)" onclick="subDraft(\'' + row.id + '\')">提交</a>');
+            actions.push('<a class="del-link-button" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')">删除</a>');
         }
 
-        // tab-0
-        var options0 = {
-            id: "bootstrap-table0",
-            toolbar: "toolbar0",
-            url: getUrl($('table').attr('id')),
-            createUrl: prefix + "/add",
-            detailUrl: prefix + "/overdetail/{id}",
-            updateUrl: prefix + "/edit/{id}",
-            removeUrl: prefix + "/remove",
-            exportUrl: prefix + "/export",
-            rowStyle: rowStyle0,
-            modalName: "成果转化",
-            sortOrder: "asc",
-            columns: [{
-                field: 'number',
-                title: '序号',
-                width: 5,
-                align: 'center',
-                switchable: false,
-
-                formatter: function (value, row, index) {
-                    //return index+1; //序号正序排序从1开始
-
-                    //通过表的#id 可以得到每页多少条
-                    var pageSize = $('#bootstrap-table').bootstrapTable('getOptions').pageSize;
-                    //通过表的#id 可以得到当前第几页
-                    var pageNumber = $('#bootstrap-table').bootstrapTable('getOptions').pageNumber;
-                    //返回每条的序号： 每页条数 * （当前页 - 1 ）+ 序号
-                    // return pageSize * (pageNumber - 1) + index + 1;
-                    return $.table.serialNumber(index);
+        if (row.role === "research") {
+            if (isDeptMatched(row) && row.userId != row.uid) {
+                if (state === "1") {
+                    actions.push('<a class="link-button" href="javascript:void(0)" onclick="openStagePage(' + row.id + ', \'' + state + '\', \'pro\', \'详细成果转化\')">批阅</a>');
+                } else if (state === "11") {
+                    actions.push('<a class="del-link-button" href="javascript:void(0)" onclick="openStagePage(' + row.id + ', \'' + state + '\', \'pro\', \'详细成果转化\')">撤回</a>');
                 }
-            },
-                {
-                    field: 'id',
-                    title: 'id',
-                    visible: false
-                },
-                {
-                    field: 'yname',
-                    align: 'center',
-                    title: '学院'
-                },
-                {
-                    field: 'dname',
-                    align: 'center',
-                    title: '专业'
-                },
-                {
-                    field: 'userName',
-                    align: 'center',
-                    title: '申请人'
-                },
-                {
-                    field: 'topName',
-                    align: 'center',
-                    title: '课题名称'
-                },
-                // {
-                //     field: 'topType',
-                //     title: '课题类型',
-                //     formatter: function(value, row, index) {
-                //        return $.table.selectDictLabel(topTypeDatas, value);
-                //     }
-                // },
-
-                {
-                    field: 'signingData',
-                    align: 'center',
-                    title: '签订日期'
-                },
-                {
-                    field: 'amount',
-                    align: 'center',
-                    title: '项目金额'
-                },
-                // {
-                //   field: 'pa',
-                //   align: 'center',
-                //   title: '甲方'
-                // },
-                // {
-                //   field: 'pb',
-                //   align: 'center',
-                //   title: '乙方'
-                // },
-                // {
-                //   field: 'state',
-                //   title: '申请状态',
-                //   align: 'center',
-                //   formatter: function (value, row, index) {
-                //     return $.table.selectDictLabel(datas, value);
-                //   }
-                // },
-                {
-                    field: 'responsibilityTier',
-                    title: '个人排名',
-                    align: 'center',
-                    formatter: function (value, row, index) {
-                        return row.firstPersonId == row.uid ? '第一负责人' : row.secondPersonId == row.uid ? '第二负责人' : row.thirdPersonId == row.uid ? "第三负责人" : row.fourthPersonId == row.uid ? "第四负责人" : "不是负责人";
-                    }
-                },
-                {
-                    field: 'responsibilityTier',
-                    title: '积分',
-                    align: 'center',
-                    formatter: function (value, row, index) {
-                        //console.log("row=",row)
-                        if (row.state == 6) {
-                            return row.firstPersonId == row.uid ? row.firstPoints : row.secondPersonId == row.uid ? row.secondPoints : row.thirdPersonId == row.uid ? row.thirdPoints : row.fourthPersonId == row.uid ? row.forthPoints : 0;
-                        } else {
-                            return 0;
-                        }
-                    }
-                },
-                {
-                    title: '操作',
-                    align: 'center',
-                    formatter: function (value, row, index) {
-                        var actions = [];
-                        if (row.state == 6) {
-                            //actions.push('<a  class="btn btn-success btn-xs ' + editInfo + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id +'/chakan'+ '\')"><i class="fa fa-edit"></i>查看</a> ');
-                            actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')">查看</a> ');
-                        }
-                        return actions.join('');
-                    }
-                }]
-        };
-
-        initTable(options0);
-
-        // tab-1
-        var options1 = {
-            id: "bootstrap-table1",
-            toolbar: "toolbar1",
-            url: getUrl($('table').attr('id')),
-            createUrl: prefix + "/add",
-            overUrl: prefix + "/overadd?id={id}",
-            detailUrl: prefix + "/detail/{id}",
-            updateUrl: prefix + "/edit/{id}",
-            removeUrl: prefix + "/remove",
-            exportUrl: prefix + "/export",
-            subDraftUrl: prefix + "/subDraft/",
-            rowStyle: rowStyle0,
-            modalName: "成果转化",
-            sortOrder: "asc",
-            columns: [{
-                field: 'number',
-                title: '序号',
-                width: 5,
-                align: 'center',
-                switchable: false,
-                formatter: function (value, row, index) {
-                    //return index+1; //序号正序排序从1开始
-
-                    //通过表的#id 可以得到每页多少条
-                    var pageSize = $('#bootstrap-table').bootstrapTable('getOptions').pageSize;
-                    //通过表的#id 可以得到当前第几页
-                    var pageNumber = $('#bootstrap-table').bootstrapTable('getOptions').pageNumber;
-                    //返回每条的序号： 每页条数 * （当前页 - 1 ）+ 序号
-                    // return pageSize * (pageNumber - 1) + index + 1;
-                    return $.table.serialNumber(index);
+            } else if (row.userId == row.uid) {
+                if (state === "1") {
+                    actions.push('<a class="link-button" href="javascript:void(0)" onclick="openStagePage(' + row.id + ', \'' + state + '\', \'pro\', \'详细成果转化\')">批阅</a>');
+                } else if (state === "11") {
+                    actions.push('<a class="del-link-button" href="javascript:void(0)" onclick="openStagePage(' + row.id + ', \'' + state + '\', \'pro\', \'详细成果转化\')">撤回</a>');
+                } else if (state === "4") {
+                    actions.push('<a class="link-button" href="javascript:void(0)" onclick="$.operate.overTab(\'' + row.id + '\')">申请结项</a>');
+                } else if (["3", "12", "5"].includes(state)) {
+                    actions.push('<a class="link-button" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')">编辑</a>');
                 }
-            },
-                {
-                    field: 'id',
-                    title: 'id',
-                    visible: false
-                },
-                {
-                    field: 'yname',
-                    align: 'center',
-                    title: '学院'
-                },
-                {
-                    field: 'dname',
-                    align: 'center',
-                    title: '专业'
-                },
-                {
-                    field: 'userName',
-                    align: 'center',
-                    title: '申请人'
-                },
-                {
-                    field: 'topName',
-                    align: 'center',
-                    title: '课题名称'
-                },
-                // {
-                //     field: 'topType',
-                //     title: '课题类型',
-                //     formatter: function(value, row, index) {
-                //        return $.table.selectDictLabel(topTypeDatas, value);
-                //     }
-                // },
-
-                {
-                    field: 'signingData',
-                    align: 'center',
-                    title: '签订日期'
-                },
-                {
-                    field: 'amount',
-                    align: 'center',
-                    title: '项目金额'
-                },
-                // {
-                //   field: 'pa',
-                //   align: 'center',
-                //   title: '甲方'
-                // },
-                // {
-                //   field: 'pb',
-                //   align: 'center',
-                //   title: '乙方'
-                // },
-                // {
-                //   field: 'state',
-                //   title: '申请状态',
-                //   align: 'center',
-                //   formatter: function (value, row, index) {
-                //     //console.log("val=",value)
-                //     //console.log("row.state=",row.state)
-                //     return $.table.selectDictLabel(datas, value);
-                //   }
-                // },
-                {
-                    field: 'responsibilityTier',
-                    title: '个人排名',
-                    align: 'center',
-                    formatter: function (value, row, index) {
-                        return row.firstPersonId == row.uid ? '第一负责人' : row.secondPersonId == row.uid ? '第二负责人' : row.thirdPersonId == row.uid ? "第三负责人" : row.fourthPersonId == row.uid ? "第四负责人" : "不是负责人";
-                    }
-                },
-                {
-                    field: 'responsibilityTier',
-                    title: '积分',
-                    align: 'center',
-                    formatter: function (value, row, index) {
-                        if (row.state == 4) {
-                            return row.firstPersonId == row.uid ? row.firstPoints : row.secondPersonId == row.uid ? row.secondPoints : row.thirdPersonId == row.uid ? row.thirdPoints : row.fourthPersonId == row.uid ? row.forthPoints : 0;
-                        } else {
-                            return 0;
-                        }
-                    }
-                },
-                {
-                    title: '操作',
-                    align: 'center',
-
-                    formatter: function (value, row, index) {
-
-                        console.log("row=", row)
-                        var actions = [];/* Add this CSS to your stylesheet */
-
-                        actions.push('<a  class="link-button" data-toggle="modal" data-target="#myModal" onclick="loadReviewRecords(' + row.id + ', ' + row.state + ')">流程记录</a><br> ');
-                        actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"> 查看</a> &nbsp;&nbsp;&nbsp;');
-                        if (row.state == '15') {
-                            actions.push('<a   class="link-button' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')">编辑</a>');
-                            actions.push('<a   class="link-button' + '" href="javascript:void(0)" onclick="subDraft(\'' + row.id + '\')">提交</a> &nbsp;');
-                            actions.push('<a class="del-link-button' + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"> </i>删除</a>');
-                        }
-                        //这个role字段是在sql里面写死
-                        //教研<!-- Update the button to use the new CSS class -->
-                        if (row.role === 'research') {
-                            console.log("research=", 1)
-                            //本专业的，且不是自己
-                            if (row.deptNamekey === '1' && row.userId != row.uid) {
-                                //教研的options1只用处理state=1（待教研室处理）和state=11（待学院处理）的
-                                console.log("row.userId=", row.userId)
-                                if (row.state == '1') {
-                                    console.log("this is reaearch 1")
-                                    actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro' + '\')"> 批阅</a> ');
-                                } else if (row.state == '11') {
-                                    actions.push('<a  class="del-link-button ' + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro' + '\')"> 撤回</a> ');
-                                }
-                                if (row.userId == row.uid) {
-                                    actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> 编辑</a> <br>');
-                                    actions.push('<a class="del-link-button ' + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"> </i>删除</a>');
-                                }
-
-                            }
-                            //是自己的
-                            else if (row.userId == row.uid) {
-                                if (row.state == '1') {
-                                    //actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> 编辑</a> ');
-                                    actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro' + '\')"> 批阅</a> ');
-                                    //actions.push('<a class="del-link-button ' + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"> </i>删除</a>');
-                                } else if (row.state == '11') {
-                                    actions.push('<a  class="del-link-button ' + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro' + '\')"> 撤回</a> ');
-                                }
-                                //待申请结题
-                                else if (row.state == '4') {
-                                    actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.overTab(\'' + row.id + '\')"> 申请结项</a> ');
-                                } else if (row.state == '3' || row.state == '12' || row.state == '5') {
-                                    //被三方驳回
-                                    actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> 编辑</a> ');
-                                    //actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick="submitto(\'' + row.id + '\', \'' + row.state + '\')"> 提交</a> ');
-                                } else {
-                                    //actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"> 查看</a> ');
-                                }
-                            } else {
-                                //不是自己项目，审批过的
-                                //actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"> 查看</a> ');
-                            }
-                        }
-                        //学院
-                        else if (row.role === 'dept_teacher') {
-                            //学院的options1只用处理state=11（待学院处理）和state=2（待科研处理）的  / 是自己学院的
-                            if (row.state == '11' && row.deptNamekey === '1') {
-                                actions.push('<a  class="link-button ' + XYPY + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/dept_teacher' + '\')"> 批阅</a> ');
-                                //actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"> 查看</a> ');
-                            } else if (row.state == '2' && row.deptNamekey === '1') {
-                                actions.push('<a  class="del-link-button' + XYPY + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/dept_teacher' + '\')"> 撤回</a> ');
-                                //actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"> 查看</a> ');
-                            } else {
-                                //自己的项目
-                                if (row.userId == row.uid) {
-                                    if (row.state == '1') {
-                                        //actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> 编辑</a> <br>');
-                                        //actions.push('<a class="del-link-button ' + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"> </i>删除</a>');
-                                    }
-                                    //待申请结题
-                                    else if (row.state == '4') {
-                                        actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.overTab(\'' + row.id + '\')"> 申请结项</a> ');
-                                    } else if (row.state == '3' || row.state == '12' || row.state == '5') {
-                                        //被三方驳回
-                                        actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> 编辑</a> ');
-                                        //actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick=""submitto(\'' + row.id + '\', \'' + row.state + '\')"> 提交</a> ');
-                                    } else {
-                                        //actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"> 查看</a> ');
-                                    }
-                                } else {
-                                    //不是自己项目，审批过的
-                                    //actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"> 查看</a> ');
-                                }
-                            }
-
-                        }
-                        //科研
-                        else if (row.role === 'sci_tesearch') {
-                            //科研的options1只用处理state=2（待科研处理）和state=4（待申请结题）的
-                            if (row.state == '2') {
-                                actions.push('<a  class="link-button ' + KYPY + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/hecha' + '\')"> 批阅</a> ');
-                                //actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"> 查看</a> ');
-                            } else if (row.state == '4') {
-                                actions.push('<a  class="del-link-button ' + KYPY + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/hecha' + '\')"> 撤回</a> <br>');
-                                //actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"> 查看</a> &nbsp;&nbsp;&nbsp;');
-                                if (row.userId == row.uid) {
-                                    actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.overTab(\'' + row.id + '\')"> 申请结项</a> ');
-                                }
-                            } else {
-                                //上面的这个else是为了保证批阅的时候没有查看
-                                //自己的项目
-                                if (row.userId == row.uid) {
-                                    if (row.state == '1') {
-                                        //actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> 编辑</a> ');
-                                        //actions.push('<a class="del-link-button ' + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"> </i>删除</a>');
-                                    }
-                                    //待申请结题
-                                    else if (row.state == '4') {
-                                        //actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.overTab(\'' + row.id + '\')"> 申请结项</a> ');
-                                    } else if (row.state == '3' || row.state == '12' || row.state == '5') {
-                                        //被三方驳回
-                                        actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> 编辑</a> ');
-                                        //actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick=""submitto(\'' + row.id + '\', \'' + row.state + '\')"> 提交</a> ');
-                                    } else {
-                                        //actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"> 查看</a> ');
-                                    }
-                                } else {
-                                    //不是自己项目，审批过的
-                                    //actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"> 查看</a> ');
-                                }
-
-                            }
-
-                        }
-                        //admin
-                        else if (row.role === 'admin') {
-                            actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"> 查看</a> ');
-                        }
-                        //教师
-                        else if (row.role === 'teacher') {
-                            console.log("teacher", row.state);
-                            if (row.userId == row.uid) {
-                                if (row.state == '1') {
-                                    //actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> 编辑</a> ');
-                                    //actions.push('<a class="del-link-button ' + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"> </i>删除</a>');
-                                } else if (row.state == '4') {
-                                    actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.overTab(\'' + row.id + '\')"> 申请结项</a> ');
-                                } else if (row.state == '3' || row.state == '12' || row.state == '5') {
-                                    actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> 编辑</a> ');
-                                    //actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick="submitto(\'' + row.id + '\', \'' + row.state + '\')"> 提交</a> ');
-                                } else {
-                                    //actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"> 查看</a> ');
-                                }
-                            } else {
-                                //actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"> 查看</a> ');
-
-                            }
-                        }
-                        //return actions.join('');
-                        return arrangeButtons(actions)
-                    }
-                }]
-        };
-        initTable(options1);
-
-        // tab-2
-        var options2 = {
-            id: "bootstrap-table2",
-            toolbar: "toolbar2",
-            url: getUrl($('table').attr('id')),
-            createUrl: prefix + "/overadd?id={id}",
-            detailUrl: prefix + "/overdetail/{id}",
-            updateUrl: prefix + "/edit/{id}",
-            removeUrl: prefix + "/remove",
-            exportUrl: prefix + "/export",
-            subDraftUrl: prefix + "/subDraft/",
-            rowStyle: rowStyle0,
-            modalName: "成果转化结项",
-            sortOrder: "asc",
-            columns: [{
-                field: 'number',
-                title: '序号',
-                width: 5,
-                align: 'center',
-                switchable: false,
-                formatter: function (value, row, index) {
-                    //return index+1; //序号正序排序从1开始
-
-                    //通过表的#id 可以得到每页多少条
-                    var pageSize = $('#bootstrap-table').bootstrapTable('getOptions').pageSize;
-                    //通过表的#id 可以得到当前第几页
-                    var pageNumber = $('#bootstrap-table').bootstrapTable('getOptions').pageNumber;
-                    //返回每条的序号： 每页条数 * （当前页 - 1 ）+ 序号
-                    // return pageSize * (pageNumber - 1) + index + 1;
-                    return $.table.serialNumber(index);
+            }
+        } else if (row.role === "dept_teacher") {
+            if (state === "11" && isDeptMatched(row)) {
+                actions.push('<a class="link-button" href="javascript:void(0)" onclick="openStagePage(' + row.id + ', \'' + state + '\', \'dept_teacher\', \'详细成果转化\')">批阅</a>');
+            } else if (state === "2" && isDeptMatched(row)) {
+                actions.push('<a class="del-link-button" href="javascript:void(0)" onclick="openStagePage(' + row.id + ', \'' + state + '\', \'dept_teacher\', \'详细成果转化\')">撤回</a>');
+            } else if (row.userId == row.uid && ["9", "10", "14"].includes(state)) {
+                actions.push('<a class="link-button" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')">编辑</a>');
+            }
+        } else if (row.role === "sci_tesearch") {
+            if (state === "2") {
+                actions.push('<a class="link-button" href="javascript:void(0)" onclick="openStagePage(' + row.id + ', \'' + state + '\', \'hecha\', \'详细成果转化\')">批阅</a>');
+            } else if (state === "4") {
+                actions.push('<a class="del-link-button" href="javascript:void(0)" onclick="openStagePage(' + row.id + ', \'' + state + '\', \'hecha\', \'详细成果转化\')">撤回</a>');
+                if (row.userId == row.uid) {
+                    actions.push('<a class="link-button" href="javascript:void(0)" onclick="$.operate.overTab(\'' + row.id + '\')">申请结项</a>');
                 }
-            },
-                {
-                    field: 'id',
-                    title: 'id',
-                    visible: false
-                },
-                {
-                    field: 'yname',
-                    align: 'center',
-                    title: '学院'
-                },
-                {
-                    field: 'dname',
-                    align: 'center',
-                    title: '专业'
-                },
-                {
-                    field: 'userName',
-                    align: 'center',
-                    title: '申请人'
-                },
-                {
-                    field: 'topName',
-                    align: 'center',
-                    title: '课题名称'
-                },
-                // {
-                //     field: 'topType',
-                //     title: '课题类型',
-                //     formatter: function(value, row, index) {
-                //        return $.table.selectDictLabel(topTypeDatas, value);
-                //     }
-                // },
-
-                {
-                    field: 'signingData',
-                    align: 'center',
-                    title: '签订日期'
-                },
-                {
-                    field: 'amount',
-                    align: 'center',
-                    title: '项目金额'
-                },
-                // {
-                //   field: 'pa',
-                //   align: 'center',
-                //   title: '甲方'
-                // },
-                // {
-                //   field: 'pb',
-                //   align: 'center',
-                //   title: '乙方'
-                // },
-                // {
-                //   field: 'state',
-                //   title: '申请状态',
-                //   align: 'center',
-                //   formatter: function (value, row, index) {
-                //     return $.table.selectDictLabel(datas, value);
-                //   }
-                // },
-                {
-                    field: 'responsibilityTier',
-                    title: '个人排名',
-                    align: 'center',
-                    formatter: function (value, row, index) {
-                        return row.firstPersonId == row.uid ? '第一负责人' : row.secondPersonId == row.uid ? '第二负责人' : row.thirdPersonId == row.uid ? "第三负责人" : row.fourthPersonId == row.uid ? "第四负责人" : "不是负责人";
-                    }
-                },
-                {
-                    field: 'responsibilityTier',
-                    title: '积分',
-                    align: 'center',
-                    formatter: function (value, row, index) {
-                        if (row.state == 6) {
-                            return row.firstPersonId == row.uid ? row.firstPoints : row.secondPersonId == row.uid ? row.secondPoints : row.thirdPersonId == row.uid ? row.thirdPoints : row.fourthPersonId == row.uid ? row.forthPoints : 0;
-                        } else {
-                            return 0;
-                        }
-                    }
-                },
-                {
-                    title: '操作',
-                    align: 'center',
-                    formatter: function (value, row, index) {
-                        var actions = [];
-                        actions.push('<a  class="link-button" data-toggle="modal" data-target="#myModal" onclick="loadReviewRecords(' + row.id + ', ' + row.state + ')">流程记录</a><br> ');
-                        actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"> 查看</a>&nbsp;');
-                        //教研
-                        if (row.role === 'research') {
-                            //如果这个项目所属的教研室是登陆人的教研室
-                            if (row.deptNamekey === '1') {
-                                //教研的options1只用处理state=7（待教研室处理）和state=13（待学院处理）的
-                                if (row.state == '7') {
-                                    actions.push('<a  class="link-button ' + JYPY + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/JYSOVER' + '\')"> 批阅</a> ');
-                                } else if (row.state == '13') {
-                                    actions.push('<a  class="del-link-button ' + JYPY + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/JYSOVER' + '\')"> 撤回</a> ');
-                                }
-                            }
-                            //上面的这个else是为了保证批阅的时候没有查看
-                            //自己的项目
-                            if (row.userId == row.uid) {
-                                if (row.state == '7') {
-                                    //actions.push('<a class="del-link-button ' + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"> </i>删除</a>');
-                                } else if (row.state == '9' || row.state == '10' || row.state == '14') {
-                                    //被三方驳回
-                                    actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> 编辑</a> ');
-                                    //actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick="submitto(\'' + row.id + '\', \'' + row.state + '\')"> 提交</a> ');
-                                } else if (row.state == '16') {
-                                    actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> 编辑</a><br> ');
-                                    actions.push('<a   class="link-button' + '" href="javascript:void(0)" onclick="subDraft(\'' + row.id + '\')">提交</a> &nbsp;');
-                                    //actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"> 查看</a> ');
-                                }
-
-                            } else {
-                                //不是自己项目,审批过的
-                                //actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"> 查看</a> ');
-                            }
-                        }
-                        //学院
-                        else if (row.role === 'dept_teacher') {
-                            if (row.deptNamekey === '1') {
-                                //学院的options1只用处理state=13（待学院处理）和state=8（待科研处理）的
-                                if (row.state == '13') {
-                                    actions.push('<a  class="link-button ' + XYPY + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/dept_teacher' + '\')"> 批阅</a> ');
-                                } else if (row.state == '8') {
-                                    actions.push('<a  class="del-link-button ' + XYPY + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/dept_teacher' + '\')"> 撤回</a> ');
-                                } else {
-                                    if (row.userId == row.uid) {
-                                        if (row.state == '9' || row.state == '10' || row.state == '14') {
-                                            //被三方驳回
-                                            actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> 编辑</a> ');
-                                        }
-                                    }
-                                    //审批过的
-                                    //actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"> 查看</a> ');
-                                }
-                            }
-
-                        }
-                        //科研
-                        else if (row.role === 'sci_tesearch') {
-                            //科研的options1只用处理state=8（待科研处理）和state=6（完结）的
-                            if (row.state == '8') {
-                                actions.push('<a  class="link-button ' + KYPY + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/KYCOVER' + '\')"> 批阅</a> ');
-                            } else if (row.state == '6') {
-                                actions.push('<a  class="del-link-button ' + KYPY + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/KYCOVER' + '\')"> 撤回</a> ');
-                            } else {
-                                //上面的这个else是为了保证批阅的时候没有查看
-                                //自己的项目
-                                if (row.userId == row.uid) {
-                                    if (row.state == '1') {
-                                        actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> 编辑</a><br> ');
-                                        actions.push('<a class="del-link-button ' + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"> </i>删除</a>');
-                                    } else if (row.state == '9' || row.state == '10' || row.state == '14') {
-                                        //被三方驳回
-                                        actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> 编辑</a> ');
-                                        //actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick="submitto(\'' + row.id + '\', \'' + row.state + '\')"> 提交</a> ');
-                                    } else {
-                                        //actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"> 查看</a> ');
-                                    }
-                                } else {
-                                    //不是自己项目，审批过的
-                                    //actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"> 查看</a> ');
-
-                                }
-
-                            }
-
-                        }
-                        //admin
-                        else if (row.role === 'admin') {
-                            actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"> 查看</a> ');
-                        }
-                        //普通教师
-                        else if (row.role === 'teacher') {
-                            if (row.userId == row.uid) {
-                                if (row.state == '16') {
-                                    actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> 编辑</a><br> ');
-                                    actions.push('<a   class="link-button' + '" href="javascript:void(0)" onclick="subDraft(\'' + row.id + '\')">提交</a> ');
-
-                                }
-                                if (row.state == '7') {
-                                    //actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> 编辑</a> ');
-                                    //actions.push('<a class="del-link-button ' + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"> </i>删除</a>');
-                                } else if (row.state == '9' || row.state == '10' || row.state == '14') {
-                                    //被三方驳回
-                                    actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> 编辑</a> ');
-                                    //actions.push('<a   class="link-button ' + '" href="javascript:void(0)" onclick="submitto(\'' + row.id + '\', \'' + row.state + '\')"> 提交</a> ');
-                                } else {
-                                    //actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"> 查看</a> ');
-                                }
-                            } else {
-                                //actions.push('<a  class="link-button ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id + '/chakan' + '\')"> 查看</a> ');
-                            }
-                        }
-                        // if (row.role==='sci_tesearch'){
-                        //     if(row.state == '7' || row.state == '9'|| row.state == '10'){
-                        //         if(row.userId == row.uid){
-                        //             actions.push('<a class="btn btn-danger btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"> </i>删除</a>');
-                        //             actions.push('<a   class="btn btn-success btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> 编辑</a> ');
-                        //             if( row.state == '9'|| row.state == '10') {
-                        //                 actions.push('<a class="btn btn-success btn-xs" href="javascript:void(0)" onclick="submitto(\'' + row.id + '\', \'' + row.state + '\')">  提交</a>');
-                        //             }
-                        //         }else {
-                        //             //todo:这个查看只能查看，不能进行任何操作
-                        //             actions.push('<a  class="btn btn-success btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')"> 查看</a> ');
-                        //         }
-                        //     }
-                        //     else if(row.state=='6') {
-                        //         if (row.userId == row.uid) {
-                        //             //actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.overTab(\'' + row.id + '\')"> 申请结项</a> ');
-                        //             actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan' + '\')"> 查看</a> ');
-                        //         }else {
-                        //             //todo:这个查看只能查看，不能进行任何操作
-                        //             actions.push('<a  class="btn btn-success btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')"> 查看</a> ');
-                        //         }
-                        //     }
-                        //     else if (row.state=='8'){
-                        //         actions.push('<a  class="btn btn-success btn-xs ' +  '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id+'/KYCOVER' + '\')"> 核查</a> ');
-                        //     }
-                        // }
-                        // else if (row.role==='teacher'){
-                        //     if(row.state == '7' || row.state == '9'|| row.state == '10'){
-                        //         if(row.userId == row.uid){
-                        //             actions.push('<a class="btn btn-danger btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"> </i>删除</a>');
-                        //             actions.push('<a   class="btn btn-success btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> 编辑</a> ');
-                        //             if( row.state == '9'|| row.state == '10') {
-                        //                 actions.push('<a class="btn btn-success btn-xs" href="javascript:void(0)" onclick="submitto(\'' + row.id + '\', \'' + row.state + '\')">  提交</a>');
-                        //             }
-                        //         }else {
-                        //             //todo:这个查看只能查看，不能进行任何操作
-                        //             actions.push('<a  class="btn btn-success btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')"> 查看</a> ');
-                        //         }
-                        //     } else if(row.state=='6') {
-                        //         if (row.userId == row.uid) {
-                        //             //actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.overTab(\'' + row.id + '\')"> 申请结项</a> ');
-                        //             actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan' + '\')"> 查看</a> ');
-                        //         }else {
-                        //             //todo:这个查看只能查看，不能进行任何操作
-                        //             actions.push('<a  class="btn btn-success btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')"> 查看</a> ');
-                        //         }
-                        //     }else if (row.state=='8'){
-                        //     }
-                        // }
-                        // else if (row.role==='research'){
-                        //     if(row.state == '8' ||row.state == '13' ){
-                        //         actions.push('<a  class="btn btn-success btn-xs ' +  '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id+'/JYSOVER' + '\')"> 核查</a> ');
-                        //     }
-                        //     if(row.userId == row.uid){
-                        //         if(row.state=='4') {
-                        //             actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.overTab(\'' + row.id + '\')"> 申请结项</a> ');
-                        //         }else if(row.state=='3'||row.state=='12'||row.state=='15'){
-                        //             actions.push('<a   class="btn btn-success btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> 编辑</a> ');
-                        //             actions.push('<a   class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="submitto(\'' + row.id + '\')"> 提交</a> ');
-                        //         }
-                        //     }
-                        // //     if(row.state == '8' || row.state == '9'|| row.state == '10'){
-                        // //         if(row.userId == row.uid){
-                        // //             actions.push('<a class="btn btn-danger btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"> </i>删除</a>');
-                        // //             actions.push('<a   class="btn btn-success btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> 编辑</a> ');
-                        // //             if( row.state == '9'|| row.state == '10') {
-                        // //                 actions.push('<a class="btn btn-success btn-xs" href="javascript:void(0)" onclick="submitto(\'' + row.id + '\', \'' + row.state + '\')">  提交</a>');
-                        // //             }
-                        // //         }else {
-                        // //             //todo:这个查看只能查看，不能进行任何操作
-                        // //             actions.push('<a  class="btn btn-success btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')"> 查看</a> ');
-                        // //         }
-                        // //     } else if(row.state=='6') {
-                        // //         if (row.userId == row.uid) {
-                        // //             //actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.overTab(\'' + row.id + '\')"> 申请结项</a> ');
-                        // //             actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan' + '\')"> 查看</a> ');
-                        // //         }else {
-                        // //             actions.push('<a  class="btn btn-success btn-xs '  + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')"> 查看</a> ');
-                        // //         }
-                        // //     }else if (row.state=='7'){
-                        // //         actions.push('<a  class="btn btn-success btn-xs ' +  '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id+'/JYSOVER' + '\')"> 核查</a> ');
-                        // //     }
-                        //  }
-                        // else if (row.role==='admin'){
-                        //     actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id +'/chakan'+ '\')"> 查看</a> ');
-                        // }
-                        // else if (row.role==='dept_teacher'){
-                        //     actions.push('<a  class="btn btn-success btn-xs ' + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id +'/chakan'+ '\')"> 查看</a> ');
-                        //     if (row.state == '13'){
-                        //         actions.push('<a  class="btn btn-success btn-xs ' +  '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id+'/dept_teacher' + '\')"> 核查</a> ');
-                        //     }
-                        // }
-                        return actions.join('');
-                    }
-
-                }]
-        };
-        initTable(options2);
-
-        function refreshBootstrapTable2() {
-            var table = $('#bootstrap-table2');
-            if (table.length && $.fn.bootstrapTable) {
-                table.bootstrapTable('refresh');
+            } else if (row.userId == row.uid && ["3", "12", "5"].includes(state)) {
+                actions.push('<a class="link-button" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')">编辑</a>');
+            }
+        } else if (row.role === "teacher") {
+            if (row.userId == row.uid) {
+                if (state === "4") {
+                    actions.push('<a class="link-button" href="javascript:void(0)" onclick="$.operate.overTab(\'' + row.id + '\')">申请结项</a>');
+                } else if (["3", "12", "5"].includes(state)) {
+                    actions.push('<a class="link-button" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')">编辑</a>');
+                }
             }
         }
+    }
 
-        window.addEventListener("storage", function (event) {
-            if (event.key === "year") {
-                // 销毁表格，再初始化
-                $('#bootstrap-table0').bootstrapTable('destroy');
-                initTable(options0)
-                $('#bootstrap-table1').bootstrapTable('destroy');
-                initTable(options1)
-                $('#bootstrap-table2').bootstrapTable('destroy');
-                initTable(options2)
+    function buildClosureActions(row, actions) {
+        var state = normalizeState(row.state);
+
+        if (row.role === "research") {
+            if (isDeptMatched(row)) {
+                if (state === "7") {
+                    actions.push('<a class="link-button" href="javascript:void(0)" onclick="openStagePage(' + row.id + ', \'' + state + '\', \'JYSOVER\', \'详细成果转化\')">批阅</a>');
+                } else if (state === "13") {
+                    actions.push('<a class="del-link-button" href="javascript:void(0)" onclick="openStagePage(' + row.id + ', \'' + state + '\', \'JYSOVER\', \'详细成果转化\')">撤回</a>');
+                }
             }
-
-        })
-    });
+            if (row.userId == row.uid) {
+                if (["9", "10", "14"].includes(state)) {
+                    actions.push('<a class="link-button" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')">编辑</a>');
+                } else if (state === "16") {
+                    actions.push('<a class="link-button" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')">编辑</a>');
+                    actions.push('<a class="link-button" href="javascript:void(0)" onclick="subDraft(\'' + row.id + '\')">提交</a>');
+                }
+            }
+        } else if (row.role === "dept_teacher") {
+            if (isDeptMatched(row)) {
+                if (state === "13") {
+                    actions.push('<a class="link-button" href="javascript:void(0)" onclick="openStagePage(' + row.id + ', \'' + state + '\', \'dept_teacher\', \'详细成果转化\')">批阅</a>');
+                } else if (state === "8") {
+                    actions.push('<a class="del-link-button" href="javascript:void(0)" onclick="openStagePage(' + row.id + ', \'' + state + '\', \'dept_teacher\', \'详细成果转化\')">撤回</a>');
+                } else if (row.userId == row.uid && ["9", "10", "14"].includes(state)) {
+                    actions.push('<a class="link-button" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')">编辑</a>');
+                }
+            }
+        } else if (row.role === "sci_tesearch") {
+            if (state === "8") {
+                actions.push('<a class="link-button" href="javascript:void(0)" onclick="openStagePage(' + row.id + ', \'' + state + '\', \'KYCOVER\', \'详细成果转化\')">批阅</a>');
+            } else if (row.userId == row.uid && ["9", "10", "14"].includes(state)) {
+                actions.push('<a class="link-button" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')">编辑</a>');
+            }
+        } else if (row.role === "teacher") {
+            if (row.userId == row.uid) {
+                if (state === "16") {
+                    actions.push('<a class="link-button" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')">编辑</a>');
+                    actions.push('<a class="link-button" href="javascript:void(0)" onclick="subDraft(\'' + row.id + '\')">提交</a>');
+                } else if (["9", "10", "14"].includes(state)) {
+                    actions.push('<a class="link-button" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')">编辑</a>');
+                }
+            }
+        }
+    }
 
     function arrangeButtons(actions) {
-        let result = '';
-        for (let i = 0; i < actions.length; i++) {
+        var result = '';
+        for (var i = 0; i < actions.length; i++) {
             if (i > 0 && i % 3 === 0) {
-                result += '<br>'; // 每三个按钮后换行
+                result += '<br>';
             }
-            result += actions[i];
+            result += '<span class="action-item">' + actions[i] + '</span>';
         }
         return result;
     }
 
-    function submitto(id, state) {
-        var data = {"id": id, "state": state}
-        $.operate.save(prefix + "/change_sc_edit", data);
+    function getOperationButtons(row) {
+        var actions = [];
+        var stage = getStageKey(row.state);
 
+        if (stage !== "completed") {
+            actions.push('<a class="link-button" data-toggle="modal" data-target="#myModal" onclick="loadReviewRecords(' + row.id + ', \'' + normalizeState(row.state) + '\')">流程记录</a>');
+        }
+
+        actions.push('<a class="link-button" href="javascript:void(0)" onclick="openStagePage(' + row.id + ', \'' + normalizeState(row.state) + '\', \'chakan\', \'查看成果转化\')">查看</a>');
+
+        if (stage === "approval") {
+            buildApprovalActions(row, actions);
+        } else if (stage === "closure") {
+            buildClosureActions(row, actions);
+        }
+
+        return arrangeButtons(actions);
     }
 
     function rowStyle0(row, index) {
-        if (["6", "4"].includes(row.state)) {
-            console.log("row.state is 6", row.state)
-            // 完结 绿色
-            return {
-                css: {"color": '#67c23a'}
-
-            };
-        } else if (["15", "4", "16"].includes(row.state)) {
-            // 草稿 黄色
-            return {
-                css: {"color": '#c78045'}
-
-            };
-        } else if (["1", "2", "11", "7", "8", "13"].includes(row.state)) {
-            // 审核中 蓝色
-            return {
-                css: {"color": '#2c99ff'}
-
-            };
-        } else if (["3", "5", "12", "9", "10", "14"].includes(row.state)) {
-            // 被驳回
-            return {
-                // css: {"color": '#ff0000'}
-                css: {"color": '#c78045'}
-            };
+        var state = normalizeState(row.state);
+        if (["6", "4"].includes(state)) {
+            return {css: {"color": "#67c23a"}};
+        }
+        if (["15", "16"].includes(state)) {
+            return {css: {"color": "#c78045"}};
+        }
+        if (["1", "2", "11", "7", "8", "13"].includes(state)) {
+            return {css: {"color": "#2c99ff"}};
+        }
+        if (["3", "5", "12", "9", "10", "14"].includes(state)) {
+            return {css: {"color": "#c78045"}};
         }
         return {};
     }
 
-    function loadReviewRecords(Id, state) {
-        updateProgress(state); // 更新进度条
-
-        //批阅记录
+    function loadReviewRecords(id, state) {
+        updateProgress(state);
         $.ajax({
-            url: prefix + "/bhyy/" + Id, // 替换为实际的API路径
-            method: 'POST',
-            data: {kid: Id},
+            url: prefix + "/bhyy/" + id,
+            method: "POST",
+            data: {kid: id},
             success: function (response) {
-                const eventList = document.getElementById('event-list');
-                eventList.innerHTML = '';
-
+                var eventList = document.getElementById("event-list");
+                eventList.innerHTML = "";
                 response.rows.forEach(function (row) {
-                    const li = document.createElement('li');
+                    var li = document.createElement("li");
                     li.innerHTML = '<i class="node-icon"></i>' +
                         '<span class="time">' + row.createTime + '</span>' +
                         '<span class="txt">' + row.state + '</span>';
@@ -1511,49 +674,41 @@
                 });
             },
             error: function () {
-                alert('无法获取批阅记录');
+                alert("无法获取批阅记录");
             }
         });
     }
 
-    //显示模态框上面的进度
     function updateProgress(state) {
-        // 获取所有步骤元素
-        const steps = document.querySelectorAll('.progress_inner__step');
-        const progressBar = document.querySelector('.progress_inner__bar--progress');
-
-        // 遍历所有步骤，重置样式
-        steps.forEach(step => {
-            step.classList.remove('active', 'completed', 'pending');
-            step.querySelector('.status-text').classList.remove('active', 'completed');
+        var normalizedState = normalizeState(state);
+        var steps = document.querySelectorAll(".progress_inner__step");
+        var progressBar = document.querySelector(".progress_inner__bar--progress");
+        steps.forEach(function (step) {
+            step.classList.remove("active", "completed", "pending");
+            step.querySelector(".status-text").classList.remove("active", "completed");
         });
-        // 重置进度条
-        progressBar.style.width = '0';
+        progressBar.style.width = "0";
 
-        // 根据 state 设置相应的步骤颜色
-        if ([15, 9].includes(state)) {
-            document.getElementById('step-1').classList.add('active');
-            document.getElementById('step-1').querySelector('.status-text').classList.add('active');
-            progressBar.style.width = '0';
-        } else if (state === 6 || state === 4) {
-            document.getElementById('step-1').classList.add('completed');
-            document.getElementById('step-1').querySelector('.status-text').classList.add('completed');
-            document.getElementById('step-2').classList.add('completed');
-            document.getElementById('step-2').querySelector('.status-text').classList.add('completed');
-            document.getElementById('step-3').classList.add('completed');
-            document.getElementById('step-3').querySelector('.status-text').classList.add('completed');
-            progressBar.style.width = '100%';
-        } else if ([1, 2, 7, 8, 11, 13].includes(state)) {
-            document.getElementById('step-1').classList.add('completed');
-            document.getElementById('step-1').querySelector('.status-text').classList.add('completed');
-            document.getElementById('step-2').classList.add('completed');
-            document.getElementById('step-2').querySelector('.status-text').classList.add('completed');
-            progressBar.style.width = '50%';
+        if (["15", "9", "16"].includes(normalizedState)) {
+            document.getElementById("step-1").classList.add("active");
+            document.getElementById("step-1").querySelector(".status-text").classList.add("active");
+        } else if (["6", "4"].includes(normalizedState)) {
+            document.getElementById("step-1").classList.add("completed");
+            document.getElementById("step-1").querySelector(".status-text").classList.add("completed");
+            document.getElementById("step-2").classList.add("completed");
+            document.getElementById("step-2").querySelector(".status-text").classList.add("completed");
+            document.getElementById("step-3").classList.add("completed");
+            document.getElementById("step-3").querySelector(".status-text").classList.add("completed");
+            progressBar.style.width = "100%";
+        } else if (["1", "2", "7", "8", "11", "13"].includes(normalizedState)) {
+            document.getElementById("step-1").classList.add("completed");
+            document.getElementById("step-1").querySelector(".status-text").classList.add("completed");
+            document.getElementById("step-2").classList.add("completed");
+            document.getElementById("step-2").querySelector(".status-text").classList.add("completed");
+            progressBar.style.width = "50%";
         } else {
-            // 默认情况下，所有步骤为灰色
-            steps.forEach(step => {
-                step.classList.add('pending');
-                step.querySelector('.status-text').classList.add('pending');
+            steps.forEach(function (step) {
+                step.classList.add("pending");
             });
         }
     }
@@ -1565,32 +720,232 @@
         });
     }
 
-    /**
-     * @param amount
-     * @param key 0代表开题，1代表结题
-     * @param responsibilityTier 1，2，3，4代表第几负责人,0代表不是负责人
-     */
-    function getscore_evidence(id, responsibilityTier) {
-        if (responsibilityTier === 0) {
-            resolve("未参与");
-        } else {
-            $.ajax({
-                type: "POST",
-                url: prefix + "/getscore_byId",
-                contentType: "application/json",
-                data: JSON.stringify({'id': id}),
-                async: true,
-                error: function (request) {
-                    reject("系统错误");
-                },
-                success: function (data) {
-                    resolve(data.score);
-                }
-            });
+    var batchDownloadInProgress = false;
+
+    function parseDownloadFileName(contentDisposition) {
+        if (!contentDisposition) {
+            return "";
         }
+
+        var utf8Match = contentDisposition.match(/filename\*=UTF-8''([^;]+)/i);
+        if (utf8Match && utf8Match[1]) {
+            return decodeURIComponent(utf8Match[1]).replace(/["]/g, "");
+        }
+
+        var fileNameMatch = contentDisposition.match(/filename="?([^";]+)"?/i);
+        return fileNameMatch && fileNameMatch[1] ? decodeURIComponent(fileNameMatch[1]) : "";
     }
 
+    function readBlobAsText(blob, callback) {
+        if (!blob) {
+            callback("");
+            return;
+        }
 
+        var reader = new FileReader();
+        reader.onload = function () {
+            callback(reader.result || "");
+        };
+        reader.onerror = function () {
+            callback("");
+        };
+        reader.readAsText(blob, "utf-8");
+    }
+
+    function extractDownloadErrorMessage(text) {
+        if (!text) {
+            return "批量下载失败，请稍后重试";
+        }
+
+        try {
+            var result = JSON.parse(text);
+            if (result && result.msg) {
+                return result.msg;
+            }
+        } catch (e) {
+        }
+
+        return text.replace(/<[^>]+>/g, "").trim() || "批量下载失败，请稍后重试";
+    }
+
+    function triggerBlobDownload(blob, fileName) {
+        var resolvedFileName = fileName || "成果转化_批量下载.zip";
+        if (window.navigator.msSaveOrOpenBlob) {
+            window.navigator.msSaveOrOpenBlob(blob, resolvedFileName);
+            return;
+        }
+
+        var downloadUrl = window.URL.createObjectURL(blob);
+        var link = document.createElement("a");
+        link.style.display = "none";
+        link.href = downloadUrl;
+        link.download = resolvedFileName;
+        document.body.appendChild(link);
+        link.click();
+        setTimeout(function () {
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(downloadUrl);
+        }, 100);
+    }
+
+    function finishBatchDownload() {
+        batchDownloadInProgress = false;
+        $.modal.closeLoading();
+    }
+
+    function batchDownload(module) {
+        var ids = $.table.selectColumns("id", false);
+        if (!ids || ids.length === 0) {
+            $.modal.alertWarning("未选择数据");
+            return;
+        }
+        if (batchDownloadInProgress) {
+            $.modal.alertWarning("批量下载正在处理中，请稍候...");
+            return;
+        }
+
+        batchDownloadInProgress = true;
+        $.modal.loading("正在打包下载，请稍候...");
+
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", ctx + "common/batchDownload?ids=" + encodeURIComponent(ids.join(",")) + "&module=" + encodeURIComponent(module), true);
+        xhr.responseType = "blob";
+        xhr.timeout = 10 * 60 * 1000;
+
+        xhr.onload = function () {
+            var blob = xhr.response;
+            var contentDisposition = xhr.getResponseHeader("Content-Disposition") || "";
+            var contentType = xhr.getResponseHeader("Content-Type") || "";
+            var isDownloadResponse = contentDisposition.indexOf("attachment") !== -1
+                || contentType.indexOf("application/zip") !== -1
+                || contentType.indexOf("application/octet-stream") !== -1;
+
+            if (xhr.status >= 200 && xhr.status < 300 && isDownloadResponse) {
+                triggerBlobDownload(blob, parseDownloadFileName(contentDisposition));
+                finishBatchDownload();
+                return;
+            }
+
+            readBlobAsText(blob, function (text) {
+                $.modal.alertError(extractDownloadErrorMessage(text));
+                finishBatchDownload();
+            });
+        };
+
+        xhr.onerror = function () {
+            $.modal.alertError("批量下载失败，请检查网络或稍后重试");
+            finishBatchDownload();
+        };
+
+        xhr.ontimeout = function () {
+            $.modal.alertError("批量下载超时，请稍后重试");
+            finishBatchDownload();
+        };
+
+        xhr.send();
+    }
+
+    $(function () {
+        function initTable() {
+            var options = {
+                id: "bootstrap-table",
+                toolbar: "toolbar",
+                formId: "formId",
+                url: getUrl(),
+                createUrl: prefix + "/add",
+                overUrl: prefix + "/overadd?id={id}",
+                updateUrl: prefix + "/edit/{id}",
+                removeUrl: prefix + "/remove",
+                exportUrl: prefix + "/export",
+                subDraftUrl: prefix + "/subDraft/",
+                rowStyle: rowStyle0,
+                modalName: "成果转化",
+                sortOrder: "desc",
+                columns: [{
+                    checkbox: true,
+                    align: "center"
+                }, {
+                    field: "number",
+                    title: "序号",
+                    width: 5,
+                    align: "center",
+                    switchable: false,
+                    formatter: function (value, row, index) {
+                        return $.table.serialNumber(index);
+                    }
+                }, {
+                    field: "id",
+                    title: "id",
+                    visible: false
+                }, {
+                    title: "流程阶段",
+                    align: "center",
+                    formatter: function (value, row) {
+                        return getStageLabel(row.state);
+                    }
+                }, {
+                    field: "state",
+                    title: "当前状态",
+                    align: "center",
+                    formatter: function (value) {
+                        return getStateLabel(value);
+                    }
+                }, {
+                    field: "yname",
+                    align: "center",
+                    title: "学院"
+                }, {
+                    field: "dname",
+                    align: "center",
+                    title: "专业"
+                }, {
+                    field: "userName",
+                    align: "center",
+                    title: "申请人"
+                }, {
+                    field: "topName",
+                    align: "center",
+                    title: "课题名称"
+                }, {
+                    field: "signingData",
+                    align: "center",
+                    title: "签订日期"
+                }, {
+                    field: "amount",
+                    align: "center",
+                    title: "项目金额"
+                }, {
+                    title: "个人排名",
+                    align: "center",
+                    formatter: function (value, row) {
+                        return getResponsibilityTier(row);
+                    }
+                }, {
+                    title: "积分",
+                    align: "center",
+                    formatter: function (value, row) {
+                        return getScore(row);
+                    }
+                }, {
+                    title: "操作",
+                    align: "center",
+                    formatter: function (value, row) {
+                        return getOperationButtons(row);
+                    }
+                }]
+            };
+            $.table.init(options);
+        }
+
+        initTable();
+
+        window.addEventListener("storage", function (event) {
+            if (event.key === "year") {
+                $("#bootstrap-table").bootstrapTable("destroy");
+                initTable();
+            }
+        });
+    });
 </script>
 </body>
 </html>

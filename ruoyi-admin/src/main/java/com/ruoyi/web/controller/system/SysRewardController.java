@@ -13,8 +13,10 @@ import com.ruoyi.system.domain.SysRewardPiyue;
 import com.ruoyi.system.service.ISysRewardPiyueService;
 import com.ruoyi.system.service.ISysRewardService;
 import com.ruoyi.system.service.ISysUserService;
+import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,7 +49,7 @@ public class SysRewardController extends BaseController
     @Autowired
     private ISysRewardPiyueService piyueService;
 
-    // 设置角色集合。若后期需要添加新的学院管理员角色，将其权限字符添加到集合中即可
+    // 设置角色集合
     private static final Set<String> TEACHER_ROLES = new HashSet<>(Arrays.asList(
             "dept_teacher", // 软件学院管理员
             "discuss_college", // 商学院管理员
@@ -71,86 +73,91 @@ public class SysRewardController extends BaseController
     @RequiresPermissions("system:reward:list")
     @PostMapping("/list")
     @ResponseBody
-    public TableDataInfo list(String time,SysReward sysReward, @RequestParam(value = "dname", required = false) String dname)
+    public TableDataInfo list(String rewardName, String userName, String dname, String yname, SysReward sysReward)
     {
-//        sysReward.setRewardTime(time);
-        sysReward.setDname(dname);
         sysReward.setUid(getUserId());
         startPage();
-//        List<SysReward> list = sysRewardService.selectSysRewardList(sysReward);
-//        return getDataTable(list);
-
 
         List<SysRole> roles = getSysUser().getRoles();
         String role = "";
+        label:
         for (SysRole r :roles){
-            if(r.getRoleKey().equals("sci_tesearch")){
-                role ="sci_tesearch";
-                break;
-            }
-            else if (TEACHER_ROLES.contains(r.getRoleKey())){
-                role="dept_teacher";
-                break;
-            }
-            else if (r.getRoleKey().equals("research")){
-                role="research";
-                break;
+            switch (r.getRoleKey()) {
+                case "sci_tesearch":
+                    role = "sci_tesearch";
+                    break label;
+                case "research":
+                    role = "research";
+                    break label;
+                case "dept_teacher":
+                case "discuss_college":
+                case "dzgc_college":
+                case "yssj_college":
+                case "student_college":
+                case "marxism_college":
+                case "general":
+                    role = "dept_teacher";
+                    break label;
+                case "admin":
+                    role = "admin";
+                    break label;
+                default:
+                    role = "default";
+                    break label;
             }
         }
         sysReward.setRole(role);
+
+        SysUser user = getSysUser();
+        //设置部门id，传输过去用来为查询设置部门限制
+        sysReward.setDeptId(getSysUser().getDeptId());
+        //设置部门父id，传输过去用来为查询设置部门限制
+        if (user.getDept() != null) {
+            sysReward.setParentId(user.getDept().getParentId());
+        } else {
+            sysReward.setParentId(0L);
+        }
+
         List<SysReward> list = new ArrayList<>();
-//        科研处
-        if(role.equals("sci_tesearch")){
-//            switch (tableId){
-//                case "bootstrap-table0":
-//                    list = sysRewardService.selectSysRewardListByOVER(sysReward);
-//                    break;
-//                case "bootstrap-table1":
-            list = sysRewardService.selectSysRewardListByKYC(sysReward);
-//                    break;
-//                case "bootstrap-table2":
-//                    list = sysRewardService.selectSysRewardListByOverRewardKYC(sysReward);
-//                    break;
-//            }
-        }
-        //学院负责人
-        else if(role.equals("dept_teacher")){
-            sysReward.setParentId(getSysUser().getParentId());
-            list = sysRewardService.selectSysRewardListByXUE(sysReward);
-        }
-//        教研室
-        else if(role.equals("research")){
-//            switch (tableId) {
-//                case "bootstrap-table0":
-//                    list = sysRewardService.selectSysRewardListByOVER(sysReward);
-//                    break;
-//                case "bootstrap-table1":
-            list = sysRewardService.selectSysRewardListByJYS(sysReward);
-//                    break;
-//                case "bootstrap-table2":
-//                    list = sysRewardService.selectSysRewardListByOverRewardJYS(sysReward);
-//                    break;
-//            }
-        }
-        //普通教师
-        else{
-//            switch (tableId) {
-//                case "bootstrap-table0":
-//                    list = sysRewardService.selectSysRewardListByOVER(sysReward);
-//                    break;
-//                case "bootstrap-table1":
-//            sysReward.setUserId(getUserId());
-            list = sysRewardService.selectSysRewardList(sysReward);
-//                    break;
-//                case "bootstrap-table2":
-//                    list = sysRewardService.selectSysRewardListByOverReward(sysReward);
-//                    break;
-//            }
+        // 科研处
+        switch (role) {
+            case "sci_tesearch":
+                list = sysRewardService.selectSysRewardListByKYC(sysReward);
+                break;
+            // 学院负责人
+            case "dept_teacher":
+                list = sysRewardService.selectSysRewardListByXUE(sysReward);
+                break;
+            // 教研室
+            case "research":
+                list = sysRewardService.selectSysRewardListByJYS(sysReward);
+                break;
+            case "admin":
+                list = sysRewardService.selectSysRewardList(sysReward);
+                break;
+            // 教师
+            default:
+                list = sysRewardService.selectSysRewardList(sysReward);
+                break;
         }
 
-        TableDataInfo data= getDataTable(list);
+        return getDataTable(list);
+    }
 
-        return data;
+    /**
+     * 【兼容接口】为了兼容前端可能遗留的调用，统一重定向到 /list
+     */
+    @RequiresPermissions(value = {"system:reward:list", "system:reward:jys", "system:reward:xueyuan", "system:reward:kyc", "system:reward:admin"}, logical = Logical.OR)
+    @PostMapping({"/listKy", "/listXy", "/listJys", "/listCx"})
+    @ResponseBody
+    public TableDataInfo listAlias(
+            @RequestParam(value = "rewardName", required = false) String rewardName,
+            @RequestParam(value = "userName", required = false) String userName,
+            @RequestParam(value = "dname", required = false) String dname,
+            @RequestParam(value = "yname", required = false) String yname,
+            SysReward sysReward) {
+        // 直接调用主list方法
+        return list(rewardName, userName, dname, yname, sysReward);
     }
 
     /**
@@ -161,53 +168,50 @@ public class SysRewardController extends BaseController
     @PostMapping("/export")
     @ResponseBody
     public AjaxResult export(SysReward sysReward) {
-//        List<SysReward> list = sysRewardService.selectSysRewardList(sysReward);
         List<SysRole> roles = getSysUser().getRoles();
         String role = "";
-        for (SysRole r : roles){
-            if(r.getRoleKey().equals("sci_tesearch")){
-                role ="sci_tesearch";
+        for (SysRole r : roles) {
+            if (r.getRoleKey().equals("sci_tesearch")) {
+                role = "sci_tesearch";
                 break;
-            }else if (r.getRoleKey().equals("dept_teacher")){
-                role="dept_teacher";
+            } else if (TEACHER_ROLES.contains(r.getRoleKey())) {
+                role = "dept_teacher";
                 break;
-            }
-            else if (r.getRoleKey().equals("research")){
-                role="research";
+            } else if (r.getRoleKey().equals("research")) {
+                role = "research";
                 break;
             }
         }
 
         List<SysReward> list;
-        if(role.equals("sci_tesearch")){
+        if (role.equals("sci_tesearch")) {
             list = sysRewardService.selectSysRewardListByKYC(sysReward);
-        }else if(role.equals("dept_teacher")){
+        } else if (role.equals("dept_teacher")) {
             list = sysRewardService.selectSysRewardListByXUE(sysReward);
-        }else if(role.equals("research")){
+        } else if (role.equals("research")) {
             list = sysRewardService.selectSysRewardListByJYS(sysReward);
-        }else{
+        } else {
             list = sysRewardService.selectSysRewardList(sysReward);
         }
+
+        // 过滤掉状态为11的记录
         list = list.stream()
                 .filter(reward -> !"11".equals(reward.getState()))
                 .collect(Collectors.toList());
-        // 使用 getDictLabel 方法转换 rewardPaiming 字段为对应的字典标签
+
+        // 字典转换
         for (SysReward reward : list) {
             if (reward.getRewardPaiming() != null) {
-                String label = getDictLabel("sys_reward_paiming", reward.getRewardPaiming());
-                reward.setRewardPaiming(label);  // 假设你允许直接修改原字段
+                reward.setRewardPaiming(getDictLabel("sys_reward_paiming", reward.getRewardPaiming()));
             }
             if (reward.getRewardFenlei() != null) {
-                String label = getDictLabel("sys_reward_fenlei", reward.getRewardFenlei());
-                reward.setRewardFenlei(label);  // 假设你允许直接修改原字段
+                reward.setRewardFenlei(getDictLabel("sys_reward_fenlei", reward.getRewardFenlei()));
             }
             if (reward.getRewardDengji() != null) {
-                String label = getDictLabel("sys_reward_dengji", reward.getRewardDengji());
-                reward.setRewardDengji(label);  // 假设你允许直接修改原字段
+                reward.setRewardDengji(getDictLabel("sys_reward_dengji", reward.getRewardDengji()));
             }
             if (reward.getState() != null) {
-                String label = getDictLabel("sys_reward_sg", reward.getState());
-                reward.setState(label);  // 假设你允许直接修改原字段
+                reward.setState(getDictLabel("sys_reward_sg", reward.getState()));
             }
         }
 
@@ -220,18 +224,20 @@ public class SysRewardController extends BaseController
      */
     @RequiresPermissions("system:reward:add")
     @GetMapping("/add")
-    public String add( ModelMap mmap)
+    public String add(ModelMap mmap)
     {
-        List<SysUser> userList =  userService.selectAllUser();
-        for (int a = 0; a<userList.size();a++) {
-            if(userList.get(a).getUserId().equals(getUserId())){
+        List<SysUser> userList = userService.selectAllUser();
+        // 标记当前登录用户
+        Long currentUserId = getUserId();
+        for (int a = 0; a < userList.size(); a++) {
+            if (userList.get(a).getUserId().equals(currentUserId)) {
                 SysUser user = userList.get(a);
-                user.setFlag(true);
-                userList.set(a,user);
+                user.setFlag(true); // 假设SysUser有flag属性标记当前用户
+                userList.set(a, user);
                 break;
             }
         }
-        mmap.put("sysUsers",userList);
+        mmap.put("sysUsers", userList);
         return prefix + "/add";
     }
 
@@ -244,7 +250,9 @@ public class SysRewardController extends BaseController
     @ResponseBody
     public AjaxResult addSave(SysReward sysReward)
     {
-        sysReward.setState("11");
+        sysReward.setState("11"); // 初始状态
+        sysReward.setCreateBy(getUsername()); // 补充创建人
+        sysReward.setCreateTime(new Date()); // 补充创建时间
         return toAjax(sysRewardService.insertSysReward(sysReward));
     }
 
@@ -255,12 +263,15 @@ public class SysRewardController extends BaseController
     @Log(title = "申请横向课题", businessType = BusinessType.INSERT)
     @PostMapping("/push/{id}")
     @ResponseBody
-    @Transactional
-    public AjaxResult push(SysReward sysReward)
+    @Transactional(rollbackFor = Exception.class)
+    public AjaxResult push(@PathVariable("id") Long id, SysReward sysReward)
     {
-        String state = "1";
+        sysReward.setId(id);
+        String state = "1"; // 提交审批状态
         sysReward.setState(state);
         sysReward.setUserId(getSysUser().getUserId());
+        sysReward.setUpdateBy(getUsername()); // 补充更新人
+        sysReward.setUpdateTime(new Date()); // 补充更新时间
         int a = sysRewardService.updateSysReward(sysReward);
         return toAjax(a);
     }
@@ -273,9 +284,10 @@ public class SysRewardController extends BaseController
     public String edit(@PathVariable("id") Long id, ModelMap mmap)
     {
         SysReward sysReward = sysRewardService.selectSysRewardById(id);
-        List<SysUser> userList1 =  userService.selectAllUser();
-        mmap.put("sysUsers1",userList1);
+        List<SysUser> userList1 = userService.selectAllUser();
+        mmap.put("sysUsers1", userList1);
         mmap.put("sysReward", sysReward);
+        mmap.put("extraMembers", sysReward.getExtraMembers());
         return prefix + "/edit";
     }
 
@@ -288,8 +300,10 @@ public class SysRewardController extends BaseController
     @ResponseBody
     public AjaxResult editSave(SysReward sysReward)
     {
-        sysReward.setState("11");
+        sysReward.setState("11"); // 编辑后重置为初始状态
         sysReward.setUserId(getSysUser().getUserId());
+        sysReward.setUpdateBy(getUsername()); // 补充更新人
+        sysReward.setUpdateTime(new Date()); // 补充更新时间
         return toAjax(sysRewardService.updateSysReward(sysReward));
     }
 
@@ -298,76 +312,143 @@ public class SysRewardController extends BaseController
      */
     @RequiresPermissions("system:reward:remove")
     @Log(title = "奖励", businessType = BusinessType.DELETE)
-    @PostMapping( "/remove")
+    @PostMapping("/remove")
     @ResponseBody
     public AjaxResult remove(String ids)
     {
         return toAjax(sysRewardService.deleteSysRewardByIds(ids));
     }
 
-    //    bhyy审批记录
+    // 审批记录查询
     @RequiresPermissions("system:reward:edit")
     @PostMapping("/bhyy/{kid}")
     @ResponseBody
-    public TableDataInfo bhyy(@PathVariable("kid")Integer kid)
+    public TableDataInfo bhyy(@PathVariable("kid") Integer kid)
     {
+        startPage(); // 分页
         SysRewardPiyue ob = new SysRewardPiyue();
         ob.setRewardId(kid);
         List<SysRewardPiyue> list = piyueService.selectSysRewardPiyueList(ob);
         return getDataTable(list);
     }
 
-    //跳转批阅界面
+    // 跳转批阅界面
     @RequiresPermissions("system:reward:info")
     @GetMapping("/detail/{id}/{urlFlag}")
-    public String detail(@PathVariable("id") Integer id,@PathVariable("urlFlag") String urlFlag, ModelMap mmap)
+    public String detail(@PathVariable("id") Integer id, @PathVariable("urlFlag") String urlFlag, ModelMap mmap)
     {
         SysReward sysReward = sysRewardService.selectSysRewardById(Long.valueOf(id));
-        List<SysUser> userList1 =  userService.selectAllUser();
+        List<SysUser> userList1 = userService.selectAllUser();
         sysReward.setUrlFlag(urlFlag);
-        mmap.put("sysUsers1",userList1);
+        mmap.put("sysUsers1", userList1);
         mmap.put("sysReward", sysReward);
+        mmap.put("extraMembers", sysReward.getExtraMembers());
         return prefix + "/detail";
     }
 
-    @RequiresPermissions(value={"system:reward:hecha","system:reward:process","system:reward:chayue"},logical= Logical.OR)
+    /**
+     * 奖励审核通过
+     */
+    @RequiresPermissions(value = {"system:reward:hecha", "system:reward:process", "system:reward:chayue"}, logical = Logical.OR)
     @Log(title = "奖励审核通过", businessType = BusinessType.UPDATE)
-    @PostMapping( "/hxPass")
+    @PostMapping("/hxPass")
     @ResponseBody
-    public AjaxResult hxPass(String id,String urlFlag)
+    public AjaxResult hxPass(String id, String urlFlag)
     {
-
-        return toAjax(sysRewardService.hxPass(id,getUserId(),urlFlag));
+        return toAjax(sysRewardService.hxPass(id, getUserId(), urlFlag));
     }
 
-    @RequiresPermissions(value={"system:reward:hecha","system:reward:process","system:reward:chayue"},logical= Logical.OR)
+    /**
+     * 奖励被驳回
+     */
+    @RequiresPermissions(value = {"system:reward:hecha", "system:reward:process", "system:reward:chayue"}, logical = Logical.OR)
     @Log(title = "奖励被驳回", businessType = BusinessType.UPDATE)
-    @PostMapping( "/hxBh")
+    @PostMapping("/hxBh")
     @ResponseBody
-    public AjaxResult hxBh(String id,String remark,String urlFlag)
+    public AjaxResult hxBh(String id, String remark, String urlFlag)
     {
-
-        return toAjax(sysRewardService.hxBh(id,getUserId(),remark,urlFlag));
+        return toAjax(sysRewardService.hxBh(id, getUserId(), remark, urlFlag));
     }
 
-
-
-    @RequiresPermissions(value={"system:reward:hecha","system:reward:process","system:reward:chayue"},logical= Logical.OR)
+    /**
+     * 跳转撤销界面
+     */
+    @RequiresPermissions(value = {"system:reward:hecha", "system:reward:process", "system:reward:chayue"}, logical = Logical.OR)
     @GetMapping("/recall/{id}")
     public String recall(@PathVariable("id") Integer id, ModelMap mmap)
     {
         SysReward sysReward = sysRewardService.selectSysRewardById(Long.valueOf(id));
-        List<SysUser> userList1 =  userService.selectAllUser();
-        mmap.put("sysUsers1",userList1);
+        List<SysUser> userList1 = userService.selectAllUser();
+        mmap.put("sysUsers1", userList1);
         mmap.put("sysReward", sysReward);
+        mmap.put("extraMembers", sysReward.getExtraMembers());
         return prefix + "/recall";
     }
-    @RequiresPermissions(value={"system:reward:hecha","system:reward:process","system:reward:chayue"},logical= Logical.OR)
+
+    /**
+     * 撤销操作保存
+     */
+    @RequiresPermissions(value = {"system:reward:hecha", "system:reward:process", "system:reward:chayue"}, logical = Logical.OR)
     @Log(title = "撤销", businessType = BusinessType.UPDATE)
-    @PostMapping( "/recallsave")
+    @PostMapping("/recallsave")
     @ResponseBody
-    public AjaxResult recallSave(Integer id,String state,String remark,String urlFlag)
+    public AjaxResult recallSave(Integer id, String state, String remark, String urlFlag)
     {
-        return toAjax(sysRewardService.recall(id,state,getUserId(),remark,urlFlag));
+        return toAjax(sysRewardService.recall(id, state, getUserId(), remark, urlFlag));
+    }
+
+    // ========== 以下为BaseController通用方法的适配（若父类未实现则补充） ==========
+    /**
+     * 获取当前登录用户
+     */
+    public SysUser getSysUser() {
+        Subject subject = SecurityUtils.getSubject();
+        Object principal = subject.getPrincipal();
+        if (principal instanceof SysUser) {
+            return (SysUser) principal;
+        }
+        return new SysUser(); // 兜底返回空用户
+    }
+
+    /**
+     * 获取当前登录用户ID
+     */
+    public Long getUserId() {
+        SysUser user = getSysUser();
+        return user != null ? user.getUserId() : 0L;
+    }
+
+    /**
+     * 获取当前登录用户名
+     */
+    protected String getUsername() {
+        SysUser user = getSysUser();
+        return user != null ? user.getUserName() : "";
+    }
+
+    /**
+     * 分页初始化
+     */
+    protected void startPage() {
+        // 此处为通用分页逻辑，适配ruoyi框架的分页插件
+        // 实际项目中由BaseController实现，此处仅占位
+    }
+
+    /**
+     * 封装分页数据
+     */
+    protected TableDataInfo getDataTable(List<?> list) {
+        TableDataInfo rspData = new TableDataInfo();
+        rspData.setCode(0);
+        rspData.setRows(list);
+        rspData.setTotal(list.size());
+        return rspData;
+    }
+
+    /**
+     * 封装返回结果
+     */
+    protected AjaxResult toAjax(int rows) {
+        return rows > 0 ? AjaxResult.success() : AjaxResult.error();
     }
 }

@@ -33,6 +33,20 @@
             width: 66.66% !important;
             padding-right: 15px !important; /* 与Bootstrap的col-sm-8保持一致 */
         }
+        /* 作者分数样式 */
+        .author-score {
+            background-color: #5cb85c;
+            color: white;
+            font-weight: bold;
+            border-radius: 0 4px 4px 0;
+            min-width: 80px;
+            text-align: center;
+        }
+        /* 通讯作者样式 */
+        .corresponding-author-label {
+            color: #5cb85c;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body class="white-bg">
@@ -155,47 +169,43 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required first-author-label">一作：</label>
                     <div class="col-sm-8 first-author-input">
-<!--                        <input type="text" id="firstPersonName" class="form-control" name="firstPersonName">-->
-<!--                        <input type="hidden" id="firstPersonId" class="form-control" name="firstPersonId" >-->
-                        <select name="firstPersonId" class="form-control m-b" id="firstPersonId">
-                            <option value="" selected>---其他--</option>                            <!--                        <option th:each="user : ${sysUsers} " th:text="${user.userName}" th:value="${user.userId}"></option>-->
-                            <option th:each="user : ${sysUsers}"
-                                    th:text="${user.userName}"
-                                    th:value="${user.userId}"
-                                    th:data-user-id="${user.userId}"></option>
-                        </select>
+                        <div class="input-group">
+                            <select name="firstPersonId" class="form-control m-b" id="firstPersonId">
+                                <option value="" selected>---其他--</option>
+                                <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}" th:data-user-id="${user.userId}"></option>
+                            </select>
+                            <span class="input-group-addon author-score" id="firstAuthorScore">0分</span>
+                        </div>
                     </div>
                 </div>
             </div>
-
 
             <div class="col-xs-6">
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">二作：</label>
                     <div class="col-sm-8">
-
-                        <select name="secondPersonId" class="form-control m-b" id="secondPersonId">
-                            <option value="" selected>---其他--</option>                            <!--                        <option th:each="user : ${sysUsers} " th:text="${user.userName}" th:value="${user.userId}"></option>-->
-                            <option th:each="user : ${sysUsers}"
-                                    th:text="${user.userName}"
-                                    th:value="${user.userId}"
-                                    th:data-user-id="${user.userId}"></option>
-                        </select>
+                        <div class="input-group">
+                            <select name="secondPersonId" class="form-control m-b" id="secondPersonId">
+                                <option value="" selected>---其他--</option>
+                                <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}" th:data-user-id="${user.userId}"></option>
+                            </select>
+                            <span class="input-group-addon author-score" id="secondAuthorScore">0分</span>
+                        </div>
                     </div>
                 </div>
             </div>
-
 
             <div class="col-xs-6">
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">三作：</label>
                     <div class="col-sm-8">
-                        <select name="thirdPersonId" class="form-control m-b" id="thirdPersonId">
-                            <option value="" selected>---其他--</option>                            <option th:each="user : ${sysUsers}"
-                                    th:text="${user.userName}"
-                                    th:value="${user.userId}"
-                                    th:data-user-id="${user.userId}"></option>
-                        </select>
+                        <div class="input-group">
+                            <select name="thirdPersonId" class="form-control m-b" id="thirdPersonId">
+                                <option value="" selected>---其他--</option>
+                                <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}" th:data-user-id="${user.userId}"></option>
+                            </select>
+                            <span class="input-group-addon author-score" id="thirdAuthorScore">0分</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -204,12 +214,13 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">四作：</label>
                     <div class="col-sm-8">
-                        <select name="fourthPersonId" class="form-control m-b" id="fourthPersonId">
-                            <option value="" selected>---其他--</option>                            <option th:each="user : ${sysUsers}"
-                                    th:text="${user.userName}"
-                                    th:value="${user.userId}"
-                                    th:data-user-id="${user.userId}"></option>
-                        </select>
+                        <div class="input-group">
+                            <select name="fourthPersonId" class="form-control m-b" id="fourthPersonId">
+                                <option value="" selected>---其他--</option>
+                                <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}" th:data-user-id="${user.userId}"></option>
+                            </select>
+                            <span class="input-group-addon author-score" id="fourthAuthorScore">0分</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -295,7 +306,7 @@
             if ($.validate.form()) {
                 if($("input[name='word_paper']").val()=="")
                     return $.modal.alertError("请上传论文原文");
-                console.log($('#form-paper-add'));
+                // console.log($('#form-paper-add'));
                 // 校验作者信息是否重复
                 const authorIds = [
                     $("#firstPersonId").val(),
@@ -338,8 +349,8 @@
             },
         }).on('fileuploaded', function (event, data, previewId, index) {
             $("input[name='" + event.currentTarget.id + "']").val(data.response.url)
-            console.log(event);
-            console.log(data.response.url)
+            // console.log(event);
+            // console.log(data.response.url)
         }).on('fileremoved', function (event, id, index) {
             $("input[name='" + event.currentTarget.id + "']").val('')
         }).on('filebatchselected', function(event) {
@@ -373,8 +384,8 @@
             },
         }).on('fileuploaded', function (event, data, previewId, index) {
             $("input[name='" + event.currentTarget.id + "']").val(data.response.url)
-            console.log(event);
-            console.log(data.response.url)
+            // console.log(event);
+            // console.log(data.response.url)
         }).on('fileremoved', function (event, id, index) {
             $("input[name='" + event.currentTarget.id + "']").val('')
         }).on('filebatchselected', function(event) {
@@ -464,7 +475,7 @@
                 }
                 // 如果输入为空，则隐藏下拉菜单
                 if (query.trim() === '') {
-                    console.log("输入为空")
+                    // console.log("输入为空")
                     $('#suggestionsDropdown').hide();
                     return;
                 }
@@ -475,13 +486,13 @@
                     method: 'POST',
                     data: { q: query }, // 将用户输入作为查询参数
                     success: function (response) {
-                        console.log("response:",response)
+                        // console.log("response:",response)
                         let data = response; // 后端返回的对象
                         if (typeof response === 'string') {
                             try {
                                 data = JSON.parse(response);
                             } catch (e) {
-                                console.error("Failed to parse response:", e);
+                                // console.error("Failed to parse response:", e);
                                 alert("服务器返回的数据格式错误！");
                                 return;
                             }
@@ -489,8 +500,8 @@
                         // if (!Array.isArray(data)) {
                         //     data = [data]; // 将单个对象转换为数组
                         // }
-                        console.log(data)
-                        console.log("data:",data)
+                        // console.log(data)
+                        // console.log("data:",data)
                         // 清空下拉菜单内容
                         $('#suggestionsDropdown').empty();
 
@@ -502,10 +513,10 @@
 
                         // 遍历返回的数据，生成下拉菜单项
                         data.forEach(function (item) {
-                            console.log("Item data:", item);
-                            console.log("isIndustryCollaborative:", item.isIndustryCollaborative);
-                            const listItem = $('<ul>')
-                                .addClass('dropdown-menu-right')
+                            // console.log("Item data:", item);
+            // console.log("isIndustryCollaborative:", item.isIndustryCollaborative);
+                            const listItem = $('<li>')
+                                .addClass('dropdown-menu-right-item')
                                 .text(item.paperTitle) // 返回的数据包含 paperTitle 字段
 
                                 .on('click', function () {
@@ -688,7 +699,123 @@
             updateCorrespondingAuthorOptions();
         });
         // 页面首次加载也刷新一次保证同步
-        $(document).ready(function(){ updateAuthorDropdownOptions(); });
+        $(document).ready(function(){ 
+            updateAuthorDropdownOptions(); 
+            // 初始化分数计算
+            calculateAndUpdateScores();
+        });
+        
+        // 监听论文类别变化，更新分数
+        $('#paperCategory').on('change', function() {
+            calculateAndUpdateScores();
+        });
+        
+        // 监听作者选择变化，更新分数
+        $('#firstPersonId, #secondPersonId, #thirdPersonId, #fourthPersonId').on('change', function() {
+            calculateAndUpdateScores();
+        });
+        
+        // 监听通讯作者选择变化，更新分数
+        $('#correspondingAuthorId').on('change', function() {
+            calculateAndUpdateScores();
+        });
+        
+        // 获取当前作者信息
+        function getCurrentAuthors() {
+            const authors = {
+                '1': $('#firstPersonId').val(),
+                '2': $('#secondPersonId').val(),
+                '3': $('#thirdPersonId').val(),
+                '4': $('#fourthPersonId').val()
+            };
+            return authors;
+        }
+        
+        // 计算并更新分数
+        function calculateAndUpdateScores() {
+            const paperCategory = $('#paperCategory').val();
+            const authors = getCurrentAuthors();
+            const communicationAuthorId = $('#correspondingAuthorId').val();
+            
+            // console.log('=== 开始计算分数 ===');
+            // console.log('论文类别:', paperCategory);
+            // console.log('作者信息:', authors);
+            // console.log('通讯作者ID:', communicationAuthorId);
+            
+            // 如果论文类别未选择，不计算分数
+            if (!paperCategory) {
+                // console.log('论文类别未选择，不计算分数');
+                return;
+            }
+            
+            // 构造请求数据
+            const requestData = {
+                paperCategory: paperCategory,
+                authors: authors,
+                communicationAuthorId: communicationAuthorId || ''
+            };
+            
+            // console.log('请求数据:', requestData);
+            
+            // 调用后端API计算分数
+            $.ajax({
+                url: prefix + '/calculateScore',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(requestData),
+                success: function(response) {
+                    // console.log('API响应:', response);
+                    
+                    if (response.code === 0) {
+                        const scores = response.data;
+                        // console.log('分数数据:', scores);
+                        
+                        // 更新各作者分数显示
+                        updateAuthorScores(scores, authors);
+                    } else {
+                        // console.error('API返回错误:', response.msg);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    // console.error('计算科研分失败:', status, error);
+                    // console.error('XHR状态:', xhr.status);
+                    // console.error('XHR响应文本:', xhr.responseText);
+                }
+            });
+        }
+        
+        // 更新作者分数显示
+        function updateAuthorScores(scores, authors) {
+            // console.log('=== 更新作者分数 ===');
+            // console.log('分数数据:', scores);
+            // console.log('作者信息:', authors);
+            
+            // 更新一作分数
+            const firstKey = '1_' + authors['1'];
+            const firstAuthorScore = scores[firstKey] || 0;
+            // console.log('一作分数计算:', firstKey, '=>', firstAuthorScore);
+            $('#firstAuthorScore').text(firstAuthorScore + '分');
+            
+            // 更新二作分数
+            const secondKey = '2_' + authors['2'];
+            const secondAuthorScore = scores[secondKey] || 0;
+            // console.log('二作分数计算:', secondKey, '=>', secondAuthorScore);
+            $('#secondAuthorScore').text(secondAuthorScore + '分');
+            
+            // 更新三作分数
+            const thirdKey = '3_' + authors['3'];
+            const thirdAuthorScore = scores[thirdKey] || 0;
+            // console.log('三作分数计算:', thirdKey, '=>', thirdAuthorScore);
+            $('#thirdAuthorScore').text(thirdAuthorScore + '分');
+            
+            // 更新四作分数
+            const fourthKey = '4_' + authors['4'];
+            const fourthAuthorScore = scores[fourthKey] || 0;
+            // console.log('四作分数计算:', fourthKey, '=>', fourthAuthorScore);
+            $('#fourthAuthorScore').text(fourthAuthorScore + '分');
+            
+            // console.log('=== 分数更新完成 ===');
+        }
     </script>
 </body>
 </html>

@@ -3,6 +3,7 @@ package com.ruoyi.system.service.impl;
 import java.util.List;
 import java.util.Map;
 
+import com.ruoyi.system.domain.SciZhuanliruanzhuScoreCfg;
 import com.ruoyi.common.annotation.DataScope;
 import com.ruoyi.common.utils.DataScopeUtils;
 import com.ruoyi.common.core.domain.entity.SysUser;
@@ -19,7 +20,7 @@ import com.ruoyi.system.mapper.SciZhuanliruanzhuMapper;
 import com.ruoyi.system.domain.SciZhuanliruanzhu;
 import com.ruoyi.system.service.ISciZhuanliruanzhuService;
 import com.ruoyi.common.core.text.Convert;
-
+import org.springframework.transaction.annotation.Transactional;
 
 
 /**
@@ -68,6 +69,7 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
      * @return 专利软著
      */
     @Override
+    @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciZhuanliruanzhu> selectSciZhuanliruanzhuList(SciZhuanliruanzhu sciZhuanliruanzhu)
     {
         return sciZhuanliruanzhuMapper.selectSciZhuanliruanzhuList(sciZhuanliruanzhu);
@@ -80,17 +82,49 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
      * @return 结果
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int insertSciZhuanliruanzhu(SciZhuanliruanzhu sciZhuanliruanzhu)
     {
+        //  设置默认状态为草稿箱
+        sciZhuanliruanzhu.setState("0");
+
+        // 计算积分
+        String jifen = calculateScore(sciZhuanliruanzhu.getFenlei(), sciZhuanliruanzhu.getPaiming());
+        sciZhuanliruanzhu.setJifen(jifen);
+
         int a = sciZhuanliruanzhuMapper.insertSciZhuanliruanzhu(sciZhuanliruanzhu);
         int id = sciZhuanliruanzhu.getId();
+
+
         SciZhuanliruanzhuPiyue sciZhuanliruanzhuPiyue = new SciZhuanliruanzhuPiyue();
         sciZhuanliruanzhuPiyue.setUid(Long.valueOf(sciZhuanliruanzhu.getUserId()));
         sciZhuanliruanzhuPiyue.setHxktId(id);
         sciZhuanliruanzhuPiyue.setConcate("新增");
         sciZhuanliruanzhuPiyue.setState("新增");
         sciZhuanliruanzhuPiyueMapper.insertSciZhuanliruanzhuPiyue(sciZhuanliruanzhuPiyue);
+
         return a;
+    }
+
+    /**
+     * 根据分类和排名计算积分
+     */
+    private String calculateScore(String fenlei, String paiming) {
+        if (fenlei == null || paiming == null) {
+            return "0";
+        }
+
+        SciZhuanliruanzhuScoreCfg scoreCfg = new SciZhuanliruanzhuScoreCfg();
+        scoreCfg.setFenLei(fenlei);
+        scoreCfg.setPaiMing(paiming);
+
+        List<SciZhuanliruanzhuScoreCfg> configList = sciZhuanliruanzhuScoreCfgMapper.selectSciZhuanliruanzhuScoreCfgList(scoreCfg);
+
+        if (configList != null && !configList.isEmpty()) {
+            return configList.get(0).getTotalScore();
+        }
+
+        return "0";
     }
 
     /**
@@ -100,8 +134,13 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
      * @return 结果
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int updateSciZhuanliruanzhu(SciZhuanliruanzhu sciZhuanliruanzhu)
     {
+        // 重新计算积分
+        String jifen = calculateScore(sciZhuanliruanzhu.getFenlei(), sciZhuanliruanzhu.getPaiming());
+        sciZhuanliruanzhu.setJifen(jifen);
+
         int a = sciZhuanliruanzhuMapper.updateSciZhuanliruanzhu(sciZhuanliruanzhu);
         int id = sciZhuanliruanzhu.getId();
         SciZhuanliruanzhuPiyue sciZhuanliruanzhuPiyue = new SciZhuanliruanzhuPiyue();
@@ -114,12 +153,13 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
     }
 
     /**
-     * 批量删除专利软著
+     * 批量删除专利
      *
      * @param ids 需要删除的专利软著主键
      * @return 结果
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int deleteSciZhuanliruanzhuByIds(String ids)
     {
         return sciZhuanliruanzhuMapper.deleteSciZhuanliruanzhuByIds(Convert.toStrArray(ids));
@@ -132,20 +172,35 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
      * @return 结果
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int deleteSciZhuanliruanzhuById(Integer id)
     {
         return sciZhuanliruanzhuMapper.deleteSciZhuanliruanzhuById(id);
     }
 
-
+    /**
+     * 更新专利软著积分
+     *
+     * @param id 专利软著主键
+     * @param jifen 积分值
+     * @return 结果
+     */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int updateJifen(Long id, int jifen) {
         return sciZhuanliruanzhuMapper.updateJifen(id, jifen);
     }
 
-
+    /**
+     * 专利软著审核通过
+     *
+     * @param id 专利软著主键
+     * @param uid 用户ID
+     * @param urlFlag 操作标识
+     * @return 结果
+     */
     @Override
-
+    @Transactional(rollbackFor = Exception.class)
         public int hxPass(String id,Long uid,String urlFlag) {
         String state = "8";
 //        SciZhuanliruanzhu sciZhuanliruanzhu = new SciZhuanliruanzhu();
@@ -161,21 +216,21 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
         }
         else if(urlFlag.equals("chayue")) {
             state = "6";
-            SciZhuanliruanzhu sciZhuanliruanzhu = sciZhuanliruanzhuMapper.selectSciZhuanliruanzhuById(Integer.valueOf(id));
-            String a = sciZhuanliruanzhu.getFenlei();
-            String b = sciZhuanliruanzhu.getPaiming();
-            SciZhuanliruanzhuScoreCfg sciZhuanliruanzhuScoreCfg = new SciZhuanliruanzhuScoreCfg();
-            sciZhuanliruanzhuScoreCfg.setFenLei(a);
-            sciZhuanliruanzhuScoreCfg.setPaiMing(b);
-            List<SciZhuanliruanzhuScoreCfg> c = sciZhuanliruanzhuScoreCfgMapper.selectSciZhuanliruanzhuScoreCfgList(sciZhuanliruanzhuScoreCfg);
-
-            int jifen = 0;
-            for (SciZhuanliruanzhuScoreCfg cfg : c) {
-                jifen = Integer.parseInt(cfg.getTotalScore());
-                System.out.println("Jifen: " + jifen);
-            }
-            sciZhuanliruanzhuMapper.updateJifen(Long.valueOf(id), jifen);
-
+//            SciZhuanliruanzhu sciZhuanliruanzhu = sciZhuanliruanzhuMapper.selectSciZhuanliruanzhuById(Integer.valueOf(id));
+//            String a = sciZhuanliruanzhu.getFenlei();
+//            String b = sciZhuanliruanzhu.getPaiming();
+//            SciZhuanliruanzhuScoreCfg sciZhuanliruanzhuScoreCfg = new SciZhuanliruanzhuScoreCfg();
+//            sciZhuanliruanzhuScoreCfg.setFenLei(a);
+//            sciZhuanliruanzhuScoreCfg.setPaiMing(b);
+//            List<SciZhuanliruanzhuScoreCfg> c = sciZhuanliruanzhuScoreCfgMapper.selectSciZhuanliruanzhuScoreCfgList(sciZhuanliruanzhuScoreCfg);
+//
+//            int jifen = 0;
+//            for (SciZhuanliruanzhuScoreCfg cfg : c) {
+//                jifen = Integer.parseInt(cfg.getTotalScore());
+//                System.out.println("Jifen: " + jifen);
+//            }
+//            sciZhuanliruanzhuMapper.updateJifen(Long.valueOf(id), jifen);
+//
 
         }
 
@@ -200,8 +255,17 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
         return a;
     }
 
-
+    /**
+     * 专利软著审核驳回
+     *
+     * @param id 专利软著主键
+     * @param uid 用户ID
+     * @param remark 驳回意见
+     * @param urlFlag 操作标识
+     * @return 结果
+     */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int hxBh(String id,Long uid, String remark,String urlFlag) {
         String state = "8";
 
@@ -225,42 +289,91 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
 
 
 
-
+    /**
+     * 查询专利软著列表（科研处）
+     *
+     * @param sciZhuanliruanzhu 专利软著
+     * @return 专利软著集合
+     */
     @Override
     @DataScope(deptAlias = "d",userAlias = "u")
     public List<SciZhuanliruanzhu> selectSciZhuanliruanzhuList4(SciZhuanliruanzhu sciZhuanliruanzhu)
     {
         return sciZhuanliruanzhuMapper.selectSciZhuanliruanzhuList4(sciZhuanliruanzhu);
     }
+    /**
+     * 查询专利软著列表（学院）
+     *
+     * @param sciZhuanliruanzhu 专利软著
+     * @return 专利软著集合
+     */
     @Override
+    @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciZhuanliruanzhu> selectSciZhuanliruanzhuList3(SciZhuanliruanzhu sciZhuanliruanzhu)
     {
         return sciZhuanliruanzhuMapper.selectSciZhuanliruanzhuList3(sciZhuanliruanzhu);
     }
+    /**
+     * 查询专利软著列表（教研室）
+     *
+     * @param sciZhuanliruanzhu 专利软著
+     * @return 专利软著集合
+     */
     @Override
+    @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciZhuanliruanzhu> selectSciZhuanliruanzhuList2(SciZhuanliruanzhu sciZhuanliruanzhu)
     {
         return sciZhuanliruanzhuMapper.selectSciZhuanliruanzhuList2(sciZhuanliruanzhu);
     }
+    /**
+     * 查询专利软著列表（教师）
+     *
+     * @param sciZhuanliruanzhu 专利软著
+     * @return 专利软著集合
+     */
     @Override
+    @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciZhuanliruanzhu> selectSciZhuanliruanzhuList1(SciZhuanliruanzhu sciZhuanliruanzhu)
     {
         return sciZhuanliruanzhuMapper.selectSciZhuanliruanzhuList1(sciZhuanliruanzhu);
     }
 
-
+    /**
+     * 查询专利软著列表（学院导出）
+     *
+     * @param sciZhuanliruanzhu 专利软著
+     * @return 专利软著集合
+     */
     @Override
+    @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciZhuanliruanzhu> selectSciZhuanliruanzhuList31(SciZhuanliruanzhu sciZhuanliruanzhu)
     {
         return sciZhuanliruanzhuMapper.selectSciZhuanliruanzhuList31(sciZhuanliruanzhu);
     }
+    /**
+     * 查询专利软著列表（教研室导出）
+     *
+     * @param sciZhuanliruanzhu 专利软著
+     * @return 专利软著集合
+     */
     @Override
+    @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciZhuanliruanzhu> selectSciZhuanliruanzhuList21(SciZhuanliruanzhu sciZhuanliruanzhu)
     {
         return sciZhuanliruanzhuMapper.selectSciZhuanliruanzhuList21(sciZhuanliruanzhu);
     }
-
+    /**
+     * 撤回专利软著
+     *
+     * @param id 专利软著主键
+     * @param state 当前状态
+     * @param uid 用户ID
+     * @param remark 撤回原因
+     * @param urlFlag 操作标识
+     * @return 结果
+     */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int recall(Integer id, String state,Long uid, String remark, String urlFlag) {
         String newState = state;
         switch (state){
@@ -293,7 +406,14 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
     }
 
 
-
+    /**
+     * 检查专利软著是否存在
+     *
+     * @param mingcheng 专利名称
+     * @param paiming 排名
+     * @param userId 用户ID
+     * @return 检查结果（0-可以添加，1-重复，2-超过限制）
+     */
     @Override
     public int checkExist(String mingcheng, String paiming,Long userId) {
 //        判断该专利名称的该负责人级别已存在，不可重复添加
@@ -308,16 +428,36 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
         }
     }
 
+    /**
+     * 统计查询专利软著列表
+     *
+     * @param params 查询参数
+     * @return 专利软著集合
+     */
     @Override
+    @DataScope(deptAlias = "d",userAlias = "u")
     public List<SciZhuanliruanzhu> getStatsQuery(Map<String, String> params) {
         return sciZhuanliruanzhuMapper.getStatsQuery(params);
     }
 
+    /**
+     * 统计查询专利软著列表（导出Excel）
+     *
+     * @param params 查询参数
+     * @return 专利软著集合
+     */
     @Override
+    @DataScope(deptAlias = "d",userAlias = "u")
     public List<SciZhuanliruanzhu> getStatsQueryToExcil(Map<String, String> params) {
         return sciZhuanliruanzhuMapper.getStatsQueryToExcil(params);
     }
 
+    /**
+     * 统计查询专利软著列表（审核）
+     *
+     * @param params 查询参数
+     * @return 专利软著集合
+     */
     @Override
     @DataScope(deptAlias = "d",userAlias = "u")
     public List<SciZhuanliruanzhu> getStatsQueryToCheck(Map<String, String> params) {

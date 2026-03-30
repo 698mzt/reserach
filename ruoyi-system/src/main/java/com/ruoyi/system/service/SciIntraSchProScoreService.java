@@ -9,10 +9,10 @@ public interface SciIntraSchProScoreService {
     int set_SchPro_score(SciIntraSchoolPro sciIntraSchoolPro,int key);
     // 查询某个课题这个老师的得分
     Integer getScoreById(Object id,Long uid);
-
+    // 修改某个课题这个老师的得分
     Integer update_SchPro_score(SciIntraSchoolPro sciIntraSchoolPro1);
-
+    // 设置某个课题这个老师的得分为0
     int set_SchPro_score_noScore(SciIntraSchoolPro sciIntraSchoolPro);
-
+    // 设置某个课题这个老师的得分
     Integer update_SchPro_score_jt(SciIntraSchoolPro sciIntraSchoolPro1);
 }

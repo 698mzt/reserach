@@ -18,6 +18,7 @@ public class SciIntraSchProScoreServiceImpl implements SciIntraSchProScoreServic
 
 
   @Override
+  // 设置积分
   public int set_SchPro_score(SciIntraSchoolPro sciIntraSchoolPro, int key) {
     int re = 0;
     String amount = sciIntraSchoolPro.getAmount();

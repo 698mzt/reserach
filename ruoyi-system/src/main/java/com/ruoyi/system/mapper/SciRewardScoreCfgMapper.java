@@ -4,6 +4,7 @@ import com.ruoyi.system.domain.SciRewardScoreCfg;
 
 import java.util.List;
 
+import org.apache.ibatis.annotations.Param;
 /**
  * 奖励积分管理Mapper接口
  * 
@@ -59,4 +60,13 @@ public interface SciRewardScoreCfgMapper
      * @return 结果
      */
     public int deleteSciRewardScoreCfgByIds(String[] ids);
+    /**
+     * 根据分类、等级、排名查询积分配置
+     * @return 配置信息
+     */
+    SciRewardScoreCfg selectScoreConfig(
+            @Param("fenLei") String fenLei,
+            @Param("dengJi") String dengJi,
+            @Param("paiMing") String paiMing
+    );
 }

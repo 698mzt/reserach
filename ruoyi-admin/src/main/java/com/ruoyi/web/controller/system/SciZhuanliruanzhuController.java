@@ -64,6 +64,7 @@ public class SciZhuanliruanzhuController extends BaseController
      */
 
     @RequiresPermissions("system:zhuanliruanzhu:list")
+    @Log(title = "查询专利软著列表", businessType = BusinessType.OTHER)
     @PostMapping("/list")
     @ResponseBody
     public TableDataInfo list(SciZhuanliruanzhu sciZhuanliruanzhu,String year)
@@ -144,7 +145,7 @@ public class SciZhuanliruanzhuController extends BaseController
      * 导出专利软著列表
      */
     @RequiresPermissions("system:zhuanliruanzhu:export")
-    @Log(title = "专利软著", businessType = BusinessType.EXPORT)
+    @Log(title = "导出专利软著列表", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     @ResponseBody
     public AjaxResult export(SciZhuanliruanzhu sciZhuanliruanzhu)
@@ -216,9 +217,10 @@ public class SciZhuanliruanzhuController extends BaseController
      * 限制一个老师最大十条数据
      */
     @RequiresPermissions("system:zhuanliruanzhu:add")
+    @Log(title = "检查专利名称与负责人级别是否重复", businessType = BusinessType.OTHER)
     @PostMapping("/checkDuplicate")
     @ResponseBody
-    public AjaxResult checkDuplicate(@RequestParam String mingcheng, @RequestParam String paiming) {
+    public AjaxResult checkDuplicate(@RequestParam String mingcheng, @RequestParam(required = false, defaultValue = "1") String paiming) {
         int exists = sciZhuanliruanzhuService.checkExist(mingcheng, paiming, getUserId());
         if (exists == 1) {
             return AjaxResult.error("该专利名称的该负责人级别已存在，不可重复添加");
@@ -230,38 +232,81 @@ public class SciZhuanliruanzhuController extends BaseController
             return AjaxResult.error("请联系管理员解决");
         }
     }
-
     /**
      * 新增专利软著
      */
 
     //get请求一般是加载表单页面，而不是处理表单提交
+    @Log(title = "新增专利软著", businessType = BusinessType.OTHER)
     @GetMapping("/add")
     public String add( ModelMap mmap)
     {
         List<SysUser> userList =  userService.selectAllUser();
+
+        // 获取当前用户的部门ID
+        Long currentUserDeptId = null;
         for (int a = 0; a<userList.size();a++) {
             if(userList.get(a).getUserId().equals(getUserId())){
                 SysUser user = userList.get(a);
                 user.setFlag(true);
                 userList.set(a,user);
+                // 直接从数据库查询当前用户的部门ID
+                SysUser currentUserWithDept = userService.selectUserById(getUserId());
+                if (currentUserWithDept != null && currentUserWithDept.getDeptId() != null) {
+                    currentUserDeptId = currentUserWithDept.getDeptId();
+                }
                 break;
             }
         }
+
+        // 如果找到当前用户的部门ID，按部门重新排序
+        if (currentUserDeptId != null) {
+            final Long finalCurrentUserDeptId = currentUserDeptId;
+            userList.sort((u1, u2) -> {
+                boolean u1SameDept = u1.getDeptId() != null && u1.getDeptId().equals(finalCurrentUserDeptId);
+                boolean u2SameDept = u2.getDeptId() != null && u2.getDeptId().equals(finalCurrentUserDeptId);
+
+                if (u1SameDept && !u2SameDept) return -1;
+                if (!u1SameDept && u2SameDept) return 1;
+                return u1.getUserName().compareTo(u2.getUserName());
+            });
+        }
+
         mmap.put("sysUsers",userList);
         return prefix + "/add";
     }
+
+
 
     /**
      * 新增保存专利软著
      */
     @RequiresPermissions("system:zhuanliruanzhu:add")
-    @Log(title = "专利软著", businessType = BusinessType.INSERT)
+    @Log(title = "新增保存专利软著", businessType = BusinessType.INSERT)
     @PostMapping("/add")
     @ResponseBody
-    public AjaxResult addSave(SciZhuanliruanzhu sciZhuanliruanzhu)
+    public AjaxResult addSave(SciZhuanliruanzhu sciZhuanliruanzhu, String[] members)
     {
         sciZhuanliruanzhu.setUserId(getUserId().intValue());
+        // 添加这一行：设置默认排名
+        sciZhuanliruanzhu.setPaiming("1");
+
+        // 处理成员数据
+        if (members != null && members.length > 0) {
+            // 将成员数组转换为JSON字符串
+            StringBuilder membersJson = new StringBuilder("[");
+            for (int i = 0; i < members.length; i++) {
+                if (members[i] != null && !members[i].isEmpty()) {
+                    membersJson.append("\"").append(members[i]).append("\"");
+                    if (i < members.length - 1) {
+                        membersJson.append(",");
+                    }
+                }
+            }
+            membersJson.append("]");
+            sciZhuanliruanzhu.setMembers(membersJson.toString());
+        }
+
         return toAjax(sciZhuanliruanzhuService.insertSciZhuanliruanzhu(sciZhuanliruanzhu));
     }
 
@@ -269,26 +314,57 @@ public class SciZhuanliruanzhuController extends BaseController
      * 修改专利软著
      */
     @RequiresPermissions("system:zhuanliruanzhu:edit")
+    @Log(title = "修改专利软著", businessType = BusinessType.OTHER)
     @GetMapping("/edit/{id}")
     public String edit(@PathVariable("id") Integer id, ModelMap mmap)
     {
         SciZhuanliruanzhu sciZhuanliruanzhu = sciZhuanliruanzhuService.selectSciZhuanliruanzhuById(id);
         mmap.put("sciZhuanliruanzhu", sciZhuanliruanzhu);
         List<SysUser> userList1 =  userService.selectAllUser();
+
+        // 获取当前用户的部门ID进行排序
+        Long currentUserDeptId = null;
+        SysUser currentUserWithDept = userService.selectUserById(getUserId());
+        if (currentUserWithDept != null && currentUserWithDept.getDeptId() != null) {
+            currentUserDeptId = currentUserWithDept.getDeptId();
+        }
+
+        // 如果找到当前用户的部门ID，按部门重新排序
+        if (currentUserDeptId != null) {
+            final Long finalCurrentUserDeptId = currentUserDeptId;
+            userList1.sort((u1, u2) -> {
+                boolean u1SameDept = u1.getDeptId() != null && u1.getDeptId().equals(finalCurrentUserDeptId);
+                boolean u2SameDept = u2.getDeptId() != null && u2.getDeptId().equals(finalCurrentUserDeptId);
+
+                if (u1SameDept && !u2SameDept) return -1;
+                if (!u1SameDept && u2SameDept) return 1;
+                return u1.getUserName().compareTo(u2.getUserName());
+            });
+        }
+
         mmap.put("sysUsers1",userList1);
         return prefix + "/edit";
     }
+
 
     /**
      * 修改保存专利软著
      */
     @RequiresPermissions("system:zhuanliruanzhu:edit")
-    @Log(title = "专利软著", businessType = BusinessType.UPDATE)
+    @Log(title = "修改保存专利软著", businessType = BusinessType.UPDATE)
     @PostMapping("/edit")
     @ResponseBody
     public AjaxResult editSave(SciZhuanliruanzhu sciZhuanliruanzhu)
     {
         sciZhuanliruanzhu.setUserId(Integer.valueOf(getSysUser().getUserId().toString()));
+        // 处理更多成员数据，转换为与添加页面一致的JSON数组格式
+        String members = sciZhuanliruanzhu.getMembers();
+        if (members != null && !members.isEmpty() && !members.equals("null")) {
+            // 如果不是JSON数组格式，转换为JSON数组格式
+            if (!members.startsWith("[")) {
+                sciZhuanliruanzhu.setMembers("[\"" + members + "\"]");
+            }
+        }
         return toAjax(sciZhuanliruanzhuService.updateSciZhuanliruanzhu(sciZhuanliruanzhu));
     }
 
@@ -296,7 +372,7 @@ public class SciZhuanliruanzhuController extends BaseController
      * 删除专利软著
      */
     @RequiresPermissions("system:zhuanliruanzhu:remove")
-    @Log(title = "专利软著", businessType = BusinessType.DELETE)
+    @Log(title = "删除专利软著", businessType = BusinessType.DELETE)
     @PostMapping( "/remove")
     @ResponseBody
     public AjaxResult remove(String ids)
@@ -309,9 +385,11 @@ public class SciZhuanliruanzhuController extends BaseController
 //    @RequiresPermissions("system:zhuanliruanzhu:process","system:zhuanliruanzhu:info")
 
     //批阅
-
+    /**
+     * 查看专利软著详情
+     */
     @RequiresPermissions(value={"system:zhuanliruanzhu:process","system:zhuanliruanzhu:info"},logical= Logical.OR)
-
+    @Log(title = "查看专利软著详情", businessType = BusinessType.OTHER)
     @GetMapping("/detail/{id}/{urlFlag}")
 
     public String detail(@PathVariable("id") Integer id,@PathVariable("urlFlag") String urlFlag, ModelMap mmap)
@@ -333,7 +411,9 @@ public class SciZhuanliruanzhuController extends BaseController
 
 
 
-
+    /**
+     * 专利软著审核通过
+     */
     @RequiresPermissions(value={"system:zhuanliruanzhu:hecha","system:zhuanliruanzhu:process","system:zhuanliruanzhu:chayue","system:zhuanliruanzhu:info"},logical= Logical.OR)
     @Log(title = "专利软著审核通过", businessType = BusinessType.UPDATE)
     @PostMapping( "/hxPass")
@@ -344,7 +424,9 @@ public class SciZhuanliruanzhuController extends BaseController
         return toAjax(sciZhuanliruanzhuService.hxPass(id,getUserId(),urlFlag));
     }
 
-
+    /**
+     * 专利软著被驳回
+     */
     @RequiresPermissions(value={"system:zhuanliruanzhu:hecha","system:zhuanliruanzhu:process","system:zhuanliruanzhu:chayue"},logical= Logical.OR)
     @Log(title = "专利软著被驳回", businessType = BusinessType.UPDATE)
     @PostMapping( "/hxBh")
@@ -358,8 +440,11 @@ public class SciZhuanliruanzhuController extends BaseController
 
 
 
-
+    /**
+     * 撤销专利软著
+     */
     @RequiresPermissions(value={"system:zhuanliruanzhu:hecha","system:zhuanliruanzhu:process","system:zhuanliruanzhu:chayue"},logical= Logical.OR)
+    @Log(title = "撤销专利软著", businessType = BusinessType.OTHER)
     @GetMapping("/recall/{id}")
     public String recall(@PathVariable("id") Integer id, ModelMap mmap)
     {
@@ -370,7 +455,9 @@ public class SciZhuanliruanzhuController extends BaseController
         return prefix + "/recall";
     }
 
-
+    /**
+     * 撤销
+     */
     @RequiresPermissions(value={"system:zhuanliruanzhu:hecha","system:zhuanliruanzhu:process","system:zhuanliruanzhu:chayue"},logical= Logical.OR)
     @Log(title = "撤销", businessType = BusinessType.UPDATE)
     @PostMapping( "/recallsave")
@@ -380,8 +467,11 @@ public class SciZhuanliruanzhuController extends BaseController
         return toAjax(sciZhuanliruanzhuService.recall(id,state,getUserId(),remark,urlFlag));
     }
 
-
+    /**
+     * 查看批阅意见
+     */
     @RequiresPermissions(value={"system:zhuanliruanzhu:hecha","system:zhuanliruanzhu:process","system:zhuanliruanzhu:edit","system:zhuanliruanzhu:chayue"},logical= Logical.OR)
+    @Log(title = "查看批阅意见", businessType = BusinessType.OTHER)
     @PostMapping("/bhyy/{kid}")
     @ResponseBody
     public TableDataInfo bhyy(@PathVariable("kid")Integer kid)
@@ -391,8 +481,6 @@ public class SciZhuanliruanzhuController extends BaseController
         List<SciZhuanliruanzhuPiyue> list = piyueService.selectSciZhuanliruanzhuPiyueList(ob);
         return getDataTable(list);
     }
-
-
 
 
 }

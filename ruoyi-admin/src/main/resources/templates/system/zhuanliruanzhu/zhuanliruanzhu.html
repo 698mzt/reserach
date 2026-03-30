@@ -403,47 +403,37 @@
 <body class="gray-bg">
 <div class="container-div">
     <div class="row">
-        <div class="col-sm-12 search-collapse" shiro:hasAnyPermissions="system:zhuanliruanzhu:like">
+        <div class="col-sm-12 search-collapse" >
             <form id="formId"  >
                 <div class="select-list">
                     <ul>
-<!--                        <li>-->
-<!--                            <label>教研室：</label>-->
-<!--                            <input type="text" name="jiaoyanshi"/>-->
-<!--                        </li>-->
-<!--                        <li>-->
-<!--                            <label>姓名：</label>-->
-<!--                            <input type="text" name="xingming"/>-->
-<!--                        </li>-->
-                        <li>
-                            <label>名称：</label>
-                            <input type="text" name="mingcheng"/>
+                        <!-- 科研处：学院查询 -->
+                        <li shiro:hasPermission="system:zhuanliruanzhu:chayue,system:zhuanliruanzhu:list">
+                            <label>学院：</label>
+                            <input type="text" name="xueyuan" placeholder="请输入学院名称"/>
                         </li>
-<!--                        <li>-->
-<!--                            <label>授权号：</label>-->
-<!--                            <input type="text" name="shoquanhao"/>-->
-<!--                        </li>-->
-<!--                        <li>-->
-<!--                            <label>获批时间：</label>-->
-<!--                            <input type="text" class="time-input" placeholder="请选择获批时间" name="huopishijain"/>-->
-<!--                        </li>-->
-<!--                        <li>-->
-<!--                            <label>分类：</label>-->
-<!--                            <select name="fenlei" th:with="type=${@dict.getType('sys_zhuanli_fenlei')}">-->
-<!--                                <option value="">所有</option>-->
-<!--                                <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>-->
-<!--                            </select>-->
-<!--                        </li>-->
-<!--                        <li>-->
-<!--                            <label>排名：</label>-->
-<!--                            <input type="text" name="paiming"/>-->
-<!--                        </li>-->
+                        <!-- 学院、科研处：专业查询 -->
+                        <li shiro:hasAnyPermissions="system:zhuanliruanzhu:hecha,system:zhuanliruanzhu:chayue">
+                            <label>专业：</label>
+                            <input type="text" name="jiaoyanshi" placeholder="请输入专业名称"/>
+                        </li>
+                        <!-- 教研室、学院、科研处：主持人查询 -->
+                        <li shiro:hasAnyPermissions="system:zhuanliruanzhu:process,system:zhuanliruanzhu:hecha,system:zhuanliruanzhu:chayue">
+                            <label>主持人：</label>
+                            <input type="text" name="xingming" placeholder="请输入主持人姓名"/>
+                        </li>
+                        <!-- 所有角色：课题名称查询 -->
+                        <li>
+                            <label>课题名称：</label>
+                            <input type="text" name="mingcheng" placeholder="请输入课题名称"/>
+                        </li>
                         <li>
                             <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
                             <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
                         </li>
                     </ul>
                 </div>
+
             </form>
         </div>
 
@@ -479,7 +469,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <!-- 数据行将由JavaScript动态生成 -->
+                    <!--  数据行将由JavaScript动态生成 -->
                     </tbody>
                 </table>
             </div>

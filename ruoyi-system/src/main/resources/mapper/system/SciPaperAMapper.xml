@@ -154,7 +154,7 @@
             ${params.dataScope}
             <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
             <if test="teacherName != null  and teacherName != ''"> and teacher_name like concat('%', #{teacherName}, '%')</if>
-            <if test="paperTitle != null  and paperTitle != ''"> and paper_title = #{paperTitle}</if>
+            <if test="paperTitle != null  and paperTitle != ''"> and paper_title like concat('%', #{paperTitle}, '%')</if>
             <if test="paperCategory != null  and paperCategory != ''"> and paper_category = #{paperCategory}</if>
             <if test="publishedJournal != null  and publishedJournal != ''"> and published_journal = #{publishedJournal}</if>
             <if test="inclusionStatus != null  and inclusionStatus != ''"> and inclusion_status = #{inclusionStatus}</if>
@@ -167,6 +167,9 @@
             <if test="researchScore != null  and researchScore != ''"> and research_score = #{researchScore}</if>
             <if test="remarks != null  and remarks != ''"> and remarks = #{remarks}</if>
             <if test="year != null  and year != ''"> and YEAR(publication_time) = #{year}</if>
+            <if test="college != null  and college != ''"> and pt.dept_name like concat('%', #{college}, '%')</if>
+            <if test="researchRoom != null  and researchRoom != ''"> and d.dept_name like concat('%', #{researchRoom}, '%')</if>
+            <if test="firstAuthorName != null  and firstAuthorName != ''"> and pa1.user_name like concat('%', #{firstAuthorName}, '%')</if>
         </where>
       order  by field(p.state ,'1','2','4')
     </select>
@@ -190,6 +193,9 @@
             <if test="researchScore != null  and researchScore != ''"> and research_score = #{researchScore}</if>
             <if test="remarks != null  and remarks != ''"> and remarks = #{remarks}</if>
             <if test="year != null  and year != ''"> and YEAR(publication_time) = #{year}</if>
+            <if test="college != null  and college != ''"> and pt.dept_name like concat('%', #{college}, '%')</if>
+            <if test="researchRoom != null  and researchRoom != ''"> and d.dept_name like concat('%', #{researchRoom}, '%')</if>
+            <if test="firstAuthorName != null  and firstAuthorName != ''"> and pa1.user_name like concat('%', #{firstAuthorName}, '%')</if>
         ${params.dataScope}
         order by field(p.state , '4','8', '1', '2')
     </select>
@@ -278,13 +284,16 @@
         where pa.author_level = '0'
         ) pac on p.id = pac.paper_id
         <where>
-            p.state in (2, 4, 8) and pt.dept_id = #{collegeId}
-            or (pa1.user_id = #{uid} or  pa2.user_id = #{uid} or pa3.user_id = #{uid}  or pa4.user_id = #{uid} or pac.user_id = #{uid})
+            (
+                p.state in (2, 4, 8) and pt.dept_id = #{collegeId}
+                or (pa1.user_id = #{uid} or  pa2.user_id = #{uid} or pa3.user_id = #{uid}  or pa4.user_id = #{uid} or pac.user_id = #{uid})
+            )
             <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
             <if test="teacherName != null  and teacherName != ''"> and teacher_name like concat('%', #{teacherName}, '%')</if>
             <if test="college != null  and college != ''"> and pt.dept_name like concat('%', #{college}, '%')</if>
-            <if test="roleName != null  and roleName != ''"> and d.dept_name like concat('%', #{roleName}, '%')</if>
-            <if test="paperTitle != null  and paperTitle != ''"> and paper_title = #{paperTitle}</if>
+            <if test="researchRoom != null  and researchRoom != ''"> and d.dept_name like concat('%', #{researchRoom}, '%')</if>
+            <if test="firstAuthorName != null  and firstAuthorName != ''"> and pa1.user_name like concat('%', #{firstAuthorName}, '%')</if>
+            <if test="paperTitle != null  and paperTitle != ''"> and paper_title like concat('%', #{paperTitle}, '%')</if>
             <if test="paperCategory != null  and paperCategory != ''"> and paper_category = #{paperCategory}</if>
             <if test="publishedJournal != null  and publishedJournal != ''"> and published_journal = #{publishedJournal}</if>
             <if test="inclusionStatus != null  and inclusionStatus != ''"> and inclusion_status = #{inclusionStatus}</if>
@@ -361,15 +370,17 @@
             where pa.author_level = '0'
         ) pac on p.id = pac.paper_id
         <where>
-
-           (p.state in (1,2,8) ${params.dataScope})
-            or((pa1.user_id = #{uid} or  pa2.user_id = #{uid}) or pa3.user_id = #{uid}  or pa4.user_id = #{uid} or pac.user_id = #{uid} or pac.user_id = #{uid})
+            (
+                (p.state in (1,2,8) ${params.dataScope})
+                or (pa1.user_id = #{uid} or  pa2.user_id = #{uid} or pa3.user_id = #{uid}  or pa4.user_id = #{uid} or pac.user_id = #{uid})
+            )
             /*${params.dataScope}*/
 <!--            <if test="userId != null  and userId != ''"> and p.user_id = #{userId}</if>-->
             <if test="teacherName != null  and teacherName != ''"> and teacher_name like concat('%', #{teacherName}, '%')</if>
-            <if test="college != null  and college != ''"> and pt.dept_name like concat('%', #{college}, '%')</if>
-            <if test="roleName != null  and roleName != ''"> and d.dept_name like concat('%', #{roleName}, '%')</if>
-            <if test="paperTitle != null  and paperTitle != ''"> and paper_title = #{paperTitle}</if>
+            <if test="college != null  and college != ''"> and ptt.dept_name like concat('%', #{college}, '%')</if>
+            <if test="researchRoom != null  and researchRoom != ''"> and pt.dept_name like concat('%', #{researchRoom}, '%')</if>
+            <if test="firstAuthorName != null  and firstAuthorName != ''"> and pa1.user_name like concat('%', #{firstAuthorName}, '%')</if>
+            <if test="paperTitle != null  and paperTitle != ''"> and paper_title like concat('%', #{paperTitle}, '%')</if>
             <if test="paperCategory != null  and paperCategory != ''"> and paper_category = #{paperCategory}</if>
             <if test="publishedJournal != null  and publishedJournal != ''"> and published_journal = #{publishedJournal}</if>
             <if test="inclusionStatus != null  and inclusionStatus != ''"> and inclusion_status = #{inclusionStatus}</if>
@@ -500,13 +511,14 @@
         where pa.author_level = '0'
         ) pac on p.id = pac.paper_id
       <where>
-          (pa1.user_id = #{uid} or  pa2.user_id = #{uid}) or pa3.user_id = #{uid}  or pa4.user_id = #{uid} or pac.user_id = #{uid}
+          ((pa1.user_id = #{uid} or  pa2.user_id = #{uid} or pa3.user_id = #{uid}  or pa4.user_id = #{uid} or pac.user_id = #{uid}))
           /*${params.dataScope}*/
         <!--            <if test="userId != null  and userId != ''"> and p.user_id = #{userId}</if>-->
         <if test="teacherName != null  and teacherName != ''"> and teacher_name like concat('%', #{teacherName}, '%')</if>
-        <if test="college != null  and college != ''"> and pt.dept_name like concat('%', #{college}, '%')</if>
-        <if test="roleName != null  and roleName != ''"> and d.dept_name like concat('%', #{roleName}, '%')</if>
-        <if test="paperTitle != null  and paperTitle != ''"> and paper_title = #{paperTitle}</if>
+        <if test="college != null  and college != ''"> and ptt.dept_name like concat('%', #{college}, '%')</if>
+        <if test="researchRoom != null  and researchRoom != ''"> and pt.dept_name like concat('%', #{researchRoom}, '%')</if>
+        <if test="firstAuthorName != null  and firstAuthorName != ''"> and pa1.user_name like concat('%', #{firstAuthorName}, '%')</if>
+        <if test="paperTitle != null  and paperTitle != ''"> and paper_title like concat('%', #{paperTitle}, '%')</if>
         <if test="paperCategory != null  and paperCategory != ''"> and paper_category = #{paperCategory}</if>
         <if test="publishedJournal != null  and publishedJournal != ''"> and published_journal = #{publishedJournal}</if>
         <if test="inclusionStatus != null  and inclusionStatus != ''"> and inclusion_status = #{inclusionStatus}</if>

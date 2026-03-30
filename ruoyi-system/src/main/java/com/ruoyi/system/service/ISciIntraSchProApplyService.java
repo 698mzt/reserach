@@ -74,6 +74,8 @@ public interface ISciIntraSchProApplyService {
      *
      * @param params 查询参数
      * @return 成果转化集合
+     * @author
+     * @date 2020/11/09
      */
     List<SciIntraSchoolPro> getStatsQueryToCheck(Map<String, String> params);
 
