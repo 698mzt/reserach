@@ -464,86 +464,59 @@ public class CommonController extends BaseController
     }
 
     /**
-     * 下载压缩包请求（支持单个或多个ID）
+     * 下载压缩包请求
      *
-     * @param ids 文件ID，多个ID用逗号分隔
+     * @param id 文件名称
      */
     @GetMapping("/downloadZip")
-    public void downloadZip(@RequestParam("ids") String ids, HttpServletRequest request, HttpServletResponse response)  throws ServletException, IOException {
-        List<String> allFiles = new ArrayList<>();
-        StringBuilder zipNameBuilder = new StringBuilder();
+    public void doGet(@RequestParam("id") String id, HttpServletRequest request, HttpServletResponse response)  throws ServletException, IOException {
+        List<String> list = new ArrayList<>();
+        SciHorizontalApplyVertical sciHorizontalApplyVertical = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalById(Integer.parseInt(id));
+        list.add(getFileName(sciHorizontalApplyVertical.getFile()));
+        list.add(getFileName(sciHorizontalApplyVertical.getOpenfile()));
+        list.add(getFileName(sciHorizontalApplyVertical.getMidfile()));
+        list.add(getFileName(sciHorizontalApplyVertical.getOverfile()));
+        String user= sciHorizontalApplyVertical.getUserName();
+        String Topname = sciHorizontalApplyVertical.getTopName();
 
-        // 解析多个ID
-        String[] idArray = ids.split(",");
-
-        for (String id : idArray) {
-            if (StringUtils.isEmpty(id)) {
-                continue;
-            }
-
-            try {
-                SciHorizontalApplyVertical sciHorizontalApplyVertical = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalById(Integer.parseInt(id.trim()));
-                if (sciHorizontalApplyVertical == null) {
-                    continue;
-                }
-
-                // 收集所有文件
-                addFileToList(allFiles, sciHorizontalApplyVertical.getFile());
-                addFileToList(allFiles, sciHorizontalApplyVertical.getOpenfile());
-                addFileToList(allFiles, sciHorizontalApplyVertical.getMidfile());
-                addFileToList(allFiles, sciHorizontalApplyVertical.getOverfile());
-
-                // 构建压缩包名称
-                if (zipNameBuilder.length() == 0) {
-                    String user = sciHorizontalApplyVertical.getUserName();
-                    String topName = sciHorizontalApplyVertical.getTopName();
-                    if (StringUtils.isNotEmpty(user) && StringUtils.isNotEmpty(topName)) {
-                        zipNameBuilder.append(user).append("-").append(topName);
-                    }
-                }
-            } catch (NumberFormatException e) {
-                log.error("Invalid ID format: {}", id);
-            }
-        }
-
-        // 如果没有找到任何文件，返回错误
-        if (allFiles.isEmpty()) {
-            response.sendError(HttpServletResponse.SC_NOT_FOUND, "No files found for download");
-            return;
-        }
 
         // 创建压缩包名称
-        String zipFileName = (zipNameBuilder.length() > 0 ? zipNameBuilder.toString() : "download") + ".zip";
-        // 处理文件名中的特殊字符
-        zipFileName = zipFileName.replaceAll("[\\\\/:*?\"<>|]", "_");
-        String zipFilePath = RuoYiConfig.getUploadPath() + "/temp_" + System.currentTimeMillis() + ".zip";
-
-        // 确保上传目录存在
-        File zipFile = new File(zipFilePath);
-        if (!zipFile.getParentFile().exists()) {
-            zipFile.getParentFile().mkdirs();
-        }
+        String zipFileName = user +'-'+ Topname + ".zip";
+        String zipFilePath = RuoYiConfig.getUploadPath() + zipFileName;
 
         // 创建压缩包
         try (FileOutputStream fos = new FileOutputStream(zipFilePath);
              ZipOutputStream zos = new ZipOutputStream(fos)) {
 
-            for (String filePath : allFiles) {
-                if (StringUtils.isEmpty(filePath)) {
-                    continue;
-                }
+            for (String fileName : list) {
+                if (fileName != null && !fileName.isEmpty()) {
+                    String filePath = RuoYiConfig.getUploadPath() +'/'+ fileName;
+                    File file = new File(filePath);
 
-                // 处理MinIO路径
-                if (filePath.startsWith("/minio/")) {
-                    // 从MinIO下载文件并添加到ZIP
-                    addMinIOFileToZip(zos, filePath);
+                    if (file.exists()) {
+                        FileInputStream fis = new FileInputStream(file);
+                        ZipEntry zipEntry = new ZipEntry(fileName.substring(fileName.lastIndexOf("/") + 1));
+                        zos.putNextEntry(zipEntry);
+
+                        byte[] bytes = new byte[1024];
+                        int length;
+                        while ((length = fis.read(bytes)) >= 0) {
+                            zos.write(bytes, 0, length);
+                        }
+                        zos.closeEntry();
+                        fis.close();
+                    }else {
+                        // 文件不存在，记录日志
+                        Logger logger = LoggerFactory.getLogger(CommonController.class);
+                        logger.error("File does not exist: " + filePath);
+                    }
                 } else {
-                    // 处理本地文件路径
-                    addLocalFileToZip(zos, filePath);
+                    // 文件名为空，记录日志
+                    Logger logger = LoggerFactory.getLogger(CommonController.class);
+                    logger.error("File name is empty or null: " + fileName);
                 }
             }
         } catch (IOException e) {
-            log.error("File compression error", e);
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "File compression error");
             return;
         }
@@ -552,120 +525,22 @@ public class CommonController extends BaseController
         response.setContentType("application/zip");
         String encodedFileName = URLEncoder.encode(zipFileName, StandardCharsets.UTF_8.toString());
         response.setHeader("Content-Disposition", "attachment; filename=\"" + encodedFileName + "\"; filename*=UTF-8''" + encodedFileName);
+        response.getOutputStream().flush();
+
 
         // 设置输入流和输出流
         try (FileInputStream inStream = new FileInputStream(zipFilePath);
              OutputStream outStream = response.getOutputStream()) {
 
-            byte[] buffer = new byte[8192];
+            byte[] buffer = new byte[1024];
             int bytesRead;
             while ((bytesRead = inStream.read(buffer)) != -1) {
                 outStream.write(buffer, 0, bytesRead);
             }
             outStream.flush();
         } catch (IOException e) {
-            log.error("File download error", e);
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "File download error");
-        } finally {
-            // 删除临时文件
-            try {
-                Files.deleteIfExists(Paths.get(zipFilePath));
-            } catch (IOException e) {
-                log.error("Failed to delete temp file: {}", zipFilePath, e);
-            }
         }
-    }
-
-    /**
-     * 添加文件到列表（去重）
-     */
-    private void addFileToList(List<String> list, String filePath) {
-        if (StringUtils.isNotEmpty(filePath) && !list.contains(filePath)) {
-            list.add(filePath);
-        }
-    }
-
-    /**
-     * 从MinIO添加文件到ZIP
-     */
-    private void addMinIOFileToZip(ZipOutputStream zos, String filePath) throws IOException {
-        String[] parts = filePath.substring("/minio/".length()).split("/", 2);
-        if (parts.length != 2) {
-            log.error("Invalid MinIO path format: {}", filePath);
-            return;
-        }
-
-        String objectName = parts[1];
-        String entryName = getEntryName(filePath);
-
-        try (InputStream inputStream = MinIOUtils.download(objectName)) {
-            ZipEntry zipEntry = new ZipEntry(entryName);
-            zos.putNextEntry(zipEntry);
-
-            byte[] buffer = new byte[8192];
-            int bytesRead;
-            while ((bytesRead = inputStream.read(buffer)) != -1) {
-                zos.write(buffer, 0, bytesRead);
-            }
-            zos.closeEntry();
-        } catch (Exception e) {
-            log.error("Failed to download from MinIO: {}", objectName, e);
-        }
-    }
-
-    /**
-     * 添加本地文件到ZIP
-     */
-    private void addLocalFileToZip(ZipOutputStream zos, String filePath) throws IOException {
-        String fileName = getFileName(filePath);
-        if (StringUtils.isEmpty(fileName)) {
-            return;
-        }
-
-        String fullPath = RuoYiConfig.getUploadPath() + "/" + fileName;
-        File file = new File(fullPath);
-
-        if (!file.exists()) {
-            log.error("File does not exist: {}", fullPath);
-            return;
-        }
-
-        String entryName = getEntryName(filePath);
-        try (FileInputStream fis = new FileInputStream(file)) {
-            ZipEntry zipEntry = new ZipEntry(entryName);
-            zos.putNextEntry(zipEntry);
-
-            byte[] buffer = new byte[8192];
-            int bytesRead;
-            while ((bytesRead = fis.read(buffer)) != -1) {
-                zos.write(buffer, 0, bytesRead);
-            }
-            zos.closeEntry();
-        }
-    }
-
-    /**
-     * 获取ZIP条目名称
-     */
-    private String getEntryName(String filePath) {
-        // 从路径中提取文件名
-        String fileName = filePath.substring(filePath.lastIndexOf("/") + 1);
-
-        // 移除序列号后缀（如 _4）
-        if (fileName.contains(".")) {
-            String nameWithoutExt = fileName.substring(0, fileName.lastIndexOf("."));
-            String extension = fileName.substring(fileName.lastIndexOf("."));
-
-            int lastUnderscoreIndex = nameWithoutExt.lastIndexOf("_");
-            if (lastUnderscoreIndex != -1) {
-                String suffix = nameWithoutExt.substring(lastUnderscoreIndex + 1);
-                if (suffix.matches("\\d+")) {
-                    return nameWithoutExt.substring(0, lastUnderscoreIndex) + extension;
-                }
-            }
-        }
-
-        return fileName;
     }
 
     /**
@@ -688,12 +563,6 @@ public class CommonController extends BaseController
         // 创建压缩包名称
         String zipFileName = user +'-'+ Topname + ".zip";
         String zipFilePath = RuoYiConfig.getUploadPath() + zipFileName;
-
-        // 确保上传目录存在
-        File zipFile = new File(zipFilePath);
-        if (!zipFile.getParentFile().exists()) {
-            zipFile.getParentFile().mkdirs();
-        }
 
         // 创建压缩包
         try (FileOutputStream fos = new FileOutputStream(zipFilePath);

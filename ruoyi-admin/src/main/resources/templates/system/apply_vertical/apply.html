@@ -726,7 +726,7 @@
                                 actions.push('<br>');
                             actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                             actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
-                            actions.push('<a class="' + downloadFlag + '" href="javascript:void(0)" onclick="downloadFiles(' + row.id + ')" title="下载文件"><i class="fa fa-download"></i></a>');
+
                         }
                         return actions.join('');
                     }
@@ -866,7 +866,7 @@
                             }
                             actions.push('<a class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                             actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
-                            actions.push('<a class="' + downloadFlag + '" href="javascript:void(0)" onclick="downloadFiles(' + row.id + ')" title="下载文件"><i class="fa fa-download"></i></a>');
+
                         }else
                         if(row.state == 1 ){
                             actions.push('<a  class="' + JYSFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id+'/JYS' + '\')">批阅</a> ');
@@ -874,7 +874,7 @@
                                 actions.push('<br>')
                             actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                             actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
-                            actions.push('<a class="' + downloadFlag + '" href="javascript:void(0)" onclick="downloadFiles(' + row.id + ')" title="下载文件"><i class="fa fa-download"></i></a>');
+
                         }else
                         if(row.state == 3 || row.state == 5 ||row.state == 7){
                             if(row.userId == row.uid)
@@ -886,7 +886,7 @@
                                 actions.push('<br>')
                             actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                             actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
-                            actions.push('<a class="' + downloadFlag + '" href="javascript:void(0)" onclick="downloadFiles(' + row.id + ')" title="下载文件"><i class="fa fa-download"></i></a>');
+
                         }else if(row.state ==  2){
                             if(row.ynameId == row.userynameId)
                                 actions.push('<a  class="' + DeptFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/Dept'+ '\')">批阅&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
@@ -906,7 +906,7 @@
                                 actions.push('<br>')
                             actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                             actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
-                            actions.push('<a class="' + downloadFlag + '" href="javascript:void(0)" onclick="downloadFiles(' + row.id + ')" title="下载文件"><i class="fa fa-download"></i></a>');
+
                         }
                         if(row.state ==  4){
                             actions.push('<a  class="' + KYCFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/KYC'+ '\')">批阅&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
@@ -915,7 +915,7 @@
                                 actions.push('<br>')
                             actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                             actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
-                            actions.push('<a class="' + downloadFlag + '" href="javascript:void(0)" onclick="downloadFiles(' + row.id + ')" title="下载文件"><i class="fa fa-download"></i></a>');
+
                         }
                         return actions.join('');
                     }
@@ -1051,7 +1051,7 @@
                             }
                             actions.push('<a class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                             actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
-                            actions.push('<a class="' + downloadFlag + '" href="javascript:void(0)" onclick="downloadFiles(' + row.id + ')" title="下载文件"><i class="fa fa-download"></i></a>');
+
                         }else
                         if(row.state == 11 ){
                             actions.push('<a  class="' + JYSFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id+'/JYS' + '\')">批阅</a> ');
@@ -1059,7 +1059,7 @@
                                 actions.push('<br>')
                             actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                             actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
-                            actions.push('<a class="' + downloadFlag + '" href="javascript:void(0)" onclick="downloadFiles(' + row.id + ')" title="下载文件"><i class="fa fa-download"></i></a>');
+
                         }else
                         if((row.state == 33 || row.state == 55 || row.state == 77)){
                             if (row.userId == row.uid)
@@ -1078,7 +1078,7 @@
                                 actions.push('<br>')
                             actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                             actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
-                            actions.push('<a class="' + downloadFlag + '" href="javascript:void(0)" onclick="downloadFiles(' + row.id + ')" title="下载文件"><i class="fa fa-download"></i></a>');
+
                         }
                         else if(row.state == 22){
                             if(row.ynameId == row.userynameId)
@@ -1089,7 +1089,7 @@
                                 actions.push('<br>')
                             actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                             actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
-                            actions.push('<a class="' + downloadFlag + '" href="javascript:void(0)" onclick="downloadFiles(' + row.id + ')" title="下载文件"><i class="fa fa-download"></i></a>');
+
                         }
                         return actions.join('');
                     }
@@ -1115,11 +1115,6 @@
 
 </script>
 <script>
-    // 单个文件下载
-    function downloadFiles(id) {
-        window.location.href = ctx + 'common/downloadZip?ids=' + id;
-    }
-
     // 批量下载
     function batchDownload(tableId) {
         // 获取选中的行
@@ -1138,7 +1133,7 @@
 
         // 拼接ID并下载
         var idString = ids.join(',');
-        window.location.href = ctx + 'common/downloadZip?ids=' + idString;
+        window.location.href = ctx + 'common/batchDownload?ids=' + idString + '&module=vertical';
     }
 
     function rowStyle0(row, index) {
