@@ -100,28 +100,6 @@
             </div>
         </div>
 
-        <!-- 项目金额显示 -->
-        <div class="form-group">
-            <div class="col-sm-6">
-                <label class="col-sm-4 control-label">项目金额(万)：</label>
-                <div class="col-sm-8">
-                    <input name="amount" th:field="*{amount}" class="form-control" type="text" disabled>
-                </div>
-            </div>
-        </div>
-
-        <!-- 科研分分配显示 -->
-        <div class="form-group">
-            <div class="col-sm-12">
-                <label class="col-sm-2 control-label">科研分分配：</label>
-                <div class="col-sm-10">
-                    <div id="score-display-area">
-                        <span id="score-info">加载中...</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
 
         <div class="form-group row">
             <div class="col-sm-6">
@@ -256,15 +234,6 @@
 
 
     $(document).ready(function(){
-        // 加载并显示科研分
-        var amount = $("input[name='amount']").val();
-        if (amount && typeof researchScore !== 'undefined') {
-            researchScore.updateDisplay(amount, 'score-info');
-        } else if (amount) {
-            // 如果 researchScore 未加载，显示简单的金额信息
-            $('#score-info').text('项目金额：' + amount + '万');
-        }
-        
         var kid = $("#ktid").val();
         var options = {
             url: prefix + "/bhyy/"+kid,
@@ -273,21 +242,12 @@
             showToggle: false,
             showColumns: false,
             pagination:false,
-            responseHandler: function(res) {
-                if (res.code == 0 && res.rows) {
-                    res.rows.sort(function(a, b) {
-                        return new Date(b.createTime) - new Date(a.createTime);
-                    });
-                }
-                return res;
-            },
             columns: [
 
                 {
                     field : 'createTime',
                     title : '批阅时间',
-                    width: 200,
-                    sortable: true
+                    width: 200
 
                 } ,
                 {
