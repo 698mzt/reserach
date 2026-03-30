@@ -52,9 +52,6 @@ public class SciJiaocairuanzhuController extends BaseController
     @Autowired
     private SciJiaocairuanzhuMapper sciJiaocairuanzhuMapper;
 
-    @Autowired
-    private com.ruoyi.system.mapper.SciJiaocairuanzhuMemberScoreMapper sciJiaocairuanzhuMemberScoreMapper;
-
     /**
      * 跳转到教材软著页面
      */
@@ -219,6 +216,7 @@ public class SciJiaocairuanzhuController extends BaseController
      * 检查教材名称与负责人级别是否重复
      * 防止同一教材名称下重复的负责人级别
      */
+    @RequiresPermissions("system:jiaocairuanzhu:add")
     @Log(title = "防止教材软著重复", businessType = BusinessType.OTHER)
     @PostMapping("/checkDuplicate")
     @ResponseBody
@@ -257,13 +255,13 @@ public class SciJiaocairuanzhuController extends BaseController
      * 新增保存教材软著
      * 保存教材著作基本信息、成员信息和批阅记录
      */
+    @RequiresPermissions("system:jiaocairuanzhu:add")
     @Log(title = "教材软著", businessType = BusinessType.INSERT)
     @PostMapping("/add")
     @ResponseBody
     public AjaxResult addSave(SciJiaocairuanzhu sciJiaocairuanzhu, 
                               @RequestParam(value = "members", required = false) String members, 
-                              @RequestParam(value = "totalScore", required = false) String totalScore,
-                              @RequestParam(value = "memberScores", required = false) String memberScores)
+                              @RequestParam(value = "totalScore", required = false) String totalScore)
     {
         // 设置科研总分，如果没有传递则默认为0
         if (totalScore != null && !totalScore.isEmpty()) {
@@ -278,28 +276,6 @@ public class SciJiaocairuanzhuController extends BaseController
         // 保存成员信息
         if (members != null && !members.isEmpty()) {
             sciJiaocairuanzhuService.saveJiaocairuanzhuMembers(sciJiaocairuanzhu.getId(), members);
-        }
-        
-        // 保存成员积分信息到sci_jiaocairuanzhu_member_score表
-        if (memberScores != null && !memberScores.isEmpty()) {
-            try {
-                com.alibaba.fastjson.JSONArray scoresArray = com.alibaba.fastjson.JSON.parseArray(memberScores);
-                List<com.ruoyi.system.domain.SciJiaocairuanzhuMemberScore> scoreList = new ArrayList<>();
-                for (int i = 0; i < scoresArray.size(); i++) {
-                    com.alibaba.fastjson.JSONObject scoreObj = scoresArray.getJSONObject(i);
-                    com.ruoyi.system.domain.SciJiaocairuanzhuMemberScore memberScore = new com.ruoyi.system.domain.SciJiaocairuanzhuMemberScore();
-                    memberScore.setJiaocairuanzhuId(sciJiaocairuanzhu.getId());
-                    memberScore.setUserId(scoreObj.getString("userId"));
-                    memberScore.setScore(scoreObj.getString("score"));
-                    memberScore.setRanking(String.valueOf(i + 1));
-                    scoreList.add(memberScore);
-                }
-                if (!scoreList.isEmpty()) {
-                    sciJiaocairuanzhuMemberScoreMapper.insertSciJiaocairuanzhuMemberScoreBatch(scoreList);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
         }
         
         // 保存批阅记录
@@ -372,8 +348,7 @@ public class SciJiaocairuanzhuController extends BaseController
     @ResponseBody
     public AjaxResult editSave(SciJiaocairuanzhu sciJiaocairuanzhu, 
                               @RequestParam(value = "members", required = false) String members, 
-                              @RequestParam(value = "totalScore", required = false) String totalScore,
-                              @RequestParam(value = "memberScores", required = false) String memberScores)
+                              @RequestParam(value = "totalScore", required = false) String totalScore)
     {
         // 设置科研总分，如果没有传递则默认为0
         if (totalScore != null && !totalScore.isEmpty()) {
@@ -388,32 +363,6 @@ public class SciJiaocairuanzhuController extends BaseController
         // 保存成员信息
         if (members != null && !members.isEmpty()) {
             sciJiaocairuanzhuService.saveJiaocairuanzhuMembers(sciJiaocairuanzhu.getId(), members);
-        }
-        
-        // 更新成员积分信息到sci_jiaocairuanzhu_member_score表
-        if (memberScores != null && !memberScores.isEmpty()) {
-            try {
-                // 先删除旧的积分记录
-                sciJiaocairuanzhuMemberScoreMapper.deleteSciJiaocairuanzhuMemberScoreByJiaocairuanzhuId(sciJiaocairuanzhu.getId());
-                
-                // 添加新的积分记录
-                com.alibaba.fastjson.JSONArray scoresArray = com.alibaba.fastjson.JSON.parseArray(memberScores);
-                List<com.ruoyi.system.domain.SciJiaocairuanzhuMemberScore> scoreList = new ArrayList<>();
-                for (int i = 0; i < scoresArray.size(); i++) {
-                    com.alibaba.fastjson.JSONObject scoreObj = scoresArray.getJSONObject(i);
-                    com.ruoyi.system.domain.SciJiaocairuanzhuMemberScore memberScore = new com.ruoyi.system.domain.SciJiaocairuanzhuMemberScore();
-                    memberScore.setJiaocairuanzhuId(sciJiaocairuanzhu.getId());
-                    memberScore.setUserId(scoreObj.getString("userId"));
-                    memberScore.setScore(scoreObj.getString("score"));
-                    memberScore.setRanking(String.valueOf(i + 1));
-                    scoreList.add(memberScore);
-                }
-                if (!scoreList.isEmpty()) {
-                    sciJiaocairuanzhuMemberScoreMapper.insertSciJiaocairuanzhuMemberScoreBatch(scoreList);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
         }
         
         return toAjax(result);
