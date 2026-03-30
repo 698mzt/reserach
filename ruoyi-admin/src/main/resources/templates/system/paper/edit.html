@@ -251,36 +251,6 @@
                 </div>
             </div>
 
-            <!-- 科研分分配显示区域 - 按照图一样式 -->
-            <div class="form-group">
-                <label class="col-sm-3 control-label">科研分分配：</label>
-                <div class="col-sm-8">
-                    <div class="score-display-box" style="border: 1px solid #ddd; padding: 15px; border-radius: 4px; background-color: #f9f9f9;">
-                        <div class="score-rule" style="margin-bottom: 10px; color: #666;">
-                            <strong>科研分分配规则：</strong>
-                            <ul style="margin-top: 5px; margin-bottom: 0; padding-left: 20px;">
-                                <li>规则一：一作不是本校老师 + 通讯作者是本校老师 → 通讯作者按一作分算，其他作者顺延</li>
-                                <li>规则二：一作是本校老师 → 通讯作者按二作分数算，其他作者顺延</li>
-                                <li>特殊情况：一作同时是通讯作者 → 保持一作分数不变</li>
-                                <li>仅前四个负责人可获得科研分，后续添加成员不参与科研分分配</li>
-                            </ul>
-                        </div>
-                        <div class="score-calculation" style="margin-bottom: 10px;">
-                            <strong>预计科研分分配：</strong>
-                            <div id="score-details" style="margin-top: 5px; padding-left: 10px;">
-                                第一负责人：<span id="firstAuthorScoreDisplay" class="score-value" style="font-weight: bold; color: #333;">0</span> 分，
-                                第二负责人：<span id="secondAuthorScoreDisplay" class="score-value" style="font-weight: bold; color: #333;">0</span> 分，
-                                第三负责人：<span id="thirdAuthorScoreDisplay" class="score-value" style="font-weight: bold; color: #333;">0</span> 分，
-                                第四负责人：<span id="fourthAuthorScoreDisplay" class="score-value" style="font-weight: bold; color: #333;">0</span> 分
-                            </div>
-                        </div>
-                        <div class="score-notice" style="color: #e6a23c; font-size: 12px;">
-                            <strong>注意：</strong>仅前四个负责人可获得科研分，后续添加成员不参与科研分分配。
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <div class="form-group" id="searchWebGroup">
                 <label class="col-sm-3 control-label">论文网址：</label>
                 <div class="col-sm-8">
@@ -705,35 +675,14 @@
                         updateAuthorScores(scores, authors);
                     } else {
                         // console.error('API返回错误:', response.msg);
-                        // 显示错误提示
-                        showScoreError();
                     }
                 },
                 error: function(xhr, status, error) {
                     // console.error('计算科研分失败:', status, error);
                     // console.error('XHR状态:', xhr.status);
                     // console.error('XHR响应文本:', xhr.responseText);
-                    // 显示错误提示
-                    showScoreError();
                 }
             });
-        }
-        
-        // 显示分数计算错误提示
-        function showScoreError() {
-            // 更新所有分数显示为0
-            $('#firstAuthorScore').text('0分');
-            $('#secondAuthorScore').text('0分');
-            $('#thirdAuthorScore').text('0分');
-            $('#fourthAuthorScore').text('0分');
-            
-            $('#firstAuthorScoreDisplay').text('0');
-            $('#secondAuthorScoreDisplay').text('0');
-            $('#thirdAuthorScoreDisplay').text('0');
-            $('#fourthAuthorScoreDisplay').text('0');
-            
-            // 可以添加错误提示信息
-            // $.modal.alertWarning('分数计算失败，显示默认分数');
         }
         
         // 更新作者分数显示
@@ -747,28 +696,24 @@
             const firstAuthorScore = scores[firstKey] || 0;
             // console.log('一作分数计算:', firstKey, '=>', firstAuthorScore);
             $('#firstAuthorScore').text(firstAuthorScore + '分');
-            $('#firstAuthorScoreDisplay').text(firstAuthorScore);
             
             // 更新二作分数
             const secondKey = '2_' + authors['2'];
             const secondAuthorScore = scores[secondKey] || 0;
             // console.log('二作分数计算:', secondKey, '=>', secondAuthorScore);
             $('#secondAuthorScore').text(secondAuthorScore + '分');
-            $('#secondAuthorScoreDisplay').text(secondAuthorScore);
             
             // 更新三作分数
             const thirdKey = '3_' + authors['3'];
             const thirdAuthorScore = scores[thirdKey] || 0;
             // console.log('三作分数计算:', thirdKey, '=>', thirdAuthorScore);
             $('#thirdAuthorScore').text(thirdAuthorScore + '分');
-            $('#thirdAuthorScoreDisplay').text(thirdAuthorScore);
             
             // 更新四作分数
             const fourthKey = '4_' + authors['4'];
             const fourthAuthorScore = scores[fourthKey] || 0;
             // console.log('四作分数计算:', fourthKey, '=>', fourthAuthorScore);
             $('#fourthAuthorScore').text(fourthAuthorScore + '分');
-            $('#fourthAuthorScoreDisplay').text(fourthAuthorScore);
             
             // console.log('=== 分数更新完成 ===');
         }
