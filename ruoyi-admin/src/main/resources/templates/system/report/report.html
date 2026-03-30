@@ -282,34 +282,44 @@
                 <div class="panel-body">
                     <div class="container-div">
                         <div class="row">
-<!--                            <div class="col-sm-12 search-collapse"  shiro:hasPermission="system:report:sousuo">-->
-<!--                                <form id="formId-1">-->
-<!--                                    <div class="select-list">-->
-<!--                                        <ul>-->
-<!--                                            <li>-->
-<!--                                                <label>讲座主题：</label>-->
-<!--                                                <input type="text" name="reportTheme"/>-->
-<!--                                            </li>-->
-<!--                                            <li>-->
-<!--&lt;!&ndash;                                                <label>主办单位：</label>&ndash;&gt;-->
-<!--                                                <label>姓名：</label>-->
-<!--                                                <input type="text" name="teacherName"/>-->
-<!--                                            </li>-->
-<!--                                            <li>-->
-<!--&lt;!&ndash;                                                <label>讲座地点：</label>&ndash;&gt;-->
-<!--                                                <label>教研室：</label>-->
-<!--                                                <input type="text" name="keyanshi"/>-->
-<!--                                            </li>-->
-<!--                                            <li>-->
-<!--                                                <a class="btn btn-primary btn-rounded btn-sm"-->
-<!--                                                   onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>-->
-<!--                                                <a class="btn btn-warning btn-rounded btn-sm"-->
-<!--                                                   onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>-->
-<!--                                            </li>-->
-<!--                                        </ul>-->
-<!--                                    </div>-->
-<!--                                </form>-->
-<!--                            </div>-->
+                            <div class="col-sm-12 search-collapse"  shiro:hasPermission="system:report:list">
+                                <form id="formId-1">
+                                    <div class="select-list">
+                                        <ul>
+                                            <!-- 所有角色都显示课题题目 -->
+                                            <li>
+                                                <label>课题题目：</label>
+                                                <input type="text" name="reportTheme"/>
+                                            </li>
+                                            
+                                            <!-- 教研室、学院、科研处、管理员显示第一作者 -->
+                                            <li th:if="${roleId == 102 or roleId == 103 or roleId == 104 or roleId == 105 or roleId == 106 or roleId == 107 or roleId == 108 or roleId == 116 or roleId == 117 or roleId == 118 or roleId == 119 or roleId == 120 or roleId == 101 or roleId == 1}">
+                                                <label>第一作者：</label>
+                                                <input type="text" name="teacherName"/>
+                                            </li>
+                                            
+                                            <!-- 学院、科研处、管理员显示专业 -->
+                                            <li th:if="${(roleId == 103 or roleId == 104 or roleId == 105 or roleId == 106 or roleId == 107 or roleId == 108 or roleId == 116 or roleId == 117 or roleId == 118 or roleId == 119 or roleId == 120) or roleId == 101 or roleId == 1}">
+                                                <label>专业：</label>
+                                                <input type="text" name="keyanshi"/>
+                                            </li>
+                                            
+                                            <!-- 科研处、管理员显示学院 -->
+                                            <li th:if="${roleId == 101 or roleId == 1}">
+                                                <label>学院：</label>
+                                                <input type="text" name="xueyuan"/>
+                                            </li>
+                                            
+                                            <li>
+                                                <a class="btn btn-primary btn-rounded btn-sm"
+                                                   onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                                                <a class="btn btn-warning btn-rounded btn-sm"
+                                                   onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </form>
+                            </div>
 
                             <div id="toolbar">
                                 <div class="btn-group-sm" role="group">
@@ -317,6 +327,10 @@
                                     <a class="btn btn-success" onclick="$.operate.addTab()"
                                        shiro:hasPermission="system:report:add">
                                         <i class="fa fa-plus"></i> 添加
+                                    </a>
+                                    <a class="btn btn-info" onclick="$('.search-collapse').slideToggle()"
+                                       shiro:hasPermission="system:report:list">
+                                        <i class="fa fa-search"></i> 搜索
                                     </a>
                                     <!--                <a class="btn btn-primary single disabled" onclick="$.operate.editTab()" shiro:hasPermission="system:report:edit">-->
                                     <!--                    <i class="fa fa-edit"></i> 编辑-->
@@ -348,34 +362,34 @@
 
 </div>
 
-<!--<div class="wrapper wrapper-content fadeInRight" style="position: absolute; left: -9999px;">-->
-<!--    <div class="row">-->
-<!--        <div class="col-sm-4">-->
-<!--            <div class="ibox ">-->
-<!--                <div class="ibox-content">-->
-<!--                    <div class="modal inmodal" id="lcjl_Moda" tabindex="-1" role="dialog" aria-hidden="true">-->
-<!--                        <div class="modal-dialog modal-right" >-->
-<!--                            <div class="modal-content animated bounceInRight" style="background-color: #00f7de">-->
-<!--                                <div class="modal-header">-->
-<!--                                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span-->
-<!--                                            class="sr-only">关闭</span>-->
-<!--                                    </button>-->
-<!--                                </div>-->
-<!--                                <div class="modal-body">-->
-<!--                                    -->
-<!--                                </div>-->
-<!--                                <div class="modal-footer">-->
-<!--                                    <button type="button" class="btn btn-white but" data-dismiss="modal">关闭</button>-->
-<!--                                </div>-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                    </div>-->
+<!--<div class="wrapper wrapper-content fadeInRight" style="position: absolute; left: -9999px;">
+    <div class="row">
+        <div class="col-sm-4">
+            <div class="ibox ">
+                <div class="ibox-content">
+                    <div class="modal inmodal" id="lcjl_Moda" tabindex="-1" role="dialog" aria-hidden="true">
+                        <div class="modal-dialog modal-right" >
+                            <div class="modal-content animated bounceInRight" style="background-color: #00f7de">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span
+                                            class="sr-only">关闭</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-white but" data-dismiss="modal">关闭</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-<!--                </div>-->
-<!--            </div>-->
-<!--        </div>-->
-<!--    </div>-->
-<!--</div>-->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>--> 
 
 <div class="wrapper wrapper-content fadeInRight" style="position: absolute; left: -9999px;">
     <div class="row">

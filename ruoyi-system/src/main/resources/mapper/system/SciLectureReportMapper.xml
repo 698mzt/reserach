@@ -83,6 +83,10 @@
         </if>
         <if test="keyanshi != null  and keyanshi != ''">and d.dept_name like concat('%', #{keyanshi}, '%')</if>
         <if test="teacherName != null  and teacherName != ''">and u.user_name like concat('%', #{teacherName}, '%')</if>
+        <if test="hostUnit != null  and hostUnit != ''">and host_unit like concat('%', #{hostUnit}, '%')</if>
+        <if test="reportPlace != null  and reportPlace != ''">and report_place like concat('%', #{reportPlace}, '%')</if>
+        <if test="reportSubject != null  and reportSubject != ''">and report_subject like concat('%', #{reportSubject}, '%')</if>
+        <if test="reportClassify != null  and reportClassify != ''">and report_classify = #{reportClassify}</if>
         <if test="userId != null and userId != ''">and user_id = #{userId}</if>
         <if test="year != null  and year != ''">and YEAR(DATE_ADD(report_time,INTERVAL 1 MONTH)) = #{year}</if>
         <if test="statelist != null and statelist.size() > 0">and CAST(s.state AS UNSIGNED) in <foreach item="item" collection="statelist" open="(" separator="," close=")">#{item}</foreach></if>
@@ -91,7 +95,11 @@
         <if test="uid != null and uid != '' and year != null  and year != ''
           and (reportTheme == null or reportTheme == '')
           and (keyanshi == null or keyanshi == '')
-          and (teacherName == null or teacherName == '')">
+          and (teacherName == null or teacherName == '')
+          and (hostUnit == null or hostUnit == '')
+          and (reportPlace == null or reportPlace == '')
+          and (reportSubject == null or reportSubject == '')
+          and (reportClassify == null or reportClassify == '')">
             or (s.user_id = #{uid} and YEAR(DATE_ADD(report_time,INTERVAL 1 MONTH)) = #{year}
             <if test="statelist != null and statelist.size() > 0">and CAST(s.state AS UNSIGNED) in <foreach item="item" collection="statelist" open="(" separator="," close=")">#{item}</foreach></if>
             )
@@ -100,7 +108,11 @@
         <if test="uid != null and uid != '' and year != null  and year != ''
           and (reportTheme != null and reportTheme != ''
           or keyanshi != null and keyanshi != ''
-          or teacherName != null and teacherName != '')">
+          or teacherName != null and teacherName != ''
+          or hostUnit != null and hostUnit != ''
+          or reportPlace != null and reportPlace != ''
+          or reportSubject != null and reportSubject != ''
+          or reportClassify != null and reportClassify != '')">
             or (
             s.user_id = #{uid} and YEAR(DATE_ADD(report_time,INTERVAL 1 MONTH)) = #{year}
             <if test="reportTheme != null and reportTheme != ''">
@@ -111,6 +123,18 @@
             </if>
             <if test="teacherName != null and teacherName != ''">
                 and u.user_name like concat('%', #{teacherName}, '%')
+            </if>
+            <if test="hostUnit != null and hostUnit != ''">
+                and host_unit like concat('%', #{hostUnit}, '%')
+            </if>
+            <if test="reportPlace != null and reportPlace != ''">
+                and report_place like concat('%', #{reportPlace}, '%')
+            </if>
+            <if test="reportSubject != null and reportSubject != ''">
+                and report_subject like concat('%', #{reportSubject}, '%')
+            </if>
+            <if test="reportClassify != null and reportClassify != ''">
+                and report_classify = #{reportClassify}
             </if>
             <if test="statelist != null and statelist.size() > 0">
                 and CAST(s.state AS UNSIGNED) in <foreach item="item" collection="statelist" open="(" separator="," close=")">#{item}</foreach>
@@ -202,6 +226,7 @@
             <if test="reportClassify != null">report_classify,</if>
             <if test="reportKeyanfen != null">report_keyanfen,</if>
             <if test="reportUrl != null">report_url,</if>
+            <if test="state != null">state,</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="userId != null">#{userId},</if>
@@ -217,6 +242,7 @@
             <if test="reportClassify != null">#{reportClassify},</if>
             <if test="reportKeyanfen != null">#{reportKeyanfen},</if>
             <if test="reportUrl != null">#{reportUrl},</if>
+            <if test="state != null">#{state},</if>
         </trim>
     </insert>
 
@@ -432,6 +458,60 @@
             ${_dataScope}
         </if>
         order by dept_name asc,dname asc,u.login_name asc
+    </select>
+
+    <!-- 教师查询讲座报告列表（课题名称查询） -->
+    <select id="selectSciLectureReportListCx" parameterType="SciLectureReport" resultMap="SciLectureReportResult">
+        <include refid="selectSciLectureReportVo"/>
+        where 1=1
+        <if test="reportTheme != null  and reportTheme != ''">and report_theme like concat('%', #{reportTheme}, '%')</if>
+        <if test="userId != null and userId != ''">and user_id = #{userId}</if>
+        <if test="year != null  and year != ''">and YEAR(DATE_ADD(report_time,INTERVAL 1 MONTH)) = #{year}</if>
+        <if test="statelist != null and statelist.size() > 0">and CAST(s.state AS UNSIGNED) in <foreach item="item" collection="statelist" open="(" separator="," close=")">#{item}</foreach></if>
+        ${params.dataScope}
+        order by createtime desc
+    </select>
+
+    <!-- 教研室查询讲座报告列表（第一作者、课题名称查询） -->
+    <select id="selectSciLectureReportListCxList" parameterType="SciLectureReport" resultMap="SciLectureReportResult">
+        <include refid="selectSciLectureReportVo"/>
+        where 1=1
+        <if test="reportTheme != null  and reportTheme != ''">and report_theme like concat('%', #{reportTheme}, '%')</if>
+        <if test="teacherName != null  and teacherName != ''">and u.user_name like concat('%', #{teacherName}, '%')</if>
+        <if test="userId != null and userId != ''">and user_id = #{userId}</if>
+        <if test="year != null  and year != ''">and YEAR(DATE_ADD(report_time,INTERVAL 1 MONTH)) = #{year}</if>
+        <if test="statelist != null and statelist.size() > 0">and CAST(s.state AS UNSIGNED) in <foreach item="item" collection="statelist" open="(" separator="," close=")">#{item}</foreach></if>
+        ${params.dataScope}
+        order by createtime desc
+    </select>
+
+    <!-- 学院查询讲座报告列表（专业、第一作者、课题名称查询） -->
+    <select id="selectSciLectureReportListXY" parameterType="SciLectureReport" resultMap="SciLectureReportResult">
+        <include refid="selectSciLectureReportVo"/>
+        where 1=1
+        <if test="reportTheme != null  and reportTheme != ''">and report_theme like concat('%', #{reportTheme}, '%')</if>
+        <if test="teacherName != null  and teacherName != ''">and u.user_name like concat('%', #{teacherName}, '%')</if>
+        <if test="keyanshi != null  and keyanshi != ''">and d.dept_name like concat('%', #{keyanshi}, '%')</if>
+        <if test="userId != null and userId != ''">and user_id = #{userId}</if>
+        <if test="year != null  and year != ''">and YEAR(DATE_ADD(report_time,INTERVAL 1 MONTH)) = #{year}</if>
+        <if test="statelist != null and statelist.size() > 0">and CAST(s.state AS UNSIGNED) in <foreach item="item" collection="statelist" open="(" separator="," close=")">#{item}</foreach></if>
+        ${params.dataScope}
+        order by createtime desc
+    </select>
+
+    <!-- 科研处查询讲座报告列表（学院、专业、第一作者、课题名称查询） -->
+    <select id="selectSciLectureReportListKY" parameterType="SciLectureReport" resultMap="SciLectureReportResult">
+        <include refid="selectSciLectureReportVo"/>
+        where 1=1
+        <if test="reportTheme != null  and reportTheme != ''">and report_theme like concat('%', #{reportTheme}, '%')</if>
+        <if test="teacherName != null  and teacherName != ''">and u.user_name like concat('%', #{teacherName}, '%')</if>
+        <if test="keyanshi != null  and keyanshi != ''">and d.dept_name like concat('%', #{keyanshi}, '%')</if>
+        <if test="xueyuan != null  and xueyuan != ''">and p.dept_name like concat('%', #{xueyuan}, '%')</if>
+        <if test="userId != null and userId != ''">and user_id = #{userId}</if>
+        <if test="year != null  and year != ''">and YEAR(DATE_ADD(report_time,INTERVAL 1 MONTH)) = #{year}</if>
+        <if test="statelist != null and statelist.size() > 0">and CAST(s.state AS UNSIGNED) in <foreach item="item" collection="statelist" open="(" separator="," close=")">#{item}</foreach></if>
+        ${params.dataScope}
+        order by createtime desc
     </select>
 
 </mapper>
