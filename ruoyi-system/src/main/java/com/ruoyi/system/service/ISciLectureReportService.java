@@ -113,4 +113,36 @@ public interface ISciLectureReportService
     List<SciLectureReport> getStatsQueryToCheck(Map<String, String> params);
 
 //    List<SciLectureReport> selectSciLectureReportListByKYS(SciLectureReport sciLectureReport);
+
+    /**
+     * 教师查询讲座报告列表（课题名称查询）
+     *
+     * @param sciLectureReport 讲座报告
+     * @return 讲座报告集合
+     */
+    List<SciLectureReport> selectSciLectureReportListCx(SciLectureReport sciLectureReport);
+
+    /**
+     * 教研室查询讲座报告列表（第一作者、课题名称查询）
+     *
+     * @param sciLectureReport 讲座报告
+     * @return 讲座报告集合
+     */
+    List<SciLectureReport> selectSciLectureReportListCxList(SciLectureReport sciLectureReport);
+
+    /**
+     * 学院查询讲座报告列表（专业、第一作者、课题名称查询）
+     *
+     * @param sciLectureReport 讲座报告
+     * @return 讲座报告集合
+     */
+    List<SciLectureReport> selectSciLectureReportListXY(SciLectureReport sciLectureReport);
+
+    /**
+     * 科研处查询讲座报告列表（学院、专业、第一作者、课题名称查询）
+     *
+     * @param sciLectureReport 讲座报告
+     * @return 讲座报告集合
+     */
+    List<SciLectureReport> selectSciLectureReportListKY(SciLectureReport sciLectureReport);
 }

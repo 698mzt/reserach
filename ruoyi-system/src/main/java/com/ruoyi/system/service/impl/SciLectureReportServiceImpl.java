@@ -206,21 +206,37 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService
             System.err.println("时间格式错误！请使用 yyyy-MM-dd HH:mm 格式。");
         }
         
+        // 设置默认状态为草稿
+        if (sciLectureReport.getState() == null || sciLectureReport.getState().isEmpty()) {
+            sciLectureReport.setState("0");
+        }
+        
+        // 确保userId不为空
+        if (sciLectureReport.getUserId() == null) {
+            SysUser currentUser = ShiroUtils.getSysUser();
+            if (currentUser != null) {
+                sciLectureReport.setUserId(currentUser.getUserId().intValue());
+            }
+        }
+        
         // 根据讲座报告分类同步积分
         syncLectureReportIntegral(sciLectureReport);
         
-        int number =sciLectureReportMapper.insertSciLectureReport(sciLectureReport);
+        int number = sciLectureReportMapper.insertSciLectureReport(sciLectureReport);
 
-        SciLectureReportOpinion sciLectureReportOpinion = new SciLectureReportOpinion();
-        // 获取当前用户id并将数据类型从Integer转换为Long在给sciLectureReportOpinion.setUid()
-        Integer userId = sciLectureReport.getUserId();
-        sciLectureReportOpinion.setUid(userId != null ? userId.longValue() : null);
-        // 新增报告的id
-        sciLectureReportOpinion.setBaogaoId(sciLectureReport.getId());
-        sciLectureReportOpinion.setConcate("新增记录");
-        sciLectureReportOpinion.setState("新增");
-        // 将批阅记录插入数据库
-        opinionMapper.opinionadd(sciLectureReportOpinion);
+        // 检查是否成功插入并获取到ID
+        if (number > 0 && sciLectureReport.getId() != null) {
+            SciLectureReportOpinion sciLectureReportOpinion = new SciLectureReportOpinion();
+            // 获取当前用户id并将数据类型从Integer转换为Long在给sciLectureReportOpinion.setUid()
+            Integer userId = sciLectureReport.getUserId();
+            sciLectureReportOpinion.setUid(userId != null ? userId.longValue() : null);
+            // 新增报告的id
+            sciLectureReportOpinion.setBaogaoId(sciLectureReport.getId());
+            sciLectureReportOpinion.setConcate("新增记录");
+            sciLectureReportOpinion.setState("新增");
+            // 将批阅记录插入数据库
+            opinionMapper.opinionadd(sciLectureReportOpinion);
+        }
         return number;
     }
 
@@ -488,6 +504,54 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService
             sciLectureReport.setIntegralValue("0");
             sciLectureReport.setClassificationName("未选择分类");
         }
+    }
+
+    /**
+     * 教师查询讲座报告列表（课题名称查询）
+     *
+     * @param sciLectureReport 讲座报告
+     * @return 讲座报告集合
+     */
+    @Override
+    @DataScope(deptAlias = "d", userAlias = "u")
+    public List<SciLectureReport> selectSciLectureReportListCx(SciLectureReport sciLectureReport) {
+        return sciLectureReportMapper.selectSciLectureReportListCx(sciLectureReport);
+    }
+
+    /**
+     * 教研室查询讲座报告列表（第一作者、课题名称查询）
+     *
+     * @param sciLectureReport 讲座报告
+     * @return 讲座报告集合
+     */
+    @Override
+    @DataScope(deptAlias = "d", userAlias = "u")
+    public List<SciLectureReport> selectSciLectureReportListCxList(SciLectureReport sciLectureReport) {
+        return sciLectureReportMapper.selectSciLectureReportListCxList(sciLectureReport);
+    }
+
+    /**
+     * 学院查询讲座报告列表（专业、第一作者、课题名称查询）
+     *
+     * @param sciLectureReport 讲座报告
+     * @return 讲座报告集合
+     */
+    @Override
+    @DataScope(deptAlias = "d", userAlias = "u")
+    public List<SciLectureReport> selectSciLectureReportListXY(SciLectureReport sciLectureReport) {
+        return sciLectureReportMapper.selectSciLectureReportListXY(sciLectureReport);
+    }
+
+    /**
+     * 科研处查询讲座报告列表（学院、专业、第一作者、课题名称查询）
+     *
+     * @param sciLectureReport 讲座报告
+     * @return 讲座报告集合
+     */
+    @Override
+    @DataScope(deptAlias = "d", userAlias = "u")
+    public List<SciLectureReport> selectSciLectureReportListKY(SciLectureReport sciLectureReport) {
+        return sciLectureReportMapper.selectSciLectureReportListKY(sciLectureReport);
     }
 
 }

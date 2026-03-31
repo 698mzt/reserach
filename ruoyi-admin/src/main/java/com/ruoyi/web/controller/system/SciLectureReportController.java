@@ -67,13 +67,27 @@ public class SciLectureReportController extends BaseController
     ));
     @RequiresPermissions("system:report:view")
     @GetMapping()
-    public String report()
+    public String report(ModelMap mmap)
     {
+        // 获取用户角色ID
+        List<SysRole> roles = getSysUser().getRoles();
+        Integer roleId = null;
+        for (SysRole r : roles) {
+            roleId = Math.toIntExact(r.getRoleId());
+            break; // 只取第一个角色
+        }
+        mmap.put("roleId", roleId);
         return prefix + "/report";
     }
 
     /**
      * 查询讲座报告列表
+     * 根据用户角色调用不同的查询方法：
+     * - 教师：selectSciLectureReportListCx(课题名称查询)
+     * - 教研室：selectSciLectureReportListCxList（第一作者、课题名称查询)
+     * - 学院：selectSciLectureReportListXY（专业、第一作者、课题名称查询）
+     * - 科研处：selectSciLectureReportListKY（学院、专业、第一作者、课题名称查询）
+     * - 管理员：selectSciLectureReportList(所有条件查询）
      */
     @RequiresPermissions("system:report:list")
     @PostMapping("/list/{tableId}")
@@ -85,43 +99,53 @@ public class SciLectureReportController extends BaseController
         sciLectureReport.setUid(getUserId());
         startPage();
         List<SysRole> roles = getSysUser().getRoles();
-        String role = "";
-        for (SysRole r :roles){
-            if(r.getRoleKey().equals("sci_tesearch")){
-                role ="sci_tesearch";
-                break;
-            }else if (r.getRoleKey().equals("research")){
-                role="research";
-                break;
-            }else if (r.getRoleKey().equals("admin")){
-                role="admin";
-                break;
-            } else if (TEACHER_ROLES.contains(r.getRoleKey())) {
-                role = "dept_teacher";
-                break;
-            }
+        Integer roleId = null;
+        for (SysRole r : roles) {
+            roleId = Math.toIntExact(r.getRoleId());
+            break; // 只取第一个角色
         }
-        sciLectureReport.setRole(role);
+        sciLectureReport.setRole(String.valueOf(roleId));
         List<SciLectureReport> list = new ArrayList<>();
 
-        // ====》 调整
-        // 科研室
-        if(role.equals("sci_tesearch")){
+        // ====》 调整：根据角色ID判断
+        // 科研处：角色ID 101
+        if(roleId != null && roleId == 101){
             sciLectureReport.setStatelist(Arrays.asList(2,4)); // 查询时状态设置
+            // 科研处：学院、专业、第一作者、课题名称查询
+            list = sciLectureReportService.selectSciLectureReportListKY(sciLectureReport);
         }
-        // 教研室
-        else if(role.equals("research")){
+        // 教研室：角色ID 102
+        else if(roleId != null && roleId == 102){
             sciLectureReport.setStatelist(Arrays.asList(1,6)); // 查询时状态设置
+            // 教研室：第一作者、课题名称查询
+            list = sciLectureReportService.selectSciLectureReportListCxList(sciLectureReport);
         }
-        // 学院
-        else if(role.equals("dept_teacher")){
+        // 学院：角色ID 103,104,105,106,107,108,116,117,118,119,120
+        else if(roleId != null && (roleId == 103 || roleId == 104 || roleId == 105 || roleId == 106 || 
+                                 roleId == 107 || roleId == 108 || roleId == 116 || roleId == 117 || 
+                                 roleId == 118 || roleId == 119 || roleId == 120)){
             sciLectureReport.setStatelist(Arrays.asList(6,2)); // 查询时状态设置
+            // 学院：专业、第一作者、课题名称查询
+            list = sciLectureReportService.selectSciLectureReportListXY(sciLectureReport);
         }
-        // 普通用户以及管理员
+        // 教师：角色ID 100
+        else if(roleId != null && roleId == 100){
+            sciLectureReport.setStatelist(Arrays.asList(0, 1, 2, 3, 5, 4, 6, 7)); // 查询时状态设置
+            // 教师：课题名称查询
+            list = sciLectureReportService.selectSciLectureReportListCx(sciLectureReport);
+        }
+        // 管理员：角色ID 1
+        else if(roleId != null && roleId == 1){
+            sciLectureReport.setStatelist(Arrays.asList(0, 1, 2, 3, 5, 4, 6, 7)); // 查询时状态设置
+            // 管理员：所有条件查询
+            list = sciLectureReportService.selectSciLectureReportList(sciLectureReport);
+        }
+        // 其他用户
         else{
             sciLectureReport.setStatelist(Arrays.asList(0, 1, 2, 3, 5, 4, 6, 7)); // 查询时状态设置
+            // 默认：课题名称查询
+            list = sciLectureReportService.selectSciLectureReportListCx(sciLectureReport);
         }
-        list = sciLectureReportService.selectSciLectureReportList(sciLectureReport);
 
         return getDataTable(list);
     }
@@ -141,22 +165,27 @@ public class SciLectureReportController extends BaseController
             SysUser currentUser = ShiroUtils.getSysUser();
             sciLectureReport.setUid(currentUser.getUserId());
             List<SysRole> roles = getSysUser().getRoles();
-            for (SysRole r :roles){
-                if(r.getRoleKey().equals("sci_tesearch")){ // 科研处
-                    sciLectureReport.setStatelist(Arrays.asList(2,5,4)); // 查询时状态设置
-                    break;
-                }else if (r.getRoleKey().equals("research")){ // 教研室
-                    sciLectureReport.setStatelist(Arrays.asList(1,6, 3, 4,5,7)); // 查询时状态设置
-                    break;
-                }else if (r.getRoleKey().equals("admin")){ // 管理员
-                    sciLectureReport.setStatelist(Arrays.asList(0,1, 2, 3, 5,4,6,7)); // 查询时状态设置
-                    break;
-                } else if (TEACHER_ROLES.contains(r.getRoleKey())) { // 学院
-                    sciLectureReport.setStatelist(Arrays.asList(2,4,6,7,5)); // 查询时状态设置
-                    break;
-                } else if (r.getRoleKey().equals("teacher")) { // 普通教师
-                    sciLectureReport.setStatelist(Arrays.asList(0,1, 2, 3, 5,4,6,7)); // 查询时状态设置
-                }
+            Integer roleId = null;
+            for (SysRole r : roles) {
+                roleId = Math.toIntExact(r.getRoleId());
+                break; // 只取第一个角色
+            }
+            
+            // 根据角色ID设置状态列表
+            if(roleId != null && roleId == 101){ // 科研处：角色ID 101
+                sciLectureReport.setStatelist(Arrays.asList(2,5,4)); // 查询时状态设置
+            }else if(roleId != null && roleId == 102){ // 教研室：角色ID 102
+                sciLectureReport.setStatelist(Arrays.asList(1,6, 3, 4,5,7)); // 查询时状态设置
+            }else if(roleId != null && (roleId == 103 || roleId == 104 || roleId == 105 || roleId == 106 || 
+                                     roleId == 107 || roleId == 108 || roleId == 116 || roleId == 117 || 
+                                     roleId == 118 || roleId == 119 || roleId == 120)){ // 学院
+                sciLectureReport.setStatelist(Arrays.asList(2,4,6,7,5)); // 查询时状态设置
+            }else if(roleId != null && roleId == 100){ // 教师：角色ID 100
+                sciLectureReport.setStatelist(Arrays.asList(0,1, 2, 3, 5,4,6,7)); // 查询时状态设置
+            }else if(roleId != null && roleId == 1){ // 管理员：角色ID 1
+                sciLectureReport.setStatelist(Arrays.asList(0,1, 2, 3, 5,4,6,7)); // 查询时状态设置
+            }else{ // 其他用户
+                sciLectureReport.setStatelist(Arrays.asList(0,1, 2, 3, 5,4,6,7)); // 查询时状态设置
             }
             list = sciLectureReportService.selectSciLectureReportList(sciLectureReport);
         }else {
