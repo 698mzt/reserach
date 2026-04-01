@@ -104,6 +104,14 @@ public class SciJiaocairuanzhu extends BaseEntity
         this.jifen = jifen;
     }
 
+    public String getPersonalScore() {
+        return personalScore;
+    }
+
+    public void setPersonalScore(String personalScore) {
+        this.personalScore = personalScore;
+    }
+
 
 
     public String getYear() {
@@ -251,6 +259,8 @@ public class SciJiaocairuanzhu extends BaseEntity
     /** 科研分 */
     @Excel(name = "积分", sort = 5)
     private String jifen;
+    /** 个人积分 */
+    private String personalScore;
     private String wenjian;
 
     public String getState() {

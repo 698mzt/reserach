@@ -10,6 +10,7 @@ import com.ruoyi.system.domain.*;
 import com.ruoyi.system.mapper.SciJiaocairuanzhuMapper;
 import com.ruoyi.system.service.ISciJiaocairuanzhuPiyueService;
 import com.ruoyi.system.service.ISysUserService;
+import com.ruoyi.system.service.ISciJiaocairuanzhuScoreCfgService;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,6 +52,9 @@ public class SciJiaocairuanzhuController extends BaseController
 
     @Autowired
     private SciJiaocairuanzhuMapper sciJiaocairuanzhuMapper;
+
+    @Autowired
+    private ISciJiaocairuanzhuScoreCfgService sciJiaocairuanzhuScoreCfgService;
 
     /**
      * 跳转到教材软著页面
@@ -379,6 +383,20 @@ public class SciJiaocairuanzhuController extends BaseController
     public AjaxResult remove(String ids)
     {
         return toAjax(sciJiaocairuanzhuService.deleteSciJiaocairuanzhuByIds(ids));
+    }
+
+    /**
+     * 根据分类获取科研分配置
+     * 用于前端计算预期科研分
+     */
+    @PostMapping( "/getScoreConfig")
+    @ResponseBody
+    public AjaxResult getScoreConfig(String fenLei)
+    {
+        SciJiaocairuanzhuScoreCfg cfg = new SciJiaocairuanzhuScoreCfg();
+        cfg.setFenLei(fenLei);
+        List<SciJiaocairuanzhuScoreCfg> list = sciJiaocairuanzhuScoreCfgService.selectSciJiaocairuanzhuScoreCfgList(cfg);
+        return AjaxResult.success(list);
     }
 
 
