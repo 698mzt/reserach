@@ -104,6 +104,36 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
         sciHorizontalPiyue.setConcate("新增数据");
         sciHorizontalPiyue.setState("新增");
         sciHorizontalPiyueMapper.insertVerticalPiyue(sciHorizontalPiyue);
+        
+        // 收集所有成员ID和对应的预期科研分
+        Map<String, String> memberExpectedScores = new LinkedHashMap<>();
+        if (StringUtils.isNotEmpty(sciHorizontalApplyVertical.getFirstPersonId()) && StringUtils.isNotEmpty(sciHorizontalApplyVertical.getExpectedScore1())) {
+            memberExpectedScores.put(sciHorizontalApplyVertical.getFirstPersonId(), sciHorizontalApplyVertical.getExpectedScore1());
+        }
+        if (StringUtils.isNotEmpty(sciHorizontalApplyVertical.getSecondPersonId()) && StringUtils.isNotEmpty(sciHorizontalApplyVertical.getExpectedScore2())) {
+            memberExpectedScores.put(sciHorizontalApplyVertical.getSecondPersonId(), sciHorizontalApplyVertical.getExpectedScore2());
+        }
+        if (StringUtils.isNotEmpty(sciHorizontalApplyVertical.getThirdPersonId()) && StringUtils.isNotEmpty(sciHorizontalApplyVertical.getExpectedScore3())) {
+            memberExpectedScores.put(sciHorizontalApplyVertical.getThirdPersonId(), sciHorizontalApplyVertical.getExpectedScore3());
+        }
+        if (StringUtils.isNotEmpty(sciHorizontalApplyVertical.getFourthPersonId()) && StringUtils.isNotEmpty(sciHorizontalApplyVertical.getExpectedScore4())) {
+            memberExpectedScores.put(sciHorizontalApplyVertical.getFourthPersonId(), sciHorizontalApplyVertical.getExpectedScore4());
+        }
+        
+        // 存储预期科研分
+        SciUserScore sciUserScore = new SciUserScore();
+        sciUserScore.setVerticalId(id.toString());
+        sciUserScore.setScoreType("纵向课题");
+        sciUserScore.setChangeStatus("立项");
+        
+        for (Map.Entry<String, String> entry : memberExpectedScores.entrySet()) {
+            sciUserScore.setUserId(entry.getKey());
+            sciUserScore.setExpectedValue(entry.getValue());
+            // 初始积分设为0，审批通过时会更新
+            sciUserScore.setChangeValue("0");
+            sciUserScoreMapper.insertScoreVertical(sciUserScore);
+        }
+        
         return id;
     }
 
@@ -228,7 +258,42 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
                 break;
         }
         sciHorizontalPiyueMapper.insertVerticalPiyue(sciHorizontalPiyue);
-         return sciHorizontalApplyVerticalMapper.updateSciHorizontalApplyVertical(sciHorizontalApplyVertical);
+        
+        // 更新预期科研分
+        Integer verticalId = sciHorizontalApplyVertical.getId();
+        // 先删除旧的预期科研分记录
+        sciUserScoreMapper.deleteVerticalScoreById(verticalId.toString(), "立项");
+        
+        // 收集所有成员ID和对应的预期科研分
+        Map<String, String> memberExpectedScores = new LinkedHashMap<>();
+        if (StringUtils.isNotEmpty(sciHorizontalApplyVertical.getFirstPersonId()) && StringUtils.isNotEmpty(sciHorizontalApplyVertical.getExpectedScore1())) {
+            memberExpectedScores.put(sciHorizontalApplyVertical.getFirstPersonId(), sciHorizontalApplyVertical.getExpectedScore1());
+        }
+        if (StringUtils.isNotEmpty(sciHorizontalApplyVertical.getSecondPersonId()) && StringUtils.isNotEmpty(sciHorizontalApplyVertical.getExpectedScore2())) {
+            memberExpectedScores.put(sciHorizontalApplyVertical.getSecondPersonId(), sciHorizontalApplyVertical.getExpectedScore2());
+        }
+        if (StringUtils.isNotEmpty(sciHorizontalApplyVertical.getThirdPersonId()) && StringUtils.isNotEmpty(sciHorizontalApplyVertical.getExpectedScore3())) {
+            memberExpectedScores.put(sciHorizontalApplyVertical.getThirdPersonId(), sciHorizontalApplyVertical.getExpectedScore3());
+        }
+        if (StringUtils.isNotEmpty(sciHorizontalApplyVertical.getFourthPersonId()) && StringUtils.isNotEmpty(sciHorizontalApplyVertical.getExpectedScore4())) {
+            memberExpectedScores.put(sciHorizontalApplyVertical.getFourthPersonId(), sciHorizontalApplyVertical.getExpectedScore4());
+        }
+        
+        // 存储预期科研分
+        SciUserScore sciUserScore = new SciUserScore();
+        sciUserScore.setVerticalId(verticalId.toString());
+        sciUserScore.setScoreType("纵向课题");
+        sciUserScore.setChangeStatus("立项");
+        
+        for (Map.Entry<String, String> entry : memberExpectedScores.entrySet()) {
+            sciUserScore.setUserId(entry.getKey());
+            sciUserScore.setExpectedValue(entry.getValue());
+            // 初始积分设为0，审批通过时会更新
+            sciUserScore.setChangeValue("0");
+            sciUserScoreMapper.insertScoreVertical(sciUserScore);
+        }
+        
+        return sciHorizontalApplyVerticalMapper.updateSciHorizontalApplyVertical(sciHorizontalApplyVertical);
     }
 
     /**
@@ -256,6 +321,8 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
         String state = "0";
         SciUserScore sciUserScore = new SciUserScore();
         sciUserScore.setVerticalId(verticalId);
+        // 通过id查询获取SciHorizontalApplyVertical对象
+        SciHorizontalApplyVertical sciHorizontalApplyVertical = sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalById(Integer.valueOf(id));
         if(urlFlag.equals("JYS")){
             state ="2";
         }else if(urlFlag.equals("KYC")){
@@ -269,6 +336,28 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
             for (int i = 0; i < persion.size(); i++) {
                 sciUserScore.setUserId(persion.get(i).toString());
                 sciUserScore.setChangeValue(score.get(i).toString());
+                // 使用前端计算好的预期科研分
+                String expectedScore = "0";
+                if (sciHorizontalApplyVertical != null) {
+                    switch (i) {
+                        case 0:
+                            expectedScore = sciHorizontalApplyVertical.getExpectedScore1();
+                            break;
+                        case 1:
+                            expectedScore = sciHorizontalApplyVertical.getExpectedScore2();
+                            break;
+                        case 2:
+                            expectedScore = sciHorizontalApplyVertical.getExpectedScore3();
+                            break;
+                        case 3:
+                            expectedScore = sciHorizontalApplyVertical.getExpectedScore4();
+                            break;
+                    }
+                }
+                if (StringUtils.isEmpty(expectedScore)) {
+                    expectedScore = "0";
+                }
+                sciUserScore.setExpectedValue(expectedScore);
                 sciUserScoreMapper.insertScoreVertical(sciUserScore);
             }
         }else if(urlFlag.equals("Dept")){
@@ -319,6 +408,8 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
         String state = "0";
         SciUserScore sciUserScore = new SciUserScore();
         sciUserScore.setVerticalId(verticalId);
+        // 通过id查询获取SciHorizontalApplyVertical对象
+        SciHorizontalApplyVertical sciHorizontalApplyVertical = sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalById(Integer.valueOf(id));
         if(urlFlag.equals("JYS")){
             state ="22";
         }else if(urlFlag.equals("KYC")){
@@ -332,6 +423,28 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
             for (int i = 0; i < persion.size(); i++) {
                 sciUserScore.setUserId(persion.get(i).toString());
                 sciUserScore.setChangeValue(score.get(i).toString());
+                // 使用前端计算好的预期科研分
+                String expectedScore = "0";
+                if (sciHorizontalApplyVertical != null) {
+                    switch (i) {
+                        case 0:
+                            expectedScore = sciHorizontalApplyVertical.getExpectedScore1();
+                            break;
+                        case 1:
+                            expectedScore = sciHorizontalApplyVertical.getExpectedScore2();
+                            break;
+                        case 2:
+                            expectedScore = sciHorizontalApplyVertical.getExpectedScore3();
+                            break;
+                        case 3:
+                            expectedScore = sciHorizontalApplyVertical.getExpectedScore4();
+                            break;
+                    }
+                }
+                if (StringUtils.isEmpty(expectedScore)) {
+                    expectedScore = "0";
+                }
+                sciUserScore.setExpectedValue(expectedScore);
                 sciUserScoreMapper.insertScoreVertical(sciUserScore);
             }
         }else if(urlFlag.equals("Dept")){
