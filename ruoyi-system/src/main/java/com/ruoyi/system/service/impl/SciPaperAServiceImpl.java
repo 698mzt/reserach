@@ -55,7 +55,12 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
     @Override
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciPaperA> selectSciPaperAList(SciPaperA sciPaperA) {
-        return sciPaperAMapper.selectSciPaperAList(sciPaperA);
+        List<SciPaperA> list = sciPaperAMapper.selectSciPaperAList(sciPaperA);
+        // 为每条论文记录计算并填充分数
+        for (SciPaperA paper : list) {
+            calculateAndFillScores(paper);
+        }
+        return list;
     }
 
     @Override
@@ -67,13 +72,23 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
     @Override
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciPaperA> selectSciPaperAListKY(SciPaperA sciPaperA) {
-        return sciPaperAMapper.selectSciPaperAListKY(sciPaperA);
+        List<SciPaperA> list = sciPaperAMapper.selectSciPaperAListKY(sciPaperA);
+        // 为每条论文记录计算并填充分数
+        for (SciPaperA paper : list) {
+            calculateAndFillScores(paper);
+        }
+        return list;
     }
 
     @Override
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciPaperA> selectSciPaperAListXY(SciPaperA sciPaperA) {
-        return sciPaperAMapper.selectSciPaperAListXY(sciPaperA);
+        List<SciPaperA> list = sciPaperAMapper.selectSciPaperAListXY(sciPaperA);
+        // 为每条论文记录计算并填充分数
+        for (SciPaperA paper : list) {
+            calculateAndFillScores(paper);
+        }
+        return list;
     }
 
     /**
@@ -142,7 +157,12 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
     @Override
     @DataScope(deptAlias = "pt", userAlias = "u")
     public List<SciPaperA> selectSciPaperAListCxList(SciPaperA sciPaperA) {
-        return sciPaperAMapper.selectSciPaperAListCxList(sciPaperA);
+        List<SciPaperA> list = sciPaperAMapper.selectSciPaperAListCxList(sciPaperA);
+        // 为每条论文记录计算并填充分数
+        for (SciPaperA paper : list) {
+            calculateAndFillScores(paper);
+        }
+        return list;
     }
 
     /**
@@ -162,7 +182,12 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
      */
     @Override
     public List<SciPaperA> selectSciPaperAListCx(SciPaperA sciPaperA) {
-        return sciPaperAMapper.selectSciPaperAListCx(sciPaperA);
+        List<SciPaperA> list = sciPaperAMapper.selectSciPaperAListCx(sciPaperA);
+        // 为每条论文记录计算并填充分数
+        for (SciPaperA paper : list) {
+            calculateAndFillScores(paper);
+        }
+        return list;
     }
 
     /**
@@ -587,5 +612,92 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
         // 手动处理数据权限，因为 @DataScope 只支持 BaseEntity 类型，而这里使用的是 Map
         DataScopeUtils.applyDataScopeToMap(params, "sd", "su", "");
         return sciPaperAMapper.getStatsQueryToCheck(params);
+    }
+
+    /**
+     * 计算并填充分数到论文对象
+     * 根据论文类别和作者信息，计算每个作者的应得分数
+     * @param paper 论文对象
+     */
+    private void calculateAndFillScores(SciPaperA paper) {
+        // 如果论文类别为空，无法计算分数
+        if (paper.getPaperCategory() == null || paper.getPaperCategory().isEmpty()) {
+            return;
+        }
+
+        // 构建作者信息Map
+        Map<String, String> authors = new HashMap<>();
+        authors.put("1", paper.getFirstPersonId());
+        authors.put("2", paper.getSecondPersonId());
+        authors.put("3", paper.getThirdPersonId());
+        authors.put("4", paper.getFourthPersonId());
+
+        // 获取通讯作者ID
+        String communicationAuthorId = paper.getCommunicationAuthorId();
+
+        // 调用计算分数方法
+        Map<String, Integer> scores = calculatePaperScore(paper.getPaperCategory(), authors, communicationAuthorId);
+
+        // 将计算出的分数填充到论文对象
+        String firstKey = "1_" + paper.getFirstPersonId();
+        String secondKey = "2_" + paper.getSecondPersonId();
+        String thirdKey = "3_" + paper.getThirdPersonId();
+        String fourthKey = "4_" + paper.getFourthPersonId();
+        String correspondingKey = communicationAuthorId != null ? "0_" + communicationAuthorId : null;
+
+        // 设置各作者分数（转换为字符串类型）
+        paper.setFirstAuthorScore(String.valueOf(scores.getOrDefault(firstKey, 0)));
+        paper.setSecondAuthorScore(String.valueOf(scores.getOrDefault(secondKey, 0)));
+        paper.setThirdAuthorScore(String.valueOf(scores.getOrDefault(thirdKey, 0)));
+        paper.setFourthAuthorScore(String.valueOf(scores.getOrDefault(fourthKey, 0)));
+
+        // 通讯作者分数需要根据通讯作者ID找到对应的排名
+        Integer correspondingScore = 0;
+        if (communicationAuthorId != null && !communicationAuthorId.isEmpty()) {
+            // 检查通讯作者是否同时是某个排名的作者
+            if (communicationAuthorId.equals(paper.getFirstPersonId())) {
+                correspondingScore = scores.getOrDefault(firstKey, 0);
+            } else if (communicationAuthorId.equals(paper.getSecondPersonId())) {
+                correspondingScore = scores.getOrDefault(secondKey, 0);
+            } else if (communicationAuthorId.equals(paper.getThirdPersonId())) {
+                correspondingScore = scores.getOrDefault(thirdKey, 0);
+            } else if (communicationAuthorId.equals(paper.getFourthPersonId())) {
+                correspondingScore = scores.getOrDefault(fourthKey, 0);
+            } else {
+                // 通讯作者不在1-4作中，需要单独计算
+                correspondingScore = calculateCorrespondingAuthorScore(paper.getPaperCategory(), authors, communicationAuthorId);
+            }
+        }
+        paper.setCorrespondingAuthorScore(String.valueOf(correspondingScore));
+    }
+
+    /**
+     * 计算通讯作者分数
+     * 当通讯作者不在1-4作中时，根据规则计算分数
+     * @param paperCategory 论文类别
+     * @param authors 作者信息
+     * @param communicationAuthorId 通讯作者ID
+     * @return 通讯作者分数
+     */
+    private Integer calculateCorrespondingAuthorScore(String paperCategory, Map<String, String> authors, String communicationAuthorId) {
+        // 从配置中获取该论文类别的分数列表
+        List<Integer> pointList = sciPaperACfgMapper.selectSciPaperACfgPointList(paperCategory);
+
+        if (pointList == null || pointList.isEmpty()) {
+            return 0;
+        }
+
+        // 检查一作是否是本校老师
+        String firstAuthorId = authors.get("1");
+        boolean isFirstAuthorLocal = firstAuthorId != null && !firstAuthorId.equals("-1") && !firstAuthorId.isEmpty();
+
+        // 根据规则计算通讯作者分数
+        if (!isFirstAuthorLocal) {
+            // 一作不是本校老师，通讯作者按一作分数算
+            return pointList.get(0);
+        } else {
+            // 一作是本校老师，通讯作者按二作分数算
+            return pointList.size() > 1 ? pointList.get(1) : pointList.get(0);
+        }
     }
 }

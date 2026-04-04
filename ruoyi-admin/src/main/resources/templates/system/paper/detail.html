@@ -55,23 +55,7 @@
     .url-link-container {
         line-height: 34px !important;
     }
-    /* 作者分数样式 */
-    .author-score {
-        background-color: #5cb85c;
-        color: white;
-        font-weight: bold;
-        border-radius: 0 4px 4px 0;
-        min-width: 80px;
-        text-align: center;
-        display: inline-block;
-        padding: 6px 12px;
-        margin-left: 10px;
-    }
-    /* 通讯作者样式 */
-    .corresponding-author-label {
-        color: #5cb85c;
-        font-weight: bold;
-    }
+
 </style>
 <body class="white-bg">
 <div class="wrapper wrapper-content animated fadeInRight ibox-content">
@@ -226,52 +210,97 @@
 <!--                  </div>-->
 <!--                </div>-->
 <!--            </div>-->
-            <div class="col-md-6">
+            <!-- 一作和科研分 -->
+            <div class="col-md-6" th:if="${sciPaperA.firstPersonId != null and sciPaperA.firstPersonId != ''}">
                 <div class="form-group">
                     <label class="col-sm-4 control-label">一作：</label>
                     <div class="col-sm-8">
                         <input disabled name="firstAuthorName" th:field="*{firstAuthorName}" class="form-control" type="text">
-                        <span class="author-score" id="firstAuthorScore">0分</span>
                         <input type="hidden" id="firstPersonId" th:field="*{firstPersonId}" th:value="*{firstPersonId}">
                     </div>
                 </div>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-6" th:if="${sciPaperA.firstPersonId != null and sciPaperA.firstPersonId != ''}">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">科研分：</label>
+                    <div class="col-sm-8">
+                        <input id="expectedScore1" disabled class="form-control" type="text" placeholder="选择论文类别后自动计算">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 二作和科研分 -->
+            <div class="col-md-6" th:if="${sciPaperA.secondPersonId != null and sciPaperA.secondPersonId != ''}">
                 <div class="form-group">
                     <label class="col-sm-4 control-label">二作：</label>
                     <div class="col-sm-8">
                         <input disabled name="secondAuthorName" th:field="*{secondAuthorName}" class="form-control" type="text">
-                        <span class="author-score" id="secondAuthorScore">0分</span>
                         <input type="hidden" id="secondPersonId" th:field="*{secondPersonId}" th:value="*{secondPersonId}">
                     </div>
                 </div>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-6" th:if="${sciPaperA.secondPersonId != null and sciPaperA.secondPersonId != ''}">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">科研分：</label>
+                    <div class="col-sm-8">
+                        <input id="expectedScore2" disabled class="form-control" type="text" placeholder="选择论文类别后自动计算">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 三作和科研分 -->
+            <div class="col-md-6" th:if="${sciPaperA.thirdPersonId != null and sciPaperA.thirdPersonId != ''}">
                 <div class="form-group">
                     <label class="col-sm-4 control-label">三作：</label>
                     <div class="col-sm-8">
                         <input disabled name="thirdAuthorName" th:field="*{thirdAuthorName}" class="form-control" type="text">
-                        <span class="author-score" id="thirdAuthorScore">0分</span>
                         <input type="hidden" id="thirdPersonId" th:field="*{thirdPersonId}" th:value="*{thirdPersonId}">
                     </div>
                 </div>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-6" th:if="${sciPaperA.thirdPersonId != null and sciPaperA.thirdPersonId != ''}">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">科研分：</label>
+                    <div class="col-sm-8">
+                        <input id="expectedScore3" disabled class="form-control" type="text" placeholder="选择论文类别后自动计算">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 四作和科研分 -->
+            <div class="col-md-6" th:if="${sciPaperA.fourthPersonId != null and sciPaperA.fourthPersonId != ''}">
                 <div class="form-group">
                     <label class="col-sm-4 control-label">四作：</label>
                     <div class="col-sm-8">
                         <input disabled name="fourthAuthorName" th:field="*{fourthAuthorName}" class="form-control" type="text">
-                        <span class="author-score" id="fourthAuthorScore">0分</span>
                         <input type="hidden" id="fourthPersonId" th:field="*{fourthPersonId}" th:value="*{fourthPersonId}">
                     </div>
                 </div>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-6" th:if="${sciPaperA.fourthPersonId != null and sciPaperA.fourthPersonId != ''}">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">科研分：</label>
+                    <div class="col-sm-8">
+                        <input id="expectedScore4" disabled class="form-control" type="text" placeholder="选择论文类别后自动计算">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 通讯作者和科研分 -->
+            <div class="col-md-6" th:if="${sciPaperA.communicationAuthorId != null and sciPaperA.communicationAuthorId != ''}">
                 <div class="form-group">
                     <label class="col-sm-4 control-label">通讯作者：</label>
                     <div class="col-sm-8">
                         <input disabled name="correspondingAuthorName" th:field="*{correspondingAuthorName}" class="form-control" type="text">
                         <input type="hidden" id="correspondingAuthorId" th:field="*{communicationAuthorId}" th:value="*{communicationAuthorId}">
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6" th:if="${sciPaperA.communicationAuthorId != null and sciPaperA.communicationAuthorId != ''}">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">科研分：</label>
+                    <div class="col-sm-8">
+                        <input id="expectedScore5" disabled class="form-control" type="text" placeholder="选择论文类别后自动计算">
                     </div>
                 </div>
             </div>
@@ -684,100 +713,140 @@
     
     // 获取当前作者信息
     function getCurrentAuthors() {
-        const authors = {
-            '1': $('#firstPersonId').val(),
-            '2': $('#secondPersonId').val(),
-            '3': $('#thirdPersonId').val(),
-            '4': $('#fourthPersonId').val()
-        };
+        const authors = {};
+        
+        // 只有当作者存在时才添加到对象中
+        if ($('#firstPersonId').length > 0) {
+            authors['1'] = $('#firstPersonId').val();
+        }
+        if ($('#secondPersonId').length > 0) {
+            authors['2'] = $('#secondPersonId').val();
+        }
+        if ($('#thirdPersonId').length > 0) {
+            authors['3'] = $('#thirdPersonId').val();
+        }
+        if ($('#fourthPersonId').length > 0) {
+            authors['4'] = $('#fourthPersonId').val();
+        }
+        
         return authors;
     }
     
     // 计算并更新分数
-    function calculateAndUpdateScores() {
-        const paperCategory = $('select[name="paperCategory"]').val();
-        const authors = getCurrentAuthors();
-        const communicationAuthorId = $('#correspondingAuthorId').val();
-        
-        // console.log('=== 开始计算分数 ===');
-        // console.log('论文类别:', paperCategory);
-        // console.log('作者信息:', authors);
-        // console.log('通讯作者ID:', communicationAuthorId);
-        
-        // 如果论文类别未选择，不计算分数
-        if (!paperCategory) {
-            // console.log('论文类别未选择，不计算分数');
-            return;
+        function calculateAndUpdateScores() {
+            const paperCategory = $('select[name="paperCategory"]').val();
+            const authors = getCurrentAuthors();
+            const communicationAuthorId = $('#correspondingAuthorId').val();
+            
+            // 如果论文类别未选择，不计算分数
+            if (!paperCategory) {
+                // 只清空存在的输入框
+                if ($('#expectedScore1').length > 0) $('#expectedScore1').val('');
+                if ($('#expectedScore2').length > 0) $('#expectedScore2').val('');
+                if ($('#expectedScore3').length > 0) $('#expectedScore3').val('');
+                if ($('#expectedScore4').length > 0) $('#expectedScore4').val('');
+                if ($('#expectedScore5').length > 0) $('#expectedScore5').val('');
+                return;
+            }
+            
+            // 构造请求数据
+            const requestData = {
+                paperCategory: paperCategory,
+                authors: authors,
+                communicationAuthorId: communicationAuthorId || ''
+            };
+            
+            // 调用后端API计算分数
+            $.ajax({
+                url: prefix + '/calculateScore',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(requestData),
+                success: function(response) {
+                    if (response.code === 0) {
+                        const scores = response.data;
+                        // 更新各作者分数显示
+                        updateAuthorScores(scores, authors, communicationAuthorId);
+                    } else {
+                        // 只清空存在的输入框
+                        if ($('#expectedScore1').length > 0) $('#expectedScore1').val('');
+                        if ($('#expectedScore2').length > 0) $('#expectedScore2').val('');
+                        if ($('#expectedScore3').length > 0) $('#expectedScore3').val('');
+                        if ($('#expectedScore4').length > 0) $('#expectedScore4').val('');
+                        if ($('#expectedScore5').length > 0) $('#expectedScore5').val('');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    // 只清空存在的输入框
+                    if ($('#expectedScore1').length > 0) $('#expectedScore1').val('');
+                    if ($('#expectedScore2').length > 0) $('#expectedScore2').val('');
+                    if ($('#expectedScore3').length > 0) $('#expectedScore3').val('');
+                    if ($('#expectedScore4').length > 0) $('#expectedScore4').val('');
+                    if ($('#expectedScore5').length > 0) $('#expectedScore5').val('');
+                }
+            });
         }
         
-        // 构造请求数据
-        const requestData = {
-            paperCategory: paperCategory,
-            authors: authors,
-            communicationAuthorId: communicationAuthorId || ''
-        };
-        
-        // console.log('请求数据:', requestData);
-        
-        // 调用后端API计算分数
-        $.ajax({
-            url: prefix + '/calculateScore',
-            method: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify(requestData),
-            success: function(response) {
-                // console.log('API响应:', response);
-                
-                if (response.code === 0) {
-                    const scores = response.data;
-                    // console.log('分数数据:', scores);
-                    
-                    // 更新各作者分数显示
-                    updateAuthorScores(scores, authors);
-                } else {
-                    // console.error('API返回错误:', response.msg);
-                }
-            },
-            error: function(xhr, status, error) {
-                // console.error('计算科研分失败:', status, error);
-                // console.error('XHR状态:', xhr.status);
-                // console.error('XHR响应文本:', xhr.responseText);
+        // 更新作者分数显示
+        function updateAuthorScores(scores, authors, communicationAuthorId) {
+            // 存储各作者分数
+            let firstAuthorScore = 0;
+            let secondAuthorScore = 0;
+            let thirdAuthorScore = 0;
+            let fourthAuthorScore = 0;
+            
+            // 更新一作分数
+            if ($('#expectedScore1').length > 0 && authors['1']) {
+                const firstKey = '1_' + authors['1'];
+                firstAuthorScore = scores[firstKey] || 0;
+                $('#expectedScore1').val(firstAuthorScore > 0 ? firstAuthorScore : '');
             }
-        });
-    }
-    
-    // 更新作者分数显示
-    function updateAuthorScores(scores, authors) {
-        // console.log('=== 更新作者分数 ===');
-        // console.log('分数数据:', scores);
-        // console.log('作者信息:', authors);
-        
-        // 更新一作分数
-        const firstKey = '1_' + authors['1'];
-        const firstAuthorScore = scores[firstKey] || 0;
-        // console.log('一作分数计算:', firstKey, '=>', firstAuthorScore);
-        $('#firstAuthorScore').text(firstAuthorScore + '分');
-        
-        // 更新二作分数
-        const secondKey = '2_' + authors['2'];
-        const secondAuthorScore = scores[secondKey] || 0;
-        // console.log('二作分数计算:', secondKey, '=>', secondAuthorScore);
-        $('#secondAuthorScore').text(secondAuthorScore + '分');
-        
-        // 更新三作分数
-        const thirdKey = '3_' + authors['3'];
-        const thirdAuthorScore = scores[thirdKey] || 0;
-        // console.log('三作分数计算:', thirdKey, '=>', thirdAuthorScore);
-        $('#thirdAuthorScore').text(thirdAuthorScore + '分');
-        
-        // 更新四作分数
-        const fourthKey = '4_' + authors['4'];
-        const fourthAuthorScore = scores[fourthKey] || 0;
-        // console.log('四作分数计算:', fourthKey, '=>', fourthAuthorScore);
-        $('#fourthAuthorScore').text(fourthAuthorScore + '分');
-        
-        // console.log('=== 分数更新完成 ===');
-    }
+            
+            // 更新二作分数
+            if ($('#expectedScore2').length > 0 && authors['2']) {
+                const secondKey = '2_' + authors['2'];
+                secondAuthorScore = scores[secondKey] || 0;
+                $('#expectedScore2').val(secondAuthorScore > 0 ? secondAuthorScore : '');
+            }
+            
+            // 更新三作分数
+            if ($('#expectedScore3').length > 0 && authors['3']) {
+                const thirdKey = '3_' + authors['3'];
+                thirdAuthorScore = scores[thirdKey] || 0;
+                $('#expectedScore3').val(thirdAuthorScore > 0 ? thirdAuthorScore : '');
+            }
+            
+            // 更新四作分数
+            if ($('#expectedScore4').length > 0 && authors['4']) {
+                const fourthKey = '4_' + authors['4'];
+                fourthAuthorScore = scores[fourthKey] || 0;
+                $('#expectedScore4').val(fourthAuthorScore > 0 ? fourthAuthorScore : '');
+            }
+            
+            // 更新通讯作者分数
+            if ($('#expectedScore5').length > 0) {
+                if (communicationAuthorId) {
+                    // 检查通讯作者是否是某个作者
+                    let communicationScore = 0;
+                    if (authors['1'] === communicationAuthorId) {
+                        communicationScore = firstAuthorScore;
+                    } else if (authors['2'] === communicationAuthorId) {
+                        communicationScore = secondAuthorScore;
+                    } else if (authors['3'] === communicationAuthorId) {
+                        communicationScore = thirdAuthorScore;
+                    } else if (authors['4'] === communicationAuthorId) {
+                        communicationScore = fourthAuthorScore;
+                    } else {
+                        // 如果通讯作者不是任何作者，使用专门的通讯作者分数
+                        const communicationKey = 'comm_' + communicationAuthorId;
+                        communicationScore = scores[communicationKey] || 0;
+                    }
+                    $('#expectedScore5').val(communicationScore > 0 ? communicationScore : '');
+                } else {
+                    $('#expectedScore5').val('');
+                }
+            }
+        }
 </script>
 </body>
 </html>
