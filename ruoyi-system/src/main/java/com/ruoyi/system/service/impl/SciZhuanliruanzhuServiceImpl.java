@@ -88,9 +88,12 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
         //  设置默认状态为草稿箱
         sciZhuanliruanzhu.setState("0");
 
-        // 计算积分
+        // 计算预计积分（并保存到 expected_jifen）
         String jifen = calculateScore(sciZhuanliruanzhu.getFenlei(), sciZhuanliruanzhu.getPaiming());
-        sciZhuanliruanzhu.setJifen(jifen);
+        sciZhuanliruanzhu.setJifen(jifen); // 兼容旧逻辑：仍保留原 jifen 字段
+        sciZhuanliruanzhu.setExpectedJifen(jifen);
+        // 新增/编辑阶段最终积分未确认
+        sciZhuanliruanzhu.setFinalJifen(null);
 
         int a = sciZhuanliruanzhuMapper.insertSciZhuanliruanzhu(sciZhuanliruanzhu);
         int id = sciZhuanliruanzhu.getId();
@@ -128,6 +131,27 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
     }
 
     /**
+     * 根据分类计算预计科研分（仅排名1~4：主持人/成员1/成员2/成员3）
+     *
+     * @param fenlei 分类值（来自 sys_zhuanli_fenlei）
+     * @return 包含 firstScore/secondScore/thirdScore/fourthScore 的Map
+     */
+    @Override
+    public Map<String, String> calculateExpectedScores(String fenlei) {
+        Map<String, String> res = new java.util.HashMap<>();
+        res.put("firstScore", calculateScore(fenlei, "1"));
+        res.put("secondScore", calculateScore(fenlei, "2"));
+        res.put("thirdScore", calculateScore(fenlei, "3"));
+        res.put("fourthScore", calculateScore(fenlei, "4"));
+        return res;
+    }
+
+    @Override
+    public String calculateScoreByFenleiAndRank(String fenlei, String paiming) {
+        return calculateScore(fenlei, paiming);
+    }
+
+    /**
      * 修改专利软著
      *
      * @param sciZhuanliruanzhu 专利软著
@@ -137,9 +161,12 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
     @Transactional(rollbackFor = Exception.class)
     public int updateSciZhuanliruanzhu(SciZhuanliruanzhu sciZhuanliruanzhu)
     {
-        // 重新计算积分
+        // 重新计算预计积分，并保存到 expected_jifen
         String jifen = calculateScore(sciZhuanliruanzhu.getFenlei(), sciZhuanliruanzhu.getPaiming());
-        sciZhuanliruanzhu.setJifen(jifen);
+        sciZhuanliruanzhu.setJifen(jifen); // 兼容旧逻辑
+        sciZhuanliruanzhu.setExpectedJifen(jifen);
+        // 编辑时清空最终积分（未最终确认则不显示）
+        sciZhuanliruanzhu.setFinalJifen(null);
 
         int a = sciZhuanliruanzhuMapper.updateSciZhuanliruanzhu(sciZhuanliruanzhu);
         int id = sciZhuanliruanzhu.getId();
@@ -232,6 +259,20 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
 //            sciZhuanliruanzhuMapper.updateJifen(Long.valueOf(id), jifen);
 //
 
+        }
+
+        // 科研处通过（state=6）时：写入最终积分（final_jifen）
+        if (urlFlag.equals("chayue")) {
+            SciZhuanliruanzhu sci = sciZhuanliruanzhuMapper.selectSciZhuanliruanzhuById(Integer.valueOf(id));
+            String finalJifen;
+            if (sci != null && sci.getExpectedJifen() != null && !sci.getExpectedJifen().trim().isEmpty()) {
+                finalJifen = sci.getExpectedJifen();
+            } else if (sci != null) {
+                finalJifen = calculateScore(sci.getFenlei(), sci.getPaiming());
+            } else {
+                finalJifen = "0";
+            }
+            sciZhuanliruanzhuMapper.updateFinalJifen(id, finalJifen);
         }
 
         int a =  sciZhuanliruanzhuMapper.hxPass(id,state);
@@ -389,6 +430,7 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
             case "6":
                 newState = "4";
                 sciZhuanliruanzhuMapper.updateJifen(Long.valueOf(id),0);
+                sciZhuanliruanzhuMapper.updateFinalJifen(id.toString(), null);
                 break;
         }
 
