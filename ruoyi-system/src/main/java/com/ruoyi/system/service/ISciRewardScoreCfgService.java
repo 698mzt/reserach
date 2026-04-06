@@ -62,4 +62,12 @@ public interface ISciRewardScoreCfgService
 
 
     String calculateScore(String fenLei, String dengJi, String paiMing);
+
+    /**
+     * 删除奖励积分管理信息
+     *
+     * @param
+     * @return 结果
+     */
+    List<SciRewardScoreCfg> selectScoreConfigsByFenLeiAndDengJi(String fenLei, String dengJi);
 }

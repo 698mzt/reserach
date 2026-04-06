@@ -111,19 +111,27 @@
                 </div>
             </div>
 
-            <div class="col-xs-6">
+            <div class="col-xs-12">
                 <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">主持人：</label>
-                    <div class="col-sm-8">
-                        <select id="firstPersonSelect" name="firstPersonId_disabled" class="form-control m-b" onchange="updateMemberLists()" required disabled="true">
-                            <option value="">无</option>
-                            <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ #strings.toString(user.userId) == sysReward.firstPersonId}"></option>
-                        </select>
-                        <input type="hidden" name="firstPersonId" th:value="*{firstPersonId}">
+                    <div class="col-sm-6">
+                        <label class="col-sm-4 control-label is-required">主持人：</label>
+                        <div class="col-sm-8">
+                            <select id="firstPersonSelect" name="firstPersonId" class="form-control m-b" onchange="updateMemberLists()" required>
+                                <option value="">---请选择--</option>
+                                <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ #strings.toString(user.userId) == sysReward.firstPersonId}"></option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="col-sm-4 control-label">预期科研分：</label>
+                        <div class="col-sm-8">
+                            <input id="expectedScore1" class="form-control" type="text" readonly placeholder="">
+                        </div>
                     </div>
                 </div>
             </div>
 
+            <div class="col-xs-12">
             <div class="col-xs-6">
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">成员1：</label>
@@ -134,10 +142,16 @@
                         </select>
                     </div>
                 </div>
+            </div>            <div class="col-sm-6">
+            <label class="col-sm-4 control-label">预期科研分：</label>
+            <div class="col-sm-8">
+                <input id="expectedScore2" class="form-control" type="text" readonly placeholder="">
             </div>
+        </div>
+        </div>
 
 
-
+            <div class="col-xs-12">
             <div class="col-xs-6">
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">成员2：</label>
@@ -149,9 +163,16 @@
                     </div>
                 </div>
             </div>
+            <div class="col-sm-6">
+                <label class="col-sm-4 control-label">预期科研分：</label>
+                <div class="col-sm-8">
+                    <input id="expectedScore3" class="form-control" type="text" readonly placeholder="">
+                </div>
+            </div>
+            </div>
 
 
-
+            <div class="col-xs-12">
             <div class="col-xs-6">
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">成员3：</label>
@@ -162,6 +183,13 @@
                         </select>
                     </div>
                 </div>
+            </div>
+            <div class="col-sm-6">
+                <label class="col-sm-4 control-label">预期科研分：</label>
+                <div class="col-sm-8">
+                    <input id="expectedScore4" class="form-control" type="text" readonly placeholder="">
+                </div>
+            </div>
             </div>
 
             <!-- 第5位及以后：可动态添加 -->
@@ -255,29 +283,37 @@
     </script>
     <script th:inline="javascript">
         var prefix = ctx + "system/reward";
+        var scoreConfigs = []; // 存储当前分类+等级下的所有积分配置
 
         /**
          * 【页面加载完成后执行】初始化成员联动功能
          */
         $(function(){
-            // 【步骤1】保存成员1-3的原始选项（包含所有用户），用于后续过滤
-            $('#member1Select, #member2Select, #member3Select').each(function() {
+            // 【步骤1】保存所有下拉框的原始选项（包括主持人）
+            $('#firstPersonSelect, #member1Select, #member2Select, #member3Select').each(function() {
                 var originalOptions = $(this).html();
                 $(this).data('original-options', originalOptions);
             });
 
-            // 【步骤2】加载已有动态成员（从后端 extraMembers 数据）
+            // 【步骤2】监听排名变化
+            $('select[name="rewardPaiming"]').on('change', function() {
+                var selectedRank = $(this).val();
+                arrangeMembersByRank(selectedRank);
+            });
+
+            // 【步骤3】加载已有动态成员（从后端 extraMembers 数据）
             initExtraMembers();
 
-            // 【步骤3】执行一次联动，过滤已被选中的成员
+            // 【步骤4】执行一次联动，过滤已被选中的成员
             updateMemberLists();
+            loadScoreConfigs(); // 加载积分配置
 
-            // 【步骤4】绑定"增加成员"按钮点击事件
+            // 【步骤5】绑定"增加成员"按钮点击事件
             $('#addMemberBtn').on('click', function(){
                 appendMemberSelect();
             });
 
-            // 【步骤5】事件委托：绑定动态生成的删除按钮点击事件
+            // 【步骤6】事件委托：绑定动态生成的删除按钮点击事件
             $(document).on('click', '.remove-member', function(){
                 $(this).closest('.member-item').remove();  // 删除整行
                 updateMemberLists();  // 更新联动（释放被占用的选项）
@@ -303,34 +339,45 @@
          * 【核心函数】更新所有成员下拉框，排除已选的人，避免重复选择
          */
         function updateMemberLists() {
-            var selectedIds = new Set();  // 使用Set存储已选ID，自动去重
+            var selectedIds = new Set();
 
-            // 【1】收集固定成员的选中值
-            var firstValue = $('input[name="firstPersonId"]').val();   // 主持人
-            var member1Value = $('#member1Select').val();              // 成员1
-            var member2Value = $('#member2Select').val();              // 成员2
-            var member3Value = $('#member3Select').val();              // 成员3
+            // 获取固定成员的值
+            var firstValue = $('#firstPersonSelect').val();
+            var member1Value = $('#member1Select').val();
+            var member2Value = $('#member2Select').val();
+            var member3Value = $('#member3Select').val();
 
-            // 添加到已选集合（排除空值）
             if (firstValue) selectedIds.add(firstValue);
             if (member1Value) selectedIds.add(member1Value);
             if (member2Value) selectedIds.add(member2Value);
             if (member3Value) selectedIds.add(member3Value);
 
-            // 【2】收集动态成员（更多成员）的选中值
+            // 获取动态成员的值
             $('.member-select').each(function() {
                 var value = $(this).val();
                 if (value) selectedIds.add(value);
             });
 
-            // 【3】更新固定成员下拉框
+            // 更新所有下拉框
+            updateSelectOptions('#firstPersonSelect', firstValue, selectedIds);
             updateSelectOptions('#member1Select', member1Value, selectedIds);
             updateSelectOptions('#member2Select', member2Value, selectedIds);
             updateSelectOptions('#member3Select', member3Value, selectedIds);
 
-            // 【4】更新所有动态成员下拉框
             $('.member-select').each(function() {
                 rebuildSelectOptions($(this), $(this).val(), selectedIds);
+            });
+
+            // 更新隐藏字段
+            updateExtraMemberIds();
+        }
+
+        // 更新额外成员ID列表
+        function updateExtraMemberIds() {
+            var extraIds = [];
+            $('.member-select').each(function() {
+                var val = $(this).val();
+                if (val) extraIds.push(val);
             });
         }
 
@@ -342,34 +389,24 @@
          */
         function updateSelectOptions(selectId, currentValue, selectedIds) {
             var $select = $(selectId);
-            var originalOptions = $('#member1Select').data('original-options');
+            var originalOptions = $select.data('original-options');
 
-            if (!originalOptions) return;
-
-            // 清空现有选项（保留第一个"无"选项）
             $select.find('option:not(:first)').remove();
 
-            // 从原始选项中重建，过滤已选的但保留当前值
-            var tempDiv = $('<div>').html(originalOptions);
+            var tempDiv = $('<div>' + originalOptions + '</div>');
             tempDiv.find('option').each(function() {
                 var value = $(this).val();
-                var text = $(this).text();
-
-                // 保留条件：有值 且 （未被选中 或 是当前选中的值）
                 if (value && (!selectedIds.has(value) || value === currentValue)) {
-                    $select.append($('<option></option>').val(value).text(text));
+                    $select.append($(this).clone());
                 }
             });
 
-            // 恢复当前选中的值
             if (currentValue) {
                 $select.val(currentValue);
             }
         }
 
-        /**
-         * 【辅助函数】重建下拉框选项（用于动态成员）
-         */
+        // 重建下拉框选项（用于动态成员）
         function rebuildSelectOptions($select, currentValue, selectedIds) {
             var originalOptions = $('#member1Select').data('original-options');
             if (!originalOptions) return;
@@ -483,6 +520,9 @@
         });
 
         function submitHandler() {
+            // 提交前重新启用所有禁用的下拉框，确保值能被提交
+            $('#firstPersonSelect, #member1Select, #member2Select, #member3Select, .member-select').prop('disabled', false);
+
             if ($.validate.form()) {
                 $.operate.saveTab(prefix + "/edit", $('#form-reward-edit').serialize());
             }
@@ -570,6 +610,143 @@
             });
             $(this).fileinput('_initFileActions');
         });
+        // 加载积分配置
+        function loadScoreConfigs() {
+            var fenlei = $('select[name="rewardFenlei"]').val();
+            var dengji = $('select[name="rewardDengji"]').val();
+
+            if (fenlei && dengji) {
+                $.ajax({
+                    url: ctx + 'system/rewardcfg/getScoreConfigs',
+                    type: 'GET',
+                    data: { fenLei: fenlei, dengJi: dengji },
+                    success: function(result) {
+                        if (result.code === 0) {
+                            scoreConfigs = result.data;
+                            assignScoresToMembers(); // 分配分数
+                        }
+                    }
+                });
+            }
+        }
+
+        // 分配分数给所有成员
+        function assignScoresToMembers() {
+            // 1. 主持人（第1名）
+            if (scoreConfigs.length > 0) {
+                $('#expectedScore1').val(scoreConfigs[0].totalScore);
+            } else {
+                $('#expectedScore1').val('');
+            }
+
+            // 2. 成员1（第2名）
+            if (scoreConfigs.length > 1) {
+                $('#expectedScore2').val(scoreConfigs[1].totalScore);
+            } else {
+                $('#expectedScore2').val('');
+            }
+
+            // 3. 成员2（第3名）
+            if (scoreConfigs.length > 2) {
+                $('#expectedScore3').val(scoreConfigs[2].totalScore);
+            } else {
+                $('#expectedScore3').val('');
+            }
+
+            // 4. 成员3（第4名）
+            if (scoreConfigs.length > 3) {
+                $('#expectedScore4').val(scoreConfigs[3].totalScore);
+            } else {
+                $('#expectedScore4').val('');
+            }
+
+            // 5. 动态成员（从第5名开始）
+            $('.expected-score-input').each(function(index) {
+                var rankIndex = index + 4; // 第5名对应索引4
+                if (scoreConfigs.length > rankIndex) {
+                    $(this).val(scoreConfigs[rankIndex].totalScore);
+                } else {
+                    $(this).val('');
+                }
+            });
+        }
+
+        // 根据排名安排成员位置
+        function arrangeMembersByRank(rank) {
+            // 获取当前用户ID（从申请人的下拉框获取）
+            var currentUserId = $('select[name="userId"]').val();
+
+            // 先恢复所有框为可编辑状态
+            $('#firstPersonSelect').prop('disabled', false);
+            $('#member1Select').prop('disabled', false);
+            $('#member2Select').prop('disabled', false);
+            $('#member3Select').prop('disabled', false);
+
+            // 先恢复所有下拉框的完整原始选项
+            restoreFullOptions('#firstPersonSelect');
+            restoreFullOptions('#member1Select');
+            restoreFullOptions('#member2Select');
+            restoreFullOptions('#member3Select');
+
+            // 清空所有选择
+            $('#firstPersonSelect').val('');
+            $('#member1Select').val('');
+            $('#member2Select').val('');
+            $('#member3Select').val('');
+
+            // 清空动态成员
+            $('#memberContainer').empty();
+
+            // 根据排名放置当前用户，并将该框设为只读
+            switch(rank) {
+                case "1":
+                    // 第1名：主持人
+                    $('#firstPersonSelect').val(currentUserId).trigger('change');
+                    $('#firstPersonSelect').prop('disabled', true);
+                    break;
+                case "2":
+                    // 第2名：成员1
+                    $('#member1Select').val(currentUserId).trigger('change');
+                    $('#member1Select').prop('disabled', true);
+                    break;
+                case "3":
+                    // 第3名：成员2
+                    $('#member2Select').val(currentUserId).trigger('change');
+                    $('#member2Select').prop('disabled', true);
+                    break;
+                case "4":
+                    // 第4名：成员3
+                    $('#member3Select').val(currentUserId).trigger('change');
+                    $('#member3Select').prop('disabled', true);
+                    break;
+                default:
+                    // 第5名及以后：动态添加
+                    var rankNum = parseInt(rank);
+                    if (rankNum >= 5) {
+                        // 先添加足够的动态成员框
+                        for (var i = 5; i <= rankNum; i++) {
+                            appendMemberSelect();
+                        }
+                        // 然后在最后一个位置选中当前用户
+                        var lastMemberSelect = $('.member-select').last();
+                        lastMemberSelect.val(currentUserId).trigger('change');
+                        lastMemberSelect.prop('disabled', true);
+                    }
+                    break;
+            }
+
+            // 更新成员列表（互斥逻辑）
+            updateMemberLists();
+        }
+
+        // 恢复下拉框的完整原始选项
+        function restoreFullOptions(selectId) {
+            var $select = $(selectId);
+            var originalOptions = $select.data('original-options');
+            if (originalOptions) {
+                $select.html(originalOptions);
+            }
+        }
     </script>
 </body>
 </html>

@@ -60,6 +60,7 @@ public interface SciRewardScoreCfgMapper
      * @return 结果
      */
     public int deleteSciRewardScoreCfgByIds(String[] ids);
+
     /**
      * 根据分类、等级、排名查询积分配置
      * @return 配置信息
@@ -69,4 +70,10 @@ public interface SciRewardScoreCfgMapper
             @Param("dengJi") String dengJi,
             @Param("paiMing") String paiMing
     );
+
+    /**
+     * 根据分类、等级查询积分配置分配给相应的成员
+     * @return 配置信息
+     */
+    public List<SciRewardScoreCfg> selectScoreConfigsByFenLeiAndDengJi(@Param("fenLei") String fenLei, @Param("dengJi") String dengJi);
 }

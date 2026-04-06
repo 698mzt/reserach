@@ -121,4 +121,27 @@ public class SciRewardScoreCfgController extends BaseController
     {
         return toAjax(sciRewardScoreCfgService.deleteSciRewardScoreCfgByIds(ids));
     }
+
+    /**
+     * 计算奖励积分（预览）
+     */
+    @GetMapping("/calculateScore")
+    @ResponseBody
+    public AjaxResult calculateScore(@RequestParam("fenLei") String fenLei,
+                                     @RequestParam("dengJi") String dengJi,
+                                     @RequestParam("paiMing") String paiMing)
+    {
+        String score = sciRewardScoreCfgService.calculateScore(fenLei, dengJi, paiMing);
+        return AjaxResult.success(score);
+    }
+    /**
+     * 根据分类和等级获取所有排名的积分配置
+     */
+    @GetMapping("/getScoreConfigs")
+    @ResponseBody
+    public AjaxResult getScoreConfigs(@RequestParam("fenLei") String fenLei,
+                                      @RequestParam("dengJi") String dengJi) {
+        List<SciRewardScoreCfg> configs = sciRewardScoreCfgService.selectScoreConfigsByFenLeiAndDengJi(fenLei, dengJi);
+        return AjaxResult.success(configs);
+    }
 }

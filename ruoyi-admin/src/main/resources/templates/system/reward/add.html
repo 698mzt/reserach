@@ -10,6 +10,7 @@
 <body class="white-bg">
 <div class="wrapper wrapper-content animated fadeInRight ibox-content">
     <form class="form-horizontal m" id="form-reward-add">
+
         <div class="row">
             <!-- 申请人（当前登录用户） -->
             <div class="col-xs-6">
@@ -24,7 +25,6 @@
                 </div>
             </div>
 
-
             <!-- 其他字段... -->
             <div class="col-xs-6">
                 <div class="form-group">
@@ -34,6 +34,8 @@
                     </div>
                 </div>
             </div>
+
+
 
             <div class="col-xs-6">
                 <div class="form-group">
@@ -90,6 +92,7 @@
                 </div>
             </div>
 
+
 <!--            <div class="col-xs-6">-->
 <!--                <div class="form-group">-->
 <!--                    <label class="col-sm-4 control-label is-required" for="rewardJibie">级别：</label>-->
@@ -102,52 +105,87 @@
 <!--                </div>-->
 <!--            </div>-->
 
-            <div class="col-xs-6">
+            <div class="col-xs-12">
                 <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">主持人：</label>
-                    <div class="col-sm-8">
-                        <div th:each="user : ${sysUsers}" th:if="${user.flag}">
-                            <input  class="form-control" type="text" th:value="${user.userName}" readonly>
-                            <input name="firstPersonId" class="form-control" type="hidden" th:value="${user.userId}">
+                    <div class="col-sm-6">
+                        <label class="col-sm-4 control-label is-required">主持人：</label>
+                        <div class="col-sm-8">
+                            <select id="firstPersonSelect" name="firstPersonId" class="form-control m-b" onchange="updateMemberLists()" required>
+                                <option value="">---请选择--</option>
+<!--                                <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}"  th:if="${user.userId} != 1 and ${user.flag != true}" ></option>-->
+                                <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${user.flag}" ></option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="col-sm-4 control-label">预期科研分：</label>
+                        <div class="col-sm-8">
+                            <input id="expectedScore1" class="form-control" type="text" readonly placeholder="">
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-xs-6">
+
+            <div class="col-xs-12">
                 <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">成员1：</label>
-                    <div class="col-sm-8">
-                        <select id="member1Select" name="secondPersonId" class="form-control m-b" onchange="updateMemberLists()" required>
-                            <option value="">---请选择--</option>
-                            <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}"  th:if="${user.userId} != 1 and ${user.flag != true}" ></option>
-                        </select>
+                    <div class="col-sm-6">
+                        <label class="col-sm-4 control-label is-required">成员1：</label>
+                        <div class="col-sm-8">
+                            <select id="member1Select" name="secondPersonId" class="form-control m-b" onchange="updateMemberLists()" required>
+                                <option value="">---请选择--</option>
+                                <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}" ></option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="col-sm-4 control-label">预期科研分：</label>
+                        <div class="col-sm-8">
+                            <input id="expectedScore2" class="form-control" type="text" readonly placeholder="">
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="col-xs-6">
+            <div class="col-xs-12">
                 <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">成员2：</label>
-                    <div class="col-sm-8">
-                        <select id="member2Select" name="thirdPersonId" class="form-control m-b" onchange="updateMemberLists()" required>
-                            <option value="">---请选择--</option>
-                            <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}" th:if="${user.userId} != 1 and ${user.flag != true}"></option>
-                        </select>
+                    <div class="col-sm-6">
+                        <label class="col-sm-4 control-label is-required">成员2：</label>
+                        <div class="col-sm-8">
+                            <select id="member2Select" name="thirdPersonId" class="form-control m-b" onchange="updateMemberLists()" required>
+                                <option value="">---请选择--</option>
+                                <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}" ></option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="col-sm-4 control-label">预期科研分：</label>
+                        <div class="col-sm-8">
+                            <input id="expectedScore3" class="form-control" type="text" readonly placeholder="">
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="col-xs-6">
+            <div class="col-xs-12">
                 <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">成员3：</label>
-                    <div class="col-sm-8">
-                        <select id="member3Select" name="fourthPersonId" class="form-control m-b" onchange="updateMemberLists()" required>
-                            <option value="">---请选择--</option>
-                            <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}" th:if="${user.userId} != 1 and ${user.flag != true}"></option>
-                        </select>
+                    <div class="col-sm-6">
+                        <label class="col-sm-4 control-label is-required">成员3：</label>
+                        <div class="col-sm-8">
+                            <select id="member3Select" name="fourthPersonId" class="form-control m-b" onchange="updateMemberLists()" required>
+                                <option value="">---请选择--</option>
+                                <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}" ></option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="col-sm-4 control-label">预期科研分：</label>
+                        <div class="col-sm-8">
+                            <input id="expectedScore4" class="form-control" type="text" readonly placeholder="">
+                        </div>
                     </div>
                 </div>
             </div>
+
             <!-- 【添加】隐藏域，用于收集所有额外成员ID，以逗号分隔 -->
             <input type="hidden" name="extraMemberIds" id="extraMemberIds">
             <!-- 第5位及以后：可动态添加 -->
@@ -192,16 +230,21 @@
 <th:block th:include="include :: select2-js" />
 <script type="text/javascript">
     var prefix = ctx + "system/reward";
+    var scoreConfigs = []; // 存储当前分类+等级下的所有积分配置
 
     $(function(){
         // 保存原始选项
-        $('#member1Select, #member2Select, #member3Select').each(function() {
+        $('#firstPersonSelect,#member1Select, #member2Select, #member3Select').each(function() {
             var originalOptions = $(this).html();
             $(this).data('original-options', originalOptions);
         });
-
+        // 监听排名变化
+        $('select[name="rewardPaiming"]').on('change', function() {
+            var selectedRank = $(this).val();
+            arrangeMembersByRank(selectedRank);
+        });
         // 初始化Select2
-        $('select[name="secondPersonId"], select[name="thirdPersonId"], select[name="fourthPersonId"]').select2({
+        $('#firstPersonSelect,select[name="secondPersonId"], select[name="thirdPersonId"], select[name="fourthPersonId"]').select2({
             width: '100%',
             placeholder: '输入检索成员',
             allowClear: true
@@ -227,7 +270,11 @@
         var memberCount = $('.member-item').length + 5; // 从第5位开始计数（前面有主持人+成员1-3=4人）
         var memberId = 'dynamicMember' + memberCount;
 
-        var $tpl = $('<div class="col-xs-6 member-item m-b-xs">\
+        // 修改后的模板：改成 col-xs-12，添加预计科研分输入框
+        var $tpl = $('<div class="col-xs-12 member-item m-b-xs">\
+        <div class="form-group">\
+            <!-- 成员选择框占6列 -->\
+            <div class="col-sm-6">\
                 <div class="input-group">\
                     <label class="input-group-addon" style="min-width: 90px;">成员' + memberCount + '：</label>\
                     <select id="' + memberId + '" name="extraMemberIds" class="form-control member-select" onchange="updateMemberLists()">\
@@ -237,7 +284,16 @@
                         <button class="btn btn-danger btn-sm remove-member" type="button" title="移除"><i class="fa fa-minus"></i></button>\
                     </span>\
                 </div>\
-            </div>');
+            </div>\
+            <!-- 预计科研分占6列 -->\
+            <div class="col-sm-6">\
+                <div class="input-group">\
+                    <label class="input-group-addon" style="min-width: 90px;">预期科研分：</label>\
+                    <input id="expectedScore' + memberCount + '" class="form-control expected-score-input" type="text" readonly placeholder="">\
+                </div>\
+            </div>\
+        </div>\
+    </div>');
 
         var $select = $tpl.find('select.member-select');
         var originalOptions = $('#member1Select').data('original-options');
@@ -293,7 +349,7 @@
     // 更新单个下拉框选项
     function updateSelectOptions(selectId, currentValue, selectedIds) {
         var $select = $(selectId);
-        var originalOptions = $('#member1Select').data('original-options');
+        var originalOptions = $select.data('original-options');
 
         $select.find('option:not(:first)').remove();
 
@@ -331,6 +387,10 @@
             $.modal.alertError("请添加证书文件");
             return false;
         }
+
+        // 提交前重新启用所有禁用的下拉框，确保值能被提交
+        $('#firstPersonSelect, #member1Select, #member2Select, #member3Select, .member-select').prop('disabled', false);
+
         if ($.validate.form()) {
             $.operate.saveTab(prefix + "/add", $('#form-reward-add').serialize());
         }
@@ -369,6 +429,185 @@
     }).on('fileselected', function(event) {
         $(this).fileinput('upload');
     });
+
+    // // 监听分类、等级、排名变化
+    // $('select[name="rewardFenlei"], select[name="rewardDengji"], select[name="rewardPaiming"]').on('change', function() {
+    //     calculatePreviewScore();
+    // });
+
+    // 只监听分类和等级变化，不需要监听排名
+    $('select[name="rewardFenlei"], select[name="rewardDengji"]').on('change', function() {
+        loadScoreConfigs();
+    });
+    // 计算预览积分
+    function calculatePreviewScore() {
+        var fenlei = $('select[name="rewardFenlei"]').val();
+        var dengji = $('select[name="rewardDengji"]').val();
+        var paiming = $('select[name="rewardPaiming"]').val();
+
+        // 三个字段都选择后才计算
+        if (fenlei && dengji && paiming) {
+            $.ajax({
+                url: ctx + 'system/rewardcfg/calculateScore',
+                type: 'GET',
+                data: {
+                    fenLei: fenlei,
+                    dengJi: dengji,
+                    paiMing: paiming
+                },
+                success: function(result) {
+                    if (result.code === 0) {
+                        $('#previewScore').text('预计科研分：' + result.data + ' 分');
+                    } else {
+                        $('#previewScore').text('计算失败，请稍后重试');
+                    }
+                },
+                error: function() {
+                    $('#previewScore').text('计算失败，请稍后重试');
+                }
+            });
+        } else {
+            $('#previewScore').text('请先选择分类、等级、排名');
+        }
+    }
+
+    // 加载积分配置
+    function loadScoreConfigs() {
+        var fenlei = $('select[name="rewardFenlei"]').val();
+        var dengji = $('select[name="rewardDengji"]').val();
+
+        if (fenlei && dengji) {
+            $.ajax({
+                url: ctx + 'system/rewardcfg/getScoreConfigs',
+                type: 'GET',
+                data: { fenLei: fenlei, dengJi: dengji },
+                success: function(result) {
+                    if (result.code === 0) {
+                        scoreConfigs = result.data;
+                        assignScoresToMembers(); // 分配分数
+                    }
+                }
+            });
+        }
+    }
+
+    // 分配分数给所有成员
+    function assignScoresToMembers() {
+        // 1. 主持人（第1名）
+        if (scoreConfigs.length > 0) {
+            $('#expectedScore1').val(scoreConfigs[0].totalScore);
+        } else {
+            $('#expectedScore1').val('');
+        }
+
+        // 2. 成员1（第2名）
+        if (scoreConfigs.length > 1) {
+            $('#expectedScore2').val(scoreConfigs[1].totalScore);
+        } else {
+            $('#expectedScore2').val('');
+        }
+
+        // 3. 成员2（第3名）
+        if (scoreConfigs.length > 2) {
+            $('#expectedScore3').val(scoreConfigs[2].totalScore);
+        } else {
+            $('#expectedScore3').val('');
+        }
+
+        // 4. 成员3（第4名）
+        if (scoreConfigs.length > 3) {
+            $('#expectedScore4').val(scoreConfigs[3].totalScore);
+        } else {
+            $('#expectedScore4').val('');
+        }
+
+        // 5. 动态成员（从第5名开始）
+        $('.expected-score-input').each(function(index) {
+            var rankIndex = index + 4; // 第5名对应索引4
+            if (scoreConfigs.length > rankIndex) {
+                $(this).val(scoreConfigs[rankIndex].totalScore);
+            } else {
+                $(this).val('');
+            }
+        });
+    }
+
+    // 根据排名安排成员位置
+    function arrangeMembersByRank(rank) {
+        // 获取当前用户ID（从申请人的隐藏域获取）
+        var currentUserId = $('input[name="userId"]').val();
+
+        // 先恢复所有框为可编辑状态
+        $('#firstPersonSelect').prop('disabled', false);
+        $('#member1Select').prop('disabled', false);
+        $('#member2Select').prop('disabled', false);
+        $('#member3Select').prop('disabled', false);
+
+        // 先恢复所有下拉框的完整原始选项
+        restoreFullOptions('#firstPersonSelect');
+        restoreFullOptions('#member1Select');
+        restoreFullOptions('#member2Select');
+        restoreFullOptions('#member3Select');
+
+        // 清空所有选择
+        $('#firstPersonSelect').val('');
+        $('#member1Select').val('');
+        $('#member2Select').val('');
+        $('#member3Select').val('');
+
+        // 清空动态成员
+        $('#memberContainer').empty();
+
+        // 根据排名放置当前用户，并将该框设为只读
+        switch(rank) {
+            case "1":
+                // 第1名：主持人
+                $('#firstPersonSelect').val(currentUserId).trigger('change');
+                $('#firstPersonSelect').prop('disabled', true);
+                break;
+            case "2":
+                // 第2名：成员1
+                $('#member1Select').val(currentUserId).trigger('change');
+                $('#member1Select').prop('disabled', true);
+                break;
+            case "3":
+                // 第3名：成员2
+                $('#member2Select').val(currentUserId).trigger('change');
+                $('#member2Select').prop('disabled', true);
+                break;
+            case "4":
+                // 第4名：成员3
+                $('#member3Select').val(currentUserId).trigger('change');
+                $('#member3Select').prop('disabled', true);
+                break;
+            default:
+                // 第5名及以后：动态添加
+                var rankNum = parseInt(rank);
+                if (rankNum >= 5) {
+                    // 先添加足够的动态成员框
+                    for (var i = 5; i <= rankNum; i++) {
+                        appendMemberSelect();
+                    }
+                    // 然后在最后一个位置选中当前用户
+                    var lastMemberSelect = $('.member-select').last();
+                    lastMemberSelect.val(currentUserId).trigger('change');
+                    lastMemberSelect.prop('disabled', true);
+                }
+                break;
+        }
+
+        // 更新成员列表（互斥逻辑）
+        updateMemberLists();
+    }
+
+    // 恢复下拉框的完整原始选项
+    function restoreFullOptions(selectId) {
+        var $select = $(selectId);
+        var originalOptions = $select.data('original-options');
+        if (originalOptions) {
+            $select.html(originalOptions);
+        }
+    }
 </script>
 </body>
 </html>
