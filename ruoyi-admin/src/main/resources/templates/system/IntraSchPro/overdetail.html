@@ -13,6 +13,17 @@
     #contractFileName{
         display: none!important
     }
+    .author-score {
+        background-color: #5cb85c;
+        color: white;
+        font-weight: bold;
+        border-radius: 0 4px 4px 0;
+        min-width: 80px;
+        text-align: center;
+        display: inline-block;
+        padding: 6px 12px;
+        margin-left: 10px;
+    }
 </style>
 <body class="white-bg">
 <div class="wrapper wrapper-content animated fadeInRight ibox-content">
@@ -120,6 +131,7 @@
                             <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}"
                                     th:selected="${ #strings.toString(user.userId) == sciIntraSchoolPro.firstPersonId}"></option>
                         </select>
+                        <span class="author-score" id="firstPersonScore"></span>
                     </div>
                 </div>
             </div>
@@ -135,6 +147,7 @@
                             <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}"
                                     th:selected="${ #strings.toString(user.userId) == sciIntraSchoolPro.secondPersonId}"></option>
                         </select>
+                        <span class="author-score" id="secondPersonScore"></span>
                     </div>
                 </div>
             </div>
@@ -150,6 +163,7 @@
                             <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}"
                                     th:selected="${ #strings.toString(user.userId) == sciIntraSchoolPro.thirdPersonId}"></option>
                         </select>
+                        <span class="author-score" id="thirdPersonScore"></span>
                     </div>
                 </div>
             </div>
@@ -165,6 +179,7 @@
                             <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}"
                                     th:selected="${ #strings.toString(user.userId) == sciIntraSchoolPro.fourthPersonId}"></option>
                         </select>
+                        <span class="author-score" id="fourthPersonScore"></span>
                     </div>
                 </div>
             </div>
@@ -246,8 +261,7 @@
         </button>
         <button type="button" id="btn3" style="display:none;" class="btn btn-sm btn-warning" onclick="closeItem()">关 闭
         </button>
-        <button type="button" id="btn4" style="display:none;" class="btn btn-sm btn-warning" onclick="retract()">撤 回
-        </button>
+
     </div>
 </div>
 <th:block th:include="include :: footer"/>
@@ -353,12 +367,15 @@
             showToggle: false,
             showColumns: false,
             pagination: false,
+            sortName: 'createTime',
+            sortOrder: 'desc',
             columns: [
 
                 {
                     field: 'createTime',
                     title: '批阅时间',
-                    width: 200
+                    width: 200,
+                    sortable: true
 
                 },
                 {
@@ -398,8 +415,6 @@
                     $("#btn2").show();
                     $("#btn3").show();
                 }else if (a == 6){
-                    $(".tdiv1").show();
-                    $("#btn4").show();
                     $("#btn3").show();
                 }
             }
@@ -416,8 +431,6 @@
                     $("#btn2").show();
                     $("#btn3").show();
                 }else if (a == 13){
-                    $(".tdiv1").show();
-                    $("#btn4").show();
                     $("#btn3").show();
                 }
             }
@@ -439,8 +452,6 @@
                     $("#btn2").show();
                     $("#btn3").show();
                 }else if (a == 8){
-                    $(".tdiv1").show();
-                    $("#btn4").show();
                     $("#btn3").show();
                 }
             }
@@ -553,7 +564,27 @@
     window.onload = function () {
         displayFileName('contract', 'contractFileName');
         displayFileName('filing', 'filingFileName');
+        loadScores();
     };
+
+    function loadScores() {
+        var amount = $("input[name='amount']").val();
+        if (!amount || isNaN(amount)) return;
+        $.ajax({
+            url: prefix + '/calculateScore',
+            method: 'POST',
+            data: { amount: parseFloat(amount) },
+            success: function(response) {
+                if (response.code === 0 && response.data) {
+                    var scores = response.data;
+                    $('#firstPersonScore').text((scores['1'] || 0) + '分');
+                    $('#secondPersonScore').text((scores['2'] || 0) + '分');
+                    $('#thirdPersonScore').text((scores['3'] || 0) + '分');
+                    $('#fourthPersonScore').text((scores['4'] || 0) + '分');
+                }
+            }
+        });
+    }
 </script>
 </body>
 </html>
