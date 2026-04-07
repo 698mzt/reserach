@@ -442,9 +442,9 @@
                 <a class="btn btn-success" onclick="$.operate.addTab()" shiro:hasPermission="system:zhuanliruanzhu:add">
                 <i class="fa fa-plus"></i> 添加
             </a>
-<!--            <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:zhuanliruanzhu:export">-->
-<!--                <i class="fa fa-download"></i> 导出-->
-<!--            </a>-->
+                <a class="btn btn-primary" onclick="batchDownload('patent')">
+                    <i class="fa fa-download"></i> 批量下载
+                </a>
             </div>
                 <div style="display: flex; align-items: center; gap: 15px; padding: 6px 36px; border-radius: 4px;">
                     <th:block th:replace="include :: status-circles"/>
@@ -453,24 +453,25 @@
         <div class="col-sm-12 select-table table-striped">
             <div class="table-container">
                 <table id="bootstrap-table" class="custom-table">
-                    <thead>
-                    <tr>
-                        <th>序号</th>
-                        <th>学院</th>
-                        <th>专业</th>
-                        <th>姓名</th>
-                        <th>名称</th>
-<!--                        <th>类型</th>-->
-                        <th>获批时间</th>
-                        <th>分类</th>
-                        <th>个人排名</th>
-                        <th>积分</th>
-                        <th class="fixed-column">操作</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <!--  数据行将由JavaScript动态生成 -->
-                    </tbody>
+<!--                    <thead>-->
+<!--                    <tr>-->
+                    +
+<!--                        <th>序号</th>-->
+<!--                        <th>学院</th>-->
+<!--                        <th>专业</th>-->
+<!--                        <th>姓名</th>-->
+<!--                        <th>名称</th>-->
+<!--&lt;!&ndash;                        <th>类型</th>&ndash;&gt;-->
+<!--                        <th>获批时间</th>-->
+<!--                        <th>分类</th>-->
+<!--                        <th>个人排名</th>-->
+<!--                        <th>积分</th>-->
+<!--                        <th class="fixed-column">操作</th>-->
+<!--                    </tr>-->
+<!--                    </thead>-->
+<!--                    <tbody>-->
+<!--                    &lt;!&ndash;  数据行将由JavaScript动态生成 &ndash;&gt;-->
+<!--                    </tbody>-->
                 </table>
             </div>
         </div>
@@ -572,6 +573,9 @@
         }
 
         var options = {
+            id: "bootstrap-table",
+            toolbar: "toolbar",
+            formId: "formId",
             url: prefix + "/list",
             createUrl: prefix + "/add",
             updateUrl: prefix + "/edit/{id}",
@@ -581,8 +585,10 @@
             recallUrl: prefix + "/recall/{id}",
             rowStyle: rowStyle0,
             modalName: "专利软著",
-            columns: [
-                {
+            columns: [{
+                checkbox: true,
+                align: "center"
+            }, {
                     field: 'number',
                     title: '序号',
                     width: 5,
@@ -635,12 +641,34 @@
                     field: 'paiming',
                     title: '个人排名',
                     formatter: function(value, row, index) {
-                        return $.table.selectDictLabel(paiMingDatas, value);
+                        // 个人排名展示为 1/2/3/4/5（槽位/成员顺序），不走字典label
+                        return value === null || value === undefined ? '' : value;
                     }
                 },
                 {
-                    field: 'jifen',
-                    title: '积分'
+                    field: 'expectedJifen',
+                    title: '预计积分',
+                    formatter: function (value, row, index) {
+                        // 仅当最终积分未确定时展示预计积分
+                        if (row.finalJifen === null || row.finalJifen === undefined || row.finalJifen === '' || row.finalJifen === '0') {
+                            return value;
+                        }
+                        return '';
+                    }
+                },
+                {
+                    field: 'finalJifen',
+                    title: '实际积分',
+                    formatter: function (value, row, index) {
+                        if (value === null || value === undefined || value === '') {
+                            return '';
+                        }
+                        // 若未最终确认，通常为 null/空；如果落库为 0 也按不显示处理
+                        if (value === '0') {
+                            return '';
+                        }
+                        return value;
+                    }
                 },
                 {
                     title: '操作',
@@ -727,6 +755,131 @@
 
     function downloadFiles(id) {
         window.location.href = ctx + 'common/HXdownloadZip?id=' + id;
+    }
+//批量下载
+    var batchDownloadInProgress = false;
+
+    function parseDownloadFileName(contentDisposition) {
+        if (!contentDisposition) {
+            return "";
+        }
+
+        var utf8Match = contentDisposition.match(/filename\*=UTF-8''([^;]+)/i);
+        if (utf8Match && utf8Match[1]) {
+            return decodeURIComponent(utf8Match[1]).replace(/["]/g, "");
+        }
+
+        var fileNameMatch = contentDisposition.match(/filename="?([^";]+)"?/i);
+        return fileNameMatch && fileNameMatch[1] ? decodeURIComponent(fileNameMatch[1]) : "";
+    }
+
+    function readBlobAsText(blob, callback) {
+        if (!blob) {
+            callback("");
+            return;
+        }
+
+        var reader = new FileReader();
+        reader.onload = function () {
+            callback(reader.result || "");
+        };
+        reader.onerror = function () {
+            callback("");
+        };
+        reader.readAsText(blob, "utf-8");
+    }
+
+    function extractDownloadErrorMessage(text) {
+        if (!text) {
+            return "批量下载失败，请稍后重试";
+        }
+
+        try {
+            var result = JSON.parse(text);
+            if (result && result.msg) {
+                return result.msg;
+            }
+        } catch (e) {
+        }
+
+        return text.replace(/<[^>]+>/g, "").trim() || "批量下载失败，请稍后重试";
+    }
+
+    function triggerBlobDownload(blob, fileName) {
+        var resolvedFileName = fileName || "专利软著_批量下载.zip";
+        if (window.navigator.msSaveOrOpenBlob) {
+            window.navigator.msSaveOrOpenBlob(blob, resolvedFileName);
+            return;
+        }
+
+        var downloadUrl = window.URL.createObjectURL(blob);
+        var link = document.createElement("a");
+        link.style.display = "none";
+        link.href = downloadUrl;
+        link.download = resolvedFileName;
+        document.body.appendChild(link);
+        link.click();
+        setTimeout(function () {
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(downloadUrl);
+        }, 100);
+    }
+
+    function finishBatchDownload() {
+        batchDownloadInProgress = false;
+        $.modal.closeLoading();
+    }
+
+    function batchDownload(module) {
+        var ids = $.table.selectColumns("id", false);
+        if (!ids || ids.length === 0) {
+            $.modal.alertWarning("未选择数据");
+            return;
+        }
+        if (batchDownloadInProgress) {
+            $.modal.alertWarning("批量下载正在处理中，请稍候...");
+            return;
+        }
+
+        batchDownloadInProgress = true;
+        $.modal.loading("正在打包下载，请稍候...");
+
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", ctx + "common/batchDownload?ids=" + encodeURIComponent(ids.join(",")) + "&module=" + encodeURIComponent(module), true);
+        xhr.responseType = "blob";
+        xhr.timeout = 10 * 60 * 1000;
+
+        xhr.onload = function () {
+            var blob = xhr.response;
+            var contentDisposition = xhr.getResponseHeader("Content-Disposition") || "";
+            var contentType = xhr.getResponseHeader("Content-Type") || "";
+            var isDownloadResponse = contentDisposition.indexOf("attachment") !== -1
+                || contentType.indexOf("application/zip") !== -1
+                || contentType.indexOf("application/octet-stream") !== -1;
+
+            if (xhr.status >= 200 && xhr.status < 300 && isDownloadResponse) {
+                triggerBlobDownload(blob, parseDownloadFileName(contentDisposition));
+                finishBatchDownload();
+                return;
+            }
+
+            readBlobAsText(blob, function (text) {
+                $.modal.alertError(extractDownloadErrorMessage(text));
+                finishBatchDownload();
+            });
+        };
+
+        xhr.onerror = function () {
+            $.modal.alertError("批量下载失败，请检查网络或稍后重试");
+            finishBatchDownload();
+        };
+
+        xhr.ontimeout = function () {
+            $.modal.alertError("批量下载超时，请稍后重试");
+            finishBatchDownload();
+        };
+
+        xhr.send();
     }
 
     function rowStyle0(row, index) {

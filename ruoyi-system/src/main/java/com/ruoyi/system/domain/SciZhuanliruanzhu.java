@@ -31,6 +31,8 @@ public class SciZhuanliruanzhu extends BaseEntity
                 ", role='" + role + '\'' +
 
                 ", jifen='" + jifen + '\'' +
+                ", expectedJifen='" + expectedJifen + '\'' +
+                ", finalJifen='" + finalJifen + '\'' +
                 ", year='" + year + '\'' +
                 ", urlFlag='" + urlFlag + '\'' +
                 ", yname='" + yname + '\'' +
@@ -119,6 +121,22 @@ public class SciZhuanliruanzhu extends BaseEntity
 
     public void setJifen(String jifen) {
         this.jifen = jifen;
+    }
+
+    public String getExpectedJifen() {
+        return expectedJifen;
+    }
+
+    public void setExpectedJifen(String expectedJifen) {
+        this.expectedJifen = expectedJifen;
+    }
+
+    public String getFinalJifen() {
+        return finalJifen;
+    }
+
+    public void setFinalJifen(String finalJifen) {
+        this.finalJifen = finalJifen;
     }
 
 
@@ -311,6 +329,12 @@ public class SciZhuanliruanzhu extends BaseEntity
 
     @Excel(name = "积分", sort = 5)
     private String jifen;
+
+    /** 预计科研分 */
+    private String expectedJifen;
+
+    /** 最终科研分（未最终确认则为空） */
+    private String finalJifen;
 
     private String wenjian;
 

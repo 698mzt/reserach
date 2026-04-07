@@ -72,6 +72,12 @@ public interface SciZhuanliruanzhuMapper
 
     int updateJifen(@Param("id") Long id, @Param("jifen") int jifen);
 
+    /**
+     * 更新最终积分（final_jifen）
+     * urlFlag="chayue"（科研处通过）时写入，未最终确认则为空
+     */
+    int updateFinalJifen(@Param("id") String id, @Param("finalJifen") String finalJifen);
+
     int hxover(@Param("id") String id,@Param("state") String state);
 
     List<SysUser> selectUserList(@Param("user") SysUser user);

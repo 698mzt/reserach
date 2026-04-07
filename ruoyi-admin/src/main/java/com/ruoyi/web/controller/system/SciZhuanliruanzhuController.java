@@ -136,9 +136,31 @@ public class SciZhuanliruanzhuController extends BaseController
         }
 
 
-
-
         return getDataTable(list);
+    }
+
+    private String resolvePersonalRank(SciZhuanliruanzhu row, String uid) {
+        if (row == null || uid == null || uid.isEmpty()) {
+            return "";
+        }
+        if (uid.equals(safeStr(row.getFirstPersonId()))) return "1";
+        if (uid.equals(safeStr(row.getSecondPersonId()))) return "2";
+        if (uid.equals(safeStr(row.getThirdPersonId()))) return "3";
+        if (uid.equals(safeStr(row.getFourthPersonId()))) return "4";
+        if (isInMembers(row.getMembers(), uid)) return "5";
+        return "";
+    }
+
+    private boolean isInMembers(String members, String uid) {
+        if (members == null || members.isEmpty() || uid == null || uid.isEmpty()) {
+            return false;
+        }
+        String quoted = "\"" + uid + "\"";
+        return members.contains(quoted) || members.equals(uid);
+    }
+
+    private String safeStr(String s) {
+        return s == null ? "" : s;
     }
 
     /**
@@ -319,6 +341,13 @@ public class SciZhuanliruanzhuController extends BaseController
     public String edit(@PathVariable("id") Integer id, ModelMap mmap)
     {
         SciZhuanliruanzhu sciZhuanliruanzhu = sciZhuanliruanzhuService.selectSciZhuanliruanzhuById(id);
+        // 编辑页面的“个人排名”也要按当前登录人的槽位动态计算（1/2/3/4），避免显示第一/第二负责人字样
+        Long currentUid = getUserId();
+        String currentUidStr = currentUid == null ? "" : String.valueOf(currentUid);
+        String personalRank = resolvePersonalRank(sciZhuanliruanzhu, currentUidStr);
+        if (personalRank != null && !personalRank.isEmpty()) {
+            sciZhuanliruanzhu.setPaiming(personalRank);
+        }
         mmap.put("sciZhuanliruanzhu", sciZhuanliruanzhu);
         List<SysUser> userList1 =  userService.selectAllUser();
 
@@ -408,7 +437,25 @@ public class SciZhuanliruanzhuController extends BaseController
         return prefix + "/detail";
     }
 
+    /**
+     * 根据分类计算预计科研分（主持人/成员1/成员2/成员3），用于新增/编辑页面实时展示
+     * @param fenlei 分类值（来自 sys_zhuanli_fenlei）
+     */
+    @GetMapping("/calcExpectedScores")
+    @ResponseBody
+    public AjaxResult calcExpectedScores(String fenlei) {
+        if (fenlei == null || fenlei.trim().isEmpty()) {
+            java.util.Map<String, String> zeroMap = new java.util.HashMap<>();
+            zeroMap.put("firstScore", "0");
+            zeroMap.put("secondScore", "0");
+            zeroMap.put("thirdScore", "0");
+            zeroMap.put("fourthScore", "0");
+            return AjaxResult.success(zeroMap);
+        }
 
+        java.util.Map<String, String> scores = sciZhuanliruanzhuService.calculateExpectedScores(fenlei);
+        return AjaxResult.success(scores);
+    }
 
 
     /**

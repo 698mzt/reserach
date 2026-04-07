@@ -125,6 +125,21 @@ public interface ISciZhuanliruanzhuService
      */
     List<SciZhuanliruanzhu> getStatsQueryToCheck(Map<String, String> params);
 
+    /**
+     * 根据分类计算预计科研分（仅参与排名1~4：主持人/成员1/成员2/成员3）
+     *
+     * @param fenlei 分类值（来自 sys_zhuanli_fenlei）
+     * @return 包含 firstScore/secondScore/thirdScore/fourthScore 的Map
+     */
+    Map<String, String> calculateExpectedScores(String fenlei);
 
+    /**
+     * 根据分类与个人排名(1~4)计算积分（从 cfg 表读取）
+     *
+     * @param fenlei 分类值
+     * @param paiming 个人排名（1~4）
+     * @return 积分
+     */
+    String calculateScoreByFenleiAndRank(String fenlei, String paiming);
 
 }
