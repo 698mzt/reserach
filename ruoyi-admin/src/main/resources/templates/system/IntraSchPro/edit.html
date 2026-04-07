@@ -6,6 +6,19 @@
     <th:block th:include="include :: bootstrap-fileinput-css"/>
     <th:block th:include="include :: select2-css"/>
 </head>
+<style>
+    .author-score {
+        background-color: #5cb85c;
+        color: white;
+        font-weight: bold;
+        border-radius: 0 4px 4px 0;
+        min-width: 80px;
+        text-align: center;
+        display: inline-block;
+        padding: 6px 12px;
+        margin-left: 10px;
+    }
+</style>
 <body class="white-bg">
 <div class="wrapper wrapper-content animated fadeInRight ibox-content">
     <form class="form-horizontal m" id="form-apply-edit" th:object="${sciIntraSchoolPro}">
@@ -121,6 +134,7 @@
                             <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}"
                                     th:selected="${ #strings.toString(user.userId) == sciIntraSchoolPro.firstPersonId}"></option>
                         </select>
+                        <span class="author-score" id="firstPersonScore"></span>
                     </div>
                 </div>
             </div>
@@ -136,6 +150,7 @@
                             <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}"
                                     th:selected="${ #strings.toString(user.userId) == sciIntraSchoolPro.secondPersonId}"></option>
                         </select>
+                        <span class="author-score" id="secondPersonScore"></span>
                     </div>
                 </div>
             </div>
@@ -150,6 +165,7 @@
                             <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}"
                                     th:selected="${ #strings.toString(user.userId) == sciIntraSchoolPro.thirdPersonId}"></option>
                         </select>
+                        <span class="author-score" id="thirdPersonScore"></span>
                     </div>
                 </div>
             </div>
@@ -164,6 +180,7 @@
                             <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}"
                                     th:selected="${ #strings.toString(user.userId) == sciIntraSchoolPro.fourthPersonId}"></option>
                         </select>
+                        <span class="author-score" id="fourthPersonScore"></span>
                     </div>
                 </div>
             </div>
@@ -393,6 +410,40 @@
         // 单个文件选择 立即上传
         $(this).fileinput('upload');
     })
+
+    // 页面加载时计算积分，金额变化时刷新
+    $(document).ready(function() {
+        loadScores();
+    });
+    $('input[name="amount"]').on('change blur', function() {
+        loadScores();
+    });
+
+    function loadScores() {
+        var amount = $("input[name='amount']").val();
+        if (!amount || isNaN(amount) || parseFloat(amount) <= 0) {
+            $('#firstPersonScore').text('0分');
+            $('#secondPersonScore').text('0分');
+            $('#thirdPersonScore').text('0分');
+            $('#fourthPersonScore').text('0分');
+            return;
+        }
+        $.ajax({
+            url: prefix + '/calculateScore',
+            method: 'POST',
+            data: { amount: parseFloat(amount) },
+            success: function(response) {
+                if (response.code === 0 && response.data) {
+                    var scores = response.data;
+                    $('#firstPersonScore').text((scores['1'] || 0) + '分');
+                    $('#secondPersonScore').text((scores['2'] || 0) + '分');
+                    $('#thirdPersonScore').text((scores['3'] || 0) + '分');
+                    $('#fourthPersonScore').text((scores['4'] || 0) + '分');
+                }
+            }
+        });
+    }
+
 </script>
 </body>
 </html>
