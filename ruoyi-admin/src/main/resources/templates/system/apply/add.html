@@ -74,10 +74,20 @@
                     <label class="col-sm-4 control-label is-required">项目金额(万)：</label>
                     <div class="col-sm-8">
                         <div class="input-group ">
-                            <input name="amount"  class="form-control" type="number" required step="0.0001" max="999999999">
+                            <input name="amount" id="amountInput" class="form-control" type="number" required step="0.0001" max="999999999">
                             <span class="input-group-addon">
                                 <a href="#" title="上传到账金额"  data-toggle="modal" data-target="#myModal"><i class="fa fa-plus-circle" ></i>到账金额</a>
                             </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12">
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">预计科研分：</label>
+                    <div class="col-sm-10">
+                        <div id="score-info" class="alert alert-info" style="margin-bottom: 0; padding: 10px;">
+                            项目金额未填写，科研分待计算
                         </div>
                     </div>
                 </div>
@@ -209,6 +219,8 @@
             focusCleanup: true
         });
 
+        var scoreCalculationTimer = null;
+
         $("input[name='amount']").on('input', function() {
             var value = $(this).val();
             // 限制整数部分不超过9位
@@ -239,6 +251,15 @@
                     $.modal.alertError("输入金额有误差：总长度最大9位数，小数点后最大四位；例：9999.9999")
                 }
             }
+
+            if (scoreCalculationTimer) {
+                clearTimeout(scoreCalculationTimer);
+            }
+            scoreCalculationTimer = setTimeout(function() {
+                if (typeof researchScore !== 'undefined') {
+                    researchScore.updateDisplay(value, 'score-info');
+                }
+            }, 150);
         });
 
         function submitHandler() {

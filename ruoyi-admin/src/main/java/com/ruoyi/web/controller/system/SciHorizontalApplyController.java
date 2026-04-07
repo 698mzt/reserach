@@ -1127,4 +1127,47 @@ public class SciHorizontalApplyController extends BaseController
 
         return AjaxResult.success(counts);
     }
+
+    /**
+     * 功能描述：重新计算科研分
+     * @param ids 课题ID列表，多个ID用逗号分隔
+     * @return AjaxResult 操作结果
+     * SQL说明：查询sci_horizontal_apply表获取课题信息，根据金额和成员排名重新计算科研分
+     * @throws Exception 计算异常
+     */
+    @RequiresPermissions("system:apply:edit")
+    @Log(title = "重新计算科研分", businessType = BusinessType.UPDATE)
+    @PostMapping("/recalculateScore")
+    @ResponseBody
+    public AjaxResult recalculateScore(String ids)
+    {
+        if (ids == null || ids.isEmpty()) {
+            return AjaxResult.error("请选择需要重新计算科研分的课题");
+        }
+        try {
+            int count = sciHorizontalApplyService.recalculateScore(ids, getUserId());
+            return AjaxResult.success("成功重新计算 " + count + " 条课题的科研分");
+        } catch (Exception e) {
+            return AjaxResult.error("科研分重新计算失败：" + e.getMessage());
+        }
+    }
+
+    /**
+     * 功能描述：获取科研分计算预览
+     * @param id 课题ID
+     * @return AjaxResult 预览结果
+     * SQL说明：查询sci_horizontal_apply表获取课题信息，根据金额和成员排名计算预计科研分
+     */
+    @RequiresPermissions("system:apply:view")
+    @GetMapping("/previewScore/{id}")
+    @ResponseBody
+    public AjaxResult previewScore(@PathVariable("id") Integer id)
+    {
+        try {
+            Map<String, Object> preview = sciHorizontalApplyService.previewScore(id);
+            return AjaxResult.success(preview);
+        } catch (Exception e) {
+            return AjaxResult.error("获取科研分预览失败：" + e.getMessage());
+        }
+    }
 }

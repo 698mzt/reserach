@@ -320,16 +320,29 @@ public class SciHorizontalApplyVerticalController extends BaseController {
                 
                 List<SciUserScore> score = scoreMap.getOrDefault(apply.getId().toString(), new ArrayList<>());
                 ArrayList<Integer> allscore = new ArrayList<>();
+                String expectedScore = "0";
                 
                 for(SciUserScore score1: score){
                     if (apply.getFirstPersonId().equals(score1.getUserId()) && apply.getFirstPersonId().equals(currentUserId)) {
                         allscore.add(Integer.parseInt(score1.getChangeValue()));
+                        if (score1.getExpectedValue() != null) {
+                            expectedScore = score1.getExpectedValue();
+                        }
                     } else if (apply.getSecondPersonId().equals(score1.getUserId()) && apply.getSecondPersonId().equals(currentUserId)) {
                         allscore.add(Integer.parseInt(score1.getChangeValue()));
+                        if (score1.getExpectedValue() != null) {
+                            expectedScore = score1.getExpectedValue();
+                        }
                     } else if (apply.getThirdPersonId().equals(score1.getUserId()) && apply.getThirdPersonId().equals(currentUserId)) {
                         allscore.add(Integer.parseInt(score1.getChangeValue()));
+                        if (score1.getExpectedValue() != null) {
+                            expectedScore = score1.getExpectedValue();
+                        }
                     } else if (apply.getFourthPersonId().equals(score1.getUserId()) && apply.getFourthPersonId().equals(currentUserId)) {
                         allscore.add(Integer.parseInt(score1.getChangeValue()));
+                        if (score1.getExpectedValue() != null) {
+                            expectedScore = score1.getExpectedValue();
+                        }
                     }
                 }
                 
@@ -338,6 +351,7 @@ public class SciHorizontalApplyVerticalController extends BaseController {
                     count += i;
                 }
                 apply.setScore(count.toString());
+                apply.setExpectedScore(expectedScore);
             }
         }
 

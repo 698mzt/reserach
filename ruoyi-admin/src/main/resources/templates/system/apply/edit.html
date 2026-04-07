@@ -74,10 +74,20 @@
                     <label class="col-sm-4 control-label is-required">项目金额：</label>
                     <div class="col-sm-8">
                         <div class="input-group ">
-                            <input name="amount" th:field="*{amount}" class="form-control" type="number" required  maxlength="9" step="0.0001">
+                            <input name="amount" id="amountInput" th:field="*{amount}" class="form-control" type="number" required  maxlength="9" step="0.0001">
                             <span class="input-group-addon">
                                 <a href="#" title="上传到账金额"  data-toggle="modal" data-target="#myModal"><i class="fa fa-plus-circle" ></i>到账金额</a>
                             </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12">
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">预计科研分：</label>
+                    <div class="col-sm-10">
+                        <div id="score-info" class="alert alert-info" style="margin-bottom: 0; padding: 10px;">
+                            项目金额未填写，科研分待计算
                         </div>
                     </div>
                 </div>
@@ -210,51 +220,27 @@
         window.ktidValue = document.getElementById("ktid").value;
         $("#applyId").val(window.ktidValue)
 
+        var scoreCalculationTimer = null;
+
         $(function(){
-            <!-- laydate示例 -->
-            layui.use('laydate', function(){
-                var laydate = layui.laydate;
-                laydate.render({
-                    elem: '#laydate-demo-4',
-                    range: true
-                });
-                var startDate = laydate.render({
-                    elem: '#laydate-startTime',
-                    max: $('#laydate-endTime').val(),
-                    theme: 'molv',
-                    trigger: 'click',
-                    done: function(value, date) {
-                        // 结束时间大于开始时间
-                        if (value !== '') {
-                            endDate.config.min.year = date.year;
-                            endDate.config.min.month = date.month - 1;
-                            endDate.config.min.date = date.date;
-                        } else {
-                            endDate.config.min.year = '';
-                            endDate.config.min.month = '';
-                            endDate.config.min.date = '';
-                        }
+            var initialAmount = $("#amountInput").val();
+            if (initialAmount && typeof researchScore !== 'undefined') {
+                researchScore.updateDisplay(initialAmount, 'score-info');
+            }
+
+            $("#amountInput").on('input', function() {
+                var value = $(this).val();
+                if (scoreCalculationTimer) {
+                    clearTimeout(scoreCalculationTimer);
+                }
+                scoreCalculationTimer = setTimeout(function() {
+                    if (typeof researchScore !== 'undefined') {
+                        researchScore.updateDisplay(value, 'score-info');
                     }
-                });
-                var endDate = laydate.render({
-                    elem: '#laydate-endTime',
-                    min: $('#laydate-startTime').val(),
-                    theme: 'molv',
-                    trigger: 'click',
-                    done: function(value, date) {
-                        // 开始时间小于结束时间
-                        if (value !== '') {
-                            startDate.config.max.year = date.year;
-                            startDate.config.max.month = date.month - 1;
-                            startDate.config.max.date = date.date;
-                        } else {
-                            startDate.config.max.year = '';
-                            startDate.config.max.month = '';
-                            startDate.config.max.date = '';
-                        }
-                    }
-                });
+                }, 150);
             });
+
+
 
             var kid = $("#ktid").val();
             var options = {
@@ -727,8 +713,6 @@
         }
     </script>
 </body>
-
-<body>
 <style>
     .modal.inmodal .modal-dialog {
         width: auto;  /* 宽度自适应 */
