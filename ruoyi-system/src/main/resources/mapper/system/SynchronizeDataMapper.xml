@@ -476,12 +476,12 @@
             SET
                 a.sjjxcgj = COALESCE(stats.fenlei_1, 0),
                 a.sjkxjsj = COALESCE(stats.fenlei_2, 0),
-                a.sjyljpkpb = COALESCE(stats.fenlei_3, 0),
-                a.stjjzrkxlpj = COALESCE(stats.fenlei_4, 0),
-                a.stjjsklpj = COALESCE(stats.fenlei_5, 0),
-                a.xjjxcgj = COALESCE(stats.fenlei_6, 0),
-                a.yyxkyxjcgj = COALESCE(stats.fenlei_7, 0),
-                a.xjjpkpb = COALESCE(stats.fenlei_8, 0)
+                a.stjjzrkxlpj = COALESCE(stats.fenlei_3, 0),
+                a.stjjsklpj = COALESCE(stats.fenlei_4, 0),
+                a.xjjxcgj = COALESCE(stats.fenlei_5, 0),
+                a.yyxkyxjcgj = COALESCE(stats.fenlei_6, 0),
+                a.xhjjxcgj = COALESCE(stats.fenlei_7, 0),
+                a.xhjkycgj = COALESCE(stats.fenlei_8, 0)
     </update>
     <update id="SynchronizeScoreJL">
         -- 更新alltotle_score表中的奖励总积分

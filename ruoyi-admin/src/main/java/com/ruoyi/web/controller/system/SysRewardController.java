@@ -73,7 +73,7 @@ public class SysRewardController extends BaseController
     @RequiresPermissions("system:reward:list")
     @PostMapping("/list")
     @ResponseBody
-    public TableDataInfo list(String rewardName, String userName, String dname, String yname, SysReward sysReward)
+    public TableDataInfo list(SysReward sysReward)
     {
         sysReward.setUid(getUserId());
         startPage();
@@ -156,8 +156,13 @@ public class SysRewardController extends BaseController
             @RequestParam(value = "dname", required = false) String dname,
             @RequestParam(value = "yname", required = false) String yname,
             SysReward sysReward) {
-        // 直接调用主list方法
-        return list(rewardName, userName, dname, yname, sysReward);
+        // 把额外参数塞进 SysReward 对象
+        sysReward.setRewardName(rewardName);
+        sysReward.setUserName(userName);
+        sysReward.setDname(dname);
+        sysReward.setYname(yname);
+        // 只传 SysReward 调用原 list 方法
+        return list(sysReward);
     }
 
     /**

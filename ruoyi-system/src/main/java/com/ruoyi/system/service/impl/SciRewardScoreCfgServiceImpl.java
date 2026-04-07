@@ -108,4 +108,16 @@ public class SciRewardScoreCfgServiceImpl implements ISciRewardScoreCfgService
         SciRewardScoreCfg config = sciRewardScoreCfgMapper.selectScoreConfig(fenLei, dengJi, paiMing);
         return config != null ? config.getTotalScore() : "0";
     }
+
+    /**
+     * 根据条件计算奖励积分分配给对应的成员
+     *
+     * @param fenLei 奖励分类
+     * @param dengJi 奖励等级
+     * @return 对应积分值，未找到配置返回"0"
+     */
+    @Override
+    public List<SciRewardScoreCfg> selectScoreConfigsByFenLeiAndDengJi(String fenLei, String dengJi) {
+        return sciRewardScoreCfgMapper.selectScoreConfigsByFenLeiAndDengJi(fenLei, dengJi);
+    }
 }

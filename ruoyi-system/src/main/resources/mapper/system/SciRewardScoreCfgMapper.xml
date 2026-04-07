@@ -79,4 +79,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             LIMIT 1
     </select>
 
+    <!-- 根据分类和等级查询给相应的成员的积分配置 -->
+    <select id="selectScoreConfigsByFenLeiAndDengJi" resultMap="SciRewardScoreCfgResult">
+        SELECT id, fen_lei, pai_ming, deng_ji, total_score
+        FROM sci_reward_score_cfg
+        WHERE fen_lei = #{fenLei}
+          AND deng_ji = #{dengJi}
+        ORDER BY CAST(pai_ming AS UNSIGNED) ASC
+    </select>
+
 </mapper>
