@@ -21,6 +21,7 @@
         <result property="state" column="state"    />
         <result property="paiming" column="paiming"    />
         <result property="jifen" column="jifen"    />
+        <result property="personalScore" column="personalScore"    />
         <result property="wenjian" column="wenjian"    />
         <result property="createtime" column="createtime" />
         <result property="year" column="year" /><!-- 确保映射正确 -->
@@ -29,7 +30,8 @@
         <result property="fuzhubian" column="fuzhubian" />
     </resultMap>
     <sql id="selectSciJiaocairuanzhuVo">
-        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname,p.dept_id parent_id, s.user_id, s.mingcheng, s.isbn, s.chubanshijian, s.chubanshe, s.benxiaoshifoyongshu, s.fenlei, s.state,s.jifen,s.paiming,s.wenjian,s.createtime,s.zhubian,s.fuzhubian
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname,p.dept_id parent_id, s.user_id, s.mingcheng, s.isbn, s.chubanshijian, s.chubanshe, s.benxiaoshifoyongshu, s.fenlei, s.state,s.jifen,s.paiming,s.wenjian,s.createtime,s.zhubian,s.fuzhubian,
+        (select research_score from sci_jiaocairuanzhu_member where jiaocai_id = s.id and member_id = #{uid}) as personalScore
         from sci_jiaocairuanzhu s left join sys_user u on  s.user_id=u.user_id
                                   left join sys_dept d on u.dept_id = d.dept_id
                                   left join sys_dept p on d.parent_id =p.dept_id
@@ -279,6 +281,7 @@
             <if test="paiming != null and paiming != ''">paiming = #{paiming},</if>
             <if test="zhubian != null and zhubian != ''">zhubian = #{zhubian},</if>
             <if test="fuzhubian != null and fuzhubian != ''">fuzhubian = #{fuzhubian},</if>
+            <if test="jifen != null and jifen != ''">jifen = #{jifen},</if>
             <if test="wenjian != null and wenjian != ''">wenjian = #{wenjian},</if>
             state = "0"
 
