@@ -82,16 +82,6 @@
                     </div>
                 </div>
             </div>
-            <div class="col-xs-12">
-                <div class="form-group">
-                    <label class="col-sm-2 control-label">预计科研分：</label>
-                    <div class="col-sm-10">
-                        <div id="score-info" class="alert alert-info" style="margin-bottom: 0; padding: 10px;">
-                            项目金额未填写，科研分待计算
-                        </div>
-                    </div>
-                </div>
-            </div>
             <div class="row">
                     <div class="col-xs-6">
                         <div class="form-group">
@@ -105,55 +95,95 @@
                         </div>
                     </div>
             </div>
-            <div class="col-xs-6">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">主持人：</label>
-                    <div class="col-sm-8">
-                        <select id="firstPersonSelect" name="firstPersonId_disabled" class="form-control m-b" required disabled="true">
-                            <option value="">无</option>
-                            <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ #strings.toString(user.userId) == sciHorizontalApply.firstPersonId}"></option>
-                        </select>
-                        <input type="hidden" name="firstPersonId" th:value="*{firstPersonId}">
+            <!-- 主持人和预期科研分 -->
+            <div class="row">
+                <div class="col-xs-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label is-required">主持人：</label>
+                        <div class="col-sm-8">
+                            <select id="firstPersonSelect" name="firstPersonId_disabled" class="form-control m-b" required disabled="true">
+                                <option value="">无</option>
+                                <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ #strings.toString(user.userId) == sciHorizontalApply.firstPersonId}"></option>
+                            </select>
+                            <input type="hidden" name="firstPersonId" th:value="*{firstPersonId}">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">预期科研分：</label>
+                        <div class="col-sm-8">
+                            <input id="expectedScore1" name="expectedScore1" class="form-control" type="text" readonly placeholder="选择课题类型和填写金额后自动计算">
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="col-xs-6">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">成员1：</label>
-                    <div class="col-sm-8">
-                        <select id="member1Select" name="secondPersonId" class="form-control m-b" onchange="updateMemberLists()" required>
-                            <option value="">无</option>
-                            <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ #strings.toString(user.userId) == sciHorizontalApply.secondPersonId}" ></option>
-                        </select>
+            <!-- 成员1和预期科研分 -->
+            <div class="row">
+                <div class="col-xs-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label is-required">成员1：</label>
+                        <div class="col-sm-8">
+                            <select id="member1Select" name="secondPersonId" class="form-control m-b" onchange="updateMemberLists()" required>
+                                <option value="">无</option>
+                                <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ #strings.toString(user.userId) == sciHorizontalApply.secondPersonId}" ></option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">预期科研分：</label>
+                        <div class="col-sm-8">
+                            <input id="expectedScore2" name="expectedScore2" class="form-control" type="text" readonly placeholder="选择课题类型和填写金额后自动计算">
+                        </div>
                     </div>
                 </div>
             </div>
 
-
-
-            <div class="col-xs-6">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">成员2：</label>
-                    <div class="col-sm-8">
-                        <select id="member2Select" name="thirdPersonId" class="form-control m-b" onchange="updateMemberLists()" required>
-                            <option value="">无</option>
-                            <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ #strings.toString(user.userId) == sciHorizontalApply.thirdPersonId}"  ></option>
-                        </select>
+            <!-- 成员2和预期科研分 -->
+            <div class="row">
+                <div class="col-xs-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label is-required">成员2：</label>
+                        <div class="col-sm-8">
+                            <select id="member2Select" name="thirdPersonId" class="form-control m-b" onchange="updateMemberLists()" required>
+                                <option value="">无</option>
+                                <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ #strings.toString(user.userId) == sciHorizontalApply.thirdPersonId}"  ></option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">预期科研分：</label>
+                        <div class="col-sm-8">
+                            <input id="expectedScore3" name="expectedScore3" class="form-control" type="text" readonly placeholder="选择课题类型和填写金额后自动计算">
+                        </div>
                     </div>
                 </div>
             </div>
 
-
-
-            <div class="col-xs-6">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">成员3：</label>
-                    <div class="col-sm-8">
-                        <select id="member3Select" name="fourthPersonId" class="form-control m-b" onchange="updateMemberLists()" required>
-                            <option value="">无</option>
-                            <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ #strings.toString(user.userId) == sciHorizontalApply.fourthPersonId}"  ></option>
-                        </select>
+            <!-- 成员3和预期科研分 -->
+            <div class="row">
+                <div class="col-xs-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label is-required">成员3：</label>
+                        <div class="col-sm-8">
+                            <select id="member3Select" name="fourthPersonId" class="form-control m-b" onchange="updateMemberLists()" required>
+                                <option value="">无</option>
+                                <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ #strings.toString(user.userId) == sciHorizontalApply.fourthPersonId}"  ></option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">预期科研分：</label>
+                        <div class="col-sm-8">
+                            <input id="expectedScore4" name="expectedScore4" class="form-control" type="text" readonly placeholder="选择课题类型和填写金额后自动计算">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -223,25 +253,6 @@
         var scoreCalculationTimer = null;
 
         $(function(){
-            var initialAmount = $("#amountInput").val();
-            if (initialAmount && typeof researchScore !== 'undefined') {
-                researchScore.updateDisplay(initialAmount, 'score-info');
-            }
-
-            $("#amountInput").on('input', function() {
-                var value = $(this).val();
-                if (scoreCalculationTimer) {
-                    clearTimeout(scoreCalculationTimer);
-                }
-                scoreCalculationTimer = setTimeout(function() {
-                    if (typeof researchScore !== 'undefined') {
-                        researchScore.updateDisplay(value, 'score-info');
-                    }
-                }, 150);
-            });
-
-
-
             var kid = $("#ktid").val();
             var options = {
                 url: prefix + "/bhyy/"+kid,
@@ -911,6 +922,82 @@
             $(this).fileinput('upload');
         });
     })
+
+    // 监听金额输入变化，自动计算预期科研分
+    var scoreCalculationTimer = null;
+    $("input[name='amount']").on('input', function() {
+        var amount = $(this).val();
+        
+        // 清除之前的定时器
+        if (scoreCalculationTimer) {
+            clearTimeout(scoreCalculationTimer);
+        }
+        
+        // 延迟150ms后执行计算，避免频繁请求
+        scoreCalculationTimer = setTimeout(function() {
+            if (!amount || parseFloat(amount) <= 0) {
+                // 金额为空或无效时清空预期科研分
+                $("#expectedScore1").val("");
+                $("#expectedScore2").val("");
+                $("#expectedScore3").val("");
+                $("#expectedScore4").val("");
+                return;
+            }
+            
+            // 调用后端接口计算预期科研分
+            $.ajax({
+                url: ctx + "system/apply/calculateScore",
+                type: "POST",
+                data: {
+                    amount: amount
+                },
+                success: function(response) {
+                    if (response.code === 0 && response.data) {
+                        // 更新四个预期科研分字段
+                        $("#expectedScore1").val(response.data[0] || 0);
+                        $("#expectedScore2").val(response.data[1] || 0);
+                        $("#expectedScore3").val(response.data[2] || 0);
+                        $("#expectedScore4").val(response.data[3] || 0);
+                    } else {
+                        // 计算失败时清空字段
+                        $("#expectedScore1").val("");
+                        $("#expectedScore2").val("");
+                        $("#expectedScore3").val("");
+                        $("#expectedScore4").val("");
+                    }
+                },
+                error: function() {
+                    // 请求失败时清空字段
+                    $("#expectedScore1").val("");
+                    $("#expectedScore2").val("");
+                    $("#expectedScore3").val("");
+                    $("#expectedScore4").val("");
+                }
+            });
+        }, 150);
+    });
+
+    // 页面加载时，如果已有金额则计算预期科研分
+    $(function() {
+        var initialAmount = $("input[name='amount']").val();
+        if (initialAmount && parseFloat(initialAmount) > 0) {
+            $.ajax({
+                url: ctx + "system/apply/calculateScore",
+                type: "POST",
+                data: {
+                    amount: initialAmount
+                },
+                success: function(response) {
+                    if (response.code === 0 && response.data) {
+                        $("#expectedScore1").val(response.data[0] || 0);
+                        $("#expectedScore2").val(response.data[1] || 0);
+                        $("#expectedScore3").val(response.data[2] || 0);
+                        $("#expectedScore4").val(response.data[3] || 0);
+                    }
+                }
+            });
+        }
+    });
 </script>
 </body>
 </html>
