@@ -697,9 +697,20 @@
                     }
                 },
                 {
+                    field: 'expectedScore',
+                    align: 'center',
+                    title: '预期科研分',
+                    formatter: function(value, row, index) {
+                        if(row.expectedScore == null || row.expectedScore == ''){
+                            return '0';
+                        }
+                        return row.expectedScore;
+                    }
+                },
+                {
                     field: 'score',
                     align: 'center',
-                    title: '积分',
+                    title: '已获积分',
                     formatter: function(value, row, index) {
                         if(row.score == null){
                             row.score = 0;
@@ -831,6 +842,17 @@
                             ranking.push("无");
                         }
                         return ranking.join('');
+                    }
+                },
+                {
+                    field: 'expectedScore',
+                    align: 'center',
+                    title: '预期科研分',
+                    formatter: function(value, row, index) {
+                        if(row.expectedScore == null || row.expectedScore == ''){
+                            return '0';
+                        }
+                        return row.expectedScore;
                     }
                 },
                 {
@@ -1016,6 +1038,17 @@
                             ranking.push("无");
                         }
                         return ranking.join('');
+                    }
+                },
+                {
+                    field: 'expectedScore',
+                    align: 'center',
+                    title: '预期科研分',
+                    formatter: function(value, row, index) {
+                        if(row.expectedScore == null || row.expectedScore == ''){
+                            return '0';
+                        }
+                        return row.expectedScore;
                     }
                 },
                 {
