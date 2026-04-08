@@ -13,17 +13,6 @@
     #contractFileName{
         display: none!important
     }
-    .author-score {
-        background-color: #5cb85c;
-        color: white;
-        font-weight: bold;
-        border-radius: 0 4px 4px 0;
-        min-width: 80px;
-        text-align: center;
-        display: inline-block;
-        padding: 6px 12px;
-        margin-left: 10px;
-    }
 </style>
 <body class="white-bg">
 <div class="wrapper wrapper-content animated fadeInRight ibox-content">
@@ -128,13 +117,19 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">第一负责人：</label>
                     <div class="col-sm-8">
-
                         <!--                        <input name="firstPersonId" th:field="*{firstPersonId}" class="form-control" type="text" required>-->
                         <select name="firstPersonId" class="form-control m-b" disabled>
                             <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}"
                                     th:selected="${ #strings.toString(user.userId) == sciIntraSchoolPro.firstPersonId}"></option>
                         </select>
-                        <span class="author-score" id="firstPersonScore"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">预期科研分：</label>
+                    <div class="col-sm-8">
+                        <input id="firstPersonScore" class="form-control" type="text" readonly placeholder="选择课题类型和填写金额后自动计算">
                     </div>
                 </div>
             </div>
@@ -149,7 +144,14 @@
                             <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}"
                                     th:selected="${ #strings.toString(user.userId) == sciIntraSchoolPro.secondPersonId}"></option>
                         </select>
-                        <span class="author-score" id="secondPersonScore"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">预期科研分：</label>
+                    <div class="col-sm-8">
+                        <input id="secondPersonScore" class="form-control" type="text" readonly placeholder="选择课题类型和填写金额后自动计算">
                     </div>
                 </div>
             </div>
@@ -164,7 +166,14 @@
                             <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}"
                                     th:selected="${ #strings.toString(user.userId) == sciIntraSchoolPro.thirdPersonId}"></option>
                         </select>
-                        <span class="author-score" id="thirdPersonScore"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">预期科研分：</label>
+                    <div class="col-sm-8">
+                        <input id="thirdPersonScore" class="form-control" type="text" readonly placeholder="选择课题类型和填写金额后自动计算">
                     </div>
                 </div>
             </div>
@@ -179,7 +188,14 @@
                             <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}"
                                     th:selected="${ #strings.toString(user.userId) == sciIntraSchoolPro.fourthPersonId}"></option>
                         </select>
-                        <span class="author-score" id="fourthPersonScore"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">预期科研分：</label>
+                    <div class="col-sm-8">
+                        <input id="fourthPersonScore" class="form-control" type="text" readonly placeholder="选择课题类型和填写金额后自动计算">
                     </div>
                 </div>
             </div>
@@ -587,7 +603,17 @@
 
     function loadScores() {
         var amount = $("input[name='amount']").val();
-        if (!amount || isNaN(amount)) return;
+        if (!amount || isNaN(amount)) {
+            $('#firstPersonScore').val('');
+            $('#firstPersonScore').attr('placeholder', '选择课题类型和填写金额后自动计算');
+            $('#secondPersonScore').val('');
+            $('#secondPersonScore').attr('placeholder', '选择课题类型和填写金额后自动计算');
+            $('#thirdPersonScore').val('');
+            $('#thirdPersonScore').attr('placeholder', '选择课题类型和填写金额后自动计算');
+            $('#fourthPersonScore').val('');
+            $('#fourthPersonScore').attr('placeholder', '选择课题类型和填写金额后自动计算');
+            return;
+        }
         $.ajax({
             url: prefix + '/calculateScore',
             method: 'POST',
@@ -595,10 +621,10 @@
             success: function(response) {
                 if (response.code === 0 && response.data) {
                     var scores = response.data;
-                    $('#firstPersonScore').text((scores['1'] || 0) + '分');
-                    $('#secondPersonScore').text((scores['2'] || 0) + '分');
-                    $('#thirdPersonScore').text((scores['3'] || 0) + '分');
-                    $('#fourthPersonScore').text((scores['4'] || 0) + '分');
+                    $('#firstPersonScore').val((scores['1'] || 0) + '分');
+                    $('#secondPersonScore').val((scores['2'] || 0) + '分');
+                    $('#thirdPersonScore').val((scores['3'] || 0) + '分');
+                    $('#fourthPersonScore').val((scores['4'] || 0) + '分');
                 }
             }
         });
