@@ -293,13 +293,13 @@
                                             </li>
                                             
                                             <!-- 教研室、学院、科研处、管理员显示第一作者 -->
-                                            <li th:if="${roleId == 102 or roleId == 103 or roleId == 104 or roleId == 105 or roleId == 106 or roleId == 107 or roleId == 108 or roleId == 116 or roleId == 117 or roleId == 118 or roleId == 119 or roleId == 120 or roleId == 101 or roleId == 1}">
+                                            <li th:if="${roleId == 101 or roleId == 102 or roleId == 103 or roleId == 104 or roleId == 105 or roleId == 106 or roleId == 107 or roleId == 108 or roleId == 116 or roleId == 117 or roleId == 118 or roleId == 119 or roleId == 120  or roleId == 1}">
                                                 <label>第一作者：</label>
                                                 <input type="text" name="teacherName"/>
                                             </li>
                                             
                                             <!-- 学院、科研处、管理员显示专业 -->
-                                            <li th:if="${(roleId == 103 or roleId == 104 or roleId == 105 or roleId == 106 or roleId == 107 or roleId == 108 or roleId == 116 or roleId == 117 or roleId == 118 or roleId == 119 or roleId == 120) or roleId == 101 or roleId == 1}">
+                                            <li th:if="${ roleId == 103 or roleId == 104 or roleId == 105 or roleId == 106 or roleId == 107 or roleId == 108 or roleId == 116 or roleId == 117 or roleId == 118 or roleId == 119 or roleId == 120 or roleId == 101 or roleId == 1}">
                                                 <label>专业：</label>
                                                 <input type="text" name="keyanshi"/>
                                             </li>
@@ -320,6 +320,7 @@
                                     </div>
                                 </form>
                             </div>
+
 
                             <div id="toolbar">
                                 <div class="btn-group-sm" role="group">
@@ -491,6 +492,7 @@
             exportUrl: prefix + "/export",
             overUrl: prefix + "/over/{id}", // 结项申请后端路径
             modalName: "讲座报告",
+            maintainSelected: true, // 保持跨页选中状态
             rowStyle: function(row, index) {
                 // 根据状态返回样式对象
                 switch(row.state) {
@@ -827,6 +829,9 @@
         // 拼接ID并调用讲座报告的批量下载接口
         var idString = ids.join(',');
         window.location.href = ctx + 'common/batchDownload?ids=' + idString + '&module=report';
+        
+        // 清除选中状态
+        $('#' + tableId).bootstrapTable('uncheckAll');
     }
 
 </script>
