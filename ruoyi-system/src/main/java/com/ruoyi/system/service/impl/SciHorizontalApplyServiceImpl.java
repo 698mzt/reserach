@@ -1354,4 +1354,182 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
     public int removeAmount(String id, String reid, Long userId, String remark, String urlFlag) {
         return sciHorizontalReamountMapper.reamountremove(Integer.valueOf(reid));
     }
+
+    /**
+     * 功能描述：重新计算科研分
+     * 涉及SQL：SELECT FROM sci_horizontal_apply / sci_project_score_cfg / sci_user_score
+     * @param ids 课题ID列表，多个ID用逗号分隔
+     * @param operatorId 操作人ID
+     * @return 成功重新计算的课题数量
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int recalculateScore(String ids, Long operatorId) {
+        String[] idArray = ids.split(",");
+        int successCount = 0;
+        
+        for (String idStr : idArray) {
+            try {
+                Integer id = Integer.valueOf(idStr.trim());
+                SciHorizontalApply apply = sciHorizontalApplyMapper.selectSciHorizontalApplyById(id);
+                if (apply == null) {
+                    continue;
+                }
+                
+                String amountStr = apply.getCreditedAmount();
+                if (amountStr == null || amountStr.isEmpty()) {
+                    amountStr = apply.getAmount();
+                }
+                if (amountStr == null || amountStr.isEmpty()) {
+                    continue;
+                }
+                
+                double amount;
+                try {
+                    amount = Double.parseDouble(amountStr);
+                } catch (NumberFormatException e) {
+                    continue;
+                }
+                
+                List<String> personIds = selectPersionIdsByApplyId(id);
+                if (personIds == null || personIds.isEmpty()) {
+                    continue;
+                }
+                
+                List<Integer> scores = calculateScoresByAmount(amount, personIds.size());
+                
+                sciUserScoreMapper.deleteScoreById(String.valueOf(id), "立项");
+                
+                for (int i = 0; i < personIds.size() && i < scores.size(); i++) {
+                    SciUserScore userScore = new SciUserScore();
+                    userScore.setApplyId(String.valueOf(id));
+                    userScore.setUserId(personIds.get(i));
+                    userScore.setChangeValue(String.valueOf(scores.get(i)));
+                    userScore.setChangeStatus("重新计算");
+                    sciUserScoreMapper.insertScoreHistory(userScore);
+                }
+                
+                successCount++;
+            } catch (Exception e) {
+                log.error("重新计算课题{}科研分失败: {}", idStr, e.getMessage());
+            }
+        }
+        
+        return successCount;
+    }
+
+    /**
+     * 功能描述：获取科研分计算预览
+     * 涉及SQL：SELECT FROM sci_horizontal_apply / sci_project_score_cfg
+     * @param id 课题ID
+     * @return 预览结果Map
+     */
+    @Override
+    public Map<String, Object> previewScore(Integer id) {
+        Map<String, Object> result = new HashMap<>();
+        
+        SciHorizontalApply apply = sciHorizontalApplyMapper.selectSciHorizontalApplyById(id);
+        if (apply == null) {
+            result.put("error", "课题不存在");
+            return result;
+        }
+        
+        String amountStr = apply.getCreditedAmount();
+        if (amountStr == null || amountStr.isEmpty()) {
+            amountStr = apply.getAmount();
+        }
+        
+        result.put("topName", apply.getTopName());
+        result.put("amount", apply.getAmount());
+        result.put("creditedAmount", apply.getCreditedAmount());
+        
+        if (amountStr == null || amountStr.isEmpty()) {
+            result.put("error", "未填写项目金额");
+            return result;
+        }
+        
+        double amount;
+        try {
+            amount = Double.parseDouble(amountStr);
+        } catch (NumberFormatException e) {
+            result.put("error", "金额格式错误");
+            return result;
+        }
+        
+        List<String> personIds = selectPersionIdsByApplyId(id);
+        if (personIds == null || personIds.isEmpty()) {
+            result.put("error", "未设置课题成员");
+            return result;
+        }
+        
+        List<Integer> scores = calculateScoresByAmount(amount, personIds.size());
+        
+        List<Map<String, Object>> memberScores = new ArrayList<>();
+        for (int i = 0; i < personIds.size() && i < scores.size(); i++) {
+            Map<String, Object> memberScore = new HashMap<>();
+            memberScore.put("ranking", i + 1);
+            memberScore.put("userId", personIds.get(i));
+            memberScore.put("score", scores.get(i));
+            memberScores.add(memberScore);
+        }
+        
+        result.put("memberScores", memberScores);
+        result.put("totalScore", scores.stream().mapToInt(Integer::intValue).sum());
+        
+        return result;
+    }
+
+    /**
+     * 功能描述：根据金额计算科研分
+     * @param amount 项目金额（万元）
+     * @param memberCount 成员数量
+     * @return 各成员科研分列表
+     */
+    private List<Integer> calculateScoresByAmount(double amount, int memberCount) {
+        List<Integer> scores = new ArrayList<>();
+        
+        int[] defaultScores = getDefaultScores(amount);
+        
+        int count = Math.min(memberCount, 4);
+        for (int i = 0; i < count; i++) {
+            scores.add(defaultScores[i]);
+        }
+        
+        return scores;
+    }
+
+    /**
+     * 功能描述：根据金额获取默认科研分配置
+     * @param amount 项目金额（万元）
+     * @return 四个排名的科研分数组
+     */
+    private int[] getDefaultScores(double amount) {
+        if (amount >= 100) {
+            return new int[]{9880, 4460, 1780, 880};
+        } else if (amount >= 75) {
+            return new int[]{7400, 3360, 1340, 650};
+        } else if (amount >= 50) {
+            return new int[]{4360, 1980, 780, 380};
+        } else if (amount >= 35) {
+            return new int[]{2860, 1280, 520, 240};
+        } else if (amount >= 20) {
+            return new int[]{1520, 680, 280, 120};
+        } else if (amount >= 10) {
+            return new int[]{440, 200, 80, 40};
+        } else if (amount >= 5) {
+            return new int[]{220, 100, 40, 20};
+        } else if (amount >= 2) {
+            return new int[]{80, 30, 20, 10};
+        } else if (amount > 0) {
+            double ratio = amount / 2.0;
+            return new int[]{
+                (int) Math.round(80 * ratio),
+                (int) Math.round(30 * ratio),
+                (int) Math.round(20 * ratio),
+                (int) Math.round(10 * ratio)
+            };
+        } else {
+            return new int[]{0, 0, 0, 0};
+        }
+    }
 }

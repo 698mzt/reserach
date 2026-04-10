@@ -45,6 +45,10 @@ $(function() {
     if ($(".select-time").length > 0 && $('#startTime').length > 0 && $('#endTime').length > 0) {
        layui.use('laydate', function() {
             var laydate = layui.laydate;
+            if (!laydate) {
+                console.warn('laydate module not loaded properly');
+                return;
+            }
             startLayDate = laydate.render({
                 elem: '#startTime',
                 max: $('#endTime').val(),
@@ -91,6 +95,10 @@ $(function() {
     if ($(".time-input").length > 0) {
         layui.use('laydate', function () {
             var com = layui.laydate;
+            if (!com) {
+                console.warn('laydate module not loaded properly');
+                return;
+            }
             $(".time-input").each(function (index, item) {
                 var time = $(item);
                 // 控制控件外观
@@ -167,6 +175,14 @@ $(function() {
         if (e.which === 27) {
             $.modal.closeAll();
         }
+    });
+    
+    // 修复 modal aria-hidden 无障碍访问问题
+    // 当 modal 打开时，确保正确处理 aria-hidden 属性
+    $(document).on('shown.bs.modal', '.modal', function() {
+        $(this).removeAttr('aria-hidden');
+    }).on('hidden.bs.modal', '.modal', function() {
+        $(this).attr('aria-hidden', 'true');
     });
 });
 
@@ -586,3 +602,317 @@ $.ajaxSetup({
         }
     }
 });
+
+/**
+ * 科研分计算工具
+ * 用于横向课题科研分实时计算
+ */
+var researchScore = {
+    configData: null,
+    tableName: "",
+    initialized: false,
+
+    init: function() {
+        if (this.initialized) {
+            return;
+        }
+        var contextPath = typeof ctx !== 'undefined' ? ctx : (typeof window.ctx !== 'undefined' ? window.ctx : '');
+        var apiUrl = contextPath + "system/projectScoreCfg/getCfgCard";
+
+        $.ajax({
+            url: apiUrl,
+            type: "POST",
+            async: false,
+            success: function(data) {
+                if (data.code === "0" && data.data) {
+                    researchScore.configData = data.data;
+                    researchScore.tableName = "sci_project_score_cfg (横向课题得分配置表)";
+                    researchScore.initialized = true;
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error("获取科研分配置数据失败", error);
+            }
+        });
+    },
+
+    calculate: function(amount) {
+        if (!amount || isNaN(amount) || amount < 0) {
+            return {
+                firstScore: 0,
+                secondScore: 0,
+                thirdScore: 0,
+                fourthScore: 0,
+                valid: false
+            };
+        }
+
+        if (this.configData && this.configData.fundsList && this.configData.fundsList.length > 0) {
+            var fundsList = this.configData.fundsList;
+
+            for (var i = 0; i < fundsList.length; i++) {
+                var fundsConfig = fundsList[i];
+                var min = parseFloat(fundsConfig.funds_min);
+                var max = fundsConfig.funds_max ? parseFloat(fundsConfig.funds_max) : null;
+
+                if (amount >= min && (max === null || amount <= max)) {
+                    var userScoreList = fundsConfig.userScoreList;
+                    var rangeText = max === null ? (min + "万元及以上") : (min + "万元 - " + max + "万元");
+
+                    var firstConfig = this.getUserScoreByOrder(userScoreList, 1);
+                    var secondConfig = this.getUserScoreByOrder(userScoreList, 2);
+                    var thirdConfig = this.getUserScoreByOrder(userScoreList, 3);
+                    var fourthConfig = this.getUserScoreByOrder(userScoreList, 4);
+
+                    return {
+                        firstScore: firstConfig ? this.calculateScore(firstConfig, min, max, amount) : 0,
+                        secondScore: secondConfig ? this.calculateScore(secondConfig, min, max, amount) : 0,
+                        thirdScore: thirdConfig ? this.calculateScore(thirdConfig, min, max, amount) : 0,
+                        fourthScore: fourthConfig ? this.calculateScore(fourthConfig, min, max, amount) : 0,
+                        valid: true,
+                        rangeText: rangeText,
+                        tableName: this.tableName
+                    };
+                }
+            }
+
+            return {
+                firstScore: 0,
+                secondScore: 0,
+                thirdScore: 0,
+                fourthScore: 0,
+                valid: false
+            };
+        } else {
+            return this.calculateByDefault(amount);
+        }
+    },
+
+    calculateByDefault: function(amount) {
+        var firstScore, secondScore, thirdScore, fourthScore;
+
+        if (amount >= 100) {
+            firstScore = 9880; secondScore = 4460; thirdScore = 1780; fourthScore = 880;
+        } else if (amount >= 75) {
+            firstScore = 7400; secondScore = 3360; thirdScore = 1340; fourthScore = 650;
+        } else if (amount >= 50) {
+            firstScore = 4360; secondScore = 1980; thirdScore = 780; fourthScore = 380;
+        } else if (amount >= 35) {
+            firstScore = 2860; secondScore = 1280; thirdScore = 520; fourthScore = 240;
+        } else if (amount >= 20) {
+            firstScore = 1520; secondScore = 680; thirdScore = 280; fourthScore = 120;
+        } else if (amount >= 10) {
+            firstScore = 440; secondScore = 200; thirdScore = 80; fourthScore = 40;
+        } else if (amount >= 5) {
+            firstScore = 220; secondScore = 100; thirdScore = 40; fourthScore = 20;
+        } else if (amount >= 2) {
+            firstScore = 80; secondScore = 30; thirdScore = 20; fourthScore = 10;
+        } else if (amount > 0) {
+            firstScore = Math.round(80 * (amount / 2));
+            secondScore = Math.round(30 * (amount / 2));
+            thirdScore = Math.round(20 * (amount / 2));
+            fourthScore = Math.round(10 * (amount / 2));
+        } else {
+            firstScore = 0; secondScore = 0; thirdScore = 0; fourthScore = 0;
+        }
+
+        return {
+            firstScore: firstScore,
+            secondScore: secondScore,
+            thirdScore: thirdScore,
+            fourthScore: fourthScore,
+            valid: true
+        };
+    },
+
+    getUserScoreByOrder: function(userScoreList, order) {
+        if (!userScoreList || userScoreList.length === 0) {
+            return null;
+        }
+        for (var i = 0; i < userScoreList.length; i++) {
+            var item = userScoreList[i];
+            var userOrder = item.userOrder || item.user_order;
+            if (parseInt(userOrder) === order) {
+                return item;
+            }
+        }
+        return null;
+    },
+
+    calculateScore: function(config, min, max, amount) {
+        var totalScore = parseFloat(config.totalScore || config.total_score);
+        var startScore = config.startScore || config.start_score;
+        var endScore = config.endScore || config.end_score;
+        startScore = startScore ? parseFloat(startScore) : null;
+        endScore = endScore ? parseFloat(endScore) : null;
+
+        if (totalScore !== null && !isNaN(totalScore)) {
+            return Math.round(totalScore);
+        } else if (startScore !== null && endScore !== null && !isNaN(startScore) && !isNaN(endScore)) {
+            return Math.round((startScore + endScore) / 2);
+        } else {
+            return 0;
+        }
+    },
+
+    updateDisplay: function(amount, scoreElementId) {
+        var scoreElement = document.getElementById(scoreElementId || 'score-info');
+        if (!scoreElement) return;
+
+        if (!amount) {
+            scoreElement.innerHTML = "项目金额未填写，科研分待计算";
+            return;
+        }
+
+        var amountNum = parseFloat(amount);
+        if (isNaN(amountNum) || amountNum < 0) {
+            scoreElement.innerHTML = "项目金额格式错误";
+            return;
+        }
+
+        var scores = this.calculate(amountNum);
+        scoreElement.innerHTML =
+            "预计科研分分配：<br>" +
+            "主持人：" + scores.firstScore + " 分，" +
+            "成员1：" + scores.secondScore + " 分，" +
+            "成员2：" + scores.thirdScore + " 分，" +
+            "成员3：" + scores.fourthScore + " 分<br>" +
+            "<strong>注意：</strong>后续添加成员不参与科研分分配。";
+    },
+
+    getScoreByRanking: function(amount, ranking) {
+        var scores = this.calculate(amount);
+        switch(ranking) {
+            case 1: return scores.firstScore;
+            case 2: return scores.secondScore;
+            case 3: return scores.thirdScore;
+            case 4: return scores.fourthScore;
+            default: return 0;
+        }
+    }
+};
+
+$(function() {
+    researchScore.init();
+});
+
+/**
+ * 批量下载功能
+ * @param {string} module - 模块类型，如：'horizontal', 'vertical' 等
+ * @param {string} tableId - 表格ID，用于获取选中的数据
+ */
+var batchDownloadInProgress = false;
+
+function batchDownload(module, tableId) {
+    var ids = $.table.selectColumns("id", false, tableId);
+    
+    if (!ids || ids.length === 0) {
+        $.modal.alertWarning("未选择数据");
+        return;
+    }
+    
+    if (batchDownloadInProgress) {
+        $.modal.alertWarning("批量下载正在处理中，请稍候...");
+        return;
+    }
+    
+    batchDownloadInProgress = true;
+    $.modal.loading("正在打包下载，请稍候...");
+    
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", ctx + "common/batchDownload?ids=" 
+        + encodeURIComponent(ids.join(",")) 
+        + "&module=" + encodeURIComponent(module), true);
+    
+    xhr.responseType = "blob";
+    xhr.timeout = 10 * 60 * 1000;
+    
+    xhr.onload = function () {
+        var blob = xhr.response;
+        var contentDisposition = xhr.getResponseHeader("Content-Disposition") || "";
+        var contentType = xhr.getResponseHeader("Content-Type") || "";
+        
+        var isDownloadResponse = contentDisposition.indexOf("attachment") !== -1
+            || contentType.indexOf("application/zip") !== -1;
+        
+        if (xhr.status >= 200 && xhr.status < 300 && isDownloadResponse) {
+            triggerBlobDownload(blob, parseDownloadFileName(contentDisposition));
+            finishBatchDownload();
+        } else {
+            readBlobAsText(blob, function (text) {
+                $.modal.alertError(extractDownloadErrorMessage(text));
+                finishBatchDownload();
+            });
+        }
+    };
+    
+    xhr.onerror = function () {
+        $.modal.alertError("批量下载失败，请检查网络或稍后重试");
+        finishBatchDownload();
+    };
+    
+    xhr.ontimeout = function () {
+        $.modal.alertError("批量下载超时，请稍后重试");
+        finishBatchDownload();
+    };
+    
+    xhr.send();
+}
+
+function triggerBlobDownload(blob, fileName) {
+    var resolvedFileName = fileName || "批量下载.zip";
+    
+    if (window.navigator.msSaveOrOpenBlob) {
+        window.navigator.msSaveOrOpenBlob(blob, resolvedFileName);
+        return;
+    }
+    
+    var downloadUrl = window.URL.createObjectURL(blob);
+    var link = document.createElement("a");
+    link.style.display = "none";
+    link.href = downloadUrl;
+    link.download = resolvedFileName;
+    document.body.appendChild(link);
+    link.click();
+    
+    setTimeout(function () {
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(downloadUrl);
+    }, 100);
+}
+
+function parseDownloadFileName(contentDisposition) {
+    if (!contentDisposition) return "";
+    
+    var utf8Match = contentDisposition.match(/filename\*=UTF-8''([^;]+)/i);
+    if (utf8Match && utf8Match[1]) {
+        return decodeURIComponent(utf8Match[1]).replace(/["]/g, "");
+    }
+    
+    var fileNameMatch = contentDisposition.match(/filename="?([^";]+)"?/i);
+    return fileNameMatch && fileNameMatch[1] 
+        ? decodeURIComponent(fileNameMatch[1]) 
+        : "";
+}
+
+function finishBatchDownload() {
+    batchDownloadInProgress = false;
+    $.modal.closeLoading();
+}
+
+function readBlobAsText(blob, callback) {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+        callback(e.target.result);
+    };
+    reader.readAsText(blob);
+}
+
+function extractDownloadErrorMessage(text) {
+    try {
+        var json = JSON.parse(text);
+        return json.msg || "批量下载失败";
+    } catch (e) {
+        return text || "批量下载失败";
+    }
+}

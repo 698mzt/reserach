@@ -198,4 +198,19 @@ public interface ISciHorizontalApplyService
      * 删除被驳回的到账金额
      * */
     int removeAmount(String id, String reid, Long userId, String remark, String urlFlag);
+
+    /**
+     * 功能描述：重新计算科研分
+     * @param ids 课题ID列表，多个ID用逗号分隔
+     * @param operatorId 操作人ID
+     * @return 成功重新计算的课题数量
+     */
+    int recalculateScore(String ids, Long operatorId);
+
+    /**
+     * 功能描述：获取科研分计算预览
+     * @param id 课题ID
+     * @return 预览结果Map
+     */
+    Map<String, Object> previewScore(Integer id);
 }

@@ -148,10 +148,10 @@
 <!--                </div>-->
 <!--            </div>-->
         <div class="col-sm-6">
-            <label class="col-sm-4 control-label is-required">排名：</label>
+            <label class="col-sm-4 control-label is-required">个人排名：</label>
             <div class="col-sm-8">
                 <select name="paiming" class="form-control" th:with="type=${@dict.getType('sys_zhuanliruanzhu_fzr')}" required disabled="true" th:field="*{paiming}">
-                    <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
+                    <option th:each="dict : ${type}" th:text="${dict.dictValue}" th:value="${dict.dictValue}"></option>
                 </select>
 
             </div>

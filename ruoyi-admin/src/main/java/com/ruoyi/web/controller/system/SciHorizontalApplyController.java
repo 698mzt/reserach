@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.enums.BusinessType;
@@ -64,6 +65,131 @@ public class SciHorizontalApplyController extends BaseController
     private SciUserScoreMapper sciUserScoreMapper;
     @Autowired
     private SciHorizontalReamountService sciHorizontalReamountService;
+
+    /**
+     * 计算横向课题预期积分
+     * 功能：根据项目金额计算预期科研分
+     * 按照2026年度新的科研分计算标准（表3）
+     */
+    @PostMapping("/calculateScore")
+    @ResponseBody
+    @Log(title = "积分计算", businessType = BusinessType.OTHER)
+    public AjaxResult calculateScore(@RequestParam(required = false) Double amount) {
+        try {
+            if (amount == null || amount < 0) {
+                return AjaxResult.error("请输入有效的项目金额");
+            }
+
+            // 计算每位成员的预期科研分
+            List<Integer> expectedScores = new ArrayList<>();
+            // 主持人（排名第一）
+            expectedScores.add(calculateHorizontalScoreByAmount(amount, 1));
+            // 成员1（排名第二）
+            expectedScores.add(calculateHorizontalScoreByAmount(amount, 2));
+            // 成员2（排名第三）
+            expectedScores.add(calculateHorizontalScoreByAmount(amount, 3));
+            // 成员3（排名第四）
+            expectedScores.add(calculateHorizontalScoreByAmount(amount, 4));
+            
+            return AjaxResult.success(expectedScores);
+        } catch (Exception e) {
+            return AjaxResult.error("积分计算失败: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * 根据金额和排名计算横向课题积分
+     * 按照2026年度新的科研分计算标准（表3）
+     */
+    private Integer calculateHorizontalScoreByAmount(Double amount, int rank) {
+        // 根据金额区间和排名计算积分
+        if (amount >= 100) {
+            // 100万元以上（含100万）
+            switch (rank) {
+                case 1: return 9880;
+                case 2: return 4460;
+                case 3: return 1780;
+                case 4: return 880;
+                default: return 0;
+            }
+        } else if (amount >= 75) {
+            // 75-100万元（含75万）
+            switch (rank) {
+                case 1: return 7400;
+                case 2: return 3360;
+                case 3: return 1340;
+                case 4: return 650;
+                default: return 0;
+            }
+        } else if (amount >= 50) {
+            // 50-75万元
+            switch (rank) {
+                case 1: return 4360;
+                case 2: return 1980;
+                case 3: return 780;
+                case 4: return 380;
+                default: return 0;
+            }
+        } else if (amount >= 35) {
+            // 35-50万元（含35万）
+            switch (rank) {
+                case 1: return 2860;
+                case 2: return 1280;
+                case 3: return 520;
+                case 4: return 240;
+                default: return 0;
+            }
+        } else if (amount >= 20) {
+            // 20-35万元
+            switch (rank) {
+                case 1: return 1520;
+                case 2: return 680;
+                case 3: return 280;
+                case 4: return 120;
+                default: return 0;
+            }
+        } else if (amount >= 10) {
+            // 10-20万元（含10万）
+            switch (rank) {
+                case 1: return 440;
+                case 2: return 200;
+                case 3: return 80;
+                case 4: return 40;
+                default: return 0;
+            }
+        } else if (amount >= 5) {
+            // 5-10万元（含5万）
+            switch (rank) {
+                case 1: return 220;
+                case 2: return 100;
+                case 3: return 40;
+                case 4: return 20;
+                default: return 0;
+            }
+        } else if (amount >= 2) {
+            // 2-5万元（含2万）
+            switch (rank) {
+                case 1: return 80;
+                case 2: return 30;
+                case 3: return 20;
+                case 4: return 10;
+                default: return 0;
+            }
+        } else if (amount > 0) {
+            // 2万元以下：按比例计算
+            // 2万对应的基准分：排名第一80分，排名第二30分，排名第三20分，排名第四10分
+            double ratio = amount / 2.0;
+            switch (rank) {
+                case 1: return (int) Math.round(80 * ratio);
+                case 2: return (int) Math.round(30 * ratio);
+                case 3: return (int) Math.round(20 * ratio);
+                case 4: return (int) Math.round(10 * ratio);
+                default: return 0;
+            }
+        }
+        
+        return 0;
+    }
 
     // 设置角色集合。若后期需要添加新的学院管理员角色，将其权限字符添加到集合中即可
     private static final Set<String> TEACHER_ROLES = new HashSet<>(Arrays.asList(
@@ -1126,5 +1252,48 @@ public class SciHorizontalApplyController extends BaseController
         counts.put("lecture_complete", sciHorizontalApplyService.countLectureComplete(currentUser));
 
         return AjaxResult.success(counts);
+    }
+
+    /**
+     * 功能描述：重新计算科研分
+     * @param ids 课题ID列表，多个ID用逗号分隔
+     * @return AjaxResult 操作结果
+     * SQL说明：查询sci_horizontal_apply表获取课题信息，根据金额和成员排名重新计算科研分
+     * @throws Exception 计算异常
+     */
+    @RequiresPermissions("system:apply:edit")
+    @Log(title = "重新计算科研分", businessType = BusinessType.UPDATE)
+    @PostMapping("/recalculateScore")
+    @ResponseBody
+    public AjaxResult recalculateScore(String ids)
+    {
+        if (ids == null || ids.isEmpty()) {
+            return AjaxResult.error("请选择需要重新计算科研分的课题");
+        }
+        try {
+            int count = sciHorizontalApplyService.recalculateScore(ids, getUserId());
+            return AjaxResult.success("成功重新计算 " + count + " 条课题的科研分");
+        } catch (Exception e) {
+            return AjaxResult.error("科研分重新计算失败：" + e.getMessage());
+        }
+    }
+
+    /**
+     * 功能描述：获取科研分计算预览
+     * @param id 课题ID
+     * @return AjaxResult 预览结果
+     * SQL说明：查询sci_horizontal_apply表获取课题信息，根据金额和成员排名计算预计科研分
+     */
+    @RequiresPermissions("system:apply:view")
+    @GetMapping("/previewScore/{id}")
+    @ResponseBody
+    public AjaxResult previewScore(@PathVariable("id") Integer id)
+    {
+        try {
+            Map<String, Object> preview = sciHorizontalApplyService.previewScore(id);
+            return AjaxResult.success(preview);
+        } catch (Exception e) {
+            return AjaxResult.error("获取科研分预览失败：" + e.getMessage());
+        }
     }
 }
