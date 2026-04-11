@@ -589,7 +589,7 @@
                     field: 'estimatedScore',
                     title: '预计积分',
                     formatter: function(value, row, index) {
-                        return row.firstPersonId == row.uid ? row.firstAuthorScore : row.secondPersonId == row.uid ? row.secondAuthorScore : row.thirdPersonId == row.uid ? row.thirdAuthorScore : row.fourthPersonId == row.uid ? row.fourthAuthorScore : row.communicationAuthorId == row.uid ? row.correspondingAuthorScore : "非作者";
+                        return row.firstPersonId == row.uid ? row.firstAuthorScore : row.secondPersonId == row.uid ? row.secondAuthorScore : row.thirdPersonId == row.uid ? row.thirdAuthorScore : row.fourthPersonId == row.uid ? row.fourthAuthorScore : row.communicationAuthorId == row.uid ? row.correspondingAuthorScore : 0;
                     }
                 },
                 {
@@ -602,9 +602,14 @@
                 },
                 {
                     field: 'researchScore',
-                    title: '科研分',
+                    title: '已获积分',
                     formatter: function (value, row, index) {
-                        return row.firstPersonId == row.uid ? row.firstAuthorScore : row.secondPersonId == row.uid ? row.secondAuthorScore : row.thirdPersonId == row.uid ? row.thirdAuthorScore : row.fourthPersonId == row.uid ? row.fourthAuthorScore : row.communicationAuthorId == row.uid ? row.correspondingAuthorScore : "非作者";
+                        // 只有审批流程通过（状态为8）才显示分数，否则为0
+                        if (row.state != 8) {
+                            return 0;
+                        }
+                        // 将非作者改为0
+                        return row.firstPersonId == row.uid ? row.firstAuthorScore : row.secondPersonId == row.uid ? row.secondAuthorScore : row.thirdPersonId == row.uid ? row.thirdAuthorScore : row.fourthPersonId == row.uid ? row.fourthAuthorScore : row.communicationAuthorId == row.uid ? row.correspondingAuthorScore : 0;
                     }
                 },
                 {
