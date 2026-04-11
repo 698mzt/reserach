@@ -78,6 +78,11 @@ public interface SciZhuanliruanzhuMapper
      */
     int updateFinalJifen(@Param("id") String id, @Param("finalJifen") String finalJifen);
 
+    /**
+     * 科研处通过时写入认定时间（仅更新该字段）
+     */
+    int updateKyjcPassTime(@Param("id") String id, @Param("kyjcPassTime") java.util.Date kyjcPassTime);
+
     int hxover(@Param("id") String id,@Param("state") String state);
 
     List<SysUser> selectUserList(@Param("user") SysUser user);

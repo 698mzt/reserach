@@ -1,5 +1,6 @@
 package com.ruoyi.system.service.impl;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -273,6 +274,8 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
                 finalJifen = "0";
             }
             sciZhuanliruanzhuMapper.updateFinalJifen(id, finalJifen);
+            // 科研处认定通过时间，用于科研统计年度（上年12/1～当年11/30）核算
+            sciZhuanliruanzhuMapper.updateKyjcPassTime(id, new Date());
         }
 
         int a =  sciZhuanliruanzhuMapper.hxPass(id,state);
