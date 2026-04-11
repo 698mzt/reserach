@@ -53,6 +53,8 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
     private SciHorizontalApplyMapper sciLectureReportMapper;
     @Autowired
     private SciHorizontalReamountMapper sciHorizontalReamountMapper;
+    @Autowired
+    private SciProjectScoreCfgMapper sciProjectScoreCfgMapper;
 
     /**
      * 查询横向课题
@@ -1481,6 +1483,8 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
 
     /**
      * 功能描述：根据金额计算科研分
+     * 从数据库sci_project_score_cfg表读取配置数据
+     * 
      * @param amount 项目金额（万元）
      * @param memberCount 成员数量
      * @return 各成员科研分列表
@@ -1488,14 +1492,100 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
     private List<Integer> calculateScoresByAmount(double amount, int memberCount) {
         List<Integer> scores = new ArrayList<>();
         
-        int[] defaultScores = getDefaultScores(amount);
+        // 从数据库查询配置数据
+        SciProjectScoreCfg query = new SciProjectScoreCfg();
+        query.setProjectType("H"); // H-横向课题
+        List<SciProjectScoreCfg> allConfigs = sciProjectScoreCfgMapper.selectSciProjectScoreCfgList(query);
         
-        int count = Math.min(memberCount, 4);
-        for (int i = 0; i < count; i++) {
-            scores.add(defaultScores[i]);
+        if (allConfigs != null && !allConfigs.isEmpty()) {
+            // 使用数据库配置计算
+            for (int rank = 1; rank <= Math.min(memberCount, 4); rank++) {
+                scores.add(calculateHorizontalScoreByAmount(amount, rank, allConfigs));
+            }
+        } else {
+            // 如果数据库没有配置，使用默认值
+            int[] defaultScores = getDefaultScores(amount);
+            int count = Math.min(memberCount, 4);
+            for (int i = 0; i < count; i++) {
+                scores.add(defaultScores[i]);
+            }
         }
         
         return scores;
+    }
+
+    /**
+     * 根据金额和排名计算横向课题积分
+     * 从数据库sci_project_score_cfg表读取配置数据
+     * 
+     * @param amount 项目金额（万元）
+     * @param rank 排名（1-4）
+     * @param allConfigs 所有配置数据
+     * @return 科研分
+     */
+    private Integer calculateHorizontalScoreByAmount(double amount, int rank, List<SciProjectScoreCfg> allConfigs) {
+        if (amount < 0) {
+            return 0;
+        }
+
+        // 查找匹配的金额区间配置
+        SciProjectScoreCfg matchedConfig = null;
+        for (SciProjectScoreCfg config : allConfigs) {
+            Double min = Double.valueOf(config.getFundsMin());
+            Double max = config.getFundsMax() != null && !config.getFundsMax().isEmpty() 
+                         ? Double.valueOf(config.getFundsMax()) : null;
+            
+            // 判断金额是否在当前区间
+            if (amount >= min && (max == null || amount <= max)) {
+                matchedConfig = config;
+                break;
+            }
+        }
+
+        // 如果没有匹配的配置，使用2万元以下按比例计算
+        if (matchedConfig == null) {
+            // 2万对应的基准分：排名第一80分，排名第二30分，排名第三20分，排名第四10分
+            double ratio = amount / 2.0;
+            switch (rank) {
+                case 1: return (int) Math.round(80 * ratio);
+                case 2: return (int) Math.round(30 * ratio);
+                case 3: return (int) Math.round(20 * ratio);
+                case 4: return (int) Math.round(10 * ratio);
+                default: return 0;
+            }
+        }
+
+        // 提取匹配配置的字段值为final变量，以便在lambda中使用
+        final String matchedFundsMin = matchedConfig.getFundsMin();
+        final String matchedFundsMax = matchedConfig.getFundsMax();
+
+        // 获取该排名对应的配置
+        List<SciProjectScoreCfg> rankConfigs = allConfigs.stream()
+            .filter(c -> c.getFundsMin().equals(matchedFundsMin) && 
+                        (matchedFundsMax == null || c.getFundsMax() == null || c.getFundsMax().equals(matchedFundsMax)) &&
+                        c.getUserOrder() != null && Integer.valueOf(c.getUserOrder()) == rank)
+            .collect(Collectors.toList());
+
+        if (rankConfigs.isEmpty()) {
+            return 0;
+        }
+
+        SciProjectScoreCfg rankConfig = rankConfigs.get(0);
+        
+        // 优先使用总分
+        if (rankConfig.getTotalScore() != null && !rankConfig.getTotalScore().isEmpty()) {
+            return Integer.valueOf(rankConfig.getTotalScore());
+        }
+        
+        // 如果没有总分，使用开题得分和结题得分的平均值
+        if (rankConfig.getStartScore() != null && !rankConfig.getStartScore().isEmpty() &&
+            rankConfig.getEndScore() != null && !rankConfig.getEndScore().isEmpty()) {
+            int startScore = Integer.valueOf(rankConfig.getStartScore());
+            int endScore = Integer.valueOf(rankConfig.getEndScore());
+            return (startScore + endScore) / 2;
+        }
+
+        return 0;
     }
 
     /**

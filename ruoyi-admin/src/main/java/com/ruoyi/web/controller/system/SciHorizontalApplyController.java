@@ -69,7 +69,7 @@ public class SciHorizontalApplyController extends BaseController
     /**
      * 计算横向课题预期积分
      * 功能：根据项目金额计算预期科研分
-     * 按照2026年度新的科研分计算标准（表3）
+     * 从数据库sci_project_score_cfg表读取配置数据
      */
     @PostMapping("/calculateScore")
     @ResponseBody
@@ -80,16 +80,25 @@ public class SciHorizontalApplyController extends BaseController
                 return AjaxResult.error("请输入有效的项目金额");
             }
 
+            // 从数据库查询配置数据
+            SciProjectScoreCfg query = new SciProjectScoreCfg();
+            query.setProjectType("H"); // H-横向课题
+            List<SciProjectScoreCfg> allConfigs = sciProjectScoreCfgMapper.selectSciProjectScoreCfgList(query);
+            
+            if (allConfigs == null || allConfigs.isEmpty()) {
+                return AjaxResult.error("未找到科研分配置数据，请联系管理员");
+            }
+
             // 计算每位成员的预期科研分
             List<Integer> expectedScores = new ArrayList<>();
             // 主持人（排名第一）
-            expectedScores.add(calculateHorizontalScoreByAmount(amount, 1));
+            expectedScores.add(calculateHorizontalScoreByAmount(amount, 1, allConfigs));
             // 成员1（排名第二）
-            expectedScores.add(calculateHorizontalScoreByAmount(amount, 2));
+            expectedScores.add(calculateHorizontalScoreByAmount(amount, 2, allConfigs));
             // 成员2（排名第三）
-            expectedScores.add(calculateHorizontalScoreByAmount(amount, 3));
+            expectedScores.add(calculateHorizontalScoreByAmount(amount, 3, allConfigs));
             // 成员3（排名第四）
-            expectedScores.add(calculateHorizontalScoreByAmount(amount, 4));
+            expectedScores.add(calculateHorizontalScoreByAmount(amount, 4, allConfigs));
             
             return AjaxResult.success(expectedScores);
         } catch (Exception e) {
@@ -99,84 +108,34 @@ public class SciHorizontalApplyController extends BaseController
     
     /**
      * 根据金额和排名计算横向课题积分
-     * 按照2026年度新的科研分计算标准（表3）
+     * 从数据库sci_project_score_cfg表读取配置数据
+     * 
+     * @param amount 项目金额（万元）
+     * @param rank 排名（1-4）
+     * @param allConfigs 所有配置数据
+     * @return 科研分
      */
-    private Integer calculateHorizontalScoreByAmount(Double amount, int rank) {
-        // 根据金额区间和排名计算积分
-        if (amount >= 100) {
-            // 100万元以上（含100万）
-            switch (rank) {
-                case 1: return 9880;
-                case 2: return 4460;
-                case 3: return 1780;
-                case 4: return 880;
-                default: return 0;
+    private Integer calculateHorizontalScoreByAmount(Double amount, int rank, List<SciProjectScoreCfg> allConfigs) {
+        if (amount == null || amount < 0) {
+            return 0;
+        }
+
+        // 查找匹配的金额区间配置
+        SciProjectScoreCfg matchedConfig = null;
+        for (SciProjectScoreCfg config : allConfigs) {
+            Double min = Double.valueOf(config.getFundsMin());
+            Double max = config.getFundsMax() != null && !config.getFundsMax().isEmpty() 
+                         ? Double.valueOf(config.getFundsMax()) : null;
+            
+            // 判断金额是否在当前区间
+            if (amount >= min && (max == null || amount <= max)) {
+                matchedConfig = config;
+                break;
             }
-        } else if (amount >= 75) {
-            // 75-100万元（含75万）
-            switch (rank) {
-                case 1: return 7400;
-                case 2: return 3360;
-                case 3: return 1340;
-                case 4: return 650;
-                default: return 0;
-            }
-        } else if (amount >= 50) {
-            // 50-75万元
-            switch (rank) {
-                case 1: return 4360;
-                case 2: return 1980;
-                case 3: return 780;
-                case 4: return 380;
-                default: return 0;
-            }
-        } else if (amount >= 35) {
-            // 35-50万元（含35万）
-            switch (rank) {
-                case 1: return 2860;
-                case 2: return 1280;
-                case 3: return 520;
-                case 4: return 240;
-                default: return 0;
-            }
-        } else if (amount >= 20) {
-            // 20-35万元
-            switch (rank) {
-                case 1: return 1520;
-                case 2: return 680;
-                case 3: return 280;
-                case 4: return 120;
-                default: return 0;
-            }
-        } else if (amount >= 10) {
-            // 10-20万元（含10万）
-            switch (rank) {
-                case 1: return 440;
-                case 2: return 200;
-                case 3: return 80;
-                case 4: return 40;
-                default: return 0;
-            }
-        } else if (amount >= 5) {
-            // 5-10万元（含5万）
-            switch (rank) {
-                case 1: return 220;
-                case 2: return 100;
-                case 3: return 40;
-                case 4: return 20;
-                default: return 0;
-            }
-        } else if (amount >= 2) {
-            // 2-5万元（含2万）
-            switch (rank) {
-                case 1: return 80;
-                case 2: return 30;
-                case 3: return 20;
-                case 4: return 10;
-                default: return 0;
-            }
-        } else if (amount > 0) {
-            // 2万元以下：按比例计算
+        }
+
+        // 如果没有匹配的配置，使用2万元以下按比例计算
+        if (matchedConfig == null) {
             // 2万对应的基准分：排名第一80分，排名第二30分，排名第三20分，排名第四10分
             double ratio = amount / 2.0;
             switch (rank) {
@@ -187,7 +146,37 @@ public class SciHorizontalApplyController extends BaseController
                 default: return 0;
             }
         }
+
+        // 提取匹配配置的字段值为final变量，以便在lambda中使用
+        final String matchedFundsMin = matchedConfig.getFundsMin();
+        final String matchedFundsMax = matchedConfig.getFundsMax();
+
+        // 获取该排名对应的配置
+        List<SciProjectScoreCfg> rankConfigs = allConfigs.stream()
+            .filter(c -> c.getFundsMin().equals(matchedFundsMin) && 
+                        (matchedFundsMax == null || c.getFundsMax() == null || c.getFundsMax().equals(matchedFundsMax)) &&
+                        c.getUserOrder() != null && Integer.valueOf(c.getUserOrder()) == rank)
+            .collect(Collectors.toList());
+
+        if (rankConfigs.isEmpty()) {
+            return 0;
+        }
+
+        SciProjectScoreCfg rankConfig = rankConfigs.get(0);
         
+        // 优先使用总分
+        if (rankConfig.getTotalScore() != null && !rankConfig.getTotalScore().isEmpty()) {
+            return Integer.valueOf(rankConfig.getTotalScore());
+        }
+        
+        // 如果没有总分，使用开题得分和结题得分的平均值
+        if (rankConfig.getStartScore() != null && !rankConfig.getStartScore().isEmpty() &&
+            rankConfig.getEndScore() != null && !rankConfig.getEndScore().isEmpty()) {
+            int startScore = Integer.valueOf(rankConfig.getStartScore());
+            int endScore = Integer.valueOf(rankConfig.getEndScore());
+            return (startScore + endScore) / 2;
+        }
+
         return 0;
     }
 
@@ -204,10 +193,10 @@ public class SciHorizontalApplyController extends BaseController
     
     /**
      * 基于角色的查询字段白名单校验
-     * 教师角色：仅允许通过"课题名称"检索
-     * 教研室角色：允许通过"主持人（论文对应第一作者）"+"课题名称"检索
-     * 学院角色：允许通过"专业"+"主持人（论文对应第一作者）"+"课题名称"检索
-     * 科研处角色：允许通过"学院"+"专业"+"主持人（论文对应第一作者）"+"课题名称"全维度检索
+     * 教师角色：仅允许通过“课题名称”检索
+     * 教研室角色：允许通过“主持人（论文对应第一作者）”+“课题名称”检索
+     * 学院角色：允许通过“专业”+“主持人（论文对应第一作者）”+“课题名称”检索
+     * 科研处角色：允许通过“学院”+“专业”+“主持人（论文对应第一作者）”+“课题名称”全维度检索
      * 
      * @param sciHorizontalApply 查询条件对象
      * @param role 用户角色
@@ -216,15 +205,15 @@ public class SciHorizontalApplyController extends BaseController
         if ("teacher".equals(role)) {
             // 教师：只保留课题名称，清空其他字段
             sciHorizontalApply.setUserName(null);
-            sciHorizontalApply.setDnameId(null);
-            sciHorizontalApply.setYnameId(null);
+            sciHorizontalApply.setKeyanshi(null);
+            sciHorizontalApply.setXueyuan(null);
         } else if ("research".equals(role)) {
             // 教研室：只保留主持人 + 课题名称，清空其他字段
-            sciHorizontalApply.setDnameId(null);
-            sciHorizontalApply.setYnameId(null);
+            sciHorizontalApply.setKeyanshi(null);
+            sciHorizontalApply.setXueyuan(null);
         } else if ("dept_teacher".equals(role)) {
             // 学院：保留专业 + 主持人 + 课题名称，清空学院字段
-            sciHorizontalApply.setYnameId(null);
+            sciHorizontalApply.setXueyuan(null);
         }
         // 科研处角色 (sci_tesearch) 可以使用所有字段，无需清空
     }

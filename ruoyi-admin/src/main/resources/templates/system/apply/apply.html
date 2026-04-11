@@ -338,29 +338,25 @@
                                     <form id="formId0">
                                         <div class="select-list">
                                             <ul>
-                                                <!-- 课题名称：所有角色可见 -->
-                                                <li>
-                                                    <label>课题：</label>
-                                                    <input type="text" name="topName"/>
+                                                <!-- 专业：学院、科研处可见（文本输入框） -->
+                                                <li class="major-field" style="display:none;">
+                                                    <label>专业：</label>
+                                                    <input type="text" name="keyanshi" placeholder="请输入专业名称"/>
                                                 </li>
                                                 <!-- 主持人：教研室、学院、科研处可见 -->
                                                 <li class="host-name-field" style="display:none;">
                                                     <label>主持人：</label>
                                                     <input type="text" name="userName"/>
                                                 </li>
-                                                <!-- 专业：学院、科研处可见 -->
-                                                <li class="major-field" style="display:none;">
-                                                    <label>专业：</label>
-                                                    <select name="dnameId" class="select-major">
-                                                        <option value="">请选择专业</option>
-                                                    </select>
+                                                <!-- 课题名称：所有角色可见 -->
+                                                <li>
+                                                    <label>课题名称：</label>
+                                                    <input type="text" name="topName"/>
                                                 </li>
-                                                <!-- 学院：仅科研处可见 -->
+                                                <!-- 学院：仅科研处可见（文本输入框） -->
                                                 <li class="college-field" style="display:none;">
                                                     <label>学院：</label>
-                                                    <select name="ynameId" class="select-college">
-                                                        <option value="">请选择学院</option>
-                                                    </select>
+                                                    <input type="text" name="xueyuan" placeholder="请输入学院名称"/>
                                                 </li>
                                                 <li>
                                                     <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search('formId0','bootstrap-table0')"><i class="fa fa-search"></i>&nbsp;搜索</a>
@@ -401,29 +397,25 @@
                                     <form id="formId1">
                                         <div class="select-list">
                                             <ul>
-                                                <!-- 课题名称：所有角色可见 -->
-                                                <li>
-                                                    <label>课题：</label>
-                                                    <input type="text" name="topName"/>
+                                                <!-- 学院：仅科研处可见（文本输入框） -->
+                                                <li class="college-field" style="display:none;">
+                                                    <label>学院：</label>
+                                                    <input type="text" name="xueyuan" placeholder="请输入学院名称"/>
+                                                </li>
+                                                <!-- 专业：学院、科研处可见（文本输入框） -->
+                                                <li class="major-field" style="display:none;">
+                                                    <label>专业：</label>
+                                                    <input type="text" name="keyanshi" placeholder="请输入专业名称"/>
                                                 </li>
                                                 <!-- 主持人：教研室、学院、科研处可见 -->
                                                 <li class="host-name-field" style="display:none;">
                                                     <label>主持人：</label>
                                                     <input type="text" name="userName"/>
                                                 </li>
-                                                <!-- 专业：学院、科研处可见 -->
-                                                <li class="major-field" style="display:none;">
-                                                    <label>专业：</label>
-                                                    <select name="dnameId" class="select-major">
-                                                        <option value="">请选择专业</option>
-                                                    </select>
-                                                </li>
-                                                <!-- 学院：仅科研处可见 -->
-                                                <li class="college-field" style="display:none;">
-                                                    <label>学院：</label>
-                                                    <select name="ynameId" class="select-college">
-                                                        <option value="">请选择学院</option>
-                                                    </select>
+                                                <!-- 课题名称：所有角色可见 -->
+                                                <li>
+                                                    <label>课题名称：</label>
+                                                    <input type="text" name="topName"/>
                                                 </li>
                                                 <li>
                                                     <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search('formId1','bootstrap-table1')"><i class="fa fa-search"></i>&nbsp;搜索</a>
@@ -464,7 +456,7 @@
                                             <ul>
                                                 <!-- 课题名称：所有角色可见 -->
                                                 <li>
-                                                    <label>课题：</label>
+                                                    <label>课题名称：</label>
                                                     <input type="text" name="topName"/>
                                                 </li>
                                                 <!-- 主持人：教研室、学院、科研处可见 -->
@@ -472,19 +464,15 @@
                                                     <label>主持人：</label>
                                                     <input type="text" name="userName"/>
                                                 </li>
-                                                <!-- 专业：学院、科研处可见 -->
+                                                <!-- 专业：学院、科研处可见（文本输入框） -->
                                                 <li class="major-field" style="display:none;">
                                                     <label>专业：</label>
-                                                    <select name="dnameId" class="select-major">
-                                                        <option value="">请选择专业</option>
-                                                    </select>
+                                                    <input type="text" name="keyanshi" placeholder="请输入专业名称"/>
                                                 </li>
-                                                <!-- 学院：仅科研处可见 -->
+                                                <!-- 学院：仅科研处可见（文本输入框） -->
                                                 <li class="college-field" style="display:none;">
                                                     <label>学院：</label>
-                                                    <select name="ynameId" class="select-college">
-                                                        <option value="">请选择学院</option>
-                                                    </select>
+                                                    <input type="text" name="xueyuan" placeholder="请输入学院名称"/>
                                                 </li>
                                                 <li>
                                                     <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search('formId2','bootstrap-table2')"><i class="fa fa-search"></i>&nbsp;搜索</a>
@@ -496,11 +484,11 @@
                                 </div>
 
                                 <div id="toolbar2" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-<!--                                    <div class="btn-group-sm"  role="group" style="display: inline-flex; gap: 4px;">-->
-<!--                                        <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:apply:export">-->
-<!--                                            <i class="fa fa-download"></i> 导出-->
-<!--                                        </a>-->
-<!--                                    </div>-->
+                                    <div class="btn-group-sm"  role="group" style="display: inline-flex; gap: 4px;">
+                                        <a class="btn btn-primary" onclick="batchDownload('horizontal', 'bootstrap-table2')">
+                                            <i class="fa fa-download"></i> 批量下载
+                                        </a>
+                                    </div>
                                     <div style="display: flex; align-items: center; gap: 15px; padding: 6px 36px; border-radius: 4px;">
                                         <th:block th:replace="include :: status-circles"/>
                                     </div>
@@ -522,7 +510,7 @@
                                             <ul>
                                                 <!-- 课题名称：所有角色可见 -->
                                                 <li>
-                                                    <label>课题：</label>
+                                                    <label>课题名称：</label>
                                                     <input type="text" name="topName"/>
                                                 </li>
                                                 <!-- 主持人：教研室、学院、科研处可见 -->
@@ -530,19 +518,15 @@
                                                     <label>主持人：</label>
                                                     <input type="text" name="userName"/>
                                                 </li>
-                                                <!-- 专业：学院、科研处可见 -->
+                                                <!-- 专业：学院、科研处可见（文本输入框） -->
                                                 <li class="major-field" style="display:none;">
                                                     <label>专业：</label>
-                                                    <select name="dnameId" class="select-major">
-                                                        <option value="">请选择专业</option>
-                                                    </select>
+                                                    <input type="text" name="keyanshi" placeholder="请输入专业名称"/>
                                                 </li>
-                                                <!-- 学院：仅科研处可见 -->
+                                                <!-- 学院：仅科研处可见（文本输入框） -->
                                                 <li class="college-field" style="display:none;">
                                                     <label>学院：</label>
-                                                    <select name="ynameId" class="select-college">
-                                                        <option value="">请选择学院</option>
-                                                    </select>
+                                                    <input type="text" name="xueyuan" placeholder="请输入学院名称"/>
                                                 </li>
                                                 <li>
                                                     <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search('formId3','bootstrap-table3')"><i class="fa fa-search"></i>&nbsp;搜索</a>
@@ -554,11 +538,11 @@
                                 </div>
 
                                 <div id="toolbar3" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-<!--                                    <div class="btn-group-sm"  role="group" style="display: inline-flex; gap: 4px;">-->
-<!--                                        <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:apply:export">-->
-<!--                                            <i class="fa fa-download"></i> 导出-->
-<!--                                        </a>-->
-<!--                                    </div>-->
+                                    <div class="btn-group-sm"  role="group" style="display: inline-flex; gap: 4px;">
+                                        <a class="btn btn-primary" onclick="batchDownload('horizontal', 'bootstrap-table3')">
+                                            <i class="fa fa-download"></i> 批量下载
+                                        </a>
+                                    </div>
                                     <div style="display: flex; align-items: center; gap: 15px; padding: 6px 36px; border-radius: 4px;">
                                         <th:block th:replace="include :: status-circles"/>
                                     </div>
@@ -712,63 +696,14 @@
                 $('.host-name-field').show();
                 $('.major-field').show();
                 $('.college-field').hide();
-                // 加载专业数据
-                loadMajors();
             } else if (userRole === 'sci_tesearch') {
                 // 科研处：显示所有字段
                 $('.host-name-field').show();
                 $('.major-field').show();
                 $('.college-field').show();
-                // 加载学院和专业数据
-                loadCollegesAndMajors();
             }
         }
-        
-        // 加载专业列表
-        function loadMajors() {
-            $.ajax({
-                url: ctx + 'system/dept/list',
-                type: 'get',
-                dataType: 'json',
-                success: function(response) {
-                    if (response && response.rows) {
-                        var options = '<option value="">请选择专业</option>';
-                        response.rows.forEach(function(dept) {
-                            options += '<option value="' + dept.deptId + '">' + dept.deptName + '</option>';
-                        });
-                        $('.select-major').html(options);
-                    }
-                }
-            });
-        }
-        
-        // 加载学院和专业列表
-        function loadCollegesAndMajors() {
-            $.ajax({
-                url: ctx + 'system/dept/list',
-                type: 'get',
-                dataType: 'json',
-                success: function(response) {
-                    if (response && response.rows) {
-                        // 填充专业下拉框
-                        var majorOptions = '<option value="">请选择专业</option>';
-                        response.rows.forEach(function(dept) {
-                            majorOptions += '<option value="' + dept.deptId + '">' + dept.deptName + '</option>';
-                        });
-                        $('.select-major').html(majorOptions);
-                        
-                        // 填充学院下拉框（这里假设 parent_id 为 0 的是学院，具体根据实际情况调整）
-                        var collegeOptions = '<option value="">请选择学院</option>';
-                        response.rows.forEach(function(dept) {
-                            if (dept.parentId == 0 || dept.parentId == null) {
-                                collegeOptions += '<option value="' + dept.deptId + '">' + dept.deptName + '</option>';
-                            }
-                        });
-                        $('.select-college').html(collegeOptions);
-                    }
-                }
-            });
-        }
+
 
         function initTable(options) {
             // 获取当前表格的ID
@@ -1143,6 +1078,9 @@
             modalName: "横向课题结项",
             rowStyle: rowStyle0,
             columns: [{
+                checkbox: true
+            },
+            {
                 field: 'number',
                 title: '序号',
                 width:5 ,
@@ -1199,6 +1137,41 @@
                     field: 'creditedAmount',
                     align: 'center',
                     title: '到账金额'
+                },
+                {
+                    align: 'center',
+                    title: '预计得分',
+                    formatter: function(value, row, index) {
+                        var amount = parseFloat(row.creditedAmount || row.amount);
+                        if (isNaN(amount) || amount <= 0) {
+                            return '-';
+                        }
+                        var ranking = 0;
+                        if(row.firstPersonId == row.uid){
+                            ranking = 1;
+                        } else if(row.secondPersonId == row.uid){
+                            ranking = 2;
+                        } else if(row.thirdPersonId == row.uid){
+                            ranking = 3;
+                        } else if(row.fourthPersonId == row.uid){
+                            ranking = 4;
+                        }
+                        if (ranking > 0) {
+                            return researchScore.getScoreByRanking(amount, ranking);
+                        }
+                        return '-';
+                    }
+                },
+                {
+                    field: 'researchScore',
+                    align: 'center',
+                    title: '科研分',
+                    formatter: function(value, row, index) {
+                        if (value && value !== '0' && value !== '') {
+                            return value;
+                        }
+                        return '-';
+                    }
                 },
                 {
                     align: 'center',
@@ -1315,6 +1288,9 @@
             modalName: "追加金额",
             rowStyle: rowStyle0,
             columns: [{
+                checkbox: true
+            },
+            {
                 field: 'number',
                 title: '序号',
                 width:5 ,
@@ -1365,17 +1341,6 @@
                     field: 'reAmount',
                     align: 'center',
                     title: '追加金额'
-                },
-                {
-                    field: 'researchScore',
-                    align: 'center',
-                    title: '科研分',
-                    formatter: function(value, row, index) {
-                        if (value && value !== '0' && value !== '') {
-                            return value;
-                        }
-                        return '-';
-                    }
                 },
                 {
                     align: 'center',
