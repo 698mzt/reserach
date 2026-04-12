@@ -264,73 +264,41 @@ public class SciHorizontalApplyController extends BaseController
         
         List<SciHorizontalApply> list = new ArrayList<>();
         List<SciHorizontalApply> Alist = new ArrayList<>();
-//        科研处
-        switch (role) {
-            case "sci_tesearch":
-                switch (tableId) {
-                    case "bootstrap-table0":
-                        list = sciHorizontalApplyService.selectSciHorizontalApplyListByOVERKYC(sciHorizontalApply);
-                        break;
-                    case "bootstrap-table1":
-                        list = sciHorizontalApplyService.selectSciHorizontalApplyListByKYC(sciHorizontalApply);
-                        break;
-                    case "bootstrap-table2":
-                        list = sciHorizontalApplyService.selectSciHorizontalApplyListByOverApplyKYC(sciHorizontalApply);
-                        break;
-                    case "bootstrap-table3":
-                        Alist = sciHorizontalReamountService.selectAmountListKYC(sciHorizontalApply);
-                        break;
+        
+        // 根据表格ID选择不同的查询方法
+        switch (tableId) {
+            case "bootstrap-table0":
+                // 已结项列表
+                list = sciHorizontalApplyService.selectSciHorizontalApplyListByOVER(sciHorizontalApply);
+                break;
+            case "bootstrap-table1":
+                // 申请列表：统一使用一个查询方法，通过@DataScope控制数据权限
+                // 所有管理员角色（科研处、教研室、学院）均使用同一方法
+                // 普通教师也使用此方法，@DataScope会自动过滤为仅本人数据
+                list = sciHorizontalApplyService.selectSciHorizontalApplyListAll(sciHorizontalApply);
+                break;
+            case "bootstrap-table2":
+                // 结项申请列表
+                if ("sci_tesearch".equals(role)) {
+                    list = sciHorizontalApplyService.selectSciHorizontalApplyListByOverApplyKYC(sciHorizontalApply);
+                } else if ("research".equals(role)) {
+                    list = sciHorizontalApplyService.selectSciHorizontalApplyListByOverApplyJYS(sciHorizontalApply);
+                } else if ("dept_teacher".equals(role)) {
+                    list = sciHorizontalApplyService.selectSciHorizontalApplyListByOverDept(sciHorizontalApply);
+                } else {
+                    list = sciHorizontalApplyService.selectSciHorizontalApplyListByOverApply(sciHorizontalApply);
                 }
                 break;
-//        教研室
-            case "research":
-                switch (tableId) {
-                    case "bootstrap-table0":
-                        list = sciHorizontalApplyService.selectSciHorizontalApplyListByOVER(sciHorizontalApply);
-                        break;
-                    case "bootstrap-table1":
-                        list = sciHorizontalApplyService.selectSciHorizontalApplyListByJYS(sciHorizontalApply);
-                        break;
-                    case "bootstrap-table2":
-                        list = sciHorizontalApplyService.selectSciHorizontalApplyListByOverApplyJYS(sciHorizontalApply);
-                        break;
-                    case "bootstrap-table3":
-                        Alist = sciHorizontalReamountService.selectAmountListJYS(sciHorizontalApply);
-                        break;
-                }
-                break;
-//      学院负责人
-            case "dept_teacher":
-                switch (tableId) {
-                    case "bootstrap-table0":
-                        list = sciHorizontalApplyService.selectSciHorizontalApplyListByOVER(sciHorizontalApply);
-                        break;
-                    case "bootstrap-table1":
-                        list = sciHorizontalApplyService.selectSciHorizontalApplyListByDept(sciHorizontalApply);
-                        break;
-                    case "bootstrap-table2":
-                        list = sciHorizontalApplyService.selectSciHorizontalApplyListByOverDept(sciHorizontalApply);
-                        break;
-                    case "bootstrap-table3":
-                        Alist = sciHorizontalReamountService.selectAmountListDept(sciHorizontalApply);
-                        break;
-                }
-                break;
-//        教师
-            default:
-                switch (tableId) {
-                    case "bootstrap-table0":
-                        list = sciHorizontalApplyService.selectSciHorizontalApplyListByOVER(sciHorizontalApply);
-                        break;
-                    case "bootstrap-table1":
-                        list = sciHorizontalApplyService.selectSciHorizontalApplyList(sciHorizontalApply);
-                        break;
-                    case "bootstrap-table2":
-                        list = sciHorizontalApplyService.selectSciHorizontalApplyListByOverApply(sciHorizontalApply);
-                        break;
-                    case "bootstrap-table3":
-                        Alist = sciHorizontalReamountService.selectAmountList(sciHorizontalApply);
-                        break;
+            case "bootstrap-table3":
+                // 到账金额列表
+                if ("sci_tesearch".equals(role)) {
+                    Alist = sciHorizontalReamountService.selectAmountListKYC(sciHorizontalApply);
+                } else if ("research".equals(role)) {
+                    Alist = sciHorizontalReamountService.selectAmountListJYS(sciHorizontalApply);
+                } else if ("dept_teacher".equals(role)) {
+                    Alist = sciHorizontalReamountService.selectAmountListDept(sciHorizontalApply);
+                } else {
+                    Alist = sciHorizontalReamountService.selectAmountList(sciHorizontalApply);
                 }
                 break;
         }

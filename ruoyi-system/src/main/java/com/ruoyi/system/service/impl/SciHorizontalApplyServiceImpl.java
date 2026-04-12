@@ -80,6 +80,20 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
     {
         return sciHorizontalApplyMapper.selectSciHorizontalApplyList(sciHorizontalApply);
     }
+
+    /**
+     * 统一查询横向课题列表（基于数据权限控制）
+     * 所有管理员角色均可查看所有状态的课题数据，不再根据状态过滤可见性
+     *
+     * @param sciHorizontalApply 横向课题
+     * @return 横向课题
+     */
+    @Override
+    @DataScope(deptAlias = "d", userAlias = "u")
+    public List<SciHorizontalApply> selectSciHorizontalApplyListAll(SciHorizontalApply sciHorizontalApply)
+    {
+        return sciHorizontalApplyMapper.selectSciHorizontalApplyListAll(sciHorizontalApply);
+    }
     @Override
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciHorizontalApply> selectSciHorizontalApplyListByKYC(SciHorizontalApply sciHorizontalApply)
