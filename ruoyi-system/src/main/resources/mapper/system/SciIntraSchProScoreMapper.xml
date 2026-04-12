@@ -24,6 +24,7 @@
         update  sci_IntraSchPro_score
         <trim prefix="SET" suffixOverrides=",">
             <if test="score != null">earned_Points = #{score},</if>
+            <if test="score != null">earnedALL_Points = #{score} + COALESCE(earnedJT_Points, 0),</if>
         </trim>
         where sciIntraSch_Id = #{id} and userid = #{useridd}
     </update>
@@ -32,11 +33,12 @@
         update  sci_IntraSchPro_score
         <trim prefix="SET" suffixOverrides=",">
             <if test="score != null">earnedJT_Points = #{score},</if>
+            <if test="totalScore != null">earnedALL_Points = #{totalScore},</if>
         </trim>
         where sciIntraSch_Id = #{id} and userid = #{useridd}
     </update>
 
-<!--    教师添加一个新课题的时候就往数据库里面写入一份数据-->
+    <!--    教师添加一个新课题的时候就往数据库里面写入一份数据-->
     <insert id="set_SchPro_score_noScore" parameterType="SciIntraSchoolScore" >
         insert into sci_IntraSchPro_score
         <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -60,7 +62,7 @@
             CASE
                 WHEN earned_Points IS NULL THEN 0
                 ELSE earned_Points
-            END AS earned_Points
+                END AS earned_Points
         FROM
             sci_IntraSchPro_score
         WHERE
@@ -69,24 +71,26 @@
     </select>
 
 
-  <update id="update_SchPro_score" >
+    <update id="update_SchPro_score" >
         update sci_IntraSchPro_score
-        set earned_Points=0
+        set earned_Points=0,
+            earnedALL_Points = COALESCE(earnedJT_Points, 0)
         where sciIntraSch_Id = #{sciIntraSch_Id} and userid = #{userid}
     </update>
-  <update id="update_SchPro_score_jt" >
-    update sci_IntraSchPro_score
-    set earnedJT_Points=0
-    where sci_IntraSch_Id = #{sciIntraSch_Id} and userid = #{userid}
-  </update>
-  <select id="getScoreByUId" resultType="java.lang.Long">
-    select
-      COALESCE(sum(earnedALL_Points), 0)
-    from
-      sci_IntraSchPro_score sisps
-    where
-      userid = #{uid}
-      and earnedALL_Points != 0
-  </select>
+    <update id="update_SchPro_score_jt" >
+        update sci_IntraSchPro_score
+        set earnedJT_Points=0,
+            earnedALL_Points = COALESCE(earned_Points, 0)
+        where sci_IntraSch_Id = #{sciIntraSch_Id} and userid = #{userid}
+    </update>
+    <select id="getScoreByUId" resultType="java.lang.Long">
+        select
+            COALESCE(sum(earnedALL_Points), 0)
+        from
+            sci_IntraSchPro_score sisps
+        where
+            userid = #{uid}
+          and earnedALL_Points != 0
+    </select>
 
 </mapper>

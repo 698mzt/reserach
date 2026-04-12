@@ -320,8 +320,8 @@
                                     <input type="text" name="dname" placeholder="请输入专业名称"/>
                                 </li>
                                 <li th:if="${@permission.isAnyRoles('sci_tesearch,dept_teacher,research,admin')}">
-                                    <label>申请人：</label>
-                                    <input type="text" name="userName" placeholder="请输入申请人姓名"/>
+                                    <label>主持人：</label>
+                                    <input type="text" name="userName" placeholder="请输入主持人姓名"/>
                                 </li>
                                 <li>
                                     <label>课题名称：</label>
@@ -887,7 +887,7 @@
                 }, {
                     field: "userName",
                     align: "center",
-                    title: "申请人"
+                    title: "主持人"
                 }, {
                     field: "topName",
                     align: "center",

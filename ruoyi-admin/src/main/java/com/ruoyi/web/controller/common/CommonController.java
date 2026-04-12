@@ -15,6 +15,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.ruoyi.common.core.controller.BaseController;
+import com.ruoyi.common.core.domain.entity.SysDept;
+import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.system.domain.SciHorizontalApply;
 import com.ruoyi.system.domain.SciHorizontalApplyVertical;
 import com.ruoyi.system.domain.SciIntraSchoolPro;
@@ -31,6 +33,8 @@ import com.ruoyi.system.service.ISciJiaocairuanzhuService;
 import com.ruoyi.system.service.ISciZhuanliruanzhuService;
 import com.ruoyi.system.service.ISysRewardService;
 import com.ruoyi.system.service.ISciLectureReportService;
+import com.ruoyi.system.service.ISysDeptService;
+import com.ruoyi.system.service.ISysUserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -85,6 +89,12 @@ public class CommonController extends BaseController
 
     @Autowired
     private ISciLectureReportService sciLectureReportService;
+
+    @Autowired
+    private ISysUserService userService;
+
+    @Autowired
+    private ISysDeptService deptService;
 
 
     private static final String FILE_DELIMETER = ",";
@@ -470,14 +480,17 @@ public class CommonController extends BaseController
      */
     @GetMapping("/downloadZip")
     public void doGet(@RequestParam("id") String id, HttpServletRequest request, HttpServletResponse response)  throws ServletException, IOException {
-        List<String> list = new ArrayList<>();
         SciHorizontalApplyVertical sciHorizontalApplyVertical = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalById(Integer.parseInt(id));
-        list.add(getFileName(sciHorizontalApplyVertical.getFile()));
-        list.add(getFileName(sciHorizontalApplyVertical.getOpenfile()));
-        list.add(getFileName(sciHorizontalApplyVertical.getMidfile()));
-        list.add(getFileName(sciHorizontalApplyVertical.getOverfile()));
         String user= sciHorizontalApplyVertical.getUserName();
         String Topname = sciHorizontalApplyVertical.getTopName();
+        String folderName = buildArchiveFolder(
+                sciHorizontalApplyVertical.getYname(),
+                sciHorizontalApplyVertical.getDname(),
+                sciHorizontalApplyVertical.getUserName(),
+                "纵向课题",
+                sciHorizontalApplyVertical.getTopName(),
+                toLong(sciHorizontalApplyVertical.getUserId())
+        );
 
 
         // 创建压缩包名称
@@ -487,35 +500,10 @@ public class CommonController extends BaseController
         // 创建压缩包
         try (FileOutputStream fos = new FileOutputStream(zipFilePath);
              ZipOutputStream zos = new ZipOutputStream(fos)) {
-
-            for (String fileName : list) {
-                if (fileName != null && !fileName.isEmpty()) {
-                    String filePath = RuoYiConfig.getUploadPath() +'/'+ fileName;
-                    File file = new File(filePath);
-
-                    if (file.exists()) {
-                        FileInputStream fis = new FileInputStream(file);
-                        ZipEntry zipEntry = new ZipEntry(fileName.substring(fileName.lastIndexOf("/") + 1));
-                        zos.putNextEntry(zipEntry);
-
-                        byte[] bytes = new byte[1024];
-                        int length;
-                        while ((length = fis.read(bytes)) >= 0) {
-                            zos.write(bytes, 0, length);
-                        }
-                        zos.closeEntry();
-                        fis.close();
-                    }else {
-                        // 文件不存在，记录日志
-                        Logger logger = LoggerFactory.getLogger(CommonController.class);
-                        logger.error("File does not exist: " + filePath);
-                    }
-                } else {
-                    // 文件名为空，记录日志
-                    Logger logger = LoggerFactory.getLogger(CommonController.class);
-                    logger.error("File name is empty or null: " + fileName);
-                }
-            }
+            addFileToZip(zos, folderName, sciHorizontalApplyVertical.getFile());
+            addFileToZip(zos, folderName, sciHorizontalApplyVertical.getOpenfile());
+            addFileToZip(zos, folderName, sciHorizontalApplyVertical.getMidfile());
+            addFileToZip(zos, folderName, sciHorizontalApplyVertical.getOverfile());
         } catch (IOException e) {
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "File compression error");
             return;
@@ -550,14 +538,17 @@ public class CommonController extends BaseController
      */
     @GetMapping("/HXdownloadZip")
     public void HXdownloadZip(@RequestParam("id") String id, HttpServletRequest request, HttpServletResponse response)  throws ServletException, IOException {
-        List<String> list = new ArrayList<>();
         SciHorizontalApply sciHorizontalApply = sciHorizontalApplyService.selectSciHorizontalApplyById(Integer.parseInt(id));
-        list.add(getFileName(sciHorizontalApply.getFiling()));
-        list.add(getFileName(sciHorizontalApply.getContract()));
-        list.add(getFileName(sciHorizontalApply.getFilingurl()));
-        list.add(getFileName(sciHorizontalApply.getAgreeurl()));
         String user= sciHorizontalApply.getUserName();
         String Topname = sciHorizontalApply.getTopName();
+        String folderName = buildArchiveFolder(
+                sciHorizontalApply.getYname(),
+                sciHorizontalApply.getDname(),
+                sciHorizontalApply.getUserName(),
+                "横向课题",
+                sciHorizontalApply.getTopName(),
+                toLong(sciHorizontalApply.getUserId())
+        );
 
 
         // 创建压缩包名称
@@ -567,35 +558,10 @@ public class CommonController extends BaseController
         // 创建压缩包
         try (FileOutputStream fos = new FileOutputStream(zipFilePath);
              ZipOutputStream zos = new ZipOutputStream(fos)) {
-
-            for (String fileName : list) {
-                if (fileName != null && !fileName.isEmpty()) {
-                    String filePath = RuoYiConfig.getUploadPath() +'/'+ fileName;
-                    File file = new File(filePath);
-
-                    if (file.exists()) {
-                        FileInputStream fis = new FileInputStream(file);
-                        ZipEntry zipEntry = new ZipEntry(fileName.substring(fileName.lastIndexOf("/") + 1));
-                        zos.putNextEntry(zipEntry);
-
-                        byte[] bytes = new byte[1024];
-                        int length;
-                        while ((length = fis.read(bytes)) >= 0) {
-                            zos.write(bytes, 0, length);
-                        }
-                        zos.closeEntry();
-                        fis.close();
-                    }else {
-                        // 文件不存在，记录日志
-                        Logger logger = LoggerFactory.getLogger(CommonController.class);
-                        logger.error("File does not exist: " + filePath);
-                    }
-                } else {
-                    // 文件名为空，记录日志
-                    Logger logger = LoggerFactory.getLogger(CommonController.class);
-                    logger.error("File name is empty or null: " + fileName);
-                }
-            }
+            addFileToZip(zos, folderName, sciHorizontalApply.getFiling());
+            addFileToZip(zos, folderName, sciHorizontalApply.getContract());
+            addFileToZip(zos, folderName, sciHorizontalApply.getFilingurl());
+            addFileToZip(zos, folderName, sciHorizontalApply.getAgreeurl());
         } catch (IOException e) {
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "File compression error");
             return;
@@ -773,13 +739,14 @@ public class CommonController extends BaseController
             try {
                 SciHorizontalApplyVertical sciHorizontalApplyVertical = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalById(Integer.parseInt(id));
                 if (sciHorizontalApplyVertical != null) {
-                    // 构建文件夹名称：包含教研室前缀
-                    String folderName = "";
-                    if (StringUtils.isNotEmpty(sciHorizontalApplyVertical.getDname())) {
-                        folderName = sciHorizontalApplyVertical.getDname() + "/";
-                    }
-                    folderName += sciHorizontalApplyVertical.getUserName() + "-" + sciHorizontalApplyVertical.getTopName();
-                    folderName = folderName.replaceAll("[\\/:*?\"<>|]", "_"); // 移除非法字符
+                    String folderName = buildArchiveFolder(
+                            sciHorizontalApplyVertical.getYname(),
+                            sciHorizontalApplyVertical.getDname(),
+                            sciHorizontalApplyVertical.getUserName(),
+                            "纵向课题",
+                            sciHorizontalApplyVertical.getTopName(),
+                            toLong(sciHorizontalApplyVertical.getUserId())
+                    );
     
                     // 添加文件到压缩包
                     addFileToZip(zos, folderName, sciHorizontalApplyVertical.getFile());
@@ -801,13 +768,14 @@ public class CommonController extends BaseController
             try {
                 SciHorizontalApply sciHorizontalApply = sciHorizontalApplyService.selectSciHorizontalApplyById(Integer.parseInt(id));
                 if (sciHorizontalApply != null) {
-                    // 构建文件夹名称：包含教研室前缀
-                    String folderName = "";
-                    if (StringUtils.isNotEmpty(sciHorizontalApply.getDname())) {
-                        folderName = sciHorizontalApply.getDname() + "/";
-                    }
-                    folderName += sciHorizontalApply.getUserName() + "-" + sciHorizontalApply.getTopName();
-                    folderName = folderName.replaceAll("[\\/:*?\"<>|]", "_"); // 移除非法字符
+                    String folderName = buildArchiveFolder(
+                            sciHorizontalApply.getYname(),
+                            sciHorizontalApply.getDname(),
+                            sciHorizontalApply.getUserName(),
+                            "横向课题",
+                            sciHorizontalApply.getTopName(),
+                            toLong(sciHorizontalApply.getUserId())
+                    );
     
                     // 添加文件到压缩包
                     addFileToZip(zos, folderName, sciHorizontalApply.getFiling());
@@ -837,21 +805,8 @@ public class CommonController extends BaseController
                 // 需要去掉 /minio/ 前缀和 bucket 名称
                 String[] parts = fileUrl.substring("/minio/".length()).split("/", 2);
                 if (parts.length == 2) {
-                    String bucketName = parts[0];
                     String objectName = parts[1];
-                    
-                    // 从对象路径中提取目录结构和文件名
-                    // 例如：admin/数据科学与大数据技术教研室/郑杭/成果转化/22测试 - 备案表 - 郑杭.pdf
-                    // 保留完整的目录结构作为压缩包内的路径
-                    String fileName = objectName.substring(objectName.lastIndexOf("/") + 1);
-                    
-                    // 构建包含完整目录结构的条目名称
-                    // 格式：folderName/目录结构/文件名
-                    String objectDir = objectName.substring(0, objectName.lastIndexOf("/"));
-                    String entryName = folderName + "/" + objectDir + "/" + fileName;
-                    
-                    // 清理路径中的非法字符
-                    entryName = entryName.replaceAll("\\\\", "/"); // 将反斜杠转换为正斜杠
+                    String entryName = buildZipEntryName(folderName, objectName);
 
                     ZipEntry zipEntry = new ZipEntry(entryName);
                     zos.putNextEntry(zipEntry);
@@ -863,9 +818,9 @@ public class CommonController extends BaseController
                         while ((length = inputStream.read(bytes)) >= 0) {
                             zos.write(bytes, 0, length);
                         }
-                        log.info("成功从MinIO下载文件: {}, bucket: {}, object: {}", fileUrl, bucketName, objectName);
+                        log.info("成功从MinIO下载文件: {}, object: {}", fileUrl, objectName);
                     } catch (Exception e) {
-                        log.error("从MinIO下载文件失败: {}, bucket: {}, object: {}", fileUrl, bucketName, objectName, e);
+                        log.error("从MinIO下载文件失败: {}, object: {}", fileUrl, objectName, e);
                         // 即使某个文件下载失败，也要关闭entry，继续处理其他文件
                         zos.closeEntry();
                         return;
@@ -885,7 +840,7 @@ public class CommonController extends BaseController
                 return;
             }
 
-            String entryName = folderName + "/" + fileName.substring(fileName.lastIndexOf("/") + 1);
+            String entryName = buildZipEntryName(folderName, fileName);
             ZipEntry zipEntry = new ZipEntry(entryName);
             zos.putNextEntry(zipEntry);
 
@@ -914,16 +869,6 @@ public class CommonController extends BaseController
      * 路径格式: /minio/{bucket}/{objectPath}
      * 返回: {objectPath}
      */
-    private String getMinIOObjectName(String fileUrl) {
-        if (fileUrl.startsWith("/minio/")) {
-            String[] parts = fileUrl.substring("/minio/".length()).split("/", 2);
-            if (parts.length == 2) {
-                return parts[1];
-            }
-        }
-        return fileUrl;
-    }
-
     /**
      * 处理成果转化批量下载代码
      */
@@ -935,13 +880,14 @@ public class CommonController extends BaseController
             try {
                 SciIntraSchoolPro sciIntraSchoolPro = sciIntraSchProApplyService.sel_IntraSchPro_by_id(Integer.parseInt(id));
                 if (sciIntraSchoolPro != null) {
-                    // 构建文件夹名称：包含教研室前缀
-                    String folderName = "";
-                    if (StringUtils.isNotEmpty(sciIntraSchoolPro.getDname())) {
-                        folderName = sciIntraSchoolPro.getDname() + "/";
-                    }
-                    folderName += sciIntraSchoolPro.getUserName() + "-" + sciIntraSchoolPro.getTopName();
-                    folderName = folderName.replaceAll("[\\/:*?\"<>|]", "_"); // 移除非法字符
+                    String folderName = buildArchiveFolder(
+                            sciIntraSchoolPro.getYname(),
+                            sciIntraSchoolPro.getDname(),
+                            sciIntraSchoolPro.getUserName(),
+                            "成果转化",
+                            sciIntraSchoolPro.getTopName(),
+                            toLong(sciIntraSchoolPro.getUserId())
+                    );
     
                     // 添加文件到压缩包
                     addFileToZip(zos, folderName, sciIntraSchoolPro.getContract());
@@ -966,13 +912,14 @@ public class CommonController extends BaseController
             try {
                 SciPaperA sciPaperA = sciPaperAService.selectSciPaperAById(Long.parseLong(id));
                 if (sciPaperA != null) {
-                    // 构建文件夹名称：包含教研室前缀
-                    String folderName = "";
-                    if (StringUtils.isNotEmpty(sciPaperA.getResearchRoom())) {
-                        folderName = sciPaperA.getResearchRoom() + "/";
-                    }
-                    folderName += sciPaperA.getUserName() + "-" + sciPaperA.getPaperTitle();
-                    folderName = folderName.replaceAll("[\\/:*?\"<>|]", "_"); // 移除非法字符
+                    String folderName = buildArchiveFolder(
+                            sciPaperA.getCollege(),
+                            sciPaperA.getResearchRoom(),
+                            firstNonBlank(sciPaperA.getUserName(), sciPaperA.getTeacherName()),
+                            "论文",
+                            sciPaperA.getPaperTitle(),
+                            toLong(sciPaperA.getUserId())
+                    );
     
                     // 添加文件到压缩包
                     addFileToZip(zos, folderName, sciPaperA.getText_paper());
@@ -992,13 +939,14 @@ public class CommonController extends BaseController
             try {
                 SciJiaocairuanzhu sciJiaocairuanzhu = sciJiaocairuanzhuService.selectSciJiaocairuanzhuById(Integer.parseInt(id));
                 if (sciJiaocairuanzhu != null) {
-                    // 构建文件夹名称：包含教研室前缀
-                    String folderName = "";
-                    if (StringUtils.isNotEmpty(sciJiaocairuanzhu.getDname())) {
-                        folderName = sciJiaocairuanzhu.getDname() + "/";
-                    }
-                    folderName += sciJiaocairuanzhu.getXingming() + "-" + sciJiaocairuanzhu.getMingcheng();
-                    folderName = folderName.replaceAll("[\\/:*?\"<>|]", "_"); // 移除非法字符
+                    String folderName = buildArchiveFolder(
+                            sciJiaocairuanzhu.getYname(),
+                            sciJiaocairuanzhu.getDname(),
+                            sciJiaocairuanzhu.getUserName(),
+                            "教材软著",
+                            sciJiaocairuanzhu.getMingcheng(),
+                            toLong(sciJiaocairuanzhu.getUserId())
+                    );
     
                     // 添加文件到压缩包
                     addFileToZip(zos, folderName, sciJiaocairuanzhu.getWenjian());
@@ -1020,13 +968,14 @@ public class CommonController extends BaseController
             try {
                 SciZhuanliruanzhu sciZhuanliruanzhu = sciZhuanliruanzhuService.selectSciZhuanliruanzhuById(Integer.parseInt(id));
                 if (sciZhuanliruanzhu != null) {
-                    // 构建文件夹名称：包含教研室前缀
-                    String folderName = "";
-                    if (StringUtils.isNotEmpty(sciZhuanliruanzhu.getDname())) {
-                        folderName = sciZhuanliruanzhu.getDname() + "/";
-                    }
-                    folderName += sciZhuanliruanzhu.getXingming() + "-" + sciZhuanliruanzhu.getMingcheng();
-                    folderName = folderName.replaceAll("[\\/:*?\"<>|]", "_"); // 移除非法字符
+                    String folderName = buildArchiveFolder(
+                            sciZhuanliruanzhu.getYname(),
+                            sciZhuanliruanzhu.getDname(),
+                            sciZhuanliruanzhu.getUserName(),
+                            "专利软著",
+                            sciZhuanliruanzhu.getMingcheng(),
+                            toLong(sciZhuanliruanzhu.getUserId())
+                    );
     
                     // 添加文件到压缩包
                     addFileToZip(zos, folderName, sciZhuanliruanzhu.getWenjian());
@@ -1049,13 +998,14 @@ public class CommonController extends BaseController
             try {
                 SysReward sysReward = sysRewardService.selectSysRewardById(Long.parseLong(id));
                 if (sysReward != null) {
-                    // 构建文件夹名称：包含教研室前缀
-                    String folderName = "";
-                    if (StringUtils.isNotEmpty(sysReward.getDname())) {
-                        folderName = sysReward.getDname() + "/";
-                    }
-                    folderName += sysReward.getUserName() + "-" + sysReward.getRewardName();
-                    folderName = folderName.replaceAll("[\\/:*?\"<>|]", "_"); // 移除非法字符
+                    String folderName = buildArchiveFolder(
+                            sysReward.getYname(),
+                            sysReward.getDname(),
+                            sysReward.getUserName(),
+                            "奖励",
+                            sysReward.getRewardName(),
+                            toLong(sysReward.getUserId())
+                    );
     
                     // 添加文件到压缩包
                     addFileToZip(zos, folderName, sysReward.getRewardWenjian());
@@ -1074,13 +1024,14 @@ public class CommonController extends BaseController
             try {
                 SciLectureReport sciLectureReport = sciLectureReportService.selectSciLectureReportById(Integer.parseInt(id));
                 if (sciLectureReport != null) {
-                    // 构建文件夹名称：包含教研室前缀
-                    String folderName = "";
-                    if (StringUtils.isNotEmpty(sciLectureReport.getKeyanshi())) {
-                        folderName = sciLectureReport.getKeyanshi() + "/";
-                    }
-                    folderName += sciLectureReport.getTeacherName() + "-" + sciLectureReport.getReportTheme();
-                    folderName = folderName.replaceAll("[\\/:*?\"<>|]", "_"); // 移除非法字符
+                    String folderName = buildArchiveFolder(
+                            sciLectureReport.getXueyuan(),
+                            sciLectureReport.getKeyanshi(),
+                            sciLectureReport.getTeacherName(),
+                            "讲座报告",
+                            sciLectureReport.getReportTheme(),
+                            toLong(sciLectureReport.getUserId())
+                    );
     
                     // 添加文件到压缩包
                     addFileToZip(zos, folderName, sciLectureReport.getReportUrl());
@@ -1114,6 +1065,151 @@ public class CommonController extends BaseController
             return "讲座报告";
         }
         return "批量下载";
+    }
+
+    private String buildArchiveFolder(String college, String major, String teacher, String module, String topic, Long userId)
+    {
+        DeptInfo deptInfo = resolveDeptInfo(userId, college, major);
+        return joinZipPath(
+                sanitizeZipSegment(deptInfo.college, "未知学院"),
+                sanitizeZipSegment(deptInfo.major, "未知专业"),
+                sanitizeZipSegment(teacher, "未知教师"),
+                sanitizeZipSegment(module, "未分类模块"),
+                sanitizeZipSegment(topic, "未命名课题")
+        );
+    }
+
+    private DeptInfo resolveDeptInfo(Long userId, String college, String major)
+    {
+        String resolvedCollege = firstNonBlank(college);
+        String resolvedMajor = firstNonBlank(major);
+        if (StringUtils.isNotEmpty(resolvedCollege) && StringUtils.isNotEmpty(resolvedMajor))
+        {
+            return new DeptInfo(resolvedCollege, resolvedMajor);
+        }
+
+        if (userId == null)
+        {
+            return new DeptInfo(resolvedCollege, resolvedMajor);
+        }
+
+        try
+        {
+            SysUser user = userService.selectUserById(userId);
+            if (user == null || user.getDeptId() == null)
+            {
+                return new DeptInfo(resolvedCollege, resolvedMajor);
+            }
+
+            SysDept majorDept = deptService.selectDeptById(user.getDeptId());
+            if (majorDept != null && StringUtils.isEmpty(resolvedMajor))
+            {
+                resolvedMajor = majorDept.getDeptName();
+            }
+
+            if (majorDept != null && majorDept.getParentId() != null && majorDept.getParentId() > 0 && StringUtils.isEmpty(resolvedCollege))
+            {
+                SysDept collegeDept = deptService.selectDeptById(majorDept.getParentId());
+                if (collegeDept != null)
+                {
+                    resolvedCollege = collegeDept.getDeptName();
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            log.warn("解析下载目录的学院/专业信息失败, userId={}", userId, e);
+        }
+
+        return new DeptInfo(resolvedCollege, resolvedMajor);
+    }
+
+    private String buildZipEntryName(String folderName, String sourcePath)
+    {
+        String fileName = resolveDownloadFileName(sourcePath);
+        return joinZipPath(folderName, fileName);
+    }
+
+    private String resolveDownloadFileName(String sourcePath)
+    {
+        if (StringUtils.isEmpty(sourcePath))
+        {
+            return sanitizeZipSegment("", "未命名文件");
+        }
+
+        String normalized = sourcePath.replace("\\", "/");
+        String fileName = normalized.substring(normalized.lastIndexOf("/") + 1);
+        int dotIndex = fileName.lastIndexOf(".");
+        if (dotIndex <= 0)
+        {
+            return sanitizeZipSegment(fileName, "未命名文件");
+        }
+
+        String nameWithoutExt = fileName.substring(0, dotIndex);
+        String extension = fileName.substring(dotIndex);
+        int lastUnderscoreIndex = nameWithoutExt.lastIndexOf("_");
+        if (lastUnderscoreIndex != -1)
+        {
+            String suffix = nameWithoutExt.substring(lastUnderscoreIndex + 1);
+            if (suffix.matches("\\d+"))
+            {
+                nameWithoutExt = nameWithoutExt.substring(0, lastUnderscoreIndex);
+            }
+        }
+        return sanitizeZipSegment(nameWithoutExt + extension, "未命名文件");
+    }
+
+    private String joinZipPath(String... segments)
+    {
+        List<String> cleanedSegments = new ArrayList<>();
+        for (String segment : segments)
+        {
+            if (StringUtils.isNotEmpty(segment))
+            {
+                cleanedSegments.add(segment);
+            }
+        }
+        return String.join("/", cleanedSegments);
+    }
+
+    private String sanitizeZipSegment(String value, String fallback)
+    {
+        String candidate = firstNonBlank(value, fallback);
+        candidate = candidate.replaceAll("[\\\\/:*?\"<>|]", "_").trim();
+        return candidate.isEmpty() ? fallback : candidate;
+    }
+
+    private String firstNonBlank(String... values)
+    {
+        if (values == null)
+        {
+            return "";
+        }
+        for (String value : values)
+        {
+            if (StringUtils.isNotEmpty(value) && !value.trim().isEmpty())
+            {
+                return value.trim();
+            }
+        }
+        return "";
+    }
+
+    private Long toLong(Number value)
+    {
+        return value == null ? null : value.longValue();
+    }
+
+    private static final class DeptInfo
+    {
+        private final String college;
+        private final String major;
+
+        private DeptInfo(String college, String major)
+        {
+            this.college = college;
+            this.major = major;
+        }
     }
 
 }
