@@ -879,6 +879,7 @@
                     align: 'center',
                     formatter: function(value, row, index) {
                         var actions = [];
+                        var role = [[${role}]];
                         if(row.state == 99 ){
                             if (row.userId == row.uid){
                                 actions.push('<a class="' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.push(\'' + row.id + '\')">提交&nbsp;&nbsp;&nbsp;&nbsp;</a>');
@@ -891,8 +892,9 @@
 
                         }else
                         if(row.state == 1 ){
-                            actions.push('<a  class="' + JYSFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id+'/JYS' + '\')">批阅</a> ');
-                            if (JYSFlag != "hidden")
+                            if(role == 'research')
+                                actions.push('<a  class="' + JYSFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id+'/JYS' + '\')">批阅</a> ');
+                            if (JYSFlag != "hidden" && role == 'research')
                                 actions.push('<br>')
                             actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                             actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
@@ -901,20 +903,17 @@
                         if(row.state == 3 || row.state == 5 ||row.state == 7){
                             if(row.userId == row.uid)
                                 actions.push('<a   class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')">编辑</a> ');
-                            // actions.push('<a  class="' + JYSFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')">撤回</a> ');
-                            // actions.push('<a  class="' + KYCFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')">撤回</a> ');
-                            // actions.push('<a  class="' + DeptFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')">撤回</a> ');
                             if (editFlag != "hidden")
                                 actions.push('<br>')
                             actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                             actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
 
                         }else if(row.state ==  2){
-                            if(row.ynameId == row.userynameId)
+                            if(role == 'dept_teacher' && row.ynameId == row.userynameId)
                                 actions.push('<a  class="' + DeptFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/Dept'+ '\')">批阅&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                             if (row.dnameId == row.userdnameId)
                                 actions.push('<a  class="' + JYSFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000">撤回&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                            if (DeptFlag != "hidden" || JYSFlag != "hidden")
+                            if ((DeptFlag != "hidden" && role == 'dept_teacher') || JYSFlag != "hidden")
                                 actions.push('<br>')
                             actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                             actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
@@ -931,9 +930,11 @@
 
                         }
                         if(row.state ==  4){
-                            actions.push('<a  class="' + KYCFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/KYC'+ '\')">批阅&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                            actions.push('<a  class="' + DeptFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000">撤回&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                            if (KYCFlag != "hidden" || DeptFlag != "hidden")
+                            if(role == 'sci_tesearch')
+                                actions.push('<a  class="' + KYCFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/KYC'+ '\')">批阅&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
+                            if (role == 'dept_teacher')
+                                actions.push('<a  class="' + DeptFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000">撤回&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
+                            if ((KYCFlag != "hidden" && role == 'sci_tesearch') || (DeptFlag != "hidden" && role == 'dept_teacher'))
                                 actions.push('<br>')
                             actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                             actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');

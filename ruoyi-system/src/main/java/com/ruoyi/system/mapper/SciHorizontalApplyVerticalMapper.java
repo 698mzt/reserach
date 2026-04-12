@@ -22,6 +22,16 @@ public interface SciHorizontalApplyVerticalMapper {
      */
     public List<SciHorizontalApplyVertical> selectSciHorizontalApplyVerticalList(SciHorizontalApplyVertical sciHorizontalApplyVertical);
 
+    /**
+     * 查询纵向课题列表（统一查询，支持所有状态）
+     * 功能：统一查询纵向课题列表，支持多条件筛选和排序
+     * 按照2026年度数据权限优化需求，所有管理员角色均可查看所有状态的课题
+     *
+     * @param sciHorizontalApplyVertical 纵向课题
+     * @return 横向课题集合
+     */
+    public List<SciHorizontalApplyVertical> selectSciHorizontalApplyVerticalListAll(SciHorizontalApplyVertical sciHorizontalApplyVertical);
+
     public List<SciHorizontalApplyVertical> selectSciHorizontalApplyVerticalListJYS(SciHorizontalApplyVertical sciHorizontalApplyVertical);
 
     public List<SciHorizontalApplyVertical> selectSciHorizontalApplyVerticalListKYC(SciHorizontalApplyVertical sciHorizontalApplyVertical);

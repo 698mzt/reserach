@@ -228,69 +228,29 @@ public class SciHorizontalApplyVerticalController extends BaseController {
             }
         }
         sciHorizontalApplyVertical.setRole(role);
+        // 设置用户的学院ID，用于学院管理员数据权限控制
+        SysUser sysUser = getSysUser();
+        // 科研处管理员特殊处理：不设置userynameId，以便查看所有学院的数据
+        if (!"sci_tesearch".equals(role)) {
+            sciHorizontalApplyVertical.setUserynameId(Integer.valueOf(String.valueOf(sysUser.getDeptId())));
+        }
+        
         List<SciHorizontalApplyVertical> list = new ArrayList<>();
-//        科研处
-        switch (role) {
-            case "sci_tesearch":
-                switch (tableId) {
-                    case "bootstrap-table0":
-                        list = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalListOVER(sciHorizontalApplyVertical);
-                        break;
-                    case "bootstrap-table1":
-                        list = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalList(sciHorizontalApplyVertical);
-                        break;
-                    case "bootstrap-table2":
-                        list = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalListJX(sciHorizontalApplyVertical);
-                        break;
-                }
+//        统一使用新的查询方法，支持所有状态
+        switch (tableId) {
+            case "bootstrap-table0":
+                list = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalListOVER(sciHorizontalApplyVertical);
                 break;
-//        教研室
-            case "research":
-                switch (tableId) {
-                    case "bootstrap-table0":
-                        list = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalListOVER(sciHorizontalApplyVertical);
-                        break;
-                    case "bootstrap-table1":
-                        list = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalList(sciHorizontalApplyVertical);
-                        break;
-                    case "bootstrap-table2":
-                        list = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalListJX(sciHorizontalApplyVertical);
-                        break;
-                }
+            case "bootstrap-table1":
+                list = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalList(sciHorizontalApplyVertical);
                 break;
-//      学院负责人
-            case "dept_teacher":
-                switch (tableId) {
-                    case "bootstrap-table0":
-                        list = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalListOVER(sciHorizontalApplyVertical);
-                        break;
-                    case "bootstrap-table1":
-                        list = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalList(sciHorizontalApplyVertical);
-                        break;
-                    case "bootstrap-table2":
-                        list = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalListJX(sciHorizontalApplyVertical);
-                        break;
-                }
-                break;
-//        教师
-            default:
-                switch (tableId) {
-                    case "bootstrap-table0":
-                        list = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalListOVER(sciHorizontalApplyVertical);
-                        break;
-                    case "bootstrap-table1":
-                        list = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalList(sciHorizontalApplyVertical);
-                        break;
-                    case "bootstrap-table2":
-                        list = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalListJX(sciHorizontalApplyVertical);
-                        break;
-                }
+            case "bootstrap-table2":
+                list = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalListJX(sciHorizontalApplyVertical);
                 break;
         }
         List<SciHorizontalApplyVertical> list1 = new ArrayList<>();
         list1 = sciHorizontalApplyVerticalService.selectOtherListByUid(sciHorizontalApplyVertical);
         list.addAll(list1);
-        SysUser  sysUser =getSysUser();
 
         // 去重操作
         List<SciHorizontalApplyVertical> distinctList = list.stream()
