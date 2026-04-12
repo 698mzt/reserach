@@ -637,42 +637,25 @@
                             actions.push('<a class="' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"></i>删除</a><br>&nbsp;&nbsp;&nbsp;');
                             actions.push('<a class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"></i>编辑</a>&nbsp;&nbsp;&nbsp;');
                         }
+                        // 所有具有查看权限的角色都应该有查看、查看流程按钮
+                        actions.push('<a class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan\')"></i>查看</a>&nbsp;');
+                        actions.push('<a class="' + editInfo + '" href="javascript:void(0)" onclick="viewProcess(\'' + row.id +','+row.state+ '\')"></i>查看流程</a><br>');
+                        
+                        // 批阅按钮：仅当前审批节点的管理员角色显示
                         if (row.state == 1) { // 待处理
-                            if (row.userId == row.uid) {
-                                actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="viewProcess(\'' + row.id +','+row.state+ '\')"></i>查看流程</a><br>');
-                            }
                             actions.push('<a class="' + proFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro\')"></i>批阅</a>');
                         } else if (row.state == 2) { // 教研室通过
                             actions.push('<a  class="' + revokeInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/proth\')"></i>撤回</a><br>');
-                            actions.push('<a class="' + XYPYFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/xytg\')"></i>批阅</a>');
-                            if (row.userId == row.uid) {
-                                actions.push('<a class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan\')"></i>查看</a><br>');
-                                actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="viewProcess(\'' + row.id +','+row.state+ '\')"></i>查看流程</a>');
-                            }
-                        } else if (row.state == 3 ||row.state == 7||row.state == 5) { //退回
-                            actions.push('<a class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan\')"></i>查看</a>&nbsp;');
-                            if (row.userId == row.uid) {
-                                actions.push('<a class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"></i>更新</a><br>');
-                                actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="viewProcess(\'' + row.id +','+row.state+ '\')"></i>查看流程</a>');
-                            }
+                        actions.push('<a class="' + XYPYFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/xytg\')"></i>批阅</a>');
                         } else if (row.state == 4) { // 学院通过
                             actions.push('<a  class="' + XyRevoke + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/xyth\')"></i>撤回</a><br>');
                             actions.push('<a class="' + KYPYFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/kytg\')"></i>科研核查</a>');
-                            if (row.userId == row.uid) {
-                                actions.push('<a class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan\')"></i>查看</a><br>');
-                                actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="viewProcess(\'' + row.id +','+row.state+ '\')"></i>查看流程</a>');
-                            }
-                            // }  else if (row.state == 6) { // 科研处通过
-                            //     actions.push('<a class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan\')"></i>查看</a>');
-                            //     if (row.userId == row.uid) {
-                            //         actions.push('<a class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan\')"></i>查看</a>');
-                            //     }
-                        }  else if (row.state == 8) { // 完成
-                            actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan\')"></i>查看</a><br>');
+                        } else if (row.state == 8) { // 完成
                             actions.push('<a  class="' + KyRevoke + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/kyth\')"></i>撤回</a> ');
-                            if (row.userId == row.uid) {
-                                actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="viewProcess(\'' + row.id +','+row.state+ '\')"></i>查看流程</a>');
-                            }
+                        }
+                        // 退回状态下，作者可以更新
+                        if ((row.state == 3 || row.state == 7 || row.state == 5) ) { // 退回
+                            actions.push('<a class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"></i>更新</a>&nbsp;');
                         }
                         return actions.join('');
                     }

@@ -783,21 +783,15 @@
               actions.push('<a class="del-link-button' + '" href="#" onclick="$.operate.remove(\'' + row.id + '\')"></i>删除</a><br>&nbsp;&nbsp;&nbsp;');
               actions.push('<a class="link-button' + '" href="#" onclick="$.operate.editTab(\'' + row.id + '\')"></i>编辑</a>&nbsp;&nbsp;&nbsp;');
             }
+            if ((row.state == 3 || row.state == 7 || row.state == 5) && row.userId == row.uid) { // 退回
+              actions.push('<a class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"></i>更新</a>&nbsp;');
+            }
             if (row.state == 1) { // 待处理
 
             } else if (row.state == 2) { // 教研室通过
-            } else if (((row.state == 3 ||row.state == 7||row.state == 5))&& (row.uid == row.userId)) { //退回
-              if (row.userId == row.uid) {
-                actions.push('<a class="link-button' + '" href="#" onclick="$.operate.editTab(\'' + row.id + '\')"></i>编辑</a><br>');
-              }
+
             } else if (row.state == 4) { // 学院通过
               actions.push('<a class="link-button' + '" href="#" onclick="$.operate.detailTab(\'' + row.id + '/kytg\')"></i>科研核查</a>');
-
-              // }  else if (row.state == 6) { // 科研处通过
-              //     actions.push('<a class="' + editInfo + '" href="#" onclick="$.operate.detailTab(\'' + row.id + '/chakan\')"></i>查看</a>');
-              //     if (row.userId == row.uid) {
-              //         actions.push('<a class="' + editInfo + '" href="#" onclick="$.operate.detailTab(\'' + row.id + '/chakan\')"></i>查看</a>');
-              //     }
             }  else if (row.state == 8) { // 完成
               actions.push('<a class="del-link-button' + '" href="#" onclick="$.operate.detailTab(\'' + row.id + '/kyth\')"></i>撤回</a> ');
             }

@@ -773,7 +773,9 @@
               actions.push('<a class="link-button' + '" href="#" onclick="$.operate.editTab(\'' + row.id + '\')"></i>编辑</a>&nbsp;&nbsp;&nbsp;');
             }
 
-
+            if ((row.state == 3 || row.state == 7 || row.state == 5) && row.userId == row.uid) { // 退回
+              actions.push('<a class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"></i>更新</a>&nbsp;');
+            }
             return actions.join('');
           }
         }]
