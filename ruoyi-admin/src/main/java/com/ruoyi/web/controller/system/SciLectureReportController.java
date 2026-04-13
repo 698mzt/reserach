@@ -10,7 +10,6 @@ import com.ruoyi.system.domain.SciLectureReportOpinion;
 import com.ruoyi.system.service.ISciLectureReportIntegralService;
 import com.ruoyi.system.service.ISciLectureReportOpinionService;
 import com.ruoyi.system.service.ISysUserService;
-import io.swagger.models.auth.In;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,88 +64,59 @@ public class SciLectureReportController extends BaseController
             "marxism_college", // 马克思主义学院管理员
             "general" //综合院部管理员
     ));
+    
+    /**
+     * 基于角色的查询字段白名单校验
+     * 教师角色：仅允许通过“课题名称”检索
+     * 教研室角色：允许通过“第一作者”+“课题名称”检索
+     * 学院角色：允许通过“专业”+“第一作者”+“课题名称”检索
+     * 科研处角色：允许通过“学院”+“专业”+“第一作者”+“课题名称”全维度检索
+     * 
+     * @param sciLectureReport 查询条件对象
+     * @param role 用户角色
+     */
+    private void validateQueryFieldsByRole(SciLectureReport sciLectureReport, String role) {
+        if ("teacher".equals(role)) { // 教师
+            // 教师：只保留课题名称，清空其他字段
+            sciLectureReport.setTeacherName(null);
+            sciLectureReport.setKeyanshi(null);
+            sciLectureReport.setXueyuan(null);
+        } else if ("research".equals(role)) { // 教研室
+            // 教研室：只保留主持人 + 课题名称，清空其他字段
+            sciLectureReport.setKeyanshi(null);
+            sciLectureReport.setXueyuan(null);
+        } else if ("dept_teacher".equals(role)) { // 学院
+            // 学院：保留专业 + 主持人 + 课题名称，清空学院字段
+            sciLectureReport.setXueyuan(null);
+        }
+        // 科研处角色 (sci_tesearch) 和管理员角色可以使用所有字段，无需清空
+    }
     @RequiresPermissions("system:report:view")
     @GetMapping()
     public String report(ModelMap mmap)
     {
-        // 获取用户角色ID
-        List<SysRole> roles = getSysUser().getRoles();
-        Integer roleId = null;
-        for (SysRole r : roles) {
-            roleId = Math.toIntExact(r.getRoleId());
-            break; // 只取第一个角色
-        }
-        mmap.put("roleId", roleId);
+        // 将当前用户信息传递到模板，用于前端角色识别
+        mmap.put("user", getSysUser());
         return prefix + "/report";
     }
 
     /**
      * 查询讲座报告列表
-     * 根据用户角色调用不同的查询方法：
-     * - 教师：selectSciLectureReportListCx(课题名称查询)
-     * - 教研室：selectSciLectureReportListCxList（第一作者、课题名称查询)
-     * - 学院：selectSciLectureReportListXY（专业、第一作者、课题名称查询）
-     * - 科研处：selectSciLectureReportListKY（学院、专业、第一作者、课题名称查询）
-     * - 管理员：selectSciLectureReportList(所有条件查询）
+     * 功能：根据角色和表格ID查询讲座报告列表
+     * SQL：根据角色不同，执行不同的查询语句
      */
     @RequiresPermissions("system:report:list")
+    @Log(title = "查询讲座报告列表", businessType = BusinessType.OTHER)
     @PostMapping("/list/{tableId}")
     @ResponseBody
-    public TableDataInfo list(@PathVariable("tableId") String tableId,String year,SciLectureReport sciLectureReport)
+    public TableDataInfo list(@PathVariable("tableId") String tableId, String year, SciLectureReport sciLectureReport)
     {
-        System.out.println(tableId);
-        sciLectureReport.setYear(year);
         sciLectureReport.setUid(getUserId());
+        sciLectureReport.setYear(year);
+        
+        // 统一使用一个查询方法，通过@DataScope控制数据权限
         startPage();
-        List<SysRole> roles = getSysUser().getRoles();
-        Integer roleId = null;
-        for (SysRole r : roles) {
-            roleId = Math.toIntExact(r.getRoleId());
-            break; // 只取第一个角色
-        }
-        sciLectureReport.setRole(String.valueOf(roleId));
-        List<SciLectureReport> list = new ArrayList<>();
-
-        // ====》 调整：根据角色ID判断
-        // 科研处：角色ID 101
-        if(roleId != null && roleId == 101){
-            sciLectureReport.setStatelist(Arrays.asList(2,4)); // 查询时状态设置
-            // 科研处：学院、专业、第一作者、课题名称查询
-            list = sciLectureReportService.selectSciLectureReportListKY(sciLectureReport);
-        }
-        // 教研室：角色ID 102
-        else if(roleId != null && roleId == 102){
-            sciLectureReport.setStatelist(Arrays.asList(1,6)); // 查询时状态设置
-            // 教研室：第一作者、课题名称查询
-            list = sciLectureReportService.selectSciLectureReportListCxList(sciLectureReport);
-        }
-        // 学院：角色ID 103,104,105,106,107,108,116,117,118,119,120
-        else if(roleId != null && (roleId == 103 || roleId == 104 || roleId == 105 || roleId == 106 || 
-                                 roleId == 107 || roleId == 108 || roleId == 116 || roleId == 117 || 
-                                 roleId == 118 || roleId == 119 || roleId == 120)){
-            sciLectureReport.setStatelist(Arrays.asList(6,2)); // 查询时状态设置
-            // 学院：专业、第一作者、课题名称查询
-            list = sciLectureReportService.selectSciLectureReportListXY(sciLectureReport);
-        }
-        // 教师：角色ID 100
-        else if(roleId != null && roleId == 100){
-            sciLectureReport.setStatelist(Arrays.asList(0, 1, 2, 3, 5, 4, 6, 7)); // 查询时状态设置
-            // 教师：课题名称查询
-            list = sciLectureReportService.selectSciLectureReportListCx(sciLectureReport);
-        }
-        // 管理员：角色ID 1
-        else if(roleId != null && roleId == 1){
-            sciLectureReport.setStatelist(Arrays.asList(0, 1, 2, 3, 5, 4, 6, 7)); // 查询时状态设置
-            // 管理员：所有条件查询
-            list = sciLectureReportService.selectSciLectureReportList(sciLectureReport);
-        }
-        // 其他用户
-        else{
-            sciLectureReport.setStatelist(Arrays.asList(0, 1, 2, 3, 5, 4, 6, 7)); // 查询时状态设置
-            // 默认：课题名称查询
-            list = sciLectureReportService.selectSciLectureReportListCx(sciLectureReport);
-        }
-
+        List<SciLectureReport> list = sciLectureReportService.selectSciLectureReportListAll(sciLectureReport);
         return getDataTable(list);
     }
 
