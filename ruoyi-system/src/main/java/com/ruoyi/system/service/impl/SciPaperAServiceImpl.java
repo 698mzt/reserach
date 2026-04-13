@@ -65,6 +65,17 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
 
     @Override
     @DataScope(deptAlias = "d", userAlias = "u")
+    public List<SciPaperA> selectSciPaperAListAll(SciPaperA sciPaperA) {
+        List<SciPaperA> list = sciPaperAMapper.selectSciPaperAListAll(sciPaperA);
+        // 为每条论文记录计算并填充分数
+        for (SciPaperA paper : list) {
+            calculateAndFillScores(paper);
+        }
+        return list;
+    }
+
+    @Override
+    @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciPaperA> selectSciPaperAExport(List<String> ListRowId, SciPaperA sciPaperA) {
         return sciPaperAMapper.selectSciPaperAExport(ListRowId, sciPaperA);
     }

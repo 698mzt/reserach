@@ -539,9 +539,9 @@
         console.log(ListRowId);
       },
       columns: [
-      //         {
-      //   checkbox: false,
-      // },
+        {
+          checkbox: true,
+        },
         {
           field: 'number',
           title: '序号',
@@ -729,7 +729,7 @@
           field: 'estimatedScore',
           title: '预计积分',
           formatter: function(value, row, index) {
-              return row.firstPersonId == row.uid ? row.firstAuthorScore : row.secondPersonId == row.uid ? row.secondAuthorScore : row.thirdPersonId == row.uid ? row.thirdAuthorScore : row.fourthPersonId == row.uid ? row.fourthAuthorScore : row.communicationAuthorId == row.uid ? row.correspondingAuthorScore : "非作者";
+              return row.firstPersonId == row.uid ? row.firstAuthorScore : row.secondPersonId == row.uid ? row.secondAuthorScore : row.thirdPersonId == row.uid ? row.thirdAuthorScore : row.fourthPersonId == row.uid ? row.fourthAuthorScore : row.communicationAuthorId == row.uid ? row.correspondingAuthorScore : 0;
           }
         },
         {
@@ -742,15 +742,15 @@
         },
         {
           field: 'researchScore',
-          title: '积分',
+          title: '已获积分',
           formatter: function (value, row, index) {
             //console.log("row=",row)
-              return row.firstPersonId == row.uid ?row.firstAuthorScore :row.secondPersonId == row.uid ? row.secondAuthorScore :row.thirdPersonId == row.uid ? row.thirdAuthorScore :row.fourthPersonId == row.uid ? row.fourthAuthorScore :row.communicationAuthorId == row.uid ? row.correspondingAuthorScore :"非作者";
-              // if (row.userId == row.uid) {
-            //   return row.researchScore;
-            // } else {
-            //   return 0;
-            // }
+            // 只有审批流程通过（状态为8）才显示分数，否则为0
+            if (row.state != 8) {
+                return 0;
+            }
+            // 将非作者改为0
+            return row.firstPersonId == row.uid ?row.firstAuthorScore :row.secondPersonId == row.uid ? row.secondAuthorScore :row.thirdPersonId == row.uid ? row.thirdAuthorScore :row.fourthPersonId == row.uid ? row.fourthAuthorScore :row.communicationAuthorId == row.uid ? row.correspondingAuthorScore :0;
           }
         },
         {
@@ -780,27 +780,21 @@
               actions.push('<a class="del-link-button' + '" href="#" onclick="$.operate.remove(\'' + row.id + '\')"></i>删除</a><br>&nbsp;&nbsp;&nbsp;');
               actions.push('<a class="link-button' + '" href="#" onclick="$.operate.editTab(\'' + row.id + '\')"></i>编辑</a><br>');
             }
-            if (row.state == 1) { // 待处理
+           if (row.state == 1) { // 待处理
+                          
+                        } else if (row.state == 2) { // 教研室通过
+                            actions.push('<a class="' + XYPYFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/xytg\')"></i>批阅</a>');
+                        } else if (row.state == 4) { // 学院通过
+                            actions.push('<a  class="' + XyRevoke + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/xyth\')"></i>撤回</a><br>');
 
-            } else if (row.state == 2) { // 教研室通过
-                if (row.deptNamekey === '1') { //是自己学院的
-                    actions.push('<a class="link-button' + '" href="#" onclick="$.operate.detailTab(\'' + row.id + '/xytg\')"></i>批阅</a>');
-                }
-            } else if (((row.state == 3 ||row.state == 7||row.state == 5))&& (row.uid == row.userId) ) { //退回
-              actions.push('<a class="link-button' + '" href="#" onclick="$.operate.editTab(\'' + row.id + '\')"></i>编辑</a><br>');
-            } else if (row.state == 4) { // 学院通过
-                if (row.deptNamekey === '1') { //是自己学院的
-                    actions.push('<a  class="del-link-button' + '" href="#" onclick="$.operate.detailTab(\'' + row.id + '/xyth\')"></i>撤回</a><br>');
-                }
-              // }  else if (row.state == 6) { // 科研处通过
-              //     actions.push('<a class="' + editInfo + '" href="#" onclick="$.operate.detailTab(\'' + row.id + '/chakan\')"></i>查看</a>');
-              //     if (row.userId == row.uid) {
-              //         actions.push('<a class="' + editInfo + '" href="#" onclick="$.operate.detailTab(\'' + row.id + '/chakan\')"></i>查看</a>');
-              //     }
-            }  else if (row.state == 8) {
+                        } else if (row.state == 8) { // 完成
 
-            }
-            return actions.join('');
+                        }
+                        // 退回状态下，作者可以更新
+                        if ((row.state == 3 || row.state == 7 || row.state == 5) && row.userId == row.uid) { // 退回
+                            actions.push('<a class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"></i>更新</a>&nbsp;');
+                        }
+                        return actions.join('');
           }
         }]
     };
