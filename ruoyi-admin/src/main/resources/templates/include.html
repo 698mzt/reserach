@@ -1,5 +1,6 @@
 <!-- 通用CSS -->
-<head th:fragment=header(title)>
+<head th:fragment="header(title)">
+
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -321,7 +322,7 @@
 </div>
 
 <!-- 状态圆圈片段 -->
-<th:block th:fragment="status-circles">
+<div th:fragment="status-circles">
 	<div class="status-circle-container">
 		<div class="status-item" data-abbr="草稿" title="草稿/驳回状态">
 			<span class="status-circle orange"></span>
@@ -336,4 +337,4 @@
 			<span>终审通过</span>
 		</div>
 	</div>
-</th:block>
+</div>
