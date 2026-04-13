@@ -228,11 +228,13 @@ public class SciHorizontalApplyVerticalController extends BaseController {
             }
         }
         sciHorizontalApplyVertical.setRole(role);
-        // 设置用户的学院ID，用于学院管理员数据权限控制
+        // 设置用户的部门ID，用于数据权限控制
         SysUser sysUser = getSysUser();
         // 系统管理员和科研处管理员特殊处理：不设置userynameId，以便查看所有学院的数据
         if (!"sci_tesearch".equals(role) && sysUser.getUserId() != 1) {
             sciHorizontalApplyVertical.setUserynameId(Integer.valueOf(String.valueOf(sysUser.getDeptId())));
+            // 记录用户的角色类型，用于Mapper中区分权限级别
+            sciHorizontalApplyVertical.setRoleType(role);
         }
         
         List<SciHorizontalApplyVertical> list = new ArrayList<>();

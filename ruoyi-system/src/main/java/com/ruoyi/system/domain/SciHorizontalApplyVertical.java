@@ -43,6 +43,9 @@ public class SciHorizontalApplyVertical extends BaseEntity {
     @Excel(name = "总分", sort = 8)
     private String totalTeacherScore;
 
+    /** 角色类型（用于数据权限控制） */
+    private String roleType;
+
     public String getUserName() {
         return userName;
     }
@@ -542,6 +545,14 @@ public class SciHorizontalApplyVertical extends BaseEntity {
 
     public void setExpectedScore4(String expectedScore4) {
         this.expectedScore4 = expectedScore4;
+    }
+
+    public String getRoleType() {
+        return roleType;
+    }
+
+    public void setRoleType(String roleType) {
+        this.roleType = roleType;
     }
 
     public String getStateDes(){
