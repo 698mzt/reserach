@@ -75,6 +75,13 @@
             <artifactId>ruoyi-system</artifactId>
         </dependency>
 
+        <!-- Activity工作流模块 -->
+        <dependency>
+            <groupId>com.ruoyi</groupId>
+            <artifactId>ruoyi-activity</artifactId>
+            <version>${ruoyi.version}</version>
+        </dependency>
+
     </dependencies>
 
     <profiles>

@@ -17,7 +17,7 @@ ruoyi:
 # MinIO配置
 minio:
   # 是否启用MinIO
-  enabled: true
+  enabled: false
   # MinIO服务器地址，例如: http://localhost:9000
   endpoint: http://172.16.4.218:32000
   # 访问密钥
@@ -91,6 +91,7 @@ spring:
     restart:
       # 热部署开关
       enabled: false
+
 
 # MyBatis
 mybatis:
