@@ -2,8 +2,7 @@ package com.ruoyi.system.service.impl;
 
 import com.ruoyi.system.domain.SciProjectScoreCfg;
 import com.ruoyi.system.domain.SciTec_traScoreCfg;
-import com.ruoyi.system.mapper.SciProjectScoreCfgMapper;
-import com.ruoyi.system.mapper.SciTec_traScoreCfgMapper;
+import com.ruoyi.system.mapper.SciTectraScoreCfgMapper;
 import com.ruoyi.system.service.ISciTec_traCfgService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,7 +19,7 @@ import java.util.Map;
 @Service
 public class SciTec_traCfgServiceImpl implements ISciTec_traCfgService {
     @Autowired
-    private SciTec_traScoreCfgMapper sciTec_traScoreCfgMapper;
+    private SciTectraScoreCfgMapper sciTec_traScoreCfgMapper;
 
     @Override
     public List<SciProjectScoreCfg> selectSciTec_traScoreCfgList(SciTec_traScoreCfg sciTec_traScoreCfg) {
