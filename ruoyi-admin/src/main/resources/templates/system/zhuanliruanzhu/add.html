@@ -21,7 +21,7 @@
             </div>
             <div class="form-group">
                 <div class="col-sm-8">
-                    <input name="jifen" class="form-control" type="hidden" value="0">
+                    <input name="jifen" class="form-control" type="hidden" value="选择类型后显示">
                 </div>
             </div>
 
@@ -93,7 +93,7 @@
                 <div class="col-sm-6">
                     <label class="col-sm-4 control-label">预计科研积分：</label>
                     <div class="col-sm-8">
-                        <input id="firstPersonExpectedJifen" class="form-control" type="text" readonly value="0">
+                        <input id="firstPersonExpectedJifen" class="form-control" type="text" readonly value="选择类型后显示">
                     </div>
                 </div>
             </div>
@@ -111,7 +111,7 @@
                 <div class="col-sm-6">
                     <label class="col-sm-4 control-label">预计科研积分：</label>
                     <div class="col-sm-8">
-                        <input id="secondPersonExpectedJifen" class="form-control" type="text" readonly value="0">
+                        <input id="secondPersonExpectedJifen" class="form-control" type="text" readonly value="选择类型后显示">
                     </div>
                 </div>
             </div>
@@ -129,7 +129,7 @@
                 <div class="col-sm-6">
                     <label class="col-sm-4 control-label">预计科研积分：</label>
                     <div class="col-sm-8">
-                        <input id="thirdPersonExpectedJifen" class="form-control" type="text" readonly value="0">
+                        <input id="thirdPersonExpectedJifen" class="form-control" type="text" readonly value="选择类型后显示">
                     </div>
                 </div>
             </div>
@@ -147,7 +147,7 @@
                 <div class="col-sm-6">
                     <label class="col-sm-4 control-label">预计科研积分：</label>
                     <div class="col-sm-8">
-                        <input id="fourthPersonExpectedJifen" class="form-control" type="text" readonly value="0">
+                        <input id="fourthPersonExpectedJifen" class="form-control" type="text" readonly value="选择类型后显示">
                     </div>
                 </div>
             </div>
@@ -488,6 +488,8 @@
         $(function () {
             function loadExpectedJifenSlots() {
                 var fenlei = $("select[name='fenlei']").val();
+                // 看是否转化
+                var isConversion = $("input[name='shifouyingyon']:checked").val();
                 if (!fenlei) { return; }
 
                 $.ajax({
@@ -497,10 +499,18 @@
                     dataType: "json",
                     success: function (result) {
                         var data = (result && result.code === 0) ? result.data : null;
-                        var firstScore = data && data.firstScore ? data.firstScore : "0";
-                        var secondScore = data && data.secondScore ? data.secondScore : "0";
-                        var thirdScore = data && data.thirdScore ? data.thirdScore : "0";
-                        var fourthScore = data && data.fourthScore ? data.fourthScore : "0";
+                        var firstScore = data && data.firstScore ? parseInt(data.firstScore) : 0;
+                        var secondScore = data && data.secondScore ? parseInt(data.secondScore) : 0;
+                        var thirdScore = data && data.thirdScore ? parseInt(data.thirdScore) : 0;
+                        var fourthScore = data && data.fourthScore ? parseInt(data.fourthScore) : 0;
+
+                        // 非转化软著按50%核算（仅计算机软件著作权，fenlei=4）
+                        if (isConversion === 'N' && fenlei === '4') {
+                            firstScore = Math.round(firstScore * 0.5);
+                            secondScore = Math.round(secondScore * 0.5);
+                            thirdScore = Math.round(thirdScore * 0.5);
+                            fourthScore = Math.round(fourthScore * 0.5);
+                        }
 
                         $("#firstPersonExpectedJifen").val(firstScore);
                         $("#secondPersonExpectedJifen").val(secondScore);
@@ -516,7 +526,8 @@
                 });
             }
 
-            $("select[name='fenlei']").on("change", loadExpectedJifenSlots);
+            // 监听分类和是否转化选择变化
+            $("select[name='fenlei'], input[name='shifouyingyon']").on("change", loadExpectedJifenSlots);
             loadExpectedJifenSlots();
         });
     </script>

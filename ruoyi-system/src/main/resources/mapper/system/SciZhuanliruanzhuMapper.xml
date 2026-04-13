@@ -35,13 +35,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="thirdPersonId" column="third_person_id"/>
         <result property="fourthPersonId" column="fourth_person_id"/>
         <result property="members" column="members"/>
-
+        <result property="kyjcPassTime" column="kyjc_pass_time" />
 
 
     </resultMap>
 
     <sql id="selectSciZhuanliruanzhuVo">
-        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.mingcheng, s.shoquanhao, s.huopishijain, s.shifouyingyon, s.hangyelianhe, s.fenlei, s.state,s.jifen,s.expected_jifen,s.final_jifen,s.paiming,s.wenjian,s.createtime,s.first_person_id,s.second_person_id,s.third_person_id,s.fourth_person_id,s.members
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.mingcheng, s.shoquanhao, s.huopishijain, s.shifouyingyon, s.hangyelianhe, s.fenlei, s.state,s.jifen,s.expected_jifen,s.final_jifen,s.paiming,s.wenjian,s.createtime,s.first_person_id,s.second_person_id,s.third_person_id,s.fourth_person_id,s.members, s.kyjc_pass_time
         from sci_zhuanliruanzhu s left join sys_user u on  s.user_id=u.user_id
                                   left join sys_dept d on u.dept_id = d.dept_id
                                   left join sys_dept p on d.parent_id =p.dept_id
@@ -115,7 +115,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         end,
         createtime desc
     </select>
-
 
 <!--    教研室查询语句-->
     <select id="selectSciZhuanliruanzhuList2" parameterType="SciZhuanliruanzhu" resultMap="SciZhuanliruanzhuResult">
@@ -211,6 +210,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="finalJifen != null and finalJifen != ''">final_jifen,</if>
             <if test="wenjian != null and wenjian != ''">wenjian,</if>
             <if test="state != null and state != ''">state,</if>
+            <if test="kyjcPassTime != null">kyjc_pass_time,</if>
 
             <if test="firstPersonId != null and firstPersonId != ''">first_person_id,</if>
             <if test="secondPersonId != null and secondPersonId != ''">second_person_id,</if>
@@ -234,6 +234,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="finalJifen != null and finalJifen != ''">#{finalJifen},</if>
             <if test="wenjian != null and wenjian != ''">#{wenjian},</if>
             <if test="state != null and state != ''">#{state},</if>
+            <if test="kyjcPassTime != null">#{kyjcPassTime},</if>
 
             <if test="firstPersonId != null and firstPersonId != ''">#{firstPersonId},</if>
             <if test="secondPersonId != null and secondPersonId != ''">#{secondPersonId},</if>
@@ -263,6 +264,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="jifen != null and jifen != ''">jifen = #{jifen},</if>
             <if test="expectedJifen != null and expectedJifen != ''">expected_jifen = #{expectedJifen},</if>
             <if test="finalJifen != null and finalJifen != ''">final_jifen = #{finalJifen},</if>
+            <if test="kyjcPassTime != null">kyjc_pass_time = #{kyjcPassTime},</if>
 
             <if test="firstPersonId != null and firstPersonId != ''">first_person_id = #{firstPersonId},</if>
             <if test="secondPersonId != null and secondPersonId != ''">second_person_id = #{secondPersonId},</if>
@@ -291,8 +293,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         update sci_zhuanliruanzhu set state = #{state} where id = #{id}
     </update>
 
-
-
+<!--添加统计年度内用户软著数量-->
+    <select id="countSoftWorksByYear" resultType="int">
+        SELECT COUNT(*) FROM sci_zhuanliruanzhu
+        WHERE user_id = #{userId}
+            AND YEAR(kyjc_pass_time) = #{year}
+          AND state = '6' -- 科研处通过
+    </select>
 
     <update id="updateJifen">
         UPDATE sci_zhuanliruanzhu
@@ -303,6 +310,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <update id="updateFinalJifen">
         UPDATE sci_zhuanliruanzhu
         SET final_jifen = #{finalJifen}
+        WHERE id = #{id}
+    </update>
+    <!--科研处通过时写入认定时间-->
+    <update id="updateKyjcPassTime">
+        UPDATE sci_zhuanliruanzhu
+        SET kyjc_pass_time = #{kyjcPassTime}
         WHERE id = #{id}
     </update>
 
