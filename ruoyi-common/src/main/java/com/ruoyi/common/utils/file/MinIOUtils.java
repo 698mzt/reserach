@@ -32,26 +32,22 @@ public class MinIOUtils
     {
         try
         {
-            // 检查是否启用MinIO
             if (!MinIOConfig.isEnabled())
             {
                 log.info("MinIO未启用，将使用本地文件存储");
                 return;
             }
 
-            // 初始化MinIO客户端
             minioClient = MinioClient.builder()
                     .endpoint(MinIOConfig.getEndpoint())
                     .credentials(MinIOConfig.getAccessKey(), MinIOConfig.getSecretKey())
                     .build();
 
-            // 检查存储桶是否存在，不存在则创建
             createBucketIfNotExists();
         }
         catch (Exception e)
         {
-            log.error("初始化MinIO客户端失败: {}", e.getMessage());
-            throw new RuntimeException("初始化MinIO客户端失败", e);
+            log.error("初始化MinIO客户端失败: {}，将使用本地文件存储", e.getMessage());
         }
     }
 

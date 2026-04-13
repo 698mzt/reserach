@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.SysApprovalNodeMapper">
+
+    <resultMap type="SysApprovalNode" id="SysApprovalNodeResult">
+        <result property="id"    column="id"    />
+        <result property="processId"    column="process_id"    />
+        <result property="processName"    column="process_name"    />
+        <result property="nodeOrder"    column="node_order"    />
+        <result property="nodeCode"    column="node_code"    />
+        <result property="nodeNm"    column="node_name"    />
+        <result property="deptIds"    column="dept_ids"    />
+        <result property="roleIds"    column="role_ids"    />
+        <result property="roleKeys"    column="role_keys"    />
+        <result property="passState"    column="pass_state"    />
+        <result property="rejectState"    column="reject_state"    />
+        <result property="canTransfer"    column="can_transfer"    />
+        <result property="canBack"    column="can_back"    />
+        <result property="sort"    column="sort"    />
+        <result property="status"    column="status"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <sql id="selectSysApprovalNodeVo">
+        select n.id, n.process_id, p.process_name, n.node_order, n.node_code, n.node_name, 
+               n.dept_ids, n.role_ids, n.role_keys, n.pass_state, n.reject_state, 
+               n.can_transfer, n.can_back, n.sort, n.status, n.create_by, n.create_time, 
+               n.update_by, n.update_time, n.remark 
+        from sys_approval_node n
+        left join sys_approval_process p on n.process_id = p.id
+    </sql>
+
+    <select id="selectSysApprovalNodeList" parameterType="SysApprovalNode" resultMap="SysApprovalNodeResult">
+        <include refid="selectSysApprovalNodeVo"/>
+        <where>
+            <if test="processId != null"> and n.process_id = #{processId}</if>
+            <if test="nodeCode != null  and nodeCode != ''"> and n.node_code like concat('%', #{nodeCode}, '%')</if>
+            <if test="nodeNm != null  and nodeNm != ''"> and n.node_name like concat('%', #{nodeNm}, '%')</if>
+            <if test="status != null  and status != ''"> and n.status = #{status}</if>
+        </where>
+        order by n.node_order asc, n.sort asc, n.id desc
+    </select>
+
+    <select id="selectSysApprovalNodeById" parameterType="Long" resultMap="SysApprovalNodeResult">
+        <include refid="selectSysApprovalNodeVo"/>
+        where n.id = #{id}
+    </select>
+
+    <select id="selectSysApprovalNodeByProcessId" parameterType="Long" resultMap="SysApprovalNodeResult">
+        <include refid="selectSysApprovalNodeVo"/>
+        where n.process_id = #{processId} and n.status = '0'
+        order by n.node_order asc
+    </select>
+
+    <insert id="insertSysApprovalNode" parameterType="SysApprovalNode" useGeneratedKeys="true" keyProperty="id">
+        insert into sys_approval_node
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="processId != null">process_id,</if>
+            <if test="nodeOrder != null">node_order,</if>
+            <if test="nodeCode != null and nodeCode != ''">node_code,</if>
+            <if test="nodeNm != null and nodeNm != ''">node_name,</if>
+            <if test="deptIds != null and deptIds != ''">dept_ids,</if>
+            <if test="roleIds != null and roleIds != ''">role_ids,</if>
+            <if test="roleKeys != null and roleKeys != ''">role_keys,</if>
+            <if test="passState != null and passState != ''">pass_state,</if>
+            <if test="rejectState != null and rejectState != ''">reject_state,</if>
+            <if test="canTransfer != null and canTransfer != ''">can_transfer,</if>
+            <if test="canBack != null and canBack != ''">can_back,</if>
+            <if test="sort != null">sort,</if>
+            <if test="status != null and status != ''">status,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="processId != null">#{processId},</if>
+            <if test="nodeOrder != null">#{nodeOrder},</if>
+            <if test="nodeCode != null and nodeCode != ''">#{nodeCode},</if>
+            <if test="nodeNm != null and nodeNm != ''">#{nodeNm},</if>
+            <if test="deptIds != null and deptIds != ''">#{deptIds},</if>
+            <if test="roleIds != null and roleIds != ''">#{roleIds},</if>
+            <if test="roleKeys != null and roleKeys != ''">#{roleKeys},</if>
+            <if test="passState != null and passState != ''">#{passState},</if>
+            <if test="rejectState != null and rejectState != ''">#{rejectState},</if>
+            <if test="canTransfer != null and canTransfer != ''">#{canTransfer},</if>
+            <if test="canBack != null and canBack != ''">#{canBack},</if>
+            <if test="sort != null">#{sort},</if>
+            <if test="status != null and status != ''">#{status},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSysApprovalNode" parameterType="SysApprovalNode">
+        update sys_approval_node
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="processId != null">process_id = #{processId},</if>
+            <if test="nodeOrder != null">node_order = #{nodeOrder},</if>
+            <if test="nodeCode != null and nodeCode != ''">node_code = #{nodeCode},</if>
+            <if test="nodeNm != null and nodeNm != ''">node_name = #{nodeNm},</if>
+            <if test="deptIds != null">dept_ids = #{deptIds},</if>
+            <if test="roleIds != null">role_ids = #{roleIds},</if>
+            <if test="roleKeys != null">role_keys = #{roleKeys},</if>
+            <if test="passState != null and passState != ''">pass_state = #{passState},</if>
+            <if test="rejectState != null and rejectState != ''">reject_state = #{rejectState},</if>
+            <if test="canTransfer != null and canTransfer != ''">can_transfer = #{canTransfer},</if>
+            <if test="canBack != null and canBack != ''">can_back = #{canBack},</if>
+            <if test="sort != null">sort = #{sort},</if>
+            <if test="status != null and status != ''">status = #{status},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteSysApprovalNodeById" parameterType="Long">
+        delete from sys_approval_node where id = #{id}
+    </delete>
+
+    <delete id="deleteSysApprovalNodeByIds" parameterType="Long[]">
+        delete from sys_approval_node where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

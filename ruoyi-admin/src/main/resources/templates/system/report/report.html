@@ -287,7 +287,7 @@
                                     <div class="select-list">
                                         <ul>
                                             <!-- 教研室、学院、科研处、管理员显示第一作者 -->
-                                            <li class="host-name-field" style="display:none;">
+                                            <li class="host-name-field" style="display:none;" shiro:hasAnyPermissions="system:report:search:teacherName,system:report:search:keyanshi,system:report:search:xueyuan">
                                                 <label>主持人：</label>
                                                 <input type="text" name="teacherName"/>
                                             </li>
@@ -298,13 +298,13 @@
                                             </li>
                                             
                                             <!-- 学院、科研处、管理员显示专业 -->
-                                            <li class="major-field" style="display:none;">
+                                            <li class="major-field" style="display:none;" shiro:hasAnyPermissions="system:report:search:keyanshi,system:report:search:xueyuan">
                                                 <label>专业：</label>
                                                 <input type="text" name="keyanshi"/>
                                             </li>
                                             
                                             <!-- 科研处、管理员显示学院 -->
-                                            <li class="college-field" style="display:none;">
+                                            <li class="college-field" style="display:none;" shiro:hasPermission="system:report:search:xueyuan">
                                                 <label>学院：</label>
                                                 <input type="text" name="xueyuan"/>
                                             </li>
@@ -513,6 +513,7 @@
             // 科研处角色：允许通过"学院"+"专业"+"第一作者"+"课题名称"全维度检索
             // 管理员角色：显示所有字段
             
+            // 先检查Shiro权限，然后再根据角色显示字段
             if (userRole === 'teacher') {
                 // 教师：只显示课题名称，其他隐藏
                 $('.host-name-field').hide();
@@ -719,7 +720,7 @@
                         if (hasPreviousButtons) {
                             actions.push('<br>'); // 只有前面有按钮时才换行
                         }
-                        actions.push('<a  class="btn btn-xs ' + infoFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/info' + '\')">查看</a> ');
+                        actions.push('<a  class="btn btn-xs" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/info' + '\')">查看</a> ');
                         actions.push('<a class="btn btn-xs" data-toggle="modal" data-target="#lcjl_Moda" onclick="controlProgressBar(\'' + row.id + '\', ' + row.state + ')">流程记录</a>');
                          return actions.join('');
                     }
@@ -762,14 +763,11 @@
     `;
 
         // 2. 发送Ajax请求获取批阅记录
-        fetch(prefix + '/opinion/' + dataId)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('网络响应不正常');
-                }
-                return response.json();
-            })
-            .then(data => {
+        $.ajax({
+            url: prefix + '/opinion/' + dataId,
+            type: 'GET',
+            dataType: 'json',
+            success: function(data) {
                 console.log('获取到的数据:', data);
 
                 // 清空现有内容
@@ -797,17 +795,18 @@
                     </li>
                 `;
                 }
-            })
-            .catch(error => {
+            },
+            error: function(xhr, status, error) {
                 console.error('获取批阅记录失败:', error);
                 eventList.innerHTML = `
                 <li class="first error">
                     <i class="node-icon"></i>
                     <span class="time">${new Date().toLocaleString()}</span>
-                    <span class="txt">[系统] - 获取记录失败: ${error.message}</span>
+                    <span class="txt">[系统] - 获取记录失败: ${error}</span>
                 </li>
             `;
-            });
+            }
+        });
     }
 
 // ========================================================================================

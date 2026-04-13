@@ -26,6 +26,7 @@ import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.system.mapper.SciProjectScoreCfgMapper;
 
+
 /**
  * 教材软著Controller
  *
@@ -108,38 +109,8 @@ public class SciJiaocairuanzhuController extends BaseController
         }
         sciJiaocairuanzhu.setRole(role);
 
-        SysUser user = getSysUser();
-
-        //设置部门id，传输过去用来为查询设置部门限制
-        sciJiaocairuanzhu.setDeptId(getSysUser().getDeptId());
-
-        //设置部门父id，传输过去用来为查询设置部门限制
-        sciJiaocairuanzhu.setParentId(user.getDept().getParentId());
-
-        List<SciJiaocairuanzhu> list = new ArrayList<>();
-        //根据角色查询不同范围的数据
-        switch (role) {
-            case "sci_tesearch":
-                //科研处查询
-                list = sciJiaocairuanzhuService.selectSciPaperAListKY(sciJiaocairuanzhu);
-                break;
-            case "dept_teacher":
-                //学院负责人查询
-                list = sciJiaocairuanzhuService.selectSciPaperAListXY(sciJiaocairuanzhu);
-                break;
-            case "research":
-                //教研室查询
-                list = sciJiaocairuanzhuService.selectSciPaperAListCxList(sciJiaocairuanzhu);
-                break;
-            case "admin":
-                //管理员查询
-                list = sciJiaocairuanzhuService.selectSciPaperAList(sciJiaocairuanzhu);
-                break;
-            default:
-                //教师查询
-                list = sciJiaocairuanzhuService.selectSciPaperAListCx(sciJiaocairuanzhu);
-                break;
-        }
+        // 统一使用一个查询方法，通过@DataScope控制数据权限
+        List<SciJiaocairuanzhu> list = sciJiaocairuanzhuService.selectSciJiaocairuanzhuListAll(sciJiaocairuanzhu);
 
         return getDataTable(list);
     }
@@ -273,6 +244,9 @@ public class SciJiaocairuanzhuController extends BaseController
         } else {
             sciJiaocairuanzhu.setJifen("0");
         }
+        
+        // 设置初始状态为立项草稿
+        sciJiaocairuanzhu.setState("APPLY_DRAFT");
         
         // 保存教材著作基本信息
         sciJiaocairuanzhuService.insertSciJiaocairuanzhu(sciJiaocairuanzhu);

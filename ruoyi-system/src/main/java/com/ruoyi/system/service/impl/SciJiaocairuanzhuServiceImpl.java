@@ -437,4 +437,10 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
     public List<SciJiaocairuanzhuMember> getJiaocairuanzhuMembers(Integer jiaocaiId) {
         return sciJiaocairuanzhuMemberMapper.selectSciJiaocairuanzhuMemberByJiaocaiId(jiaocaiId);
     }
+
+    @Override
+    @DataScope(deptAlias = "d",userAlias = "u")
+    public List<SciJiaocairuanzhu> selectSciJiaocairuanzhuListAll(SciJiaocairuanzhu sciJiaocairuanzhu) {
+        return sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuListAll(sciJiaocairuanzhu);
+    }
 }

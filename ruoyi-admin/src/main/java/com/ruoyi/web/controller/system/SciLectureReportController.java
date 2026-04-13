@@ -64,33 +64,7 @@ public class SciLectureReportController extends BaseController
             "marxism_college", // 马克思主义学院管理员
             "general" //综合院部管理员
     ));
-    
-    /**
-     * 基于角色的查询字段白名单校验
-     * 教师角色：仅允许通过“课题名称”检索
-     * 教研室角色：允许通过“第一作者”+“课题名称”检索
-     * 学院角色：允许通过“专业”+“第一作者”+“课题名称”检索
-     * 科研处角色：允许通过“学院”+“专业”+“第一作者”+“课题名称”全维度检索
-     * 
-     * @param sciLectureReport 查询条件对象
-     * @param role 用户角色
-     */
-    private void validateQueryFieldsByRole(SciLectureReport sciLectureReport, String role) {
-        if ("teacher".equals(role)) { // 教师
-            // 教师：只保留课题名称，清空其他字段
-            sciLectureReport.setTeacherName(null);
-            sciLectureReport.setKeyanshi(null);
-            sciLectureReport.setXueyuan(null);
-        } else if ("research".equals(role)) { // 教研室
-            // 教研室：只保留主持人 + 课题名称，清空其他字段
-            sciLectureReport.setKeyanshi(null);
-            sciLectureReport.setXueyuan(null);
-        } else if ("dept_teacher".equals(role)) { // 学院
-            // 学院：保留专业 + 主持人 + 课题名称，清空学院字段
-            sciLectureReport.setXueyuan(null);
-        }
-        // 科研处角色 (sci_tesearch) 和管理员角色可以使用所有字段，无需清空
-    }
+
     @RequiresPermissions("system:report:view")
     @GetMapping()
     public String report(ModelMap mmap)
@@ -268,7 +242,6 @@ public class SciLectureReportController extends BaseController
      * 讲座报告 （批阅  核查  查看 ）操作根据id查询对应的数据
      * detail ===> 详细页面
      */
-    @RequiresPermissions(value = {"system:report:process","system:report:check","system:report:info","system:report:xyprocess"},logical= Logical.OR)
     @GetMapping("/detail/{id}/{urlFlag}")
     public String detail(@PathVariable("id") Integer id, @PathVariable("urlFlag") String urlFlag, ModelMap mmap)
     {
@@ -322,7 +295,6 @@ public class SciLectureReportController extends BaseController
         return getDataTable(list);
     }
 
-    @RequiresPermissions("system:report:edit")
     @GetMapping("/opinion/{rid}")
     @ResponseBody
     public TableDataInfo getopinion(@PathVariable("rid")Integer rid)
