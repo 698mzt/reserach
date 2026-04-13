@@ -625,24 +625,24 @@
 
 <th:block th:include="include :: footer" />
 <script th:inline="javascript">
-<!--    教研室-->
-    var proFlag = [[${@permission.hasPermi('system:apply:process')}]];
-    var editFlag = [[${@permission.hasPermi('system:apply:edit')}]];
-    var DeptFlag = [[${@permission.hasPermi('system:apply:Dept')}]];
-    var removeFlag = [[${@permission.hasPermi('system:apply:remove')}]];
-    var editInfo = [[${@permission.hasPermi('system:apply:info')}]];
-    var hechaFlag = [[${@permission.hasPermi('system:apply:hecha')}]];
-    var createFlag = [[${@permission.hasPermi('system:apply:add')}]];
-    var downloadFlag = [[${@permission.hasPermi('system:apply:download')}]];
+    // 教研室权限
+    var proFlag = /*[[${@permission.hasPermi('system:apply:process')}]]*/ 'hidden';
+    var editFlag = /*[[${@permission.hasPermi('system:apply:edit')}]]*/ 'hidden';
+    var DeptFlag = /*[[${@permission.hasPermi('system:apply:Dept')}]]*/ 'hidden';
+    var removeFlag = /*[[${@permission.hasPermi('system:apply:remove')}]]*/ 'hidden';
+    var editInfo = /*[[${@permission.hasPermi('system:apply:info')}]]*/ 'hidden';
+    var hechaFlag = /*[[${@permission.hasPermi('system:apply:hecha')}]]*/ 'hidden';
+    var createFlag = /*[[${@permission.hasPermi('system:apply:add')}]]*/ 'hidden';
+    var downloadFlag = /*[[${@permission.hasPermi('system:apply:download')}]]*/ 'hidden';
 
-    var topTypeDatas = [[${@dict.getType('sci_top_type')}]];
-    var datas = [[${@dict.getType('sci_crosswise_tasks')}]];
+    var topTypeDatas = /*[[${@dict.getType('sci_top_type')}]]*/ [];
+    var datas = /*[[${@dict.getType('sci_crosswise_tasks')}]]*/ [];
 
     var prefix = ctx + "system/apply";
 
     // 获取当前用户角色信息
     var userRole = '';
-    var userRoles = [[${user.roles}]];  // 从后端获取的角色列表
+    var userRoles = /*[[${user.roles}]]*/ [];
     if (userRoles) {
         for (var i = 0; i < userRoles.length; i++) {
             var roleKey = userRoles[i].roleKey;
@@ -673,34 +673,35 @@
 
 
     $(function() {
-        // 根据角色动态渲染搜索区域
+        // 根据权限动态渲染搜索区域
         function initSearchFields() {
-            // 角色 - 查询字段映射规则
-            // 教师角色：仅允许通过"课题名称"检索
-            // 教研室角色：允许通过"主持人"+"课题名称"检索
-            // 学院角色：允许通过"专业"+"主持人"+"课题名称"检索
-            // 科研处角色：允许通过"学院"+"专业"+"主持人"+"课题名称"全维度检索
+            // 权限 - 查询字段映射规则
+            // 无process/Dept/hecha权限(教师)：仅允许通过"课题名称"检索
+            // 有process权限(教研室)：允许通过"主持人"+"课题名称"检索
+            // 有Dept权限(学院)：允许通过"专业"+"主持人"+"课题名称"检索
+            // 有hecha权限(科研处)：允许通过"学院"+"专业"+"主持人"+"课题名称"全维度检索
+            // 使用Shiro权限配置，避免硬编码角色，便于后续调整
             
-            if (userRole === 'teacher') {
-                // 教师：只显示课题名称，其他隐藏
-                $('.host-name-field').hide();
-                $('.major-field').hide();
-                $('.college-field').hide();
-            } else if (userRole === 'research') {
-                // 教研室：显示主持人 + 课题名称
-                $('.host-name-field').show();
-                $('.major-field').hide();
-                $('.college-field').hide();
-            } else if (userRole === 'dept_teacher') {
-                // 学院：显示专业 + 主持人 + 课题名称
-                $('.host-name-field').show();
-                $('.major-field').show();
-                $('.college-field').hide();
-            } else if (userRole === 'sci_tesearch') {
+            if (hechaFlag !== 'hidden') {
                 // 科研处：显示所有字段
                 $('.host-name-field').show();
                 $('.major-field').show();
                 $('.college-field').show();
+            } else if (DeptFlag !== 'hidden') {
+                // 学院：显示专业 + 主持人 + 课题名称
+                $('.host-name-field').show();
+                $('.major-field').show();
+                $('.college-field').hide();
+            } else if (proFlag !== 'hidden') {
+                // 教研室：显示主持人 + 课题名称
+                $('.host-name-field').show();
+                $('.major-field').hide();
+                $('.college-field').hide();
+            } else {
+                // 教师：只显示课题名称，其他隐藏
+                $('.host-name-field').hide();
+                $('.major-field').hide();
+                $('.college-field').hide();
             }
         }
 
@@ -996,8 +997,9 @@
                             if (row.userId == row.uid) {
                                 actions.push('<a   class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.reamountTab(\'' + row.id + '\')">追加金额&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                             }
-                            // 批阅按钮：仅教研室角色在state=1时显示
-                            if (userRole === 'research') {
+                            // 批阅按钮：基于权限判断，拥有system:apply:process权限的用户在state=1时显示
+                            // 使用Shiro权限配置，避免硬编码角色，便于后续调整审核流程
+                            if (proFlag !== 'hidden') {
                                 actions.push('<a  class="' + proFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro' + '\')">批阅</a> ');
                                 actions.push('<br>')
                             }
@@ -1018,8 +1020,9 @@
                                 actions.push('<a   class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.reamountTab(\'' + row.id + '\')">追加金额&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                                 hasButton = true;
                             }
-                            // 批阅按钮：仅学院角色在state=2时显示
-                            if (userRole === 'dept_teacher') {
+                            // 批阅按钮：基于权限判断，拥有system:apply:Dept权限的用户在state=2时显示
+                            // 使用Shiro权限配置，避免硬编码角色，便于后续调整审核流程
+                            if (DeptFlag !== 'hidden') {
                                 actions.push('<a  class="' + DeptFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/Dept' + '\')">批阅&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                                 hasButton = true;
                             }
@@ -1050,8 +1053,9 @@
                             if (row.userId == row.uid){
                                 actions.push('<a   class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.reamountTab(\'' + row.id + '\')"> 追加金额&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                             }
-                            // 批阅按钮：仅科研处角色在state=11时显示
-                            if (userRole === 'sci_tesearch') {
+                            // 批阅按钮：基于权限判断，拥有system:apply:hecha权限的用户在state=11时显示
+                            // 使用Shiro权限配置，避免硬编码角色，便于后续调整审核流程
+                            if (hechaFlag !== 'hidden') {
                                 actions.push('<a  class="' + hechaFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/hecha'+ '\')">批阅&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                             }
                             if(row.ynameId == row.userynameId || row.uid == 1)
