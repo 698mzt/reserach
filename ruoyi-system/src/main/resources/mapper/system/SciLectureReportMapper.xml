@@ -51,8 +51,8 @@
                s.state,
                s.createtime,
                s.report_url,
-               coalesce(i.integral, '0') reportKeyanfen,
-               i.integral integral_value,
+               CASE WHEN CAST(s.state AS UNSIGNED) IN (2, 4) THEN coalesce(i.integral, '0') ELSE '0' END reportKeyanfen,
+               CASE WHEN CAST(s.state AS UNSIGNED) IN (2, 4) THEN coalesce(i.integral, '0') ELSE '0' END integral_value,
                i.rep_int_id
         from sci_lecture_report s
                  left join sys_user u on s.user_id = u.user_id
@@ -467,7 +467,6 @@
         <if test="reportTheme != null  and reportTheme != ''">and report_theme like concat('%', #{reportTheme}, '%')</if>
         <if test="userId != null and userId != ''">and user_id = #{userId}</if>
         <if test="year != null  and year != ''">and YEAR(DATE_ADD(report_time,INTERVAL 1 MONTH)) = #{year}</if>
-        <if test="statelist != null and statelist.size() > 0">and CAST(s.state AS UNSIGNED) in <foreach item="item" collection="statelist" open="(" separator="," close=")">#{item}</foreach></if>
         ${params.dataScope}
         order by createtime desc
     </select>
@@ -480,7 +479,6 @@
         <if test="teacherName != null  and teacherName != ''">and u.user_name like concat('%', #{teacherName}, '%')</if>
         <if test="userId != null and userId != ''">and user_id = #{userId}</if>
         <if test="year != null  and year != ''">and YEAR(DATE_ADD(report_time,INTERVAL 1 MONTH)) = #{year}</if>
-        <if test="statelist != null and statelist.size() > 0">and CAST(s.state AS UNSIGNED) in <foreach item="item" collection="statelist" open="(" separator="," close=")">#{item}</foreach></if>
         ${params.dataScope}
         order by createtime desc
     </select>
@@ -494,7 +492,6 @@
         <if test="keyanshi != null  and keyanshi != ''">and d.dept_name like concat('%', #{keyanshi}, '%')</if>
         <if test="userId != null and userId != ''">and user_id = #{userId}</if>
         <if test="year != null  and year != ''">and YEAR(DATE_ADD(report_time,INTERVAL 1 MONTH)) = #{year}</if>
-        <if test="statelist != null and statelist.size() > 0">and CAST(s.state AS UNSIGNED) in <foreach item="item" collection="statelist" open="(" separator="," close=")">#{item}</foreach></if>
         ${params.dataScope}
         order by createtime desc
     </select>
@@ -509,7 +506,26 @@
         <if test="xueyuan != null  and xueyuan != ''">and p.dept_name like concat('%', #{xueyuan}, '%')</if>
         <if test="userId != null and userId != ''">and user_id = #{userId}</if>
         <if test="year != null  and year != ''">and YEAR(DATE_ADD(report_time,INTERVAL 1 MONTH)) = #{year}</if>
-        <if test="statelist != null and statelist.size() > 0">and CAST(s.state AS UNSIGNED) in <foreach item="item" collection="statelist" open="(" separator="," close=")">#{item}</foreach></if>
+        ${params.dataScope}
+        order by createtime desc
+    </select>
+
+    <!-- 统一查询讲座报告列表 -->
+    <!-- 移除状态过滤，保留数据权限控制 -->
+    <select id="selectSciLectureReportListAll" parameterType="SciLectureReport" resultMap="SciLectureReportResult">
+        <include refid="selectSciLectureReportVo"/>
+        where 1=1
+        <if test="reportTheme != null  and reportTheme != ''">and report_theme like concat('%', #{reportTheme}, '%')
+        </if>
+        <if test="keyanshi != null  and keyanshi != ''">and d.dept_name like concat('%', #{keyanshi}, '%')</if>
+        <if test="teacherName != null  and teacherName != ''">and u.user_name like concat('%', #{teacherName}, '%')</if>
+        <if test="xueyuan != null  and xueyuan != ''">and p.dept_name like concat('%', #{xueyuan}, '%')</if>
+        <if test="hostUnit != null  and hostUnit != ''">and host_unit like concat('%', #{hostUnit}, '%')</if>
+        <if test="reportPlace != null  and reportPlace != ''">and report_place like concat('%', #{reportPlace}, '%')</if>
+        <if test="reportSubject != null  and reportSubject != ''">and report_subject like concat('%', #{reportSubject}, '%')</if>
+        <if test="reportClassify != null  and reportClassify != ''">and report_classify = #{reportClassify}</if>
+        <if test="userId != null and userId != ''">and user_id = #{userId}</if>
+        <if test="year != null  and year != ''">and YEAR(DATE_ADD(report_time,INTERVAL 1 MONTH)) = #{year}</if>
         ${params.dataScope}
         order by createtime desc
     </select>
