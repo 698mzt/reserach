@@ -96,12 +96,16 @@ public class SciPaperAController extends BaseController {
         else if (roleId.contains("101") && roleId.contains("100")) {
             return prefix + "/paper_ky";
         }
+        //单独科研处身份
+        else if (roleId.contains("101") && !roleId.contains("100") && !roleId.contains("102")) {
+            return prefix + "/paper_ky";
+        }
         //学院+普通老师身份
-        else if ((roleId.contains("103") || roleId.contains("104") || roleId.contains("105") || roleId.contains("106") || roleId.contains("107") || roleId.contains("108")|| roleId.contains("116L")|| roleId.contains("117")|| roleId.contains("118")|| roleId.contains("119")|| roleId.contains("120")) && roleId.contains("100")) {
+        else if ((roleId.contains("103") || roleId.contains("104") || roleId.contains("105") || roleId.contains("106") || roleId.contains("107") || roleId.contains("108")|| roleId.contains("116")|| roleId.contains("117")|| roleId.contains("118")|| roleId.contains("119")|| roleId.contains("120")) && roleId.contains("100")) {
             return prefix + "/paper_xy";
         }
         //学院
-        else if ((roleId.contains("103") || roleId.contains("104") || roleId.contains("105") || roleId.contains("106") || roleId.contains("107") || roleId.contains("108")|| roleId.contains("116L")|| roleId.contains("117")|| roleId.contains("118")|| roleId.contains("119")|| roleId.contains("120"))) {
+        else if ((roleId.contains("103") || roleId.contains("104") || roleId.contains("105") || roleId.contains("106") || roleId.contains("107") || roleId.contains("108")|| roleId.contains("116")|| roleId.contains("117")|| roleId.contains("118")|| roleId.contains("119")|| roleId.contains("120"))) {
             return prefix + "/paper_xy";
         } else if (roleId.contains("100") && roleId.size() == 1) {
             return prefix + "/paper_pt";
@@ -161,54 +165,12 @@ public class SciPaperAController extends BaseController {
     public TableDataInfo list(SciPaperA sciPaperA, String year, @RequestParam(defaultValue = "1") int pageNum,
                               @RequestParam(defaultValue = "10") int pageSize) {
         Long userId = getUserId();
-        List<String> roleId = sciPaperAService.selectSciPaperAByroleId(userId);
         sciPaperA.setUid(userId);
         sciPaperA.setYear(year);
 
-        List<SciPaperA> list = new ArrayList<>();
-        
-        // 管理员权限
-        if (userId == 1L) {
-            // 管理员：支持所有条件查询
-            PageHelper.startPage(pageNum, pageSize);
-            list = sciPaperAService.selectSciPaperAList(sciPaperA);
-        }
-        // 科研处权限
-        else if (roleId.contains("101")) {
-            // 科研处：学院、专业、第一作者、课题名称查询
-            PageHelper.startPage(pageNum, pageSize);
-            list = sciPaperAService.selectSciPaperAListKY(sciPaperA);
-        }
-        // 学院权限
-        else if (roleId.stream().anyMatch(role -> 
-            role.equals("103") || role.equals("104") || role.equals("105") || 
-            role.equals("106") || role.equals("107") || role.equals("108") || 
-            role.equals("116L") || role.equals("117") || role.equals("118") || 
-            role.equals("109") || role.equals("119") || role.equals("120")
-        )) {
-            // 学院：专业、第一作者、课题名称查询
-            SysUser user = getSysUser();
-            sciPaperA.setCollegeId(String.valueOf(user.getParentId()));
-            PageHelper.startPage(pageNum, pageSize);
-            list = sciPaperAService.selectSciPaperAListXY(sciPaperA);
-        }
-        // 教研室权限
-        else if (roleId.contains("102")) {
-            // 教研室：第一作者、课题名称查询
-            PageHelper.startPage(pageNum, pageSize);
-            list = sciPaperAService.selectSciPaperAListCxList(sciPaperA);
-        }
-        // 普通教师权限
-        else if (roleId.contains("100") && roleId.size() == 1) {
-            // 教师：课题名称查询
-            PageHelper.startPage(pageNum, pageSize);
-            list = sciPaperAService.selectSciPaperAListCx(sciPaperA);
-        }
-        // 其他情况
-        else {
-            PageHelper.startPage(pageNum, pageSize);
-            list = sciPaperAService.selectSciPaperAList(sciPaperA);
-        }
+        // 统一使用一个查询方法，通过@DataScope控制数据权限
+        PageHelper.startPage(pageNum, pageSize);
+        List<SciPaperA> list = sciPaperAService.selectSciPaperAListAll(sciPaperA);
         
         return getDataTable(list);
     }
