@@ -278,28 +278,12 @@ public class SciHorizontalApplyController extends BaseController
                 list = sciHorizontalApplyService.selectSciHorizontalApplyListAll(sciHorizontalApply);
                 break;
             case "bootstrap-table2":
-                // 结项申请列表
-                if ("sci_tesearch".equals(role)) {
-                    list = sciHorizontalApplyService.selectSciHorizontalApplyListByOverApplyKYC(sciHorizontalApply);
-                } else if ("research".equals(role)) {
-                    list = sciHorizontalApplyService.selectSciHorizontalApplyListByOverApplyJYS(sciHorizontalApply);
-                } else if ("dept_teacher".equals(role)) {
-                    list = sciHorizontalApplyService.selectSciHorizontalApplyListByOverDept(sciHorizontalApply);
-                } else {
-                    list = sciHorizontalApplyService.selectSciHorizontalApplyListByOverApply(sciHorizontalApply);
-                }
+                // 结项申请列表：统一使用一个查询方法，通过@DataScope控制数据权限
+                list = sciHorizontalApplyService.selectSciHorizontalApplyListByOverApply(sciHorizontalApply);
                 break;
             case "bootstrap-table3":
-                // 到账金额列表
-                if ("sci_tesearch".equals(role)) {
-                    Alist = sciHorizontalReamountService.selectAmountListKYC(sciHorizontalApply);
-                } else if ("research".equals(role)) {
-                    Alist = sciHorizontalReamountService.selectAmountListJYS(sciHorizontalApply);
-                } else if ("dept_teacher".equals(role)) {
-                    Alist = sciHorizontalReamountService.selectAmountListDept(sciHorizontalApply);
-                } else {
-                    Alist = sciHorizontalReamountService.selectAmountList(sciHorizontalApply);
-                }
+                // 到账金额列表：统一使用一个查询方法，通过@DataScope控制数据权限
+                Alist = sciHorizontalReamountService.selectAmountList(sciHorizontalApply);
                 break;
         }
 

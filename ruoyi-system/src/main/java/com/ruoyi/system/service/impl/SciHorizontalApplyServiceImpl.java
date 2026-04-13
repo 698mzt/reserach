@@ -94,28 +94,39 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
     {
         return sciHorizontalApplyMapper.selectSciHorizontalApplyListAll(sciHorizontalApply);
     }
+
     @Override
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciHorizontalApply> selectSciHorizontalApplyListByKYC(SciHorizontalApply sciHorizontalApply)
     {
         return sciHorizontalApplyMapper.selectSciHorizontalApplyListByKYC(sciHorizontalApply);
     }
+
     @Override
     @DataScope(deptAlias = "d",userAlias = "u")
     public List<SciHorizontalApply> selectSciHorizontalApplyListByJYS(SciHorizontalApply sciHorizontalApply) {
         return sciHorizontalApplyMapper.selectSciHorizontalApplyListByJYS(sciHorizontalApply);
     }
 
+    /**
+     * 查询结项申请列表（基于数据权限控制）
+     * 所有管理员角色均可查看所有状态的结项申请数据，不再根据状态过滤可见性
+     *
+     * @param sciHorizontalApply 横向课题
+     * @return 横向课题
+     */
     @Override
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciHorizontalApply> selectSciHorizontalApplyListByOverApply(SciHorizontalApply sciHorizontalApply) {
         return sciHorizontalApplyMapper.selectSciHorizontalApplyListByOverApply(sciHorizontalApply);
     }
+
     @Override
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciHorizontalApply> selectSciHorizontalApplyListByOverApplyJYS(SciHorizontalApply sciHorizontalApply) {
         return sciHorizontalApplyMapper.selectSciHorizontalApplyListByOverApplyJYS(sciHorizontalApply);
     }
+
     @Override
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciHorizontalApply> selectSciHorizontalApplyListByOverApplyKYC(SciHorizontalApply sciHorizontalApply) {
