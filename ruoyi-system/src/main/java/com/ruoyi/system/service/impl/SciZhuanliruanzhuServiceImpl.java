@@ -274,7 +274,7 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
                 finalJifen = "0";
             }
             sciZhuanliruanzhuMapper.updateFinalJifen(id, finalJifen);
-            // 科研处认定通过时间，用于科研统计年度（上年12/1～当年11/30）核算
+            // 科研处认定通过时间，用于科研统计年度（上年12/1～当年11/30）计算
             sciZhuanliruanzhuMapper.updateKyjcPassTime(id, new Date());
         }
 

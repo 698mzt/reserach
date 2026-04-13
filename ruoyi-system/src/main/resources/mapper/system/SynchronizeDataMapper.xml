@@ -407,7 +407,7 @@
            范围：fenlei=4、state=6、kyjc_pass_time 与 expected_jifen 有效。
            统计年度：kyjc_pass_time 在 12 月则 stats_year = 年+1，否则 stats_year = 年（对应上年12/1～当年11/30 的科研统计周期）。
            规则：按 user_id + stats_year，expected_jifen 降序取前 5 条（同分 id 升序）；（前五条预计分之和）×0.5 为年度软著分；各年度相加后写入 rz。
-           注意：子查询未出现的 userId 本语句不会更新其 rz（仍为旧值）。
+           注意：子查询未出现的 userId 本语句不会更新其 rz（仍为旧值）
        -->
     <update id="SynchronizeScoreRZ">
         UPDATE Alltotle_score a

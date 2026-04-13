@@ -116,7 +116,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         createtime desc
     </select>
 
-
 <!--    教研室查询语句-->
     <select id="selectSciZhuanliruanzhuList2" parameterType="SciZhuanliruanzhu" resultMap="SciZhuanliruanzhuResult">
         <include refid="selectSciZhuanliruanzhuVo"/>
