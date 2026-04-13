@@ -426,6 +426,7 @@
         $(function () {
             function loadExpectedSlots() {
                 var fenlei = $("select[name='fenlei']").val();
+                var isConversion = $("input[name='shifouyingyon']:checked").val();
                 if (!fenlei) {
                     $("#secondPersonExpectedJifen").val("");
                     $("#thirdPersonExpectedJifen").val("");
@@ -440,9 +441,20 @@
                     dataType: "json",
                     success: function (result) {
                         var data = (result && result.code === 0) ? result.data : null;
-                        $("#secondPersonExpectedJifen").val(data && data.secondScore ? data.secondScore : "0");
-                        $("#thirdPersonExpectedJifen").val(data && data.thirdScore ? data.thirdScore : "0");
-                        $("#fourthPersonExpectedJifen").val(data && data.fourthScore ? data.fourthScore : "0");
+                        var secondScore = data && data.secondScore ? parseFloat(data.secondScore) : 0;
+                        var thirdScore = data && data.thirdScore ? parseFloat(data.thirdScore) : 0;
+                        var fourthScore = data && data.fourthScore ? parseFloat(data.fourthScore) : 0;
+
+                        // 计算机软件著作权（分类值为4）乘以0.5
+                        if (isConversion === 'N' && fenlei === "4") {
+                            secondScore *= 0.5;
+                            thirdScore *= 0.5;
+                            fourthScore *= 0.5;
+                        }
+
+                        $("#secondPersonExpectedJifen").val(secondScore.toFixed(2));
+                        $("#thirdPersonExpectedJifen").val(thirdScore.toFixed(2));
+                        $("#fourthPersonExpectedJifen").val(fourthScore.toFixed(2));
                     },
                     error: function () {
                         $("#secondPersonExpectedJifen").val("0");
