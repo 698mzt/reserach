@@ -488,7 +488,7 @@
         $(function () {
             function loadExpectedJifenSlots() {
                 var fenlei = $("select[name='fenlei']").val();
-                //添加是否转化的获取
+                // 看是否转化
                 var isConversion = $("input[name='shifouyingyon']:checked").val();
                 if (!fenlei) { return; }
 
@@ -504,13 +504,14 @@
                         var thirdScore = data && data.thirdScore ? parseInt(data.thirdScore) : 0;
                         var fourthScore = data && data.fourthScore ? parseInt(data.fourthScore) : 0;
 
-                        // 非转化软著按50%核算
-                        if (isConversion === 'N') {
+                        // 非转化软著按50%核算（仅计算机软件著作权，fenlei=4）
+                        if (isConversion === 'N' && fenlei === '4') {
                             firstScore = Math.round(firstScore * 0.5);
                             secondScore = Math.round(secondScore * 0.5);
                             thirdScore = Math.round(thirdScore * 0.5);
                             fourthScore = Math.round(fourthScore * 0.5);
                         }
+
                         $("#firstPersonExpectedJifen").val(firstScore);
                         $("#secondPersonExpectedJifen").val(secondScore);
                         $("#thirdPersonExpectedJifen").val(thirdScore);
