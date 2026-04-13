@@ -124,7 +124,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         delete from Alltotle_score where userId = #{userId}
     </delete>
 
-
     <delete id="deleteAlltotleScoreByUserIds" parameterType="String">
         delete from Alltotle_score where userId in
         <foreach item="userId" collection="array" open="(" separator="," close=")">
