@@ -997,7 +997,7 @@
                                 actions.push('<a   class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.reamountTab(\'' + row.id + '\')">追加金额&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                             }
                             // 批阅按钮：仅教研室角色在state=1时显示
-                            if (userRole === 'research' && (row.dnameId == row.userdnameId || row.uid == 1)) {
+                            if (userRole === 'research') {
                                 actions.push('<a  class="' + proFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro' + '\')">批阅</a> ');
                                 actions.push('<br>')
                             }
@@ -1019,7 +1019,7 @@
                                 hasButton = true;
                             }
                             // 批阅按钮：仅学院角色在state=2时显示
-                            if (userRole === 'dept_teacher' && (row.ynameId == row.userynameId || row.uid == 1)) {
+                            if (userRole === 'dept_teacher') {
                                 actions.push('<a  class="' + DeptFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/Dept' + '\')">批阅&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                                 hasButton = true;
                             }

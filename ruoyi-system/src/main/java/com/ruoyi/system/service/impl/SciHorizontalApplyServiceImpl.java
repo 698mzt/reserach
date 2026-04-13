@@ -681,32 +681,12 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
         Map<String, Integer> counts = new HashMap<>();
         String mainRole = determineMainRole(user.getRoles());
 
-        // 添加调试日志
-        log.info("用户角色识别: ID={}, 部门={}, 识别角色={}, 实际角色={}",
-                user.getUserId(),
-                user.getDept().getDeptName(),
-                mainRole,
-                user.getRoles().stream()
-                        .map(SysRole::getRoleKey)
-                        .collect(Collectors.joining(",")));
-
-//        counts.put("horizontal", calculateHorizontalTodoCount(user, mainRole));
-//        counts.put("reamount", calculateReamountTodoCount(user, mainRole));//统计金额待办数量
-//        return counts;
-        // 计算课题待办数量
         int horizontalCount = calculateHorizontalTodoCount(user, mainRole);
-        // 计算金额待办数量
         int reamountCount = calculateReamountTodoCount(user, mainRole);
 
-        // 记录详细统计信息（调试用）
-        log.info("待办统计 - 课题: {}, 金额: {}, 总计: {}",
-                horizontalCount, reamountCount, horizontalCount + reamountCount);
-
-        // 保持使用 "horizontal" 键，但值为总数
         counts.put("horizontal", horizontalCount + reamountCount);
-//        counts.put("reamount",reamountCount); //如果需要保留
-        counts.put("vertical", calculateVerticalTodoCount(user, mainRole)); //统计纵向待办数量
-        counts.put("achievement", calculateAchievementTodoCount(user, mainRole)); //统计成果待办数量
+        counts.put("vertical", calculateVerticalTodoCount(user, mainRole));
+        counts.put("achievement", calculateAchievementTodoCount(user, mainRole));
         counts.put("paper", calculatePaperTodoCount(user, mainRole)); // 统计论文待办数量
         counts.put("textbook", calculateTextbookTodoCount(user, mainRole)); // 统计教材软著待办数量
         counts.put("patent", calculatePatentTodoCount(user, mainRole)); // 统计专利软著待办数量
@@ -1201,31 +1181,21 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
     @Override
     public int countVerticalApply(SysUser user) {
         String mainRole = determineMainRole(user.getRoles());
-        log.info("纵向课题申报统计 - 用户ID: {}, 角色: {}", user.getUserId(), mainRole);
         int count = calculateVerticalTodoCount(user, mainRole);
-        log.info("纵向课题申报统计结果: {}", count);
         return count;
     }
 
     @Override
     public int countVerticalAudit(SysUser user) {
-        log.info("纵向课题审核统计 - 用户ID: {}", user.getUserId());
-        // 审核中的状态列表
         List<String> auditStates = Arrays.asList("1", "2", "4", "6", "11", "22", "44");
-
-        // 仅查询用户自己的数据
         int count = countPersonalVerticalTodos(user.getUserId(), auditStates);
-        log.info("用户审核统计: {}", count);
-
         return count;
     }
 
     @Override
     public int countVerticalComplete(SysUser user) {
-        // 完成状态
         List<String> completeStates = Arrays.asList("66");
         int count = countPersonalVerticalTodos(user.getUserId(), completeStates);
-        log.info("纵向课题完成统计 - 用户ID: {}, 结果: {}", user.getUserId(), count);
         return count;
     }
 

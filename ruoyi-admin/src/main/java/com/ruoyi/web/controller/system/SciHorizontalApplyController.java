@@ -628,6 +628,16 @@ public class SciHorizontalApplyController extends BaseController
         mmap.put("sciHorizontalApply", sciHorizontalApply);
         // 传递当前登录用户ID，用于权限判断
         mmap.put("currentUserId", getUserId());
+        
+        // 获取当前用户角色
+        String roleKey = getUserRoleKey();
+        mmap.put("role", roleKey);
+        
+        // 判断是否可批阅
+        Integer state = sciHorizontalApply.getState() != null ? Integer.valueOf(sciHorizontalApply.getState()) : null;
+        boolean canApprove = canApprove(state, roleKey);
+        mmap.put("canApprove", canApprove);
+        
         // 查询全部成员并注入第5位及以后
         java.util.List<String> allMemberIds = sciHorizontalApplyService.selectPersionIdsByApplyId(id);
         java.util.List<String> extraMembers = new java.util.ArrayList<>();
@@ -636,6 +646,24 @@ public class SciHorizontalApplyController extends BaseController
         }
         mmap.put("extraMembers", extraMembers);
         return prefix + "/detail";
+    }
+    
+    /**
+     * 获取当前用户的角色标识
+     */
+    private String getUserRoleKey()
+    {
+        List<SysRole> roles = getSysUser().getRoles();
+        for (SysRole r : roles) {
+            if ("sci_tesearch".equals(r.getRoleKey())) {
+                return "sci_tesearch";
+            } else if ("research".equals(r.getRoleKey())) {
+                return "research";
+            } else if (TEACHER_ROLES.contains(r.getRoleKey())) {
+                return "dept_teacher";
+            }
+        }
+        return "teacher";
     }
 
     @RequiresPermissions("system:apply:info")

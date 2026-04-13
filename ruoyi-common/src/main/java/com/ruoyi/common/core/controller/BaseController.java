@@ -227,5 +227,37 @@ public class BaseController
         return getSysUser().getLoginName();
     }
 
+    /**
+     * 判断当前用户是否有权限批阅指定状态的课题
+     * 
+     * @param state 课题状态
+     * @param roleKey 用户角色标识
+     * @return true-有权限批阅, false-无权限批阅
+     */
+    protected boolean canApprove(Integer state, String roleKey)
+    {
+        if (state == null || roleKey == null)
+        {
+            return false;
+        }
+        
+        // state=1: 待教研室审核
+        if (state == 1 && "research".equals(roleKey))
+        {
+            return true;
+        }
+        // state=2: 待学院审核
+        if (state == 2 && "dept_teacher".equals(roleKey))
+        {
+            return true;
+        }
+        // state=11: 待科研处审核
+        if (state == 11 && "sci_tesearch".equals(roleKey))
+        {
+            return true;
+        }
+        
+        return false;
+    }
 
 }
