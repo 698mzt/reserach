@@ -126,4 +126,12 @@ public interface SciJiaocairuanzhuMapper
      */
     List<SciJiaocairuanzhu> getStatsQueryToCheck(Map<String, String> params);
 
+    /**
+     * 统一查询教材软著列表（所有角色均可查看所有状态）
+     *
+     * @param sciJiaocairuanzhu 教材软著
+     * @return 教材软著集合
+     */
+    List<SciJiaocairuanzhu> selectSciJiaocairuanzhuListAll(SciJiaocairuanzhu sciJiaocairuanzhu);
+
 }

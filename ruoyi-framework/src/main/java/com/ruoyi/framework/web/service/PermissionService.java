@@ -259,4 +259,54 @@ public class PermissionService
         }
         return null;
     }
+
+    /**
+     * 获取当前用户的角色键
+     *
+     * @return 角色键
+     */
+    public String getRoleKey()
+    {
+        Subject subject = SecurityUtils.getSubject();
+        if (subject != null)
+        {
+            Object principal = subject.getPrincipal();
+            try
+            {
+                // 尝试获取用户的角色信息
+                // 这里假设用户对象有getRoles()方法返回角色列表
+                BeanInfo bi = Introspector.getBeanInfo(principal.getClass());
+                for (PropertyDescriptor pd : bi.getPropertyDescriptors())
+                {
+                    if (pd.getName().equals("roles") == true)
+                    {
+                        Object roles = pd.getReadMethod().invoke(principal, (Object[]) null);
+                        if (roles instanceof java.util.List)
+                        {
+                            java.util.List<?> roleList = (java.util.List<?>) roles;
+                            if (!roleList.isEmpty())
+                            {
+                                // 假设第一个角色是主要角色
+                                Object role = roleList.get(0);
+                                BeanInfo roleBi = Introspector.getBeanInfo(role.getClass());
+                                for (PropertyDescriptor rolePd : roleBi.getPropertyDescriptors())
+                                {
+                                    if (rolePd.getName().equals("roleKey") == true)
+                                    {
+                                        return (String) rolePd.getReadMethod().invoke(role, (Object[]) null);
+                                    }
+                                }
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                log.error("Error getting role key from principal of type [{}]", principal.getClass().getName(), e);
+            }
+        }
+        return "";
+    }
 }

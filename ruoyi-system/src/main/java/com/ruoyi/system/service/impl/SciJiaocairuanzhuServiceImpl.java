@@ -177,22 +177,21 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
     @Override
     @Transactional
     public int hxPass(String id, Long uid, String urlFlag) {
-        String state = "8";
-//        SciJiaocairuanzhu sciJiaocairuanzhu = new SciJiaocairuanzhu();
+        String state = "99"; // 已驳回
 
         if (urlFlag.equals("hecha")) {
             // 教研批阅 --> 待科研处处理
-            state = "4";
+            state = "11"; // 待科研处审核
         } else if (urlFlag.equals("tijiao")) {
             // 本人提交  草稿--> 待教研室处理
-            state = "1";
+            state = "1"; // 待教研室审核
 
         } else if (urlFlag.equals("pro")) {
             // 待教研室处理 -- 待学院处理
-            state = "2";
+            state = "2"; // 待学院审核
         } else if (urlFlag.equals("chayue")) {
             // 待科研处处理 -->科研处通过
-            state = "6";
+            state = "4"; // 已完成
             SciJiaocairuanzhu sciJiaocairuanzhu = sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuById(Integer.valueOf(id));
             String a = sciJiaocairuanzhu.getFenlei();
             String b = sciJiaocairuanzhu.getPaiming();
@@ -245,17 +244,17 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
     @Override
     @Transactional
     public int hxBh(String id, Long uid, String remark, String urlFlag) {
-        String state = "8";
+        String state = "99"; // 已驳回
         SciJiaocairuanzhuPiyue sciJiaocairuanzhuPiyue = new SciJiaocairuanzhuPiyue();
         if (urlFlag.equals("hecha")) {
-            state = "5";
+            state = "99"; // 已驳回
             sciJiaocairuanzhuPiyue.setState("被学院驳回");
         } else if (urlFlag.equals("pro")) {
-            state = "3";
+            state = "99"; // 已驳回
             sciJiaocairuanzhuPiyue.setState("被教研室驳回");
         } else if (urlFlag.equals("chayue")) {
-            state = "7";
-            sciJiaocairuanzhuPiyue.setState("被科研室驳回");
+            state = "99"; // 已驳回
+            sciJiaocairuanzhuPiyue.setState("被科研处驳回");
         }
         int a = sciJiaocairuanzhuMapper.hxPass(id, state);
 
@@ -339,16 +338,30 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
 
         switch (state) {
 //            教研室
+            case "APPLY_XY_AUDIT":
+                newState = "APPLY_JYS_AUDIT";
+                sciJiaocairuanzhuPiyue.setState("教研室撤回");
+                break;
+            //            学院
+            case "APPLY_JWC_AUDIT":
+                newState = "APPLY_XY_AUDIT";
+                sciJiaocairuanzhuPiyue.setState("学院撤回");
+                break;
+            //            教务处
+            case "APPLY_PASSED":
+                newState = "APPLY_JWC_AUDIT";
+                sciJiaocairuanzhuPiyue.setState("教务处撤回");
+                sciJiaocairuanzhuMapper.updateJifen(Long.valueOf(id), 0);
+                break;
+            // 兼容旧状态码
             case "2":
                 newState = "1";
                 sciJiaocairuanzhuPiyue.setState("教研室撤回");
                 break;
-            //            学院
             case "4":
                 newState = "2";
                 sciJiaocairuanzhuPiyue.setState("学院撤回");
                 break;
-            //            科研处
             case "6":
                 newState = "4";
                 sciJiaocairuanzhuPiyue.setState("科研处撤回");
@@ -385,6 +398,12 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
         // 手动处理数据权限，因为 @DataScope 只支持 BaseEntity 类型，而这里使用的是 Map
         DataScopeUtils.applyDataScopeToMap(params, "d", "u", "");
         return sciJiaocairuanzhuMapper.getStatsQueryToCheck(params);
+    }
+
+    @Override
+    @DataScope(deptAlias = "d", userAlias = "u")
+    public List<SciJiaocairuanzhu> selectSciJiaocairuanzhuListAll(SciJiaocairuanzhu sciJiaocairuanzhu) {
+        return sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuListAll(sciJiaocairuanzhu);
     }
     
     @Override
