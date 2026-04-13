@@ -154,7 +154,7 @@
 
     <select id="selectSciJiaocairuanzhuList4" parameterType="SciJiaocairuanzhu" resultMap="SciJiaocairuanzhuResult">
         <include refid="selectSciJiaocairuanzhuVo"/>
-        where  s.user_id = #{uid} or state in (4,6)
+        where  s.user_id = #{uid} or state in (2,4,6)
         <if test="jiaoyanshi != null  and jiaoyanshi != ''">and  d.dept_name like concat('%', #{jiaoyanshi}, '%')</if>
         <if test="xingming != null  and xingming != ''">and  u.user_name like concat('%', #{xingming}, '%')</if>
         <if test="xueyuan != null  and xueyuan != ''"> and p.dept_name = #{xueyuan}</if>
@@ -210,7 +210,7 @@
     <!-- 新方法：科研处查询 -->
     <select id="selectSciPaperAListKY" parameterType="SciJiaocairuanzhu" resultMap="SciJiaocairuanzhuResult">
         <include refid="selectSciJiaocairuanzhuVo"/>
-        where  s.user_id = #{uid} or state in (4,6)
+        where  s.user_id = #{uid} or state in (2,4,6)
         <if test="jiaoyanshi != null  and jiaoyanshi != ''">and  d.dept_name like concat('%', #{jiaoyanshi}, '%')</if>
         <if test="xingming != null  and xingming != ''">and  u.user_name like concat('%', #{xingming}, '%')</if>
         <if test="xueyuan != null  and xueyuan != ''"> and p.dept_name = #{xueyuan}</if>
@@ -248,7 +248,12 @@
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(createtime,INTERVAL 1 MONTH)) = #{year}</if>
         <if test="userId != null  and userId != ''">and s.user_id = #{uid}</if>
         ${params.dataScope}
-        order by state, createtime desc
+        <if test="params.orderByColumn != null and params.orderByColumn != ''">
+            order by ${params.orderByColumn} ${params.isAsc}
+        </if>
+        <if test="params.orderByColumn == null or params.orderByColumn == ''">
+            order by chubanshijian desc
+        </if>
     </select>
 
     <select id="selectSciJiaocairuanzhuById" parameterType="Integer" resultMap="SciJiaocairuanzhuResult">
