@@ -71,8 +71,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="xslw != null">xslw,</if>
             <if test="jczz != null">jczz,</if>
             <if test="zlrz != null">zlrz,</if>
-            <if test="zl != null">zl,</if>
-            <if test="rz != null">rz,</if>
+            <if test="zl != null">zlrz,</if>
+            <if test="rz != null">zlrz,</if>
             <if test="jl != null">jl,</if>
             <if test="jzbg != null">jzbg,</if>
          </trim>
