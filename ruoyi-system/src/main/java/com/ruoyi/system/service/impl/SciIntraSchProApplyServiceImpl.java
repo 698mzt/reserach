@@ -117,6 +117,9 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
             sciIntraSchProPiyue.setConcate("学院：开题同意");
             sciIntraSchProPiyue.setState("学院：开题同意");
         }
+        if ("0".equals(state)) {
+            return 0;
+        }
         // 状态修改
         int a =  sciIntraSchProApplyMapper.sch_hxPass(id,state);
         // 补全批阅记录
@@ -155,6 +158,9 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
             sciIntraSchProPiyue.setState("学院：结题同意");
 
         }
+        if ("0".equals(state)) {
+            return 0;
+        }
         //int b =  sciIntraSchProApplyMapper.sch_hxover(id,state);
         int a =  sciIntraSchProApplyMapper.sch_hxPass(id,state);
         //System.out.println(b);
@@ -190,6 +196,9 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
             sciIntraSchProPiyue.setState("学院：开题驳回");
             state ="12";
         }
+        if ("0".equals(state)) {
+            return 0;
+        }
         int a = sciIntraSchProApplyMapper.sch_hxPass(id,state);
 
         sciIntraSchProPiyue.setUid(uid);
@@ -220,6 +229,9 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
         }else if(urlFlag.equals("dept_teacher")){
             sciIntraSchProPiyue.setState("结题：学院驳回");
             state ="14";
+        }
+        if ("0".equals(state)) {
+            return 0;
         }
         int a =  sciIntraSchProApplyMapper.sch_hxPass(id,state);
 
@@ -257,6 +269,9 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
             state ="11";
 
         }
+        if ("0".equals(state)) {
+            return 0;
+        }
         int a =  sciIntraSchProApplyMapper.sch_hxPass(id,state);
 
         sciIntraSchProPiyue.setUid(userId);
@@ -291,6 +306,9 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
             sciIntraSchProPiyue.setState("结题：学院驳回（撤回）");
             state ="13";
 
+        }
+        if ("0".equals(state)) {
+            return 0;
         }
         //改状态
         int a =  sciIntraSchProApplyMapper.sch_hxPass(id,state);
