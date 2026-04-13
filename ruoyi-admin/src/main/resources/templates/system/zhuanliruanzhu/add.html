@@ -488,6 +488,8 @@
         $(function () {
             function loadExpectedJifenSlots() {
                 var fenlei = $("select[name='fenlei']").val();
+                //添加是否转化的获取
+                var isConversion = $("input[name='shifouyingyon']:checked").val();
                 if (!fenlei) { return; }
 
                 $.ajax({
@@ -497,11 +499,18 @@
                     dataType: "json",
                     success: function (result) {
                         var data = (result && result.code === 0) ? result.data : null;
-                        var firstScore = data && data.firstScore ? data.firstScore : "0";
-                        var secondScore = data && data.secondScore ? data.secondScore : "0";
-                        var thirdScore = data && data.thirdScore ? data.thirdScore : "0";
-                        var fourthScore = data && data.fourthScore ? data.fourthScore : "0";
+                        var firstScore = data && data.firstScore ? parseInt(data.firstScore) : 0;
+                        var secondScore = data && data.secondScore ? parseInt(data.secondScore) : 0;
+                        var thirdScore = data && data.thirdScore ? parseInt(data.thirdScore) : 0;
+                        var fourthScore = data && data.fourthScore ? parseInt(data.fourthScore) : 0;
 
+                        // 非转化软著按50%核算
+                        if (isConversion === 'N') {
+                            firstScore = Math.round(firstScore * 0.5);
+                            secondScore = Math.round(secondScore * 0.5);
+                            thirdScore = Math.round(thirdScore * 0.5);
+                            fourthScore = Math.round(fourthScore * 0.5);
+                        }
                         $("#firstPersonExpectedJifen").val(firstScore);
                         $("#secondPersonExpectedJifen").val(secondScore);
                         $("#thirdPersonExpectedJifen").val(thirdScore);
@@ -516,7 +525,8 @@
                 });
             }
 
-            $("select[name='fenlei']").on("change", loadExpectedJifenSlots);
+            // 监听分类和是否转化选择变化
+            $("select[name='fenlei'], input[name='shifouyingyon']").on("change", loadExpectedJifenSlots);
             loadExpectedJifenSlots();
         });
     </script>

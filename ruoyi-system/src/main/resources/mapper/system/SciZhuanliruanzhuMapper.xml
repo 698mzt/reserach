@@ -293,8 +293,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         update sci_zhuanliruanzhu set state = #{state} where id = #{id}
     </update>
 
-
-
+<!--添加统计年度内用户软著数量-->
+    <select id="countSoftWorksByYear" resultType="int">
+        SELECT COUNT(*) FROM sci_zhuanliruanzhu
+        WHERE user_id = #{userId}
+            AND YEAR(kyjc_pass_time) = #{year}
+          AND state = '6' -- 科研处通过
+    </select>
 
     <update id="updateJifen">
         UPDATE sci_zhuanliruanzhu
