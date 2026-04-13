@@ -499,7 +499,6 @@
                     dataType: "json",
                     success: function (result) {
                         var data = (result && result.code === 0) ? result.data : null;
-                        // 修改：使用 parseFloat 而不是 parseInt
                         var firstScore = data && data.firstScore ? parseFloat(data.firstScore) : 0;
                         var secondScore = data && data.secondScore ? parseFloat(data.secondScore) : 0;
                         var thirdScore = data && data.thirdScore ? parseFloat(data.thirdScore) : 0;
@@ -514,7 +513,6 @@
                             fourthScore = fourthScore * 0.5;
                         }
 
-                        // 修改：使用 toFixed(2) 保留两位小数
                         $("#firstPersonExpectedJifen").val(firstScore.toFixed(2));
                         $("#secondPersonExpectedJifen").val(secondScore.toFixed(2));
                         $("#thirdPersonExpectedJifen").val(thirdScore.toFixed(2));
