@@ -18,7 +18,6 @@ import org.apache.ibatis.annotations.Param;
 public interface SciJiaocairuanzhuMapper
 {
 
-
     /**
      * 查询专利软著
      *

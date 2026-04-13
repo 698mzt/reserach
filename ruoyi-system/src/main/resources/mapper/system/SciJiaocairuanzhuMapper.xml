@@ -31,9 +31,17 @@
     </resultMap>
     <sql id="selectSciJiaocairuanzhuVo">
         select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname,p.dept_id parent_id, s.user_id, s.mingcheng, s.isbn, s.chubanshijian, s.chubanshe, s.benxiaoshifoyongshu, s.fenlei, s.state,s.jifen,
-        coalesce((select ranking from sci_jiaocairuanzhu_member where jiaocai_id = s.id and member_id = s.user_id), '无数据') as paiming,
+        case when #{role} = 'research' or #{role} = 'sci_tesearch' then 
+            COALESCE((select ranking from sci_jiaocairuanzhu_member where jiaocai_id = s.id and member_id = s.user_id), s.paiming)
+        else 
+            COALESCE((select ranking from sci_jiaocairuanzhu_member where jiaocai_id = s.id and member_id = #{uid}), s.paiming)
+        end as paiming,
         s.wenjian,s.createtime,s.zhubian,s.fuzhubian,
-        (select research_score from sci_jiaocairuanzhu_member where jiaocai_id = s.id and member_id = #{uid}) as personalScore
+        case when #{role} = 'research' or #{role} = 'sci_tesearch' then 
+            COALESCE((select research_score from sci_jiaocairuanzhu_member where jiaocai_id = s.id and member_id = s.user_id), 0)
+        else 
+            COALESCE((select research_score from sci_jiaocairuanzhu_member where jiaocai_id = s.id and member_id = #{uid}), 0)
+        end as personalScore
         from sci_jiaocairuanzhu s left join sys_user u on  s.user_id=u.user_id
                                   left join sys_dept d on u.dept_id = d.dept_id
                                   left join sys_dept p on d.parent_id =p.dept_id
@@ -228,17 +236,17 @@
         <if test="userId != null  and userId != ''">and s.user_id = #{uid}</if>
     </select>
 
-    <!-- 统一查询方法：所有角色均可查看所有状态 -->
+    <!-- 统一查询教材软著列表（所有角色均可查看所有状态） -->
     <select id="selectSciJiaocairuanzhuListAll" parameterType="SciJiaocairuanzhu" resultMap="SciJiaocairuanzhuResult">
         <include refid="selectSciJiaocairuanzhuVo"/>
-        where 1=1
-        <if test="state != null and state != ''"> and s.state = #{state}</if>
+        where state in (0,1,2,3,4,5,6,7)
         <if test="jiaoyanshi != null  and jiaoyanshi != ''">and  d.dept_name like concat('%', #{jiaoyanshi}, '%')</if>
         <if test="xingming != null  and xingming != ''">and  u.user_name like concat('%', #{xingming}, '%')</if>
         <if test="mingcheng != null  and mingcheng != ''"> and mingcheng like concat('%', #{mingcheng}, '%')</if>
         <if test="chubanshijian != null "> and chubanshijian = #{chubanshijian}</if>
         <if test="fenlei != null  and fenlei != ''"> and fenlei = #{fenlei}</if>
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(createtime,INTERVAL 1 MONTH)) = #{year}</if>
+        <if test="userId != null  and userId != ''">and s.user_id = #{uid}</if>
         ${params.dataScope}
         order by state, createtime desc
     </select>

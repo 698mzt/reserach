@@ -604,7 +604,6 @@
   var createFlag = [[${@permission.hasPermi('system:jiaocairuanzhu:add')}]];
   var chayueFlag = [[${@permission.hasPermi('system:jiaocairuanzhu:chayue')}]];
   var chexiaoFlag = [[${@permission.hasPermi('system:jiaocairuanzhu:chexiao')}]];
-  var role = [[${@permission.getRoleKey()}]];
 
   var prefix = ctx + "system/jiaocairuanzhu";
 
@@ -619,18 +618,18 @@
       var tableId = options.id;
       options.url = getUrl();
       // 添加加载状态处理
-      options.onLoadSuccess = function(data) {
-        if (data && data.rows && data.rows.length === 0) {
-          $.modal.msgSuccess("当前年份没有数据");
-        }
-      };
-      
-      options.onLoadError = function(status, jqXHR) {
-        $.modal.msgError("数据加载失败，请稍后重试");
-        console.error("表格数据加载失败:", status, jqXHR);
-      };
-      
-      $.table.init(options);
+    options.onLoadSuccess = function(data) {
+      if (data && data.rows && data.rows.length === 0) {
+        $.modal.msgSuccess("当前年份没有数据");
+      }
+    };
+    
+    options.onLoadError = function(status, jqXHR) {
+      $.modal.msgError("数据加载失败，请稍后重试");
+      console.error("表格数据加载失败:", status, jqXHR);
+    };
+    
+    $.table.init(options);
     }
 
     function getUrl() {
@@ -722,17 +721,7 @@
           field: 'paiming',
           title: '个人排名',
           formatter: function (value, row, index) {
-            // 检查是否是主持人，注意类型转换
-            if (parseInt(row.userId) === parseInt(row.uid)) {
-              return '主持人';
-            }
-            // 检查是否有排名数据
-            if (!value || value === '' || value === null) {
-              return '个人排名无数据';
-            }
-            var label = $.table.selectDictLabel(paiMingDatas, value);
-            // 将"第一作者"替换为"主持人"
-            return label.replace('第一作者', '主持人');
+            return $.table.selectDictLabel(paiMingDatas, value);
           }
         },
         {
@@ -751,7 +740,7 @@
             var huanhang = false;
             //console.log(row);
 
-            if (row.state == 'APPLY_DRAFT' || row.state == 'OVER_DRAFT' || row.state == 0) {
+            if (row.state == 0) {
               if (row.userId == row.uid) {
                 actions.push('<a class="" href="javascript:void(0)" onclick="submitDirectly(\'' + row.id + '\')"></i>提交&nbsp;&nbsp;&nbsp;&nbsp;</a>');
                 actions.push('<a class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"></i>编辑&nbsp;&nbsp;&nbsp;&nbsp;</a>');
@@ -759,32 +748,30 @@
 
               }
               huanhang = true;
-            } else if (row.state == 'APPLY_JYS_AUDIT' || row.state == 'OVER_JYS_AUDIT' || row.state == 1) {
-              // 待教研室审核 - 仅教研室管理员可批阅
-              if (role == 'research' && proFlag != 'hidden') {
-                actions.push('<a class="' + proFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro' + '\')"></i>批阅</a>&nbsp;&nbsp;&nbsp;&nbsp;');
-              }
+            } else if (row.state == 1) {
+              actions.push('<a class="' + proFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro' + '\')"></i>批阅</a>&nbsp;&nbsp;&nbsp;&nbsp;');
               huanhang = true;
+              // actions.push('<br>')
+              // actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan' + '\')"></i>查看&nbsp;&nbsp;&nbsp;&nbsp;</a>');
+              // actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
 
-            } else if ((row.state == 'APPLY_REJECTED' || row.state == 'OVER_REJECTED' || row.state == 3 || row.state == 5 || row.state == 7) && row.userId == row.uid) {
+            } else if ((row.state == 3 || row.state == 5 || row.state == 7) && row.userId == row.uid) {
               actions.push('<a class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"></i>编辑</a>');
               huanhang = true;
-            } else if (row.state == 'APPLY_XY_AUDIT' || row.state == 'OVER_XY_AUDIT' || row.state == 2) {
+            } else if (row.state == 2) {
               actions.push('<a class="' + proFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000"></i>撤回</a>');
-              // 待学院审核 - 仅学院管理员可批阅
-              if (role == 'dept_teacher' && hechaFlag != 'hidden') {
+              if (hechaFlag != 'hidden') {
                 actions.push('<a class="' + hechaFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/hecha' + '\')"></i>批阅</a>');
               }
               huanhang = true;
-            } else if (row.state == 'APPLY_JWC_AUDIT' || row.state == 'OVER_JWC_AUDIT' || row.state == 4) {
+            } else if (row.state == 4) {
 
               actions.push('<a class="' + hechaFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000"></i>撤回</a>');
-              // 待科研处审核 - 仅科研处管理员可批阅
-              if (role == 'sci_tesearch' && chayueFlag != 'hidden') {
+              if (chayueFlag != 'hidden') {
                 actions.push('<a class="' + chayueFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chayue' + '\')"></i>批阅</a>');
               }
               huanhang = true;
-            } else if (row.state == 'APPLY_PASSED' || row.state == 'OVER_PASSED' || row.state == 6) {
+            } else if (row.state == 6) {
               if (chayueFlag != 'hidden') {
                 actions.push('<a class="' + chayueFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000"></i>撤回</a>');
                 huanhang = true;
@@ -796,7 +783,7 @@
 
             }
             actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan' + '\')"></i>查看&nbsp;&nbsp;&nbsp;&nbsp;</a>');
-            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')">流程记录&nbsp;</a> ');
+            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
 
             return actions.join('');
           }
@@ -834,16 +821,17 @@
 
   function rowStyle0(row, index) {
     const stateColorMap = {
-      'APPLY_PASSED': '#67c23a', 'OVER_PASSED': '#67c23a', // 通过 绿色
-      'APPLY_REJECTED': '#e6a344', 'OVER_REJECTED': '#e6a344', // 驳回 黄色
-      'APPLY_DRAFT': '#e6a344', 'OVER_DRAFT': '#e6a344', // 草稿 黄色
-      'APPLY_JYS_AUDIT': '#2c99ff', 'OVER_JYS_AUDIT': '#2c99ff', // 教研室审批中 蓝色
-      'APPLY_XY_AUDIT': '#2c99ff', 'OVER_XY_AUDIT': '#2c99ff', // 学院审批中 蓝色
-      'APPLY_JWC_AUDIT': '#2c99ff', 'OVER_JWC_AUDIT': '#2c99ff', // 教务处审批中 蓝色
-      6: '#67c23a', // 完结 绿色（兼容旧状态）
-      3: '#e6a344', 5: '#e6a344', 7: '#e6a344', // 被驳回，草稿 黄色（兼容旧状态）
-      1: '#2c99ff', 2: '#2c99ff', 4: '#2c99ff', // 审核中 蓝色（兼容旧状态）
-      0: '#e6a344' // 草稿 黄色（兼容旧状态）
+      6: '#67c23a', // 完结 绿色
+      3: '#e6a344', 5: '#e6a344', 7: '#e6a344', // 被驳回，草稿 黄色
+      1: '#2c99ff', 2: '#2c99ff', 4: '#2c99ff', // 审核中 蓝色
+      0: '#e6a344' // 草稿 黄色
+      // 1: '#2c99ff', // 审核中 蓝色
+      // 2: '#67c23a', // 完结 绿色
+      // 3: '#e6a344', // 被驳回，草稿 黄色
+      // 4: '#67c23a', // 完结 绿色
+      // 5: '#e6a344', // 被驳回，草稿 黄色
+      // 6: '#67c23a', // 完结 绿色
+      // 7: '#67c23a', // 完结 绿色
     };
 
     const state = String(row.state);
@@ -907,33 +895,11 @@
     });
 
     // 根据 state 设置相应的步骤颜色
-    if (['APPLY_DRAFT', 'OVER_DRAFT', 'APPLY_REJECTED', 'OVER_REJECTED', 0, 3, 5, 7].includes(state)) {
+    if ([0, 3, 5, 7].includes(state)) {
       document.getElementById('step-1').classList.add('active');
       document.getElementById('step-1').querySelector('.status-text').classList.add('active');
       progressBar.style.width = '0';
-    } else if (['APPLY_JYS_AUDIT', 'OVER_JYS_AUDIT', 1].includes(state)) {
-      document.getElementById('step-1').classList.add('completed');
-      document.getElementById('step-1').querySelector('.status-text').classList.add('completed');
-      document.getElementById('step-2').classList.add('active');
-      document.getElementById('step-2').querySelector('.status-text').classList.add('active');
-      progressBar.style.width = '33%';
-    } else if (['APPLY_XY_AUDIT', 'OVER_XY_AUDIT', 2].includes(state)) {
-      document.getElementById('step-1').classList.add('completed');
-      document.getElementById('step-1').querySelector('.status-text').classList.add('completed');
-      document.getElementById('step-2').classList.add('completed');
-      document.getElementById('step-2').querySelector('.status-text').classList.add('completed');
-      document.getElementById('step-3').classList.add('active');
-      document.getElementById('step-3').querySelector('.status-text').classList.add('active');
-      progressBar.style.width = '66%';
-    } else if (['APPLY_JWC_AUDIT', 'OVER_JWC_AUDIT', 4].includes(state)) {
-      document.getElementById('step-1').classList.add('completed');
-      document.getElementById('step-1').querySelector('.status-text').classList.add('completed');
-      document.getElementById('step-2').classList.add('completed');
-      document.getElementById('step-2').querySelector('.status-text').classList.add('completed');
-      document.getElementById('step-3').classList.add('active');
-      document.getElementById('step-3').querySelector('.status-text').classList.add('active');
-      progressBar.style.width = '66%';
-    } else if (['APPLY_PASSED', 'OVER_PASSED', 6].includes(state)) {
+    } else if (state === 6) {
       document.getElementById('step-1').classList.add('completed');
       document.getElementById('step-1').querySelector('.status-text').classList.add('completed');
       document.getElementById('step-2').classList.add('completed');
@@ -941,6 +907,12 @@
       document.getElementById('step-3').classList.add('completed');
       document.getElementById('step-3').querySelector('.status-text').classList.add('completed');
       progressBar.style.width = '100%';
+    } else if ([1, 2, 4].includes(state)) {
+      document.getElementById('step-1').classList.add('completed');
+      document.getElementById('step-1').querySelector('.status-text').classList.add('completed');
+      document.getElementById('step-2').classList.add('completed');
+      document.getElementById('step-2').querySelector('.status-text').classList.add('completed');
+      progressBar.style.width = '50%';
     } else {
       // 默认情况下，所有步骤为灰色
       steps.forEach(step => {
