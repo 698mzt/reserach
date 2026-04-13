@@ -286,26 +286,25 @@
                                 <form id="formId-1">
                                     <div class="select-list">
                                         <ul>
+                                            <!-- 教研室、学院、科研处、管理员显示第一作者 -->
+                                            <li class="host-name-field" style="display:none;">
+                                                <label>主持人：</label>
+                                                <input type="text" name="teacherName"/>
+                                            </li>
                                             <!-- 所有角色都显示课题题目 -->
                                             <li>
                                                 <label>课题题目：</label>
                                                 <input type="text" name="reportTheme"/>
                                             </li>
                                             
-                                            <!-- 教研室、学院、科研处、管理员显示第一作者 -->
-                                            <li th:if="${roleId == 101 or roleId == 102 or roleId == 103 or roleId == 104 or roleId == 105 or roleId == 106 or roleId == 107 or roleId == 108 or roleId == 116 or roleId == 117 or roleId == 118 or roleId == 119 or roleId == 120  or roleId == 1}">
-                                                <label>第一作者：</label>
-                                                <input type="text" name="teacherName"/>
-                                            </li>
-                                            
                                             <!-- 学院、科研处、管理员显示专业 -->
-                                            <li th:if="${ roleId == 103 or roleId == 104 or roleId == 105 or roleId == 106 or roleId == 107 or roleId == 108 or roleId == 116 or roleId == 117 or roleId == 118 or roleId == 119 or roleId == 120 or roleId == 101 or roleId == 1}">
+                                            <li class="major-field" style="display:none;">
                                                 <label>专业：</label>
                                                 <input type="text" name="keyanshi"/>
                                             </li>
                                             
                                             <!-- 科研处、管理员显示学院 -->
-                                            <li th:if="${roleId == 101 or roleId == 1}">
+                                            <li class="college-field" style="display:none;">
                                                 <label>学院：</label>
                                                 <input type="text" name="xueyuan"/>
                                             </li>
@@ -337,8 +336,7 @@
                                     <!--                                    <i class="fa fa-remove"></i> 批量删除-->
                                     <!--                                </a>-->
 <!--                                    <a class="btn btn-warning" onclick="$.table.exportExcel()"-->
-                                    <a class="btn btn-warning" onclick="batchDownload('bootstrap-table1')"
-                                       shiro:hasPermission="system:report:export">
+                                    <a class="btn btn-warning" onclick="batchDownload('bootstrap-table1')">
                                         <i class="fa fa-download"></i> 批量下载
                                     </a>
                                 </div>
@@ -461,6 +459,44 @@
     var chexiaoFlag = [[${@permission.hasPermi('system:report:chexiao')}]];  // 撤销 == 》 学院负责人的特权
     var zgqxtuihuiFlag = [[${@permission.hasPermi('system:report:zgqxtuihui')}]];  // 驳回  == 》 科研室负责人的特权
     var submitFlag = [[${@permission.hasPermi('system:report:submit')}]];  // 提交
+    
+    // 获取当前用户角色信息
+    var userRole = '';
+    var userRoles = [[${user.roles}]];  // 从后端获取的角色列表
+    if (userRoles) {
+        for (var i = 0; i < userRoles.length; i++) {
+            var roleKey = userRoles[i].roleKey;
+            if (roleKey === 'sci_tesearch') {
+                userRole = 'sci_tesearch';  // 科研处
+                break;
+            } else if (roleKey === 'research') {
+                userRole = 'research';  // 教研室
+                break;
+            } else if (['dept_teacher', 'discuss_college', 'dzgc_college', 'yssj_college', 
+                       'student_college', 'marxism_college', 'general'].indexOf(roleKey) !== -1) {
+                userRole = 'dept_teacher';  // 学院
+                break;
+            }
+        }
+    }
+    // 默认为教师角色，但管理员角色显示所有字段
+    if (!userRole) {
+        // 检查是否为管理员角色
+        var isAdmin = false;
+        if (userRoles) {
+            for (var i = 0; i < userRoles.length; i++) {
+                if (userRoles[i].roleKey === 'admin') {
+                    isAdmin = true;
+                    break;
+                }
+            }
+        }
+        if (isAdmin) {
+            userRole = 'admin'; // 管理员角色
+        } else {
+            userRole = 'teacher'; // 默认为教师角色
+        }
+    }
 
     function getUrl(tableId) {
         var year = localStorage.getItem("year");
@@ -468,6 +504,48 @@
     }
 
     $(function () {
+        // 根据角色动态渲染搜索区域
+        function initSearchFields() {
+            // 角色 - 查询字段映射规则
+            // 教师角色：仅允许通过"课题名称"检索
+            // 教研室角色：允许通过"第一作者"+"课题名称"检索
+            // 学院角色：允许通过"专业"+"第一作者"+"课题名称"检索
+            // 科研处角色：允许通过"学院"+"专业"+"第一作者"+"课题名称"全维度检索
+            // 管理员角色：显示所有字段
+            
+            if (userRole === 'teacher') {
+                // 教师：只显示课题名称，其他隐藏
+                $('.host-name-field').hide();
+                $('.major-field').hide();
+                $('.college-field').hide();
+            } else if (userRole === 'research') {
+                // 教研室：显示第一作者 + 课题名称
+                $('.host-name-field').show();
+                $('.major-field').hide();
+                $('.college-field').hide();
+            } else if (userRole === 'dept_teacher') {
+                // 学院：显示专业 + 第一作者 + 课题名称
+                $('.host-name-field').show();
+                $('.major-field').show();
+                $('.college-field').hide();
+            } else if (userRole === 'sci_tesearch') {
+                // 科研处：显示所有字段
+                $('.host-name-field').show();
+                $('.major-field').show();
+                $('.college-field').show();
+            } else if (userRole === 'admin') {
+                // 管理员：显示所有字段
+                $('.host-name-field').show();
+                $('.major-field').show();
+                $('.college-field').show();
+            } else {
+                // 默认：只显示课题名称
+                $('.host-name-field').hide();
+                $('.major-field').hide();
+                $('.college-field').hide();
+            }
+        }
+        
         function initTable(options) {
             // 获取当前表格的ID
             var tableId = options.id;
@@ -482,7 +560,7 @@
         // tab-1  项目申请
         var options1 = {
             id: "bootstrap-table1",
-            url: prefix + "/list",
+            url: getUrl($('table').attr('id')),
             // url:getUrl($('table').attr('id')),
             createUrl: prefix + "/add",
             updateUrl: prefix + "/edit/{id}",
@@ -603,27 +681,36 @@
                                 actions.push('<a style="color: red" class="btn  btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')">删除</a>');
                                 hasPreviousButtons = true; // 设置前面有按钮的标志为true
                             }
-                        }else if (row.state == 1) {
+                        }else if (row.state == 1 && userRole === 'research') { // 待教研室审核 - 仅教研室角色
                             actions.push('<a  class="btn btn-xs ' + proFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro' + '\')">批阅</a> ');
                             if (proFlag != 'hidden')
                                 hasPreviousButtons = true; // 设置前面有按钮的标志为true
                         }
                         else if (row.state == 6){
+                            if (userRole === 'dept_teacher') { // 待学院审核 - 仅学院角色
                               actions.push('<a  class="btn btn-xs ' + xyproFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/xypro' + '\')">批阅</a> ');
                             actions.push('<a style="color: red" class="btn btn-xs ' + tuihuiFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/tuihui' + '\')">撤销</a> ');
                             if (tuihuiFlag != 'hidden' || xyproFlag != 'hidden')
                                 hasPreviousButtons = true; // 设置前面有按钮的标志为true
+                            } else if (userRole === 'sci_tesearch') { // 待科研处审核 - 仅科研处角色
+                              actions.push('<a  class="btn btn-xs ' + xyproFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/xypro' + '\')">批阅</a> ');
+                            actions.push('<a style="color: red" class="btn btn-xs ' + tuihuiFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/tuihui' + '\')">撤销</a> ');
+                            if (tuihuiFlag != 'hidden' || xyproFlag != 'hidden')
+                                hasPreviousButtons = true; // 设置前面有按钮的标志为true
+                            }
 
                         } else if ((row.state == 3 || row.state == 5 || row.state == 7) && row.userId == row.uid) {
                             actions.push('<a class="btn btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '/gengxin' +'\')">编辑</a> ');
                             hasPreviousButtons = true; // 设置前面有按钮的标志为true
                         }
                         else if (row.state == 2) {
+                            if (userRole === 'sci_tesearch') { // 待科研处审核 - 仅科研处角色
                               actions.push('<a  class="btn btn-xs ' + checkFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/check' + '\')">批阅</a> ');
                             actions.push('<a style="color: red" class="btn btn-xs ' + chexiaoFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/xytuihui' + '\')">撤销</a> ');
                             if (checkFlag != 'hidden' || chexiaoFlag != 'hidden')
                                 hasPreviousButtons = true; // 设置前面有按钮的标志为true
                               }
+                        }
                         else if (row.state == 4) {
                             actions.push('<a style="color: red" class="btn btn-xs ' + zgqxtuihuiFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/zgqxtuihui' + '\')">撤销</a> ');
                             if (zgqxtuihuiFlag != 'hidden')
@@ -641,7 +728,9 @@
         };
         // $.table.init(options);
         initTable(options1);
-
+        
+        // 初始化搜索区域
+        initSearchFields();
 
         // 监听localStorage的变化,当year值改变时，重新初始化表格
         window.addEventListener("storage", function (event) {
@@ -651,6 +740,8 @@
                 // initTable(options0)
                 $('#bootstrap-table1').bootstrapTable('destroy');
                 initTable(options1)
+                // 重新初始化搜索区域
+                initSearchFields();
                 // $('#bootstrap-table2').bootstrapTable('destroy');
                 // initTable(options2)
             }
