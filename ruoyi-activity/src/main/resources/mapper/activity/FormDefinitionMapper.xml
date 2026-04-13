@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.activity.mapper.FormDefinitionMapper">
+
+    <resultMap type="FormDefinition" id="FormDefinitionResult">
+        <id     property="formId"              column="form_id"              />
+        <result property="formKey"             column="form_key"             />
+        <result property="formName"            column="form_name"            />
+        <result property="formTitle"           column="form_title"           />
+        <result property="formSchema"          column="form_schema"          />
+        <result property="formUiSchema"        column="form_ui_schema"       />
+        <result property="processDefinitionKey" column="process_definition_key" />
+        <result property="category"            column="category"             />
+        <result property="status"              column="status"               />
+        <result property="createBy"            column="create_by"            />
+        <result property="createTime"          column="create_time"          />
+        <result property="updateBy"            column="update_by"            />
+        <result property="updateTime"          column="update_time"          />
+        <result property="remark"              column="remark"               />
+    </resultMap>
+
+    <sql id="selectFormDefinitionVo">
+        select form_id, form_key, form_name, form_title, form_schema, form_ui_schema,
+               process_definition_key, category, status, create_by, create_time,
+               update_by, update_time, remark
+        from form_definition
+    </sql>
+
+    <select id="selectFormDefinitionList" parameterType="FormDefinition" resultMap="FormDefinitionResult">
+        <include refid="selectFormDefinitionVo"/>
+        <where>
+            <if test="formKey != null and formKey != ''"> and form_key = #{formKey}</if>
+            <if test="formName != null and formName != ''"> and form_name like concat('%', #{formName}, '%')</if>
+            <if test="processDefinitionKey != null and processDefinitionKey != ''"> and process_definition_key = #{processDefinitionKey}</if>
+            <if test="category != null and category != ''"> and category = #{category}</if>
+            <if test="status != null and status != ''"> and status = #{status}</if>
+        </where>
+        order by create_time desc
+    </select>
+
+    <select id="selectFormDefinitionById" parameterType="Long" resultMap="FormDefinitionResult">
+        <include refid="selectFormDefinitionVo"/>
+        where form_id = #{formId}
+    </select>
+
+    <select id="selectFormDefinitionByKey" parameterType="String" resultMap="FormDefinitionResult">
+        <include refid="selectFormDefinitionVo"/>
+        where form_key = #{formKey}
+    </select>
+
+    <insert id="insertFormDefinition" parameterType="FormDefinition" useGeneratedKeys="true" keyProperty="formId">
+        insert into form_definition
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="formKey != null and formKey != ''">form_key,</if>
+            <if test="formName != null and formName != ''">form_name,</if>
+            <if test="formTitle != null and formTitle != ''">form_title,</if>
+            <if test="formSchema != null">form_schema,</if>
+            <if test="formUiSchema != null">form_ui_schema,</if>
+            <if test="processDefinitionKey != null">process_definition_key,</if>
+            <if test="category != null">category,</if>
+            <if test="status != null">status,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="remark != null">remark,</if>
+            create_time
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="formKey != null and formKey != ''">#{formKey},</if>
+            <if test="formName != null and formName != ''">#{formName},</if>
+            <if test="formTitle != null and formTitle != ''">#{formTitle},</if>
+            <if test="formSchema != null">#{formSchema},</if>
+            <if test="formUiSchema != null">#{formUiSchema},</if>
+            <if test="processDefinitionKey != null">#{processDefinitionKey},</if>
+            <if test="category != null">#{category},</if>
+            <if test="status != null">#{status},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="remark != null">#{remark},</if>
+            sysdate()
+        </trim>
+    </insert>
+
+    <update id="updateFormDefinition" parameterType="FormDefinition">
+        update form_definition
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="formKey != null and formKey != ''">form_key = #{formKey},</if>
+            <if test="formName != null and formName != ''">form_name = #{formName},</if>
+            <if test="formTitle != null and formTitle != ''">form_title = #{formTitle},</if>
+            <if test="formSchema != null">form_schema = #{formSchema},</if>
+            <if test="formUiSchema != null">form_ui_schema = #{formUiSchema},</if>
+            <if test="processDefinitionKey != null">process_definition_key = #{processDefinitionKey},</if>
+            <if test="category != null">category = #{category},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            update_time = sysdate()
+        </trim>
+        where form_id = #{formId}
+    </update>
+
+    <delete id="deleteFormDefinitionById" parameterType="Long">
+        delete from form_definition where form_id = #{formId}
+    </delete>
+
+    <delete id="deleteFormDefinitionByIds" parameterType="Long">
+        delete from form_definition where form_id in
+        <foreach item="formId" collection="array" open="(" separator="," close=")">
+            #{formId}
+        </foreach>
+    </delete>
+
+</mapper>

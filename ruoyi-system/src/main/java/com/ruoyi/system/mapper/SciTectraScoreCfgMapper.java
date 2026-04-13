@@ -15,7 +15,7 @@ import java.util.Map;
  * @date 2024-09-30
  */
 
-public interface SciTec_traScoreCfgMapper {
+public interface SciTectraScoreCfgMapper {
     /**
      * 查询成果转化得分配置列表
      *
