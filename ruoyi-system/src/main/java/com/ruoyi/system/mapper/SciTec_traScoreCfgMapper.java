@@ -3,10 +3,8 @@ package com.ruoyi.system.mapper;
 import com.ruoyi.system.domain.SciProjectScoreCfg;
 import com.ruoyi.system.domain.SciTec_traScoreCfg;
 import org.apache.ibatis.annotations.Delete;
-import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
@@ -64,4 +62,18 @@ public interface SciTec_traScoreCfgMapper {
             "AND CAST(funds_max AS DECIMAL) > #{amount} " +
             "ORDER BY user_order + 0 ASC")
     List<Map<String, Object>> selectScoreByAmount(@Param("amount") double amount);
+
+    @Select("SELECT " +
+            " funds_max AS fundsMax, " +
+            " funds_min AS fundsMin, " +
+            " user_order AS userOrder, " +
+            " total_score AS totalScore, " +
+            " start_score AS startScore, " +
+            " end_score AS endScore " +
+            "FROM sci_technology_transfer_cfg " +
+            "ORDER BY CAST(funds_min AS DECIMAL(10,2)) ASC, " +
+            " CASE WHEN funds_max IS NULL OR funds_max = '' OR CAST(funds_max AS DECIMAL(10,2)) = 0 THEN 999999999 " +
+            "      ELSE CAST(funds_max AS DECIMAL(10,2)) END ASC, " +
+            " CAST(user_order AS UNSIGNED) ASC")
+    List<SciProjectScoreCfg> selectScoreConfigsForCalculation();
 }

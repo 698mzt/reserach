@@ -2,13 +2,13 @@ package com.ruoyi.system.service.impl;
 
 import com.ruoyi.system.domain.SciIntraSchoolPro;
 import com.ruoyi.system.domain.SciIntraSchoolScore;
-import com.ruoyi.system.domain.SciProjectScoreCfg;
 import com.ruoyi.system.mapper.SciIntraSchProScoreMapper;
+import com.ruoyi.system.service.SciTecTraScoreCalculator;
 import com.ruoyi.system.service.SciIntraSchProScoreService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.Map;
 
 @Service
 public class SciIntraSchProScoreServiceImpl implements SciIntraSchProScoreService {
@@ -16,21 +16,16 @@ public class SciIntraSchProScoreServiceImpl implements SciIntraSchProScoreServic
   @Autowired
   private SciIntraSchProScoreMapper sciIntraSchProScoreMapper;
 
+  @Autowired
+  private SciTecTraScoreCalculator sciTecTraScoreCalculator;
+
 
   @Override
   // 设置积分
   public int set_SchPro_score(SciIntraSchoolPro sciIntraSchoolPro, int key) {
     int re = 0;
-    String amount = sciIntraSchoolPro.getAmount();
-    int amountt = 0;
-    try {
-      amountt = Integer.parseInt(amount);
-    } catch (NumberFormatException e) {
-      System.out.println("set_SchPro_score:无法转换为整数：" + amount);
-    }
-    //查询积分配置表拿到这个金额的积分配置（开题，结题）
-    List<SciProjectScoreCfg> List = sciIntraSchProScoreMapper.getUserScoreList(amountt);
-    System.out.println("List = " + List);
+    Map<Integer, SciTecTraScoreCalculator.ScoreDetail> scoreDetails =
+            sciTecTraScoreCalculator.calculateScoreDetails(sciIntraSchoolPro.getAmount());
 
     for (int i = 1; i <= 4; i++) {
       String userid = i == 1 ? sciIntraSchoolPro.getFirstPersonId() : i == 2 ? sciIntraSchoolPro.getSecondPersonId() : i == 3 ? sciIntraSchoolPro.getThirdPersonId() : sciIntraSchoolPro.getFourthPersonId();
@@ -40,12 +35,15 @@ public class SciIntraSchProScoreServiceImpl implements SciIntraSchProScoreServic
       } catch (NumberFormatException e) {
         System.out.println("set_SchPro_score:无法转换为整数：" + userid);
       }
-      //SciIntraSchoolScore sciIntraSchoolScore = new SciIntraSchoolScore(sciIntraSchoolPro.getId(), i, getScore(i,List), useridd,0);
+      SciTecTraScoreCalculator.ScoreDetail scoreDetail = scoreDetails.get(i);
+      if (scoreDetail == null) {
+        continue;
+      }
       if (key == 0) {
-        re = sciIntraSchProScoreMapper.set_SchPro_score(getScore(i, List, key), sciIntraSchoolPro.getId(), useridd);
+        re = sciIntraSchProScoreMapper.set_SchPro_score(scoreDetail.getStartScore(), sciIntraSchoolPro.getId(), useridd);
       } else if (key == 1) {
         //设置结题积分
-        re = sciIntraSchProScoreMapper.set_SchPro_JT_score(getScore(i, List, key), sciIntraSchoolPro.getId(), useridd);
+        re = sciIntraSchProScoreMapper.set_SchPro_JT_score(scoreDetail.getEndScore(), scoreDetail.getTotalScore(), sciIntraSchoolPro.getId(), useridd);
       }
 
     }
@@ -122,27 +120,5 @@ public class SciIntraSchProScoreServiceImpl implements SciIntraSchProScoreServic
     }
     return re;
   }
-
-
-  /**
-   *
-   * @param sciIntraSchResponTierId 责任层级
-   * @param List  积分列表
-   * @param key  开题还是结题 0 开题 1 结题
-   * @return
-   */
-  private int getScore(int sciIntraSchResponTierId, List<SciProjectScoreCfg> List, int key) {
-    int return_score = 0;
-    if (key == 0) {
-      //从与金额对应的四条数据中拿出与负责人层级相同的开题积分
-      return_score = Integer.parseInt(List.get(sciIntraSchResponTierId - 1).getStartScore());
-    } else if (key == 1) {
-      //从与金额对应的四条数据中拿出与负责人层级相同的结题积分
-      return_score = Integer.parseInt(List.get(sciIntraSchResponTierId - 1).getEndScore());
-    }
-
-    return return_score;
-  }
-
 
 }
