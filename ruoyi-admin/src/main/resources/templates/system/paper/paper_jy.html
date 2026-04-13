@@ -553,9 +553,9 @@
                 console.log(ListRowId);
             },
             columns: [
-                //   {
-                //   checkbox: false,
-                // },
+                {
+                    checkbox: true,
+                },
                 {
                     field: 'number',
                     title: '序号',
@@ -743,7 +743,7 @@
                   field: 'estimatedScore',
                   title: '预计积分',
                   formatter: function(value, row, index) {
-                      return row.firstPersonId == row.uid ? row.firstAuthorScore : row.secondPersonId == row.uid ? row.secondAuthorScore : row.thirdPersonId == row.uid ? row.thirdAuthorScore : row.fourthPersonId == row.uid ? row.fourthAuthorScore : row.communicationAuthorId == row.uid ? row.correspondingAuthorScore : "非作者";
+                      return row.firstPersonId == row.uid ? row.firstAuthorScore : row.secondPersonId == row.uid ? row.secondAuthorScore : row.thirdPersonId == row.uid ? row.thirdAuthorScore : row.fourthPersonId == row.uid ? row.fourthAuthorScore : row.communicationAuthorId == row.uid ? row.correspondingAuthorScore : 0;
                   }
                 },
                 {
@@ -756,15 +756,15 @@
                 },
                 {
                   field: 'researchScore',
-                  title: '积分',
+                  title: '已获积分',
                   formatter: function (value, row, index) {
                     console.log("row=",row)
-                      return row.firstPersonId == row.uid ?row.firstAuthorScore :row.secondPersonId == row.uid ? row.secondAuthorScore :row.thirdPersonId == row.uid ? row.thirdAuthorScore :row.fourthPersonId == row.uid ? row.fourthAuthorScore :row.communicationAuthorId == row.uid ? row.correspondingAuthorScore :"非作者";
-                      // if (row.first_author_id == row.uid) {
-                    //   return row.researchScore;
-                    // } else {
-                    //   return 0;
-                    // }
+                    // 只有审批流程通过（状态为8）才显示分数，否则为0
+                    if (row.state != 8) {
+                        return 0;
+                    }
+                    // 将非作者改为0
+                    return row.firstPersonId == row.uid ?row.firstAuthorScore :row.secondPersonId == row.uid ? row.secondAuthorScore :row.thirdPersonId == row.uid ? row.thirdAuthorScore :row.fourthPersonId == row.uid ? row.fourthAuthorScore :row.communicationAuthorId == row.uid ? row.correspondingAuthorScore :0;
                   }
                 },
                 {
@@ -793,6 +793,7 @@
                             actions.push('<a class="del-link-button' + '" href="#" onclick="$.operate.remove(\'' + row.id + '\')"></i>删除</a>&nbsp;&nbsp;&nbsp;');
                             actions.push('<a class="link-button' + '" href="#" onclick="$.operate.editTab(\'' + row.id + '\')"></i>编辑</a>&nbsp;&nbsp;&nbsp;');
                         }
+
                         if (row.state == 1) { // 待处理
                             if (row.deptNamekey === '1') {// 是自己教研室的
                                 actions.push('<a class="link-button' + '" href="#" onclick="$.operate.detailTab(\'' + row.id + '/pro\')"></i>批阅</a>');
@@ -802,12 +803,14 @@
                                 actions.push('<a class="del-link-button' + '" href="#" onclick="$.operate.detailTab(\'' + row.id + '/proth\')"></i>撤回</a><br>');
                             }
                         } else if (((row.state == 3 || row.state == 7 || row.state == 5)) && (row.uid == row.userId)) { //被退回
-                            actions.push('<a class="link-button' + '" href="#" onclick="$.operate.editTab(\'' + row.id + '\')"></i>编辑</a><br>');
-                            actions.push('<a class="link-button' + '" href="#" onclick="pushTh(\'' + row.id + '\')"></i>提交</a><br>');
+                    
                         } else if (row.state == 4) { // 学院通过
 
                         } else if (row.state == 8) { // 完成
 
+                        }
+                        if ((row.state == 3 || row.state == 7 || row.state == 5) && row.userId == row.uid) { // 退回
+                            actions.push('<a class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"></i>更新</a>&nbsp;');
                         }
                         return actions.join('');
                     }
