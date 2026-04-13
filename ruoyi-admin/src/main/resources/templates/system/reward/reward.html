@@ -38,8 +38,7 @@
                 <div class="select-list">
                     <ul>
                         <!-- 科研处：学院查询 -->
-                        <li shiro:hasAnyPermissions="system:reward:hecha,system:reward:chayu">
-<!--                        <li shiro:hasAnyPermissions="system:reward:chayue,system:reward:list">-->
+                        <li th:if="${@permission.isAnyRoles('sci_tesearch,admin')}">
                             <label>学院：</label>
                             <input type="text" name="yname" placeholder="请输入学院名称"/>
                         </li>
@@ -202,7 +201,8 @@
                     align: 'center',
                     title: '等级',
                     formatter: function(value, row, index) {
-                        return $.table.selectDictLabel(dengjiDatas, value);
+                        // return $.table.selectDictLabel(dengjiDatas, value);
+                        return value || '';
                     }
                 },
                 {
@@ -210,7 +210,7 @@
                     align: 'center',
                     title: '个人排名',
                     formatter: function(value, row, index) {
-                        return $.table.selectDictLabel(paimingDatas, value);
+                        return value || '';
                     }
                 },
                 {
