@@ -1,6 +1,7 @@
 package com.ruoyi.system.domain;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.ruoyi.common.annotation.Excel;
@@ -13,6 +14,7 @@ import com.ruoyi.common.core.domain.BaseEntity;
  * @date 2024-08-16
  */
 @Data
+@EqualsAndHashCode(callSuper=true)
 public class SciHorizontalApply extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
@@ -40,6 +42,12 @@ public class SciHorizontalApply extends BaseEntity
     private String  ynameId;  //学院id
     private Integer  userynameId; //登录用户专业id
     private Integer  reid;
+    
+    /** 专业名称（文本查询字段） */
+    private String keyanshi;
+    
+    /** 学院名称（文本查询字段） */
+    private String xueyuan;
 
 
     public String getUserName() {
