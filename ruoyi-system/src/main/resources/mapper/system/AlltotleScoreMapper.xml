@@ -25,7 +25,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectAlltotleScoreVo">
-        select userId, userName, partenId, partenName, deptId, deptName, hxkt, zxktxj, zxktxjys, cgzh, xslw, jczz,zl,rz, jl, jzbg from Alltotle_score
+        select userId, userName, partenId, partenName, deptId, deptName, hxkt, zxktxj, zxktxjys, cgzh, xslw, jczz, zl,rz, jl, jzbg from Alltotle_score
     </sql>
 
     <select id="selectAlltotleScoreList" parameterType="AlltotleScore" resultMap="AlltotleScoreResult">
@@ -43,8 +43,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="xslw != null  and xslw != ''"> and xslw = #{xslw}</if>
             <if test="jczz != null  and jczz != ''"> and jczz = #{jczz}</if>
             <if test="zlrz != null  and zlrz != ''"> and zlrz = #{zlrz}</if>
-            <if test="zl != null  and zl != ''"> and zlrz = #{zl}</if>
-            <if test="rz != null  and rz != ''"> and zlrz = #{rz}</if>
+            <if test="zl != null  and zl != ''"> and zlrz = #{zlrz}</if>
+            <if test="rz != null  and rz != ''"> and zlrz = #{rzrz}</if>
             <if test="jl != null  and jl != ''"> and jl = #{jl}</if>
             <if test="jzbg != null  and jzbg != ''"> and jzbg = #{jzbg}</if>
         </where>
