@@ -43,16 +43,18 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
     @Override
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciHorizontalApplyVertical> selectSciHorizontalApplyVerticalList(SciHorizontalApplyVertical sciHorizontalApplyVertical) {
-        List<SciHorizontalApplyVertical> list = new ArrayList<>();
-        if (sciHorizontalApplyVertical.getRole().equals("research"))
-            list = sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalListJYS(sciHorizontalApplyVertical);
-        else if (sciHorizontalApplyVertical.getRole().equals("sci_tesearch"))
-            list = sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalListKYC(sciHorizontalApplyVertical);
-        else if (sciHorizontalApplyVertical.getRole().equals("dept_teacher"))
-            list = sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalListDept(sciHorizontalApplyVertical);
-        else
-            list = sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalList(sciHorizontalApplyVertical);
-        return list;
+        return sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalListAll(sciHorizontalApplyVertical);
+    }
+
+    /**
+     * 查询纵向课题列表（统一查询，支持所有状态）
+     * 功能：统一查询纵向课题列表，支持多条件筛选和排序
+     * 按照2026年度数据权限优化需求，所有管理员角色均可查看所有状态的课题
+     */
+    @Override
+    @DataScope(deptAlias = "d", userAlias = "u")
+    public List<SciHorizontalApplyVertical> selectSciHorizontalApplyVerticalListAll(SciHorizontalApplyVertical sciHorizontalApplyVertical) {
+        return sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalListAll(sciHorizontalApplyVertical);
     }
 
     /**

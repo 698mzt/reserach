@@ -90,6 +90,46 @@
     </select>
 
     <!--
+     * 查询纵向课题列表（统一查询，支持所有状态）
+     * 功能：统一查询纵向课题列表，支持多条件筛选和排序
+     * 按照2026年度数据权限优化需求，所有管理员角色均可查看所有状态的课题
+     * 查询条件：无状态限制，可按年份、申请人、课题名称、教研室名称、课题编号、状态筛选
+     * 排序规则：按状态优先级排序，再按创建时间倒序
+     * 返回字段：课题基本信息、申请人信息、部门信息、文件信息、课题来源
+     -->
+    <select id="selectSciHorizontalApplyVerticalListAll"  resultType="SciHorizontalApplyVertical" resultMap="SciHorizontalApplyVerticalResult">
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,s.top_number, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file,s.open_file,s.mid_file,s.over_file, s.subject_source
+        from  sci_horizontal_apply_vertical s left join sys_user u on  s.user_id=u.user_id
+                                              left join sys_dept d on u.dept_id = d.dept_id
+                                              left join sys_dept p on d.parent_id =p.dept_id
+        where 1=1
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
+        <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
+        <if test="topNumber != null  and topNumber != ''"> and top_number =  #{topNumber}</if>
+        <if test="userName != null  and userName != ''"> and u.user_name like concat('%', #{userName}, '%')</if>
+        <if test="dname != null  and dname != ''"> and d.dept_name like concat('%', #{dname}, '%')</if>
+        <if test="yname != null  and yname != ''"> and p.dept_name like concat('%', #{yname}, '%')</if>
+        <if test="state != null  and state != ''"> and state = #{state}</if>
+        <!-- 学院管理员数据权限控制：仅查看本学院的数据 -->
+        <if test="userynameId != null and userynameId != ''"> and p.dept_id = #{userynameId}</if>
+        ${params.dataScope}
+        order by
+        case
+--         草稿箱
+        when state = 99 then 1
+--         被驳回
+        when state in (3,5,7,33,55,77) then 2
+--         申请结项
+        when state = 6 then 3
+--         审核中
+        when state in (1,2,4,11,22,44) then 4
+--         已完成
+        when state in (66) then 5
+        end,
+        s.createtime desc
+    </select>
+
+    <!--
      * 查询纵向课题列表（教研室视角）
      * 功能：查询教研室视角的纵向课题列表，只显示待教研室审核和教研室已通过的课题
      * 查询条件：状态在(1,2)，可按年份、申请人、教研室名称、课题名称、状态筛选
