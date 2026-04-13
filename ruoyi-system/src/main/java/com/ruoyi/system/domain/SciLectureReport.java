@@ -111,6 +111,12 @@ public class SciLectureReport extends BaseEntity
     /** 积分值（从积分管理表关联查询） */
     private String integralValue;
 
+    /** 部门ID */
+    private Integer userdnameId;
+
+    /** 学院ID */
+    private Integer userynameId;
+
     /**
      * get---set方法
      * */
@@ -340,6 +346,22 @@ public class SciLectureReport extends BaseEntity
 
     public void setIntegralValue(String integralValue) {
         this.integralValue = integralValue;
+    }
+
+    public Integer getUserdnameId() {
+        return userdnameId;
+    }
+
+    public void setUserdnameId(Integer userdnameId) {
+        this.userdnameId = userdnameId;
+    }
+
+    public Integer getUserynameId() {
+        return userynameId;
+    }
+
+    public void setUserynameId(Integer userynameId) {
+        this.userynameId = userynameId;
     }
 
     @Override
