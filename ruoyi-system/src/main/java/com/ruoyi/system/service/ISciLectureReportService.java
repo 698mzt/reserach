@@ -145,4 +145,37 @@ public interface ISciLectureReportService
      * @return 讲座报告集合
      */
     List<SciLectureReport> selectSciLectureReportListKY(SciLectureReport sciLectureReport);
+
+    /**
+     * 查询已结项的讲座报告列表
+     *
+     * @param sciLectureReport 讲座报告
+     * @return 讲座报告集合
+     */
+    List<SciLectureReport> selectSciLectureReportListOVER(SciLectureReport sciLectureReport);
+
+    /**
+     * 查询教研室相关的讲座报告列表
+     *
+     * @param sciLectureReport 讲座报告
+     * @return 讲座报告集合
+     */
+    List<SciLectureReport> selectSciLectureReportListJX(SciLectureReport sciLectureReport);
+
+    /**
+     * 查询用户参与的其他讲座报告列表
+     *
+     * @param sciLectureReport 讲座报告
+     * @return 讲座报告集合
+     */
+    List<SciLectureReport> selectOtherListByUid(SciLectureReport sciLectureReport);
+
+    /**
+     * 统一查询讲座报告列表
+     * 通过@DataScope控制数据权限，移除状态过滤
+     *
+     * @param sciLectureReport 讲座报告
+     * @return 讲座报告集合
+     */
+    List<SciLectureReport> selectSciLectureReportListAll(SciLectureReport sciLectureReport);
 }

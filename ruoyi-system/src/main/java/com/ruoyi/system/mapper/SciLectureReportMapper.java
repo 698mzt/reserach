@@ -128,4 +128,13 @@ public interface SciLectureReportMapper
      * @return 讲座报告集合
      */
     List<SciLectureReport> selectSciLectureReportListKY(SciLectureReport sciLectureReport);
+
+    /**
+     * 统一查询讲座报告列表
+     * 移除状态过滤，保留数据权限控制
+     *
+     * @param sciLectureReport 讲座报告
+     * @return 讲座报告集合
+     */
+    List<SciLectureReport> selectSciLectureReportListAll(SciLectureReport sciLectureReport);
 }
