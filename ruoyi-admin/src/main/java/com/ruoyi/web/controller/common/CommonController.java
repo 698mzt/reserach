@@ -50,7 +50,7 @@ import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.file.FileUploadUtils;
 import com.ruoyi.common.utils.file.FileUtils;
 import com.ruoyi.common.utils.file.MinIOUtils;
-import com.ruoyi.common.core.domain.entity.SysUser;
+
 
 /**
  * 通用请求处理
@@ -643,18 +643,6 @@ public class CommonController extends BaseController
 
             // 创建临时压缩包文件
             String zipFileName = getModuleName(module) + "_批量下载.zip";
-            String modLower = module == null ? "" : module.toLowerCase();
-            if ("patent".equals(modLower) || "zhuanliruanzhu".equals(modLower) || "专利软著".equals(module)) {
-                SysUser loginUser = getSysUser();
-                String majorName = "";
-                if (loginUser != null && loginUser.getDept() != null
-                        && StringUtils.isNotEmpty(loginUser.getDept().getDeptName())) {
-                    majorName = loginUser.getDept().getDeptName().trim();
-                }
-                if (StringUtils.isNotEmpty(majorName)) {
-                    zipFileName = majorName + "_" + zipFileName;
-                }
-            }
             // 确保文件名合法
             zipFileName = zipFileName.replaceAll("[^a-zA-Z0-9\u4e00-\u9fa5_.-]", "_");
 
