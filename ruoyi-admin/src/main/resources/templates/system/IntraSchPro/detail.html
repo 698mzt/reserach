@@ -413,13 +413,14 @@
             console.log("deptNamekey=", deptNamekey)
             console.log("a=", a)
             console.log("role_str=", role_str)
+            var currentUrlFlag = $("#urlFlag").val();
             //如果是科研
             if (role_str == "sci_tesearch") {
                 //批阅记录
                 if (name.rows.length > 0) {
                     $(".tdiv2").show();
                 }
-                if (a == 2) {
+                if (a == 2 && currentUrlFlag == "hecha") {
                     $(".tdiv1").show();
                     $("#btn1").show();
                     $("#btn2").show();
@@ -439,7 +440,7 @@
                 if (deptNamekey == "0") {
                     $("#btn3").show();
                 } else {
-                    if (a == 1) {
+                    if (a == 1 && currentUrlFlag == "pro") {
                         $(".tdiv1").show();
                         $("#btn1").show();
                         $("#btn2").show();
@@ -474,7 +475,7 @@
                 if (name.rows.length > 0) {
                     $(".tdiv2").show();
                 }
-                if (a == 11) {
+                if (a == 11 && currentUrlFlag == "dept_teacher") {
                     $(".tdiv1").show();
                     $("#btn1").show();
                     $("#btn2").show();
