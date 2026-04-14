@@ -1070,22 +1070,10 @@ public class CommonController extends BaseController
     private String buildArchiveFolder(String college, String major, String teacher, String module, String topic, Long userId)
     {
         DeptInfo deptInfo = resolveDeptInfo(userId, college, major);
-        // 解析教师姓名，如果为空则根据userId查询
-        String resolvedTeacher = firstNonBlank(teacher);
-        if (StringUtils.isEmpty(resolvedTeacher) && userId != null) {
-            try {
-                SysUser user = userService.selectUserById(userId);
-                if (user != null) {
-                    resolvedTeacher = user.getUserName();
-                }
-            } catch (Exception e) {
-                log.warn("解析下载目录的教师信息失败, userId={}", userId, e);
-            }
-        }
         return joinZipPath(
                 sanitizeZipSegment(deptInfo.college, "未知学院"),
                 sanitizeZipSegment(deptInfo.major, "未知专业"),
-                sanitizeZipSegment(resolvedTeacher, "未知教师"),
+                sanitizeZipSegment(teacher, "未知教师"),
                 sanitizeZipSegment(module, "未分类模块"),
                 sanitizeZipSegment(topic, "未命名课题")
         );
