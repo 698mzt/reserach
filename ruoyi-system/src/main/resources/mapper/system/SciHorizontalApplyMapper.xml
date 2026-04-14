@@ -134,14 +134,18 @@
         ${params.dataScope}
         order  by
         case
---         草稿箱
+--         草稿箱(state=0)
+        when s.state = 0 then 0
+--         已驳回(state=99)
         when s.state = 99 then 1
---         被驳回
+--         被驳回(state=3,22,5)
         when s.state in (3,22,5) then 2
---         申请结项
+--         申请结项(state=4)
         when s.state = 4 then 3
---         审核中
+--         审核中(state=1,2,11)
         when s.state in (1,2,11) then 4
+--         其他状态
+        else 5
         end,
         s.createtime desc
     </select>
