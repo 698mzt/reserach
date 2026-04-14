@@ -1,7 +1,7 @@
 package com.ruoyi.system.service;
 
 import com.ruoyi.system.domain.SciProjectScoreCfg;
-import com.ruoyi.system.mapper.SciTec_traScoreCfgMapper;
+import com.ruoyi.system.mapper.SciTectraScoreCfgMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,10 +16,10 @@ import java.util.Map;
 @Service
 public class SciTecTraScoreCalculator
 {
-    private final SciTec_traScoreCfgMapper sciTecTraScoreCfgMapper;
+    private final SciTectraScoreCfgMapper sciTecTraScoreCfgMapper;
 
     @Autowired
-    public SciTecTraScoreCalculator(SciTec_traScoreCfgMapper sciTecTraScoreCfgMapper)
+    public SciTecTraScoreCalculator(SciTectraScoreCfgMapper sciTecTraScoreCfgMapper)
     {
         this.sciTecTraScoreCfgMapper = sciTecTraScoreCfgMapper;
     }

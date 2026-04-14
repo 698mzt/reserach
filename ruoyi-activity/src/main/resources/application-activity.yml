@@ -1,0 +1,30 @@
+# Activiti配置
+activiti:
+  # 检查流程定义
+  check-process-definitions: false
+  # 数据库更新策略
+  database-schema-update: false
+  # 👇 新增：强制关闭schema版本校验（Activiti 5.x 专属）
+  database-schema-check: false
+  # 自动部署
+  deployment-mode: single-resource
+  # 流程字体
+  activity-font-name: 宋体
+  label-font-name: 宋体
+  annotation-font-name: 宋体
+  # 历史级别
+  history-level: full
+  # 异步执行器
+  async-executor-activate: true
+  # Job执行器（延迟初始化引擎，避免竞态）
+  job-executor-activate: false
+  # 流程定义文件位置
+  process-definition-location-prefix: classpath*:/processes/
+  # 流程定义文件后缀
+  process-definition-location-suffixes:
+    - .bpmn20.xml
+    - .bpmn
+  # 关闭Activiti内置用户/组管理
+  user-management-enabled: false
+  # 关闭Activiti安全校验
+  authorization-enabled: false

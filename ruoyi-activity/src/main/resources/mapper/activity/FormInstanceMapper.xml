@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.activity.mapper.FormInstanceMapper">
+
+    <resultMap type="FormInstance" id="FormInstanceResult">
+        <id     property="instanceId"          column="instance_id"           />
+        <result property="formDefinitionId"    column="form_definition_id"    />
+        <result property="formKey"             column="form_key"              />
+        <result property="instanceTitle"       column="instance_title"        />
+        <result property="formData"            column="form_data"             />
+        <result property="submitterId"         column="submitter_id"          />
+        <result property="submitterName"       column="submitter_name"        />
+        <result property="processInstanceId"   column="process_instance_id"   />
+        <result property="processStatus"       column="process_status"        />
+        <result property="status"              column="status"                />
+        <result property="createBy"            column="create_by"             />
+        <result property="createTime"          column="create_time"           />
+        <result property="updateBy"            column="update_by"             />
+        <result property="updateTime"          column="update_time"           />
+        <result property="remark"              column="remark"                />
+    </resultMap>
+
+    <sql id="selectFormInstanceVo">
+        select instance_id, form_definition_id, form_key, instance_title, form_data,
+               submitter_id, submitter_name, process_instance_id, process_status, status,
+               create_by, create_time, update_by, update_time, remark
+        from form_instance
+    </sql>
+
+    <select id="selectFormInstanceList" parameterType="FormInstance" resultMap="FormInstanceResult">
+        <include refid="selectFormInstanceVo"/>
+        <where>
+            <if test="formDefinitionId != null"> and form_definition_id = #{formDefinitionId}</if>
+            <if test="formKey != null and formKey != ''"> and form_key = #{formKey}</if>
+            <if test="instanceTitle != null and instanceTitle != ''"> and instance_title like concat('%', #{instanceTitle}, '%')</if>
+            <if test="submitterId != null"> and submitter_id = #{submitterId}</if>
+            <if test="processInstanceId != null and processInstanceId != ''"> and process_instance_id = #{processInstanceId}</if>
+            <if test="processStatus != null and processStatus != ''"> and process_status = #{processStatus}</if>
+            <if test="status != null and status != ''"> and status = #{status}</if>
+        </where>
+        order by create_time desc
+    </select>
+
+    <select id="selectFormInstanceById" parameterType="Long" resultMap="FormInstanceResult">
+        <include refid="selectFormInstanceVo"/>
+        where instance_id = #{instanceId}
+    </select>
+
+    <select id="selectFormInstanceByProcessInstanceId" parameterType="String" resultMap="FormInstanceResult">
+        <include refid="selectFormInstanceVo"/>
+        where process_instance_id = #{processInstanceId}
+    </select>
+
+    <insert id="insertFormInstance" parameterType="FormInstance" useGeneratedKeys="true" keyProperty="instanceId">
+        insert into form_instance
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="formDefinitionId != null">form_definition_id,</if>
+            <if test="formKey != null and formKey != ''">form_key,</if>
+            <if test="instanceTitle != null and instanceTitle != ''">instance_title,</if>
+            <if test="formData != null">form_data,</if>
+            <if test="submitterId != null">submitter_id,</if>
+            <if test="submitterName != null and submitterName != ''">submitter_name,</if>
+            <if test="processInstanceId != null">process_instance_id,</if>
+            <if test="processStatus != null">process_status,</if>
+            <if test="status != null">status,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="remark != null">remark,</if>
+            create_time
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="formDefinitionId != null">#{formDefinitionId},</if>
+            <if test="formKey != null and formKey != ''">#{formKey},</if>
+            <if test="instanceTitle != null and instanceTitle != ''">#{instanceTitle},</if>
+            <if test="formData != null">#{formData},</if>
+            <if test="submitterId != null">#{submitterId},</if>
+            <if test="submitterName != null and submitterName != ''">#{submitterName},</if>
+            <if test="processInstanceId != null">#{processInstanceId},</if>
+            <if test="processStatus != null">#{processStatus},</if>
+            <if test="status != null">#{status},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="remark != null">#{remark},</if>
+            sysdate()
+        </trim>
+    </insert>
+
+    <update id="updateFormInstance" parameterType="FormInstance">
+        update form_instance
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="formDefinitionId != null">form_definition_id = #{formDefinitionId},</if>
+            <if test="formKey != null and formKey != ''">form_key = #{formKey},</if>
+            <if test="instanceTitle != null and instanceTitle != ''">instance_title = #{instanceTitle},</if>
+            <if test="formData != null">form_data = #{formData},</if>
+            <if test="submitterId != null">submitter_id = #{submitterId},</if>
+            <if test="submitterName != null and submitterName != ''">submitter_name = #{submitterName},</if>
+            <if test="processInstanceId != null">process_instance_id = #{processInstanceId},</if>
+            <if test="processStatus != null">process_status = #{processStatus},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            update_time = sysdate()
+        </trim>
+        where instance_id = #{instanceId}
+    </update>
+
+    <delete id="deleteFormInstanceById" parameterType="Long">
+        delete from form_instance where instance_id = #{instanceId}
+    </delete>
+
+    <delete id="deleteFormInstanceByIds" parameterType="Long">
+        delete from form_instance where instance_id in
+        <foreach item="instanceId" collection="array" open="(" separator="," close=")">
+            #{instanceId}
+        </foreach>
+    </delete>
+
+</mapper>
