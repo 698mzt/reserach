@@ -2,7 +2,7 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.ruoyi.system.mapper.SciTec_traScoreCfgMapper">
+<mapper namespace="com.ruoyi.system.mapper.SciTectraScoreCfgMapper">
 
     <resultMap type="SciTec_traScoreCfg" id="SciTec_traScoreCfgResult">
         <result property="tec_tra_id"    column="tec_tra_id"    />

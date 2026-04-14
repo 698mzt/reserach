@@ -35,6 +35,16 @@
             <artifactId>druid-spring-boot-starter</artifactId>
         </dependency>
 
+        <!-- MyBatis - 显式声明依赖 -->
+        <dependency>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis-spring</artifactId>
+        </dependency>
+
         <!-- 验证码 -->
         <dependency>
             <groupId>pro.fessional</groupId>

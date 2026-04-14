@@ -31,6 +31,14 @@ public interface SciPaperAMapper {
      * @return 论文集合
      */
     public List<SciPaperA> selectSciPaperAList(SciPaperA sciPaperA);
+    
+    /**
+     * 统一查询论文列表
+     *
+     * @param sciPaperA 论文
+     * @return 论文集合
+     */
+    public List<SciPaperA> selectSciPaperAListAll(SciPaperA sciPaperA);
 
     /**
      * 新增论文

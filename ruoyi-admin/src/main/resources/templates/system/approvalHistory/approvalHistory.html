@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+	<th:block th:include="include :: header('审批历史查询')" />
+</head>
+<body class="gray-bg">
+	<div class="container-div">
+		<div class="row">
+			<div class="col-sm-12 search-collapse">
+				<form id="approvalHistory-form">
+					<div class="select-list">
+						<ul>
+							<li>
+								流程编码：<input type="text" name="processCode"/>
+							</li>
+							<li>
+								业务ID：<input type="text" name="businessId"/>
+							</li>
+							<li>
+								操作人：<input type="text" name="operatorName"/>
+							</li>
+							<li>
+								<a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+							    <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+							</li>
+						</ul>
+					</div>
+				</form>
+			</div>
+			
+			<div class="btn-group-sm" id="toolbar" role="group">
+				<a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="approval:history:export">
+		            <i class="fa fa-download"></i> 导出
+		        </a>
+	        </div>
+	        
+	        <div class="col-sm-12 select-table table-striped">
+			    <table id="bootstrap-table"></table>
+			</div>
+		</div>
+	</div>
+	<th:block th:include="include :: footer" />
+	<script th:inline="javascript">
+		var prefix = ctx + "approval/history";
+
+		$(function() {
+		    var options = {
+		        url: prefix + "/list",
+		        exportUrl: prefix + "/export",
+		        sortName: "createTime",
+		        sortOrder: "desc",
+		        modalName: "审批历史",
+		        columns: [{
+		            field: 'id',
+		            title: '历史ID'
+		        },
+		        {
+		            field: 'processCode',
+		            title: '流程编码'
+		        },
+		        {
+		            field: 'businessId',
+		            title: '业务ID'
+		        },
+		        {
+		            field: 'nodeId',
+		            title: '节点ID'
+		        },
+		        {
+		            field: 'nodeName',
+		            title: '节点名称'
+		        },
+		        {
+		            field: 'operation',
+		            title: '操作类型',
+		            formatter: function(value, row, index) {
+		            	if (value == 'submit') return '<span class="label label-info">提交</span>';
+		            	if (value == 'approve') return '<span class="label label-success">通过</span>';
+		            	if (value == 'reject') return '<span class="label label-danger">驳回</span>';
+		            	if (value == 'transfer') return '<span class="label label-warning">转办</span>';
+		            	return value;
+		            }
+		        },
+		        {
+		            field: 'fromState',
+		            title: '原状态'
+		        },
+		        {
+		            field: 'toState',
+		            title: '目标状态'
+		        },
+		        {
+		            field: 'operatorName',
+		            title: '操作人'
+		        },
+		        {
+		            field: 'operatorDept',
+		            title: '操作部门'
+		        },
+		        {
+		            field: 'comment',
+		            title: '审批意见'
+		        },
+		        {
+		            field: 'createTime',
+		            title: '操作时间',
+		            sortable: true
+		        }]
+		    };
+		    $.table.init(options);
+		});
+	</script>
+</body>
+</html>

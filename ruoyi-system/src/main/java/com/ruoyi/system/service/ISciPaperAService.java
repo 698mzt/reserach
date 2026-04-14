@@ -34,6 +34,7 @@ public interface ISciPaperAService
      * @return 论文集合
      */
     public List<SciPaperA> selectSciPaperAList(SciPaperA sciPaperA);
+    public List<SciPaperA> selectSciPaperAListAll(SciPaperA sciPaperA);
     public List<SciPaperA> selectSciPaperAListKY(SciPaperA sciPaperA);
     public List<SciPaperA> selectSciPaperAListXY(SciPaperA sciPaperA);
     /**

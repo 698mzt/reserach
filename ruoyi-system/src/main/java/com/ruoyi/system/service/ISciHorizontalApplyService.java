@@ -33,6 +33,14 @@ public interface ISciHorizontalApplyService
     public List<SciHorizontalApply> selectSciHorizontalApplyList(SciHorizontalApply sciHorizontalApply);
 
     /**
+     * 统一查询横向课题列表（基于数据权限控制）
+     *
+     * @param sciHorizontalApply 横向课题
+     * @return 横向课题集合
+     */
+    public List<SciHorizontalApply> selectSciHorizontalApplyListAll(SciHorizontalApply sciHorizontalApply);
+
+    /**
      * 新增横向课题
      *
      * @param sciHorizontalApply 横向课题

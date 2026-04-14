@@ -1,5 +1,6 @@
 package com.ruoyi.system.service.impl;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -265,14 +266,30 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
         if (urlFlag.equals("chayue")) {
             SciZhuanliruanzhu sci = sciZhuanliruanzhuMapper.selectSciZhuanliruanzhuById(Integer.valueOf(id));
             String finalJifen;
-            if (sci != null && sci.getExpectedJifen() != null && !sci.getExpectedJifen().trim().isEmpty()) {
-                finalJifen = sci.getExpectedJifen();
-            } else if (sci != null) {
-                finalJifen = calculateScore(sci.getFenlei(), sci.getPaiming());
+            if (sci != null) {
+                // 计算年度
+                int currentYear = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR);
+                // 统计年度内用户的软著数量
+                int count = sciZhuanliruanzhuMapper.countSoftWorksByYear(Long.valueOf(sci.getUserId()), currentYear);
+                // 计算基础分数
+                String baseScore = calculateScore(sci.getFenlei(), sci.getPaiming());
+                // 非转化软著按50%核算
+                if ("N".equals(sci.getShifouyingyon())) {
+                    double score = Double.parseDouble(baseScore) * 0.5;
+                    baseScore = String.valueOf(Math.round(score));
+                }
+                // 年度内不超过5项
+                if (count > 5) {
+                    finalJifen = "0";
+                } else {
+                    finalJifen = baseScore;
+                }
             } else {
                 finalJifen = "0";
             }
             sciZhuanliruanzhuMapper.updateFinalJifen(id, finalJifen);
+            // 科研处认定通过时间，用于科研统计年度（上年12/1～当年11/30）计算
+            sciZhuanliruanzhuMapper.updateKyjcPassTime(id, new Date());
         }
 
         int a =  sciZhuanliruanzhuMapper.hxPass(id,state);

@@ -59,6 +59,7 @@ public class SciZhuanliruanzhu extends BaseEntity
                 ", paiming='" + paiming + '\'' +
 
                 ", state='" + state + '\'' +
+                ", kyjcPassTime=" + kyjcPassTime +
                 '}';
     }
 
@@ -314,6 +315,18 @@ public class SciZhuanliruanzhu extends BaseEntity
     /** 获批时间 */
     @JsonFormat(pattern = "yyyy-MM-dd")
     private Date huopishijain;
+
+    /** 科研处认定通过时间（用于科研统计年度） */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date kyjcPassTime;
+
+    public Date getKyjcPassTime() {
+        return kyjcPassTime;
+    }
+
+    public void setKyjcPassTime(Date kyjcPassTime) {
+        this.kyjcPassTime = kyjcPassTime;
+    }
 
     /** 是否应用 */
     private String shifouyingyon;

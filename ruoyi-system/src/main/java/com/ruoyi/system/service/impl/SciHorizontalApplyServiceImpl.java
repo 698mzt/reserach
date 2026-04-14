@@ -53,6 +53,8 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
     private SciHorizontalApplyMapper sciLectureReportMapper;
     @Autowired
     private SciHorizontalReamountMapper sciHorizontalReamountMapper;
+    @Autowired
+    private SciProjectScoreCfgMapper sciProjectScoreCfgMapper;
 
     /**
      * 查询横向课题
@@ -78,28 +80,53 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
     {
         return sciHorizontalApplyMapper.selectSciHorizontalApplyList(sciHorizontalApply);
     }
+
+    /**
+     * 统一查询横向课题列表（基于数据权限控制）
+     * 所有管理员角色均可查看所有状态的课题数据，不再根据状态过滤可见性
+     *
+     * @param sciHorizontalApply 横向课题
+     * @return 横向课题
+     */
+    @Override
+    @DataScope(deptAlias = "d", userAlias = "u")
+    public List<SciHorizontalApply> selectSciHorizontalApplyListAll(SciHorizontalApply sciHorizontalApply)
+    {
+        return sciHorizontalApplyMapper.selectSciHorizontalApplyListAll(sciHorizontalApply);
+    }
+
     @Override
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciHorizontalApply> selectSciHorizontalApplyListByKYC(SciHorizontalApply sciHorizontalApply)
     {
         return sciHorizontalApplyMapper.selectSciHorizontalApplyListByKYC(sciHorizontalApply);
     }
+
     @Override
     @DataScope(deptAlias = "d",userAlias = "u")
     public List<SciHorizontalApply> selectSciHorizontalApplyListByJYS(SciHorizontalApply sciHorizontalApply) {
         return sciHorizontalApplyMapper.selectSciHorizontalApplyListByJYS(sciHorizontalApply);
     }
 
+    /**
+     * 查询结项申请列表（基于数据权限控制）
+     * 所有管理员角色均可查看所有状态的结项申请数据，不再根据状态过滤可见性
+     *
+     * @param sciHorizontalApply 横向课题
+     * @return 横向课题
+     */
     @Override
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciHorizontalApply> selectSciHorizontalApplyListByOverApply(SciHorizontalApply sciHorizontalApply) {
         return sciHorizontalApplyMapper.selectSciHorizontalApplyListByOverApply(sciHorizontalApply);
     }
+
     @Override
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciHorizontalApply> selectSciHorizontalApplyListByOverApplyJYS(SciHorizontalApply sciHorizontalApply) {
         return sciHorizontalApplyMapper.selectSciHorizontalApplyListByOverApplyJYS(sciHorizontalApply);
     }
+
     @Override
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciHorizontalApply> selectSciHorizontalApplyListByOverApplyKYC(SciHorizontalApply sciHorizontalApply) {
@@ -654,32 +681,12 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
         Map<String, Integer> counts = new HashMap<>();
         String mainRole = determineMainRole(user.getRoles());
 
-        // 添加调试日志
-        log.info("用户角色识别: ID={}, 部门={}, 识别角色={}, 实际角色={}",
-                user.getUserId(),
-                user.getDept().getDeptName(),
-                mainRole,
-                user.getRoles().stream()
-                        .map(SysRole::getRoleKey)
-                        .collect(Collectors.joining(",")));
-
-//        counts.put("horizontal", calculateHorizontalTodoCount(user, mainRole));
-//        counts.put("reamount", calculateReamountTodoCount(user, mainRole));//统计金额待办数量
-//        return counts;
-        // 计算课题待办数量
         int horizontalCount = calculateHorizontalTodoCount(user, mainRole);
-        // 计算金额待办数量
         int reamountCount = calculateReamountTodoCount(user, mainRole);
 
-        // 记录详细统计信息（调试用）
-        log.info("待办统计 - 课题: {}, 金额: {}, 总计: {}",
-                horizontalCount, reamountCount, horizontalCount + reamountCount);
-
-        // 保持使用 "horizontal" 键，但值为总数
         counts.put("horizontal", horizontalCount + reamountCount);
-//        counts.put("reamount",reamountCount); //如果需要保留
-        counts.put("vertical", calculateVerticalTodoCount(user, mainRole)); //统计纵向待办数量
-        counts.put("achievement", calculateAchievementTodoCount(user, mainRole)); //统计成果待办数量
+        counts.put("vertical", calculateVerticalTodoCount(user, mainRole));
+        counts.put("achievement", calculateAchievementTodoCount(user, mainRole));
         counts.put("paper", calculatePaperTodoCount(user, mainRole)); // 统计论文待办数量
         counts.put("textbook", calculateTextbookTodoCount(user, mainRole)); // 统计教材软著待办数量
         counts.put("patent", calculatePatentTodoCount(user, mainRole)); // 统计专利软著待办数量
@@ -1174,31 +1181,21 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
     @Override
     public int countVerticalApply(SysUser user) {
         String mainRole = determineMainRole(user.getRoles());
-        log.info("纵向课题申报统计 - 用户ID: {}, 角色: {}", user.getUserId(), mainRole);
         int count = calculateVerticalTodoCount(user, mainRole);
-        log.info("纵向课题申报统计结果: {}", count);
         return count;
     }
 
     @Override
     public int countVerticalAudit(SysUser user) {
-        log.info("纵向课题审核统计 - 用户ID: {}", user.getUserId());
-        // 审核中的状态列表
         List<String> auditStates = Arrays.asList("1", "2", "4", "6", "11", "22", "44");
-
-        // 仅查询用户自己的数据
         int count = countPersonalVerticalTodos(user.getUserId(), auditStates);
-        log.info("用户审核统计: {}", count);
-
         return count;
     }
 
     @Override
     public int countVerticalComplete(SysUser user) {
-        // 完成状态
         List<String> completeStates = Arrays.asList("66");
         int count = countPersonalVerticalTodos(user.getUserId(), completeStates);
-        log.info("纵向课题完成统计 - 用户ID: {}, 结果: {}", user.getUserId(), count);
         return count;
     }
 
@@ -1481,6 +1478,8 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
 
     /**
      * 功能描述：根据金额计算科研分
+     * 从数据库sci_project_score_cfg表读取配置数据
+     * 
      * @param amount 项目金额（万元）
      * @param memberCount 成员数量
      * @return 各成员科研分列表
@@ -1488,14 +1487,100 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
     private List<Integer> calculateScoresByAmount(double amount, int memberCount) {
         List<Integer> scores = new ArrayList<>();
         
-        int[] defaultScores = getDefaultScores(amount);
+        // 从数据库查询配置数据
+        SciProjectScoreCfg query = new SciProjectScoreCfg();
+        query.setProjectType("H"); // H-横向课题
+        List<SciProjectScoreCfg> allConfigs = sciProjectScoreCfgMapper.selectSciProjectScoreCfgList(query);
         
-        int count = Math.min(memberCount, 4);
-        for (int i = 0; i < count; i++) {
-            scores.add(defaultScores[i]);
+        if (allConfigs != null && !allConfigs.isEmpty()) {
+            // 使用数据库配置计算
+            for (int rank = 1; rank <= Math.min(memberCount, 4); rank++) {
+                scores.add(calculateHorizontalScoreByAmount(amount, rank, allConfigs));
+            }
+        } else {
+            // 如果数据库没有配置，使用默认值
+            int[] defaultScores = getDefaultScores(amount);
+            int count = Math.min(memberCount, 4);
+            for (int i = 0; i < count; i++) {
+                scores.add(defaultScores[i]);
+            }
         }
         
         return scores;
+    }
+
+    /**
+     * 根据金额和排名计算横向课题积分
+     * 从数据库sci_project_score_cfg表读取配置数据
+     * 
+     * @param amount 项目金额（万元）
+     * @param rank 排名（1-4）
+     * @param allConfigs 所有配置数据
+     * @return 科研分
+     */
+    private Integer calculateHorizontalScoreByAmount(double amount, int rank, List<SciProjectScoreCfg> allConfigs) {
+        if (amount < 0) {
+            return 0;
+        }
+
+        // 查找匹配的金额区间配置
+        SciProjectScoreCfg matchedConfig = null;
+        for (SciProjectScoreCfg config : allConfigs) {
+            Double min = Double.valueOf(config.getFundsMin());
+            Double max = config.getFundsMax() != null && !config.getFundsMax().isEmpty() 
+                         ? Double.valueOf(config.getFundsMax()) : null;
+            
+            // 判断金额是否在当前区间
+            if (amount >= min && (max == null || amount <= max)) {
+                matchedConfig = config;
+                break;
+            }
+        }
+
+        // 如果没有匹配的配置，使用2万元以下按比例计算
+        if (matchedConfig == null) {
+            // 2万对应的基准分：排名第一80分，排名第二30分，排名第三20分，排名第四10分
+            double ratio = amount / 2.0;
+            switch (rank) {
+                case 1: return (int) Math.round(80 * ratio);
+                case 2: return (int) Math.round(30 * ratio);
+                case 3: return (int) Math.round(20 * ratio);
+                case 4: return (int) Math.round(10 * ratio);
+                default: return 0;
+            }
+        }
+
+        // 提取匹配配置的字段值为final变量，以便在lambda中使用
+        final String matchedFundsMin = matchedConfig.getFundsMin();
+        final String matchedFundsMax = matchedConfig.getFundsMax();
+
+        // 获取该排名对应的配置
+        List<SciProjectScoreCfg> rankConfigs = allConfigs.stream()
+            .filter(c -> c.getFundsMin().equals(matchedFundsMin) && 
+                        (matchedFundsMax == null || c.getFundsMax() == null || c.getFundsMax().equals(matchedFundsMax)) &&
+                        c.getUserOrder() != null && Integer.valueOf(c.getUserOrder()) == rank)
+            .collect(Collectors.toList());
+
+        if (rankConfigs.isEmpty()) {
+            return 0;
+        }
+
+        SciProjectScoreCfg rankConfig = rankConfigs.get(0);
+        
+        // 优先使用总分
+        if (rankConfig.getTotalScore() != null && !rankConfig.getTotalScore().isEmpty()) {
+            return Integer.valueOf(rankConfig.getTotalScore());
+        }
+        
+        // 如果没有总分，使用开题得分和结题得分的平均值
+        if (rankConfig.getStartScore() != null && !rankConfig.getStartScore().isEmpty() &&
+            rankConfig.getEndScore() != null && !rankConfig.getEndScore().isEmpty()) {
+            int startScore = Integer.valueOf(rankConfig.getStartScore());
+            int endScore = Integer.valueOf(rankConfig.getEndScore());
+            return (startScore + endScore) / 2;
+        }
+
+        return 0;
     }
 
     /**

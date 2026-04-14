@@ -19,6 +19,8 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.shiro.authz.annotation.Logical;
 
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -69,7 +71,7 @@ public class SciHorizontalApplyController extends BaseController
     /**
      * 计算横向课题预期积分
      * 功能：根据项目金额计算预期科研分
-     * 按照2026年度新的科研分计算标准（表3）
+     * 从数据库sci_project_score_cfg表读取配置数据
      */
     @PostMapping("/calculateScore")
     @ResponseBody
@@ -80,16 +82,25 @@ public class SciHorizontalApplyController extends BaseController
                 return AjaxResult.error("请输入有效的项目金额");
             }
 
+            // 从数据库查询配置数据
+            SciProjectScoreCfg query = new SciProjectScoreCfg();
+            query.setProjectType("H"); // H-横向课题
+            List<SciProjectScoreCfg> allConfigs = sciProjectScoreCfgMapper.selectSciProjectScoreCfgList(query);
+            
+            if (allConfigs == null || allConfigs.isEmpty()) {
+                return AjaxResult.error("未找到科研分配置数据，请联系管理员");
+            }
+
             // 计算每位成员的预期科研分
             List<Integer> expectedScores = new ArrayList<>();
             // 主持人（排名第一）
-            expectedScores.add(calculateHorizontalScoreByAmount(amount, 1));
+            expectedScores.add(calculateHorizontalScoreByAmount(amount, 1, allConfigs));
             // 成员1（排名第二）
-            expectedScores.add(calculateHorizontalScoreByAmount(amount, 2));
+            expectedScores.add(calculateHorizontalScoreByAmount(amount, 2, allConfigs));
             // 成员2（排名第三）
-            expectedScores.add(calculateHorizontalScoreByAmount(amount, 3));
+            expectedScores.add(calculateHorizontalScoreByAmount(amount, 3, allConfigs));
             // 成员3（排名第四）
-            expectedScores.add(calculateHorizontalScoreByAmount(amount, 4));
+            expectedScores.add(calculateHorizontalScoreByAmount(amount, 4, allConfigs));
             
             return AjaxResult.success(expectedScores);
         } catch (Exception e) {
@@ -99,84 +110,34 @@ public class SciHorizontalApplyController extends BaseController
     
     /**
      * 根据金额和排名计算横向课题积分
-     * 按照2026年度新的科研分计算标准（表3）
+     * 从数据库sci_project_score_cfg表读取配置数据
+     * 
+     * @param amount 项目金额（万元）
+     * @param rank 排名（1-4）
+     * @param allConfigs 所有配置数据
+     * @return 科研分
      */
-    private Integer calculateHorizontalScoreByAmount(Double amount, int rank) {
-        // 根据金额区间和排名计算积分
-        if (amount >= 100) {
-            // 100万元以上（含100万）
-            switch (rank) {
-                case 1: return 9880;
-                case 2: return 4460;
-                case 3: return 1780;
-                case 4: return 880;
-                default: return 0;
+    private Integer calculateHorizontalScoreByAmount(Double amount, int rank, List<SciProjectScoreCfg> allConfigs) {
+        if (amount == null || amount < 0) {
+            return 0;
+        }
+
+        // 查找匹配的金额区间配置
+        SciProjectScoreCfg matchedConfig = null;
+        for (SciProjectScoreCfg config : allConfigs) {
+            Double min = Double.valueOf(config.getFundsMin());
+            Double max = config.getFundsMax() != null && !config.getFundsMax().isEmpty() 
+                         ? Double.valueOf(config.getFundsMax()) : null;
+            
+            // 判断金额是否在当前区间
+            if (amount >= min && (max == null || amount <= max)) {
+                matchedConfig = config;
+                break;
             }
-        } else if (amount >= 75) {
-            // 75-100万元（含75万）
-            switch (rank) {
-                case 1: return 7400;
-                case 2: return 3360;
-                case 3: return 1340;
-                case 4: return 650;
-                default: return 0;
-            }
-        } else if (amount >= 50) {
-            // 50-75万元
-            switch (rank) {
-                case 1: return 4360;
-                case 2: return 1980;
-                case 3: return 780;
-                case 4: return 380;
-                default: return 0;
-            }
-        } else if (amount >= 35) {
-            // 35-50万元（含35万）
-            switch (rank) {
-                case 1: return 2860;
-                case 2: return 1280;
-                case 3: return 520;
-                case 4: return 240;
-                default: return 0;
-            }
-        } else if (amount >= 20) {
-            // 20-35万元
-            switch (rank) {
-                case 1: return 1520;
-                case 2: return 680;
-                case 3: return 280;
-                case 4: return 120;
-                default: return 0;
-            }
-        } else if (amount >= 10) {
-            // 10-20万元（含10万）
-            switch (rank) {
-                case 1: return 440;
-                case 2: return 200;
-                case 3: return 80;
-                case 4: return 40;
-                default: return 0;
-            }
-        } else if (amount >= 5) {
-            // 5-10万元（含5万）
-            switch (rank) {
-                case 1: return 220;
-                case 2: return 100;
-                case 3: return 40;
-                case 4: return 20;
-                default: return 0;
-            }
-        } else if (amount >= 2) {
-            // 2-5万元（含2万）
-            switch (rank) {
-                case 1: return 80;
-                case 2: return 30;
-                case 3: return 20;
-                case 4: return 10;
-                default: return 0;
-            }
-        } else if (amount > 0) {
-            // 2万元以下：按比例计算
+        }
+
+        // 如果没有匹配的配置，使用2万元以下按比例计算
+        if (matchedConfig == null) {
             // 2万对应的基准分：排名第一80分，排名第二30分，排名第三20分，排名第四10分
             double ratio = amount / 2.0;
             switch (rank) {
@@ -187,7 +148,37 @@ public class SciHorizontalApplyController extends BaseController
                 default: return 0;
             }
         }
+
+        // 提取匹配配置的字段值为final变量，以便在lambda中使用
+        final String matchedFundsMin = matchedConfig.getFundsMin();
+        final String matchedFundsMax = matchedConfig.getFundsMax();
+
+        // 获取该排名对应的配置
+        List<SciProjectScoreCfg> rankConfigs = allConfigs.stream()
+            .filter(c -> c.getFundsMin().equals(matchedFundsMin) && 
+                        (matchedFundsMax == null || c.getFundsMax() == null || c.getFundsMax().equals(matchedFundsMax)) &&
+                        c.getUserOrder() != null && Integer.valueOf(c.getUserOrder()) == rank)
+            .collect(Collectors.toList());
+
+        if (rankConfigs.isEmpty()) {
+            return 0;
+        }
+
+        SciProjectScoreCfg rankConfig = rankConfigs.get(0);
         
+        // 优先使用总分
+        if (rankConfig.getTotalScore() != null && !rankConfig.getTotalScore().isEmpty()) {
+            return Integer.valueOf(rankConfig.getTotalScore());
+        }
+        
+        // 如果没有总分，使用开题得分和结题得分的平均值
+        if (rankConfig.getStartScore() != null && !rankConfig.getStartScore().isEmpty() &&
+            rankConfig.getEndScore() != null && !rankConfig.getEndScore().isEmpty()) {
+            int startScore = Integer.valueOf(rankConfig.getStartScore());
+            int endScore = Integer.valueOf(rankConfig.getEndScore());
+            return (startScore + endScore) / 2;
+        }
+
         return 0;
     }
 
@@ -204,10 +195,10 @@ public class SciHorizontalApplyController extends BaseController
     
     /**
      * 基于角色的查询字段白名单校验
-     * 教师角色：仅允许通过"课题名称"检索
-     * 教研室角色：允许通过"主持人（论文对应第一作者）"+"课题名称"检索
-     * 学院角色：允许通过"专业"+"主持人（论文对应第一作者）"+"课题名称"检索
-     * 科研处角色：允许通过"学院"+"专业"+"主持人（论文对应第一作者）"+"课题名称"全维度检索
+     * 教师角色：仅允许通过“课题名称”检索
+     * 教研室角色：允许通过“主持人（论文对应第一作者）”+“课题名称”检索
+     * 学院角色：允许通过“专业”+“主持人（论文对应第一作者）”+“课题名称”检索
+     * 科研处角色：允许通过“学院”+“专业”+“主持人（论文对应第一作者）”+“课题名称”全维度检索
      * 
      * @param sciHorizontalApply 查询条件对象
      * @param role 用户角色
@@ -216,15 +207,15 @@ public class SciHorizontalApplyController extends BaseController
         if ("teacher".equals(role)) {
             // 教师：只保留课题名称，清空其他字段
             sciHorizontalApply.setUserName(null);
-            sciHorizontalApply.setDnameId(null);
-            sciHorizontalApply.setYnameId(null);
+            sciHorizontalApply.setKeyanshi(null);
+            sciHorizontalApply.setXueyuan(null);
         } else if ("research".equals(role)) {
             // 教研室：只保留主持人 + 课题名称，清空其他字段
-            sciHorizontalApply.setDnameId(null);
-            sciHorizontalApply.setYnameId(null);
+            sciHorizontalApply.setKeyanshi(null);
+            sciHorizontalApply.setXueyuan(null);
         } else if ("dept_teacher".equals(role)) {
             // 学院：保留专业 + 主持人 + 课题名称，清空学院字段
-            sciHorizontalApply.setYnameId(null);
+            sciHorizontalApply.setXueyuan(null);
         }
         // 科研处角色 (sci_tesearch) 可以使用所有字段，无需清空
     }
@@ -275,74 +266,26 @@ public class SciHorizontalApplyController extends BaseController
         
         List<SciHorizontalApply> list = new ArrayList<>();
         List<SciHorizontalApply> Alist = new ArrayList<>();
-//        科研处
-        switch (role) {
-            case "sci_tesearch":
-                switch (tableId) {
-                    case "bootstrap-table0":
-                        list = sciHorizontalApplyService.selectSciHorizontalApplyListByOVERKYC(sciHorizontalApply);
-                        break;
-                    case "bootstrap-table1":
-                        list = sciHorizontalApplyService.selectSciHorizontalApplyListByKYC(sciHorizontalApply);
-                        break;
-                    case "bootstrap-table2":
-                        list = sciHorizontalApplyService.selectSciHorizontalApplyListByOverApplyKYC(sciHorizontalApply);
-                        break;
-                    case "bootstrap-table3":
-                        Alist = sciHorizontalReamountService.selectAmountListKYC(sciHorizontalApply);
-                        break;
-                }
+        
+        // 根据表格ID选择不同的查询方法
+        switch (tableId) {
+            case "bootstrap-table0":
+                // 已结项列表
+                list = sciHorizontalApplyService.selectSciHorizontalApplyListByOVER(sciHorizontalApply);
                 break;
-//        教研室
-            case "research":
-                switch (tableId) {
-                    case "bootstrap-table0":
-                        list = sciHorizontalApplyService.selectSciHorizontalApplyListByOVER(sciHorizontalApply);
-                        break;
-                    case "bootstrap-table1":
-                        list = sciHorizontalApplyService.selectSciHorizontalApplyListByJYS(sciHorizontalApply);
-                        break;
-                    case "bootstrap-table2":
-                        list = sciHorizontalApplyService.selectSciHorizontalApplyListByOverApplyJYS(sciHorizontalApply);
-                        break;
-                    case "bootstrap-table3":
-                        Alist = sciHorizontalReamountService.selectAmountListJYS(sciHorizontalApply);
-                        break;
-                }
+            case "bootstrap-table1":
+                // 申请列表：统一使用一个查询方法，通过@DataScope控制数据权限
+                // 所有管理员角色（科研处、教研室、学院）均使用同一方法
+                // 普通教师也使用此方法，@DataScope会自动过滤为仅本人数据
+                list = sciHorizontalApplyService.selectSciHorizontalApplyListAll(sciHorizontalApply);
                 break;
-//      学院负责人
-            case "dept_teacher":
-                switch (tableId) {
-                    case "bootstrap-table0":
-                        list = sciHorizontalApplyService.selectSciHorizontalApplyListByOVER(sciHorizontalApply);
-                        break;
-                    case "bootstrap-table1":
-                        list = sciHorizontalApplyService.selectSciHorizontalApplyListByDept(sciHorizontalApply);
-                        break;
-                    case "bootstrap-table2":
-                        list = sciHorizontalApplyService.selectSciHorizontalApplyListByOverDept(sciHorizontalApply);
-                        break;
-                    case "bootstrap-table3":
-                        Alist = sciHorizontalReamountService.selectAmountListDept(sciHorizontalApply);
-                        break;
-                }
+            case "bootstrap-table2":
+                // 结项申请列表：统一使用一个查询方法，通过@DataScope控制数据权限
+                list = sciHorizontalApplyService.selectSciHorizontalApplyListByOverApply(sciHorizontalApply);
                 break;
-//        教师
-            default:
-                switch (tableId) {
-                    case "bootstrap-table0":
-                        list = sciHorizontalApplyService.selectSciHorizontalApplyListByOVER(sciHorizontalApply);
-                        break;
-                    case "bootstrap-table1":
-                        list = sciHorizontalApplyService.selectSciHorizontalApplyList(sciHorizontalApply);
-                        break;
-                    case "bootstrap-table2":
-                        list = sciHorizontalApplyService.selectSciHorizontalApplyListByOverApply(sciHorizontalApply);
-                        break;
-                    case "bootstrap-table3":
-                        Alist = sciHorizontalReamountService.selectAmountList(sciHorizontalApply);
-                        break;
-                }
+            case "bootstrap-table3":
+                // 到账金额列表：统一使用一个查询方法，通过@DataScope控制数据权限
+                Alist = sciHorizontalReamountService.selectAmountList(sciHorizontalApply);
                 break;
         }
 
@@ -687,6 +630,16 @@ public class SciHorizontalApplyController extends BaseController
         mmap.put("sciHorizontalApply", sciHorizontalApply);
         // 传递当前登录用户ID，用于权限判断
         mmap.put("currentUserId", getUserId());
+        
+        // 获取当前用户角色
+        String roleKey = getUserRoleKey();
+        mmap.put("role", roleKey);
+        
+        // 判断是否可批阅
+        Integer state = sciHorizontalApply.getState() != null ? Integer.valueOf(sciHorizontalApply.getState()) : null;
+        boolean canApprove = canApprove(state, roleKey);
+        mmap.put("canApprove", canApprove);
+        
         // 查询全部成员并注入第5位及以后
         java.util.List<String> allMemberIds = sciHorizontalApplyService.selectPersionIdsByApplyId(id);
         java.util.List<String> extraMembers = new java.util.ArrayList<>();
@@ -695,6 +648,108 @@ public class SciHorizontalApplyController extends BaseController
         }
         mmap.put("extraMembers", extraMembers);
         return prefix + "/detail";
+    }
+    
+    /**
+     * 获取当前用户的角色标识
+     */
+    private String getUserRoleKey()
+    {
+        List<SysRole> roles = getSysUser().getRoles();
+        for (SysRole r : roles) {
+            if ("sci_tesearch".equals(r.getRoleKey())) {
+                return "sci_tesearch";
+            } else if ("research".equals(r.getRoleKey())) {
+                return "research";
+            } else if (TEACHER_ROLES.contains(r.getRoleKey())) {
+                return "dept_teacher";
+            }
+        }
+        return "teacher";
+    }
+    
+    /**
+     * 判断当前用户是否可以批阅申请课题
+     * 基于Shiro权限配置进行校验，避免硬编码角色与状态的映射关系
+     * 
+     * 权限与状态映射关系（由Shiro配置决定）：
+     * - system:apply:process -> 可审批状态 1 (待教研室审核)
+     * - system:apply:Dept    -> 可审批状态 2 (待学院审核)
+     * - system:apply:hecha   -> 可审批状态 11 (待科研处审核)
+     * 
+     * @param state 课题状态
+     * @return true-可以批阅，false-不可批阅
+     */
+    private boolean canApproveApply(Integer state) {
+        if (state == null) {
+            return false;
+        }
+        
+        Subject subject = SecurityUtils.getSubject();
+        if (subject == null) {
+            return false;
+        }
+        
+        // 基于权限校验，而非硬编码角色
+        // 如果学校需要调整审核流程，只需修改Shiro权限配置，无需改动代码
+        switch (state) {
+            case 1:  // 待教研室审核
+                return subject.isPermitted("system:apply:process");
+            case 2:  // 待学院审核
+                return subject.isPermitted("system:apply:Dept");
+            case 11: // 待科研处审核
+                return subject.isPermitted("system:apply:hecha");
+            default:
+                return false;
+        }
+    }
+    
+    /**
+     * 判断当前用户是否可以批阅结项课题
+     * 基于Shiro权限配置进行校验
+     * 
+     * @param state 课题状态
+     * @return true-可以批阅，false-不可批阅
+     */
+    private boolean canApproveOver(Integer state) {
+        if (state == null) {
+            return false;
+        }
+        
+        Subject subject = SecurityUtils.getSubject();
+        if (subject == null) {
+            return false;
+        }
+        
+        switch (state) {
+            case 7:  // 结项待教研室审核
+                return subject.isPermitted("system:apply:process");
+            case 8:  // 结项待学院审核
+                return subject.isPermitted("system:apply:Dept");
+            case 33: // 结项待科研处审核
+                return subject.isPermitted("system:apply:hecha");
+            default:
+                return false;
+        }
+    }
+    
+    /**
+     * 判断当前用户是否可以批阅该课题（兼容旧方法）
+     * 
+     * @param state 课题状态
+     * @param roleKey 用户角色标识（已废弃，保留参数用于兼容）
+     * @return true-可以批阅，false-不可批阅
+     */
+    private boolean canApprove(Integer state, String roleKey) {
+        // 申请审核状态
+        if (Arrays.asList(1, 2, 11).contains(state)) {
+            return canApproveApply(state);
+        }
+        // 结项审核状态
+        if (Arrays.asList(7, 8, 33).contains(state)) {
+            return canApproveOver(state);
+        }
+        return false;
     }
 
     @RequiresPermissions("system:apply:info")
@@ -753,38 +808,146 @@ public class SciHorizontalApplyController extends BaseController
     }
 
 
+    /**
+     * 横向课题申请审核通过
+     * 增加状态+权限联合校验，防止越权审核
+     */
     @RequiresPermissions(value={"system:apply:hecha","system:apply:process","system:apply:Dept"},logical= Logical.OR)
     @Log(title = "横向课题审核通过", businessType = BusinessType.UPDATE)
     @PostMapping( "/hxPass")
     @ResponseBody
-    public AjaxResult hxPass(String id,String urlFlag)
+    public AjaxResult hxPass(String id, String urlFlag)
     {
-        return toAjax(sciHorizontalApplyService.hxPass(id,getUserId(),urlFlag));
+        // 1. 查询课题当前状态
+        SciHorizontalApply apply = sciHorizontalApplyService.selectSciHorizontalApplyById(Integer.valueOf(id));
+        if (apply == null) {
+            return AjaxResult.error("课题不存在");
+        }
+        
+        // 2. 状态+权限联合校验
+        Integer state = apply.getState() != null ? Integer.valueOf(apply.getState()) : null;
+        if (!canApproveApply(state)) {
+            String stepDesc = getApprovalStepDesc(state);
+            return AjaxResult.error("无权操作：当前课题" + stepDesc + "，您没有对应的审核权限");
+        }
+        
+        // 3. 执行审核
+        return toAjax(sciHorizontalApplyService.hxPass(id, getUserId(), urlFlag));
     }
+    
+    /**
+     * 结项横向课题审核通过
+     * 增加状态+权限联合校验，防止越权审核
+     */
     @RequiresPermissions(value={"system:apply:hecha","system:apply:process","system:apply:Dept"},logical= Logical.OR)
     @Log(title = "结项横向课题审核通过", businessType = BusinessType.UPDATE)
     @PostMapping( "/hxover")
     @ResponseBody
-    public AjaxResult hxover(String id,String urlFlag)
+    public AjaxResult hxover(String id, String urlFlag)
     {
-        return toAjax(sciHorizontalApplyService.hxover(id,getUserId(),urlFlag));
+        // 1. 查询课题当前状态
+        SciHorizontalApply apply = sciHorizontalApplyService.selectSciHorizontalApplyById(Integer.valueOf(id));
+        if (apply == null) {
+            return AjaxResult.error("课题不存在");
+        }
+        
+        // 2. 状态+权限联合校验
+        Integer state = apply.getState() != null ? Integer.valueOf(apply.getState()) : null;
+        if (!canApproveOver(state)) {
+            String stepDesc = getApprovalStepDesc(state);
+            return AjaxResult.error("无权操作：当前课题" + stepDesc + "，您没有对应的审核权限");
+        }
+        
+        // 3. 执行审核
+        return toAjax(sciHorizontalApplyService.hxover(id, getUserId(), urlFlag));
     }
 
+    /**
+     * 横向课题申请驳回
+     * 增加状态+权限联合校验，防止越权审核
+     */
     @RequiresPermissions(value={"system:apply:hecha","system:apply:process","system:apply:Dept"},logical= Logical.OR)
     @Log(title = "横向课题被驳回", businessType = BusinessType.UPDATE)
     @PostMapping( "/hxBh")
     @ResponseBody
-    public AjaxResult hxBh(String id,String remark,String urlFlag)
+    public AjaxResult hxBh(String id, String remark, String urlFlag)
     {
-        return toAjax(sciHorizontalApplyService.hxBh(id,getUserId(),remark,urlFlag));
+        // 1. 查询课题当前状态
+        SciHorizontalApply apply = sciHorizontalApplyService.selectSciHorizontalApplyById(Integer.valueOf(id));
+        if (apply == null) {
+            return AjaxResult.error("课题不存在");
+        }
+        
+        // 2. 状态+权限联合校验
+        Integer state = apply.getState() != null ? Integer.valueOf(apply.getState()) : null;
+        if (!canApproveApply(state)) {
+            String stepDesc = getApprovalStepDesc(state);
+            return AjaxResult.error("无权操作：当前课题" + stepDesc + "，您没有对应的审核权限");
+        }
+        
+        // 3. 执行驳回
+        return toAjax(sciHorizontalApplyService.hxBh(id, getUserId(), remark, urlFlag));
     }
+    
+    /**
+     * 结项横向课题驳回
+     * 增加状态+权限联合校验，防止越权审核
+     */
     @RequiresPermissions(value={"system:apply:hecha","system:apply:process","system:apply:Dept"},logical= Logical.OR)
     @Log(title = "结项横向课题被驳回", businessType = BusinessType.UPDATE)
     @PostMapping( "/hxoverBh")
     @ResponseBody
-    public AjaxResult hxoverBh(String id,String remark,String urlFlag)
+    public AjaxResult hxoverBh(String id, String remark, String urlFlag)
     {
-        return toAjax(sciHorizontalApplyService.hxoverBh(id,getUserId(),remark,urlFlag));
+        // 1. 查询课题当前状态
+        SciHorizontalApply apply = sciHorizontalApplyService.selectSciHorizontalApplyById(Integer.valueOf(id));
+        if (apply == null) {
+            return AjaxResult.error("课题不存在");
+        }
+        
+        // 2. 状态+权限联合校验
+        Integer state = apply.getState() != null ? Integer.valueOf(apply.getState()) : null;
+        if (!canApproveOver(state)) {
+            String stepDesc = getApprovalStepDesc(state);
+            return AjaxResult.error("无权操作：当前课题" + stepDesc + "，您没有对应的审核权限");
+        }
+        
+        // 3. 执行驳回
+        return toAjax(sciHorizontalApplyService.hxoverBh(id, getUserId(), remark, urlFlag));
+    }
+    
+    /**
+     * 获取状态对应的审核环节描述
+     * 
+     * @param state 课题状态
+     * @return 审核环节描述
+     */
+    private String getApprovalStepDesc(Integer state) {
+        if (state == null) {
+            return "状态未知";
+        }
+        switch (state) {
+            case 1:
+                return "待教研室审核";
+            case 2:
+                return "待学院审核";
+            case 11:
+                return "待科研处审核";
+            case 7:
+                return "结项待教研室审核";
+            case 8:
+                return "结项待学院审核";
+            case 33:
+                return "结项待科研处审核";
+            case 4:
+                return "已完成";
+            case 6:
+                return "已结项";
+            case 99:
+                return "已驳回";
+            default:
+                return "状态(" + state + ")";
+        }
     }
 
     /**
@@ -999,14 +1162,29 @@ public class SciHorizontalApplyController extends BaseController
     }
     /**
      * 删除审批 横向课题操作
+     * 增加状态+权限联合校验，防止越权操作
      */
     @RequiresPermissions(value={"system:apply:hecha","system:apply:process","system:apply:Dept"},logical= Logical.OR)
-    @Log(title = "横向课题审核通过", businessType = BusinessType.UPDATE)
+    @Log(title = "横向课题删除审批", businessType = BusinessType.UPDATE)
     @PostMapping( "/recallsave")
     @ResponseBody
-    public AjaxResult recallSave(Integer id,String state,String remark,String urlFlag)
+    public AjaxResult recallSave(Integer id, String state, String remark, String urlFlag)
     {
-        return toAjax(sciHorizontalApplyService.recall(id,state,getUserId(),remark,urlFlag));
+        // 1. 查询课题当前状态
+        SciHorizontalApply apply = sciHorizontalApplyService.selectSciHorizontalApplyById(id);
+        if (apply == null) {
+            return AjaxResult.error("课题不存在");
+        }
+        
+        // 2. 状态+权限联合校验（删除审批使用申请审核的权限映射）
+        Integer currentState = apply.getState() != null ? Integer.valueOf(apply.getState()) : null;
+        if (!canApproveApply(currentState)) {
+            String stepDesc = getApprovalStepDesc(currentState);
+            return AjaxResult.error("无权操作：当前课题" + stepDesc + "，您没有对应的审批权限");
+        }
+        
+        // 3. 执行删除审批
+        return toAjax(sciHorizontalApplyService.recall(id, state, getUserId(), remark, urlFlag));
     }
 
 
@@ -1086,12 +1264,30 @@ public class SciHorizontalApplyController extends BaseController
         mmap.put("extraMembers", extraMembers);
         return prefix + "/reamountdetail";
     }
+    /**
+     * 到账金额审核通过
+     * 增加状态+权限联合校验，防止越权审核
+     */
     @RequiresPermissions(value={"system:apply:hecha","system:apply:process","system:apply:Dept"},logical= Logical.OR)
     @Log(title = "横向课题审核通过", businessType = BusinessType.UPDATE)
     @PostMapping( "/amountPass")
     @ResponseBody
-    public AjaxResult amountPass(String id,String reid,String urlFlag,String amount,Double scale,String amountType,SciProjectScoreCfg sciProjectScoreCfg)
+    public AjaxResult amountPass(String id, String reid, String urlFlag, String amount, Double scale, String amountType, SciProjectScoreCfg sciProjectScoreCfg)
     {
+        // 1. 查询到账金额记录当前状态
+        SciHorizontalApply amountRecord = sciHorizontalReamountService.selectAmountById(Integer.valueOf(reid));
+        if (amountRecord == null) {
+            return AjaxResult.error("到账金额记录不存在");
+        }
+        
+        // 2. 状态+权限联合校验（到账金额使用申请审核的权限映射）
+        Integer state = amountRecord.getState() != null ? Integer.valueOf(amountRecord.getState()) : null;
+        if (!canApproveApply(state)) {
+            String stepDesc = getApprovalStepDesc(state);
+            return AjaxResult.error("无权操作：当前到账金额" + stepDesc + "，您没有对应的审核权限");
+        }
+        
+        // 3. 执行审核
 //        初始化一个新对象，存储最大值和最小值
         SciProjectScoreCfg sciProjectScoreCfg1 = new SciProjectScoreCfg();
 //        查询积分的所有范围
@@ -1145,14 +1341,31 @@ public class SciHorizontalApplyController extends BaseController
         return toAjax(sciHorizontalApplyService.amountPass(id,reid,getUserId(),urlFlag,score,persion,applyId,amountType));
     }
 
+    /**
+     * 到账金额审核驳回
+     * 增加状态+权限联合校验，防止越权审核
+     */
     @RequiresPermissions(value={"system:apply:hecha","system:apply:process","system:apply:Dept"},logical= Logical.OR)
     @Log(title = "金额被驳回", businessType = BusinessType.UPDATE)
     @PostMapping( "/amountBh")
     @ResponseBody
-    public AjaxResult amountBh(String id,String reid,String remark,String urlFlag)
+    public AjaxResult amountBh(String id, String reid, String remark, String urlFlag)
     {
-
-        return toAjax(sciHorizontalApplyService.removeAmount(id,reid,getUserId(),remark,urlFlag));
+        // 1. 查询到账金额记录当前状态
+        SciHorizontalApply amountRecord = sciHorizontalReamountService.selectAmountById(Integer.valueOf(reid));
+        if (amountRecord == null) {
+            return AjaxResult.error("到账金额记录不存在");
+        }
+        
+        // 2. 状态+权限联合校验（到账金额使用申请审核的权限映射）
+        Integer state = amountRecord.getState() != null ? Integer.valueOf(amountRecord.getState()) : null;
+        if (!canApproveApply(state)) {
+            String stepDesc = getApprovalStepDesc(state);
+            return AjaxResult.error("无权操作：当前到账金额" + stepDesc + "，您没有对应的审核权限");
+        }
+        
+        // 3. 执行驳回
+        return toAjax(sciHorizontalApplyService.removeAmount(id, reid, getUserId(), remark, urlFlag));
     }
 
     /**
