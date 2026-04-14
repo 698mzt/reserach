@@ -52,6 +52,10 @@ public class SysReward extends BaseEntity
     @Excel(name = "积分")
     private String jifen;
 
+    /** 预计科研分 */
+    @Excel(name = "预计科研分")
+    private String expectedJifen;
+
     /** 荣誉名称 */
     @Excel(name = "荣誉名称")
     private String rewardName;
@@ -194,6 +198,14 @@ public class SysReward extends BaseEntity
 
     public void setJifen(String jifen) {
         this.jifen = jifen;
+    }
+
+    public String getExpectedJifen() {
+        return expectedJifen;
+    }
+
+    public void setExpectedJifen(String expectedJifen) {
+        this.expectedJifen = expectedJifen;
     }
 
     public String getRewardName() {
@@ -353,6 +365,7 @@ public class SysReward extends BaseEntity
                 .append("deptId", getDeptId())
                 .append("parentId", getParentId())
                 .append("jifen", getJifen())
+                .append("expectedJifen", getExpectedJifen())
                 .append("rewardName", getRewardName())
                 .append("rewardDanwei", getRewardDanwei())
                 .append("rewardLeixing", getRewardLeixing())

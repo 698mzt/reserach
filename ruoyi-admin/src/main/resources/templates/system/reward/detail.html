@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh" xmlns:th="http://www.thymeleaf.org" >
 <head>
-    <th:block th:include="include :: header('修改奖励')" />
+    <th:block th:include="include :: header('查看奖励')" />
     <th:block th:include="include :: datetimepicker-css" />
     <th:block th:include="include :: bootstrap-fileinput-css"/>
     <!-- 防止页面缓存 -->
@@ -295,6 +295,8 @@
             ]
         };
         $.table.init(options);
+        // 加载积分配置，显示预计科研分
+        loadScoreConfigs();
     });
 </script>
 <script th:inline="javascript">
