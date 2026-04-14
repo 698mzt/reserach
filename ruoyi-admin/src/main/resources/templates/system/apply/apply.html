@@ -338,6 +338,11 @@
                                     <form id="formId0">
                                         <div class="select-list">
                                             <ul>
+                                                <!-- 学院：仅科研处可见（文本输入框） -->
+                                                <li class="college-field" style="display:none;">
+                                                    <label>学院：</label>
+                                                    <input type="text" name="xueyuan" placeholder="请输入学院名称"/>
+                                                </li>
                                                 <!-- 专业：学院、科研处可见（文本输入框） -->
                                                 <li class="major-field" style="display:none;">
                                                     <label>专业：</label>
@@ -352,11 +357,6 @@
                                                 <li>
                                                     <label>课题名称：</label>
                                                     <input type="text" name="topName"/>
-                                                </li>
-                                                <!-- 学院：仅科研处可见（文本输入框） -->
-                                                <li class="college-field" style="display:none;">
-                                                    <label>学院：</label>
-                                                    <input type="text" name="xueyuan" placeholder="请输入学院名称"/>
                                                 </li>
                                                 <li>
                                                     <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search('formId0','bootstrap-table0')"><i class="fa fa-search"></i>&nbsp;搜索</a>
@@ -454,25 +454,25 @@
                                     <form id="formId2">
                                         <div class="select-list">
                                             <ul>
-                                                <!-- 课题名称：所有角色可见 -->
-                                                <li>
-                                                    <label>课题名称：</label>
-                                                    <input type="text" name="topName"/>
-                                                </li>
-                                                <!-- 主持人：教研室、学院、科研处可见 -->
-                                                <li class="host-name-field" style="display:none;">
-                                                    <label>主持人：</label>
-                                                    <input type="text" name="userName"/>
+                                                <!-- 学院：仅科研处可见（文本输入框） -->
+                                                <li class="college-field" style="display:none;">
+                                                    <label>学院：</label>
+                                                    <input type="text" name="xueyuan" placeholder="请输入学院名称"/>
                                                 </li>
                                                 <!-- 专业：学院、科研处可见（文本输入框） -->
                                                 <li class="major-field" style="display:none;">
                                                     <label>专业：</label>
                                                     <input type="text" name="keyanshi" placeholder="请输入专业名称"/>
                                                 </li>
-                                                <!-- 学院：仅科研处可见（文本输入框） -->
-                                                <li class="college-field" style="display:none;">
-                                                    <label>学院：</label>
-                                                    <input type="text" name="xueyuan" placeholder="请输入学院名称"/>
+                                                <!-- 主持人：教研室、学院、科研处可见 -->
+                                                <li class="host-name-field" style="display:none;">
+                                                    <label>主持人：</label>
+                                                    <input type="text" name="userName"/>
+                                                </li>
+                                                <!-- 课题名称：所有角色可见 -->
+                                                <li>
+                                                    <label>课题名称：</label>
+                                                    <input type="text" name="topName"/>
                                                 </li>
                                                 <li>
                                                     <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search('formId2','bootstrap-table2')"><i class="fa fa-search"></i>&nbsp;搜索</a>
@@ -508,25 +508,25 @@
                                     <form id="formId3">
                                         <div class="select-list">
                                             <ul>
-                                                <!-- 课题名称：所有角色可见 -->
-                                                <li>
-                                                    <label>课题名称：</label>
-                                                    <input type="text" name="topName"/>
-                                                </li>
-                                                <!-- 主持人：教研室、学院、科研处可见 -->
-                                                <li class="host-name-field" style="display:none;">
-                                                    <label>主持人：</label>
-                                                    <input type="text" name="userName"/>
+                                                <!-- 学院：仅科研处可见（文本输入框） -->
+                                                <li class="college-field" style="display:none;">
+                                                    <label>学院：</label>
+                                                    <input type="text" name="xueyuan" placeholder="请输入学院名称"/>
                                                 </li>
                                                 <!-- 专业：学院、科研处可见（文本输入框） -->
                                                 <li class="major-field" style="display:none;">
                                                     <label>专业：</label>
                                                     <input type="text" name="keyanshi" placeholder="请输入专业名称"/>
                                                 </li>
-                                                <!-- 学院：仅科研处可见（文本输入框） -->
-                                                <li class="college-field" style="display:none;">
-                                                    <label>学院：</label>
-                                                    <input type="text" name="xueyuan" placeholder="请输入学院名称"/>
+                                                <!-- 主持人：教研室、学院、科研处可见 -->
+                                                <li class="host-name-field" style="display:none;">
+                                                    <label>主持人：</label>
+                                                    <input type="text" name="userName"/>
+                                                </li>
+                                                <!-- 课题名称：所有角色可见 -->
+                                                <li>
+                                                    <label>课题名称：</label>
+                                                    <input type="text" name="topName"/>
                                                 </li>
                                                 <li>
                                                     <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search('formId3','bootstrap-table3')"><i class="fa fa-search"></i>&nbsp;搜索</a>
