@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+	<th:block th:include="include :: header('流程实例')" />
+</head>
+<body class="gray-bg">
+    <div class="container-div">
+		<div class="row">
+			<div class="col-sm-12 search-collapse">
+				<form id="processInstance-form">
+					<div class="select-list">
+						<ul>
+							<li>
+								流程名称：<input type="text" name="processName"/>
+							</li>
+							<li>
+								实例状态：<select name="status">
+									<option value="">所有</option>
+									<option value="running">运行中</option>
+									<option value="completed">已完成</option>
+								</select>
+							</li>
+							<li>
+								<a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+								<a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+							</li>
+						</ul>
+					</div>
+				</form>
+			</div>
+			
+			<div class="btn-group-sm" id="toolbar" role="group">
+				<a class="btn btn-success" onclick="startProcess()" shiro:hasPermission="activity:processInstance:start">
+					<i class="fa fa-play-circle"></i> 启动流程
+				</a>
+				<a class="btn btn-danger" onclick="terminateProcess()" shiro:hasPermission="activity:processInstance:terminate">
+					<i class="fa fa-stop"></i> 终止流程
+				</a>
+			</div>
+			
+			<div class="col-sm-12 select-table table-striped">
+				<table id="bootstrap-table"></table>
+			</div>
+		</div>
+	</div>
+
+	<th:block th:include="include :: footer" />
+	<script th:inline="javascript">
+		var prefix = ctx + "activity/processInstance";
+
+		$(function() {
+			var options = {
+				url: prefix + "/list",
+				modalName: "流程实例",
+				columns: [
+					{field: 'selectItem', radio: true},
+					{title: '实例ID', field: 'id', visible: false, align: 'center', valign: 'middle', width: '80px'},
+					{title: '流程名称', field: 'processName', align: 'center', valign: 'middle', width: '180px'},
+					{title: '业务键', field: 'businessKey', align: 'center', valign: 'middle', width: '180px'},
+					{title: '启动时间', field: 'startTime', align: 'center', valign: 'middle', width: '180px', formatter: function(value, row, index) {
+						return $.common.dateFormat(value, "yyyy-MM-dd HH:mm:ss");
+					}},
+					{title: '结束时间', field: 'endTime', align: 'center', valign: 'middle', width: '180px', formatter: function(value, row, index) {
+						return value ? $.common.dateFormat(value, "yyyy-MM-dd HH:mm:ss") : '-';
+					}},
+					{title: '状态', field: 'status', align: 'center', valign: 'middle', width: '80px', formatter: function(value, row, index) {
+						return value === 'running' ? '<span class="label label-success">运行中</span>' : '<span class="label label-info">已完成</span>';
+					}},
+					{title: '操作', field: 'operate', width: '150px', align: 'center', valign: 'middle', formatter: function(value, row, index) {
+						var actions = [];
+						actions.push('<a class="btn btn-info btn-xs" href="javascript:void(0)" onclick="viewProcess(\'' + row.id + '\')"><i class="fa fa-eye"></i>查看</a> ');
+						if (row.status === 'running') {
+							actions.push('<a class="btn btn-danger btn-xs" href="javascript:void(0)" onclick="terminateProcess(\'' + row.id + '\')"><i class="fa fa-stop"></i>终止</a>');
+						}
+						return actions.join('');
+					}}
+				]
+			};
+			$.table.init(options);
+		});
+
+		function startProcess() {
+			// 启动流程的逻辑
+			$.modal.open("启动流程", prefix + "/start");
+		}
+
+		function viewProcess(id) {
+			// 查看流程的逻辑
+			$.modal.open("流程详情", prefix + "/view/" + id);
+		}
+
+		function terminateProcess(id) {
+			// 终止流程的逻辑
+			$.operate.confirm("确定要终止该流程吗？", function() {
+				$.ajax({
+					type: "POST",
+					url: prefix + "/terminate/" + id,
+					success: function(result) {
+						$.operate.successCallback(result);
+					}
+				});
+			});
+		}
+	</script>
+</body>
+</html>

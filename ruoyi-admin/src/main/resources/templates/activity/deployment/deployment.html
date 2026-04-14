@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+	<th:block th:include="include :: header('流程部署')" />
+</head>
+<body class="gray-bg">
+    <div class="container-div">
+		<div class="row">
+			<div class="col-sm-12 search-collapse">
+				<form id="deployment-form">
+					<div class="select-list">
+						<ul>
+							<li>
+								部署名称：<input type="text" name="name"/>
+							</li>
+							<li>
+								部署时间：<input type="text" name="deploymentTime" class="form-control datetimepicker" placeholder="选择时间"/>
+							</li>
+							<li>
+								<a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+								<a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+							</li>
+						</ul>
+					</div>
+				</form>
+			</div>
+			
+			<div class="btn-group-sm" id="toolbar" role="group">
+				<a class="btn btn-success" onclick="uploadDeployment()" shiro:hasPermission="activity:deployment:add">
+					<i class="fa fa-upload"></i> 上传部署
+				</a>
+				<a class="btn btn-danger" onclick="$.operate.remove()" shiro:hasPermission="activity:deployment:remove">
+					<i class="fa fa-trash"></i> 删除
+				</a>
+			</div>
+			
+			<div class="col-sm-12 select-table table-striped">
+				<table id="bootstrap-table"></table>
+			</div>
+		</div>
+	</div>
+
+	<th:block th:include="include :: footer" />
+	<script th:inline="javascript">
+		var prefix = ctx + "activity/deployment";
+
+		$(function() {
+			var options = {
+				url: prefix + "/list",
+				removeUrl: prefix + "/remove/{id}",
+				modalName: "流程部署",
+				columns: [
+					{field: 'selectItem', radio: true},
+					{title: '部署ID', field: 'id', visible: false, align: 'center', valign: 'middle', width: '80px'},
+					{title: '部署名称', field: 'name', align: 'center', valign: 'middle', width: '180px'},
+					{title: '部署时间', field: 'deploymentTime', align: 'center', valign: 'middle', width: '180px', formatter: function(value, row, index) {
+						return $.common.dateFormat(value, "yyyy-MM-dd HH:mm:ss");
+					}},
+					{title: '操作', field: 'operate', width: '150px', align: 'center', valign: 'middle', formatter: function(value, row, index) {
+						var actions = [];
+						actions.push('<a class="btn btn-info btn-xs" href="javascript:void(0)" onclick="viewDeployment(\'' + row.id + '\')"><i class="fa fa-eye"></i>查看</a> ');
+						actions.push('<a class="btn btn-danger btn-xs" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-trash"></i>删除</a>');
+						return actions.join('');
+					}}
+				]
+			};
+			$.table.init(options);
+		});
+
+		function uploadDeployment() {
+			// 上传部署的逻辑
+			$.modal.open("上传部署", prefix + "/upload");
+		}
+
+		function viewDeployment(id) {
+			// 查看部署的逻辑
+			$.modal.open("部署详情", prefix + "/view/" + id);
+		}
+	</script>
+</body>
+</html>
