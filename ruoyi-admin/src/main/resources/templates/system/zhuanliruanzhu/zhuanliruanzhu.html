@@ -659,12 +659,9 @@
                     field: 'finalJifen',
                     title: '实际积分',
                     formatter: function (value, row, index) {
-                        if (value === null || value === undefined || value === '') {
-                            return '';
-                        }
-                        // 若未最终确认，通常为 null/空；如果落库为 0 也按不显示处理
-                        if (value === '0') {
-                            return '';
+                        // 当实际积分为空、null、undefined或'0'时显示为'0'
+                        if (value === null || value === undefined || value === '' || value === '0') {
+                            return '0';
                         }
                         return value;
                     }
@@ -673,7 +670,7 @@
                     title: '操作',
                     align: 'center',
                     class: 'fixed-column',
-                    formatter: function(value, row, index) {
+                    formatter: function (value, row, index) {
                         var actions = [];
                         var huanhang = false;
                         console.log(row);
@@ -683,34 +680,29 @@
                                 actions.push('<a class="" href="javascript:void(0)" onclick="submitDirectly(\'' + row.id + '\')">提交&nbsp;&nbsp;&nbsp;&nbsp;</a>');
                                 actions.push('<a class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')">编辑&nbsp;&nbsp;&nbsp;&nbsp;</a>');
                                 actions.push('<a class="' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')" style="color : #c90000">删除</a>');
-
-
                             }
                             huanhang = true;
                         } else if (row.state == 1) {
-                            if (proFlag != 'hidden') {
+                            // 教研室管理员批阅（state=1）
+                            if (role == 'research') {
                                 actions.push('<a class="' + proFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro' + '\')"></i>批阅&nbsp;&nbsp;&nbsp;&nbsp;</a>');
                                 huanhang = true;
                             }
-
                         } else if ((row.state == 3 || row.state == 5 || row.state == 7) && row.userId == row.uid) {
                             actions.push('<a class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"></i>编辑&nbsp;&nbsp;&nbsp;&nbsp;</a>');
                             huanhang = true;
-                        }
-                        else if (row.state == 2) {
+                        } else if (row.state == 2) {
                             actions.push('<a class="' + proFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000"></i>撤回&nbsp;&nbsp;&nbsp;&nbsp;</a>');
-                            if (hechaFlag != 'hidden') {
-                                actions.push('<a class="' + hechaFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/hecha' + '\')"></i>批阅&nbsp;&nbsp;&nbsp;&nbsp;</a>');
-                            }
+                            // 移除学院管理员批阅，直接进入科研处审批
                             huanhang = true;
-                           } else if (row.state == 4) {
-
+                        } else if (row.state == 4) {
                             actions.push('<a class="' + hechaFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000"></i>撤回&nbsp;&nbsp;&nbsp;&nbsp;</a>');
-                            if (chayueFlag != 'hidden') {
+                            // 科研处管理员批阅（state=4）
+                            if (role == 'sci_tesearch') {
                                 actions.push('<a class="' + chayueFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chayue' + '\')"></i>批阅&nbsp;&nbsp;&nbsp;&nbsp;</a>');
                             }
                             huanhang = true;
-                           } else if (row.state == 6) {
+                        } else if (row.state == 6) {
                             if (chayueFlag != 'hidden') {
                                 actions.push('<a class="' + chayueFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000"></i>撤回&nbsp;&nbsp;&nbsp;&nbsp;</a>');
                                 huanhang = true;

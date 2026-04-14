@@ -499,23 +499,24 @@
                     dataType: "json",
                     success: function (result) {
                         var data = (result && result.code === 0) ? result.data : null;
-                        var firstScore = data && data.firstScore ? parseInt(data.firstScore) : 0;
-                        var secondScore = data && data.secondScore ? parseInt(data.secondScore) : 0;
-                        var thirdScore = data && data.thirdScore ? parseInt(data.thirdScore) : 0;
-                        var fourthScore = data && data.fourthScore ? parseInt(data.fourthScore) : 0;
+                        var firstScore = data && data.firstScore ? parseFloat(data.firstScore) : 0;
+                        var secondScore = data && data.secondScore ? parseFloat(data.secondScore) : 0;
+                        var thirdScore = data && data.thirdScore ? parseFloat(data.thirdScore) : 0;
+                        var fourthScore = data && data.fourthScore ? parseFloat(data.fourthScore) : 0;
 
                         // 非转化软著按50%核算（仅计算机软件著作权，fenlei=4）
                         if (isConversion === 'N' && fenlei === '4') {
-                            firstScore = Math.round(firstScore * 0.5);
-                            secondScore = Math.round(secondScore * 0.5);
-                            thirdScore = Math.round(thirdScore * 0.5);
-                            fourthScore = Math.round(fourthScore * 0.5);
+                            // 修改：移除 Math.round，直接计算
+                            firstScore = firstScore * 0.5;
+                            secondScore = secondScore * 0.5;
+                            thirdScore = thirdScore * 0.5;
+                            fourthScore = fourthScore * 0.5;
                         }
 
-                        $("#firstPersonExpectedJifen").val(firstScore);
-                        $("#secondPersonExpectedJifen").val(secondScore);
-                        $("#thirdPersonExpectedJifen").val(thirdScore);
-                        $("#fourthPersonExpectedJifen").val(fourthScore);
+                        $("#firstPersonExpectedJifen").val(firstScore.toFixed(2));
+                        $("#secondPersonExpectedJifen").val(secondScore.toFixed(2));
+                        $("#thirdPersonExpectedJifen").val(thirdScore.toFixed(2));
+                        $("#fourthPersonExpectedJifen").val(fourthScore.toFixed(2));
                     },
                     error: function () {
                         $("#firstPersonExpectedJifen").val("0");
