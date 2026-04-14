@@ -110,8 +110,17 @@
         <if test="dname != null  and dname != ''"> and d.dept_name like concat('%', #{dname}, '%')</if>
         <if test="yname != null  and yname != ''"> and p.dept_name like concat('%', #{yname}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
-        <!-- 学院管理员数据权限控制：仅查看本学院的数据 -->
-        <if test="userynameId != null and userynameId != ''"> and p.dept_id = #{userynameId}</if>
+        <!-- 数据权限控制：根据角色类型区分 -->
+        <if test="userynameId != null and userynameId != ''">
+            <choose>
+                <!-- 教研室管理员：查看同一教研室的数据 -->
+                <when test="roleType == 'research'"> and d.dept_id = #{userynameId}</when>
+                <!-- 学院管理员：查看同一学院的数据 -->
+                <when test="roleType == 'dept_teacher'"> and p.dept_id = #{userynameId}</when>
+                <!-- 默认：查看同一学院的数据 -->
+                <otherwise> and p.dept_id = #{userynameId}</otherwise>
+            </choose>
+        </if>
         ${params.dataScope}
         order by
         case
