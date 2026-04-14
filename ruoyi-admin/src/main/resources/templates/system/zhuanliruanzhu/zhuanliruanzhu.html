@@ -659,12 +659,9 @@
                     field: 'finalJifen',
                     title: '实际积分',
                     formatter: function (value, row, index) {
-                        if (value === null || value === undefined || value === '') {
-                            return '';
-                        }
-                        // 若未最终确认，通常为 null/空；如果落库为 0 也按不显示处理
-                        if (value === '0') {
-                            return '';
+                        // 当实际积分为空、null、undefined或'0'时显示为'0'
+                        if (value === null || value === undefined || value === '' || value === '0') {
+                            return '0';
                         }
                         return value;
                     }

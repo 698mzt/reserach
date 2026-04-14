@@ -58,9 +58,19 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
      * @return 专利软著
      */
     @Override
-    public SciZhuanliruanzhu selectSciZhuanliruanzhuById(Integer id)
-    {
-        return sciZhuanliruanzhuMapper.selectSciZhuanliruanzhuById(id);
+    public SciZhuanliruanzhu selectSciZhuanliruanzhuById(Integer id) {
+        SciZhuanliruanzhu sciZhuanliruanzhu = sciZhuanliruanzhuMapper.selectSciZhuanliruanzhuById(id);
+        if (sciZhuanliruanzhu != null && (sciZhuanliruanzhu.getUserName() == null || sciZhuanliruanzhu.getUserName().isEmpty()) && sciZhuanliruanzhu.getUserId() != null) {
+            try {
+                SysUser user = userService.selectUserById(Long.valueOf(sciZhuanliruanzhu.getUserId()));
+                if (user != null && user.getUserName() != null) {
+                    sciZhuanliruanzhu.setUserName(user.getUserName());
+                }
+            } catch (Exception e) {
+                // 处理异常
+            }
+        }
+        return sciZhuanliruanzhu;
     }
 
     /**
