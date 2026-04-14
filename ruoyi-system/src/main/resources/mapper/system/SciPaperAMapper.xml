@@ -644,7 +644,7 @@
       order  by field(p.state ,'1','2','4')
     </select>
 
-    <select id="selectSciPaperAByroleId" >
+    <select id="selectSciPaperAByroleId" parameterType="Long" resultType="String">
         select ur.role_id,r.role_name,r.role_key from sys_user_role ur
                                 left join sys_user u on  ur.user_id=u.user_id
                                 left join sys_role r on r.role_id = ur.role_id

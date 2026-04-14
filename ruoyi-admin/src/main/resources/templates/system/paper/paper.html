@@ -424,20 +424,20 @@
 </div>
 <th:block th:include="include :: footer"/>
 <script th:inline="javascript">
-    var editFlag = [[${@permission.hasPermi('system:paper:edit')}]];
-    var removeFlag = [[${@permission.hasPermi('system:paper:remove')}]];
-    var editInfo = [[${@permission.hasPermi('system:paper:info')}]];
-    var revokeInfo = [[${@permission.hasPermi('system:paper:revoke')}]];
-    var XYPYFlag = [[${@permission.hasPermi('system:paper:xypy')}]];
-    var KYPYFlag = [[${@permission.hasPermi('system:paper:kypy')}]];
+    var editFlag = /*[[${@permission.hasPermi('system:paper:edit')}]]*/ 'hidden';
+    var removeFlag = /*[[${@permission.hasPermi('system:paper:remove')}]]*/ 'hidden';
+    var editInfo = /*[[${@permission.hasPermi('system:paper:info')}]]*/ 'hidden';
+    var revokeInfo = /*[[${@permission.hasPermi('system:paper:revoke')}]]*/ 'hidden';
+    var XYPYFlag = /*[[${@permission.hasPermi('system:paper:xypy')}]]*/ 'hidden';
+    var KYPYFlag = /*[[${@permission.hasPermi('system:paper:kypy')}]]*/ 'hidden';
 
-    var proFlag = [[${@permission.hasPermi('system:paper:process')}]];
-    var XyRevoke = [[${@permission.hasPermi('system:paper:xyrevoke')}]];
-    var KyRevoke = [[${@permission.hasPermi('system:paper:kyrevoke')}]];
-    var QWERDates = [[${@dict.getType('sci_paper_qwer')}]];
+    var proFlag = /*[[${@permission.hasPermi('system:paper:process')}]]*/ 'hidden';
+    var XyRevoke = /*[[${@permission.hasPermi('system:paper:xyrevoke')}]]*/ 'hidden';
+    var KyRevoke = /*[[${@permission.hasPermi('system:paper:kyrevoke')}]]*/ 'hidden';
+    var QWERDates = /*[[${@dict.getType('sci_paper_qwer')}]]*/ 'hidden';
 
-    var PaperDates = [[${@dict.getType('sci_paper_ar')}]];
-    var KDates = [[${@dict.getType('sci_paper_k')}]];
+    var PaperDates = /*[[${@dict.getType('sci_paper_ar')}]]*/ 'hidden';
+    var KDates = /*[[${@dict.getType('sci_paper_k')}]]*/ 'hidden';
 
     var prefix = ctx + "system/paper";
 
@@ -632,7 +632,7 @@
                         });
                         var actions = [];
 
-                      if(row.state == 99){
+                      if(row.state == 99 ){
                             actions.push('<a class="' + editFlag + '" href="javascript:void(0)" onclick="pushTh(\'' + row.id + '\')"></i>提交</a>&nbsp;&nbsp;&nbsp;');
                             actions.push('<a class="' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"></i>删除</a><br>&nbsp;&nbsp;&nbsp;');
                             actions.push('<a class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"></i>编辑</a>&nbsp;&nbsp;&nbsp;');
@@ -642,19 +642,27 @@
                         actions.push('<a class="' + editInfo + '" href="javascript:void(0)" onclick="viewProcess(\'' + row.id +','+row.state+ '\')"></i>查看流程</a><br>');
                         
                         // 批阅按钮：仅当前审批节点的管理员角色显示
-                        if (row.state == 1) { // 待处理
-                            actions.push('<a class="' + proFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro\')"></i>批阅</a>');
+                        if (row.state == 1 && proFlag != 'hidden') { // 待处理 - 教研室审批
+                            actions.push('<a href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro\')"></i>批阅</a>');
                         } else if (row.state == 2) { // 教研室通过
-                            actions.push('<a  class="' + revokeInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/proth\')"></i>撤回</a><br>');
-                        actions.push('<a class="' + XYPYFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/xytg\')"></i>批阅</a>');
+                            if (revokeInfo != 'hidden') {
+                                actions.push('<a href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/proth\')"></i>撤回</a><br>');
+                            }
+                            if (XYPYFlag != 'hidden') { // 学院审批
+                                actions.push('<a href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/xytg\')"></i>批阅</a>');
+                            }
                         } else if (row.state == 4) { // 学院通过
-                            actions.push('<a  class="' + XyRevoke + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/xyth\')"></i>撤回</a><br>');
-                            actions.push('<a class="' + KYPYFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/kytg\')"></i>科研核查</a>');
-                        } else if (row.state == 8) { // 完成
-                            actions.push('<a  class="' + KyRevoke + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/kyth\')"></i>撤回</a> ');
+                            if (XyRevoke != 'hidden') {
+                                actions.push('<a href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/xyth\')"></i>撤回</a><br>');
+                            }
+                            if (KYPYFlag != 'hidden') { // 科研处审批
+                                actions.push('<a href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/kytg\')"></i>科研核查</a>');
+                            }
+                        } else if (row.state == 8 && KyRevoke != 'hidden') { // 完成 - 科研处撤回
+                            actions.push('<a href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/kyth\')"></i>撤回</a> ');
                         }
                         // 退回状态下，作者可以更新
-                        if ((row.state == 3 || row.state == 7 || row.state == 5) ) { // 退回
+                        if ((row.state == 3 || row.state == 7 || row.state == 5) && row.userId == row.uid) { // 退回
                             actions.push('<a class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"></i>更新</a>&nbsp;');
                         }
                         return actions.join('');
