@@ -17,6 +17,7 @@
         <result property="rewardJibie"    column="reward_jibie"    />
         <result property="userName"    column="userName"    />
         <result property="jifen"    column="jifen"    />
+        <result property="expectedJifen"    column="expected_jifen"    />
         <result property="state"    column="state"    />
         <result  property="parentId" column="parent_id" />
         <result  property="dname" column="dname" />
@@ -30,7 +31,7 @@
     </resultMap>
 
     <sql id="selectSysRewardVo">
-        select #{uid} uid,s.id, u.user_name username, d.dept_name dname,p.dept_name yname,s.jifen,s.user_id,s.reward_name, s.reward_danwei, s.reward_leixing, s.reward_wenjian, s.reward_time, s.reward_fenlei, s.reward_dengji, s.reward_paiming, s.reward_jibie,s.state,
+        select #{uid} uid,s.id, u.user_name username, d.dept_name dname,p.dept_name yname,s.jifen, s.expected_jifen, s.user_id,s.reward_name, s.reward_danwei, s.reward_leixing, s.reward_wenjian, s.reward_time, s.reward_fenlei, s.reward_dengji, s.reward_paiming, s.reward_jibie,s.state,
                s.first_person_id, s.second_person_id, s.third_person_id, s.fourth_person_id,s.extra_member_ids
         from sys_reward s left join sys_user u on  s.user_id= u.user_id
                           left join sys_dept d on u.dept_id = d.dept_id
@@ -50,20 +51,23 @@
     <!-- 2. 教研室：课题名称+主持人查询 -->
     <select id="selectSysRewardListCxList" parameterType="SysReward" resultMap="SysRewardResult">
         <include refid="selectSysRewardVo"/>
-        where (s.user_id = #{uid} or (state in (1,2) and d.dept_id = #{deptId}))
+        <where>
+         (s.user_id = #{uid}  and d.dept_id = #{deptId}))
         <if test="rewardName != null and rewardName != ''">
             and s.reward_name like concat('%', #{rewardName}, '%')
         </if>
         <if test="userName != null and userName != ''">
             and u.user_name like concat('%', #{userName}, '%')
         </if>
+        ${params.dataScope}
+        </where>
         order by state ,reward_time desc
     </select>
 
     <!-- 3. 学院：课题名称+主持人+专业查询 -->
     <select id="selectSysRewardListxY" parameterType="SysReward" resultMap="SysRewardResult">
         <include refid="selectSysRewardVo"/>
-        where  (s.user_id = #{uid} or (state in (2,4) and d.parent_id = #{parentId}))
+        <where>  (s.user_id = #{uid} and d.parent_id = #{parentId}))
         <if test="rewardName != null and rewardName != ''">
             and s.reward_name like concat('%', #{rewardName}, '%')
         </if>
@@ -73,13 +77,15 @@
         <if test="dname != null and dname != ''">
             and d.dept_name like concat('%', #{dname}, '%')
         </if>
+        ${params.dataScope}
+        </where>
         order by state ,reward_time desc
     </select>
 
     <!-- 4. 科研处：课题名称+主持人+专业+学院查询 -->
     <select id="selectSysRewardListKY" parameterType="SysReward" resultMap="SysRewardResult">
         <include refid="selectSysRewardVo"/>
-        where  s.user_id = #{uid} or state in (4,6)
+        <where>  s.user_id = #{uid}
         <if test="rewardName != null and rewardName != ''">
             and s.reward_name like concat('%', #{rewardName}, '%')
         </if>
@@ -92,6 +98,8 @@
         <if test="yname != null and yname != ''">
             and p.dept_name like concat('%', #{yname}, '%')
         </if>
+        ${params.dataScope}
+        </where>
         order by state ,reward_time desc
     </select>
 
@@ -99,7 +107,7 @@
     <select id="selectSysRewardList" parameterType="SysReward" resultMap="SysRewardResult">
         <include refid="selectSysRewardVo"/>
         <where>
-            ((state in (1,2,3,4,5,6,7)) or (state = 11 and s.user_id = #{uid}))
+             1=1
             <!-- 课题名称查询 -->
             <if test="rewardName != null and rewardName != ''">
                 and s.reward_name like concat('%', #{rewardName}, '%')
@@ -145,6 +153,7 @@
             <if test="rewardPaiming != null and rewardPaiming != ''">reward_paiming,</if>
             <if test="rewardJibie != null and rewardJibie != ''">reward_jibie,</if>
             <if test="jifen != null">jifen,</if>
+            <if test="expectedJifen != null">expected_jifen,</if>
             <if test="state != null and state != ''">state,</if>
             <if test="firstPersonId != null and firstPersonId != ''">first_person_id,</if>
             <if test="secondPersonId != null and secondPersonId != ''">second_person_id,</if>
@@ -164,6 +173,7 @@
             <if test="rewardPaiming != null and rewardPaiming != ''">#{rewardPaiming},</if>
             <if test="rewardJibie != null and rewardJibie != ''">#{rewardJibie},</if>
             <if test="jifen != null">#{jifen},</if>
+            <if test="expectedJifen != null">#{expectedJifen},</if>
             <if test="state != null and state != ''">#{state},</if>
             <if test="firstPersonId != null and firstPersonId != ''">#{firstPersonId},</if>
             <if test="secondPersonId != null and secondPersonId != ''">#{secondPersonId},</if>
@@ -188,6 +198,7 @@
             <if test="rewardPaiming != null and rewardPaiming != ''">reward_paiming = #{rewardPaiming},</if>
             <if test="rewardJibie != null and rewardJibie != ''">reward_jibie = #{rewardJibie},</if>
             <if test="jifen != null">jifen = #{jifen},</if>
+            <if test="expectedJifen != null">expected_jifen = #{expectedJifen},</if>
             <if test="state != null and state != ''">state=#{state},</if>
             <if test="firstPersonId != null and firstPersonId != ''">first_person_id = #{firstPersonId},</if>
             <if test="secondPersonId != null and secondPersonId != ''">second_person_id = #{secondPersonId},</if>
@@ -212,12 +223,13 @@
 
     <!-- 原有按KYC/JYS/XUE查询，保留不变（兼容历史） -->
     <select id="selectSysRewardListByJYS" parameterType="SysReward" resultMap="SysRewardResult">
-        select #{uid} uid,s.id, u.user_name username, d.dept_name dname,p.dept_name yname,s.user_id,s.jifen,s.reward_name, s.reward_danwei, s.reward_leixing, s.reward_wenjian, s.reward_time, s.reward_fenlei, s.reward_dengji, s.reward_paiming, s.reward_jibie,s.state,
+        select #{uid} uid,s.id, u.user_name username, d.dept_name dname,p.dept_name yname,s.user_id,s.jifen,s.expected_jifen, s.reward_name, s.reward_danwei, s.reward_leixing, s.reward_wenjian, s.reward_time, s.reward_fenlei, s.reward_dengji, s.reward_paiming, s.reward_jibie,s.state,
         s.first_person_id, s.second_person_id, s.third_person_id, s.fourth_person_id,s.extra_member_ids
         from sys_reward s left join sys_user u on  s.user_id= u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
-        where state in (1,2,3,4,5,6,7) and d.dept_id = #{deptId}
+        where  d.dept_id = #{deptId}
+
         <if test="rewardName != null and rewardName != ''">
             and s.reward_name like concat('%', #{rewardName}, '%')
         </if>
@@ -237,12 +249,13 @@
     </select>
 
     <select id="selectSysRewardListByXUE" parameterType="SysReward" resultMap="SysRewardResult">
-        select #{uid} uid,s.id, u.user_name username, d.dept_name dname,p.dept_name yname,s.user_id,s.jifen,s.reward_name, s.reward_danwei, s.reward_leixing, s.reward_wenjian, s.reward_time, s.reward_fenlei, s.reward_dengji, s.reward_paiming, s.reward_jibie,s.state,
+        select #{uid} uid,s.id, u.user_name username, d.dept_name dname,p.dept_name yname,s.user_id,s.jifen,s.expected_jifen, s.reward_name, s.reward_danwei, s.reward_leixing, s.reward_wenjian, s.reward_time, s.reward_fenlei, s.reward_dengji, s.reward_paiming, s.reward_jibie,s.state,
         s.first_person_id, s.second_person_id, s.third_person_id, s.fourth_person_id,s.extra_member_ids
         from sys_reward s left join sys_user u on  s.user_id= u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
-        where state in (1,2,3,4,5,6,7) and d.parent_id = #{parentId}
+        where  d.parent_id = #{parentId}
+
         <if test="rewardName != null and rewardName != ''">
             and s.reward_name like concat('%', #{rewardName}, '%')
         </if>
@@ -262,12 +275,12 @@
     </select>
 
     <select id="selectSysRewardListByKYC" parameterType="SysReward" resultMap="SysRewardResult">
-        select #{uid} uid,s.id, u.user_name username, d.dept_name dname,p.dept_name yname,s.user_id,s.jifen,s.reward_name, s.reward_danwei, s.reward_leixing, s.reward_wenjian, s.reward_time, s.reward_fenlei, s.reward_dengji, s.reward_paiming, s.reward_jibie,s.state,
+        select #{uid} uid,s.id, u.user_name username, d.dept_name dname,p.dept_name yname,s.user_id,s.jifen,s.expected_jifen, s.reward_name, s.reward_danwei, s.reward_leixing, s.reward_wenjian, s.reward_time, s.reward_fenlei, s.reward_dengji, s.reward_paiming, s.reward_jibie,s.state,
         s.first_person_id, s.second_person_id, s.third_person_id, s.fourth_person_id,s.extra_member_ids
         from sys_reward s left join sys_user u on  s.user_id= u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
-        where state in (1,2,3,4,5,6,7)
+        where 1=1
         <if test="rewardName != null and rewardName != ''">
             and s.reward_name like concat('%', #{rewardName}, '%')
         </if>
@@ -294,6 +307,12 @@
     <update id="resetJifenById">
         UPDATE sys_reward
         SET jifen = 0
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateExpectedJifen">
+        UPDATE sys_reward
+        SET expected_jifen = #{expectedJifen}
         WHERE id = #{id}
     </update>
 
