@@ -28,7 +28,7 @@
         </where>
     </select>
 
-    <select id="selectSciPaperACfgPointList"  parameterType="SciPaperCfg">
+    <select id="selectSciPaperACfgPointList"  parameterType="SciPaperCfg" resultType="java.lang.Integer">
         select points from sci_paper_cfg
         <where>
             <if test="order != null and order != ''">AND `order` = #{order}</if>

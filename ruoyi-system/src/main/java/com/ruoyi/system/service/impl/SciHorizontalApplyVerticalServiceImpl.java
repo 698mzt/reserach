@@ -326,7 +326,7 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
         // 通过id查询获取SciHorizontalApplyVertical对象
         SciHorizontalApplyVertical sciHorizontalApplyVertical = sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalById(Integer.valueOf(id));
         if(urlFlag.equals("JYS")){
-            state ="2";
+            state ="4"; // 教研室审核通过后直接流转到科研处审核
         }else if(urlFlag.equals("KYC")){
             state ="6";
             if (persion.size() > score.size()) {
@@ -362,8 +362,6 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
                 sciUserScore.setExpectedValue(expectedScore);
                 sciUserScoreMapper.insertScoreVertical(sciUserScore);
             }
-        }else if(urlFlag.equals("Dept")){
-            state ="4";
         }
         int a =  sciHorizontalApplyVerticalMapper.applyPass(id,state,SubjectSource);
         SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
@@ -389,8 +387,6 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
             state ="3";
         }else if(urlFlag.equals("KYC")){
             state ="7";
-        }else if (urlFlag.equals("Dept")){
-            state ="5";
         }
         int a =  sciHorizontalApplyVerticalMapper.applyPass(id,state,null);
         SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
@@ -413,7 +409,7 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
         // 通过id查询获取SciHorizontalApplyVertical对象
         SciHorizontalApplyVertical sciHorizontalApplyVertical = sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalById(Integer.valueOf(id));
         if(urlFlag.equals("JYS")){
-            state ="22";
+            state ="44"; // 教研室审批通过后直接流转到科研处
         }else if(urlFlag.equals("KYC")){
             state ="66";
             if (persion.size() > score.size()) {

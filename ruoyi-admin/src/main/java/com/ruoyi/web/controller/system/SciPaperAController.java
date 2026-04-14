@@ -74,45 +74,14 @@ public class SciPaperAController extends BaseController {
 
     /**
      * 论文页面入口
-     * 根据用户角色返回不同的论文页面
+     * 统一返回论文管理页面
      * @return 页面路径
      */
     @RequiresPermissions("system:paper:view")
     @Log(title = "论文页面", businessType = BusinessType.OTHER)
     @GetMapping()
     public String paper() {
-        Long userId = getUserId();
-        List<String> roleId = sciPaperAService.selectSciPaperAByroleId(userId);
-        //教研室+普通老师身份
-
-        if (roleId.contains("102") && roleId.contains("100")&&!roleId.contains("101")) {
-            return prefix + "/paper_jy";
-        }
-        //单独教研室身份
-        else if (roleId.contains("102")&& !roleId.contains("100")&&!roleId.contains("101")) {
-            return prefix + "/paper";
-        }
-        //科研处+普通老师身份
-        else if (roleId.contains("101") && roleId.contains("100")) {
-            return prefix + "/paper_ky";
-        }
-        //单独科研处身份
-        else if (roleId.contains("101") && !roleId.contains("100") && !roleId.contains("102")) {
-            return prefix + "/paper_ky";
-        }
-        //学院+普通老师身份
-        else if ((roleId.contains("103") || roleId.contains("104") || roleId.contains("105") || roleId.contains("106") || roleId.contains("107") || roleId.contains("108")|| roleId.contains("116")|| roleId.contains("117")|| roleId.contains("118")|| roleId.contains("119")|| roleId.contains("120")) && roleId.contains("100")) {
-            return prefix + "/paper_xy";
-        }
-        //学院
-        else if ((roleId.contains("103") || roleId.contains("104") || roleId.contains("105") || roleId.contains("106") || roleId.contains("107") || roleId.contains("108")|| roleId.contains("116")|| roleId.contains("117")|| roleId.contains("118")|| roleId.contains("119")|| roleId.contains("120"))) {
-            return prefix + "/paper_xy";
-        } else if (roleId.contains("100") && roleId.size() == 1) {
-            return prefix + "/paper_pt";
-        } else {
-            return prefix + "/paper";
-        }
-
+        return prefix + "/paper";
     }
 
     /**

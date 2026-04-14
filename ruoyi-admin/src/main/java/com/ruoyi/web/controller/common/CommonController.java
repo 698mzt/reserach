@@ -782,6 +782,8 @@ public class CommonController extends BaseController
                     addFileToZip(zos, folderName, sciHorizontalApply.getContract());
                     addFileToZip(zos, folderName, sciHorizontalApply.getFilingurl());
                     addFileToZip(zos, folderName, sciHorizontalApply.getAgreeurl());
+                    // 添加到账金额佐证材料
+                    addFileToZip(zos, folderName, sciHorizontalApply.getReamountUrl());
                 }
             } catch (Exception e) {
                 log.error("处理横向课题 ID: {} 失败", id, e);

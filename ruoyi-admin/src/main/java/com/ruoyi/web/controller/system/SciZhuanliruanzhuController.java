@@ -62,79 +62,18 @@ public class SciZhuanliruanzhuController extends BaseController
     /**f
      * 查询专利软著列表
      */
-
     @RequiresPermissions("system:zhuanliruanzhu:list")
     @Log(title = "查询专利软著列表", businessType = BusinessType.OTHER)
     @PostMapping("/list")
     @ResponseBody
-    public TableDataInfo list(SciZhuanliruanzhu sciZhuanliruanzhu,String year)
+    public TableDataInfo list(SciZhuanliruanzhu sciZhuanliruanzhu, String year)
     {
-
         sciZhuanliruanzhu.setYear(year);
         sciZhuanliruanzhu.setUid(getUserId());
 
         startPage();
-        List<SysRole> roles = getSysUser().getRoles();
-        String role = "";
-        label:
-        for (SysRole r :roles){
-            switch (r.getRoleKey()) {
-                case "sci_tesearch":
-                    role = "sci_tesearch";
-                    break label;
-                case "research":
-                    role = "research";
-                    break label;
-                case "dept_teacher":
-                case "discuss_college":
-                case "dzgc_college":
-                case "yssj_college":
-                case "student_college":
-                case "marxism_college":
-                case "general":
-                    role = "dept_teacher";
-                    break label;
-                case "admin":
-                    role = "admin";
-                    break label;
-            }
-        }
-        sciZhuanliruanzhu.setRole(role);
-
-        SysUser user = getSysUser();
-
-        //设置部门id，传输过去用来为查询设置部门限制
-        sciZhuanliruanzhu.setDeptId(getSysUser().getDeptId());
-
-//          无用了//设置部门父id，传输过去用来为查询设置部门限制，这个是为查询部门负责人时，查询出部门负责人的部门，并设置查询条件，查询出部门负责人的部门下的所有子部门，
-        sciZhuanliruanzhu.setParentId(user.getDept().getParentId());
-
-        List<SciZhuanliruanzhu> list = new ArrayList<>();
-//        科研处
-        switch (role) {
-            case "sci_tesearch":
-
-                list = sciZhuanliruanzhuService.selectSciZhuanliruanzhuList4(sciZhuanliruanzhu);
-                break;
-            //      学院负责人
-            case "dept_teacher":
-                list = sciZhuanliruanzhuService.selectSciZhuanliruanzhuList3(sciZhuanliruanzhu);
-                break;
-//        教研室
-            case "research":
-                list = sciZhuanliruanzhuService.selectSciZhuanliruanzhuList2(sciZhuanliruanzhu);
-                break;
-
-
-            case "admin":
-                list = sciZhuanliruanzhuService.selectSciZhuanliruanzhuList(sciZhuanliruanzhu);
-                break;
-            //        教师
-            default:
-                list = sciZhuanliruanzhuService.selectSciZhuanliruanzhuList1(sciZhuanliruanzhu);
-                break;
-        }
-
+        // 统一查询入口，利用 @DataScope 自动处理数据范围
+        List<SciZhuanliruanzhu> list = sciZhuanliruanzhuService.selectSciZhuanliruanzhuList(sciZhuanliruanzhu);
 
         return getDataTable(list);
     }
@@ -149,6 +88,39 @@ public class SciZhuanliruanzhuController extends BaseController
         if (uid.equals(safeStr(row.getFourthPersonId()))) return "4";
         if (isInMembers(row.getMembers(), uid)) return "5";
         return "";
+    }
+
+    /**
+     * 判断是否有审批权限
+     */
+    //根据审批状态和用户角色判断是否有审批权限
+    private boolean canApprove(String state, String roleKey) {
+        try {
+            int stateInt = Integer.parseInt(state); // 转换为整数
+            // state=1: 待教研室审核
+            if (stateInt == 1 && "research".equals(roleKey)) {
+                return true;
+            }
+            // state=4: 待科研处审核
+            if (stateInt == 4 && "sci_tesearch".equals(roleKey)) {
+                return true;
+            }
+        } catch (NumberFormatException e) {
+            // 处理转换异常，返回 false
+        }
+        return false;
+    }
+
+    /**
+     * 获取当前用户角色
+     */
+    private String getRoleKey() {
+        List<SysRole> roles = getSysUser().getRoles();
+        if (roles == null || roles.isEmpty()) {
+            return "";
+        }
+        // 返回第一个角色的 roleKey
+        return roles.get(0).getRoleKey();
     }
 
     private boolean isInMembers(String members, String uid) {
@@ -257,7 +229,6 @@ public class SciZhuanliruanzhuController extends BaseController
     /**
      * 新增专利软著
      */
-
     //get请求一般是加载表单页面，而不是处理表单提交
     @Log(title = "新增专利软著", businessType = BusinessType.OTHER)
     @GetMapping("/add")
@@ -298,7 +269,24 @@ public class SciZhuanliruanzhuController extends BaseController
         return prefix + "/add";
     }
 
+    //在查看详情时，判断用户是否有审批权限，并将结果传递给前端模板。
+    @Log(title = "查看专利软著详情", businessType = BusinessType.OTHER)
+    @GetMapping("/detail/{id}")
+    public String detail(@PathVariable("id") Integer id, ModelMap mmap) {
+        SciZhuanliruanzhu sciZhuanliruanzhu = sciZhuanliruanzhuService.selectSciZhuanliruanzhuById(id);
 
+        // 获取当前用户角色
+        String roleKey = getRoleKey();
+
+        // 判断是否可批阅
+        boolean canApprove = canApprove(sciZhuanliruanzhu.getState(), roleKey); // 直接传递 String 类型的 state
+
+        mmap.put("sciZhuanliruanzhu", sciZhuanliruanzhu);
+        mmap.put("canApprove", canApprove);
+        mmap.put("role", roleKey);
+
+        return prefix + "/detail";
+    }
 
     /**
      * 新增保存专利软著
@@ -396,7 +384,6 @@ public class SciZhuanliruanzhuController extends BaseController
         }
         return toAjax(sciZhuanliruanzhuService.updateSciZhuanliruanzhu(sciZhuanliruanzhu));
     }
-
     /**
      * 删除专利软著
      */

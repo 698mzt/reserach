@@ -113,6 +113,8 @@ public interface SysRewardMapper
 
     void resetJifenById(@Param("id") Long id);
 
+    void updateExpectedJifen(@Param("id") Long id, @Param("expectedJifen") String expectedJifen);
+
     /**
      * 统计查询奖励数据
      *

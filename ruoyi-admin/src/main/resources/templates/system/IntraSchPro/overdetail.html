@@ -418,6 +418,7 @@
             console.log('Event Name:', name.rows);
             var a =$("#state").val();
             var role_str =$("#role").val();
+            var currentUrlFlag = $("#urlFlag").val();
             //如果是科研
             if (role_str=="sci_tesearch"){
                 //批阅记录
@@ -426,7 +427,7 @@
                 }
                 if(a == 7 ||a == 9||a == 10){
                     $("#btn3").show();
-                }else if (a==8){
+                }else if (a==8 && currentUrlFlag == "KYCOVER"){
                     $(".tdiv1").show();
                     $("#btn1").show();
                     $("#btn2").show();
@@ -442,7 +443,7 @@
                 }
                 if(a == 9 ||a == 6||a == 10){
                     $("#btn3").show();
-                }else if (a==7){
+                }else if (a==7 && currentUrlFlag == "JYSOVER"){
                     $(".tdiv1").show();
                     $("#btn1").show();
                     $("#btn2").show();
@@ -463,7 +464,7 @@
                 if(name.rows.length > 0){
                     $(".tdiv2").show();
                 }
-                if (a==13){
+                if (a==13 && currentUrlFlag == "dept_teacher"){
                     $(".tdiv1").show();
                     $("#btn1").show();
                     $("#btn2").show();
