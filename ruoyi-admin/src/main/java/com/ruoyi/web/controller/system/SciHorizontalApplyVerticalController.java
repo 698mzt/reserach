@@ -250,6 +250,7 @@ public class SciHorizontalApplyVerticalController extends BaseController {
                 list = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalListJX(sciHorizontalApplyVertical);
                 break;
         }
+        sciHorizontalApplyVertical.setTableId(tableId);
         List<SciHorizontalApplyVertical> list1 = new ArrayList<>();
         list1 = sciHorizontalApplyVerticalService.selectOtherListByUid(sciHorizontalApplyVertical);
         list.addAll(list1);
@@ -429,7 +430,7 @@ public class SciHorizontalApplyVerticalController extends BaseController {
     @Transactional
     public AjaxResult addSave(SciHorizontalApplyVertical sciHorizontalApplyVertical, javax.servlet.http.HttpServletRequest request)
     {
-        sciHorizontalApplyVertical.setState("99");
+        sciHorizontalApplyVertical.setState("V_APPLY_DRAFT");
         int result = sciHorizontalApplyVerticalService.insertSciHorizontalApplyVertical(sciHorizontalApplyVertical);
         if (result == -1) {
             return AjaxResult.error("课题名称或课题编号已存在");
@@ -475,9 +476,9 @@ public class SciHorizontalApplyVerticalController extends BaseController {
         sciHorizontalApplyVertical.setUserId(Integer.valueOf(getSysUser().getUserId().toString()));
         sciHorizontalApplyVertical.setNewsql("999");
         if (sciHorizontalApplyVertical1.getValidityData() !=  null && !sciHorizontalApplyVertical1.getValidityData().isEmpty())
-            sciHorizontalApplyVertical.setState("11");
+            sciHorizontalApplyVertical.setState("V_OVER_JYS");
         else
-            sciHorizontalApplyVertical.setState("1");
+            sciHorizontalApplyVertical.setState("V_APPLY_JYS");
         return toAjax(sciHorizontalApplyVerticalService.updateSciHorizontalApplyVertical(sciHorizontalApplyVertical));
     }
 
@@ -517,7 +518,7 @@ public class SciHorizontalApplyVerticalController extends BaseController {
     {
 
         sciHorizontalApplyVertical.setUserId(Integer.valueOf(getSysUser().getUserId().toString()));
-        sciHorizontalApplyVertical.setState("11");
+        sciHorizontalApplyVertical.setState("V_OVER_JYS");
         sciHorizontalApplyVertical.setNewsql("11");
         return toAjax(sciHorizontalApplyVerticalService.updateSciHorizontalApplyVertical(sciHorizontalApplyVertical));
     }

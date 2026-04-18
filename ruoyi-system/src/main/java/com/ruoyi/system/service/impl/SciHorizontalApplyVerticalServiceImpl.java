@@ -320,15 +320,15 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int applyPass(String id, Long userId, String urlFlag,List score,List persion,String verticalId,String SubjectSource) {
-        String state = "0";
+        String state = "";
         SciUserScore sciUserScore = new SciUserScore();
         sciUserScore.setVerticalId(verticalId);
         // 通过id查询获取SciHorizontalApplyVertical对象
         SciHorizontalApplyVertical sciHorizontalApplyVertical = sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalById(Integer.valueOf(id));
         if(urlFlag.equals("JYS")){
-            state ="4"; // 教研室审核通过后直接流转到科研处审核
+            state ="V_APPLY_KYC"; // 教研室审核通过后直接流转到科研处审核
         }else if(urlFlag.equals("KYC")){
-            state ="6";
+            state ="V_APPLY_PASS";
             if (persion.size() > score.size()) {
                 throw new RuntimeException("积分配置与成员数量不匹配");
             }
@@ -382,11 +382,11 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int applyBh(String id, Long userId, String remark, String urlFlag) {
-        String state = "0";
+        String state = "";
         if(urlFlag.equals("JYS")){
-            state ="3";
+            state ="V_APPLY_REJ";
         }else if(urlFlag.equals("KYC")){
-            state ="7";
+            state ="V_APPLY_REJ";
         }
         int a =  sciHorizontalApplyVerticalMapper.applyPass(id,state,null);
         SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
@@ -403,15 +403,15 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int overPass(String id, Long userId, String urlFlag,List score,List persion,String verticalId,String subjectSource) {
-        String state = "0";
+        String state = "";
         SciUserScore sciUserScore = new SciUserScore();
         sciUserScore.setVerticalId(verticalId);
         // 通过id查询获取SciHorizontalApplyVertical对象
         SciHorizontalApplyVertical sciHorizontalApplyVertical = sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalById(Integer.valueOf(id));
         if(urlFlag.equals("JYS")){
-            state ="44"; // 教研室审批通过后直接流转到科研处
+            state ="V_OVER_KYC"; // 教研室审批通过后直接流转到科研处
         }else if(urlFlag.equals("KYC")){
-            state ="66";
+            state ="V_OVER_PASS";
             if (persion.size() > score.size()) {
                 throw new RuntimeException("积分配置与成员数量不匹配");
             }
@@ -446,7 +446,7 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
                 sciUserScoreMapper.insertScoreVertical(sciUserScore);
             }
         }else if(urlFlag.equals("Dept")){
-            state ="44";
+            state ="V_OVER_KYC";
         }
         int a =  sciHorizontalApplyVerticalMapper.overPass(id,state,subjectSource);
         SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
@@ -467,13 +467,13 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int overBh(String id, Long userId, String remark, String urlFlag) {
-        String state = "0";
+        String state = "";
         if(urlFlag.equals("JYS")){
-            state ="33";
+            state ="V_OVER_REJ";
         }else if(urlFlag.equals("KYC")){
-            state ="77";
+            state ="V_OVER_REJ";
         }else if (urlFlag.equals("Dept")){
-            state ="55";
+            state ="V_OVER_REJ";
         }
         int a =  sciHorizontalApplyVerticalMapper.overPass(id,state,null);
         SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
