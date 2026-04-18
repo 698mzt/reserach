@@ -91,7 +91,17 @@
         p.paper_ranking,
         p.research_score,
         p.remarks,
-        p.state,
+        CASE p.state
+            WHEN '99' THEN 'PAPER_DRAFT'
+            WHEN '1' THEN 'PAPER_JYS_AUDIT'
+            WHEN '2' THEN 'PAPER_JYS_AUDIT'
+            WHEN '3' THEN 'PAPER_REJECTED'
+            WHEN '4' THEN 'PAPER_KYC_AUDIT'
+            WHEN '5' THEN 'PAPER_REJECTED'
+            WHEN '7' THEN 'PAPER_REJECTED'
+            WHEN '8' THEN 'PAPER_PASSED'
+            ELSE p.state
+        END AS state,
         p.is_Independentauthor,
         pa1.user_name as first_author_name,
         pa1.user_id as first_author_id,
@@ -202,7 +212,17 @@
         p.paper_ranking,
         p.research_score,
         p.remarks,
-        p.state,
+        CASE p.state
+            WHEN '99' THEN 'PAPER_DRAFT'
+            WHEN '1' THEN 'PAPER_JYS_AUDIT'
+            WHEN '2' THEN 'PAPER_JYS_AUDIT'
+            WHEN '3' THEN 'PAPER_REJECTED'
+            WHEN '4' THEN 'PAPER_KYC_AUDIT'
+            WHEN '5' THEN 'PAPER_REJECTED'
+            WHEN '7' THEN 'PAPER_REJECTED'
+            WHEN '8' THEN 'PAPER_PASSED'
+            ELSE p.state
+        END AS state,
         p.is_Independentauthor,
         pa1.user_name as first_author_name,
         pa1.user_id as first_author_id,
@@ -337,7 +357,17 @@
         p.paper_ranking,
         p.research_score,
         p.remarks,
-        p.state,
+        CASE p.state
+            WHEN '99' THEN 'PAPER_DRAFT'
+            WHEN '1' THEN 'PAPER_JYS_AUDIT'
+            WHEN '2' THEN 'PAPER_JYS_AUDIT'
+            WHEN '3' THEN 'PAPER_REJECTED'
+            WHEN '4' THEN 'PAPER_KYC_AUDIT'
+            WHEN '5' THEN 'PAPER_REJECTED'
+            WHEN '7' THEN 'PAPER_REJECTED'
+            WHEN '8' THEN 'PAPER_PASSED'
+            ELSE p.state
+        END AS state,
         p.is_Independentauthor,
         pa1.user_name as first_author_name,
         pa1.user_id as first_author_id,
@@ -426,7 +456,19 @@
         p.teacher_name,
         p.paper_title, p.paper_category, p.published_journal,p.publication_time, p.is_industry_collaborative,
         p.is_local_collaborative, p.is_international_collaborative, p.is_cross_discipline, p.paper_ranking,
-        p.research_score, p.remarks,p.state,p.is_Independentauthor,
+        p.research_score, p.remarks,
+        CASE p.state
+            WHEN '99' THEN 'PAPER_DRAFT'
+            WHEN '1' THEN 'PAPER_JYS_AUDIT'
+            WHEN '2' THEN 'PAPER_JYS_AUDIT'
+            WHEN '3' THEN 'PAPER_REJECTED'
+            WHEN '4' THEN 'PAPER_KYC_AUDIT'
+            WHEN '5' THEN 'PAPER_REJECTED'
+            WHEN '7' THEN 'PAPER_REJECTED'
+            WHEN '8' THEN 'PAPER_PASSED'
+            ELSE p.state
+        END AS state,
+        p.is_Independentauthor,
         pa1.user_name as first_author_name,
         pa1.user_id as first_author_id,
         pa1.score as first_author_score,
@@ -569,7 +611,19 @@
       p.teacher_name,
       p.paper_title, p.paper_category, p.published_journal,p.publication_time, p.is_industry_collaborative,
       p.is_local_collaborative, p.is_international_collaborative, p.is_cross_discipline, p.paper_ranking,
-      p.research_score, p.remarks,p.state,p.is_Independentauthor,
+      p.research_score, p.remarks,
+      CASE p.state
+          WHEN '99' THEN 'PAPER_DRAFT'
+          WHEN '1' THEN 'PAPER_JYS_AUDIT'
+          WHEN '2' THEN 'PAPER_JYS_AUDIT'
+          WHEN '3' THEN 'PAPER_REJECTED'
+          WHEN '4' THEN 'PAPER_KYC_AUDIT'
+          WHEN '5' THEN 'PAPER_REJECTED'
+          WHEN '7' THEN 'PAPER_REJECTED'
+          WHEN '8' THEN 'PAPER_PASSED'
+          ELSE p.state
+      END AS state,
+      p.is_Independentauthor,
         pa1.user_name as first_author_name,
         pa1.user_id as first_author_id,
         pa1.score as first_author_score,
@@ -667,7 +721,19 @@
         p.text_paper,p.word_paper,p.search_web,pt.dept_name research_room,p.user_id,
         d.dept_name dname,pt.dept_name college, p.teacher_name,u.tea_zhicheng on_campus_title,
         p.paper_title, p.paper_category, p.published_journal,p.publication_time, p.is_industry_collaborative,
-        p.is_local_collaborative, p.is_international_collaborative, p.is_cross_discipline, p.paper_ranking, p.research_score, p.remarks,p.state,r.data_scope
+        p.is_local_collaborative, p.is_international_collaborative, p.is_cross_discipline, p.paper_ranking, p.research_score, p.remarks,
+        CASE p.state
+            WHEN '99' THEN 'PAPER_DRAFT'
+            WHEN '1' THEN 'PAPER_JYS_AUDIT'
+            WHEN '2' THEN 'PAPER_JYS_AUDIT'
+            WHEN '3' THEN 'PAPER_REJECTED'
+            WHEN '4' THEN 'PAPER_KYC_AUDIT'
+            WHEN '5' THEN 'PAPER_REJECTED'
+            WHEN '7' THEN 'PAPER_REJECTED'
+            WHEN '8' THEN 'PAPER_PASSED'
+            ELSE p.state
+        END AS state,
+        r.data_scope
         from sci_paper_a p
         left join sys_user u on  p.user_id=u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
@@ -695,7 +761,18 @@
         select p.id,p.user_id,p.teacher_name,p.text_paper,p.paper_title, p.paper_category,p.published_journal,p.publication_time,
                p.word_paper,p.search_web, p.is_industry_collaborative,
                p.is_local_collaborative, p.is_international_collaborative, p.is_cross_discipline,
-               p.paper_ranking, p.research_score, p.remarks,p.state
+               p.paper_ranking, p.research_score, p.remarks,
+               CASE p.state
+                   WHEN '99' THEN 'PAPER_DRAFT'
+                   WHEN '1' THEN 'PAPER_JYS_AUDIT'
+                   WHEN '2' THEN 'PAPER_JYS_AUDIT'
+                   WHEN '3' THEN 'PAPER_REJECTED'
+                   WHEN '4' THEN 'PAPER_KYC_AUDIT'
+                   WHEN '5' THEN 'PAPER_REJECTED'
+                   WHEN '7' THEN 'PAPER_REJECTED'
+                   WHEN '8' THEN 'PAPER_PASSED'
+                   ELSE p.state
+               END AS state
         from sci_paper_a p
         <where>
             <if test="query != null and query != ''">
@@ -724,6 +801,7 @@
             <if test="isCrossDiscipline != null and isCrossDiscipline != ''">is_cross_discipline,</if>
             <if test="paperRanking != null and paperRanking != ''">paper_ranking,</if>
             <if test="researchScore != null and researchScore != ''">research_score,</if>
+            <if test="expectedResearchScore != null and expectedResearchScore != ''">expected_research_score,</if>
             <if test="remarks != null and remarks != ''">remarks,</if>
             <if test="isIndependentauthor != null and isIndependentauthor != ''">is_Independentauthor,</if>
         </trim>
@@ -745,6 +823,7 @@
             <if test="isCrossDiscipline != null and isCrossDiscipline != ''">#{isCrossDiscipline},</if>
             <if test="paperRanking != null and paperRanking != ''">#{paperRanking},</if>
             <if test="researchScore != null and researchScore != ''">#{researchScore},</if>
+            <if test="expectedResearchScore != null and expectedResearchScore != ''">#{expectedResearchScore},</if>
             <if test="remarks != null and remarks != ''">#{remarks},</if>
             <if test="isIndependentauthor != null and isIndependentauthor != ''">#{isIndependentauthor},</if>
         </trim>
@@ -818,6 +897,7 @@
             <if test="isCrossDiscipline != null">is_cross_discipline = #{isCrossDiscipline},</if>
             <if test="paperRanking != null">paper_ranking = #{paperRanking},</if>
             <if test="researchScore != null">research_score = #{researchScore},</if>
+            <if test="expectedResearchScore != null">expected_research_score = #{expectedResearchScore},</if>
             <if test="remarks != null">remarks = #{remarks},</if>
             <if test="state != null">state = #{state},</if>
             <if test="isIndependentauthor != null">is_Independentauthor = #{isIndependentauthor},</if>
@@ -825,7 +905,7 @@
         where id = #{id}
     </update>
     <update id="updateSciPaperAState">
-        update sci_paper_a set state = 1 where id = #{id}
+        update sci_paper_a set state = 'PAPER_JYS_AUDIT' where id = #{id}
     </update>
 
     <update id="pytg" >
@@ -844,6 +924,11 @@
             #{id}
         </foreach>
     </delete>
+    
+    <!-- 更新论文科研分 -->
+    <update id="updatePaperResearchScore">
+        update sci_paper_a set research_score = #{researchScore} where id = #{id}
+    </update>
 
 
     <select id="getStatsQuery" parameterType="map" resultMap="SciPaperAResult">
@@ -873,7 +958,17 @@
         p.paper_ranking,
         p.research_score,
         p.remarks,
-        p.state,
+        CASE p.state
+            WHEN '99' THEN 'PAPER_DRAFT'
+            WHEN '1' THEN 'PAPER_JYS_AUDIT'
+            WHEN '2' THEN 'PAPER_JYS_AUDIT'
+            WHEN '3' THEN 'PAPER_REJECTED'
+            WHEN '4' THEN 'PAPER_KYC_AUDIT'
+            WHEN '5' THEN 'PAPER_REJECTED'
+            WHEN '7' THEN 'PAPER_REJECTED'
+            WHEN '8' THEN 'PAPER_PASSED'
+            ELSE p.state
+        END AS state,
         pa1.user_name as first_author_name,
         pa1.user_id as first_author_id,
         pa1.score as first_author_score,

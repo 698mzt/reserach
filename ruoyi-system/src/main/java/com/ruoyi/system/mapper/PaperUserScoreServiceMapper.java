@@ -14,9 +14,9 @@ public interface PaperUserScoreServiceMapper {
     /**
      * 根据论文ID删除作者得分记录
      */
-    int deletePaperUserScoreByPaperId(Long paperId);
+    int deletePaperUserScoreByPaperId(@Param("paperId") Long paperId);
 
-    List<Paper_user_score> getpaperUserScoreListByPaperId(Long paperId);
+    List<Paper_user_score> getpaperUserScoreListByPaperId(@Param("paperId") Long paperId);
 
     int updateScoreById(@Param("pusId")Long pusId, @Param("points")Integer points);
 

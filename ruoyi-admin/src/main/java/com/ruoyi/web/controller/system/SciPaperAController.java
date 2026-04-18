@@ -214,7 +214,7 @@ public class SciPaperAController extends BaseController {
                 sciPaperA.setUserId(userId);
                 String user_name = userService.selectUserByLoginName(getLoginName()).getUserName();
                 sciPaperA.setTeacherName(user_name);
-                sciPaperA.setState("99");
+                sciPaperA.setState(SciPaperA.PAPER_DRAFT);
 //                if (!sciPaperA.getPaperCategory().equals("8") && !sciPaperA.getPaperCategory().equals("9")) {
 //                    if (sciPaperA.getSearch_web() == null || sciPaperA.getSearch_web().length() <= 0){
 //                        //throw new RuntimeException("论文网址不能为空");
@@ -224,6 +224,28 @@ public class SciPaperAController extends BaseController {
                     if (sciPaperA.getText_paper() == null || sciPaperA.getText_paper().length() <= 0){
                         throw new RuntimeException("非校刊录用/检索证明不能为空");
                     }
+                }
+
+                // 计算预计科研分
+                String paperCategory = sciPaperA.getPaperCategory();
+                if (paperCategory != null && !paperCategory.isEmpty()) {
+                    // 构建作者信息Map
+                    Map<String, String> authors = new HashMap<>();
+                    authors.put("1", sciPaperA.getFirstPersonId());
+                    authors.put("2", sciPaperA.getSecondPersonId());
+                    authors.put("3", sciPaperA.getThirdPersonId());
+                    authors.put("4", sciPaperA.getFourthPersonId());
+                    
+                    // 获取通讯作者ID
+                    String communicationAuthorId = sciPaperA.getCommunicationAuthorId();
+                    
+                    // 计算分数
+                    Map<String, Integer> scores = sciPaperAService.calculatePaperScore(paperCategory, authors, communicationAuthorId);
+                    
+                    // 取第一作者的分数作为预计科研分
+                    String firstKey = "1_" + sciPaperA.getFirstPersonId();
+                    int expectedScore = scores.getOrDefault(firstKey, 0);
+                    sciPaperA.setExpectedResearchScore(String.valueOf(expectedScore));
                 }
 
                 //插入论文数据
@@ -552,6 +574,27 @@ public class SciPaperAController extends BaseController {
 //                    throw new RuntimeException("非校刊录用/检索证明不能为空");
 //                }
 //            }
+            // 计算预计科研分
+            String paperCategory = sciPaperA.getPaperCategory();
+            if (paperCategory != null && !paperCategory.isEmpty()) {
+                // 构建作者信息Map
+                Map<String, String> authors = new HashMap<>();
+                authors.put("1", sciPaperA.getFirstPersonId());
+                authors.put("2", sciPaperA.getSecondPersonId());
+                authors.put("3", sciPaperA.getThirdPersonId());
+                authors.put("4", sciPaperA.getFourthPersonId());
+                
+                // 获取通讯作者ID
+                String communicationAuthorId = sciPaperA.getCommunicationAuthorId();
+                
+                // 计算分数
+                Map<String, Integer> scores = sciPaperAService.calculatePaperScore(paperCategory, authors, communicationAuthorId);
+                
+                // 取第一作者的分数作为预计科研分
+                String firstKey = "1_" + sciPaperA.getFirstPersonId();
+                int expectedScore = scores.getOrDefault(firstKey, 0);
+                sciPaperA.setExpectedResearchScore(String.valueOf(expectedScore));
+            }
             // 更新论文基本信息
             int result = sciPaperAService.updateSciPaperA(sciPaperA);
             

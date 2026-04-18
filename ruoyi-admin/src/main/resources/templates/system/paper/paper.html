@@ -434,6 +434,7 @@
     var proFlag = /*[[${@permission.hasPermi('system:paper:process')}]]*/ 'hidden';
     var XyRevoke = /*[[${@permission.hasPermi('system:paper:xyrevoke')}]]*/ 'hidden';
     var KyRevoke = /*[[${@permission.hasPermi('system:paper:kyrevoke')}]]*/ 'hidden';
+    var proRevoke = /*[[${@permission.hasPermi('system:paper:prorevoke')}]]*/ 'hidden';
     var QWERDates = /*[[${@dict.getType('sci_paper_qwer')}]]*/ 'hidden';
 
     var PaperDates = /*[[${@dict.getType('sci_paper_ar')}]]*/ 'hidden';
@@ -601,11 +602,31 @@
                     }
                 },
                 {
+                    field: 'approvalStage',
+                    title: '审批阶段',
+                    formatter: function (value, row, index) {
+                        switch (row.state) {
+                            case 'PAPER_DRAFT':
+                                return '草稿';
+                            case 'PAPER_JYS_AUDIT':
+                                return '教研室审批';
+                            case 'PAPER_KYC_AUDIT':
+                                return '科研处审批';
+                            case 'PAPER_PASSED':
+                                return '审批通过';
+                            case 'PAPER_REJECTED':
+                                return '审批驳回';
+                            default:
+                                return '未知';
+                        }
+                    }
+                },
+                {
                     field: 'researchScore',
                     title: '已获积分',
                     formatter: function (value, row, index) {
-                        // 只有审批流程通过（状态为8）才显示分数，否则为0
-                        if (row.state != 8) {
+                        // 只有审批流程通过（状态为PAPER_PASSED）才显示分数，否则为0
+                        if (row.state != 'PAPER_PASSED') {
                             return 0;
                         }
                         // 将非作者改为0
@@ -632,7 +653,7 @@
                         });
                         var actions = [];
 
-                      if(row.state == 99 ){
+                      if(row.state == 'PAPER_DRAFT' || (row.state == 'PAPER_REJECTED' && row.userId == row.uid)){
                             actions.push('<a class="' + editFlag + '" href="javascript:void(0)" onclick="pushTh(\'' + row.id + '\')"></i>提交</a>&nbsp;&nbsp;&nbsp;');
                             actions.push('<a class="' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"></i>删除</a><br>&nbsp;&nbsp;&nbsp;');
                             actions.push('<a class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"></i>编辑</a>&nbsp;&nbsp;&nbsp;');
@@ -642,29 +663,22 @@
                         actions.push('<a class="' + editInfo + '" href="javascript:void(0)" onclick="viewProcess(\'' + row.id +','+row.state+ '\')"></i>查看流程</a><br>');
                         
                         // 批阅按钮：仅当前审批节点的管理员角色显示
-                        if (row.state == 1 && proFlag != 'hidden') { // 待处理 - 教研室审批
+                        if (row.state == 'PAPER_JYS_AUDIT' && proFlag != 'hidden') { // 待处理 - 教研室审批
                             actions.push('<a href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro\')"></i>批阅</a>');
-                        } else if (row.state == 2) { // 教研室通过
-                            if (revokeInfo != 'hidden') {
-                                actions.push('<a href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/proth\')"></i>撤回</a><br>');
-                            }
-                            if (XYPYFlag != 'hidden') { // 学院审批
-                                actions.push('<a href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/xytg\')"></i>批阅</a>');
-                            }
-                        } else if (row.state == 4) { // 学院通过
+                        } else if (row.state == 'PAPER_KYC_AUDIT') { // 科研处审批
                             if (XyRevoke != 'hidden') {
                                 actions.push('<a href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/xyth\')"></i>撤回</a><br>');
                             }
                             if (KYPYFlag != 'hidden') { // 科研处审批
                                 actions.push('<a href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/kytg\')"></i>科研核查</a>');
                             }
-                        } else if (row.state == 8 && KyRevoke != 'hidden') { // 完成 - 科研处撤回
+                        } else if (row.state == 'PAPER_PASSED' && KyRevoke != 'hidden') { // 完成 - 科研处撤回
                             actions.push('<a href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/kyth\')"></i>撤回</a> ');
+                        } else if (row.state == 'PAPER_KYC_AUDIT' && proRevoke != 'hidden') { // 教研室通过后 - 教研室撤回
+                            actions.push('<a href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/proth\')"></i>撤回</a><br>');
                         }
                         // 退回状态下，作者可以更新
-                        if ((row.state == 3 || row.state == 7 || row.state == 5) && row.userId == row.uid) { // 退回
-                            actions.push('<a class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"></i>更新</a>&nbsp;');
-                        }
+
                         return actions.join('');
                     }
                 }]
@@ -782,18 +796,12 @@
 
             switch (state) { // 根据 state 更新状态
 
-                case "3":
-                case "5":
+                case "PAPER_REJECTED":
                     // 当前步骤为 step-1
                     highlightStep(0); // 高亮第一个步骤
                     break;
-                case "1":
-                case "2":
-                case "4":
-                case "6":
-                case "7":
-                case "9":
-                case "10":
+                case "PAPER_JYS_AUDIT":
+                case "PAPER_KYC_AUDIT":
                     // 当前步骤为 step-2，step-1 完成
                     markCompleted(0); // step-1 完成
                     highlightStep(1); // 高亮第二个步骤
@@ -804,7 +812,7 @@
                     }
                     break;
 
-                case "8":
+                case "PAPER_PASSED":
                     // 所有步骤完成
                     markCompleted(0); // step-1 完成
                     markCompleted(1); // step-2 完成
@@ -870,9 +878,9 @@
     function rowStyle0(row, index) {
         // 定义状态值与颜色的映射关系
         const stateColorMap = {
-            8: '#67c23a', // 完结 绿色
-            3: '#e6a344', 5: '#e6a344', 7: '#e6a344', 9: '#e6a344', 10: '#e6a344', 22: '#e6a344', 44: '#e6a344',99: '#e6a344', // 被驳回，草稿 黄色
-            1: '#2c99ff',2: '#2c99ff', 4: '#2c99ff', 6: '#2c99ff', 11: '#2c99ff', 33: '#2c99ff' // 审核中 蓝色
+            'PAPER_PASSED': '#67c23a', // 完结 绿色
+            'PAPER_REJECTED': '#e6a344', 'PAPER_DRAFT': '#e6a344', // 被驳回，草稿 黄色
+            'PAPER_JYS_AUDIT': '#2c99ff', 'PAPER_KYC_AUDIT': '#2c99ff' // 审核中 蓝色
         };
 
         // 统一将 row.state 转换为字符串进行查找

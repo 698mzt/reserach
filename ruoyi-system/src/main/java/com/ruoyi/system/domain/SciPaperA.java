@@ -18,6 +18,13 @@ import java.util.List;
 @Data
 public class SciPaperA extends BaseEntity {
     private static final long serialVersionUID = 1L;
+    // 论文状态常量
+    public static final String PAPER_DRAFT = "PAPER_DRAFT"; // 草稿状态
+    public static final String PAPER_JYS_AUDIT = "PAPER_JYS_AUDIT"; // 教研室审批状态
+    public static final String PAPER_KYC_AUDIT = "PAPER_KYC_AUDIT"; // 科研处审批状态
+    public static final String PAPER_PASSED = "PAPER_PASSED"; // 审批通过状态
+    public static final String PAPER_REJECTED = "PAPER_REJECTED"; // 审批驳回状态
+    
     public static final List<String> TWO_AUTHORS = Collections.unmodifiableList(Arrays.asList("11", "12", "10"));
     public final List<String> ONE_AUTHORS = Collections.unmodifiableList(Arrays.asList("8", "9"));
     /**
@@ -175,6 +182,10 @@ public class SciPaperA extends BaseEntity {
      * 科研分
      */
     private String researchScore;
+    /**
+     * 预计科研分
+     */
+    private String expectedResearchScore;
     /**
      * 备注
      */
@@ -683,6 +694,14 @@ public class SciPaperA extends BaseEntity {
         return researchScore;
     }
 
+    public void setExpectedResearchScore(String expectedResearchScore) {
+        this.expectedResearchScore = expectedResearchScore;
+    }
+
+    public String getExpectedResearchScore() {
+        return expectedResearchScore;
+    }
+
     public void setRemarks(String remarks) {
         this.remarks = remarks;
     }
@@ -764,6 +783,7 @@ public class SciPaperA extends BaseEntity {
                 ", isCrossDiscipline='" + isCrossDiscipline + '\'' +
                 ", paperRanking='" + paperRanking + '\'' +
                 ", researchScore='" + researchScore + '\'' +
+                ", expectedResearchScore='" + expectedResearchScore + '\'' +
                 ", remarks='" + remarks + '\'' +
                 '}';
     }
@@ -777,24 +797,16 @@ public class SciPaperA extends BaseEntity {
             return "";
         }
         switch (this.state) {
-            case "1":
-                return "待教研室处理";
-            case "2":
-                return "待学院审核";
-            case "3":
-                return "教研室退回";
-            case "4":
-                return "待科研处审核";
-            case "5":
-                return "学院退回";
-            case "6":
-                return "科研处通过";
-            case "7":
-                return "科研处退回";
-            case "8":
-                return "完成";
-            case "9":
+            case PAPER_DRAFT:
                 return "草稿";
+            case PAPER_JYS_AUDIT:
+                return "待教研室处理";
+            case PAPER_KYC_AUDIT:
+                return "待科研处审核";
+            case PAPER_PASSED:
+                return "审批通过";
+            case PAPER_REJECTED:
+                return "审批驳回";
         }
         return this.state;
 

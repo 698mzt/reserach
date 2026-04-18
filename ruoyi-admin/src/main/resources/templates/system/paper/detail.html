@@ -529,7 +529,7 @@
 
 
             } else {
-                if ([1, 2, 4].includes(parseInt(state))) {
+                if (['PAPER_JYS_AUDIT', 'PAPER_KYC_AUDIT', 'PAPER_PASSED'].includes(state)) {
                     //handleStandardView(rows);
                     if (rows.length > 0) {
                         $(".tdiv2").show();
@@ -543,7 +543,7 @@
                 }
             }
 
-            if ([8, 3].includes(parseInt(state))) {
+            if (['PAPER_REJECTED'].includes(state)) {
                 $("#btn1").hide();
                 $("#btn2").hide();
                 $("#btn4").hide();

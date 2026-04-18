@@ -223,16 +223,16 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int pytg(String id, Long uid, String urlFlag, String order, String user_order) {
-        String state = "0";
+        String state = "PAPER_DRAFT";
         SciPaperAr sciPaperAr = new SciPaperAr();
         if (urlFlag.equals("pro")) {
-            state = "2"; //教研室通过
+            state = "PAPER_KYC_AUDIT"; //教研室通过后进入科研处审批
             sciPaperAr.setConcate("教研室通过");
         } else if (urlFlag.equals("xytg")) {
-            state = "4"; //学院通过
+            state = "PAPER_KYC_AUDIT"; //学院通过后进入科研处审批
             sciPaperAr.setConcate("学院通过");
         } else if (urlFlag.equals("kytg")) {
-            state = "8"; //科研处通过
+            state = "PAPER_PASSED"; //科研处通过后完成
             sciPaperAr.setConcate("科研处通过");
             // 查询积分表
             List<Integer> point_list = sciPaperACfgMapper.selectSciPaperACfgPointList(order);
@@ -240,6 +240,12 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
             int res = setPaperUserScore(id, point_list);
             if (res < 1 || res >4){
                 return -1;
+            }
+            
+            // 计算并更新论文表中的科研分（取第一作者的分数）
+            if (!point_list.isEmpty()) {
+                int researchScore = point_list.get(0); // 第一作者的分数作为论文的科研分
+                sciPaperAMapper.updatePaperResearchScore(Long.valueOf(id), researchScore);
             }
 
         }
@@ -559,26 +565,26 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int pybh(String id, Long userId, String remark, String urlFlag) {
-        String state = "0";
+        String state = SciPaperA.PAPER_DRAFT;
         SciPaperAr sciPaperAr = new SciPaperAr();
         if (urlFlag.equals("xytg")) {
             sciPaperAr.setState("学院驳回");
-            state = "5";
+            state = SciPaperA.PAPER_REJECTED;
         } else if (urlFlag.equals("xyth")) {
             sciPaperAr.setState("学院撤回");
-            state = "2";
+            state = SciPaperA.PAPER_JYS_AUDIT;
         } else if (urlFlag.equals("pro")) {
             sciPaperAr.setState("教研室驳回");
-            state = "3";
+            state = SciPaperA.PAPER_REJECTED;
         } else if (urlFlag.equals("proth")) {
             sciPaperAr.setState("教研室撤回");
-            state = "1";
+            state = SciPaperA.PAPER_JYS_AUDIT;
         } else if (urlFlag.equals("kytg")) {
             sciPaperAr.setState("科研处驳回");
-            state = "7";
+            state = SciPaperA.PAPER_REJECTED;
         } else if (urlFlag.equals("kyth")) {
             sciPaperAr.setState("科研处撤回");
-            state = "4";
+            state = SciPaperA.PAPER_KYC_AUDIT;
             int points = 0;
             int b = paperUserScoreServiceImplMapper.updateScoreByPaperId(Long.valueOf(id), points);
         }
