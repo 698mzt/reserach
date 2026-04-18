@@ -1,6 +1,7 @@
 package com.ruoyi.system.service.impl;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,10 +10,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.ruoyi.common.annotation.DataScope;
 import com.ruoyi.common.utils.DataScopeUtils;
 import com.ruoyi.common.core.domain.AjaxResult;
+import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.system.domain.Paper_user_score;
 import com.ruoyi.system.domain.SciPaperAr;
+import com.ruoyi.system.domain.SysApprovalHistory;
 import com.ruoyi.system.mapper.PaperUserScoreServiceMapper;
 import com.ruoyi.system.mapper.SciPaperACfgMapper;
+import com.ruoyi.system.service.ISysApprovalHistoryService;
+import com.ruoyi.system.service.ISysUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.ruoyi.system.mapper.SciPaperAMapper;
@@ -29,12 +34,19 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service
 public class SciPaperAServiceImpl implements ISciPaperAService {
+    private static final String PAPER_PROCESS_CODE = "PAPER_APPROVAL";
+
     @Autowired
     private SciPaperAMapper sciPaperAMapper;
     @Autowired
     private SciPaperACfgMapper sciPaperACfgMapper;
     @Autowired
-    private PaperUserScoreServiceMapper paperUserScoreServiceImplMapper;    /**
+    private PaperUserScoreServiceMapper paperUserScoreServiceImplMapper;
+    @Autowired
+    private ISysApprovalHistoryService sysApprovalHistoryService;
+    @Autowired
+    private ISysUserService sysUserService;
+    /**
      * 查询论文
      *
      * @param id 论文主键
@@ -223,28 +235,36 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int pytg(String id, Long uid, String urlFlag, String order, String user_order) {
+        String oldState = "";
         String state = "PAPER_DRAFT";
+        String actionName = "提交";
         SciPaperAr sciPaperAr = new SciPaperAr();
+
+        SciPaperA paper = sciPaperAMapper.selectSciPaperAById(Long.valueOf(id));
+        if (paper != null) {
+            oldState = paper.getState();
+        }
+
         if (urlFlag.equals("pro")) {
-            state = "PAPER_KYC_AUDIT"; //教研室通过后进入科研处审批
+            state = "PAPER_KYC_AUDIT";
             sciPaperAr.setConcate("教研室通过");
+            actionName = "教研室审批通过";
         } else if (urlFlag.equals("xytg")) {
-            state = "PAPER_KYC_AUDIT"; //学院通过后进入科研处审批
+            state = "PAPER_KYC_AUDIT";
             sciPaperAr.setConcate("学院通过");
+            actionName = "学院审批通过";
         } else if (urlFlag.equals("kytg")) {
-            state = "PAPER_PASSED"; //科研处通过后完成
+            state = "PAPER_PASSED";
             sciPaperAr.setConcate("科研处通过");
-            // 查询积分表
+            actionName = "科研处审批通过";
             List<Integer> point_list = sciPaperACfgMapper.selectSciPaperACfgPointList(order);
-            // 通过之后设置积分
             int res = setPaperUserScore(id, point_list);
-            if (res < 1 || res >4){
+            if (res < 1 || res > 4) {
                 return -1;
             }
-            
-            // 计算并更新论文表中的科研分（取第一作者的分数）
+
             if (!point_list.isEmpty()) {
-                int researchScore = point_list.get(0); // 第一作者的分数作为论文的科研分
+                int researchScore = point_list.get(0);
                 sciPaperAMapper.updatePaperResearchScore(Long.valueOf(id), researchScore);
             }
 
@@ -255,6 +275,9 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
         sciPaperAr.setAr_id(Integer.valueOf(id));
         sciPaperAr.setState("通过");
         sciPaperAMapper.insertSciPaperAr(sciPaperAr);
+
+        saveApprovalHistory(Long.valueOf(id), actionName, oldState, state, uid, "通过");
+
         return a;
     }
 
@@ -565,26 +588,40 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int pybh(String id, Long userId, String remark, String urlFlag) {
+        String oldState = "";
         String state = SciPaperA.PAPER_DRAFT;
+        String actionName = "提交";
         SciPaperAr sciPaperAr = new SciPaperAr();
+
+        SciPaperA paper = sciPaperAMapper.selectSciPaperAById(Long.valueOf(id));
+        if (paper != null) {
+            oldState = paper.getState();
+        }
+
         if (urlFlag.equals("xytg")) {
             sciPaperAr.setState("学院驳回");
             state = SciPaperA.PAPER_REJECTED;
+            actionName = "学院审批驳回";
         } else if (urlFlag.equals("xyth")) {
             sciPaperAr.setState("学院撤回");
             state = SciPaperA.PAPER_JYS_AUDIT;
+            actionName = "学院撤回";
         } else if (urlFlag.equals("pro")) {
             sciPaperAr.setState("教研室驳回");
             state = SciPaperA.PAPER_REJECTED;
+            actionName = "教研室审批驳回";
         } else if (urlFlag.equals("proth")) {
             sciPaperAr.setState("教研室撤回");
             state = SciPaperA.PAPER_JYS_AUDIT;
+            actionName = "教研室撤回";
         } else if (urlFlag.equals("kytg")) {
             sciPaperAr.setState("科研处驳回");
             state = SciPaperA.PAPER_REJECTED;
+            actionName = "科研处审批驳回";
         } else if (urlFlag.equals("kyth")) {
             sciPaperAr.setState("科研处撤回");
             state = SciPaperA.PAPER_KYC_AUDIT;
+            actionName = "科研处撤回";
             int points = 0;
             int b = paperUserScoreServiceImplMapper.updateScoreByPaperId(Long.valueOf(id), points);
         }
@@ -595,6 +632,9 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
         sciPaperAr.setConcate(remark);
 
         sciPaperAMapper.insertSciPaperAr(sciPaperAr);
+
+        saveApprovalHistory(Long.valueOf(id), actionName, oldState, state, userId, remark);
+
         return a;
     }
 
@@ -715,6 +755,43 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
         } else {
             // 一作是本校老师，通讯作者按二作分数算
             return pointList.size() > 1 ? pointList.get(1) : pointList.get(0);
+        }
+    }
+
+    /**
+     * 保存审批历史记录
+     * @param businessId 论文ID
+     * @param action 操作名称
+     * @param oldState 变更前状态
+     * @param newState 变更后状态
+     * @param operatorId 操作人ID
+     * @param comment 审批意见
+     */
+    private void saveApprovalHistory(Long businessId, String action, String oldState, String newState, Long operatorId, String comment) {
+        try {
+            SysApprovalHistory history = new SysApprovalHistory();
+            history.setProcessCode(PAPER_PROCESS_CODE);
+            history.setBusinessId(businessId);
+            history.setNodeId(null);
+            history.setNodeName("");
+            history.setAction(action);
+            history.setOperatorId(operatorId);
+            if (operatorId != null) {
+                SysUser user = sysUserService.selectUserById(operatorId);
+                if (user != null) {
+                    history.setOperatorName(user.getUserName());
+                    if (user.getDept() != null) {
+                        history.setOperatorDept(user.getDept().getDeptName());
+                    }
+                }
+            }
+            history.setOldState(oldState);
+            history.setNewState(newState);
+            history.setComment(comment);
+            history.setCreateTime(new Date());
+            sysApprovalHistoryService.insertSysApprovalHistory(history);
+        } catch (Exception e) {
+            // 审批历史记录失败不影响主业务，但需要记录日志
         }
     }
 }
