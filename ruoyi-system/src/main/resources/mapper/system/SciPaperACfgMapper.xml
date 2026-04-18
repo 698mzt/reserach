@@ -7,7 +7,7 @@
 
     </sql>
 
-    <select id="selectSciPaperACfg">
+    <select id="selectSciPaperACfg" resultType="com.ruoyi.system.domain.SciPaperCfg">
         select * from sci_paper_cfg
 <!--        <where>-->
 <!--            <if test="id != null  and id != ''"> and id = #{id}</if>-->
