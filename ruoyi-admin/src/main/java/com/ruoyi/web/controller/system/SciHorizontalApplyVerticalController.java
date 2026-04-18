@@ -775,7 +775,7 @@ public class SciHorizontalApplyVerticalController extends BaseController {
             score.add(String.valueOf(score4));
         }
 
-        return toAjax(sciHorizontalApplyVerticalService.applyPass(id,getUserId(),urlFlag,score,persion,verticalId,sciHorizontalApplyVertical1.getSubjectSource()));
+        return toAjax(sciHorizontalApplyVerticalService.applyPass(id,getUserId(),urlFlag,score,persion,verticalId,sciHorizontalApplyVertical1));
     }
     @RequiresPermissions(value={"system:apply_vertical:JYS","system:apply_vertical:KYC","system:apply_vertical:Dept"},logical= Logical.OR)
     @Log(title = "纵向课题申请通过驳回", businessType = BusinessType.UPDATE)
