@@ -48,7 +48,7 @@
                                               left join sys_user u on  s.user_id=u.user_id
                                               left join sys_dept d on u.dept_id = d.dept_id
                                               left join sys_dept p on d.parent_id =p.dept_id
-        where s.state != 99
+        where s.state != 'V_APPLY_DRAFT'
         <if test="dnameId != null and dnameId != ''"> and d.dept_id = #{dnameId}</if>
         <if test="ynameId != null and ynameId != ''"> and p.dept_id = #{ynameId}</if>
         order  by createtime desc
@@ -66,7 +66,7 @@
         from  sci_horizontal_apply_vertical s left join sys_user u on  s.user_id=u.user_id
                                               left join sys_dept d on u.dept_id = d.dept_id
                                               left join sys_dept p on d.parent_id =p.dept_id
-        where  s.state in (1,2,3,4,5,6,7,99)
+        where  s.state in ('V_APPLY_DRAFT','V_APPLY_JYS','V_APPLY_XY','V_APPLY_KYC','V_APPLY_REJ','V_APPLY_PASS')
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
         <if test="topNumber != null  and topNumber != ''"> and top_number =  #{topNumber}</if>
@@ -78,13 +78,13 @@
         order by
         case
 --         草稿箱
-        when state = 99 then 1
+        when state = 'V_APPLY_DRAFT' then 1
 --         被驳回
-        when state in (3,5,7) then 2
+        when state = 'V_APPLY_REJ' then 2
 --         申请结项
-        when state = 6 then 3
+        when state = 'V_APPLY_PASS' then 3
 --         审核中
-        when state in (1,2,4) then 4
+        when state in ('V_APPLY_JYS','V_APPLY_XY','V_APPLY_KYC') then 4
         end,
         s.createtime desc
     </select>
@@ -125,15 +125,15 @@
         order by
         case
 --         草稿箱
-        when state = 99 then 1
+        when state = 'V_APPLY_DRAFT' or state = 'V_OVER_DRAFT' then 1
 --         被驳回
-        when state in (3,5,7,33,55,77) then 2
+        when state = 'V_APPLY_REJ' or state = 'V_OVER_REJ' then 2
 --         申请结项
-        when state = 6 then 3
+        when state = 'V_APPLY_PASS' then 3
 --         审核中
-        when state in (1,2,4,11,22,44) then 4
+        when state in ('V_APPLY_JYS','V_APPLY_XY','V_APPLY_KYC','V_OVER_JYS','V_OVER_XY','V_OVER_KYC') then 4
 --         已完成
-        when state in (66) then 5
+        when state = 'V_OVER_PASS' then 5
         end,
         s.createtime desc
     </select>
@@ -150,7 +150,7 @@
         from  sci_horizontal_apply_vertical s left join sys_user u on  s.user_id=u.user_id
                                               left join sys_dept d on u.dept_id = d.dept_id
                                               left join sys_dept p on d.parent_id =p.dept_id
-        where  s.state in (1,2)
+        where  s.state in ('V_APPLY_JYS','V_APPLY_XY')
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
         <if test="userName != null  and userName != ''"> and u.user_name like concat('%', #{userName}, '%')</if>
@@ -159,9 +159,9 @@
         order by
         case
 --         待教研室审核
-        when state = 1 then 1
+        when state = 'V_APPLY_JYS' then 1
 --         教研室通过
-        when state = 2 then 2
+        when state = 'V_APPLY_XY' then 2
         end,
         s.createtime desc
     </select>
@@ -171,7 +171,7 @@
         from  sci_horizontal_apply_vertical s left join sys_user u on  s.user_id=u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
-        where  s.state in (2,4)
+        where  s.state in ('V_APPLY_XY','V_APPLY_KYC')
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
         <if test="dname != null  and dname != ''"> and d.dept_name like concat('%', #{dname}, '%')</if>
@@ -181,9 +181,9 @@
         order by
         case
 --         待学院审核
-        when state = 2 then 1
+        when state = 'V_APPLY_XY' then 1
 --         学院通过
-        when state = 4 then 2
+        when state = 'V_APPLY_KYC' then 2
         end,
         s.createtime desc
     </select>
@@ -193,7 +193,7 @@
         from  sci_horizontal_apply_vertical s left join sys_user u on  s.user_id=u.user_id
                                               left join sys_dept d on u.dept_id = d.dept_id
                                               left join sys_dept p on d.parent_id =p.dept_id
-        where  s.state in (4,6)
+        where  s.state in ('V_APPLY_KYC','V_APPLY_PASS')
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
         <if test="yname != null  and yname != ''"> and p.dept_name like concat('%', #{yname}, '%')</if>
@@ -204,9 +204,9 @@
         order by
         case
 --         待科研处审核
-        when state = 4 then 1
+        when state = 'V_APPLY_KYC' then 1
 --         科研处通过
-        when state = 6 then 2
+        when state = 'V_APPLY_PASS' then 2
         end,
         s.createtime desc
     </select>
@@ -217,7 +217,7 @@
         from  sci_horizontal_apply_vertical s left join sys_user u on  s.user_id=u.user_id
                                               left join sys_dept d on u.dept_id = d.dept_id
                                               left join sys_dept p on d.parent_id =p.dept_id
-        where  s.state in (999,11,22,33,44,55,77)
+        where  s.state in ('V_OVER_DRAFT','V_OVER_JYS','V_OVER_XY','V_OVER_KYC','V_OVER_REJ')
         <if test="year != null and year != ''">
             AND YEAR(DATE_ADD(COALESCE(validity_data, signing_data), INTERVAL 1 MONTH)) = #{year}
         </if>
@@ -227,9 +227,9 @@
         order by
         case
 --         被驳回
-        when state in (33,55,77) then 2
+        when state = 'V_OVER_REJ' then 2
 --         审核中
-        when state in (11,22,44) then 4
+        when state in ('V_OVER_JYS','V_OVER_XY','V_OVER_KYC') then 4
         end,
         s.createtime desc
     </select>
@@ -239,7 +239,7 @@
         from  sci_horizontal_apply_vertical s left join sys_user u on  s.user_id=u.user_id
                                               left join sys_dept d on u.dept_id = d.dept_id
                                               left join sys_dept p on d.parent_id =p.dept_id
-        where  s.state  in (11,22)
+        where  s.state  in ('V_OVER_JYS','V_OVER_XY')
         <if test="year != null and year != ''">
             AND YEAR(DATE_ADD(COALESCE(validity_data, signing_data), INTERVAL 1 MONTH)) = #{year}
         </if>
@@ -250,9 +250,9 @@
         order by
         case
 --         待教研室审核
-        when state = 11 then 1
+        when state = 'V_OVER_JYS' then 1
 --         教研室通过
-        when state = 22 then 2
+        when state = 'V_OVER_XY' then 2
         end,
         s.createtime desc
     </select>
@@ -262,7 +262,7 @@
         from  sci_horizontal_apply_vertical s left join sys_user u on  s.user_id=u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
-        where  s.state in (22,44)
+        where  s.state  in ('V_OVER_XY','V_OVER_KYC')
         <if test="year != null and year != ''">
             AND YEAR(DATE_ADD(COALESCE(validity_data, signing_data), INTERVAL 1 MONTH)) = #{year}
         </if>
@@ -273,10 +273,10 @@
         ${params.dataScope}
         order by
         case
---         待教研室审核
-        when state = 22 then 1
---         教研室通过
-        when state = 44 then 2
+--         待学院审核
+        when state = 'V_OVER_XY' then 1
+--         学院通过
+        when state = 'V_OVER_KYC' then 2
         end,
         s.createtime desc
     </select>
@@ -286,7 +286,7 @@
         from  sci_horizontal_apply_vertical s left join sys_user u on  s.user_id=u.user_id
                                               left join sys_dept d on u.dept_id = d.dept_id
                                               left join sys_dept p on d.parent_id =p.dept_id
-        where s.state in (44)
+        where s.state in ('V_OVER_KYC')
         <if test="year != null and year != ''">
             AND YEAR(DATE_ADD(COALESCE(validity_data, signing_data), INTERVAL 1 MONTH)) = #{year}
         </if>
@@ -304,7 +304,7 @@
         from  sci_horizontal_apply_vertical s left join sys_user u on  s.user_id=u.user_id
                                               left join sys_dept d on u.dept_id = d.dept_id
                                               left join sys_dept p on d.parent_id =p.dept_id
-        where  s.state = 66
+        where  s.state = 'V_OVER_PASS'
         <if test="year != null and year != ''">
             AND YEAR(DATE_ADD(COALESCE(validity_data, signing_data), INTERVAL 1 MONTH)) = #{year}
         </if>
@@ -474,13 +474,13 @@
         <if test="newsql != null  and newsql != '' ">
             <choose>
                 <when test="newsql == '00' ">
-                    and s.state = 66
+                    and s.state = 'V_OVER_PASS'
                 </when>
                 <when test="newsql == '01'">
-                    and s.state in (99,1,2,3,4,5,6,7)
+                    and s.state in ('V_APPLY_DRAFT','V_APPLY_JYS','V_APPLY_XY','V_APPLY_KYC','V_APPLY_REJ','V_APPLY_PASS')
                 </when>
                 <when test="newsql == '02'">
-                    and s.state in (999,11,22,33,44,55,77)
+                    and s.state in ('V_OVER_DRAFT','V_OVER_JYS','V_OVER_XY','V_OVER_KYC','V_OVER_REJ')
                 </when>
             </choose>
         </if>

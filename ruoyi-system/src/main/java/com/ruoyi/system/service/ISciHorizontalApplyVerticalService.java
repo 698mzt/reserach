@@ -58,7 +58,7 @@ public interface ISciHorizontalApplyVerticalService {
     int deleteSciHorizontalApplyVerticalByIds(String ids);
 
 
-    int applyPass(String id, Long userId, String urlFlag,List score,List persion,String verticalId,String SubjectSource);
+    int applyPass(String id, Long userId, String urlFlag,List score,List persion,String verticalId,SciHorizontalApplyVertical sciHorizontalApplyVertical);
 
     int applyBh(String id, Long userId, String remark, String urlFlag);
 
