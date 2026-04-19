@@ -13,10 +13,12 @@ import com.ruoyi.system.domain.SciHorizontalPiyue;
 import com.ruoyi.system.domain.SciJiaocairuanzhuMember;
 import com.ruoyi.system.domain.SciJiaocairuanzhuPiyue;
 import com.ruoyi.system.domain.SciJiaocairuanzhuScoreCfg;
+import com.ruoyi.system.domain.SysApprovalHistory;
 import com.ruoyi.system.mapper.SciHorizontalPiyueMapper;
 import com.ruoyi.system.mapper.SciJiaocairuanzhuMemberMapper;
 import com.ruoyi.system.mapper.SciJiaocairuanzhuPiyueMapper;
 import com.ruoyi.system.mapper.SciJiaocairuanzhuScoreCfgMapper;
+import com.ruoyi.system.service.ISysApprovalHistoryService;
 import com.ruoyi.system.service.ISysUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -52,6 +54,9 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
 
     @Autowired
     private ISysUserService userService;
+
+    @Autowired
+    private ISysApprovalHistoryService sysApprovalHistoryService;
 
 
     /**
@@ -177,22 +182,25 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
     @Override
     @Transactional
     public int hxPass(String id, Long uid, String urlFlag) {
-        String state = "8";
-//        SciJiaocairuanzhu sciJiaocairuanzhu = new SciJiaocairuanzhu();
+        // 获取原始状态
+        SciJiaocairuanzhu originalJiaocairuanzhu = sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuById(Integer.valueOf(id));
+        String oldState = originalJiaocairuanzhu.getState();
+        
+        String state = "TEXTBOOK_DRAFT";
 
         if (urlFlag.equals("hecha")) {
-            // 教研批阅 --> 待科研处处理
-            state = "4";
+            // 学院审批 --> 科研处审批（保留兼容）
+            state = "TEXTBOOK_KYC_AUDIT";
         } else if (urlFlag.equals("tijiao")) {
-            // 本人提交  草稿--> 待教研室处理
-            state = "1";
+            // 本人提交  草稿--> 教研室审批
+            state = "TEXTBOOK_JYS_AUDIT";
 
         } else if (urlFlag.equals("pro")) {
-            // 待教研室处理 -- 待学院处理
-            state = "2";
+            // 教研室审批 -- 科研处审批
+            state = "TEXTBOOK_KYC_AUDIT";
         } else if (urlFlag.equals("chayue")) {
-            // 待科研处处理 -->科研处通过
-            state = "6";
+            // 科研处审批 -->科研处通过
+            state = "TEXTBOOK_PASSED";
             SciJiaocairuanzhu sciJiaocairuanzhu = sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuById(Integer.valueOf(id));
             String a = sciJiaocairuanzhu.getFenlei();
             String b = sciJiaocairuanzhu.getPaiming();
@@ -215,47 +223,116 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
         int a = sciJiaocairuanzhuMapper.hxPass(id, state);
         // 插入批阅记录
         SciJiaocairuanzhuPiyue sciJiaocairuanzhuPiyue = new SciJiaocairuanzhuPiyue();
+        String comment = "";
         if (urlFlag.equals("tijiao")) {
             sciJiaocairuanzhuPiyue.setUid(uid);
             sciJiaocairuanzhuPiyue.setJiaocai_id(Integer.valueOf(id));
             sciJiaocairuanzhuPiyue.setConcate("提交申请");
             sciJiaocairuanzhuPiyue.setState("提交");
+            comment = "提交申请";
         } else if (urlFlag.equals("pro") ) {
             sciJiaocairuanzhuPiyue.setUid(uid);
             sciJiaocairuanzhuPiyue.setJiaocai_id(Integer.valueOf(id));
             sciJiaocairuanzhuPiyue.setConcate("教研室同意");
             sciJiaocairuanzhuPiyue.setState("教研室通过");
+            comment = "教研室同意";
         }else if (urlFlag.equals("hecha") ) {
             sciJiaocairuanzhuPiyue.setUid(uid);
             sciJiaocairuanzhuPiyue.setJiaocai_id(Integer.valueOf(id));
             sciJiaocairuanzhuPiyue.setConcate("学院同意");
             sciJiaocairuanzhuPiyue.setState("学院通过");
+            comment = "学院同意";
         }else if (urlFlag.equals("chayue")) {
             sciJiaocairuanzhuPiyue.setUid(uid);
             sciJiaocairuanzhuPiyue.setJiaocai_id(Integer.valueOf(id));
             sciJiaocairuanzhuPiyue.setConcate("科研处同意");
             sciJiaocairuanzhuPiyue.setState("科研处通过");
+            comment = "科研处同意";
         }
         sciJiaocairuanzhuPiyueMapper.insertSciJiaocairuanzhuPiyue(sciJiaocairuanzhuPiyue);
+        
+        // 保存审批历史记录
+        saveApprovalHistory(Integer.valueOf(id), oldState, state, uid, "approve", comment);
 
         return a;
+    }
+    
+    /**
+     * 保存审批历史记录
+     */
+    private void saveApprovalHistory(Integer businessId, String oldState, String newState, Long operatorId, String action, String comment) {
+        try {
+            SysUser operator = userService.selectUserById(operatorId);
+            if (operator == null) {
+                return;
+            }
+            
+            SysApprovalHistory history = new SysApprovalHistory();
+            history.setProcessCode("textbook_approval");
+            history.setBusinessId(businessId.longValue());
+            
+            // 根据状态设置审批节点信息
+            if (oldState.equals("TEXTBOOK_DRAFT") && newState.equals("TEXTBOOK_JYS_AUDIT")) {
+                // 提交申请
+                history.setNodeId(1L);
+                history.setNodeName("提交申请");
+            } else if (oldState.equals("TEXTBOOK_JYS_AUDIT") && newState.equals("TEXTBOOK_KYC_AUDIT")) {
+                // 教研室审批
+                history.setNodeId(2L);
+                history.setNodeName("教研室审批");
+            } else if (oldState.equals("TEXTBOOK_KYC_AUDIT") && newState.equals("TEXTBOOK_PASSED")) {
+                // 科研处审批
+                history.setNodeId(3L);
+                history.setNodeName("科研处审批");
+            } else if (newState.equals("TEXTBOOK_REJECTED")) {
+                // 驳回
+                if (oldState.equals("TEXTBOOK_JYS_AUDIT")) {
+                    history.setNodeId(2L);
+                    history.setNodeName("教研室审批");
+                } else if (oldState.equals("TEXTBOOK_KYC_AUDIT")) {
+                    history.setNodeId(3L);
+                    history.setNodeName("科研处审批");
+                } else {
+                    history.setNodeId(1L);
+                    history.setNodeName("提交申请");
+                }
+            }
+            
+            history.setAction(action);
+            history.setOperatorId(operatorId);
+            history.setOperatorName(operator.getUserName());
+            history.setOperatorDept(operator.getDept().getDeptName());
+            history.setOldState(oldState);
+            history.setNewState(newState);
+            history.setComment(comment);
+            
+            sysApprovalHistoryService.insertSysApprovalHistory(history);
+        } catch (Exception e) {
+            // 记录错误日志，但不影响主流程
+            e.printStackTrace();
+        }
     }
 
 
     @Override
     @Transactional
     public int hxBh(String id, Long uid, String remark, String urlFlag) {
-        String state = "8";
+        // 获取原始状态
+        SciJiaocairuanzhu originalJiaocairuanzhu = sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuById(Integer.valueOf(id));
+        String oldState = originalJiaocairuanzhu.getState();
+        
+        String state = "TEXTBOOK_REJECTED";
         SciJiaocairuanzhuPiyue sciJiaocairuanzhuPiyue = new SciJiaocairuanzhuPiyue();
+        String comment = remark;
         if (urlFlag.equals("hecha")) {
-            state = "5";
             sciJiaocairuanzhuPiyue.setState("被学院驳回");
+            comment = "学院驳回: " + remark;
         } else if (urlFlag.equals("pro")) {
-            state = "3";
             sciJiaocairuanzhuPiyue.setState("被教研室驳回");
+            comment = "教研室驳回: " + remark;
         } else if (urlFlag.equals("chayue")) {
-            state = "7";
-            sciJiaocairuanzhuPiyue.setState("被科研室驳回");
+            sciJiaocairuanzhuPiyue.setState("被科研处驳回");
+            comment = "科研处驳回: " + remark;
         }
         int a = sciJiaocairuanzhuMapper.hxPass(id, state);
 
@@ -264,6 +341,10 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
         sciJiaocairuanzhuPiyue.setConcate(remark);
 
         sciJiaocairuanzhuPiyueMapper.insertSciJiaocairuanzhuPiyue(sciJiaocairuanzhuPiyue);
+        
+        // 保存审批历史记录
+        saveApprovalHistory(Integer.valueOf(id), oldState, state, uid, "reject", comment);
+        
         return a;
     }
 
@@ -338,19 +419,14 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
         SciJiaocairuanzhuPiyue sciJiaocairuanzhuPiyue = new SciJiaocairuanzhuPiyue();
 
         switch (state) {
-//            教研室
-            case "2":
-                newState = "1";
-                sciJiaocairuanzhuPiyue.setState("教研室撤回");
+//            科研处审批撤回 --> 教研室审批
+            case "TEXTBOOK_KYC_AUDIT":
+                newState = "TEXTBOOK_JYS_AUDIT";
+                sciJiaocairuanzhuPiyue.setState("科研处撤回");
                 break;
-            //            学院
-            case "4":
-                newState = "2";
-                sciJiaocairuanzhuPiyue.setState("学院撤回");
-                break;
-            //            科研处
-            case "6":
-                newState = "4";
+            //            已通过撤回 --> 科研处审批
+            case "TEXTBOOK_PASSED":
+                newState = "TEXTBOOK_KYC_AUDIT";
                 sciJiaocairuanzhuPiyue.setState("科研处撤回");
                 sciJiaocairuanzhuMapper.updateJifen(Long.valueOf(id), 0);
                 break;

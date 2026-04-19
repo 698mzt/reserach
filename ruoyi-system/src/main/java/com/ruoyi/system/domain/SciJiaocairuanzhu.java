@@ -461,30 +461,16 @@ public class SciJiaocairuanzhu extends BaseEntity
             return "";
         }
         switch (this.state) {
-            case "APPLY_DRAFT":
-                return "立项-草稿";
-            case "APPLY_JYS_AUDIT":
-                return "立项-教研室审批中";
-            case "APPLY_XY_AUDIT":
-                return "立项-学院审批中";
-            case "APPLY_JWC_AUDIT":
-                return "立项-教务处审批中";
-            case "APPLY_PASSED":
-                return "立项-通过";
-            case "APPLY_REJECTED":
-                return "立项-驳回";
-            case "OVER_DRAFT":
-                return "结项-草稿";
-            case "OVER_JYS_AUDIT":
-                return "结项-教研室审批中";
-            case "OVER_XY_AUDIT":
-                return "结项-学院审批中";
-            case "OVER_JWC_AUDIT":
-                return "结项-教务处审批中";
-            case "OVER_PASSED":
-                return "结项-通过";
-            case "OVER_REJECTED":
-                return "结项-驳回";
+            case "TEXTBOOK_DRAFT":
+                return "教材专著-草稿";
+            case "TEXTBOOK_JYS_AUDIT":
+                return "教材专著-教研室审批";
+            case "TEXTBOOK_KYC_AUDIT":
+                return "教材专著-科研处审批";
+            case "TEXTBOOK_PASSED":
+                return "教材专著-通过";
+            case "TEXTBOOK_REJECTED":
+                return "教材专著-驳回";
             // 兼容旧状态码
             case "0":
                 return "草稿箱";
