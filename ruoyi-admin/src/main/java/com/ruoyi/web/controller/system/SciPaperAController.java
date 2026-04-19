@@ -24,6 +24,7 @@ import com.ruoyi.system.domain.SciHorizontalApply;
 import com.ruoyi.system.domain.SciHorizontalPiyue;
 import com.ruoyi.system.domain.SciPaperAr;
 import com.ruoyi.system.domain.Paper_user_score;
+import com.ruoyi.system.domain.SysApprovalHistory;
 import com.ruoyi.system.service.*;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -214,7 +215,7 @@ public class SciPaperAController extends BaseController {
                 sciPaperA.setUserId(userId);
                 String user_name = userService.selectUserByLoginName(getLoginName()).getUserName();
                 sciPaperA.setTeacherName(user_name);
-                sciPaperA.setState("99");
+                sciPaperA.setState(SciPaperA.PAPER_DRAFT);
 //                if (!sciPaperA.getPaperCategory().equals("8") && !sciPaperA.getPaperCategory().equals("9")) {
 //                    if (sciPaperA.getSearch_web() == null || sciPaperA.getSearch_web().length() <= 0){
 //                        //throw new RuntimeException("论文网址不能为空");
@@ -224,6 +225,28 @@ public class SciPaperAController extends BaseController {
                     if (sciPaperA.getText_paper() == null || sciPaperA.getText_paper().length() <= 0){
                         throw new RuntimeException("非校刊录用/检索证明不能为空");
                     }
+                }
+
+                // 计算预计科研分
+                String paperCategory = sciPaperA.getPaperCategory();
+                if (paperCategory != null && !paperCategory.isEmpty()) {
+                    // 构建作者信息Map
+                    Map<String, String> authors = new HashMap<>();
+                    authors.put("1", sciPaperA.getFirstPersonId());
+                    authors.put("2", sciPaperA.getSecondPersonId());
+                    authors.put("3", sciPaperA.getThirdPersonId());
+                    authors.put("4", sciPaperA.getFourthPersonId());
+                    
+                    // 获取通讯作者ID
+                    String communicationAuthorId = sciPaperA.getCommunicationAuthorId();
+                    
+                    // 计算分数
+                    Map<String, Integer> scores = sciPaperAService.calculatePaperScore(paperCategory, authors, communicationAuthorId);
+                    
+                    // 取第一作者的分数作为预计科研分
+                    String firstKey = "1_" + sciPaperA.getFirstPersonId();
+                    int expectedScore = scores.getOrDefault(firstKey, 0);
+                    sciPaperA.setExpectedResearchScore(String.valueOf(expectedScore));
                 }
 
                 //插入论文数据
@@ -552,6 +575,27 @@ public class SciPaperAController extends BaseController {
 //                    throw new RuntimeException("非校刊录用/检索证明不能为空");
 //                }
 //            }
+            // 计算预计科研分
+            String paperCategory = sciPaperA.getPaperCategory();
+            if (paperCategory != null && !paperCategory.isEmpty()) {
+                // 构建作者信息Map
+                Map<String, String> authors = new HashMap<>();
+                authors.put("1", sciPaperA.getFirstPersonId());
+                authors.put("2", sciPaperA.getSecondPersonId());
+                authors.put("3", sciPaperA.getThirdPersonId());
+                authors.put("4", sciPaperA.getFourthPersonId());
+                
+                // 获取通讯作者ID
+                String communicationAuthorId = sciPaperA.getCommunicationAuthorId();
+                
+                // 计算分数
+                Map<String, Integer> scores = sciPaperAService.calculatePaperScore(paperCategory, authors, communicationAuthorId);
+                
+                // 取第一作者的分数作为预计科研分
+                String firstKey = "1_" + sciPaperA.getFirstPersonId();
+                int expectedScore = scores.getOrDefault(firstKey, 0);
+                sciPaperA.setExpectedResearchScore(String.valueOf(expectedScore));
+            }
             // 更新论文基本信息
             int result = sciPaperAService.updateSciPaperA(sciPaperA);
             
@@ -597,42 +641,32 @@ public class SciPaperAController extends BaseController {
     /**
      * 论文审核通过
      * @param id 论文ID
-     * @param urlFlag URL标识，用于区分审核类型
+     * @param comment 审批意见
      * @param paperCategory 论文类别
-     * @param paperRanking 论文排名
      * @return 审核结果
-     * @SQL 1. 执行pytg更新论文状态
-     * 2. 执行insertSciPaperAr插入审核记录
-     * 3. 执行updateSciPaperArs更新论文积分（科研处审核时）
      */
     @RequiresPermissions(value = {"system:paper:xypy", "system:paper:process", "system:paper:kypy"}, logical = Logical.OR)
     @Log(title = "论文审核通过", businessType = BusinessType.UPDATE)
     @PostMapping("/pytg/{id}")
     @ResponseBody
-    public AjaxResult pytg(@PathVariable("id") String id, String urlFlag, String paperCategory, String paperRanking) {
+    public AjaxResult pytg(@PathVariable("id") String id, String comment, String paperCategory) {
         String order = paperCategory;
-        //System.out.println("paperCategory = " + paperCategory);
-        String user_order = paperRanking;
-        //System.out.println("paperRanking = " + paperRanking);
-        return toAjax(sciPaperAService.pytg(id, getUserId(), urlFlag, order, user_order));
+        return toAjax(sciPaperAService.pytg(id, getUserId(), comment, order));
     }
 
     /**
      * 论文审核驳回或撤回
      * @param id 论文ID
      * @param remark 驳回或撤回原因
-     * @param urlFlag URL标识，用于区分操作类型
+     * @param operationType 操作类型：reject(驳回) 或 recall(撤回)
      * @return 操作结果
-     * @SQL 1. 执行pybh更新论文状态
-     * 2. 执行insertSciPaperAr插入操作记录
-     * 3. 执行updateScoreByPaperId更新论文积分（科研处撤回时）
      */
     @RequiresPermissions(value = {"system:paper:xypy", "system:paper:process", "system:paper:kypy", "system:paper:xyrevoke", "system:paper:kyrevoke"}, logical = Logical.OR)
     @Log(title = "论文审核驳回", businessType = BusinessType.UPDATE)
     @PostMapping("/pybh/{id}")
     @ResponseBody
-    public AjaxResult pybh(@PathVariable("id") String id, String remark, String urlFlag) {
-        return toAjax(sciPaperAService.pybh(id, getUserId(), remark, urlFlag));
+    public AjaxResult pybh(@PathVariable("id") String id, String remark, String operationType) {
+        return toAjax(sciPaperAService.pybh(id, getUserId(), remark, operationType));
     }
 
 
