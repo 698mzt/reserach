@@ -24,6 +24,7 @@ import com.ruoyi.system.domain.SciHorizontalApply;
 import com.ruoyi.system.domain.SciHorizontalPiyue;
 import com.ruoyi.system.domain.SciPaperAr;
 import com.ruoyi.system.domain.Paper_user_score;
+import com.ruoyi.system.domain.SysApprovalHistory;
 import com.ruoyi.system.service.*;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -640,42 +641,32 @@ public class SciPaperAController extends BaseController {
     /**
      * 论文审核通过
      * @param id 论文ID
-     * @param urlFlag URL标识，用于区分审核类型
+     * @param comment 审批意见
      * @param paperCategory 论文类别
-     * @param paperRanking 论文排名
      * @return 审核结果
-     * @SQL 1. 执行pytg更新论文状态
-     * 2. 执行insertSciPaperAr插入审核记录
-     * 3. 执行updateSciPaperArs更新论文积分（科研处审核时）
      */
     @RequiresPermissions(value = {"system:paper:xypy", "system:paper:process", "system:paper:kypy"}, logical = Logical.OR)
     @Log(title = "论文审核通过", businessType = BusinessType.UPDATE)
     @PostMapping("/pytg/{id}")
     @ResponseBody
-    public AjaxResult pytg(@PathVariable("id") String id, String urlFlag, String paperCategory, String paperRanking) {
+    public AjaxResult pytg(@PathVariable("id") String id, String comment, String paperCategory) {
         String order = paperCategory;
-        //System.out.println("paperCategory = " + paperCategory);
-        String user_order = paperRanking;
-        //System.out.println("paperRanking = " + paperRanking);
-        return toAjax(sciPaperAService.pytg(id, getUserId(), urlFlag, order, user_order));
+        return toAjax(sciPaperAService.pytg(id, getUserId(), comment, order));
     }
 
     /**
      * 论文审核驳回或撤回
      * @param id 论文ID
      * @param remark 驳回或撤回原因
-     * @param urlFlag URL标识，用于区分操作类型
+     * @param operationType 操作类型：reject(驳回) 或 recall(撤回)
      * @return 操作结果
-     * @SQL 1. 执行pybh更新论文状态
-     * 2. 执行insertSciPaperAr插入操作记录
-     * 3. 执行updateScoreByPaperId更新论文积分（科研处撤回时）
      */
     @RequiresPermissions(value = {"system:paper:xypy", "system:paper:process", "system:paper:kypy", "system:paper:xyrevoke", "system:paper:kyrevoke"}, logical = Logical.OR)
     @Log(title = "论文审核驳回", businessType = BusinessType.UPDATE)
     @PostMapping("/pybh/{id}")
     @ResponseBody
-    public AjaxResult pybh(@PathVariable("id") String id, String remark, String urlFlag) {
-        return toAjax(sciPaperAService.pybh(id, getUserId(), remark, urlFlag));
+    public AjaxResult pybh(@PathVariable("id") String id, String remark, String operationType) {
+        return toAjax(sciPaperAService.pybh(id, getUserId(), remark, operationType));
     }
 
 

@@ -91,17 +91,7 @@
         p.paper_ranking,
         p.research_score,
         p.remarks,
-        CASE p.state
-            WHEN '99' THEN 'PAPER_DRAFT'
-            WHEN '1' THEN 'PAPER_JYS_AUDIT'
-            WHEN '2' THEN 'PAPER_JYS_AUDIT'
-            WHEN '3' THEN 'PAPER_REJECTED'
-            WHEN '4' THEN 'PAPER_KYC_AUDIT'
-            WHEN '5' THEN 'PAPER_REJECTED'
-            WHEN '7' THEN 'PAPER_REJECTED'
-            WHEN '8' THEN 'PAPER_PASSED'
-            ELSE p.state
-        END AS state,
+        p.state,
         p.is_Independentauthor,
         pa1.user_name as first_author_name,
         pa1.user_id as first_author_id,
@@ -181,7 +171,7 @@
             <if test="researchRoom != null  and researchRoom != ''"> and d.dept_name like concat('%', #{researchRoom}, '%')</if>
             <if test="firstAuthorName != null  and firstAuthorName != ''"> and pa1.user_name like concat('%', #{firstAuthorName}, '%')</if>
         </where>
-      order  by field(p.state ,'1','2','4')
+      order  by field(p.state ,'PAPER_JYS_AUDIT','PAPER_KYC_AUDIT')
     </select>
     
     <select id="selectSciPaperAListAll" parameterType="SciPaperA" resultMap="SciPaperAResult">
@@ -212,17 +202,7 @@
         p.paper_ranking,
         p.research_score,
         p.remarks,
-        CASE p.state
-            WHEN '99' THEN 'PAPER_DRAFT'
-            WHEN '1' THEN 'PAPER_JYS_AUDIT'
-            WHEN '2' THEN 'PAPER_JYS_AUDIT'
-            WHEN '3' THEN 'PAPER_REJECTED'
-            WHEN '4' THEN 'PAPER_KYC_AUDIT'
-            WHEN '5' THEN 'PAPER_REJECTED'
-            WHEN '7' THEN 'PAPER_REJECTED'
-            WHEN '8' THEN 'PAPER_PASSED'
-            ELSE p.state
-        END AS state,
+        p.state,
         p.is_Independentauthor,
         pa1.user_name as first_author_name,
         pa1.user_id as first_author_id,
@@ -300,13 +280,13 @@
             <if test="researchRoom != null  and researchRoom != ''"> and d.dept_name like concat('%', #{researchRoom}, '%')</if>
             <if test="firstAuthorName != null  and firstAuthorName != ''"> and pa1.user_name like concat('%', #{firstAuthorName}, '%')</if>
         </where>
-      order  by field(p.state ,'1','2','4')
+      order  by field(p.state ,'PAPER_JYS_AUDIT','PAPER_KYC_AUDIT')
     </select>
 <!--待科研处审核，完成-->
     <select id="selectSciPaperAListKY" parameterType="SciPaperA" resultMap="SciPaperAResult">
         <include refid="selectSciPaperAVo"/>
         where
-            (p.state in (4,8)  or(pa1.user_id = #{uid} or  pa2.user_id = #{uid} or pa3.user_id = #{uid}  or pa4.user_id = #{uid} or pac.user_id = #{uid}))
+            (p.state in ('PAPER_KYC_AUDIT','PAPER_PASSED')  or(pa1.user_id = #{uid} or  pa2.user_id = #{uid} or pa3.user_id = #{uid}  or pa4.user_id = #{uid} or pac.user_id = #{uid}))
             <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
             <if test="teacherName != null  and teacherName != ''"> and teacher_name like concat('%', #{teacherName}, '%')</if>
             <if test="paperTitle != null  and paperTitle != ''"> and paper_title like concat('%', #{paperTitle},'%')</if>
@@ -326,7 +306,7 @@
             <if test="researchRoom != null  and researchRoom != ''"> and d.dept_name like concat('%', #{researchRoom}, '%')</if>
             <if test="firstAuthorName != null  and firstAuthorName != ''"> and pa1.user_name like concat('%', #{firstAuthorName}, '%')</if>
         ${params.dataScope}
-        order by field(p.state , '4','8', '1', '2')
+        order by field(p.state , 'PAPER_KYC_AUDIT','PAPER_PASSED', 'PAPER_JYS_AUDIT')
     </select>
   <!--待学院审核，完成-->
     <select id="selectSciPaperAListXY" parameterType="SciPaperA" resultMap="SciPaperAResult">
@@ -357,17 +337,7 @@
         p.paper_ranking,
         p.research_score,
         p.remarks,
-        CASE p.state
-            WHEN '99' THEN 'PAPER_DRAFT'
-            WHEN '1' THEN 'PAPER_JYS_AUDIT'
-            WHEN '2' THEN 'PAPER_JYS_AUDIT'
-            WHEN '3' THEN 'PAPER_REJECTED'
-            WHEN '4' THEN 'PAPER_KYC_AUDIT'
-            WHEN '5' THEN 'PAPER_REJECTED'
-            WHEN '7' THEN 'PAPER_REJECTED'
-            WHEN '8' THEN 'PAPER_PASSED'
-            ELSE p.state
-        END AS state,
+        p.state,
         p.is_Independentauthor,
         pa1.user_name as first_author_name,
         pa1.user_id as first_author_id,
@@ -424,7 +394,7 @@
         ) pac on p.id = pac.paper_id
         <where>
             (
-                p.state in (2, 4, 8) and pt.dept_id = #{collegeId}
+                p.state in ('PAPER_JYS_AUDIT', 'PAPER_KYC_AUDIT', 'PAPER_PASSED') and pt.dept_id = #{collegeId}
                 or (pa1.user_id = #{uid} or  pa2.user_id = #{uid} or pa3.user_id = #{uid}  or pa4.user_id = #{uid} or pac.user_id = #{uid})
             )
             <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
@@ -446,7 +416,7 @@
             <if test="remarks != null  and remarks != ''"> and remarks = #{remarks}</if>
             <if test="year != null  and year != ''"> and YEAR(publication_time) = #{year}</if>
         </where>
-      order  by field(p.state ,'2','4','1','8')
+      order  by field(p.state ,'PAPER_JYS_AUDIT','PAPER_KYC_AUDIT','PAPER_PASSED')
     </select>
 
     <select id="selectSciPaperAListCxList" parameterType="SciPaperA" resultMap="SciPaperAResult">
@@ -457,17 +427,7 @@
         p.paper_title, p.paper_category, p.published_journal,p.publication_time, p.is_industry_collaborative,
         p.is_local_collaborative, p.is_international_collaborative, p.is_cross_discipline, p.paper_ranking,
         p.research_score, p.remarks,
-        CASE p.state
-            WHEN '99' THEN 'PAPER_DRAFT'
-            WHEN '1' THEN 'PAPER_JYS_AUDIT'
-            WHEN '2' THEN 'PAPER_JYS_AUDIT'
-            WHEN '3' THEN 'PAPER_REJECTED'
-            WHEN '4' THEN 'PAPER_KYC_AUDIT'
-            WHEN '5' THEN 'PAPER_REJECTED'
-            WHEN '7' THEN 'PAPER_REJECTED'
-            WHEN '8' THEN 'PAPER_PASSED'
-            ELSE p.state
-        END AS state,
+        p.state,
         p.is_Independentauthor,
         pa1.user_name as first_author_name,
         pa1.user_id as first_author_id,
@@ -522,7 +482,7 @@
         ) pac on p.id = pac.paper_id
         <where>
             (
-                (p.state in (1,2,8) ${params.dataScope})
+                (p.state in ('PAPER_JYS_AUDIT','PAPER_PASSED') ${params.dataScope})
                 or (pa1.user_id = #{uid} or  pa2.user_id = #{uid} or pa3.user_id = #{uid}  or pa4.user_id = #{uid} or pac.user_id = #{uid})
             )
             /*${params.dataScope}*/
@@ -546,7 +506,7 @@
             <if test="year != null  and year != ''"> and YEAR(publication_time) = #{year}</if>
         </where>
 
-      order  by field(p.state ,'1','2','4')
+      order  by field(p.state ,'PAPER_JYS_AUDIT','PAPER_KYC_AUDIT')
 
 </select>
 
@@ -612,17 +572,7 @@
       p.paper_title, p.paper_category, p.published_journal,p.publication_time, p.is_industry_collaborative,
       p.is_local_collaborative, p.is_international_collaborative, p.is_cross_discipline, p.paper_ranking,
       p.research_score, p.remarks,
-      CASE p.state
-          WHEN '99' THEN 'PAPER_DRAFT'
-          WHEN '1' THEN 'PAPER_JYS_AUDIT'
-          WHEN '2' THEN 'PAPER_JYS_AUDIT'
-          WHEN '3' THEN 'PAPER_REJECTED'
-          WHEN '4' THEN 'PAPER_KYC_AUDIT'
-          WHEN '5' THEN 'PAPER_REJECTED'
-          WHEN '7' THEN 'PAPER_REJECTED'
-          WHEN '8' THEN 'PAPER_PASSED'
-          ELSE p.state
-      END AS state,
+      p.state,
       p.is_Independentauthor,
         pa1.user_name as first_author_name,
         pa1.user_id as first_author_id,
@@ -695,7 +645,7 @@
         <if test="remarks != null  and remarks != ''"> and remarks = #{remarks}</if>
         <if test="year != null  and year != ''"> and YEAR(publication_time) = #{year}</if>
       </where>
-      order  by field(p.state ,'1','2','4')
+      order  by field(p.state ,'PAPER_JYS_AUDIT','PAPER_KYC_AUDIT')
     </select>
 
     <select id="selectSciPaperAByroleId" parameterType="Long" resultType="String">
@@ -722,17 +672,7 @@
         d.dept_name dname,pt.dept_name college, p.teacher_name,u.tea_zhicheng on_campus_title,
         p.paper_title, p.paper_category, p.published_journal,p.publication_time, p.is_industry_collaborative,
         p.is_local_collaborative, p.is_international_collaborative, p.is_cross_discipline, p.paper_ranking, p.research_score, p.remarks,
-        CASE p.state
-            WHEN '99' THEN 'PAPER_DRAFT'
-            WHEN '1' THEN 'PAPER_JYS_AUDIT'
-            WHEN '2' THEN 'PAPER_JYS_AUDIT'
-            WHEN '3' THEN 'PAPER_REJECTED'
-            WHEN '4' THEN 'PAPER_KYC_AUDIT'
-            WHEN '5' THEN 'PAPER_REJECTED'
-            WHEN '7' THEN 'PAPER_REJECTED'
-            WHEN '8' THEN 'PAPER_PASSED'
-            ELSE p.state
-        END AS state,
+        p.state,
         r.data_scope
         from sci_paper_a p
         left join sys_user u on  p.user_id=u.user_id
@@ -762,17 +702,7 @@
                p.word_paper,p.search_web, p.is_industry_collaborative,
                p.is_local_collaborative, p.is_international_collaborative, p.is_cross_discipline,
                p.paper_ranking, p.research_score, p.remarks,
-               CASE p.state
-                   WHEN '99' THEN 'PAPER_DRAFT'
-                   WHEN '1' THEN 'PAPER_JYS_AUDIT'
-                   WHEN '2' THEN 'PAPER_JYS_AUDIT'
-                   WHEN '3' THEN 'PAPER_REJECTED'
-                   WHEN '4' THEN 'PAPER_KYC_AUDIT'
-                   WHEN '5' THEN 'PAPER_REJECTED'
-                   WHEN '7' THEN 'PAPER_REJECTED'
-                   WHEN '8' THEN 'PAPER_PASSED'
-                   ELSE p.state
-               END AS state
+               p.state
         from sci_paper_a p
         <where>
             <if test="query != null and query != ''">
@@ -958,17 +888,7 @@
         p.paper_ranking,
         p.research_score,
         p.remarks,
-        CASE p.state
-            WHEN '99' THEN 'PAPER_DRAFT'
-            WHEN '1' THEN 'PAPER_JYS_AUDIT'
-            WHEN '2' THEN 'PAPER_JYS_AUDIT'
-            WHEN '3' THEN 'PAPER_REJECTED'
-            WHEN '4' THEN 'PAPER_KYC_AUDIT'
-            WHEN '5' THEN 'PAPER_REJECTED'
-            WHEN '7' THEN 'PAPER_REJECTED'
-            WHEN '8' THEN 'PAPER_PASSED'
-            ELSE p.state
-        END AS state,
+        p.state,
         pa1.user_name as first_author_name,
         pa1.user_id as first_author_id,
         pa1.score as first_author_score,
@@ -1048,13 +968,13 @@
             and p.paper_title like concat('%', #{topicName}, '%')
         </if>
         <if test='state != null and state != "" and state!="null" and state =="1" '>
-            AND p.state in (3,5,7,9,10,22,44,99)
+            AND p.state in ('PAPER_DRAFT','PAPER_REJECTED')
         </if>
         <if test='state != null and state != "" and state!="null" and state =="2"'>
-            AND p.state in (1,2,4,6,11,33)
+            AND p.state in ('PAPER_JYS_AUDIT','PAPER_KYC_AUDIT')
         </if>
         <if test='state != null and state != "" and state!="null" and state =="3"'>
-            AND p.state in (8)
+            AND p.state in ('PAPER_PASSED')
         </if>
         order by createtime desc
     </select>
@@ -1102,13 +1022,13 @@
             and spa.paper_title like concat('%', #{topicName}, '%')
         </if>
         <if test='state != null and state != "" and state!="null" and state =="1" '>
-            AND spa.state in (3,5,7,9,10,22,44,99)
+            AND spa.state in ('PAPER_DRAFT','PAPER_REJECTED')
         </if>
         <if test='state != null and state != "" and state!="null" and state =="2"'>
-            AND spa.state in (1,2,4,6,11,33)
+            AND spa.state in ('PAPER_JYS_AUDIT','PAPER_KYC_AUDIT')
         </if>
         <if test='state != null and state != "" and state!="null" and state =="3"'>
-            AND spa.state in (8)
+            AND spa.state in ('PAPER_PASSED')
         </if>
         <if test="year != null and year != '' and year != 'null'">
             AND YEAR(DATE_ADD(spa.publication_time, INTERVAL 1 MONTH)) = #{year}

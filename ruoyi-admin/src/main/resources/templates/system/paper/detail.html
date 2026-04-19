@@ -589,47 +589,45 @@
     })
 
     function submitHandler() {
-        var urlFlag = $("#urlFlag").val();
         var paperCategory = $("#paperCategory").val();
-        // console.log("paperCategory:", paperCategory);
+        var remark = $('#remark').val();
         // 构建完整的URL
         var Url = prefix + "/pytg/" + encodeURIComponent($("#pid").val());
 
-        $.operate.saveTab(Url, {"urlFlag": urlFlag,"paperCategory":paperCategory}, function(response){
+        $.operate.saveTab(Url, {"comment": remark,"paperCategory":paperCategory}, function(response){
             // console.log("Server response:", response);
         });
     }
 
     function submitHandlerBH() {
         var urlFlag = $("#urlFlag").val();
-        // 批阅的驳回不能不写批注
+        var operationType = '';
+        
+        // 根据urlFlag确定操作类型
         if (['pro', 'xytg', 'kytg'].includes(urlFlag)) {
-            // 如果urlFlag是这些值之一，则remark字段必填
+            operationType = 'reject';
+            // 驳回不能不写批注
             if (!$('#remark').val().trim()) {
                 $.modal.confirm("批注不能为空");
                 return false;
             }
+        } else if (['proth', 'xyth', 'kyth'].includes(urlFlag)) {
+            operationType = 'recall';
         }
-        if ($.validate.form()) {
-            //console.log("Submitting with urlFlag:", urlFlag);
-            var remark = $('#remark').val();  // 直接获取textarea的值
-            //console.log("urlFlagBH:", urlFlag)
-            //console.log("remark:", remark)
+        
+        if ($.validate.form() && operationType) {
+            var remark = $('#remark').val();
             var url = prefix + "/pybh/" + encodeURIComponent($("#pid").val());
 
-                if (['pro', 'xytg', 'kytg'].includes(urlFlag)) {
-                    $.modal.confirm("确定 驳回 吗" ,function() {
-                        $.operate.saveTab(url, {"urlFlag": urlFlag, "remark": remark});
-                    });
-                }else{
-                    $.modal.confirm("确定 撤回 吗" ,function() {
-                        $.operate.saveTab(url, {"urlFlag": urlFlag, "remark": remark});
-                    });
-                }
-
-
-
-
+            if (operationType === 'reject') {
+                $.modal.confirm("确定 驳回 吗" ,function() {
+                    $.operate.saveTab(url, {"operationType": operationType, "remark": remark});
+                });
+            } else if (operationType === 'recall') {
+                $.modal.confirm("确定 撤回 吗" ,function() {
+                    $.operate.saveTab(url, {"operationType": operationType, "remark": remark});
+                });
+            }
         } else {
             // console.error("Form validation failed");
         }
