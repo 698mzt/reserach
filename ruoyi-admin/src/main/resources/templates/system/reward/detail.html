@@ -13,7 +13,10 @@
 <body class="white-bg">
 <div class="wrapper wrapper-content animated fadeInRight ibox-content">
     <form class="form-horizontal m" id="form-reward-edit" th:object="${sysReward}">
+        <!--批阅或核查的标识-->
+        <input name="urlFlag" id="urlFlag" th:field="*{urlFlag}" type="hidden">
         <input name="id" id="ktid" th:field="*{id}" type="hidden">
+        <input id="state" th:field="*{state}" type="hidden">
         <div class="row">
 
             <div class="col-xs-6">
@@ -61,15 +64,6 @@
                     <label class="col-sm-4 control-label is-required">分类：</label>
                     <div class="col-sm-8">
                         <select name="rewardFenlei" class="form-control" th:field="*{rewardFenlei}" type="text" th:with="type=${@dict.getType('sys_reward_fenlei')}"   disabled="disabled">
-                            <!--                            <option value="省级教学成果奖">省级教学成果奖</option>-->
-                            <!--                            <option value="省级科学技术奖">省级科学技术奖</option>-->
-                            <!--                            <option value="省级一流精品课评比">省级一流精品课评比</option>-->
-                            <!--                            <option value="市、厅局级自然科学类评奖">市、厅局级自然科学类评奖</option>-->
-                            <!--                            <option value="市、厅局级社科类评奖">市、厅局级社科类评奖</option>-->
-                            <!--                            <option value="校级教学成果奖">校级教学成果奖</option>-->
-                            <!--                            <option value="应用型科研校级成果奖">应用型科研校级成果奖</option>-->
-                            <!--                            <option value="校级精品课评比">校级精品课评比</option>-->
-                            <!--                            <option value="指导学生参加国家科创大赛且获得名次">指导学生参加国家科创大赛且获得名次</option>-->
                             <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
                         </select>
                     </div>
@@ -81,11 +75,6 @@
                     <label class="col-sm-4 control-label is-required">排名：</label>
                     <div class="col-sm-8">
                         <select name="rewardPaiming" th:field="*{rewardPaiming}" class="form-control" type="text" th:with="type=${@dict.getType('sys_reward_paiming')}"  disabled="disabled">
-                            <!--                            <option value="一">一</option>-->
-                            <!--                            <option value="二">二</option>-->
-                            <!--                            <option value="三">三</option>-->
-                            <!--                            <option value="四">四</option>-->
-                            <!--                            <option value="五">五</option>-->
                             <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
                         </select>
                     </div>
@@ -239,8 +228,19 @@
             </div>
         </div>
 
-        <h4 class="form-header h4">批阅记录</h4>
-        <div class="row">
+        <h4 class="form-header h4 tdiv1" style="display:none; margin-top: 20px;">批阅记录</h4>
+        <div class="row tdiv1" style="display:none; margin-top: 10px;">
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <label class="col-xs-2 control-label">批注：</label>
+                    <div class="col-xs-10">
+                        <textarea name="remark" id="remark" maxlength="500" class="form-control" rows="3"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <h4 class="form-header h4 tdiv2" style="display:none; margin-top: 20px;">批阅记录</h4>
+        <div class="row tdiv2" style="display:none; margin-top: 10px;">
             <div class="col-sm-12">
                 <div class="form-group">
                     <table id="bootstrap-table"></table>
@@ -250,9 +250,13 @@
 
     </form>
 </div>
+</div>
 <div class="row">
     <div class="col-sm-offset-5 col-sm-10">
-        <button type="button" class="btn btn-sm btn-danger" onclick="closeItem()"> 关 闭 </button>
+        <button type="button" id="btn1" class="btn btn-sm btn-primary" onclick="submitHandler()">  通 过</button>&nbsp;
+        <button type="button" id="btn2" class="btn btn-sm btn-danger" onclick="submitHandlerBH()"> 驳 回</button>
+        <button type="button" id="btn4" class="btn btn-sm btn-danger" onclick="submitHandlerRecall()"> 撤 回</button>
+        <button type="button" id="btn3" class="btn btn-sm btn-warning" onclick="closeItem()"> 关 闭 </button>
     </div>
 </div>
 <th:block th:include="include :: footer" />
@@ -295,6 +299,45 @@
             ]
         };
         $.table.init(options);
+
+        $('#bootstrap-table').on('load-success.bs.table', function (e, data) {
+            const rows = data && data.rows ? data.rows : [];
+            const state = $("#state").val();
+            const urlFlag = $("#urlFlag").val();
+
+            $("#btn3").show();
+            if (urlFlag === 'chakan') {
+                $("#btn1").hide();
+                $("#btn2").hide();
+                $(".tdiv2").show();
+                $("#btn4").hide();
+            } else {
+                if (state === 'REWARD_JYS_AUDIT' || state === 'REWARD_KYC_AUDIT') {
+                    if (rows.length > 0) {
+                        $(".tdiv2").show();
+                    }
+                    $(".tdiv1").show();
+                    $("#btn1").show();
+                    $("#btn2").show();
+                    $("#btn4").hide();
+                }
+            }
+
+            if (state === 'REWARD_PASSED' || state === 'REWARD_REJECTED') {
+                $("#btn1").hide();
+                $("#btn2").hide();
+                $("#btn4").hide();
+            }
+
+            if (['chayue'].includes(urlFlag) && state === 'REWARD_PASSED') {
+                $(".tdiv1").show();
+                $(".tdiv2").show();
+                $("#btn1").hide();
+                $("#btn2").hide();
+                $("#btn4").show();
+            }
+        });
+
         // 加载积分配置，显示预计科研分
         loadScoreConfigs();
     });
@@ -307,10 +350,45 @@
     });
 
     function submitHandler() {
-        if ($.validate.form()) {
-            $.operate.saveTab(prefix + "/edit", $('#form-reward-edit').serialize());
-            loadScoreConfigs(); // 加载积分配置
+        var urlFlag = $("#urlFlag").val();
+        // 构建完整的URL
+        var Url = prefix + "/hxPass";
+
+        $.operate.saveTab(Url, {"id": $("#ktid").val(), "urlFlag": urlFlag}, function(response){
+            // 处理响应
+        });
+    }
+
+    function submitHandlerBH() {
+        var urlFlag = $("#urlFlag").val();
+        var remark = $('#remark').val();  // 直接获取textarea的值
+        
+        // 批阅的驳回不能不写批注
+        if (['pro', 'chayue'].includes(urlFlag)) {
+            // 如果urlFlag是这些值之一，则remark字段必填
+            if (!remark.trim()) {
+                $.modal.confirm("批注不能为空");
+                return false;
+            }
         }
+        
+        // 驳回操作
+        var url = prefix + "/hxBh";
+        $.modal.confirm("确定 驳回 吗" ,function() {
+            $.operate.saveTab(url, {"id": $("#ktid").val(), "remark": remark, "urlFlag": urlFlag});
+        });
+    }
+
+    function submitHandlerRecall() {
+        var urlFlag = $("#urlFlag").val();
+        var remark = $('#remark').val();  // 直接获取textarea的值
+        var state = $("#state").val();
+        
+        // 撤回操作
+        var url = prefix + "/recallsave";
+        $.modal.confirm("确定 撤回 吗" ,function() {
+            $.operate.saveTab(url, {"id": $("#ktid").val(), "state": state, "remark": remark, "urlFlag": urlFlag});
+        });
     }
     function chakan(){
         var c = $("#rewardWenjian").val();

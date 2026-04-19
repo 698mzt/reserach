@@ -74,8 +74,8 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">排名：</label>
                     <div class="col-sm-8">
-                        <select name="rewardPaiming" class="form-control" th:with="type=${@dict.getType('sys_reward_paiming')}" required >
-                            <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
+                        <select name="rewardPaiming" class="form-control" th:with="type=${@dict.getType('sys_reward_paiming')}" required disabled>
+                            <option value="1" selected>第一名</option>
                         </select>
                     </div>
                 </div>
@@ -238,11 +238,8 @@
             var originalOptions = $(this).html();
             $(this).data('original-options', originalOptions);
         });
-        // 监听排名变化
-        $('select[name="rewardPaiming"]').on('change', function() {
-            var selectedRank = $(this).val();
-            arrangeMembersByRank(selectedRank);
-        });
+        // 排名固定为第一名，初始化时触发排名安排，让主持人默认为当前用户
+        arrangeMembersByRank('1');
         // 初始化Select2
         $('#firstPersonSelect,select[name="secondPersonId"], select[name="thirdPersonId"], select[name="fourthPersonId"]').select2({
             width: '100%',
@@ -389,7 +386,7 @@
         }
 
         // 提交前重新启用所有禁用的下拉框，确保值能被提交
-        $('#firstPersonSelect, #member1Select, #member2Select, #member3Select, .member-select').prop('disabled', false);
+        $('#firstPersonSelect, #member1Select, #member2Select, #member3Select, .member-select, select[name="rewardPaiming"]').prop('disabled', false);
 
         if ($.validate.form()) {
             $.operate.saveTab(prefix + "/add", $('#form-reward-add').serialize());

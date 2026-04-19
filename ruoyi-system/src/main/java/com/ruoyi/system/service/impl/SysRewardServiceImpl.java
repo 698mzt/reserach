@@ -168,13 +168,11 @@ public class SysRewardServiceImpl implements ISysRewardService
      */
     @Override
     public int hxPass(String id, Long uid, String urlFlag) {
-        String state = "0";
-        if (urlFlag.equals("hecha")) {
-            state = "4";
-        } else if (urlFlag.equals("pro")) {
-            state = "2";
+        String state = "";
+        if (urlFlag.equals("pro")) {
+            state = "REWARD_KYC_AUDIT";
         } else if (urlFlag.equals("chayue")) {
-            state = "6";
+            state = "REWARD_PASSED";
             // 科研处审批通过时计算积分
             SysReward sysReward = sysRewardMapper.selectSysRewardById(Long.valueOf(id));
             String a = sysReward.getRewardFenlei();
@@ -205,14 +203,7 @@ public class SysRewardServiceImpl implements ISysRewardService
 
     @Override
     public int hxBh(String id, Long uid, String remark, String urlFlag) {
-        String state = "0";
-        if (urlFlag.equals("hecha")) {
-            state = "5";
-        } else if (urlFlag.equals("pro")) {
-            state = "3";
-        } else if (urlFlag.equals("chayue")) {
-            state = "7";
-        }
+        String state = "REWARD_REJECTED";
         int a = sysRewardMapper.hxPass(id, state);
         SysRewardPiyue sysRewardPiyue = new SysRewardPiyue();
         sysRewardPiyue.setUid(uid);
@@ -241,8 +232,32 @@ public class SysRewardServiceImpl implements ISysRewardService
     // 撤销奖励
     @Override
     public int recall(Integer id, String state, Long uid, String remark, String urlFlag) {
-        String newState = state;
-        switch (state) {
+        // 状态映射：将字符串状态转换为数字状态
+        String numericState = state;
+        if (state.startsWith("REWARD_")) {
+            switch (state) {
+                case "REWARD_DRAFT":
+                    numericState = "1";
+                    break;
+                case "REWARD_JYS_AUDIT":
+                    numericState = "2";
+                    break;
+                case "REWARD_REJECTED":
+                    numericState = "3";
+                    break;
+                case "REWARD_KYC_AUDIT":
+                    numericState = "4";
+                    break;
+                case "REWARD_PASSED":
+                    numericState = "6";
+                    break;
+                default:
+                    numericState = "1";
+            }
+        }
+        
+        String newState = numericState;
+        switch (numericState) {
             case "2":
             case "3":
                 newState = "1";
@@ -257,7 +272,7 @@ public class SysRewardServiceImpl implements ISysRewardService
                 break;
         }
         // 撤销已查阅通过的奖励时，重置积分
-        if (state.equals("6")) {
+        if (numericState.equals("6")) {
             sysRewardMapper.resetJifenById(Long.valueOf(id));
         }
 

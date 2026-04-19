@@ -164,7 +164,7 @@ public class SysRewardController extends BaseController
     @ResponseBody
     public AjaxResult addSave(SysReward sysReward)
     {
-        sysReward.setState("11"); // 初始状态
+        sysReward.setState("REWARD_DRAFT"); // 初始状态
         sysReward.setCreateBy(getUsername()); // 补充创建人
         sysReward.setCreateTime(new Date()); // 补充创建时间
         return toAjax(sysRewardService.insertSysReward(sysReward));
@@ -181,7 +181,7 @@ public class SysRewardController extends BaseController
     public AjaxResult push(@PathVariable("id") Long id, SysReward sysReward)
     {
         sysReward.setId(id);
-        String state = "1"; // 提交审批状态
+        String state = "REWARD_JYS_AUDIT"; // 提交审批状态
         sysReward.setState(state);
         sysReward.setUserId(getSysUser().getUserId());
         sysReward.setUpdateBy(getUsername()); // 补充更新人
@@ -214,7 +214,7 @@ public class SysRewardController extends BaseController
     @ResponseBody
     public AjaxResult editSave(SysReward sysReward)
     {
-        sysReward.setState("11"); // 编辑后重置为初始状态
+        sysReward.setState("REWARD_DRAFT"); // 编辑后重置为初始状态
         sysReward.setUserId(getSysUser().getUserId());
         sysReward.setUpdateBy(getUsername()); // 补充更新人
         sysReward.setUpdateTime(new Date()); // 补充更新时间
@@ -253,6 +253,8 @@ public class SysRewardController extends BaseController
     {
         SysReward sysReward = sysRewardService.selectSysRewardById(Long.valueOf(id));
         List<SysUser> userList1 = userService.selectAllUser();
+        // 将主持人设置为当前用户
+        sysReward.setFirstPersonId(String.valueOf(getUserId()));
         sysReward.setUrlFlag(urlFlag);
         mmap.put("sysUsers1", userList1);
         mmap.put("sysReward", sysReward);
