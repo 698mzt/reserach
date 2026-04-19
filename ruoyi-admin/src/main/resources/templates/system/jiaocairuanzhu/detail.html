@@ -285,6 +285,7 @@
                 $("#btn3").show();
                 $(".tdiv2").show();
             }else {
+                // 检查数字状态值
                 if(a == 2 ||a == 1 || a == 4){
                     if(name && name.rows && name.rows.length > 0){
                         $(".tdiv2").show();
@@ -296,7 +297,18 @@
                 }else if(a == 0){
                     $("#btn1").show();
                     $("#btn3").show();
-
+                }else if(a == 'TEXTBOOK_JYS_AUDIT' || a == 'TEXTBOOK_KYC_AUDIT'){
+                    // 检查字符串状态值
+                    if(name && name.rows && name.rows.length > 0){
+                        $(".tdiv2").show();
+                    }
+                    $(".tdiv1").show();
+                    $("#btn1").show();
+                    $("#btn2").show();
+                    $("#btn3").show();
+                }else if(a == 'TEXTBOOK_DRAFT'){
+                    $("#btn1").show();
+                    $("#btn3").show();
                 }
 
             }

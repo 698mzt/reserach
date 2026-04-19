@@ -171,9 +171,9 @@ public class SciJiaocairuanzhuController extends BaseController
 
         }
 
-        // 处理状态显示：状态为6显示"已完结"，其他显示"审批中"
+        // 处理状态显示：状态为APPLY_PASSED显示"已完结"，其他显示"审批中"
         for (SciJiaocairuanzhu item : list) {
-            if (item.getState() != null && "6".equals(item.getState())){
+            if (item.getState() != null && "APPLY_PASSED".equals(item.getState())){
                 item.setState("已完结");
             } else {
                 item.setState("审批中");
@@ -245,8 +245,8 @@ public class SciJiaocairuanzhuController extends BaseController
             sciJiaocairuanzhu.setJifen("0");
         }
         
-        // 设置初始状态为立项草稿
-        sciJiaocairuanzhu.setState("APPLY_DRAFT");
+        // 设置初始状态为教材专著草稿
+        sciJiaocairuanzhu.setState("TEXTBOOK_DRAFT");
         
         // 保存教材著作基本信息
         sciJiaocairuanzhuService.insertSciJiaocairuanzhu(sciJiaocairuanzhu);
@@ -333,6 +333,11 @@ public class SciJiaocairuanzhuController extends BaseController
             sciJiaocairuanzhu.setJifen(totalScore);
         } else {
             sciJiaocairuanzhu.setJifen("0");
+        }
+        
+        // 如果状态为被驳回，重置为草稿状态
+        if ("TEXTBOOK_REJECTED".equals(sciJiaocairuanzhu.getState())) {
+            sciJiaocairuanzhu.setState("TEXTBOOK_DRAFT");
         }
         
         // 保存教材著作基本信息
