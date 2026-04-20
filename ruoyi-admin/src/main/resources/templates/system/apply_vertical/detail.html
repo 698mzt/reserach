@@ -464,7 +464,7 @@
                 $("#btn3").show();
                 $(".tdiv2").show()
             }else {
-                if(a == 2 ||a == 1  || a == 4){
+                if(a == 'V_APPLY_JYS' || a == 'V_APPLY_XY' || a == 'V_APPLY_KYC' || a == 'V_OVER_JYS' || a == 'V_OVER_XY' || a == 'V_OVER_KYC'){
                     if(name.rows.length > 0){
                         $(".tdiv2").show();
                     }
@@ -539,7 +539,11 @@
         var type = getSelectValue("topType")
         var weight = getSelectValue("weight") || '1';
         var subjectSource = $("input[name='subjectSource']").val();
-            $.operate.saveTab(prefix + "/applyPass", {"id":$("#ktid").val(),"urlFlag":a,"type":type,"weight": weight,"subjectSource": subjectSource});
+        var expectedScore1 = $("#expectedScore1").val();
+        var expectedScore2 = $("#expectedScore2").val();
+        var expectedScore3 = $("#expectedScore3").val();
+        var expectedScore4 = $("#expectedScore4").val();
+            $.operate.saveTab(prefix + "/applyPass", {"id":$("#ktid").val(),"urlFlag":a,"type":type,"weight": weight,"subjectSource": subjectSource,"expectedScore1": expectedScore1,"expectedScore2": expectedScore2,"expectedScore3": expectedScore3,"expectedScore4": expectedScore4});
     }
     function submitHandlerBH() {
         var a = $("#urlFlag").val();

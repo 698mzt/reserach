@@ -80,9 +80,9 @@ public interface ISciPaperAService
 
     List<SciPaperA> selectSciPaperArole(Long userId);
 
-    int pytg(String id, Long uid, String urlFlag,String order,String user_order);
+    int pytg(String id, Long userId, String comment, String order);
 
-    int pybh(String id, Long userId, String remark, String urlFlag);
+    int pybh(String id, Long userId, String remark, String operationType);
 
     List<SciPaperA> selectAllPaperName(String query);
 

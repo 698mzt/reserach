@@ -740,7 +740,33 @@
             var huanhang = false;
             //console.log(row);
 
-            if (row.state == 0) {
+            if (row.state == 'TEXTBOOK_DRAFT') {
+              if (row.userId == row.uid) {
+                actions.push('<a class="" href="javascript:void(0)" onclick="submitDirectly(\'' + row.id + '\')"></i>提交&nbsp;&nbsp;&nbsp;&nbsp;</a>');
+                actions.push('<a class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"></i>编辑&nbsp;&nbsp;&nbsp;&nbsp;</a>');
+                actions.push('<a class="del-link-button ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"><i ></i>删除</a>');
+
+              }
+              huanhang = true;
+            } else if (row.state == 'TEXTBOOK_JYS_AUDIT') {
+              actions.push('<a class="' + proFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro' + '\')"></i>批阅</a>&nbsp;&nbsp;&nbsp;&nbsp;');
+              huanhang = true;
+            } else if (row.state == 'TEXTBOOK_REJECTED' && row.userId == row.uid) {
+              actions.push('<a class="" href="javascript:void(0)" onclick="submitDirectly(\'' + row.id + '\')"></i>提交&nbsp;&nbsp;&nbsp;&nbsp;</a>');
+              actions.push('<a class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"></i>编辑&nbsp;&nbsp;&nbsp;&nbsp;</a>');
+              huanhang = true;
+            } else if (row.state == 'TEXTBOOK_KYC_AUDIT') {
+              actions.push('<a class="' + hechaFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000"></i>撤回</a>');
+              if (chayueFlag != 'hidden') {
+                actions.push('<a class="' + chayueFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chayue' + '\')"></i>批阅</a>');
+              }
+              huanhang = true;
+            } else if (row.state == 'TEXTBOOK_PASSED') {
+              if (chayueFlag != 'hidden') {
+                actions.push('<a class="' + chayueFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000"></i>撤回</a>');
+                huanhang = true;
+              }
+            } else if (row.state == 0) {
               if (row.userId == row.uid) {
                 actions.push('<a class="" href="javascript:void(0)" onclick="submitDirectly(\'' + row.id + '\')"></i>提交&nbsp;&nbsp;&nbsp;&nbsp;</a>');
                 actions.push('<a class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"></i>编辑&nbsp;&nbsp;&nbsp;&nbsp;</a>');
@@ -751,11 +777,8 @@
             } else if (row.state == 1) {
               actions.push('<a class="' + proFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro' + '\')"></i>批阅</a>&nbsp;&nbsp;&nbsp;&nbsp;');
               huanhang = true;
-              // actions.push('<br>')
-              // actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan' + '\')"></i>查看&nbsp;&nbsp;&nbsp;&nbsp;</a>');
-              // actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
-
             } else if ((row.state == 3 || row.state == 5 || row.state == 7) && row.userId == row.uid) {
+              actions.push('<a class="" href="javascript:void(0)" onclick="submitDirectly(\'' + row.id + '\')"></i>提交&nbsp;&nbsp;&nbsp;&nbsp;</a>');
               actions.push('<a class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"></i>编辑</a>');
               huanhang = true;
             } else if (row.state == 2) {
@@ -765,7 +788,6 @@
               }
               huanhang = true;
             } else if (row.state == 4) {
-
               actions.push('<a class="' + hechaFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000"></i>撤回</a>');
               if (chayueFlag != 'hidden') {
                 actions.push('<a class="' + chayueFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chayue' + '\')"></i>批阅</a>');
@@ -783,7 +805,7 @@
 
             }
             actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan' + '\')"></i>查看&nbsp;&nbsp;&nbsp;&nbsp;</a>');
-            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
+            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')">流程记录&nbsp;</a> ');
 
             return actions.join('');
           }
@@ -821,17 +843,16 @@
 
   function rowStyle0(row, index) {
     const stateColorMap = {
+      'TEXTBOOK_PASSED': '#67c23a', // 完结 绿色
+      'TEXTBOOK_REJECTED': '#e6a344', // 被驳回 黄色
+      'TEXTBOOK_DRAFT': '#e6a344', // 草稿 黄色
+      'TEXTBOOK_JYS_AUDIT': '#2c99ff', // 教研室审批中 蓝色
+      'TEXTBOOK_KYC_AUDIT': '#2c99ff', // 科研处审批中 蓝色
+      // 兼容旧状态码
       6: '#67c23a', // 完结 绿色
       3: '#e6a344', 5: '#e6a344', 7: '#e6a344', // 被驳回，草稿 黄色
       1: '#2c99ff', 2: '#2c99ff', 4: '#2c99ff', // 审核中 蓝色
       0: '#e6a344' // 草稿 黄色
-      // 1: '#2c99ff', // 审核中 蓝色
-      // 2: '#67c23a', // 完结 绿色
-      // 3: '#e6a344', // 被驳回，草稿 黄色
-      // 4: '#67c23a', // 完结 绿色
-      // 5: '#e6a344', // 被驳回，草稿 黄色
-      // 6: '#67c23a', // 完结 绿色
-      // 7: '#67c23a', // 完结 绿色
     };
 
     const state = String(row.state);

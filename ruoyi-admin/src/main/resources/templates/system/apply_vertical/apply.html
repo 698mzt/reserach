@@ -718,25 +718,37 @@
                         return row.score;
                     }
                 },
-                // {
-                //     field: 'state',
-                //     title: '申请状态',
-                //     align: 'center',
-                //     formatter: function(value, row, index) {
-                //         return $.table.selectDictLabel(datas, value);
-                //     }
-                // }  ,
+                {
+                    field: 'state',
+                    title: '状态',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                        const stateMap = {
+                            'V_APPLY_DRAFT': '待提交',
+                            'V_APPLY_JYS': '待教研室',
+                            'V_APPLY_KYC': '待科研处',
+                            'V_APPLY_PASS': '已完结',
+                            'V_APPLY_REJ': '已驳回',
+                            'V_OVER_DRAFT': '待提交',
+                            'V_OVER_JYS': '待教研室',
+                            'V_OVER_KYC': '待科研处',
+                            'V_OVER_PASS': '已完结',
+                            'V_OVER_REJ': '已驳回'
+                        };
+                        return stateMap[value] || value;
+                    }
+                }  ,
                 {
                     title: '操作',
                     align: 'center',
                     formatter: function(value, row, index) {
                         var actions = [];
-                        if(row.state ==  66){
+                        if(row.state == 'V_APPLY_PASS' || row.state == 'V_OVER_PASS'){
                             actions.push('<a  class="' + KYCFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000">撤回</a> ');
                             if (KYCFlag !== 'hidden')
                                 actions.push('<br>');
                             actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
+                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',\'' + row.state + '\')">流程记录&nbsp;</a> ');
 
                         }
                         return actions.join('');
@@ -866,21 +878,33 @@
                         return row.score;
                     }
                 },
-                // {
-                //     field: 'state',
-                //     title: '申请状态',
-                //     align: 'center',
-                //     formatter: function(value, row, index) {
-                //         return $.table.selectDictLabel(datas, value);
-                //     }
-                // }  ,
+                {
+                    field: 'state',
+                    title: '状态',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                        const stateMap = {
+                            'V_APPLY_DRAFT': '待提交',
+                            'V_APPLY_JYS': '待教研室',
+                            'V_APPLY_KYC': '待科研处',
+                            'V_APPLY_PASS': '已完结',
+                            'V_APPLY_REJ': '已驳回',
+                            'V_OVER_DRAFT': '待提交',
+                            'V_OVER_JYS': '待教研室',
+                            'V_OVER_KYC': '待科研处',
+                            'V_OVER_PASS': '已完结',
+                            'V_OVER_REJ': '已驳回'
+                        };
+                        return stateMap[value] || value;
+                    }
+                }  ,
                 {
                     title: '操作',
                     align: 'center',
                     formatter: function(value, row, index) {
                         var actions = [];
                         var role = [[${role}]];
-                        if(row.state == 99 ){
+                        if(row.state == 'V_APPLY_DRAFT'){
                             if (row.userId == row.uid){
                                 actions.push('<a class="' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.push(\'' + row.id + '\')">提交&nbsp;&nbsp;&nbsp;&nbsp;</a>');
                                 actions.push('<a class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')">编辑&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
@@ -888,38 +912,38 @@
                                 actions.push('<br>')
                             }
                             actions.push('<a class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
+                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',\'' + row.state + '\')">流程记录&nbsp;</a> ');
 
                         }else
-                        if(row.state == 1 ){
+                        if(row.state == 'V_APPLY_JYS'){
                             // if(role == 'research')
                                 actions.push('<a  class="' + JYSFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id+'/JYS' + '\')">批阅</a> ');
                             // if (JYSFlag != "hidden" && role == 'research')
                             if (JYSFlag != "hidden")
                                 actions.push('<br>')
                             actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
+                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',\'' + row.state + '\')">流程记录&nbsp;</a> ');
 
                         }else
-                        if(row.state == 3 || row.state == 5 ||row.state == 7){
+                        if(row.state == 'V_APPLY_REJ'){
                             if(row.userId == row.uid)
                                 actions.push('<a   class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')">编辑</a> ');
                             if (editFlag != "hidden")
                                 actions.push('<br>')
                             actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
+                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',\'' + row.state + '\')">流程记录&nbsp;</a> ');
 
                         }else
-                        if(row.state ==  4){
+                        if(row.state == 'V_APPLY_KYC'){
                             // 科研处审批状态
                             actions.push('<a  class="' + KYCFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/KYC'+ '\')">批阅&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                             actions.push('<a  class="' + JYSFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000">撤回&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                             if (KYCFlag != "hidden" || JYSFlag != "hidden")
                                 actions.push('<br>')
                             actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
+                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',\'' + row.state + '\')">流程记录&nbsp;</a> ');
                         }else
-                        if(row.state ==  6){
+                        if(row.state == 'V_APPLY_PASS'){
                             if(row.userId == row.uid){
                                 actions.push('<a  class="' + createFlag + '" href="javascript:void(0)" onclick="$.operate.overTab(\'' + row.id +'\')">申请结项&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                             }
@@ -927,7 +951,7 @@
                             if (KYCFlag != "hidden" || createFlag != "hidden")
                                 actions.push('<br>')
                             actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
+                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',\'' + row.state + '\')">流程记录&nbsp;</a> ');
 
                         }
                         return actions.join('');
@@ -1053,20 +1077,32 @@
                         return row.score;
                     }
                 },
-                // {
-                //     field: 'state',
-                //     title: '申请状态',
-                //     align: 'center',
-                //     formatter: function(value, row, index) {
-                //         return $.table.selectDictLabel(datas, value);
-                //     }
-                // }  ,
+                {
+                    field: 'state',
+                    title: '状态',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                        const stateMap = {
+                            'V_APPLY_DRAFT': '待提交',
+                            'V_APPLY_JYS': '待教研室',
+                            'V_APPLY_KYC': '待科研处',
+                            'V_APPLY_PASS': '已完结',
+                            'V_APPLY_REJ': '已驳回',
+                            'V_OVER_DRAFT': '待提交',
+                            'V_OVER_JYS': '待教研室',
+                            'V_OVER_KYC': '待科研处',
+                            'V_OVER_PASS': '已完结',
+                            'V_OVER_REJ': '已驳回'
+                        };
+                        return stateMap[value] || value;
+                    }
+                }  ,
                 {
                     title: '操作',
                     align: 'center',
                     formatter: function(value, row, index) {
                         var actions = [];
-                        if(row.state == 999 ){
+                        if(row.state == 'V_OVER_DRAFT'){
                             // if (row.userId == row.uid){
                                 actions.push('<a class="' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.push(\'' + row.id + '\')">提交&nbsp;&nbsp;&nbsp;&nbsp;</a>');
                                 actions.push('<a class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')">编辑&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
@@ -1074,18 +1110,18 @@
                                 actions.push('<br>')
                             // }
                             actions.push('<a class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
+                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',\'' + row.state + '\')">流程记录&nbsp;</a> ');
 
                         }else
-                        if(row.state == 11 ){
+                        if(row.state == 'V_OVER_JYS'){
                             actions.push('<a  class="' + JYSFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id+'/JYS' + '\')">批阅</a> ');
                             if (JYSFlag != "hidden")
                                 actions.push('<br>')
                             actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
+                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',\'' + row.state + '\')">流程记录&nbsp;</a> ');
 
                         }else
-                        if((row.state == 33 || row.state == 55 || row.state == 77)){
+                        if(row.state == 'V_OVER_REJ'){
                             // if (row.userId == row.uid)
                                 actions.push('<a   class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')">编辑</a> ');
                             // actions.push('<a  class="' + JYSFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')">撤回</a> ');
@@ -1094,17 +1130,17 @@
                             if (editFlag != "hidden")
                                 actions.push('<br>')
                             actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
-                        }else if(row.state ==  44){
+                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',\'' + row.state + '\')">流程记录&nbsp;</a> ');
+                        }else if(row.state == 'V_OVER_KYC'){
                             actions.push('<a  class="' + KYCFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/KYC'+ '\')">科研处批阅&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                             actions.push('<a  class="' + DeptFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000">撤回&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                             if (KYCFlag != "hidden" || DeptFlag != "hidden")
                                 actions.push('<br>')
                             actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
+                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',\'' + row.state + '\')">流程记录&nbsp;</a> ');
 
                         }
-                        else if(row.state == 22){
+                        else if(row.state == 'V_OVER_XY'){
                             // if(row.ynameId == row.userynameId)
                                 actions.push('<a  class="' + DeptFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/Dept'+ '\')">批阅&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                             // if (row.dnameId == row.userdnameId)
@@ -1163,9 +1199,9 @@
     function rowStyle0(row, index) {
         // 定义状态值与颜色的映射关系
         const stateColorMap = {
-            66: '#67c23a', 6: '#67c23a',// 完结 绿色
-            3: '#e6a344', 5: '#e6a344',  7: '#e6a344', 33: '#e6a344', 55: '#e6a344',77: '#e6a344',99: '#e6a344', 999: '#e6a344', // 被驳回，草稿 黄色
-            1: '#2c99ff', 2: '#2c99ff', 4: '#2c99ff', 11: '#2c99ff', 22: '#2c99ff', 44: '#2c99ff' // 审核中 蓝色
+            'V_APPLY_PASS': '#67c23a', 'V_OVER_PASS': '#67c23a', // 完结 绿色
+            'V_APPLY_REJ': '#e6a344', 'V_OVER_REJ': '#e6a344', 'V_APPLY_DRAFT': '#e6a344', // 被驳回，草稿 黄色
+            'V_APPLY_JYS': '#2c99ff', 'V_APPLY_KYC': '#2c99ff', 'V_OVER_JYS': '#2c99ff', 'V_OVER_KYC': '#2c99ff' // 审核中 蓝色
         };
 
         // 统一将 row.state 转换为字符串进行查找
@@ -1233,11 +1269,11 @@
         progressBar.style.width = '0';
 
         // 根据 state 设置相应的步骤颜色
-        if (state === 99) { // 待提交状态
+        if (state === 'V_APPLY_DRAFT' || state === 'V_OVER_DRAFT') { // 待提交状态
             document.getElementById('step-1').classList.add('active');
             document.getElementById('step-1').querySelector('.status-text').classList.add('active');
             progressBar.style.width = '0';
-        } else if (state === 66) { // 已完成状态
+        } else if (state === 'V_APPLY_PASS' || state === 'V_OVER_PASS') { // 已完成状态
             document.getElementById('step-1').classList.add('completed');
             document.getElementById('step-1').querySelector('.status-text').classList.add('completed');
             document.getElementById('step-2').classList.add('completed');
@@ -1245,7 +1281,7 @@
             document.getElementById('step-3').classList.add('completed');
             document.getElementById('step-3').querySelector('.status-text').classList.add('completed');
             progressBar.style.width = '100%';
-        } else if ([1, 2, 3, 4, 5, 6, 7, 11, 22, 33, 44, 55, 77].includes(state)) { // 审核中状态
+        } else if (['V_APPLY_JYS', 'V_APPLY_XY', 'V_APPLY_KYC', 'V_OVER_JYS', 'V_OVER_XY', 'V_OVER_KYC', 'V_APPLY_REJ', 'V_OVER_REJ'].includes(state)) { // 审核中状态
             // 待提交步骤高亮为 completed
             document.getElementById('step-1').classList.add('completed');
             document.getElementById('step-1').querySelector('.status-text').classList.add('completed');

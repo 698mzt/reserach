@@ -117,4 +117,13 @@ public interface SciPaperAMapper {
      * @return 论文集合
      */
     List<SciPaperA> getStatsQueryToCheck(Map<String, String> params);
+
+    /**
+     * 更新论文科研分
+     *
+     * @param id 论文ID
+     * @param researchScore 科研分
+     * @return 结果
+     */
+    int updatePaperResearchScore(@Param("id") Long id, @Param("researchScore") int researchScore);
 }

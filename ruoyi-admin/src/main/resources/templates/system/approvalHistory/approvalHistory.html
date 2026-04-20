@@ -71,24 +71,25 @@
 		            title: '节点名称'
 		        },
 		        {
-		            field: 'operation',
-		            title: '操作类型',
-		            formatter: function(value, row, index) {
-		            	if (value == 'submit') return '<span class="label label-info">提交</span>';
-		            	if (value == 'approve') return '<span class="label label-success">通过</span>';
-		            	if (value == 'reject') return '<span class="label label-danger">驳回</span>';
-		            	if (value == 'transfer') return '<span class="label label-warning">转办</span>';
-		            	return value;
-		            }
-		        },
-		        {
-		            field: 'fromState',
-		            title: '原状态'
-		        },
-		        {
-		            field: 'toState',
-		            title: '目标状态'
-		        },
+            field: 'action',
+            title: '操作类型',
+            formatter: function(value, row, index) {
+            	if (value == 'submit') return '<span class="label label-info">提交</span>';
+            	if (value == 'approve') return '<span class="label label-success">通过</span>';
+            	if (value == 'reject') return '<span class="label label-danger">驳回</span>';
+            	if (value == 'transfer') return '<span class="label label-warning">转办</span>';
+            	if (value == 'recall') return '<span class="label label-primary">撤回</span>';
+            	return value;
+            }
+        },
+        {
+            field: 'oldState',
+            title: '原状态'
+        },
+        {
+            field: 'newState',
+            title: '目标状态'
+        },
 		        {
 		            field: 'operatorName',
 		            title: '操作人'
