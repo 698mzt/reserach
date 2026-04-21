@@ -48,4 +48,17 @@ public class SysApprovalHistory extends BaseEntity
 
     @Excel(name = "创建时间", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
+    
+    // 以下为关联字段，不存储在数据库中
+    @Excel(name = "流程名称")
+    private String processName;
+    
+    @Excel(name = "原状态名称")
+    private String oldStateName;
+    
+    @Excel(name = "新状态名称")
+    private String newStateName;
+    
+    @Excel(name = "业务名称")
+    private String businessName;
 }
