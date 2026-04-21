@@ -9,9 +9,12 @@ import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.common.core.page.PageDomain;
 import com.ruoyi.common.core.page.TableSupport;
 import com.ruoyi.system.domain.*;
+import com.ruoyi.system.domain.SysUserRole;
 import com.ruoyi.system.mapper.SciHorizontalApplyMapper;
 import com.ruoyi.system.mapper.SciProjectScoreCfgMapper;
 import com.ruoyi.system.mapper.SciUserScoreMapper;
+import com.ruoyi.system.mapper.SysUserRoleMapper;
+import com.ruoyi.system.service.IApprovalProcessService;
 import com.ruoyi.system.service.ISciHorizontalPiyueService;
 import com.ruoyi.system.service.ISysUserService;
 import com.ruoyi.system.service.SciHorizontalReamountService;
@@ -37,6 +40,7 @@ import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.system.service.ISciHorizontalApplyService;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
+import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.common.core.page.TableDataInfo;
 
@@ -67,6 +71,25 @@ public class SciHorizontalApplyController extends BaseController
     private SciUserScoreMapper sciUserScoreMapper;
     @Autowired
     private SciHorizontalReamountService sciHorizontalReamountService;
+    @Autowired
+    private IApprovalProcessService approvalProcessService;
+    @Autowired
+    private SysUserRoleMapper sysUserRoleMapper;
+
+    private static final String PROCESS_CODE_APPLY = "HORIZONTAL_APPLY";
+    private static final String PROCESS_CODE_OVER = "HORIZONTAL_OVER";
+    private static final String STATE_APPLY_DRAFT = "APPLY_DRAFT";
+    private static final String STATE_APPLY_JYS_AUDIT = "APPLY_JYS_AUDIT";
+    private static final String STATE_APPLY_XY_AUDIT = "APPLY_XY_AUDIT";
+    private static final String STATE_APPLY_KYC_AUDIT = "APPLY_KYC_AUDIT";
+    private static final String STATE_APPLY_PASSED = "APPLY_PASSED";
+    private static final String STATE_APPLY_REJECTED = "APPLY_REJECTED";
+    private static final String STATE_OVER_DRAFT = "OVER_DRAFT";
+    private static final String STATE_OVER_JYS_AUDIT = "OVER_JYS_AUDIT";
+    private static final String STATE_OVER_XY_AUDIT = "OVER_XY_AUDIT";
+    private static final String STATE_OVER_KYC_AUDIT = "OVER_KYC_AUDIT";
+    private static final String STATE_OVER_PASSED = "OVER_PASSED";
+    private static final String STATE_OVER_REJECTED = "OVER_REJECTED";
 
     /**
      * 计算横向课题预期积分
@@ -280,8 +303,14 @@ public class SciHorizontalApplyController extends BaseController
                 list = sciHorizontalApplyService.selectSciHorizontalApplyListAll(sciHorizontalApply);
                 break;
             case "bootstrap-table2":
-                // 结项申请列表：统一使用一个查询方法，通过@DataScope控制数据权限
-                list = sciHorizontalApplyService.selectSciHorizontalApplyListByOverApply(sciHorizontalApply);
+                // 结项申请列表：根据角色选择不同的查询方法
+                if ("research".equals(role)) {
+                    // 教研室角色使用专用查询方法
+                    list = sciHorizontalApplyService.selectSciHorizontalApplyListByOverApplyJYS(sciHorizontalApply);
+                } else {
+                    // 其他角色使用通用查询方法
+                    list = sciHorizontalApplyService.selectSciHorizontalApplyListByOverApply(sciHorizontalApply);
+                }
                 break;
             case "bootstrap-table3":
                 // 到账金额列表：统一使用一个查询方法，通过@DataScope控制数据权限
@@ -305,8 +334,11 @@ public class SciHorizontalApplyController extends BaseController
                         map -> new ArrayList<>(map.values()) // 将 Map 的值转换为 List
                 ));
 
-        Integer did = sysUser.getDeptId().intValue();
-        Integer yid = sysUser.getParentId().intValue();
+        Integer did = sysUser.getDeptId() != null ? sysUser.getDeptId().intValue() : null;
+        Integer yid = sysUser.getParentId() != null ? sysUser.getParentId().intValue() : null;
+        if ("dept_teacher".equals(role)) {
+            yid = did;
+        }
 
         List<SciHorizontalApply> Alist1 = new ArrayList<>();
         if (roles.size() > 1) {
@@ -439,7 +471,7 @@ public class SciHorizontalApplyController extends BaseController
         List<SciHorizontalApply> list = sciHorizontalApplyService.exportSciHorizontalApplyList(sciHorizontalApply);
         List<SciHorizontalApply> newList = new ArrayList<>();
         for (SciHorizontalApply apply: list ) {
-                if(apply.getState().equals("6")){
+                if(STATE_OVER_PASSED.equals(apply.getState())){
                     apply.setState("结项");
                 }else{
                     apply.setState("在研");
@@ -524,7 +556,7 @@ public class SciHorizontalApplyController extends BaseController
         }
 
         sciHorizontalReamount.setApplyId(id.toString());
-        sciHorizontalReamount.setState("99");
+        sciHorizontalReamount.setState(STATE_APPLY_DRAFT);
         sciHorizontalReamount.setUid(getUserId());
         if (sciHorizontalReamount.getReAmount() != null && !sciHorizontalReamount.getReAmount().isEmpty()){
             sciHorizontalReamountService.insertAmount(sciHorizontalReamount);
@@ -544,17 +576,17 @@ public class SciHorizontalApplyController extends BaseController
     {
         SciHorizontalApply sciHorizontalApply1 = sciHorizontalApplyService.selectSciHorizontalApplyById(sciHorizontalApply.getId());
         sciHorizontalApply.setUserId(Integer.valueOf(getSysUser().getUserId().toString()));
-        if ( sciHorizontalApply1.getValidityDate() !=  null && !sciHorizontalApply1.getValidityDate().isEmpty()){
-            sciHorizontalApply.setNewsql("999");
-            sciHorizontalApply.setState("7");
+        if (sciHorizontalApply1.getValidityDate() != null && !sciHorizontalApply1.getValidityDate().isEmpty()) {
+            sciHorizontalApply.setNewsql(STATE_OVER_DRAFT);
+            sciHorizontalApply.setState(STATE_OVER_JYS_AUDIT);
         }
-        else{
-            sciHorizontalApply.setNewsql("99");
-            sciHorizontalApply.setState("1");
+        else {
+            sciHorizontalApply.setNewsql(STATE_APPLY_DRAFT);
+            sciHorizontalApply.setState(STATE_APPLY_JYS_AUDIT);
         }
         int a = sciHorizontalApplyService.updateSciHorizontalApply(sciHorizontalApply);
-        sciHorizontalReamount.setState("1");
-        sciHorizontalReamountService.push(getUserId(),sciHorizontalApply.getId(),"1");
+        sciHorizontalReamount.setState(STATE_APPLY_JYS_AUDIT);
+        sciHorizontalReamountService.push(getUserId(), sciHorizontalApply.getId(), STATE_APPLY_JYS_AUDIT);
         return toAjax(a);
     }
 
@@ -597,7 +629,7 @@ public class SciHorizontalApplyController extends BaseController
     {
         Integer id = sciHorizontalApply.getId();
         sciHorizontalReamount.setApplyId(id.toString());
-        sciHorizontalReamount.setState("1");
+        sciHorizontalReamount.setState(STATE_APPLY_JYS_AUDIT);
         sciHorizontalApply.setUserId(Integer.valueOf(getSysUser().getUserId().toString()));
         int result = sciHorizontalApplyService.overSaveSciHorizontalApply(sciHorizontalApply);
         if (result == -1) {
@@ -636,8 +668,8 @@ public class SciHorizontalApplyController extends BaseController
         mmap.put("role", roleKey);
         
         // 判断是否可批阅
-        Integer state = sciHorizontalApply.getState() != null ? Integer.valueOf(sciHorizontalApply.getState()) : null;
-        boolean canApprove = canApprove(state, roleKey);
+        String currentState = sciHorizontalApply.getState();
+        boolean canApprove = canApprove(currentState, roleKey);
         mmap.put("canApprove", canApprove);
         
         // 查询全部成员并注入第5位及以后
@@ -680,74 +712,65 @@ public class SciHorizontalApplyController extends BaseController
      * @param state 课题状态
      * @return true-可以批阅，false-不可批阅
      */
-    private boolean canApproveApply(Integer state) {
-        if (state == null) {
-            return false;
-        }
-        
-        Subject subject = SecurityUtils.getSubject();
-        if (subject == null) {
-            return false;
-        }
-        
-        // 基于权限校验，而非硬编码角色
-        // 如果学校需要调整审核流程，只需修改Shiro权限配置，无需改动代码
-        switch (state) {
-            case 1:  // 待教研室审核
-                return subject.isPermitted("system:apply:process");
-            case 2:  // 待学院审核
-                return subject.isPermitted("system:apply:Dept");
-            case 11: // 待科研处审核
-                return subject.isPermitted("system:apply:hecha");
-            default:
-                return false;
-        }
+    private boolean canApproveApply(String state) {
+        return canApproveByProcess(PROCESS_CODE_APPLY, state);
     }
-    
-    /**
-     * 判断当前用户是否可以批阅结项课题
-     * 基于Shiro权限配置进行校验
-     * 
-     * @param state 课题状态
-     * @return true-可以批阅，false-不可批阅
-     */
-    private boolean canApproveOver(Integer state) {
-        if (state == null) {
-            return false;
-        }
-        
-        Subject subject = SecurityUtils.getSubject();
-        if (subject == null) {
-            return false;
-        }
-        
-        switch (state) {
-            case 7:  // 结项待教研室审核
-                return subject.isPermitted("system:apply:process");
-            case 8:  // 结项待学院审核
-                return subject.isPermitted("system:apply:Dept");
-            case 33: // 结项待科研处审核
-                return subject.isPermitted("system:apply:hecha");
-            default:
-                return false;
-        }
+
+    private boolean canApproveOver(String state) {
+        return canApproveByProcess(PROCESS_CODE_OVER, state);
     }
-    
-    /**
-     * 判断当前用户是否可以批阅该课题（兼容旧方法）
-     * 
-     * @param state 课题状态
-     * @param roleKey 用户角色标识（已废弃，保留参数用于兼容）
-     * @return true-可以批阅，false-不可批阅
-     */
-    private boolean canApprove(Integer state, String roleKey) {
-        // 申请审核状态
-        if (Arrays.asList(1, 2, 11).contains(state)) {
-            return canApproveApply(state);
+
+    private boolean canApprove(String state, String roleKey) {
+        if (StringUtils.isEmpty(state)) {
+            return false;
         }
-        // 结项审核状态
-        if (Arrays.asList(7, 8, 33).contains(state)) {
+        if (state.startsWith("OVER_")) {
             return canApproveOver(state);
+        }
+        return canApproveApply(state);
+    }
+
+    private boolean canApproveByProcess(String processCode, String state) {
+        if (StringUtils.isEmpty(state)) {
+            return false;
+        }
+        Map<String, Object> nodeResult = approvalProcessService.getCurrentNode(processCode, state);
+        if (!Boolean.TRUE.equals(nodeResult.get("success"))) {
+            return false;
+        }
+        Subject subject = SecurityUtils.getSubject();
+        if (subject == null) {
+            return false;
+        }
+        SysApprovalNode currentNode = (SysApprovalNode) nodeResult.get("currentNode");
+        if (currentNode == null) {
+            return false;
+        }
+        if (StringUtils.isNotEmpty(currentNode.getRoleIds())) {
+            String[] roleIds = currentNode.getRoleIds().split(",");
+            Set<String> allowedRoleIds = Arrays.stream(roleIds)
+                    .map(String::trim)
+                    .filter(StringUtils::isNotEmpty)
+                    .collect(Collectors.toSet());
+            if (!allowedRoleIds.isEmpty()) {
+                List<SysUserRole> userRoles = sysUserRoleMapper.selectUserRoleByUserId(getUserId());
+                for (SysUserRole userRole : userRoles) {
+                    if (allowedRoleIds.contains(userRole.getRoleId().toString())) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        }
+        if (StringUtils.isEmpty(currentNode.getRoleKeys())) {
+            return false;
+        }
+        String[] roleKeys = currentNode.getRoleKeys().split(",");
+        for (String roleKeyItem : roleKeys) {
+            String trimmed = roleKeyItem.trim();
+            if (StringUtils.isNotEmpty(trimmed) && subject.hasRole(trimmed)) {
+                return true;
+            }
         }
         return false;
     }
@@ -818,20 +841,14 @@ public class SciHorizontalApplyController extends BaseController
     @ResponseBody
     public AjaxResult hxPass(String id, String urlFlag)
     {
-        // 1. 查询课题当前状态
         SciHorizontalApply apply = sciHorizontalApplyService.selectSciHorizontalApplyById(Integer.valueOf(id));
         if (apply == null) {
             return AjaxResult.error("课题不存在");
         }
-        
-        // 2. 状态+权限联合校验
-        Integer state = apply.getState() != null ? Integer.valueOf(apply.getState()) : null;
+        String state = apply.getState();
         if (!canApproveApply(state)) {
-            String stepDesc = getApprovalStepDesc(state);
-            return AjaxResult.error("无权操作：当前课题" + stepDesc + "，您没有对应的审核权限");
+            return AjaxResult.error("无权操作：当前课题" + getApprovalStepDesc(state) + "，您没有对应的审核权限");
         }
-        
-        // 3. 执行审核
         return toAjax(sciHorizontalApplyService.hxPass(id, getUserId(), urlFlag));
     }
     
@@ -845,20 +862,14 @@ public class SciHorizontalApplyController extends BaseController
     @ResponseBody
     public AjaxResult hxover(String id, String urlFlag)
     {
-        // 1. 查询课题当前状态
         SciHorizontalApply apply = sciHorizontalApplyService.selectSciHorizontalApplyById(Integer.valueOf(id));
         if (apply == null) {
             return AjaxResult.error("课题不存在");
         }
-        
-        // 2. 状态+权限联合校验
-        Integer state = apply.getState() != null ? Integer.valueOf(apply.getState()) : null;
+        String state = apply.getState();
         if (!canApproveOver(state)) {
-            String stepDesc = getApprovalStepDesc(state);
-            return AjaxResult.error("无权操作：当前课题" + stepDesc + "，您没有对应的审核权限");
+            return AjaxResult.error("无权操作：当前课题" + getApprovalStepDesc(state) + "，您没有对应的审核权限");
         }
-        
-        // 3. 执行审核
         return toAjax(sciHorizontalApplyService.hxover(id, getUserId(), urlFlag));
     }
 
@@ -872,20 +883,14 @@ public class SciHorizontalApplyController extends BaseController
     @ResponseBody
     public AjaxResult hxBh(String id, String remark, String urlFlag)
     {
-        // 1. 查询课题当前状态
         SciHorizontalApply apply = sciHorizontalApplyService.selectSciHorizontalApplyById(Integer.valueOf(id));
         if (apply == null) {
             return AjaxResult.error("课题不存在");
         }
-        
-        // 2. 状态+权限联合校验
-        Integer state = apply.getState() != null ? Integer.valueOf(apply.getState()) : null;
+        String state = apply.getState();
         if (!canApproveApply(state)) {
-            String stepDesc = getApprovalStepDesc(state);
-            return AjaxResult.error("无权操作：当前课题" + stepDesc + "，您没有对应的审核权限");
+            return AjaxResult.error("无权操作：当前课题" + getApprovalStepDesc(state) + "，您没有对应的审核权限");
         }
-        
-        // 3. 执行驳回
         return toAjax(sciHorizontalApplyService.hxBh(id, getUserId(), remark, urlFlag));
     }
     
@@ -899,20 +904,14 @@ public class SciHorizontalApplyController extends BaseController
     @ResponseBody
     public AjaxResult hxoverBh(String id, String remark, String urlFlag)
     {
-        // 1. 查询课题当前状态
         SciHorizontalApply apply = sciHorizontalApplyService.selectSciHorizontalApplyById(Integer.valueOf(id));
         if (apply == null) {
             return AjaxResult.error("课题不存在");
         }
-        
-        // 2. 状态+权限联合校验
-        Integer state = apply.getState() != null ? Integer.valueOf(apply.getState()) : null;
+        String state = apply.getState();
         if (!canApproveOver(state)) {
-            String stepDesc = getApprovalStepDesc(state);
-            return AjaxResult.error("无权操作：当前课题" + stepDesc + "，您没有对应的审核权限");
+            return AjaxResult.error("无权操作：当前课题" + getApprovalStepDesc(state) + "，您没有对应的审核权限");
         }
-        
-        // 3. 执行驳回
         return toAjax(sciHorizontalApplyService.hxoverBh(id, getUserId(), remark, urlFlag));
     }
     
@@ -922,32 +921,25 @@ public class SciHorizontalApplyController extends BaseController
      * @param state 课题状态
      * @return 审核环节描述
      */
-    private String getApprovalStepDesc(Integer state) {
-        if (state == null) {
+    private String getApprovalStepDesc(String state) {
+        if (StringUtils.isEmpty(state)) {
             return "状态未知";
         }
-        switch (state) {
-            case 1:
-                return "待教研室审核";
-            case 2:
-                return "待学院审核";
-            case 11:
-                return "待科研处审核";
-            case 7:
-                return "结项待教研室审核";
-            case 8:
-                return "结项待学院审核";
-            case 33:
-                return "结项待科研处审核";
-            case 4:
-                return "已完成";
-            case 6:
-                return "已结项";
-            case 99:
-                return "已驳回";
-            default:
-                return "状态(" + state + ")";
+        Map<String, Object> nodeResult = approvalProcessService.getCurrentNode(resolveProcessCode(state), state);
+        if (Boolean.TRUE.equals(nodeResult.get("success"))) {
+            SysApprovalNode currentNode = (SysApprovalNode) nodeResult.get("currentNode");
+            if (currentNode != null && StringUtils.isNotEmpty(currentNode.getNodeNm())) {
+                return currentNode.getNodeNm();
+            }
         }
+        return state;
+    }
+
+    private String resolveProcessCode(String state) {
+        if (StringUtils.startsWith(state, "OVER_")) {
+            return PROCESS_CODE_OVER;
+        }
+        return PROCESS_CODE_APPLY;
     }
 
     /**
@@ -989,12 +981,12 @@ public class SciHorizontalApplyController extends BaseController
     {
         sciHorizontalApply.setUserId(Integer.valueOf(getSysUser().getUserId().toString()));
         sciHorizontalApply.setNewsql("");
-        if (sciHorizontalApply.getState().equals("3") || sciHorizontalApply.getState().equals("5") || sciHorizontalApply.getState().equals("22")){
+        if (sciHorizontalApply.getState().equals(STATE_APPLY_REJECTED) || sciHorizontalApply.getState().equals(STATE_APPLY_XY_AUDIT) || sciHorizontalApply.getState().equals("22")){
             sciHorizontalApply.setNewsql("");
-            sciHorizontalApply.setState("99");
+            sciHorizontalApply.setState(STATE_APPLY_DRAFT);
         }
         if (sciHorizontalReamount.getReAmount() != null && !sciHorizontalReamount.getReAmount().isEmpty()) {
-            sciHorizontalReamount.setState("99");
+            sciHorizontalReamount.setState(STATE_APPLY_DRAFT);
             sciHorizontalReamountService.insertAmount(sciHorizontalReamount);
         }
         int update = sciHorizontalApplyService.updateSciHorizontalApply(sciHorizontalApply);
@@ -1063,9 +1055,9 @@ public class SciHorizontalApplyController extends BaseController
     {
         sciHorizontalApply.setUserId(Integer.valueOf(getSysUser().getUserId().toString()));
         sciHorizontalApply.setNewsql("");
-        if (sciHorizontalApply.getState().equals("9") || sciHorizontalApply.getState().equals("10") || sciHorizontalApply.getState().equals("44")){
-            sciHorizontalApply.setNewsql("999");
-            sciHorizontalApply.setState("999");
+        if (STATE_OVER_REJECTED.equals(sciHorizontalApply.getState()) || STATE_OVER_XY_AUDIT.equals(sciHorizontalApply.getState()) || STATE_OVER_KYC_AUDIT.equals(sciHorizontalApply.getState())){
+            sciHorizontalApply.setNewsql(STATE_OVER_PASSED);
+            sciHorizontalApply.setState(STATE_OVER_PASSED);
         }
         int update = sciHorizontalApplyService.updateSciHorizontalApply(sciHorizontalApply);
         if (update == -1) {
@@ -1136,7 +1128,7 @@ public class SciHorizontalApplyController extends BaseController
     /**
      * 删除审批 横向课题操作
      */
-    @RequiresPermissions(value={"system:apply:hecha","system:apply:process","system:apply:Dept"},logical= Logical.OR)
+    @RequiresPermissions(value={"system:apply:add","system:apply:hecha","system:apply:process","system:apply:Dept"},logical= Logical.OR)
     @GetMapping("/recall/{id}")
     public String recall(@PathVariable("id") Integer id, ModelMap mmap)
     {
@@ -1164,27 +1156,29 @@ public class SciHorizontalApplyController extends BaseController
      * 删除审批 横向课题操作
      * 增加状态+权限联合校验，防止越权操作
      */
-    @RequiresPermissions(value={"system:apply:hecha","system:apply:process","system:apply:Dept"},logical= Logical.OR)
+    @RequiresPermissions(value={"system:apply:add","system:apply:hecha","system:apply:process","system:apply:Dept"},logical= Logical.OR)
     @Log(title = "横向课题删除审批", businessType = BusinessType.UPDATE)
     @PostMapping( "/recallsave")
     @ResponseBody
     public AjaxResult recallSave(Integer id, String state, String remark, String urlFlag)
     {
-        // 1. 查询课题当前状态
         SciHorizontalApply apply = sciHorizontalApplyService.selectSciHorizontalApplyById(id);
         if (apply == null) {
             return AjaxResult.error("课题不存在");
         }
-        
-        // 2. 状态+权限联合校验（删除审批使用申请审核的权限映射）
-        Integer currentState = apply.getState() != null ? Integer.valueOf(apply.getState()) : null;
-        if (!canApproveApply(currentState)) {
-            String stepDesc = getApprovalStepDesc(currentState);
-            return AjaxResult.error("无权操作：当前课题" + stepDesc + "，您没有对应的审批权限");
+        String currentState = apply.getState();
+        Long currentUserId = getUserId();
+        boolean selfRecall = apply.getUserId() != null && apply.getUserId().longValue() == currentUserId.longValue();
+        if (selfRecall) {
+            if (!STATE_OVER_JYS_AUDIT.equals(currentState)
+                    && !STATE_OVER_XY_AUDIT.equals(currentState)
+                    && !STATE_APPLY_JYS_AUDIT.equals(currentState)) {
+                return AjaxResult.error("当前状态不允许撤回");
+            }
+        } else if (!canApprove(currentState, urlFlag)) {
+            return AjaxResult.error("无权操作：当前课题" + getApprovalStepDesc(currentState) + "，您没有对应的审批权限");
         }
-        
-        // 3. 执行删除审批
-        return toAjax(sciHorizontalApplyService.recall(id, state, getUserId(), remark, urlFlag));
+        return toAjax(sciHorizontalApplyService.recall(id, state, currentUserId, remark, urlFlag));
     }
 
 
@@ -1281,7 +1275,7 @@ public class SciHorizontalApplyController extends BaseController
         }
         
         // 2. 状态+权限联合校验（到账金额使用申请审核的权限映射）
-        Integer state = amountRecord.getState() != null ? Integer.valueOf(amountRecord.getState()) : null;
+        String state = amountRecord.getState();
         if (!canApproveApply(state)) {
             String stepDesc = getApprovalStepDesc(state);
             return AjaxResult.error("无权操作：当前到账金额" + stepDesc + "，您没有对应的审核权限");
@@ -1358,7 +1352,7 @@ public class SciHorizontalApplyController extends BaseController
         }
         
         // 2. 状态+权限联合校验（到账金额使用申请审核的权限映射）
-        Integer state = amountRecord.getState() != null ? Integer.valueOf(amountRecord.getState()) : null;
+        String state = amountRecord.getState();
         if (!canApproveApply(state)) {
             String stepDesc = getApprovalStepDesc(state);
             return AjaxResult.error("无权操作：当前到账金额" + stepDesc + "，您没有对应的审核权限");
@@ -1401,7 +1395,7 @@ public class SciHorizontalApplyController extends BaseController
     @ResponseBody
     public AjaxResult reamounteditSave(SciHorizontalReamount sciHorizontalReamount)
     {
-        sciHorizontalReamount.setState("1");
+        sciHorizontalReamount.setState(STATE_APPLY_JYS_AUDIT);
         return toAjax(sciHorizontalReamountService.amountedit(sciHorizontalReamount));
     }
 

@@ -208,7 +208,7 @@
 <th:block th:include="include :: datetimepicker-js" />
 <th:block th:include="include :: bootstrap-fileinput-js"/>
 <th:block th:include="include :: select2-js" />
-<script type="text/javascript">
+<script type="text/javascript" th:inline="javascript">
     function displayFileName(inputId, fileNameId) {
         const input = document.getElementById(inputId);
         const fileNameSpan = document.getElementById(fileNameId);
@@ -328,13 +328,29 @@
 
         $.table.init(options);
 
+        function normalizeApplyState(state) {
+            var stateStr = String(state);
+            var stateMap = {
+                '99': 'APPLY_DRAFT',
+                '1': 'APPLY_JYS_AUDIT',
+                '2': 'APPLY_XY_AUDIT',
+                '5': 'APPLY_XY_AUDIT',
+                '22': 'APPLY_XY_AUDIT',
+                '3': 'APPLY_REJECTED',
+                '11': 'APPLY_KYC_AUDIT',
+                '4': 'APPLY_PASSED',
+                '6': 'APPLY_PASSED'
+            };
+            return stateMap[stateStr] || stateStr;
+        }
+
         $('#bootstrap-table').on('load-success.bs.table', function (e, name, args) {
             console.log('Event Name:', name.rows);
 
-            var a =$("#state").val();
+            var normalizedState = normalizeApplyState($("#state").val());
             // 获取当前登录用户ID和申请人ID
-            var currentUserId = [[${currentUserId}]];
-            var applyUserId = [[${sciHorizontalApply.userId}]];
+            var currentUserId = /*[[${currentUserId}]]*/ null;
+            var applyUserId = /*[[${sciHorizontalApply.userId}]]*/ null;
             
             // 判断是否为申请人本人
             var isSelfApply = (currentUserId === applyUserId);
@@ -343,7 +359,7 @@
                 $("#btn3").show();
                 $(".tdiv2").show()
             }else {
-                if(a == 2 ||a == 1 || a == 11){
+                if(normalizedState == 'APPLY_JYS_AUDIT' || normalizedState == 'APPLY_XY_AUDIT' || normalizedState == 'APPLY_KYC_AUDIT'){
                     if(name.rows.length > 0){
                         $(".tdiv2").show();
                     }
