@@ -90,4 +90,9 @@
             #{id}
         </foreach>
     </delete>
+
+    <select id="selectSysApprovalProcessByProcessCode" parameterType="String" resultMap="SysApprovalProcessResult">
+        <include refid="selectSysApprovalProcessVo"/>
+        where process_code = #{processCode}
+    </select>
 </mapper>
