@@ -1,6 +1,7 @@
 package com.ruoyi.web.controller.IntraSchoolProject;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -11,18 +12,14 @@ import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.system.domain.*;
 import com.ruoyi.system.service.*;
-import io.swagger.models.auth.In;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.core.page.PageDomain;
 import com.ruoyi.common.core.page.TableSupport;
-
-import static net.sf.jsqlparser.parser.feature.Feature.set;
 
 //http://localhost:8081/IntraSchPro
 @Controller
@@ -42,6 +39,9 @@ public class SciIntraSchoolProController extends BaseController {
 
   @Autowired
   private SciIntraSchProScoreService sciIntraSchProScoreService;
+
+  @Autowired
+  private SciTecTraScoreCalculator sciTecTraScoreCalculator;
 
   //private String role_str="";
   @GetMapping("")
@@ -82,6 +82,7 @@ public class SciIntraSchoolProController extends BaseController {
     String role_str = panRole_str();
     System.out.println("role_str = " + role_str);
     List<SciIntraSchoolPro> list = selectListByRole(role_str, tableId, sciIntraSchoolPro);
+    populateScores(list);
     TableDataInfo data = getDataTable(list);
 
     //System.out.println("data = " + data);
@@ -126,7 +127,50 @@ public class SciIntraSchoolProController extends BaseController {
 
     TableDataInfo data = getDataTable(distinctList);
     data.setTotal(total);
+    populateScores(distinctList);
     return data;
+  }
+
+  /**
+   * 列表页显示当前金额下四位负责人的应得总分，
+   * 前端再根据当前登录人的负责人顺位取对应分值展示。
+   */
+  private void populateScores(List<SciIntraSchoolPro> list) {
+    for (SciIntraSchoolPro item : list) {
+      try {
+        String amountStr = item.getAmount();
+        if (amountStr == null || amountStr.isEmpty()) {
+          continue;
+        }
+        amountStr = amountStr.replaceAll("[^0-9.]", "");
+        if (amountStr.isEmpty()) {
+          continue;
+        }
+        Map<Integer, SciTecTraScoreCalculator.ScoreDetail> scoreDetails =
+                sciTecTraScoreCalculator.calculateScoreDetails(new BigDecimal(amountStr));
+        for (Map.Entry<Integer, SciTecTraScoreCalculator.ScoreDetail> entry : scoreDetails.entrySet()) {
+          String score = String.valueOf(entry.getValue().getTotalScore());
+          switch (entry.getKey()) {
+            case 1:
+              item.setFirstPoints(score);
+              break;
+            case 2:
+              item.setSecondPoints(score);
+              break;
+            case 3:
+              item.setThirdPoints(score);
+              break;
+            case 4:
+              item.setForthPoints(score);
+              break;
+            default:
+              break;
+          }
+        }
+      } catch (Exception e) {
+        System.out.println("populateScores error: " + e.getMessage());
+      }
+    }
   }
 
   private List<SciIntraSchoolPro> selectListByRole(String roleStr, String tableId, SciIntraSchoolPro sciIntraSchoolPro) {
@@ -397,6 +441,21 @@ public class SciIntraSchoolProController extends BaseController {
     mmap.put("sciIntraSchoolPro", sciIntraSchoolPro);
     //mmap.put("urlFlag",urlFlag);
     return prefix + "/overdetail";
+  }
+
+  /**
+   * 根据项目金额计算各负责人积分
+   */
+  @PostMapping("/calculateScore")
+  @ResponseBody
+  public AjaxResult calculateScore(@RequestParam("amount") double amount) {
+    Map<String, Object> result = new HashMap<>();
+    Map<Integer, SciTecTraScoreCalculator.ScoreDetail> scoreDetails =
+            sciTecTraScoreCalculator.calculateScoreDetails(BigDecimal.valueOf(amount));
+    for (Map.Entry<Integer, SciTecTraScoreCalculator.ScoreDetail> entry : scoreDetails.entrySet()) {
+      result.put(String.valueOf(entry.getKey()), entry.getValue().getTotalScore());
+    }
+    return AjaxResult.success(result);
   }
 
   /**

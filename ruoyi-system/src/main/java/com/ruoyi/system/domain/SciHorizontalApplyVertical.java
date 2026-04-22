@@ -43,6 +43,9 @@ public class SciHorizontalApplyVertical extends BaseEntity {
     @Excel(name = "总分", sort = 8)
     private String totalTeacherScore;
 
+    /** 角色类型（用于数据权限控制） */
+    private String roleType;
+
     public String getUserName() {
         return userName;
     }
@@ -402,6 +405,11 @@ public class SciHorizontalApplyVertical extends BaseEntity {
     private String newsql;
     private String tableId;
     private String score;
+    private String expectedScore;
+    private String expectedScore1;
+    private String expectedScore2;
+    private String expectedScore3;
+    private String expectedScore4;
 
     public String getReAmount() {
         return reAmount;
@@ -498,6 +506,55 @@ public class SciHorizontalApplyVertical extends BaseEntity {
     public void setScore(String score) {
         this.score = score;
     }
+
+    public String getExpectedScore() {
+        return expectedScore;
+    }
+
+    public void setExpectedScore(String expectedScore) {
+        this.expectedScore = expectedScore;
+    }
+
+    public String getExpectedScore1() {
+        return expectedScore1;
+    }
+
+    public void setExpectedScore1(String expectedScore1) {
+        this.expectedScore1 = expectedScore1;
+    }
+
+    public String getExpectedScore2() {
+        return expectedScore2;
+    }
+
+    public void setExpectedScore2(String expectedScore2) {
+        this.expectedScore2 = expectedScore2;
+    }
+
+    public String getExpectedScore3() {
+        return expectedScore3;
+    }
+
+    public void setExpectedScore3(String expectedScore3) {
+        this.expectedScore3 = expectedScore3;
+    }
+
+    public String getExpectedScore4() {
+        return expectedScore4;
+    }
+
+    public void setExpectedScore4(String expectedScore4) {
+        this.expectedScore4 = expectedScore4;
+    }
+
+    public String getRoleType() {
+        return roleType;
+    }
+
+    public void setRoleType(String roleType) {
+        this.roleType = roleType;
+    }
+
     public String getStateDes(){
         // 添加空值检查
         if (this.state == null) {

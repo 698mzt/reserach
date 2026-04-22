@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.SysApprovalHistoryMapper">
+
+    <resultMap type="SysApprovalHistory" id="SysApprovalHistoryResult">
+        <result property="id"    column="id"    />
+        <result property="processCode"    column="process_code"    />
+        <result property="businessId"    column="business_id"    />
+        <result property="nodeId"    column="node_id"    />
+        <result property="nodeName"    column="node_name"    />
+        <result property="action"    column="action"    />
+        <result property="operatorId"    column="operator_id"    />
+        <result property="operatorName"    column="operator_name"    />
+        <result property="operatorDept"    column="operator_dept"    />
+        <result property="oldState"    column="old_state"    />
+        <result property="newState"    column="new_state"    />
+        <result property="comment"    column="comment"    />
+        <result property="createTime"    column="create_time"    />
+    </resultMap>
+
+    <sql id="selectSysApprovalHistoryVo">
+        select id, process_code, business_id, node_id, node_name, action, operator_id, operator_name, operator_dept, old_state, new_state, comment, create_time from sys_approval_history
+    </sql>
+
+    <select id="selectSysApprovalHistoryList" parameterType="SysApprovalHistory" resultMap="SysApprovalHistoryResult">
+        <include refid="selectSysApprovalHistoryVo"/>
+        <where>
+            <if test="processCode != null  and processCode != ''"> and process_code = #{processCode}</if>
+            <if test="businessId != null"> and business_id = #{businessId}</if>
+            <if test="operatorName != null  and operatorName != ''"> and operator_name like concat('%', #{operatorName}, '%')</if>
+            <if test="action != null  and action != ''"> and action = #{action}</if>
+        </where>
+        order by create_time desc
+    </select>
+
+    <select id="selectSysApprovalHistoryById" parameterType="Long" resultMap="SysApprovalHistoryResult">
+        <include refid="selectSysApprovalHistoryVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectSysApprovalHistoryByBusinessId" resultMap="SysApprovalHistoryResult">
+        <include refid="selectSysApprovalHistoryVo"/>
+        where process_code = #{processCode} and business_id = #{businessId}
+        order by create_time asc
+    </select>
+
+    <insert id="insertSysApprovalHistory" parameterType="SysApprovalHistory" useGeneratedKeys="true" keyProperty="id">
+        insert into sys_approval_history
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="processCode != null and processCode != ''">process_code,</if>
+            <if test="businessId != null">business_id,</if>
+            <if test="nodeId != null">node_id,</if>
+            <if test="nodeName != null and nodeName != ''">node_name,</if>
+            <if test="action != null and action != ''">action,</if>
+            <if test="operatorId != null">operator_id,</if>
+            <if test="operatorName != null and operatorName != ''">operator_name,</if>
+            <if test="operatorDept != null and operatorDept != ''">operator_dept,</if>
+            <if test="oldState != null and oldState != ''">old_state,</if>
+            <if test="newState != null and newState != ''">new_state,</if>
+            <if test="comment != null">comment,</if>
+            <if test="createTime != null">create_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="processCode != null and processCode != ''">#{processCode},</if>
+            <if test="businessId != null">#{businessId},</if>
+            <if test="nodeId != null">#{nodeId},</if>
+            <if test="nodeName != null and nodeName != ''">#{nodeName},</if>
+            <if test="action != null and action != ''">#{action},</if>
+            <if test="operatorId != null">#{operatorId},</if>
+            <if test="operatorName != null and operatorName != ''">#{operatorName},</if>
+            <if test="operatorDept != null and operatorDept != ''">#{operatorDept},</if>
+            <if test="oldState != null and oldState != ''">#{oldState},</if>
+            <if test="newState != null and newState != ''">#{newState},</if>
+            <if test="comment != null">#{comment},</if>
+            <if test="createTime != null">#{createTime},</if>
+         </trim>
+    </insert>
+
+    <delete id="deleteSysApprovalHistoryById" parameterType="Long">
+        delete from sys_approval_history where id = #{id}
+    </delete>
+
+    <delete id="deleteSysApprovalHistoryByIds" parameterType="Long[]">
+        delete from sys_approval_history where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="selectLastRejectByBusinessId" resultMap="SysApprovalHistoryResult">
+        <include refid="selectSysApprovalHistoryVo"/>
+        where process_code = #{processCode} and business_id = #{businessId} and action = 'reject'
+        order by create_time desc
+        limit 1
+    </select>
+</mapper>

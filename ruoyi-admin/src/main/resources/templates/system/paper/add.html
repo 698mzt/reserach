@@ -33,74 +33,85 @@
             width: 66.66% !important;
             padding-right: 15px !important; /* 与Bootstrap的col-sm-8保持一致 */
         }
-        /* 作者分数样式 */
-        .author-score {
-            background-color: #5cb85c;
-            color: white;
-            font-weight: bold;
-            border-radius: 0 4px 4px 0;
-            min-width: 80px;
-            text-align: center;
-        }
-        /* 通讯作者样式 */
-        .corresponding-author-label {
-            color: #5cb85c;
-            font-weight: bold;
-        }
     </style>
 </head>
 <body class="white-bg">
     <div class="wrapper wrapper-content animated fadeInRight ibox-content">
         <form class="form-horizontal m" id="form-paper-add" >
             <input type="hidden" id="UserId" th:value="${user}">
-            <div class="form-group">
-                <label class="col-sm-3 control-label">论文名称：</label>
-                <div class="col-sm-8">
-                    <div class="input-group-btn">
-                        <input name="paperTitle" id="paperTitle" class="form-control" type="text" placeholder="请输入论文名称..." required maxlength="150">
-                        <ul class="dropdown-menu dropdown-menu-right" role="menu" id="suggestionsDropdown">
-                        </ul>
+            
+            <!-- 论文名称和论文类型 -->
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">论文名称：</label>
+                    <div class="col-sm-8">
+                        <div class="input-group-btn">
+                            <input name="paperTitle" id="paperTitle" class="form-control" type="text" placeholder="请输入论文名称..." required maxlength="150">
+                            <ul class="dropdown-menu dropdown-menu-right" role="menu" id="suggestionsDropdown">
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="form-group">
-                <label class="col-sm-3 control-label">论文类型：</label>
-                <div class="col-sm-8" >
-                    <select  name="paperType" id="paperType" class="form-control" th:with="type=${@dict.getType('sci_paper_type')}" required>
-                        <option value="" selected>----请选择----</option>
-                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
-                    </select>
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="col-sm-3 control-label">论文类别：</label>
-                <div class="col-sm-8" >
-
-                    <select  name="paperCategory" id="paperCategory" class="form-control" th:with="type=${@dict.getType('sci_paper_k')}" required>
-                        <option value="" selected="selected">----请选择----</option>
-                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
-                    </select>
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="col-sm-3 control-label">发表期刊：</label>
-                <div class="col-sm-8">
-                    <input name="publishedJournal" id="publishedJournal" class="form-control" type="text" required maxlength="200">
-                </div>
-            </div>
-          <div class="form-group">
-            <label class="col-sm-3 control-label">发表时间：</label>
-            <div class="col-sm-8">
-              <div class="input-group date">
-                <input autocomplete="off" id="publicationTime" name="publicationTime" class="form-control" placeholder="yyyy-MM-dd" type="text"  required >
-                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-              </div>
-            </div>
-          </div>
-            <div class="col-md-12">
+            <div class="col-xs-6">
                 <div class="form-group">
-                    <label class="col-sm-3 control-label">是否与行业联合发表：</label>
-                    <div class="col-sm-9">
+                    <label class="col-sm-4 control-label is-required">论文类型：</label>
+                    <div class="col-sm-8" >
+                        <select  name="paperType" id="paperType" class="form-control" th:with="type=${@dict.getType('sci_paper_type')}" required>
+                            <option value="" selected>----请选择----</option>
+                            <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 论文类别和发表期刊 -->
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">论文类别：</label>
+                    <div class="col-sm-8" >
+                        <select  name="paperCategory" id="paperCategory" class="form-control" th:with="type=${@dict.getType('sci_paper_k')}" required>
+                            <option value="" selected="selected">----请选择----</option>
+                            <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">发表期刊：</label>
+                    <div class="col-sm-8">
+                        <input name="publishedJournal" id="publishedJournal" class="form-control" type="text" required maxlength="200">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 发表时间和论文网址 -->
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">发表时间：</label>
+                    <div class="col-sm-8">
+                        <div class="input-group date">
+                            <input autocomplete="off" id="publicationTime" name="publicationTime" class="form-control" placeholder="yyyy-MM-dd" type="text"  required >
+                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">论文网址：</label>
+                    <div class="col-sm-8">
+                        <input name="search_web" id="search_web" class="form-control" type="text" maxlength="200">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 是否与行业联合发表和是否与地方联合发表 -->
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">是否与行业联合发表：</label>
+                    <div class="col-sm-8">
                         <label class="radio-box">
                             <input name="isIndustryCollaborative" class="form-control" type="radio" value="是" required>是</label>
                         <label class="radio-box">
@@ -108,11 +119,10 @@
                     </div>
                 </div>
             </div>
-
-            <div class="col-md-12">
+            <div class="col-xs-6">
                 <div class="form-group">
-                    <label class="col-sm-3 control-label">是否与地方联合发表：</label>
-                    <div class="col-sm-9">
+                    <label class="col-sm-4 control-label is-required">是否与地方联合发表：</label>
+                    <div class="col-sm-8">
                         <label class="radio-box">
                             <input name="isLocalCollaborative" class="form-control" type="radio" value="是" required>是</label>
                         <label class="radio-box">
@@ -120,11 +130,12 @@
                     </div>
                 </div>
             </div>
-
-            <div class="col-md-12">
+            
+            <!-- 是否与国际联合发表和是否是跨学科论文 -->
+            <div class="col-xs-6">
                 <div class="form-group">
-                    <label class="col-sm-3 control-label">是否与国际联合发表：</label>
-                    <div class="col-sm-9">
+                    <label class="col-sm-4 control-label is-required">是否与国际联合发表：</label>
+                    <div class="col-sm-8">
                         <label class="radio-box">
                             <input name="isInternationalCollaborative" class="form-control" type="radio" value="是" required>是</label>
                         <label class="radio-box">
@@ -132,11 +143,10 @@
                     </div>
                 </div>
             </div>
-
-            <div class="col-md-12">
+            <div class="col-xs-6">
                 <div class="form-group">
-                    <label class="col-sm-3 control-label">是否是跨学科论文：</label>
-                    <div class="col-sm-9" >
+                    <label class="col-sm-4 control-label is-required">是否是跨学科论文：</label>
+                    <div class="col-sm-8" >
                         <label class="radio-box">
                             <input name="isCrossDiscipline" class="form-control" type="radio" value="是" required>是</label>
                         <label class="radio-box">
@@ -144,10 +154,12 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-12">
+            
+            <!-- 是否是独立作者 -->
+            <div class="col-xs-12">
                 <div class="form-group">
-                    <label class="col-sm-3 control-label">是否是独立作者：</label>
-                    <div class="col-sm-9" >
+                    <label class="col-sm-2 control-label is-required">是否是独立作者：</label>
+                    <div class="col-sm-10" >
                         <label class="radio-box">
                             <input name="isIndependentauthor" class="form-control" type="radio" value="1" required>是</label>
                         <label class="radio-box">
@@ -156,116 +168,163 @@
                 </div>
             </div>
 
-
-            <!--            <div class="form-group">-->
-<!--                <label class="col-sm-3 control-label">排名：</label>-->
-<!--                <div class="col-sm-8">-->
-<!--                    <select  name="paperRanking" id="paperRanking" class="form-control m-b" th:with="type=${@dict.getType('sci_paper_qwer')}" required>-->
-<!--                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>-->
-<!--                    </select>-->
-<!--                </div>-->
-<!--            </div>-->
-            <div class="col-xs-6" id="firstAuthorGroup">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label is-required first-author-label">一作：</label>
-                    <div class="col-sm-8 first-author-input">
-                        <div class="input-group">
-                            <select name="firstPersonId" class="form-control m-b" id="firstPersonId">
-                                <option value="" selected>---其他--</option>
-                                <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}" th:data-user-id="${user.userId}"></option>
-                            </select>
-                            <span class="input-group-addon author-score" id="firstAuthorScore">0分</span>
+            <!-- 一作和预期科研分 -->
+            <div class="row">
+                <div class="col-xs-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label is-required">一作：</label>
+                        <div class="col-sm-8">
+                            <div class="input-group">
+                                <select name="firstPersonId" class="form-control m-b" id="firstPersonId">
+                                    <option value="" selected>---其他--</option>
+                                    <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}" th:data-user-id="${user.userId}"></option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">预期科研分：</label>
+                        <div class="col-sm-8">
+                            <input id="expectedScore1" class="form-control" type="text" readonly placeholder="选择论文类别后自动计算">
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="col-xs-6">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">二作：</label>
-                    <div class="col-sm-8">
-                        <div class="input-group">
-                            <select name="secondPersonId" class="form-control m-b" id="secondPersonId">
-                                <option value="" selected>---其他--</option>
-                                <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}" th:data-user-id="${user.userId}"></option>
-                            </select>
-                            <span class="input-group-addon author-score" id="secondAuthorScore">0分</span>
+            <!-- 二作和预期科研分 -->
+            <div class="row">
+                <div class="col-xs-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label is-required">二作：</label>
+                        <div class="col-sm-8">
+                            <div class="input-group">
+                                <select name="secondPersonId" class="form-control m-b" id="secondPersonId">
+                                    <option value="" selected>---其他--</option>
+                                    <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}" th:data-user-id="${user.userId}"></option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">预期科研分：</label>
+                        <div class="col-sm-8">
+                            <input id="expectedScore2" class="form-control" type="text" readonly placeholder="选择论文类别后自动计算">
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="col-xs-6">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">三作：</label>
-                    <div class="col-sm-8">
-                        <div class="input-group">
-                            <select name="thirdPersonId" class="form-control m-b" id="thirdPersonId">
-                                <option value="" selected>---其他--</option>
-                                <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}" th:data-user-id="${user.userId}"></option>
-                            </select>
-                            <span class="input-group-addon author-score" id="thirdAuthorScore">0分</span>
+            <!-- 三作和预期科研分 -->
+            <div class="row">
+                <div class="col-xs-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label is-required">三作：</label>
+                        <div class="col-sm-8">
+                            <div class="input-group">
+                                <select name="thirdPersonId" class="form-control m-b" id="thirdPersonId">
+                                    <option value="" selected>---其他--</option>
+                                    <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}" th:data-user-id="${user.userId}"></option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">预期科研分：</label>
+                        <div class="col-sm-8">
+                            <input id="expectedScore3" class="form-control" type="text" readonly placeholder="选择论文类别后自动计算">
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="col-xs-6">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">四作：</label>
-                    <div class="col-sm-8">
-                        <div class="input-group">
-                            <select name="fourthPersonId" class="form-control m-b" id="fourthPersonId">
-                                <option value="" selected>---其他--</option>
-                                <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}" th:data-user-id="${user.userId}"></option>
-                            </select>
-                            <span class="input-group-addon author-score" id="fourthAuthorScore">0分</span>
+            <!-- 四作和预期科研分 -->
+            <div class="row">
+                <div class="col-xs-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label is-required">四作：</label>
+                        <div class="col-sm-8">
+                            <div class="input-group">
+                                <select name="fourthPersonId" class="form-control m-b" id="fourthPersonId">
+                                    <option value="" selected>---其他--</option>
+                                    <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}" th:data-user-id="${user.userId}"></option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">预期科研分：</label>
+                        <div class="col-sm-8">
+                            <input id="expectedScore4" class="form-control" type="text" readonly placeholder="选择论文类别后自动计算">
                         </div>
                     </div>
                 </div>
             </div>
 
-
-            <div class="form-group">
-                <label class="col-sm-3 control-label is-required">通讯作者：</label>
-                <div class="col-sm-8">
-                    <select name="communicationAuthorId" class="form-control m-b" id="correspondingAuthorId">
-                        <option value="">--请选择--</option>
-                    </select>
+            <!-- 通讯作者和预期科研分 -->
+            <div class="row">
+                <div class="col-xs-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label is-required">通讯作者：</label>
+                        <div class="col-sm-8">
+                            <select name="communicationAuthorId" class="form-control m-b" id="correspondingAuthorId">
+                                <option value="">--请选择--</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
-            </div>
-
-
-            <div class="form-group" id="searchWebGroup">
-                <label class="col-sm-3 control-label">论文网址：</label>
-                <div class="col-sm-8">
-                    <input name="search_web" id="search_web" class="form-control" type="text" maxlength="200">
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="col-sm-3 control-label">录用/检索证明：</label>
-                <div class="col-sm-8">
-                    <input type="hidden" name="text_paper">
-                    <div class="file-loading">
-                        <input class="form-control file-upload" id="text_paper" name ="file" type="file" >
+                <div class="col-xs-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">预期科研分：</label>
+                        <div class="col-sm-8">
+                            <input id="expectedScore5" class="form-control" type="text" readonly placeholder="选择论文类别后自动计算">
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="form-group">
-                <label class="col-sm-3 control-label">论文原文：</label>
-                <div class="col-sm-8">
-                    <input type="hidden" name="word_paper">
-                    <div class="file-loading">
-                        <input class="form-control file-wupload" id="word_paper" name ="file" type="file" >
+
+            <!-- 录用/检索证明 -->
+            <div class="col-xs-12">
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">录用/检索证明：</label>
+                    <div class="col-sm-10">
+                        <input type="hidden" name="text_paper">
+                        <div class="file-loading">
+                            <input class="form-control file-upload" id="text_paper" name ="file" type="file" >
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="form-group">
-                <label class="col-sm-3 control-label">备注：</label>
-                <div class="col-sm-8">
-                    <input name="remarks" id="remark" class="form-control" type="text" >
-                    <input type="hidden" class="form-control" name="remarks" >
-                    <div class="summernote" id="remarks"></div>
+            
+            <!-- 论文原文 -->
+            <div class="col-xs-12">
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">论文原文：</label>
+                    <div class="col-sm-10">
+                        <input type="hidden" name="word_paper">
+                        <div class="file-loading">
+                            <input class="form-control file-wupload" id="word_paper" name ="file" type="file" >
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 备注 -->
+            <div class="col-xs-12">
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">备注：</label>
+                    <div class="col-sm-10">
+                        <input name="remarks" id="remark" class="form-control" type="text" >
+                        <input type="hidden" class="form-control" name="remarks" >
+                        <div class="summernote" id="remarks"></div>
+                    </div>
                 </div>
             </div>
         </form>
@@ -600,6 +659,9 @@
                 $('#secondPersonId, #thirdPersonId, #fourthPersonId, #correspondingAuthorId').val('').trigger('change');
                 $('.form-group:has(#secondPersonId), .form-group:has(#thirdPersonId), .form-group:has(#fourthPersonId), .form-group:has(#correspondingAuthorId)').hide();
                 
+                // 隐藏二作、三作、四作和通讯作者的科研分输入框
+                $('#expectedScore2, #expectedScore3, #expectedScore4, #expectedScore5').closest('.form-group').hide();
+                
                 // 调整一作布局使其与其他控件对齐
                 $('#firstAuthorGroup').removeClass('col-xs-6').addClass('first-author-full-width');
                 $('#firstAuthorGroup .form-group').addClass('first-author-aligned');
@@ -609,6 +671,9 @@
             } else {
                 // 不是独立作者：显示所有作者控件，恢复布局
                 $('.form-group:has(#secondPersonId), .form-group:has(#thirdPersonId), .form-group:has(#fourthPersonId), .form-group:has(#correspondingAuthorId)').show();
+                
+                // 显示二作、三作、四作和通讯作者的科研分输入框
+                $('#expectedScore2, #expectedScore3, #expectedScore4, #expectedScore5').closest('.form-group').show();
                 
                 // 恢复一作原始布局
                 $('#firstAuthorGroup').removeClass('first-author-full-width').addClass('col-xs-6');
@@ -737,14 +802,13 @@
             const authors = getCurrentAuthors();
             const communicationAuthorId = $('#correspondingAuthorId').val();
             
-            // console.log('=== 开始计算分数 ===');
-            // console.log('论文类别:', paperCategory);
-            // console.log('作者信息:', authors);
-            // console.log('通讯作者ID:', communicationAuthorId);
-            
             // 如果论文类别未选择，不计算分数
             if (!paperCategory) {
-                // console.log('论文类别未选择，不计算分数');
+                $('#expectedScore1').val('');
+                $('#expectedScore2').val('');
+                $('#expectedScore3').val('');
+                $('#expectedScore4').val('');
+                $('#expectedScore5').val('');
                 return;
             }
             
@@ -755,8 +819,6 @@
                 communicationAuthorId: communicationAuthorId || ''
             };
             
-            // console.log('请求数据:', requestData);
-            
             // 调用后端API计算分数
             $.ajax({
                 url: prefix + '/calculateScore',
@@ -764,57 +826,71 @@
                 contentType: 'application/json',
                 data: JSON.stringify(requestData),
                 success: function(response) {
-                    // console.log('API响应:', response);
-                    
                     if (response.code === 0) {
                         const scores = response.data;
-                        // console.log('分数数据:', scores);
-                        
                         // 更新各作者分数显示
-                        updateAuthorScores(scores, authors);
+                        updateAuthorScores(scores, authors, communicationAuthorId);
                     } else {
-                        // console.error('API返回错误:', response.msg);
+                        $('#expectedScore1').val('');
+                        $('#expectedScore2').val('');
+                        $('#expectedScore3').val('');
+                        $('#expectedScore4').val('');
+                        $('#expectedScore5').val('');
                     }
                 },
                 error: function(xhr, status, error) {
-                    // console.error('计算科研分失败:', status, error);
-                    // console.error('XHR状态:', xhr.status);
-                    // console.error('XHR响应文本:', xhr.responseText);
+                    $('#expectedScore1').val('');
+                    $('#expectedScore2').val('');
+                    $('#expectedScore3').val('');
+                    $('#expectedScore4').val('');
+                    $('#expectedScore5').val('');
                 }
             });
         }
         
         // 更新作者分数显示
-        function updateAuthorScores(scores, authors) {
-            // console.log('=== 更新作者分数 ===');
-            // console.log('分数数据:', scores);
-            // console.log('作者信息:', authors);
-            
+        function updateAuthorScores(scores, authors, communicationAuthorId) {
             // 更新一作分数
             const firstKey = '1_' + authors['1'];
             const firstAuthorScore = scores[firstKey] || 0;
-            // console.log('一作分数计算:', firstKey, '=>', firstAuthorScore);
-            $('#firstAuthorScore').text(firstAuthorScore + '分');
+            $('#expectedScore1').val(firstAuthorScore > 0 ? firstAuthorScore : '');
             
             // 更新二作分数
             const secondKey = '2_' + authors['2'];
             const secondAuthorScore = scores[secondKey] || 0;
-            // console.log('二作分数计算:', secondKey, '=>', secondAuthorScore);
-            $('#secondAuthorScore').text(secondAuthorScore + '分');
+            $('#expectedScore2').val(secondAuthorScore > 0 ? secondAuthorScore : '');
             
             // 更新三作分数
             const thirdKey = '3_' + authors['3'];
             const thirdAuthorScore = scores[thirdKey] || 0;
-            // console.log('三作分数计算:', thirdKey, '=>', thirdAuthorScore);
-            $('#thirdAuthorScore').text(thirdAuthorScore + '分');
+            $('#expectedScore3').val(thirdAuthorScore > 0 ? thirdAuthorScore : '');
             
             // 更新四作分数
             const fourthKey = '4_' + authors['4'];
             const fourthAuthorScore = scores[fourthKey] || 0;
-            // console.log('四作分数计算:', fourthKey, '=>', fourthAuthorScore);
-            $('#fourthAuthorScore').text(fourthAuthorScore + '分');
+            $('#expectedScore4').val(fourthAuthorScore > 0 ? fourthAuthorScore : '');
             
-            // console.log('=== 分数更新完成 ===');
+            // 更新通讯作者分数
+            if (communicationAuthorId) {
+                // 检查通讯作者是否是某个作者
+                let communicationScore = 0;
+                if (authors['1'] === communicationAuthorId) {
+                    communicationScore = firstAuthorScore;
+                } else if (authors['2'] === communicationAuthorId) {
+                    communicationScore = secondAuthorScore;
+                } else if (authors['3'] === communicationAuthorId) {
+                    communicationScore = thirdAuthorScore;
+                } else if (authors['4'] === communicationAuthorId) {
+                    communicationScore = fourthAuthorScore;
+                } else {
+                    // 如果通讯作者不是任何作者，使用专门的通讯作者分数
+                    const communicationKey = 'comm_' + communicationAuthorId;
+                    communicationScore = scores[communicationKey] || 0;
+                }
+                $('#expectedScore5').val(communicationScore > 0 ? communicationScore : '');
+            } else {
+                $('#expectedScore5').val('');
+            }
         }
     </script>
 </body>

@@ -11,6 +11,7 @@
         <result property="changeStatus" column="change_status"/>
         <result property="scoreType" column="score_type"/>
         <result property="changeValue" column="change_value"/>
+        <result property="expectedValue" column="expected_value"/>
 
     </resultMap>
 
@@ -40,6 +41,7 @@
             <if test="changeStatus != null">change_status,</if>
             <if test="scoreType != null">score_type,</if>
             <if test="changeValue != null">change_value,</if>
+            <if test="expectedValue != null">expected_value,</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="userId != null">#{userId},</if>
@@ -47,6 +49,7 @@
             <if test="changeStatus != null">#{changeStatus},</if>
             <if test="scoreType != null">#{scoreType},</if>
             <if test="changeValue != null">#{changeValue},</if>
+            <if test="expectedValue != null">#{expectedValue},</if>
         </trim>
     </insert>
 
@@ -63,11 +66,11 @@
     </select>
     
     <select id="selectScoreVerticalById" parameterType="Integer" resultMap="SciUserScoreResult">
-        select s.user_id,s.vertical_id,s.change_value from sci_user_score_vertical s where s.vertical_id = #{id}
+        select s.user_id,s.vertical_id,s.change_value,s.expected_value from sci_user_score_vertical s where s.vertical_id = #{id}
     </select>
     
     <select id="selectScoreVerticalByApplyIds" parameterType="java.util.Set" resultMap="SciUserScoreResult">
-        select s.user_id,s.vertical_id,s.change_value from sci_user_score_vertical s 
+        select s.user_id,s.vertical_id,s.change_value,s.expected_value from sci_user_score_vertical s 
         where s.vertical_id in
         <foreach collection="applyIds" item="applyId" open="(" separator="," close=")">
             #{applyId}

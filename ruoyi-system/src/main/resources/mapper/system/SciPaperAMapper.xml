@@ -173,6 +173,115 @@
         </where>
       order  by field(p.state ,'1','2','4')
     </select>
+    
+    <select id="selectSciPaperAListAll" parameterType="SciPaperA" resultMap="SciPaperAResult">
+        select
+        #{uid} uid,
+        (SELECT parent_id FROM sys_dept WHERE dept_id =( SELECT dept_id from sys_user WHERE user_id = #{uid}))= pt.dept_id deptNamekey,
+        p.id ,
+        pac.createtime as createtime,
+        u.login_name employee_id,
+        p.text_paper,
+        p.word_paper,
+        p.search_web,
+        pt.dept_name research_room,
+        p.user_id,
+        d.dept_name dname,
+        pt.dept_name college,
+        p.teacher_name teacher_name,
+        u.tea_zhicheng on_campus_title,
+        p.paper_title ,
+        p.paper_type,
+        p.paper_category,
+        p.published_journal,
+        p.publication_time,
+        p.is_industry_collaborative,
+        p.is_local_collaborative,
+        p.is_international_collaborative,
+        p.is_cross_discipline,
+        p.paper_ranking,
+        p.research_score,
+        p.remarks,
+        p.state,
+        p.is_Independentauthor,
+        pa1.user_name as first_author_name,
+        pa1.user_id as first_author_id,
+        pa1.score as first_author_score,
+        pa2.user_name as second_author_name,
+        pa2.user_id as second_author_id,
+        pa2.score as second_author_score,
+        pa3.user_name as third_author_name,
+        pa3.user_id as third_author_id,
+        pa3.score as third_author_score,
+        pa4.user_name as fourth_author_name,
+        pa4.user_id as fourth_author_id,
+        pa4.score as fourth_author_score,
+        pac.user_name as corresponding_author_name,
+        pac.user_id as corresponding_author_id,
+        pac.score as corresponding_author_score
+        from
+        sci_paper_a p
+        left join sys_user u on
+        p.user_id = u.user_id
+        left join sys_dept d on
+        u.dept_id = d.dept_id
+        left join sys_dept pt on
+        d.parent_id = pt.dept_id
+        left join (
+            select pa.paper_id, su.user_name ,su.user_id ,pa.score
+            from paper_author pa
+                     left join sys_user su on pa.user_id = su.user_id
+            where pa.author_order = '1'
+        ) pa1 on p.id = pa1.paper_id
+        left join (
+            select pa.paper_id, su.user_name ,su.user_id ,pa.score
+            from paper_author pa
+                     left join sys_user su on pa.user_id = su.user_id
+            where pa.author_order = '2'
+        ) pa2 on p.id = pa2.paper_id
+        left join (
+            select pa.paper_id, su.user_name ,su.user_id,pa.score
+            from paper_author pa
+                     left join sys_user su on pa.user_id = su.user_id
+            where pa.author_order = '3'
+        ) pa3 on p.id = pa3.paper_id
+        left join (
+            select pa.paper_id, su.user_name ,su.user_id,pa.score
+            from paper_author pa
+                     left join sys_user su on pa.user_id = su.user_id
+            where pa.author_order = '4'
+        ) pa4 on p.id = pa4.paper_id
+        left join (
+            select pa.paper_id, su.user_name ,su.user_id,pa.score ,pa.create_time as createtime
+            from paper_author pa
+                     left join sys_user su on pa.user_id = su.user_id
+            where pa.author_level = '0'
+        ) pac on p.id = pac.paper_id
+        <where>
+            1=1
+            <if test="state != null and state != ''"> and p.state = #{state}</if>
+            ${params.dataScope}
+            <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
+            <if test="teacherName != null  and teacherName != ''"> and teacher_name like concat('%', #{teacherName}, '%')</if>
+            <if test="paperTitle != null  and paperTitle != ''"> and paper_title like concat('%', #{paperTitle}, '%')</if>
+            <if test="paperCategory != null  and paperCategory != ''"> and paper_category = #{paperCategory}</if>
+            <if test="publishedJournal != null  and publishedJournal != ''"> and published_journal = #{publishedJournal}</if>
+            <if test="inclusionStatus != null  and inclusionStatus != ''"> and inclusion_status = #{inclusionStatus}</if>
+            <if test="publicationTime != null "> and publication_time = #{publicationTime}</if>
+            <if test="isIndustryCollaborative != null  and isIndustryCollaborative != ''"> and is_industry_collaborative = #{isIndustryCollaborative}</if>
+            <if test="isLocalCollaborative != null  and isLocalCollaborative != ''"> and is_local_collaborative = #{isLocalCollaborative}</if>
+            <if test="isInternationalCollaborative != null  and isInternationalCollaborative != ''"> and is_international_collaborative = #{isInternationalCollaborative}</if>
+            <if test="isCrossDiscipline != null  and isCrossDiscipline != ''"> and is_cross_discipline = #{isCrossDiscipline}</if>
+            <if test="paperRanking != null  and paperRanking != ''"> and paper_ranking = #{paperRanking}</if>
+            <if test="researchScore != null  and researchScore != ''"> and research_score = #{researchScore}</if>
+            <if test="remarks != null  and remarks != ''"> and remarks = #{remarks}</if>
+            <if test="year != null  and year != ''"> and YEAR(publication_time) = #{year}</if>
+            <if test="college != null  and college != ''"> and pt.dept_name like concat('%', #{college}, '%')</if>
+            <if test="researchRoom != null  and researchRoom != ''"> and d.dept_name like concat('%', #{researchRoom}, '%')</if>
+            <if test="firstAuthorName != null  and firstAuthorName != ''"> and pa1.user_name like concat('%', #{firstAuthorName}, '%')</if>
+        </where>
+      order  by field(p.state ,'1','2','4')
+    </select>
 <!--待科研处审核，完成-->
     <select id="selectSciPaperAListKY" parameterType="SciPaperA" resultMap="SciPaperAResult">
         <include refid="selectSciPaperAVo"/>
@@ -535,7 +644,7 @@
       order  by field(p.state ,'1','2','4')
     </select>
 
-    <select id="selectSciPaperAByroleId" >
+    <select id="selectSciPaperAByroleId" parameterType="Long" resultType="String">
         select ur.role_id,r.role_name,r.role_key from sys_user_role ur
                                 left join sys_user u on  ur.user_id=u.user_id
                                 left join sys_role r on r.role_id = ur.role_id

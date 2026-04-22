@@ -56,7 +56,7 @@
     </sql>
 
     <select id="selectOtherListByUid" parameterType="Long" resultMap="SciHorizontalApplyResult">
-        select #{uid} uid,s.id,u.user_name userName,s.top_number ,d.dept_id,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, pe.persion_id,pe.ranking,s.top_type,s.party_A,s.party_B, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, s.signing_data, s.validity_Date,  concat( s.amount,'万') amount, s.contract, s.filing, s.state,s.createtime
+        select #{uid} uid,s.id,u.user_name userName,s.top_number ,d.dept_id,d.dept_name dname,p.dept_id ynameId,p.dept_name yname, s.user_id, s.top_name, pe.persion_id,pe.ranking,s.top_type,s.party_A,s.party_B, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, s.signing_data, s.validity_Date,  concat( s.amount,'万') amount, s.contract, s.filing, s.state,s.createtime
         from sci_horizontal_apply s left join sci_persion pe on pe.apply_id = s.id
         left join sys_user u on  s.user_id=u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
@@ -65,18 +65,20 @@
         <if test="newsql != null  and newsql != '' ">
             <choose>
                 <when test="newsql == '00' ">
-                    and s.state = 6
+                    and s.state = 'APPLY_PASSED'
                 </when>
                 <when test="newsql == '01'">
-                    and s.state in (1,2,3,4,5,11,22,99)
+                    and s.state in ('APPLY_DRAFT','APPLY_JYS_AUDIT','APPLY_XY_AUDIT','APPLY_KYC_AUDIT','APPLY_REJECTED','APPLY_PASSED')
                 </when>
                 <when test="newsql == '02'">
-                    and s.state in (999,7,8,9,10,33,44)
+                    and s.state in ('OVER_DRAFT','OVER_JYS_AUDIT','OVER_XY_AUDIT','OVER_KYC_AUDIT','OVER_REJECTED','OVER_PASSED')
                 </when>
             </choose>
         </if>
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+        <if test="dnameId != null and dnameId != ''"> and d.dept_id = #{dnameId}</if>
+        <if test="ynameId != null and ynameId != ''"> and p.dept_id = #{ynameId}</if>
         <if  test="dname != null  and dname != ''"> and d.dept_name like concat('%', #{dname}, '%')</if>
         <if test="year != null and year != ''">
             AND YEAR(DATE_ADD(COALESCE(validity_Date, signing_data), INTERVAL 1 MONTH)) = #{year}
@@ -87,27 +89,58 @@
     <!--    查询申请流程-->
     <select id="selectSciHorizontalApplyList" parameterType="SciHorizontalApply" resultMap="SciHorizontalApplyResult" >
         <include refid="selectSciHorizontalApplyVo"/>
-        where state in (1,2,3,4,5,11,22,99)
+        where state in ('APPLY_DRAFT','APPLY_JYS_AUDIT','APPLY_XY_AUDIT','APPLY_KYC_AUDIT','APPLY_PASSED','APPLY_REJECTED')
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
         <if test="topNumber != null  and topNumber != ''"> or top_number = #{topNumber}</if>
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if  test="dname != null  and dname != ''"> and d.dept_name like concat('%', #{dname}, '%')</if>
+        <if test="yname != null and yname != ''"> and p.dept_name like concat('%', #{yname}, '%')</if>
+        <if test="dnameId != null and dnameId != ''"> and d.dept_id = #{dnameId}</if>
+        <if test="ynameId != null and ynameId != ''"> and p.dept_id = #{ynameId}</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
-        <!-- 数据范围过滤 -->
+        ${params.dataScope}
+        order  by
+        case
+        when state = 'APPLY_DRAFT' then 1
+        when state = 'APPLY_REJECTED' then 2
+        when state = 'APPLY_PASSED' then 3
+        when state in ('APPLY_JYS_AUDIT','APPLY_XY_AUDIT','APPLY_KYC_AUDIT') then 4
+        end,
+        createtime desc
+    </select>
+
+    <!--    统一查询横向课题列表（基于数据权限控制）-->
+    <!--    所有管理员角色均可查看所有状态的课题数据，不再根据状态过滤可见性 -->
+    <select id="selectSciHorizontalApplyListAll" parameterType="SciHorizontalApply" resultMap="SciHorizontalApplyResult" >
+        <include refid="selectSciHorizontalApplyVo"/>
+        where 1=1
+        <!-- 保留状态过滤条件，但不再硬编码状态范围，允许通过参数动态过滤 -->
+        <if test="state != null  and state != ''"> and s.state = #{state}</if>
+        <if test="topName != null  and topName != ''"> and s.top_name like concat('%', #{topName}, '%')</if>
+        <if test="topNumber != null  and topNumber != ''"> and s.top_number = #{topNumber}</if>
+        <if test="userName != null  and userName != ''"> and u.user_name like concat('%', #{userName}, '%')</if>
+        <if test="dname != null  and dname != ''"> and d.dept_name like concat('%', #{dname}, '%')</if>
+        <if test="yname != null and yname != ''"> and p.dept_name like concat('%', #{yname}, '%')</if>
+        <if test="dnameId != null and dnameId != ''"> and d.dept_id = #{dnameId}</if>
+        <if test="ynameId != null and ynameId != ''"> and p.dept_id = #{ynameId}</if>
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(s.signing_data,INTERVAL 1 MONTH)) = #{year}</if>
+        <!-- 数据范围过滤 - 核心权限控制 -->
         ${params.dataScope}
         order  by
         case
 --         草稿箱
-        when state = 99 then 1
---         被驳回
-        when state in (3,22,5) then 2
---         申请结项
-        when state = 4 then 3
+        when s.state = 'APPLY_DRAFT' then 0
+--         已驳回
+        when s.state in ('APPLY_REJECTED','OVER_REJECTED') then 1
 --         审核中
-        when state in (1,2,11) then 4
+        when s.state in ('APPLY_JYS_AUDIT','APPLY_XY_AUDIT','APPLY_KYC_AUDIT','OVER_DRAFT','OVER_JYS_AUDIT','OVER_XY_AUDIT','OVER_KYC_AUDIT') then 2
+--         已通过
+        when s.state in ('APPLY_PASSED','OVER_PASSED') then 3
+--         其他状态
+        else 4
         end,
-        createtime desc
+        s.createtime desc
     </select>
 
     <!--    教研室查询申请审批-->
@@ -117,20 +150,17 @@
         left join sys_user u on  s.user_id=u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
-        where s.state  in (1,2)
-        <!--            <if test="userId != null "> and user_id = #{userId}</if>-->
+        where 1=1
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+        <if test="dnameId != null and dnameId != ''"> and d.dept_id = #{dnameId}</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
         ${params.dataScope}
         order  by
         case
---         待教研室审核
-        when state = 1 then 1
---         教研室通过
-        when state = 2 then 2
---         when state in (4,11) then 3
+        when state = 'APPLY_JYS_AUDIT' then 1
+        when state = 'APPLY_XY_AUDIT' then 2
         end,
         createtime desc
     </select>
@@ -142,20 +172,22 @@
         left join sys_user u on  s.user_id=u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
-        where s.state  in (4,11)
-        <!--            <if test="userId != null "> and user_id = #{userId}</if>-->
+        where 1=1
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if  test="dname != null  and dname != ''"> and d.dept_name like concat('%', #{dname}, '%')</if>
+        <if test="yname != null and yname != ''"> and p.dept_name like concat('%', #{yname}, '%')</if>
+        <if test="dnameId != null and dnameId != ''"> and d.dept_id = #{dnameId}</if>
+        <if test="ynameId != null and ynameId != ''"> and p.dept_id = #{ynameId}</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
         ${params.dataScope}
         order  by
         case
 --         待科研处审核
-        when state = 11 then 2
+        when state = 'APPLY_KYC_AUDIT' then 2
 --         科研处通过
-        when state = 4 then 1
+        when state = 'APPLY_PASSED' then 1
         end,
         createtime desc
     </select>
@@ -167,45 +199,50 @@
         left join sys_user u on  s.user_id=u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
-        where s.state  in (2,11)
-        <!--            <if test="userId != null "> and user_id = #{userId}</if>-->
+        where 1=1
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if  test="dname != null  and dname != ''"> and d.dept_name like concat('%', #{dname}, '%')</if>
+        <if test="yname != null and yname != ''"> and p.dept_name like concat('%', #{yname}, '%')</if>
+        <if test="dnameId != null and dnameId != ''"> and d.dept_id = #{dnameId}</if>
+        <if test="ynameId != null and ynameId != ''"> and p.dept_id = #{ynameId}</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
         ${params.dataScope}
         order  by
         case
 --         待学院审核
-        when state = 2 then 1
+        when state = 'APPLY_XY_AUDIT' then 1
 --         学院通过
-        when state = 11 then 2
+        when state = 'APPLY_KYC_AUDIT' then 2
         end,
         createtime desc
     </select>
 
     <!--    查询结项申请流程-->
     <select id="selectSciHorizontalApplyListByOverApply" parameterType="SciHorizontalApply" resultMap="SciHorizontalApplyResult">
-        select #{uid} uid,s.id,u.user_name userName,s.top_number ,d.dept_id,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,s.party_A,s.party_B,s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, s.signing_data, s.validity_Date,  concat( s.amount,'万') amount, s.contract, s.filing, s.state
+        select #{uid} uid,s.id,u.user_name userName,s.top_number ,d.dept_id,d.dept_name dname,p.dept_id ynameId,p.dept_name yname, s.user_id, s.top_name, s.top_type,s.party_A,s.party_B,s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, s.signing_data, s.validity_Date,  concat( s.amount,'万') amount, s.contract, s.filing, s.state
         from sci_horizontal_apply s
         left join sys_user u on  s.user_id=u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
-        where s.state in(999,7,8,9,10,33,44)
-        <!--            <if test="userId != null "> and user_id = #{userId}</if>-->
+        where 1=1
+        <!-- 移除状态过滤条件，允许通过参数动态过滤 -->
+        <if test="state != null  and state != ''"> and s.state = #{state}</if>
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if  test="dname != null  and dname != ''"> and d.dept_name like concat('%', #{dname}, '%')</if>
-        <if test="state != null  and state != ''"> and state = #{state}</if>
+        <if test="yname != null and yname != ''"> and p.dept_name like concat('%', #{yname}, '%')</if>
+        <if test="dnameId != null and dnameId != ''"> and d.dept_id = #{dnameId}</if>
+        <if test="ynameId != null and ynameId != ''"> and p.dept_id = #{ynameId}</if>
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(validity_Date,INTERVAL 1 MONTH)) = #{year}</if>
+        <!-- 数据范围过滤 - 核心权限控制 -->
         ${params.dataScope}
         order  by
         case
---         被驳回
-        when state in (9,10,44,999) then 2
---         审核中
-        when state in (7,8.33) then 4
+        when state in ('OVER_REJECTED') then 2
+        when state in ('OVER_DRAFT','OVER_JYS_AUDIT','OVER_XY_AUDIT','OVER_KYC_AUDIT') then 4
+        when state = 'OVER_PASSED' then 5
         end,
         s.createtime desc
     </select>
@@ -217,20 +254,20 @@
         left join sys_user u on  s.user_id=u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
-        where s.state in (7,8)
-        <!--            <if test="userId != null "> and user_id = #{userId}</if>-->
+        where 1=1
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if  test="dname != null  and dname != ''"> and d.dept_name like concat('%', #{dname}, '%')</if>
+        <if test="yname != null and yname != ''"> and p.dept_name like concat('%', #{yname}, '%')</if>
+        <if test="dnameId != null and dnameId != ''"> and d.dept_id = #{dnameId}</if>
+        <if test="ynameId != null and ynameId != ''"> and p.dept_id = #{ynameId}</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(validity_Date,INTERVAL 1 MONTH)) = #{year}</if>
         ${params.dataScope}
         order  by
         case
---         待教研室审核
-        when state = 7 then 1
---         教研室审核通过
-        when state = 8 then 2
+        when state = 'OVER_DRAFT' then 1
+        when state = 'OVER_JYS_AUDIT' then 2
         end,
         s.createtime desc
     </select>
@@ -241,20 +278,21 @@
         left join sys_user u on  s.user_id=u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
-        where s.state in (33,4)
-        <!--            <if test="userId != null "> and user_id = #{userId}</if>-->
+        where 1=1
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
         <if  test="dname != null  and dname != ''"> and d.dept_name like concat('%', #{dname}, '%')</if>
+        <if test="yname != null and yname != ''"> and p.dept_name like concat('%', #{yname}, '%')</if>
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+        <if test="dnameId != null and dnameId != ''"> and d.dept_id = #{dnameId}</if>
+        <if test="ynameId != null and ynameId != ''"> and p.dept_id = #{ynameId}</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(validity_Date,INTERVAL 1 MONTH)) = #{year}</if>
         ${params.dataScope}
         order  by
         case
---         待科研处审核
-        when state = 33 then 1
---         科研处审核通过
-        when state = 4 then 2
+        when state = 'OVER_XY_AUDIT' then 1
+        when state = 'OVER_KYC_AUDIT' then 2
+        when state = 'OVER_PASSED' then 3
         end,
         s.createtime desc
     </select>
@@ -266,36 +304,41 @@
         left join sys_user u on  s.user_id=u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
-        where s.state in (8,33)
-        <!--            <if test="userId != null "> and user_id = #{userId}</if>-->
+        where 1=1
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
         <if  test="dname != null  and dname != ''"> and d.dept_name like concat('%', #{dname}, '%')</if>
+        <if test="yname != null and yname != ''"> and p.dept_name like concat('%', #{yname}, '%')</if>
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+        <if test="dnameId != null and dnameId != ''"> and d.dept_id = #{dnameId}</if>
+        <if test="ynameId != null and ynameId != ''"> and p.dept_id = #{ynameId}</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(validity_Date,INTERVAL 1 MONTH)) = #{year}</if>
         ${params.dataScope}
         order  by
         case
 --         待学院审核
-        when state = 8 then 1
+        when state = 'OVER_JYS_AUDIT' then 1
 --         学院通过
-        when state = 33 then 2
+        when state = 'OVER_XY_AUDIT' then 2
         end,
         s.createtime desc
     </select>
 
     <!--查询已结项-->
     <select id="selectSciHorizontalApplyListByOVER" parameterType="SciHorizontalApply" resultMap="SciHorizontalApplyResult">
-        select #{uid} uid,s.id,u.user_name userName,s.top_number ,d.dept_id,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,s.party_A,s.party_B, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, s.signing_data, s.validity_Date,  concat( s.amount,'万') amount, s.contract, s.filing, s.state
+        select #{uid} uid,s.id,u.user_name userName,s.top_number ,d.dept_id,d.dept_name dname,p.dept_id ynameId,p.dept_name yname, s.user_id, s.top_name, s.top_type,s.party_A,s.party_B, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, s.signing_data, s.validity_Date,  concat( s.amount,'万') amount, s.contract, s.filing, s.state
         from sci_horizontal_apply s
         left join sys_user u on  s.user_id=u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
-        where s.state = 6
+        where s.state = 'OVER_PASSED'
         <!--            <if test="userId != null "> and user_id = #{userId}</if>-->
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if  test="dname != null  and dname != ''"> and d.dept_name like concat('%', #{dname}, '%')</if>
+        <if test="yname != null and yname != ''"> and p.dept_name like concat('%', #{yname}, '%')</if>
+        <if test="dnameId != null and dnameId != ''"> and d.dept_id = #{dnameId}</if>
+        <if test="ynameId != null and ynameId != ''"> and p.dept_id = #{ynameId}</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(validity_Date,INTERVAL 1 MONTH)) = #{year}</if>
         <!-- 数据范围过滤 -->
@@ -308,11 +351,14 @@
         left join sys_user u on  s.user_id=u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
-        where s.state = 6
+        where s.state = 'OVER_PASSED'
         <!--            <if test="userId != null "> and user_id = #{userId}</if>-->
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if  test="dname != null  and dname != ''"> and d.dept_name like concat('%', #{dname}, '%')</if>
+        <if test="yname != null and yname != ''"> and p.dept_name like concat('%', #{yname}, '%')</if>
+        <if test="dnameId != null and dnameId != ''"> and d.dept_id = #{dnameId}</if>
+        <if test="ynameId != null and ynameId != ''"> and p.dept_id = #{ynameId}</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(validity_Date,INTERVAL 1 MONTH)) = #{year}</if>
         <!-- 数据范围过滤 -->
@@ -458,7 +504,7 @@
         left join sys_user u on  s.user_id=u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
-        where s.state != 99
+        where s.state != 'APPLY_DRAFT'
         <if test="dnameId != null and dnameId != ''"> and d.dept_id = #{dnameId}</if>
         <if test="ynameId != null and ynameId != ''"> and p.dept_id = #{ynameId}</if>
         order  by createtime desc
@@ -517,7 +563,7 @@
             CONCAT(SUM(shr.re_amount),'万') as credited_amount
         from
             sci_horizontal_reamount shr
-        where shr.state = 6
+        where shr.state = 'OVER_PASSED'
         group by
             shr.apply_id
     </select>
@@ -1327,13 +1373,13 @@
             and s.user_id = #{userId}
         </if>
         <if test='state != null and state != "" and state!="null" and state =="1" '>
-            AND s.state in (3,5,9,10,12,14,4,15,16)
+            AND s.state in ('APPLY_REJECTED','APPLY_XY_AUDIT','OVER_REJECTED','OVER_XY_AUDIT','APPLY_PASSED')
         </if>
         <if test='state != null and state != "" and state!="null" and state =="2"'>
-            AND s.state in (1,2,7,8,11,13)
+            AND s.state in ('APPLY_JYS_AUDIT','APPLY_XY_AUDIT','OVER_DRAFT','OVER_JYS_AUDIT','APPLY_KYC_AUDIT')
         </if>
         <if test='state != null and state != "" and state!="null" and state =="3"'>
-            AND s.state in (6)
+            AND s.state in ('APPLY_PASSED')
         </if>
         <if test="Pcollege != null and Pcollege != '' and Pcollege!='null' ">
             AND d.parent_id = #{Pcollege}
@@ -1410,13 +1456,13 @@
             and s.top_name like concat('%', #{topicName}, '%')
         </if>
         <if test='state != null and state != "" and state!="null" and state =="1" '>
-            AND s.state in (3,5,9,10,12,14,4,15,16)
+            AND s.state in ('APPLY_REJECTED','APPLY_XY_AUDIT','OVER_REJECTED','OVER_XY_AUDIT','APPLY_PASSED')
         </if>
         <if test='state != null and state != "" and state!="null" and state =="2"'>
-            AND s.state in (1,2,7,8,11,13)
+            AND s.state in ('APPLY_JYS_AUDIT','APPLY_XY_AUDIT','OVER_DRAFT','OVER_JYS_AUDIT','APPLY_KYC_AUDIT')
         </if>
         <if test='state != null and state != "" and state!="null" and state =="3"'>
-            AND s.state in (6)
+            AND s.state in ('APPLY_PASSED')
         </if>
         <if test="year != null and year != '' and year != 'null'">
             AND (YEAR(DATE_ADD(s.signing_data, INTERVAL 1 MONTH)) = #{year} OR YEAR(DATE_ADD(s.validity_Date, INTERVAL 1 MONTH)) = #{year})

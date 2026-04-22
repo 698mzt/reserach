@@ -61,8 +61,8 @@ public class SciHorizontalApplyVerticalController extends BaseController {
 
     /**
      * 计算纵向课题预期积分
-     * 功能：根据课题类型查询积分配置，计算预期科研分
-     * SQL：SELECT * FROM sci_Vertical_score_cfg WHERE funds_type = ?
+     * 功能：根据课题类型和排名计算预期科研分
+     * 按照2026年度新的科研分计算标准
      */
     @PostMapping("/calculateScore")
     @ResponseBody
@@ -71,38 +71,112 @@ public class SciHorizontalApplyVerticalController extends BaseController {
                                      @RequestParam(required = false) String subjectSource,
                                      @RequestParam(required = false) Double amount) {
         try {
-            // 直接使用selectVerticalScoreCfgList方法查询纵向课题积分配置
-            SciProjectScoreCfg scoreCfg = new SciProjectScoreCfg();
-            scoreCfg.setFundsType(topType); // 课题类型作为经费类型
-            List<SciProjectScoreCfg> scoreCfgs = sciProjectScoreCfgMapper.selectVerticalScoreCfgList(scoreCfg);
+            // 计算每位成员的预期科研分
+            List<Integer> expectedScores = new ArrayList<>();
+            // 主持人（排名第一）
+            expectedScores.add(calculateScoreByTypeAndRank(topType, 1).intValue());
+            // 成员1（排名第二）
+            expectedScores.add(calculateScoreByTypeAndRank(topType, 2).intValue());
+            // 成员2（排名第三）
+            expectedScores.add(calculateScoreByTypeAndRank(topType, 3).intValue());
+            // 成员3（排名第四）
+            expectedScores.add(calculateScoreByTypeAndRank(topType, 4).intValue());
             
-            // 如果没有找到配置，返回默认积分
-            if (scoreCfgs == null || scoreCfgs.isEmpty()) {
-                return AjaxResult.success(0);
-            }
-            
-            // 这里简化处理，实际应该根据金额范围和配置计算积分
-            // 假设第一个配置为默认配置（第1负责人）
-            SciProjectScoreCfg cfg = scoreCfgs.get(0);
-            
-            Double expectedScore = 0.0;
-            
-            // 尝试解析总分为Double
-            if (cfg.getTotalScore() != null) {
-                try {
-                    expectedScore = Double.parseDouble(cfg.getTotalScore());
-                } catch (NumberFormatException e) {
-                    expectedScore = 0.0;
-                }
-            }
-            
-            // 可以根据金额、课题来源等进一步调整积分计算逻辑
-            // 这里简化处理，直接返回配置的总分
-            
-            return AjaxResult.success(expectedScore.intValue());
+            return AjaxResult.success(expectedScores);
         } catch (Exception e) {
             return AjaxResult.error("积分计算失败: " + e.getMessage());
         }
+    }
+    
+    /**
+     * 根据课题类型和排名计算积分
+     * 按照2026年度新的科研分计算标准，从数据库中获取配置
+     */
+    private Double calculateScoreByTypeAndRank(String topType, int rank) {
+        try {
+            // 从数据库中获取纵向课题积分配置
+            Map<String, Object> verticalScoreCfg = sciProjectScoreCfgService.getVerticalScoreCfg();
+            List<Map<String, Object>> fundsList = (List<Map<String, Object>>) verticalScoreCfg.get("fundsList");
+            
+            // 遍历配置，查找匹配的课题类型（直接使用数字类型的topType）
+            for (Map<String, Object> fundsMap : fundsList) {
+                String fundsType = (String) fundsMap.get("funds_type");
+                if (fundsType != null && fundsType.equals(topType)) {
+                    // 查找对应排名的积分配置
+                    List<Map<String, Object>> userScoreList = (List<Map<String, Object>>) fundsMap.get("userScoreList");
+                    for (Map<String, Object> scoreMap : userScoreList) {
+                        String userOrder = (String) scoreMap.get("user_order");
+                        if (userOrder != null && Integer.parseInt(userOrder) == rank) {
+                            // 返回总分
+                            String totalScore = (String) scoreMap.get("total_score");
+                            return Double.parseDouble(totalScore);
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0.0;
+    }
+    
+    /**
+     * 映射数字类型的topType到课题类型标签
+     */
+    private String mapTopTypeToLabel(String topType) {
+        // 根据实际的sci_vertical_type字典值进行映射
+        switch (topType) {
+            case "1": return "主持国家基金科研项目";
+            case "2": return "主持省部级基金科研项目";
+            case "3": return "主持省部级教改项目";
+            case "4": return "主持省部级纵向科研项目";
+            case "5": return "主持厅局级、学会级纵向科研项目";
+            case "6": return "主持校级教学（管理）改革项目（含实验室建设项目）1万元以上（含1万元）";
+            case "7": return "主持校级教学（管理）改革项目（含实验室建设项目）1万元以下";
+            default: return topType; // 如果是文本类型，直接返回
+        }
+    }
+    
+    /**
+     * 从数据库配置中获取积分
+     * @param fundsList 配置列表
+     * @param typeLabel 课题类型标签
+     * @param rank 排名
+     * @param isJointProject 是否为联合申报项目
+     * @param isOpening 是否为开题阶段
+     * @return 积分值
+     */
+    private double getScoreFromConfig(List<Map<String, Object>> fundsList, String typeLabel, int rank, boolean isJointProject, boolean isOpening) {
+        try {
+            for (Map<String, Object> fundsMap : fundsList) {
+                String fundsType = (String) fundsMap.get("funds_type");
+                if (fundsType != null && fundsType.equals(typeLabel)) {
+                    List<Map<String, Object>> userScoreList = (List<Map<String, Object>>) fundsMap.get("userScoreList");
+                    for (Map<String, Object> scoreMap : userScoreList) {
+                        String userOrder = (String) scoreMap.get("user_order");
+                        if (userOrder != null && Integer.parseInt(userOrder) == rank) {
+                            if (isJointProject) {
+                                // 联合申报项目，返回总分
+                                String totalScore = (String) scoreMap.get("total_score");
+                                return Double.parseDouble(totalScore);
+                            } else {
+                                // 非联合申报项目，根据阶段返回相应得分
+                                if (isOpening) {
+                                    String startScore = (String) scoreMap.get("start_score");
+                                    return Double.parseDouble(startScore);
+                                } else {
+                                    String endScore = (String) scoreMap.get("end_score");
+                                    return Double.parseDouble(endScore);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0.0;
     }
 
     // 设置角色集合。若后期需要添加新的学院管理员角色，将其权限字符添加到集合中即可
@@ -154,69 +228,31 @@ public class SciHorizontalApplyVerticalController extends BaseController {
             }
         }
         sciHorizontalApplyVertical.setRole(role);
+        // 设置用户的部门ID，用于数据权限控制
+        SysUser sysUser = getSysUser();
+        // 系统管理员和科研处管理员特殊处理：不设置userynameId，以便查看所有学院的数据
+        if (!"sci_tesearch".equals(role) && sysUser.getUserId() != 1) {
+            sciHorizontalApplyVertical.setUserynameId(Integer.valueOf(String.valueOf(sysUser.getDeptId())));
+            // 记录用户的角色类型，用于Mapper中区分权限级别
+            sciHorizontalApplyVertical.setRoleType(role);
+        }
+        
         List<SciHorizontalApplyVertical> list = new ArrayList<>();
-//        科研处
-        switch (role) {
-            case "sci_tesearch":
-                switch (tableId) {
-                    case "bootstrap-table0":
-                        list = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalListOVER(sciHorizontalApplyVertical);
-                        break;
-                    case "bootstrap-table1":
-                        list = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalList(sciHorizontalApplyVertical);
-                        break;
-                    case "bootstrap-table2":
-                        list = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalListJX(sciHorizontalApplyVertical);
-                        break;
-                }
+//        统一使用新的查询方法，支持所有状态
+        switch (tableId) {
+            case "bootstrap-table0":
+                list = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalListOVER(sciHorizontalApplyVertical);
                 break;
-//        教研室
-            case "research":
-                switch (tableId) {
-                    case "bootstrap-table0":
-                        list = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalListOVER(sciHorizontalApplyVertical);
-                        break;
-                    case "bootstrap-table1":
-                        list = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalList(sciHorizontalApplyVertical);
-                        break;
-                    case "bootstrap-table2":
-                        list = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalListJX(sciHorizontalApplyVertical);
-                        break;
-                }
+            case "bootstrap-table1":
+                list = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalList(sciHorizontalApplyVertical);
                 break;
-//      学院负责人
-            case "dept_teacher":
-                switch (tableId) {
-                    case "bootstrap-table0":
-                        list = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalListOVER(sciHorizontalApplyVertical);
-                        break;
-                    case "bootstrap-table1":
-                        list = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalList(sciHorizontalApplyVertical);
-                        break;
-                    case "bootstrap-table2":
-                        list = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalListJX(sciHorizontalApplyVertical);
-                        break;
-                }
-                break;
-//        教师
-            default:
-                switch (tableId) {
-                    case "bootstrap-table0":
-                        list = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalListOVER(sciHorizontalApplyVertical);
-                        break;
-                    case "bootstrap-table1":
-                        list = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalList(sciHorizontalApplyVertical);
-                        break;
-                    case "bootstrap-table2":
-                        list = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalListJX(sciHorizontalApplyVertical);
-                        break;
-                }
+            case "bootstrap-table2":
+                list = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalListJX(sciHorizontalApplyVertical);
                 break;
         }
         List<SciHorizontalApplyVertical> list1 = new ArrayList<>();
         list1 = sciHorizontalApplyVerticalService.selectOtherListByUid(sciHorizontalApplyVertical);
         list.addAll(list1);
-        SysUser  sysUser =getSysUser();
 
         // 去重操作
         List<SciHorizontalApplyVertical> distinctList = list.stream()
@@ -256,16 +292,29 @@ public class SciHorizontalApplyVerticalController extends BaseController {
                 
                 List<SciUserScore> score = scoreMap.getOrDefault(apply.getId().toString(), new ArrayList<>());
                 ArrayList<Integer> allscore = new ArrayList<>();
+                String expectedScore = "0";
                 
                 for(SciUserScore score1: score){
                     if (apply.getFirstPersonId().equals(score1.getUserId()) && apply.getFirstPersonId().equals(currentUserId)) {
                         allscore.add(Integer.parseInt(score1.getChangeValue()));
+                        if (score1.getExpectedValue() != null) {
+                            expectedScore = score1.getExpectedValue();
+                        }
                     } else if (apply.getSecondPersonId().equals(score1.getUserId()) && apply.getSecondPersonId().equals(currentUserId)) {
                         allscore.add(Integer.parseInt(score1.getChangeValue()));
+                        if (score1.getExpectedValue() != null) {
+                            expectedScore = score1.getExpectedValue();
+                        }
                     } else if (apply.getThirdPersonId().equals(score1.getUserId()) && apply.getThirdPersonId().equals(currentUserId)) {
                         allscore.add(Integer.parseInt(score1.getChangeValue()));
+                        if (score1.getExpectedValue() != null) {
+                            expectedScore = score1.getExpectedValue();
+                        }
                     } else if (apply.getFourthPersonId().equals(score1.getUserId()) && apply.getFourthPersonId().equals(currentUserId)) {
                         allscore.add(Integer.parseInt(score1.getChangeValue()));
+                        if (score1.getExpectedValue() != null) {
+                            expectedScore = score1.getExpectedValue();
+                        }
                     }
                 }
                 
@@ -274,6 +323,7 @@ public class SciHorizontalApplyVerticalController extends BaseController {
                     count += i;
                 }
                 apply.setScore(count.toString());
+                apply.setExpectedScore(expectedScore);
             }
         }
 
@@ -666,11 +716,7 @@ public class SciHorizontalApplyVerticalController extends BaseController {
     /**
      * 纵向课题申请通过
      * 功能：审批通过纵向课题申请，计算并分配科研分
-     * SQL：SELECT * FROM sci_Vertical_score_cfg WHERE funds_type = ?
-     * SQL：DELETE FROM sci_user_score WHERE vertical_id = ? AND change_status = ?
-     * SQL：INSERT INTO sci_user_score
-     * SQL：UPDATE sci_horizontal_apply_vertical SET state = ?, subject_source = ? WHERE id = ?
-     * SQL：INSERT INTO sci_horizontal_piyue
+     * 按照2026年度新的科研分计算标准，从数据库中获取配置
      */
     @RequiresPermissions(value={"system:apply_vertical:JYS","system:apply_vertical:KYC","system:apply_vertical:Dept"},logical= Logical.OR)
     @Log(title = "纵向课题申请通过", businessType = BusinessType.UPDATE)
@@ -678,33 +724,54 @@ public class SciHorizontalApplyVerticalController extends BaseController {
     @ResponseBody
     public AjaxResult applyPass(String id,String urlFlag,String type,String weight,SciProjectScoreCfg sciProjectScoreCfg, SciHorizontalApplyVertical sciHorizontalApplyVertical1)
     {
-        sciProjectScoreCfg.setFundsType(type);
-        List<SciProjectScoreCfg> list = sciProjectScoreCfgMapper.selectVerticalScoreCfgList(sciProjectScoreCfg);
         SciHorizontalApplyVertical sciHorizontalApplyVertical = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalById(Integer.valueOf(id));
         String verticalId = String.valueOf(sciHorizontalApplyVertical.getId());
-        java.math.BigDecimal weightVal;
-        try {
-            weightVal = new java.math.BigDecimal(weight);
-        } catch (Exception e) {
-            return AjaxResult.error("审核失败，请联系管理员解决");
-        }
+        
+        // 计算积分（开题）
         List score = new ArrayList();
         List persion = new ArrayList();
-        for (SciProjectScoreCfg scoreCfg : list) {
-            java.math.BigDecimal end = new java.math.BigDecimal(scoreCfg.getStartScore());
-            score.add(end.multiply(weightVal).toPlainString());
+        
+        // 映射数字类型的type到课题类型标签，用于判断是否为国家基金或省级基金项目
+        String mappedType = mapTopTypeToLabel(type);
+        
+        // 检查是否为2026年度国家基金项目、省级基金项目与外单位联合申报
+        boolean is2026JointProject = false;
+        if (sciHorizontalApplyVertical1.getSubjectSource() != null && sciHorizontalApplyVertical1.getSubjectSource().contains("联合申报")) {
+            if (mappedType.equals("主持国家基金科研项目") || mappedType.equals("主持省部级基金科研项目")) {
+                is2026JointProject = true;
+            }
         }
+        
+        // 从数据库中获取纵向课题积分配置
+        Map<String, Object> verticalScoreCfg = sciProjectScoreCfgService.getVerticalScoreCfg();
+        List<Map<String, Object>> fundsList = (List<Map<String, Object>>) verticalScoreCfg.get("fundsList");
+        
+        // 主持人（排名第一）
         if (sciHorizontalApplyVertical.getFirstPersonId() != null && !sciHorizontalApplyVertical.getFirstPersonId().isEmpty()) {
             persion.add(sciHorizontalApplyVertical.getFirstPersonId());
+            double score1 = getScoreFromConfig(fundsList, type, 1, is2026JointProject, true); // 直接使用type参数
+            score.add(String.valueOf(score1));
         }
+        
+        // 成员1（排名第二）
         if (sciHorizontalApplyVertical.getSecondPersonId() != null && !sciHorizontalApplyVertical.getSecondPersonId().isEmpty()) {
             persion.add(sciHorizontalApplyVertical.getSecondPersonId());
+            double score2 = getScoreFromConfig(fundsList, type, 2, is2026JointProject, true); // 直接使用type参数
+            score.add(String.valueOf(score2));
         }
+        
+        // 成员2（排名第三）
         if (sciHorizontalApplyVertical.getThirdPersonId() != null && !sciHorizontalApplyVertical.getThirdPersonId().isEmpty()) {
             persion.add(sciHorizontalApplyVertical.getThirdPersonId());
+            double score3 = getScoreFromConfig(fundsList, type, 3, is2026JointProject, true); // 直接使用type参数
+            score.add(String.valueOf(score3));
         }
+        
+        // 成员3（排名第四）
         if (sciHorizontalApplyVertical.getFourthPersonId() != null && !sciHorizontalApplyVertical.getFourthPersonId().isEmpty()) {
             persion.add(sciHorizontalApplyVertical.getFourthPersonId());
+            double score4 = getScoreFromConfig(fundsList, type, 4, is2026JointProject, true); // 直接使用type参数
+            score.add(String.valueOf(score4));
         }
 
         return toAjax(sciHorizontalApplyVerticalService.applyPass(id,getUserId(),urlFlag,score,persion,verticalId,sciHorizontalApplyVertical1.getSubjectSource()));
@@ -754,34 +821,56 @@ public class SciHorizontalApplyVerticalController extends BaseController {
     @ResponseBody
     public AjaxResult overPass(String id,String urlFlag,String type,String weight,SciProjectScoreCfg sciProjectScoreCfg,SciHorizontalApplyVertical sciHorizontalApplyVertical1)
     {
-        sciProjectScoreCfg.setFundsType(type);
-        List<SciProjectScoreCfg> list = sciProjectScoreCfgMapper.selectVerticalScoreCfgList(sciProjectScoreCfg);
         SciHorizontalApplyVertical sciHorizontalApplyVertical = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalById(Integer.valueOf(id));
         String verticalId = String.valueOf(sciHorizontalApplyVertical.getId());
-        java.math.BigDecimal weightVal;
-        try {
-            weightVal = new java.math.BigDecimal(weight);
-        } catch (Exception e) {
-            return AjaxResult.error("审核失败，请联系管理员解决");
-        }
+        
+        // 计算积分（结项）
         List score = new ArrayList();
         List persion = new ArrayList();
-        for (SciProjectScoreCfg scoreCfg : list) {
-            java.math.BigDecimal end = new java.math.BigDecimal(scoreCfg.getEndScore());
-            score.add(end.multiply(weightVal).toPlainString());
+        
+        // 映射数字类型的type到课题类型标签，用于判断是否为国家基金或省级基金项目
+        String mappedType = mapTopTypeToLabel(type);
+        
+        // 检查是否为2026年度国家基金项目、省级基金项目与外单位联合申报
+        boolean is2026JointProject = false;
+        if (sciHorizontalApplyVertical1.getSubjectSource() != null && sciHorizontalApplyVertical1.getSubjectSource().contains("联合申报")) {
+            if (mappedType.equals("主持国家基金科研项目") || mappedType.equals("主持省部级基金科研项目")) {
+                is2026JointProject = true;
+            }
         }
+        
+        // 从数据库中获取纵向课题积分配置
+        Map<String, Object> verticalScoreCfg = sciProjectScoreCfgService.getVerticalScoreCfg();
+        List<Map<String, Object>> fundsList = (List<Map<String, Object>>) verticalScoreCfg.get("fundsList");
+        
+        // 主持人（排名第一）
         if (sciHorizontalApplyVertical.getFirstPersonId() != null && !sciHorizontalApplyVertical.getFirstPersonId().isEmpty()) {
             persion.add(sciHorizontalApplyVertical.getFirstPersonId());
+            double score1 = getScoreFromConfig(fundsList, type, 1, is2026JointProject, false); // 直接使用type参数
+            score.add(String.valueOf(score1));
         }
+        
+        // 成员1（排名第二）
         if (sciHorizontalApplyVertical.getSecondPersonId() != null && !sciHorizontalApplyVertical.getSecondPersonId().isEmpty()) {
             persion.add(sciHorizontalApplyVertical.getSecondPersonId());
+            double score2 = getScoreFromConfig(fundsList, type, 2, is2026JointProject, false); // 直接使用type参数
+            score.add(String.valueOf(score2));
         }
+        
+        // 成员2（排名第三）
         if (sciHorizontalApplyVertical.getThirdPersonId() != null && !sciHorizontalApplyVertical.getThirdPersonId().isEmpty()) {
             persion.add(sciHorizontalApplyVertical.getThirdPersonId());
+            double score3 = getScoreFromConfig(fundsList, type, 3, is2026JointProject, false); // 直接使用type参数
+            score.add(String.valueOf(score3));
         }
+        
+        // 成员3（排名第四）
         if (sciHorizontalApplyVertical.getFourthPersonId() != null && !sciHorizontalApplyVertical.getFourthPersonId().isEmpty()) {
             persion.add(sciHorizontalApplyVertical.getFourthPersonId());
+            double score4 = getScoreFromConfig(fundsList, type, 4, is2026JointProject, false); // 直接使用type参数
+            score.add(String.valueOf(score4));
         }
+        
         int result = sciHorizontalApplyVerticalService.overPass(id, getUserId(), urlFlag, score, persion, verticalId, sciHorizontalApplyVertical1.getSubjectSource());
         return toAjax(result);
     }

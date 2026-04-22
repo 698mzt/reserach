@@ -72,6 +72,25 @@ public interface SciZhuanliruanzhuMapper
 
     int updateJifen(@Param("id") Long id, @Param("jifen") int jifen);
 
+    /**
+     * 更新最终积分（final_jifen）
+     * urlFlag="chayue"（科研处通过）时写入，未最终确认则为空
+     */
+    int updateFinalJifen(@Param("id") String id, @Param("finalJifen") String finalJifen);
+
+    /**
+     * 科研处通过时写入认定时间（更新该字段）
+     */
+    int updateKyjcPassTime(@Param("id") String id, @Param("kyjcPassTime") java.util.Date kyjcPassTime);
+
+    /**
+     * 统计年度内用户的软著数量
+     * @param userId 用户ID
+     * @param year 年份
+     * @return 软著数量
+     */
+    int countSoftWorksByYear(@Param("userId") Long userId, @Param("year") int year);
+
     int hxover(@Param("id") String id,@Param("state") String state);
 
     List<SysUser> selectUserList(@Param("user") SysUser user);

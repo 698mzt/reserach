@@ -5,7 +5,8 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
-
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -17,9 +18,8 @@ import java.util.List;
 @Data
 public class SciPaperA extends BaseEntity {
     private static final long serialVersionUID = 1L;
-    public static final List<String> TWO_AUTHORS = List.of("11", "12", "10");
-    public final List<String> ONE_AUTHORS = List.of("8", "9");
-
+    public static final List<String> TWO_AUTHORS = Collections.unmodifiableList(Arrays.asList("11", "12", "10"));
+    public final List<String> ONE_AUTHORS = Collections.unmodifiableList(Arrays.asList("8", "9"));
     /**
      * 序号
      */

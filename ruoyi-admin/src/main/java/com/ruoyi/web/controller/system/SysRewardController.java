@@ -70,76 +70,14 @@ public class SysRewardController extends BaseController
     /**
      * 查询奖励列表
      */
-    @RequiresPermissions("system:reward:list")
     @PostMapping("/list")
     @ResponseBody
-    public TableDataInfo list(String rewardName, String userName, String dname, String yname, SysReward sysReward)
-    {
+    public TableDataInfo list(SysReward sysReward) {
         sysReward.setUid(getUserId());
         startPage();
 
-        List<SysRole> roles = getSysUser().getRoles();
-        String role = "";
-        label:
-        for (SysRole r :roles){
-            switch (r.getRoleKey()) {
-                case "sci_tesearch":
-                    role = "sci_tesearch";
-                    break label;
-                case "research":
-                    role = "research";
-                    break label;
-                case "dept_teacher":
-                case "discuss_college":
-                case "dzgc_college":
-                case "yssj_college":
-                case "student_college":
-                case "marxism_college":
-                case "general":
-                    role = "dept_teacher";
-                    break label;
-                case "admin":
-                    role = "admin";
-                    break label;
-                default:
-                    role = "default";
-                    break label;
-            }
-        }
-        sysReward.setRole(role);
-
-        SysUser user = getSysUser();
-        //设置部门id，传输过去用来为查询设置部门限制
-        sysReward.setDeptId(getSysUser().getDeptId());
-        //设置部门父id，传输过去用来为查询设置部门限制
-        if (user.getDept() != null) {
-            sysReward.setParentId(user.getDept().getParentId());
-        } else {
-            sysReward.setParentId(0L);
-        }
-
-        List<SysReward> list = new ArrayList<>();
-        // 科研处
-        switch (role) {
-            case "sci_tesearch":
-                list = sysRewardService.selectSysRewardListByKYC(sysReward);
-                break;
-            // 学院负责人
-            case "dept_teacher":
-                list = sysRewardService.selectSysRewardListByXUE(sysReward);
-                break;
-            // 教研室
-            case "research":
-                list = sysRewardService.selectSysRewardListByJYS(sysReward);
-                break;
-            case "admin":
-                list = sysRewardService.selectSysRewardList(sysReward);
-                break;
-            // 教师
-            default:
-                list = sysRewardService.selectSysRewardList(sysReward);
-                break;
-        }
+        // 统一使用 selectSysRewardList，通过 @DataScope 控制数据权限
+        List<SysReward> list = sysRewardService.selectSysRewardList(sysReward);
 
         return getDataTable(list);
     }
@@ -156,8 +94,13 @@ public class SysRewardController extends BaseController
             @RequestParam(value = "dname", required = false) String dname,
             @RequestParam(value = "yname", required = false) String yname,
             SysReward sysReward) {
-        // 直接调用主list方法
-        return list(rewardName, userName, dname, yname, sysReward);
+        // 把额外参数塞进 SysReward 对象
+        sysReward.setRewardName(rewardName);
+        sysReward.setUserName(userName);
+        sysReward.setDname(dname);
+        sysReward.setYname(yname);
+        // 只传 SysReward 调用原 list 方法
+        return list(sysReward);
     }
 
     /**
@@ -168,37 +111,8 @@ public class SysRewardController extends BaseController
     @PostMapping("/export")
     @ResponseBody
     public AjaxResult export(SysReward sysReward) {
-        List<SysRole> roles = getSysUser().getRoles();
-        String role = "";
-        for (SysRole r : roles) {
-            if (r.getRoleKey().equals("sci_tesearch")) {
-                role = "sci_tesearch";
-                break;
-            } else if (TEACHER_ROLES.contains(r.getRoleKey())) {
-                role = "dept_teacher";
-                break;
-            } else if (r.getRoleKey().equals("research")) {
-                role = "research";
-                break;
-            }
-        }
-
-        List<SysReward> list;
-        if (role.equals("sci_tesearch")) {
-            list = sysRewardService.selectSysRewardListByKYC(sysReward);
-        } else if (role.equals("dept_teacher")) {
-            list = sysRewardService.selectSysRewardListByXUE(sysReward);
-        } else if (role.equals("research")) {
-            list = sysRewardService.selectSysRewardListByJYS(sysReward);
-        } else {
-            list = sysRewardService.selectSysRewardList(sysReward);
-        }
-
-        // 过滤掉状态为11的记录
-        list = list.stream()
-                .filter(reward -> !"11".equals(reward.getState()))
-                .collect(Collectors.toList());
-
+        // 统一使用 selectSysRewardList，通过 @DataScope 控制数据权限
+        List<SysReward> list = sysRewardService.selectSysRewardList(sysReward);
         // 字典转换
         for (SysReward reward : list) {
             if (reward.getRewardPaiming() != null) {

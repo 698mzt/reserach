@@ -4,6 +4,9 @@
     <th:block th:include="include :: header('新增专利软著')" />
     <th:block th:include="include :: datetimepicker-css" />
     <th:block th:include="include :: bootstrap-fileinput-css"/>
+    <!-- 导入 jQuery -->
+    <script src="/static/js/jquery.min.js"></script>
+
 </head>
 <body class="white-bg">
     <div class="wrapper wrapper-content animated fadeInRight ibox-content" >
@@ -18,7 +21,7 @@
             </div>
             <div class="form-group">
                 <div class="col-sm-8">
-                    <input name="jifen" class="form-control" type="hidden" value="0">
+                    <input name="jifen" class="form-control" type="hidden" value="选择类型后显示">
                 </div>
             </div>
 
@@ -77,32 +80,44 @@
                 </div>
             </div>
 
-
-            <div class="col-xs-6">
-                <div class="form-group">
+            <div class="form-group row">
+                <div class="col-sm-6">
                     <label class="col-sm-4 control-label is-required">主持人：</label>
                     <div class="col-sm-8">
                         <div th:each="user : ${sysUsers}" th:if="${user.flag}">
-                            <input  class="form-control" type="text" th:value="${user.userName}" readonly>
+                            <input id="firstPersonName" class="form-control" type="text" th:value="${user.userName}" readonly>
                             <input name="firstPersonId" class="form-control" type="hidden" th:value="${user.userId}">
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-xs-6">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">成员1：</label>
+                <div class="col-sm-6">
+                    <label class="col-sm-4 control-label">预计科研积分：</label>
                     <div class="col-sm-8">
-                        <select id="member1Select" name="secondPersonId" class="form-control m-b" onchange="updateMemberLists()" required>
-                            <option value="">---请选择--</option>
-                            <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}"  th:if="${user.userId} != 1 and ${user.flag != true}" ></option>
-                        </select>
+                        <input id="firstPersonExpectedJifen" class="form-control" type="text" readonly value="选择类型后显示">
                     </div>
                 </div>
             </div>
 
-            <div class="col-xs-6">
-                <div class="form-group">
+            <div class="form-group row">
+                <div class="col-sm-6">
+                    <label class="col-sm-4 control-label is-required">成员1：</label>
+                    <div class="col-sm-8">
+                        <select id="member1Select" name="secondPersonId" class="form-control m-b" onchange="updateMemberLists()" required>
+                            <option value="">---请选择--</option>
+                            <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}" th:if="${user.userId} != 1 and ${user.flag != true}"></option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <label class="col-sm-4 control-label">预计科研积分：</label>
+                    <div class="col-sm-8">
+                        <input id="secondPersonExpectedJifen" class="form-control" type="text" readonly value="选择类型后显示">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-sm-6">
                     <label class="col-sm-4 control-label is-required">成员2：</label>
                     <div class="col-sm-8">
                         <select id="member2Select" name="thirdPersonId" class="form-control m-b" onchange="updateMemberLists()" required>
@@ -111,10 +126,16 @@
                         </select>
                     </div>
                 </div>
+                <div class="col-sm-6">
+                    <label class="col-sm-4 control-label">预计科研积分：</label>
+                    <div class="col-sm-8">
+                        <input id="thirdPersonExpectedJifen" class="form-control" type="text" readonly value="选择类型后显示">
+                    </div>
+                </div>
             </div>
 
-            <div class="col-xs-6">
-                <div class="form-group">
+            <div class="form-group row">
+                <div class="col-sm-6">
                     <label class="col-sm-4 control-label is-required">成员3：</label>
                     <div class="col-sm-8">
                         <select id="member3Select" name="fourthPersonId" class="form-control m-b" onchange="updateMemberLists()" required>
@@ -123,7 +144,12 @@
                         </select>
                     </div>
                 </div>
-
+                <div class="col-sm-6">
+                    <label class="col-sm-4 control-label">预计科研积分：</label>
+                    <div class="col-sm-8">
+                        <input id="fourthPersonExpectedJifen" class="form-control" type="text" readonly value="选择类型后显示">
+                    </div>
+                </div>
             </div>
             <!-- 第5位及以后 -->
             <div class="col-xs-12">
@@ -134,6 +160,15 @@
                         <button type="button" id="addMemberBtn" class="btn btn-white btn-sm" title="新增成员">
                             <a href="#"><i class="fa fa-plus-circle" ></i>增加成员</a>
                         </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-sm-6">
+                    <label class="col-sm-4 control-label">个人排名：</label>
+                    <div class="col-sm-8">
+                        <input class="form-control" type="text" value="1（默认）" readonly>
                     </div>
                 </div>
             </div>
@@ -193,7 +228,8 @@
 
                 // 获取名称和负责人级别
                 const mingcheng = $("input[name='mingcheng']").val();
-                const paiming = $("select[name='paiming']").val();
+                // 本系统中新增时默认“负责人级别=1”（主持人），成员位置不通过该下拉框控制科研分
+                const paiming = "1";
 
                 // 发起异步请求验证是否存在相同记录
                 $.ajax({
@@ -446,6 +482,55 @@
             // 单个文件选择后立即上传
             $(this).fileinput('upload');
         })
+    </script>
+
+    <script>
+        $(function () {
+            function loadExpectedJifenSlots() {
+                var fenlei = $("select[name='fenlei']").val();
+                // 看是否转化
+                var isConversion = $("input[name='shifouyingyon']:checked").val();
+                if (!fenlei) { return; }
+
+                $.ajax({
+                    url: ctx + "system/zhuanliruanzhu/calcExpectedScores",
+                    type: "GET",
+                    data: { fenlei: fenlei },
+                    dataType: "json",
+                    success: function (result) {
+                        var data = (result && result.code === 0) ? result.data : null;
+                        var firstScore = data && data.firstScore ? parseFloat(data.firstScore) : 0;
+                        var secondScore = data && data.secondScore ? parseFloat(data.secondScore) : 0;
+                        var thirdScore = data && data.thirdScore ? parseFloat(data.thirdScore) : 0;
+                        var fourthScore = data && data.fourthScore ? parseFloat(data.fourthScore) : 0;
+
+                        // 非转化软著按50%核算（仅计算机软件著作权，fenlei=4）
+                        if (isConversion === 'N' && fenlei === '4') {
+                            // 修改：移除 Math.round，直接计算
+                            firstScore = firstScore * 0.5;
+                            secondScore = secondScore * 0.5;
+                            thirdScore = thirdScore * 0.5;
+                            fourthScore = fourthScore * 0.5;
+                        }
+
+                        $("#firstPersonExpectedJifen").val(firstScore.toFixed(2));
+                        $("#secondPersonExpectedJifen").val(secondScore.toFixed(2));
+                        $("#thirdPersonExpectedJifen").val(thirdScore.toFixed(2));
+                        $("#fourthPersonExpectedJifen").val(fourthScore.toFixed(2));
+                    },
+                    error: function () {
+                        $("#firstPersonExpectedJifen").val("0");
+                        $("#secondPersonExpectedJifen").val("0");
+                        $("#thirdPersonExpectedJifen").val("0");
+                        $("#fourthPersonExpectedJifen").val("0");
+                    }
+                });
+            }
+
+            // 监听分类和是否转化选择变化
+            $("select[name='fenlei'], input[name='shifouyingyon']").on("change", loadExpectedJifenSlots);
+            loadExpectedJifenSlots();
+        });
     </script>
 </body>
 </html>

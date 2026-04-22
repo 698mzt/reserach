@@ -52,7 +52,7 @@ public class SysRewardServiceImpl implements ISysRewardService
     }
 
     /**
-     * 查询奖励列表
+     * 查询奖励列表（统一查询方法，通过@DataScope控制数据权限）
      *
      * @param sysReward 奖励
      * @return 奖励列表
@@ -62,24 +62,6 @@ public class SysRewardServiceImpl implements ISysRewardService
     public List<SysReward> selectSysRewardList(SysReward sysReward)
     {
         return sysRewardMapper.selectSysRewardList(sysReward);
-    }
-
-    @Override
-    @DataScope(deptAlias = "d", userAlias = "u")
-    public List<SysReward> selectSysRewardListByKYC(SysReward sysReward) {
-        return sysRewardMapper.selectSysRewardListByKYC(sysReward);
-    }
-
-    @Override
-    @DataScope(deptAlias = "d", userAlias = "u")
-    public List<SysReward> selectSysRewardListByJYS(SysReward sysReward) {
-        return sysRewardMapper.selectSysRewardListByJYS(sysReward);
-    }
-
-    @Override
-    @DataScope(deptAlias = "d", userAlias = "u")
-    public List<SysReward> selectSysRewardListByXUE(SysReward sysReward) {
-        return sysRewardMapper.selectSysRewardListByXUE(sysReward);
     }
 
     @Override
@@ -105,10 +87,13 @@ public class SysRewardServiceImpl implements ISysRewardService
 
         // 将计算出的积分设置到奖励对象中
         sysReward.setJifen(jifen);
+        // 设置预计科研分
+        sysReward.setExpectedJifen(jifen);
 
         // 原有保存逻辑
         int a = sysRewardMapper.insertSysReward(sysReward);
         int id = Integer.parseInt(sysReward.getId().toString());
+        
         SysRewardPiyue sysRewardPiyue = new SysRewardPiyue();
         sysRewardPiyue.setUid(sysReward.getUserId());
         sysRewardPiyue.setRewardId(id);
@@ -134,11 +119,13 @@ public class SysRewardServiceImpl implements ISysRewardService
                 sysReward.getRewardPaiming()
         );
 
-        // 更新积分值
+        // 更新积分值和预计科研分
         sysReward.setJifen(jifen);
+        sysReward.setExpectedJifen(jifen);
 
         // 原有更新逻辑
         sysRewardMapper.updateSysReward(sysReward);
+        
         SysRewardPiyue sysRewardPiyue = new SysRewardPiyue();
         sysRewardPiyue.setUid(sysReward.getUserId());
         sysRewardPiyue.setRewardId(Integer.valueOf(sysReward.getId().toString()));
@@ -234,6 +221,21 @@ public class SysRewardServiceImpl implements ISysRewardService
         sysRewardPiyue.setState("驳回");
         sysRewardPiyueMapper.insertSysRewardPiyue(sysRewardPiyue);
         return a;
+    }
+
+    @Override
+    public List<SysReward> selectSysRewardListByKYC(SysReward sysReward) {
+        return null;
+    }
+
+    @Override
+    public List<SysReward> selectSysRewardListByJYS(SysReward sysReward) {
+        return null;
+    }
+
+    @Override
+    public List<SysReward> selectSysRewardListByXUE(SysReward sysReward) {
+        return null;
     }
 
     // 撤销奖励

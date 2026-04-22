@@ -10,6 +10,7 @@ import com.ruoyi.system.domain.*;
 import com.ruoyi.system.mapper.SciJiaocairuanzhuMapper;
 import com.ruoyi.system.service.ISciJiaocairuanzhuPiyueService;
 import com.ruoyi.system.service.ISysUserService;
+import com.ruoyi.system.service.ISciJiaocairuanzhuScoreCfgService;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,7 @@ import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.system.mapper.SciProjectScoreCfgMapper;
+
 
 /**
  * 教材软著Controller
@@ -51,6 +53,9 @@ public class SciJiaocairuanzhuController extends BaseController
 
     @Autowired
     private SciJiaocairuanzhuMapper sciJiaocairuanzhuMapper;
+
+    @Autowired
+    private ISciJiaocairuanzhuScoreCfgService sciJiaocairuanzhuScoreCfgService;
 
     /**
      * 跳转到教材软著页面
@@ -104,38 +109,8 @@ public class SciJiaocairuanzhuController extends BaseController
         }
         sciJiaocairuanzhu.setRole(role);
 
-        SysUser user = getSysUser();
-
-        //设置部门id，传输过去用来为查询设置部门限制
-        sciJiaocairuanzhu.setDeptId(getSysUser().getDeptId());
-
-        //设置部门父id，传输过去用来为查询设置部门限制
-        sciJiaocairuanzhu.setParentId(user.getDept().getParentId());
-
-        List<SciJiaocairuanzhu> list = new ArrayList<>();
-        //根据角色查询不同范围的数据
-        switch (role) {
-            case "sci_tesearch":
-                //科研处查询
-                list = sciJiaocairuanzhuService.selectSciPaperAListKY(sciJiaocairuanzhu);
-                break;
-            case "dept_teacher":
-                //学院负责人查询
-                list = sciJiaocairuanzhuService.selectSciPaperAListXY(sciJiaocairuanzhu);
-                break;
-            case "research":
-                //教研室查询
-                list = sciJiaocairuanzhuService.selectSciPaperAListCxList(sciJiaocairuanzhu);
-                break;
-            case "admin":
-                //管理员查询
-                list = sciJiaocairuanzhuService.selectSciPaperAList(sciJiaocairuanzhu);
-                break;
-            default:
-                //教师查询
-                list = sciJiaocairuanzhuService.selectSciPaperAListCx(sciJiaocairuanzhu);
-                break;
-        }
+        // 统一使用一个查询方法，通过@DataScope控制数据权限
+        List<SciJiaocairuanzhu> list = sciJiaocairuanzhuService.selectSciJiaocairuanzhuListAll(sciJiaocairuanzhu);
 
         return getDataTable(list);
     }
@@ -270,6 +245,9 @@ public class SciJiaocairuanzhuController extends BaseController
             sciJiaocairuanzhu.setJifen("0");
         }
         
+        // 设置初始状态为立项草稿
+        sciJiaocairuanzhu.setState("APPLY_DRAFT");
+        
         // 保存教材著作基本信息
         sciJiaocairuanzhuService.insertSciJiaocairuanzhu(sciJiaocairuanzhu);
         
@@ -379,6 +357,20 @@ public class SciJiaocairuanzhuController extends BaseController
     public AjaxResult remove(String ids)
     {
         return toAjax(sciJiaocairuanzhuService.deleteSciJiaocairuanzhuByIds(ids));
+    }
+
+    /**
+     * 根据分类获取科研分配置
+     * 用于前端计算预期科研分
+     */
+    @PostMapping( "/getScoreConfig")
+    @ResponseBody
+    public AjaxResult getScoreConfig(String fenLei)
+    {
+        SciJiaocairuanzhuScoreCfg cfg = new SciJiaocairuanzhuScoreCfg();
+        cfg.setFenLei(fenLei);
+        List<SciJiaocairuanzhuScoreCfg> list = sciJiaocairuanzhuScoreCfgService.selectSciJiaocairuanzhuScoreCfgList(cfg);
+        return AjaxResult.success(list);
     }
 
 

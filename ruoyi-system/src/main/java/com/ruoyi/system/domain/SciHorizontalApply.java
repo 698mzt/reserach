@@ -1,6 +1,7 @@
 package com.ruoyi.system.domain;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.ruoyi.common.annotation.Excel;
@@ -13,6 +14,7 @@ import com.ruoyi.common.core.domain.BaseEntity;
  * @date 2024-08-16
  */
 @Data
+@EqualsAndHashCode(callSuper=true)
 public class SciHorizontalApply extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
@@ -40,6 +42,12 @@ public class SciHorizontalApply extends BaseEntity
     private String  ynameId;  //学院id
     private Integer  userynameId; //登录用户专业id
     private Integer  reid;
+    
+    /** 专业名称（文本查询字段） */
+    private String keyanshi;
+    
+    /** 学院名称（文本查询字段） */
+    private String xueyuan;
 
 
     public String getUserName() {
@@ -631,36 +639,30 @@ public class SciHorizontalApply extends BaseEntity
             return "";
         }
         switch (this.state){
-            case "1":
-                return "待处理";
-            case "2":
-                return "教研室通过";
-            case "3":
-                return "教研室退回";
-            case "4":
-                return "科研处通过";
-            case "5":
-                return "科研处退回";
-            case "6":
-                return "已完结";
-            case "7":
-                return "结项：待处理";
-            case "8":
-                return "结项：待学院审核";
-            case "9":
-                return "结项：教研室退回";
-            case "10":
-                return "结项：科研处退回";
-            case "11":
-                return "学院通过";
-            case "22":
-                return "学院退回";
-            case "33":
-                return "结项：待科研处审核";
-            case "44":
-                return "结项：学院退回";
-            case "99":
-                return "草稿箱";
+            case "APPLY_DRAFT":
+                return "立项-草稿";
+            case "APPLY_JYS_AUDIT":
+                return "立项-教研室审批中";
+            case "APPLY_XY_AUDIT":
+                return "立项-学院审批中";
+            case "APPLY_KYC_AUDIT":
+                return "立项-科研处审批中";
+            case "APPLY_PASSED":
+                return "立项-通过";
+            case "APPLY_REJECTED":
+                return "立项-驳回";
+            case "OVER_DRAFT":
+                return "结项-草稿";
+            case "OVER_JYS_AUDIT":
+                return "结项-教研室审批中";
+            case "OVER_XY_AUDIT":
+                return "结项-学院审批中";
+            case "OVER_KYC_AUDIT":
+                return "结项-科研处审批中";
+            case "OVER_PASSED":
+                return "结项-通过";
+            case "OVER_REJECTED":
+                return "结项-驳回";
         }
         return this.state;
     }

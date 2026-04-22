@@ -73,12 +73,12 @@
                         <select name="rewardFenlei" class="form-control" th:field="*{rewardFenlei}" type="text" th:with="type=${@dict.getType('sys_reward_fenlei')}" required disabled>
 <!--                            <option value="省级教学成果奖">省级教学成果奖</option>-->
 <!--                            <option value="省级科学技术奖">省级科学技术奖</option>-->
-<!--                            <option value="省级一流精品课评比">省级一流精品课评比</option>-->
 <!--                            <option value="市、厅局级自然科学类评奖">市、厅局级自然科学类评奖</option>-->
 <!--                            <option value="市、厅局级社科类评奖">市、厅局级社科类评奖</option>-->
 <!--                            <option value="校级教学成果奖">校级教学成果奖</option>-->
 <!--                            <option value="应用型科研校级成果奖">应用型科研校级成果奖</option>-->
-<!--                            <option value="校级精品课评比">校级精品课评比</option>-->
+<!--                            <option value="学会级教学成果奖">学会级教学成果奖</option>-->
+<!--                            <option value="学会级科研成果奖">学会级科研成果奖</option>-->
 <!--                            <option value="指导学生参加国家科创大赛且获得名次">指导学生参加国家科创大赛且获得名次</option>-->
                             <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
                         </select>

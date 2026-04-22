@@ -159,7 +159,7 @@ public class SciIntraSchoolPro extends BaseEntity {
 
     private Integer userId;
     /** 课题名称 */
-    @Excel(name = "成果转化名称", sort = 7)
+    @Excel(name = "课题名称", sort = 7)
     private String topName;
 
     /** 课题类型 */
@@ -215,6 +215,7 @@ public class SciIntraSchoolPro extends BaseEntity {
     /** 状态 */
     @Excel(name = "状态")
     private String state;
+
 
     private String year;
 

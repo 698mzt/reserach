@@ -6,6 +6,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
+
 public class SciJiaocairuanzhu extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
@@ -102,6 +103,14 @@ public class SciJiaocairuanzhu extends BaseEntity
 
     public void setJifen(String jifen) {
         this.jifen = jifen;
+    }
+
+    public String getPersonalScore() {
+        return personalScore;
+    }
+
+    public void setPersonalScore(String personalScore) {
+        this.personalScore = personalScore;
     }
 
 
@@ -251,6 +260,8 @@ public class SciJiaocairuanzhu extends BaseEntity
     /** 科研分 */
     @Excel(name = "积分", sort = 5)
     private String jifen;
+    /** 个人积分 */
+    private String personalScore;
     private String wenjian;
 
     public String getState() {
@@ -450,6 +461,31 @@ public class SciJiaocairuanzhu extends BaseEntity
             return "";
         }
         switch (this.state) {
+            case "APPLY_DRAFT":
+                return "立项-草稿";
+            case "APPLY_JYS_AUDIT":
+                return "立项-教研室审批中";
+            case "APPLY_XY_AUDIT":
+                return "立项-学院审批中";
+            case "APPLY_JWC_AUDIT":
+                return "立项-教务处审批中";
+            case "APPLY_PASSED":
+                return "立项-通过";
+            case "APPLY_REJECTED":
+                return "立项-驳回";
+            case "OVER_DRAFT":
+                return "结项-草稿";
+            case "OVER_JYS_AUDIT":
+                return "结项-教研室审批中";
+            case "OVER_XY_AUDIT":
+                return "结项-学院审批中";
+            case "OVER_JWC_AUDIT":
+                return "结项-教务处审批中";
+            case "OVER_PASSED":
+                return "结项-通过";
+            case "OVER_REJECTED":
+                return "结项-驳回";
+            // 兼容旧状态码
             case "0":
                 return "草稿箱";
             case "1":

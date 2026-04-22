@@ -1,5 +1,6 @@
 package com.ruoyi.system.service.impl;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -57,9 +58,19 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
      * @return 专利软著
      */
     @Override
-    public SciZhuanliruanzhu selectSciZhuanliruanzhuById(Integer id)
-    {
-        return sciZhuanliruanzhuMapper.selectSciZhuanliruanzhuById(id);
+    public SciZhuanliruanzhu selectSciZhuanliruanzhuById(Integer id) {
+        SciZhuanliruanzhu sciZhuanliruanzhu = sciZhuanliruanzhuMapper.selectSciZhuanliruanzhuById(id);
+        if (sciZhuanliruanzhu != null && (sciZhuanliruanzhu.getUserName() == null || sciZhuanliruanzhu.getUserName().isEmpty()) && sciZhuanliruanzhu.getUserId() != null) {
+            try {
+                SysUser user = userService.selectUserById(Long.valueOf(sciZhuanliruanzhu.getUserId()));
+                if (user != null && user.getUserName() != null) {
+                    sciZhuanliruanzhu.setUserName(user.getUserName());
+                }
+            } catch (Exception e) {
+                // 处理异常
+            }
+        }
+        return sciZhuanliruanzhu;
     }
 
     /**
@@ -88,9 +99,28 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
         //  设置默认状态为草稿箱
         sciZhuanliruanzhu.setState("0");
 
-        // 计算积分
+        // 计算预计积分（并保存到 expected_jifen）
         String jifen = calculateScore(sciZhuanliruanzhu.getFenlei(), sciZhuanliruanzhu.getPaiming());
-        sciZhuanliruanzhu.setJifen(jifen);
+        sciZhuanliruanzhu.setJifen(jifen); // 兼容旧逻辑：仍保留原 jifen 字段
+        sciZhuanliruanzhu.setExpectedJifen(jifen);
+
+        // 处理计算机软件著作权的预计积分（非转化时乘以0.5）
+        if ("4".equals(sciZhuanliruanzhu.getFenlei()) && "N".equals(sciZhuanliruanzhu.getShifouyingyon())) {
+            if (sciZhuanliruanzhu.getExpectedJifen() != null && !sciZhuanliruanzhu.getExpectedJifen().isEmpty()) {
+                try {
+                    double expectedJifen = Double.parseDouble(sciZhuanliruanzhu.getExpectedJifen());
+                    // 乘以0.5
+                    expectedJifen *= 0.5;
+                    // 转换回字符串
+                    sciZhuanliruanzhu.setExpectedJifen(String.valueOf(expectedJifen));
+                } catch (NumberFormatException e) {
+                    // 处理转换异常
+                }
+            }
+        }
+
+        // 新增/编辑阶段最终积分未确认
+        sciZhuanliruanzhu.setFinalJifen(null);
 
         int a = sciZhuanliruanzhuMapper.insertSciZhuanliruanzhu(sciZhuanliruanzhu);
         int id = sciZhuanliruanzhu.getId();
@@ -128,6 +158,27 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
     }
 
     /**
+     * 根据分类计算预计科研分（仅排名1~4：主持人/成员1/成员2/成员3）
+     *
+     * @param fenlei 分类值（来自 sys_zhuanli_fenlei）
+     * @return 包含 firstScore/secondScore/thirdScore/fourthScore 的Map
+     */
+    @Override
+    public Map<String, String> calculateExpectedScores(String fenlei) {
+        Map<String, String> res = new java.util.HashMap<>();
+        res.put("firstScore", calculateScore(fenlei, "1"));
+        res.put("secondScore", calculateScore(fenlei, "2"));
+        res.put("thirdScore", calculateScore(fenlei, "3"));
+        res.put("fourthScore", calculateScore(fenlei, "4"));
+        return res;
+    }
+
+    @Override
+    public String calculateScoreByFenleiAndRank(String fenlei, String paiming) {
+        return calculateScore(fenlei, paiming);
+    }
+
+    /**
      * 修改专利软著
      *
      * @param sciZhuanliruanzhu 专利软著
@@ -137,9 +188,28 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
     @Transactional(rollbackFor = Exception.class)
     public int updateSciZhuanliruanzhu(SciZhuanliruanzhu sciZhuanliruanzhu)
     {
-        // 重新计算积分
+        // 重新计算预计积分，并保存到 expected_jifen
         String jifen = calculateScore(sciZhuanliruanzhu.getFenlei(), sciZhuanliruanzhu.getPaiming());
-        sciZhuanliruanzhu.setJifen(jifen);
+        sciZhuanliruanzhu.setJifen(jifen); // 兼容旧逻辑
+        sciZhuanliruanzhu.setExpectedJifen(jifen);
+
+        // 处理计算机软件著作权的预计积分（非转化时乘以0.5）
+        if ("4".equals(sciZhuanliruanzhu.getFenlei()) && "N".equals(sciZhuanliruanzhu.getShifouyingyon())) {
+            if (sciZhuanliruanzhu.getExpectedJifen() != null && !sciZhuanliruanzhu.getExpectedJifen().isEmpty()) {
+                try {
+                    double expectedJifen = Double.parseDouble(sciZhuanliruanzhu.getExpectedJifen());
+                    // 乘以0.5
+                    expectedJifen *= 0.5;
+                    // 转换回字符串
+                    sciZhuanliruanzhu.setExpectedJifen(String.valueOf(expectedJifen));
+                } catch (NumberFormatException e) {
+                    // 处理转换异常
+                }
+            }
+        }
+
+        // 编辑时清空最终积分（未最终确认则不显示）
+        sciZhuanliruanzhu.setFinalJifen(null);
 
         int a = sciZhuanliruanzhuMapper.updateSciZhuanliruanzhu(sciZhuanliruanzhu);
         int id = sciZhuanliruanzhu.getId();
@@ -151,7 +221,6 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
         sciZhuanliruanzhuPiyueMapper.insertSciZhuanliruanzhuPiyue(sciZhuanliruanzhuPiyue);
         return a;
     }
-
     /**
      * 批量删除专利
      *
@@ -209,10 +278,10 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
             state ="4";
         }
         else if(urlFlag.equals("tijiao")){
-            state ="1";
+            state ="1";//教师提交→教研室审批
 
         }else if(urlFlag.equals("pro")){
-            state ="2";
+            state ="4";//教研室→科研处审批
         }
         else if(urlFlag.equals("chayue")) {
             state = "6";
@@ -232,6 +301,36 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
 //            sciZhuanliruanzhuMapper.updateJifen(Long.valueOf(id), jifen);
 //
 
+        }
+
+        // 科研处通过（state=6）时：写入最终积分（final_jifen）
+        if (urlFlag.equals("chayue")) {
+            SciZhuanliruanzhu sci = sciZhuanliruanzhuMapper.selectSciZhuanliruanzhuById(Integer.valueOf(id));
+            String finalJifen;
+            if (sci != null) {
+                // 计算年度
+                int currentYear = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR);
+                // 统计年度内用户的软著数量
+                int count = sciZhuanliruanzhuMapper.countSoftWorksByYear(Long.valueOf(sci.getUserId()), currentYear);
+                // 计算基础分数
+                String baseScore = calculateScore(sci.getFenlei(), sci.getPaiming());
+                // 非转化软著按50%核算
+                if ("N".equals(sci.getShifouyingyon())) {
+                    double score = Double.parseDouble(baseScore) * 0.5;
+                    baseScore = String.valueOf(Math.round(score));
+                }
+                // 年度内不超过5项
+                if (count > 5) {
+                    finalJifen = "0";
+                } else {
+                    finalJifen = baseScore;
+                }
+            } else {
+                finalJifen = "0";
+            }
+            sciZhuanliruanzhuMapper.updateFinalJifen(id, finalJifen);
+            // 科研处认定通过时间，用于科研统计年度（上年12/1～当年11/30）计算
+            sciZhuanliruanzhuMapper.updateKyjcPassTime(id, new Date());
         }
 
         int a =  sciZhuanliruanzhuMapper.hxPass(id,state);
@@ -389,6 +488,7 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
             case "6":
                 newState = "4";
                 sciZhuanliruanzhuMapper.updateJifen(Long.valueOf(id),0);
+                sciZhuanliruanzhuMapper.updateFinalJifen(id.toString(), null);
                 break;
         }
 

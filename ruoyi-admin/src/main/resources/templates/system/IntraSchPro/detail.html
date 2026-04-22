@@ -26,7 +26,7 @@
         <div class="row">
             <div class="col-xs-6">
                 <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">申请人：</label>
+                    <label class="col-sm-4 control-label is-required">主持人：</label>
                     <div class="col-sm-8">
                         <input readonly th:field="*{userName}" class="form-control" type="text">
                         <!--                    <select name="userId" class="form-control m-b" readonly >-->
@@ -117,12 +117,19 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">第一负责人：</label>
                     <div class="col-sm-8">
-
                         <!--                        <input name="firstPersonId" th:field="*{firstPersonId}" class="form-control" type="text" required>-->
                         <select name="firstPersonId" class="form-control m-b" disabled>
                             <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}"
                                     th:selected="${ #strings.toString(user.userId) == sciIntraSchoolPro.firstPersonId}"></option>
                         </select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">预期科研分：</label>
+                    <div class="col-sm-8">
+                        <input id="firstPersonScore" class="form-control" type="text" readonly placeholder="选择课题类型和填写金额后自动计算">
                     </div>
                 </div>
             </div>
@@ -140,6 +147,14 @@
                     </div>
                 </div>
             </div>
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">预期科研分：</label>
+                    <div class="col-sm-8">
+                        <input id="secondPersonScore" class="form-control" type="text" readonly placeholder="选择课题类型和填写金额后自动计算">
+                    </div>
+                </div>
+            </div>
 
             <div class="col-xs-6">
                 <div class="form-group">
@@ -154,6 +169,14 @@
                     </div>
                 </div>
             </div>
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">预期科研分：</label>
+                    <div class="col-sm-8">
+                        <input id="thirdPersonScore" class="form-control" type="text" readonly placeholder="选择课题类型和填写金额后自动计算">
+                    </div>
+                </div>
+            </div>
 
             <div class="col-xs-6">
                 <div class="form-group">
@@ -165,6 +188,14 @@
                             <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}"
                                     th:selected="${ #strings.toString(user.userId) == sciIntraSchoolPro.fourthPersonId}"></option>
                         </select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">预期科研分：</label>
+                    <div class="col-sm-8">
+                        <input id="fourthPersonScore" class="form-control" type="text" readonly placeholder="选择课题类型和填写金额后自动计算">
                     </div>
                 </div>
             </div>
@@ -235,8 +266,7 @@
         </button>
         <button type="button" id="btn3" style="display:none;" class="btn btn-sm btn-warning" onclick="closeItem()">关 闭
         </button>
-        <button type="button" id="btn4" style="display:none;" class="btn btn-sm btn-warning" onclick="retract()">撤 回
-        </button>
+
 
     </div>
 </div>
@@ -344,12 +374,15 @@
             showToggle: false,
             showColumns: false,
             pagination: false,
+            sortName: 'createTime',
+            sortOrder: 'desc',
             columns: [
 
                 {
                     field: 'createTime',
                     title: '批阅时间',
-                    width: 200
+                    width: 200,
+                    sortable: true
 
                 },
                 {
@@ -380,20 +413,19 @@
             console.log("deptNamekey=", deptNamekey)
             console.log("a=", a)
             console.log("role_str=", role_str)
+            var currentUrlFlag = $("#urlFlag").val();
             //如果是科研
             if (role_str == "sci_tesearch") {
                 //批阅记录
                 if (name.rows.length > 0) {
                     $(".tdiv2").show();
                 }
-                if (a == 2) {
+                if (a == 2 && currentUrlFlag == "hecha") {
                     $(".tdiv1").show();
                     $("#btn1").show();
                     $("#btn2").show();
                     $("#btn3").show();
                 } else if (a == 4) {
-                    $(".tdiv1").show();
-                    $("#btn4").show();
                     $("#btn3").show();
                 } else {
                     $("#btn3").show();
@@ -408,14 +440,12 @@
                 if (deptNamekey == "0") {
                     $("#btn3").show();
                 } else {
-                    if (a == 1) {
+                    if (a == 1 && currentUrlFlag == "pro") {
                         $(".tdiv1").show();
                         $("#btn1").show();
                         $("#btn2").show();
                         $("#btn3").show();
                     } else if (a == 11) {
-                        $(".tdiv1").show();
-                        $("#btn4").show();
                         $("#btn3").show();
                     } else {
                         $("#btn3").show();
@@ -445,14 +475,12 @@
                 if (name.rows.length > 0) {
                     $(".tdiv2").show();
                 }
-                if (a == 11) {
+                if (a == 11 && currentUrlFlag == "dept_teacher") {
                     $(".tdiv1").show();
                     $("#btn1").show();
                     $("#btn2").show();
                     $("#btn3").show();
                 } else if (a == 2) {
-                    $(".tdiv1").show();
-                    $("#btn4").show();
                     $("#btn3").show();
                 } else {
                     $("#btn3").show();
@@ -571,7 +599,37 @@
     window.onload = function () {
         displayFileName('contract', 'contractFileName');
         displayFileName('filing', 'filingFileName');
+        loadScores();
     };
+
+    function loadScores() {
+        var amount = $("input[name='amount']").val();
+        if (!amount || isNaN(amount)) {
+            $('#firstPersonScore').val('');
+            $('#firstPersonScore').attr('placeholder', '选择课题类型和填写金额后自动计算');
+            $('#secondPersonScore').val('');
+            $('#secondPersonScore').attr('placeholder', '选择课题类型和填写金额后自动计算');
+            $('#thirdPersonScore').val('');
+            $('#thirdPersonScore').attr('placeholder', '选择课题类型和填写金额后自动计算');
+            $('#fourthPersonScore').val('');
+            $('#fourthPersonScore').attr('placeholder', '选择课题类型和填写金额后自动计算');
+            return;
+        }
+        $.ajax({
+            url: prefix + '/calculateScore',
+            method: 'POST',
+            data: { amount: parseFloat(amount) },
+            success: function(response) {
+                if (response.code === 0 && response.data) {
+                    var scores = response.data;
+                    $('#firstPersonScore').val((scores['1'] || 0) + '分');
+                    $('#secondPersonScore').val((scores['2'] || 0) + '分');
+                    $('#thirdPersonScore').val((scores['3'] || 0) + '分');
+                    $('#fourthPersonScore').val((scores['4'] || 0) + '分');
+                }
+            }
+        });
+    }
 </script>
 </body>
 </html>

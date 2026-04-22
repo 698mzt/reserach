@@ -13,6 +13,7 @@ import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.system.domain.*;
 import com.ruoyi.system.mapper.*;
+import com.ruoyi.system.service.IApprovalProcessService;
 import com.ruoyi.system.service.SciHorizontalReamountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -53,6 +54,28 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
     private SciHorizontalApplyMapper sciLectureReportMapper;
     @Autowired
     private SciHorizontalReamountMapper sciHorizontalReamountMapper;
+    @Autowired
+    private SciProjectScoreCfgMapper sciProjectScoreCfgMapper;
+    @Autowired
+    private IApprovalProcessService approvalProcessService;
+
+    private static final String PROCESS_CODE_APPLY = "HORIZONTAL_APPLY";
+    private static final String PROCESS_CODE_OVER = "HORIZONTAL_OVER";
+    private static final String STATE_APPLY_DRAFT = "APPLY_DRAFT";
+    private static final String STATE_APPLY_JYS_AUDIT = "APPLY_JYS_AUDIT";
+    private static final String STATE_APPLY_XY_AUDIT = "APPLY_XY_AUDIT";
+    private static final String STATE_APPLY_KYC_AUDIT = "APPLY_KYC_AUDIT";
+    private static final String STATE_APPLY_PASSED = "APPLY_PASSED";
+    private static final String STATE_APPLY_REJECTED = "APPLY_REJECTED";
+    private static final String STATE_OVER_DRAFT = "OVER_DRAFT";
+    private static final String STATE_OVER_JYS_AUDIT = "OVER_JYS_AUDIT";
+    private static final String STATE_OVER_XY_AUDIT = "OVER_XY_AUDIT";
+    private static final String STATE_OVER_KYC_AUDIT = "OVER_KYC_AUDIT";
+    private static final String STATE_OVER_PASSED = "OVER_PASSED";
+    private static final String STATE_OVER_REJECTED = "OVER_REJECTED";
+    private static final String ACTION_APPROVE = "通过";
+    private static final String ACTION_REJECT = "驳回";
+    private static final String ACTION_RECALL = "撤回";
 
     /**
      * 查询横向课题
@@ -78,28 +101,53 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
     {
         return sciHorizontalApplyMapper.selectSciHorizontalApplyList(sciHorizontalApply);
     }
+
+    /**
+     * 统一查询横向课题列表（基于数据权限控制）
+     * 所有管理员角色均可查看所有状态的课题数据，不再根据状态过滤可见性
+     *
+     * @param sciHorizontalApply 横向课题
+     * @return 横向课题
+     */
+    @Override
+    @DataScope(deptAlias = "d", userAlias = "u")
+    public List<SciHorizontalApply> selectSciHorizontalApplyListAll(SciHorizontalApply sciHorizontalApply)
+    {
+        return sciHorizontalApplyMapper.selectSciHorizontalApplyListAll(sciHorizontalApply);
+    }
+
     @Override
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciHorizontalApply> selectSciHorizontalApplyListByKYC(SciHorizontalApply sciHorizontalApply)
     {
         return sciHorizontalApplyMapper.selectSciHorizontalApplyListByKYC(sciHorizontalApply);
     }
+
     @Override
     @DataScope(deptAlias = "d",userAlias = "u")
     public List<SciHorizontalApply> selectSciHorizontalApplyListByJYS(SciHorizontalApply sciHorizontalApply) {
         return sciHorizontalApplyMapper.selectSciHorizontalApplyListByJYS(sciHorizontalApply);
     }
 
+    /**
+     * 查询结项申请列表（基于数据权限控制）
+     * 所有管理员角色均可查看所有状态的结项申请数据，不再根据状态过滤可见性
+     *
+     * @param sciHorizontalApply 横向课题
+     * @return 横向课题
+     */
     @Override
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciHorizontalApply> selectSciHorizontalApplyListByOverApply(SciHorizontalApply sciHorizontalApply) {
         return sciHorizontalApplyMapper.selectSciHorizontalApplyListByOverApply(sciHorizontalApply);
     }
+
     @Override
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciHorizontalApply> selectSciHorizontalApplyListByOverApplyJYS(SciHorizontalApply sciHorizontalApply) {
         return sciHorizontalApplyMapper.selectSciHorizontalApplyListByOverApplyJYS(sciHorizontalApply);
     }
+
     @Override
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciHorizontalApply> selectSciHorizontalApplyListByOverApplyKYC(SciHorizontalApply sciHorizontalApply) {
@@ -223,10 +271,7 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
         SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
         sciHorizontalPiyue.setUid(Long.valueOf(sciHorizontalApply.getUserId()));
         sciHorizontalPiyue.setHxktId(Integer.valueOf(id));
-        if (sciHorizontalApply.getNewsql().equals("99")) {
-            sciHorizontalPiyue.setConcate("提交申请");
-            sciHorizontalPiyue.setState("提交");
-        } else if (sciHorizontalApply.getNewsql().equals("999")) {
+        if (STATE_APPLY_DRAFT.equals(sciHorizontalApply.getNewsql()) || STATE_OVER_PASSED.equals(sciHorizontalApply.getNewsql())) {
             sciHorizontalPiyue.setConcate("提交申请");
             sciHorizontalPiyue.setState("提交");
         }
@@ -274,34 +319,30 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
     }
 
     @Override
+    @Transactional
     public int hxPass(String id,Long uid,String urlFlag) {
-        String state = "0";
-        if(urlFlag.equals("hecha")){
-            state ="4";
-        }else if(urlFlag.equals("pro")){
-            state ="2";
-//            学院通过
-        }else if (urlFlag.equals("Dept")){
-            state ="11";
+        SciHorizontalApply apply = sciHorizontalApplyMapper.selectSciHorizontalApplyById(Integer.valueOf(id));
+        if (apply == null || StringUtils.isEmpty(apply.getState())) {
+            return 0;
         }
-
-        int a =  sciHorizontalApplyMapper.hxPass(id,state);
-        SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
-        sciHorizontalPiyue.setUid(uid);
-        sciHorizontalPiyue.setHxktId(Integer.valueOf(id));
-        sciHorizontalPiyue.setConcate("同意");
-        sciHorizontalPiyue.setState("通过");
-        sciHorizontalPiyueMapper.insertSciHorizontalPiyue(sciHorizontalPiyue);
-        return a;
+        Map<String, Object> result = approvalProcessService.approve(
+                PROCESS_CODE_APPLY,
+                Long.valueOf(id),
+                apply.getState(),
+                ACTION_APPROVE,
+                uid,
+                null,
+                null);
+        return updateApprovalState(id, uid, ACTION_APPROVE, ACTION_APPROVE, result);
     }
 
     @Override
     public int amountPass(String id,String reid, Long uid, String urlFlag, List score, List persion, Integer applyId,String amountType) {
-        String state = "0";
+        String state = STATE_APPLY_DRAFT;
         SciUserScore sciUserScore = new SciUserScore();
         sciUserScore.setApplyId(applyId.toString());
         if(urlFlag.equals("hecha")){
-            state ="6";
+            state = STATE_APPLY_PASSED;
 //            以负责人列表大小为准，顺序匹配每个负责人所对应的分数，记录到sciUserScore中。
 //            科研处
             for (int i = 0; i < persion.size(); i++) {
@@ -315,10 +356,10 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
             }
 //            教研室
         }else if(urlFlag.equals("pro")){
-            state ="2";
+            state = STATE_APPLY_XY_AUDIT;
 //            学院通过
         }else if (urlFlag.equals("Dept")){
-            state ="11";
+            state = STATE_APPLY_KYC_AUDIT;
         }
         int a =  sciHorizontalReamountService.amountpass(reid,state);
         SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
@@ -331,72 +372,57 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
     }
 
     @Override
+    @Transactional
     public int hxover(String id,Long uid,String urlFlag) {
-        String state = "0";
-//        SciUserScore sciUserScore = new SciUserScore();
-//        sciUserScore.setApplyId(applyId.toString());
-        if(urlFlag.equals("JYSOVER")){
-            state ="8";
-        }else if(urlFlag.equals("KYCOVER")){
-            state ="6";
-            //            以负责人列表大小为准，顺序匹配每个负责人所对应的分数，记录到sciUserScore中。
-//            for (int i = 0; i < persion.size(); i++) {
-//                sciUserScore.setUserId(persion.get(i).toString());
-//                sciUserScore.setChangeValue(score.get(i).toString());
-//                sciUserScore.setChangeStatus("结项");
-//                sciUserScoreMapper.insertScoreHistory(sciUserScore);
-//            }
-        }else if (urlFlag.equals("DeptOVER")){
-            state ="33";
+        SciHorizontalApply apply = sciHorizontalApplyMapper.selectSciHorizontalApplyById(Integer.valueOf(id));
+        if (apply == null || StringUtils.isEmpty(apply.getState())) {
+            return 0;
         }
-        int a =  sciHorizontalApplyMapper.hxPass(id,state);
-        SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
-        sciHorizontalPiyue.setUid(uid);
-        sciHorizontalPiyue.setHxktId(Integer.valueOf(id));
-        sciHorizontalPiyue.setConcate("同意");
-        sciHorizontalPiyue.setState("通过");
-        sciHorizontalPiyueMapper.insertSciHorizontalPiyue(sciHorizontalPiyue);
-        return a;
+        Map<String, Object> result = approvalProcessService.approve(
+                PROCESS_CODE_OVER,
+                Long.valueOf(id),
+                apply.getState(),
+                ACTION_APPROVE,
+                uid,
+                null,
+                null);
+        return updateApprovalState(id, uid, ACTION_APPROVE, ACTION_APPROVE, result);
     }
 
     @Override
+    @Transactional
     public int hxBh(String id,Long uid, String remark,String urlFlag) {
-        String state = "0";
-        if(urlFlag.equals("hecha")){
-            state ="5";
-        }else if(urlFlag.equals("pro")){
-            state ="3";
-        }else if (urlFlag.equals("Dept")){
-            state ="22";
+        SciHorizontalApply apply = sciHorizontalApplyMapper.selectSciHorizontalApplyById(Integer.valueOf(id));
+        if (apply == null || StringUtils.isEmpty(apply.getState())) {
+            return 0;
         }
-        int a = sciHorizontalApplyMapper.hxPass(id,state);
-        SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
-        sciHorizontalPiyue.setUid(uid);
-        sciHorizontalPiyue.setHxktId(Integer.valueOf(id));
-        sciHorizontalPiyue.setConcate(remark);
-        sciHorizontalPiyue.setState("驳回");
-        sciHorizontalPiyueMapper.insertSciHorizontalPiyue(sciHorizontalPiyue);
-        return a;
+        Map<String, Object> result = approvalProcessService.reject(
+                PROCESS_CODE_APPLY,
+                Long.valueOf(id),
+                apply.getState(),
+                remark,
+                uid,
+                null,
+                null);
+        return updateApprovalState(id, uid, remark, ACTION_REJECT, result);
     }
 
     @Override
+    @Transactional
     public int hxoverBh(String id, Long uid, String remark, String urlFlag) {
-        String state = "0";
-        if(urlFlag.equals("JYSOVER")){
-            state ="9";
-        }else if(urlFlag.equals("KYCOVER")){
-            state ="10";
-        }else if (urlFlag.equals("DeptOVER")){
-            state ="44";
+        SciHorizontalApply apply = sciHorizontalApplyMapper.selectSciHorizontalApplyById(Integer.valueOf(id));
+        if (apply == null || StringUtils.isEmpty(apply.getState())) {
+            return 0;
         }
-        int a =  sciHorizontalApplyMapper.hxPass(id,state);
-        SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
-        sciHorizontalPiyue.setUid(uid);
-        sciHorizontalPiyue.setHxktId(Integer.valueOf(id));
-        sciHorizontalPiyue.setConcate(remark);
-        sciHorizontalPiyue.setState("被驳回");
-        sciHorizontalPiyueMapper.insertSciHorizontalPiyue(sciHorizontalPiyue);
-        return a;
+        Map<String, Object> result = approvalProcessService.reject(
+                PROCESS_CODE_OVER,
+                Long.valueOf(id),
+                apply.getState(),
+                remark,
+                uid,
+                null,
+                null);
+        return updateApprovalState(id, uid, remark, ACTION_REJECT, result);
     }
 
 
@@ -559,63 +585,31 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
 
     @Override
     public int recall(Integer id, String state,Long uid, String remark, String urlFlag) {
-        String newState = state;
-        switch (state){
-//            教研室
-            case "2": case "3":
-                newState = "1";
-                break;
-            case "8": case "9":
-                newState = "7";
-                break;
-//                学院
-            case "11":  case "22":
-                newState = "2";
-                break;
-            case "33": case"44":
-                newState = "8";
-                break;
-//                科研处
-            case "4":  case "5":
-                newState = "11";
-                break;
-            case "6": case "10":
-                newState = "33";
-                break;
-//                教师
-            case "7":
-                newState = "4";
-                break;
+        SciHorizontalApply apply = sciHorizontalApplyMapper.selectSciHorizontalApplyById(id);
+        if (apply == null || StringUtils.isEmpty(apply.getState())) {
+            return 0;
         }
-        if(state.equals("4")){
-            String status = "立项";
-            sciUserScoreMapper.deleteScoreById(id.toString(),status);
-        }else
-        if(state.equals("6")){
-            String status = "结项";
-            sciUserScoreMapper.deleteScoreById(id.toString(),status);
-        }
-//        设置状态
-        int a =sciHorizontalApplyMapper.hxPass(id.toString(),newState);
-//        插入日志
-        SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
-        sciHorizontalPiyue.setUid(uid);
-        sciHorizontalPiyue.setHxktId(id);
-        sciHorizontalPiyue.setConcate(remark);
-        sciHorizontalPiyue.setState("撤回");
-        sciHorizontalPiyueMapper.insertSciHorizontalPiyue(sciHorizontalPiyue);
-        return a;
+        String processCode = resolveProcessCode(apply.getState());
+        Map<String, Object> result = approvalProcessService.recall(
+                processCode,
+                Long.valueOf(id),
+                apply.getState(),
+                remark,
+                uid,
+                null,
+                null);
+        return updateApprovalState(String.valueOf(id), uid, remark, ACTION_RECALL, result);
     }
 
     @Override
     public int amountBh(String id, String reid, Long userId, String remark, String urlFlag) {
-        String state = "0";
+        String state = STATE_APPLY_DRAFT;
         if(urlFlag.equals("pro")){
-            state ="3";
+            state = STATE_APPLY_REJECTED;
         }else if(urlFlag.equals("hecha")){
-            state ="5";
+            state = STATE_APPLY_XY_AUDIT;
         }else if (urlFlag.equals("Dept")){
-            state ="22";
+            state = STATE_APPLY_XY_AUDIT;
         }
         int a =  sciHorizontalReamountService.amountpass(reid,state);
         SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
@@ -654,32 +648,12 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
         Map<String, Integer> counts = new HashMap<>();
         String mainRole = determineMainRole(user.getRoles());
 
-        // 添加调试日志
-        log.info("用户角色识别: ID={}, 部门={}, 识别角色={}, 实际角色={}",
-                user.getUserId(),
-                user.getDept().getDeptName(),
-                mainRole,
-                user.getRoles().stream()
-                        .map(SysRole::getRoleKey)
-                        .collect(Collectors.joining(",")));
-
-//        counts.put("horizontal", calculateHorizontalTodoCount(user, mainRole));
-//        counts.put("reamount", calculateReamountTodoCount(user, mainRole));//统计金额待办数量
-//        return counts;
-        // 计算课题待办数量
         int horizontalCount = calculateHorizontalTodoCount(user, mainRole);
-        // 计算金额待办数量
         int reamountCount = calculateReamountTodoCount(user, mainRole);
 
-        // 记录详细统计信息（调试用）
-        log.info("待办统计 - 课题: {}, 金额: {}, 总计: {}",
-                horizontalCount, reamountCount, horizontalCount + reamountCount);
-
-        // 保持使用 "horizontal" 键，但值为总数
         counts.put("horizontal", horizontalCount + reamountCount);
-//        counts.put("reamount",reamountCount); //如果需要保留
-        counts.put("vertical", calculateVerticalTodoCount(user, mainRole)); //统计纵向待办数量
-        counts.put("achievement", calculateAchievementTodoCount(user, mainRole)); //统计成果待办数量
+        counts.put("vertical", calculateVerticalTodoCount(user, mainRole));
+        counts.put("achievement", calculateAchievementTodoCount(user, mainRole));
         counts.put("paper", calculatePaperTodoCount(user, mainRole)); // 统计论文待办数量
         counts.put("textbook", calculateTextbookTodoCount(user, mainRole)); // 统计教材软著待办数量
         counts.put("patent", calculatePatentTodoCount(user, mainRole)); // 统计专利软著待办数量
@@ -694,23 +668,23 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
         int count = 0;
         switch (roleKey) {
             case "sci_tesearch": // 科研处
-                int personalCount2 = countPersonalReamountTodos(user.getUserId(), Arrays.asList("99", "3", "22", "5"));
-                int deptCount2 = countReamountByStates(Arrays.asList("11", "33"));
+                int personalCount2 = countPersonalReamountTodos(user.getUserId(), Arrays.asList(STATE_APPLY_DRAFT, STATE_APPLY_REJECTED, STATE_APPLY_XY_AUDIT));
+                int deptCount2 = countReamountByStates(Arrays.asList(STATE_APPLY_KYC_AUDIT, STATE_OVER_XY_AUDIT));
                 count = personalCount2 + deptCount2;
                 break;
             case "dept_teacher": // 学院
                 Long collegeDeptId = user.getDept().getParentId();
-                int personalCount1 = countPersonalReamountTodos(user.getUserId(), Arrays.asList("99", "3", "22", "5"));
-                int deptCount1 = countReamountByDeptAndStates(collegeDeptId, Arrays.asList("2", "8"), roleKey);
+                int personalCount1 = countPersonalReamountTodos(user.getUserId(), Arrays.asList(STATE_APPLY_DRAFT, STATE_APPLY_REJECTED, STATE_APPLY_XY_AUDIT));
+                int deptCount1 = countReamountByDeptAndStates(collegeDeptId, Arrays.asList(STATE_APPLY_XY_AUDIT, STATE_OVER_JYS_AUDIT), roleKey);
                 count = personalCount1 + deptCount1;
                 break;
             case "research": // 教研室
-                int personalCount = countPersonalReamountTodos(user.getUserId(), Arrays.asList("99", "3", "22", "5"));
-                int deptCount = countReamountByDeptAndStates(user.getDeptId(), Arrays.asList("1", "7"), roleKey);
+                int personalCount = countPersonalReamountTodos(user.getUserId(), Arrays.asList(STATE_APPLY_DRAFT, STATE_APPLY_REJECTED, STATE_APPLY_XY_AUDIT));
+                int deptCount = countReamountByDeptAndStates(user.getDeptId(), Arrays.asList(STATE_APPLY_JYS_AUDIT, STATE_OVER_DRAFT), roleKey);
                 count = personalCount + deptCount;
                 break;
             default: // 普通教师
-                count = countPersonalReamountTodos(user.getUserId(), Arrays.asList("99", "3", "22", "5"));
+                count = countPersonalReamountTodos(user.getUserId(), Arrays.asList(STATE_APPLY_DRAFT, STATE_APPLY_REJECTED, STATE_APPLY_XY_AUDIT));
         }
         return count;
     }
@@ -732,6 +706,49 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
     // 金额审批的状态统计
     private int countReamountByStates(List<String> states) {
         return sciHorizontalApplyMapper.countReamountByStates(states, getCurrentYear());
+    }
+
+    private String resolveProcessCode(String currentState) {
+        if (StringUtils.startsWith(currentState, "OVER_")) {
+            return PROCESS_CODE_OVER;
+        }
+        return PROCESS_CODE_APPLY;
+    }
+
+    private int updateApprovalState(String id, Long uid, String comment, String actionState, Map<String, Object> result) {
+        if (result == null || !Boolean.TRUE.equals(result.get("success"))) {
+            return 0;
+        }
+        String newState = Objects.toString(result.get("newState"), null);
+        if (StringUtils.isEmpty(newState)) {
+            return 0;
+        }
+        clearScoreIfNeeded(id, newState, actionState);
+        int rows = sciHorizontalApplyMapper.hxPass(id, newState);
+        if (rows > 0) {
+            insertPiyueRecord(Integer.valueOf(id), uid, comment, actionState);
+        }
+        return rows;
+    }
+
+    private void clearScoreIfNeeded(String id, String newState, String actionState) {
+        if (!ACTION_RECALL.equals(actionState)) {
+            return;
+        }
+        if (STATE_APPLY_DRAFT.equals(newState)) {
+            sciUserScoreMapper.deleteScoreById(id, "立项");
+        } else if (STATE_OVER_DRAFT.equals(newState)) {
+            sciUserScoreMapper.deleteScoreById(id, "结项");
+        }
+    }
+
+    private void insertPiyueRecord(Integer id, Long uid, String comment, String actionState) {
+        SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
+        sciHorizontalPiyue.setUid(uid);
+        sciHorizontalPiyue.setHxktId(id);
+        sciHorizontalPiyue.setConcate(comment);
+        sciHorizontalPiyue.setState(actionState);
+        sciHorizontalPiyueMapper.insertSciHorizontalPiyue(sciHorizontalPiyue);
     }
 
     /**
@@ -838,29 +855,24 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
     private int calculateHorizontalTodoCount(SysUser user, String roleKey) {
         int count = 0;
         switch (roleKey) {
-            case "sci_tesearch": // 科研处
-                int personalCount2 = countPersonalTodos(user.getUserId(), Arrays.asList("99", "3", "22", "5", "4", "9", "44", "10"));
-//                int deptCount2 = countDeptApprovals(user.getDeptId(), Arrays.asList("11", "4568"), roleKey);
-                // 部门待办：所有状态为11的项目（学院通过后提交到科研处）
-//                int deptCount2 = sciHorizontalApplyMapper.countByState("11", getCurrentYear());
-                int deptCount2 = sciHorizontalApplyMapper.countByStates(Arrays.asList("11", "33"), getCurrentYear());
+            case "sci_tesearch":
+                int personalCount2 = countPersonalTodos(user.getUserId(), Arrays.asList(STATE_APPLY_DRAFT, STATE_APPLY_REJECTED, "22", STATE_APPLY_XY_AUDIT, STATE_APPLY_PASSED, STATE_OVER_REJECTED, STATE_OVER_KYC_AUDIT, STATE_OVER_XY_AUDIT));
+                int deptCount2 = sciHorizontalApplyMapper.countByStates(Arrays.asList(STATE_APPLY_KYC_AUDIT, STATE_OVER_XY_AUDIT), getCurrentYear());
                 count = personalCount2 + deptCount2;
                 break;
-            case "dept_teacher": // 学院
+            case "dept_teacher":
                 Long collegeDeptId = user.getDept().getParentId();
-                // 个人待办：教师自己提交的项目
-                int personalCount1 = countPersonalTodos(user.getUserId(), Arrays.asList("99", "3", "22", "5", "4", "9", "44", "10"));
-                // 部门待办：包含所有子教研室的状态为2的项目
-                int deptCount1 = countDeptApprovals(collegeDeptId, Arrays.asList("2", "8"), roleKey);
+                int personalCount1 = countPersonalTodos(user.getUserId(), Arrays.asList(STATE_APPLY_DRAFT, STATE_APPLY_REJECTED, "22", STATE_APPLY_XY_AUDIT, STATE_APPLY_PASSED, STATE_OVER_REJECTED, STATE_OVER_KYC_AUDIT, STATE_OVER_XY_AUDIT));
+                int deptCount1 = countDeptApprovals(collegeDeptId, Arrays.asList(STATE_APPLY_XY_AUDIT, STATE_OVER_JYS_AUDIT), roleKey);
                 count = personalCount1 + deptCount1;
                 break;
-            case "research": // 教研室
-                int personalCount = countPersonalTodos(user.getUserId(), Arrays.asList("99", "3", "22", "5", "4", "9", "44", "10"));
-                int deptCount = countDeptApprovals(user.getDeptId(), Arrays.asList("1", "7"), roleKey);
+            case "research":
+                int personalCount = countPersonalTodos(user.getUserId(), Arrays.asList(STATE_APPLY_DRAFT, STATE_APPLY_REJECTED, STATE_APPLY_XY_AUDIT, STATE_APPLY_PASSED, STATE_OVER_REJECTED, STATE_OVER_KYC_AUDIT));
+                int deptCount = countDeptApprovals(user.getDeptId(), Arrays.asList(STATE_APPLY_JYS_AUDIT, STATE_OVER_DRAFT), roleKey);
                 count = personalCount + deptCount;
                 break;
-            default: // 普通教师
-                count = countPersonalTodos(user.getUserId(), Arrays.asList("99", "3", "22", "5", "4", "9", "44", "10"));
+            default:
+                count = countPersonalTodos(user.getUserId(), Arrays.asList(STATE_APPLY_DRAFT, STATE_APPLY_REJECTED, STATE_APPLY_XY_AUDIT, STATE_APPLY_PASSED, STATE_OVER_REJECTED, STATE_OVER_KYC_AUDIT));
         }
         return count;
     }
@@ -1174,31 +1186,21 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
     @Override
     public int countVerticalApply(SysUser user) {
         String mainRole = determineMainRole(user.getRoles());
-        log.info("纵向课题申报统计 - 用户ID: {}, 角色: {}", user.getUserId(), mainRole);
         int count = calculateVerticalTodoCount(user, mainRole);
-        log.info("纵向课题申报统计结果: {}", count);
         return count;
     }
 
     @Override
     public int countVerticalAudit(SysUser user) {
-        log.info("纵向课题审核统计 - 用户ID: {}", user.getUserId());
-        // 审核中的状态列表
         List<String> auditStates = Arrays.asList("1", "2", "4", "6", "11", "22", "44");
-
-        // 仅查询用户自己的数据
         int count = countPersonalVerticalTodos(user.getUserId(), auditStates);
-        log.info("用户审核统计: {}", count);
-
         return count;
     }
 
     @Override
     public int countVerticalComplete(SysUser user) {
-        // 完成状态
         List<String> completeStates = Arrays.asList("66");
         int count = countPersonalVerticalTodos(user.getUserId(), completeStates);
-        log.info("纵向课题完成统计 - 用户ID: {}, 结果: {}", user.getUserId(), count);
         return count;
     }
 
@@ -1211,13 +1213,13 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
 
     @Override
     public int countHorizontalAudit(SysUser user) {
-        List<String> auditStates = Arrays.asList("1", "2", "11", "4", "7", "8", "33");
+        List<String> auditStates = Arrays.asList(STATE_APPLY_JYS_AUDIT, STATE_APPLY_XY_AUDIT, STATE_APPLY_KYC_AUDIT, STATE_APPLY_PASSED, STATE_OVER_DRAFT, STATE_OVER_JYS_AUDIT, STATE_OVER_XY_AUDIT);
         return sciHorizontalApplyMapper.countHorizontalApplyByUserAndStates1(user.getUserId(), auditStates);
     }
 
     @Override
     public int countHorizontalComplete(SysUser user) {
-        List<String> completeStates = Arrays.asList("6");
+        List<String> completeStates = Arrays.asList(STATE_APPLY_PASSED);
         return sciHorizontalApplyMapper.countHorizontalApplyByUserAndStates1(user.getUserId(), completeStates);
     }
 
@@ -1353,5 +1355,271 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
     @Override
     public int removeAmount(String id, String reid, Long userId, String remark, String urlFlag) {
         return sciHorizontalReamountMapper.reamountremove(Integer.valueOf(reid));
+    }
+
+    /**
+     * 功能描述：重新计算科研分
+     * 涉及SQL：SELECT FROM sci_horizontal_apply / sci_project_score_cfg / sci_user_score
+     * @param ids 课题ID列表，多个ID用逗号分隔
+     * @param operatorId 操作人ID
+     * @return 成功重新计算的课题数量
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int recalculateScore(String ids, Long operatorId) {
+        String[] idArray = ids.split(",");
+        int successCount = 0;
+        
+        for (String idStr : idArray) {
+            try {
+                Integer id = Integer.valueOf(idStr.trim());
+                SciHorizontalApply apply = sciHorizontalApplyMapper.selectSciHorizontalApplyById(id);
+                if (apply == null) {
+                    continue;
+                }
+                
+                String amountStr = apply.getCreditedAmount();
+                if (amountStr == null || amountStr.isEmpty()) {
+                    amountStr = apply.getAmount();
+                }
+                if (amountStr == null || amountStr.isEmpty()) {
+                    continue;
+                }
+                
+                double amount;
+                try {
+                    amount = Double.parseDouble(amountStr);
+                } catch (NumberFormatException e) {
+                    continue;
+                }
+                
+                List<String> personIds = selectPersionIdsByApplyId(id);
+                if (personIds == null || personIds.isEmpty()) {
+                    continue;
+                }
+                
+                List<Integer> scores = calculateScoresByAmount(amount, personIds.size());
+                
+                sciUserScoreMapper.deleteScoreById(String.valueOf(id), "立项");
+                
+                for (int i = 0; i < personIds.size() && i < scores.size(); i++) {
+                    SciUserScore userScore = new SciUserScore();
+                    userScore.setApplyId(String.valueOf(id));
+                    userScore.setUserId(personIds.get(i));
+                    userScore.setChangeValue(String.valueOf(scores.get(i)));
+                    userScore.setChangeStatus("重新计算");
+                    sciUserScoreMapper.insertScoreHistory(userScore);
+                }
+                
+                successCount++;
+            } catch (Exception e) {
+                log.error("重新计算课题{}科研分失败: {}", idStr, e.getMessage());
+            }
+        }
+        
+        return successCount;
+    }
+
+    /**
+     * 功能描述：获取科研分计算预览
+     * 涉及SQL：SELECT FROM sci_horizontal_apply / sci_project_score_cfg
+     * @param id 课题ID
+     * @return 预览结果Map
+     */
+    @Override
+    public Map<String, Object> previewScore(Integer id) {
+        Map<String, Object> result = new HashMap<>();
+        
+        SciHorizontalApply apply = sciHorizontalApplyMapper.selectSciHorizontalApplyById(id);
+        if (apply == null) {
+            result.put("error", "课题不存在");
+            return result;
+        }
+        
+        String amountStr = apply.getCreditedAmount();
+        if (amountStr == null || amountStr.isEmpty()) {
+            amountStr = apply.getAmount();
+        }
+        
+        result.put("topName", apply.getTopName());
+        result.put("amount", apply.getAmount());
+        result.put("creditedAmount", apply.getCreditedAmount());
+        
+        if (amountStr == null || amountStr.isEmpty()) {
+            result.put("error", "未填写项目金额");
+            return result;
+        }
+        
+        double amount;
+        try {
+            amount = Double.parseDouble(amountStr);
+        } catch (NumberFormatException e) {
+            result.put("error", "金额格式错误");
+            return result;
+        }
+        
+        List<String> personIds = selectPersionIdsByApplyId(id);
+        if (personIds == null || personIds.isEmpty()) {
+            result.put("error", "未设置课题成员");
+            return result;
+        }
+        
+        List<Integer> scores = calculateScoresByAmount(amount, personIds.size());
+        
+        List<Map<String, Object>> memberScores = new ArrayList<>();
+        for (int i = 0; i < personIds.size() && i < scores.size(); i++) {
+            Map<String, Object> memberScore = new HashMap<>();
+            memberScore.put("ranking", i + 1);
+            memberScore.put("userId", personIds.get(i));
+            memberScore.put("score", scores.get(i));
+            memberScores.add(memberScore);
+        }
+        
+        result.put("memberScores", memberScores);
+        result.put("totalScore", scores.stream().mapToInt(Integer::intValue).sum());
+        
+        return result;
+    }
+
+    /**
+     * 功能描述：根据金额计算科研分
+     * 从数据库sci_project_score_cfg表读取配置数据
+     * 
+     * @param amount 项目金额（万元）
+     * @param memberCount 成员数量
+     * @return 各成员科研分列表
+     */
+    private List<Integer> calculateScoresByAmount(double amount, int memberCount) {
+        List<Integer> scores = new ArrayList<>();
+        
+        // 从数据库查询配置数据
+        SciProjectScoreCfg query = new SciProjectScoreCfg();
+        query.setProjectType("H"); // H-横向课题
+        List<SciProjectScoreCfg> allConfigs = sciProjectScoreCfgMapper.selectSciProjectScoreCfgList(query);
+        
+        if (allConfigs != null && !allConfigs.isEmpty()) {
+            // 使用数据库配置计算
+            for (int rank = 1; rank <= Math.min(memberCount, 4); rank++) {
+                scores.add(calculateHorizontalScoreByAmount(amount, rank, allConfigs));
+            }
+        } else {
+            // 如果数据库没有配置，使用默认值
+            int[] defaultScores = getDefaultScores(amount);
+            int count = Math.min(memberCount, 4);
+            for (int i = 0; i < count; i++) {
+                scores.add(defaultScores[i]);
+            }
+        }
+        
+        return scores;
+    }
+
+    /**
+     * 根据金额和排名计算横向课题积分
+     * 从数据库sci_project_score_cfg表读取配置数据
+     * 
+     * @param amount 项目金额（万元）
+     * @param rank 排名（1-4）
+     * @param allConfigs 所有配置数据
+     * @return 科研分
+     */
+    private Integer calculateHorizontalScoreByAmount(double amount, int rank, List<SciProjectScoreCfg> allConfigs) {
+        if (amount < 0) {
+            return 0;
+        }
+
+        // 查找匹配的金额区间配置
+        SciProjectScoreCfg matchedConfig = null;
+        for (SciProjectScoreCfg config : allConfigs) {
+            Double min = Double.valueOf(config.getFundsMin());
+            Double max = config.getFundsMax() != null && !config.getFundsMax().isEmpty() 
+                         ? Double.valueOf(config.getFundsMax()) : null;
+            
+            // 判断金额是否在当前区间
+            if (amount >= min && (max == null || amount <= max)) {
+                matchedConfig = config;
+                break;
+            }
+        }
+
+        // 如果没有匹配的配置，使用2万元以下按比例计算
+        if (matchedConfig == null) {
+            // 2万对应的基准分：排名第一80分，排名第二30分，排名第三20分，排名第四10分
+            double ratio = amount / 2.0;
+            switch (rank) {
+                case 1: return (int) Math.round(80 * ratio);
+                case 2: return (int) Math.round(30 * ratio);
+                case 3: return (int) Math.round(20 * ratio);
+                case 4: return (int) Math.round(10 * ratio);
+                default: return 0;
+            }
+        }
+
+        // 提取匹配配置的字段值为final变量，以便在lambda中使用
+        final String matchedFundsMin = matchedConfig.getFundsMin();
+        final String matchedFundsMax = matchedConfig.getFundsMax();
+
+        // 获取该排名对应的配置
+        List<SciProjectScoreCfg> rankConfigs = allConfigs.stream()
+            .filter(c -> c.getFundsMin().equals(matchedFundsMin) && 
+                        (matchedFundsMax == null || c.getFundsMax() == null || c.getFundsMax().equals(matchedFundsMax)) &&
+                        c.getUserOrder() != null && Integer.valueOf(c.getUserOrder()) == rank)
+            .collect(Collectors.toList());
+
+        if (rankConfigs.isEmpty()) {
+            return 0;
+        }
+
+        SciProjectScoreCfg rankConfig = rankConfigs.get(0);
+        
+        // 优先使用总分
+        if (rankConfig.getTotalScore() != null && !rankConfig.getTotalScore().isEmpty()) {
+            return Integer.valueOf(rankConfig.getTotalScore());
+        }
+        
+        // 如果没有总分，使用开题得分和结题得分的平均值
+        if (rankConfig.getStartScore() != null && !rankConfig.getStartScore().isEmpty() &&
+            rankConfig.getEndScore() != null && !rankConfig.getEndScore().isEmpty()) {
+            int startScore = Integer.valueOf(rankConfig.getStartScore());
+            int endScore = Integer.valueOf(rankConfig.getEndScore());
+            return (startScore + endScore) / 2;
+        }
+
+        return 0;
+    }
+
+    /**
+     * 功能描述：根据金额获取默认科研分配置
+     * @param amount 项目金额（万元）
+     * @return 四个排名的科研分数组
+     */
+    private int[] getDefaultScores(double amount) {
+        if (amount >= 100) {
+            return new int[]{9880, 4460, 1780, 880};
+        } else if (amount >= 75) {
+            return new int[]{7400, 3360, 1340, 650};
+        } else if (amount >= 50) {
+            return new int[]{4360, 1980, 780, 380};
+        } else if (amount >= 35) {
+            return new int[]{2860, 1280, 520, 240};
+        } else if (amount >= 20) {
+            return new int[]{1520, 680, 280, 120};
+        } else if (amount >= 10) {
+            return new int[]{440, 200, 80, 40};
+        } else if (amount >= 5) {
+            return new int[]{220, 100, 40, 20};
+        } else if (amount >= 2) {
+            return new int[]{80, 30, 20, 10};
+        } else if (amount > 0) {
+            double ratio = amount / 2.0;
+            return new int[]{
+                (int) Math.round(80 * ratio),
+                (int) Math.round(30 * ratio),
+                (int) Math.round(20 * ratio),
+                (int) Math.round(10 * ratio)
+            };
+        } else {
+            return new int[]{0, 0, 0, 0};
+        }
     }
 }

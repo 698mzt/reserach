@@ -210,7 +210,7 @@
 <th:block th:include="include :: datetimepicker-js" />
 <th:block th:include="include :: bootstrap-fileinput-js"/>
 <th:block th:include="include :: select2-js" />
-<script type="text/javascript">
+<script type="text/javascript" th:inline="javascript">
     function displayFileName(inputId, fileNameId) {
         const input = document.getElementById(inputId);
         const fileNameSpan = document.getElementById(fileNameId);
@@ -330,13 +330,25 @@
 
         $.table.init(options);
 
-        $('#bootstrap-table').on('load-success.bs.table', function (e, name, args) {
-            console.log('Event Name:', name.rows);
+        function normalizeOverState(state) {
+            var stateStr = String(state);
+            var stateMap = {
+                '7': 'OVER_DRAFT',
+                '8': 'OVER_JYS_AUDIT',
+                '33': 'OVER_XY_AUDIT',
+                '10': 'OVER_XY_AUDIT',
+                '44': 'OVER_KYC_AUDIT',
+                '9': 'OVER_REJECTED',
+                '999': 'OVER_PASSED'
+            };
+            return stateMap[stateStr] || stateStr;
+        }
 
-            var a =$("#state").val();
+        $('#bootstrap-table').on('load-success.bs.table', function (e, name, args) {
+            var normalizedState = normalizeOverState($("#state").val());
             // 获取当前登录用户ID和申请人ID
-            var currentUserId = [[${currentUserId}]];
-            var applyUserId = [[${sciHorizontalApply.userId}]];
+            var currentUserId = /*[[${currentUserId}]]*/ null;
+            var applyUserId = /*[[${sciHorizontalApply.userId}]]*/ null;
             
             // 判断是否为申请人本人
             var isSelfApply = (currentUserId === applyUserId);
@@ -345,7 +357,7 @@
                 $(".tdiv2").show();
                 $("#btn3").show();
             }else{
-                if(a == 7 ||a == 8 || a == 33){
+                if(normalizedState == 'OVER_DRAFT' || normalizedState == 'OVER_JYS_AUDIT' || normalizedState == 'OVER_XY_AUDIT' || normalizedState == 'OVER_KYC_AUDIT'){
                     if(name.rows.length > 0){
                         $(".tdiv2").show();
                     }

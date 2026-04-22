@@ -3,7 +3,6 @@ package com.ruoyi.system.service;
 import com.ruoyi.system.domain.SciJiaocairuanzhuPiyue;
 
 import java.util.List;
-
 /**
  * 横向课题的审核意见; InnoDB free: 11264 kBService接口
  *

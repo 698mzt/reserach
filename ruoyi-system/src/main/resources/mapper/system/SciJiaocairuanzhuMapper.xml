@@ -3,13 +3,13 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.system.mapper.SciJiaocairuanzhuMapper">
-
     <resultMap type="SciJiaocairuanzhu" id="SciJiaocairuanzhuResult">
         <result property="id"    column="id"    />
         <result property="userId"    column="user_id"    />
         <result property="xueyuan" column="yname"/><!-- 学院 -->
         <result property="jiaoyanshi" column="dname"/><!-- 教研室 -->
         <result property="xingming" column="userName"/><!-- 姓名 -->
+        <result property="userName" column="userName"/><!-- 姓名 -->
         <result property="loginName" column="login_name"/><!-- 工号 -->
         <result property="mingcheng"    column="mingcheng"    />
         <result property="leixing" column="leixing"    />
@@ -21,6 +21,7 @@
         <result property="state" column="state"    />
         <result property="paiming" column="paiming"    />
         <result property="jifen" column="jifen"    />
+        <result property="personalScore" column="personalScore"    />
         <result property="wenjian" column="wenjian"    />
         <result property="createtime" column="createtime" />
         <result property="year" column="year" /><!-- 确保映射正确 -->
@@ -29,7 +30,18 @@
         <result property="fuzhubian" column="fuzhubian" />
     </resultMap>
     <sql id="selectSciJiaocairuanzhuVo">
-        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname,p.dept_id parent_id, s.user_id, s.mingcheng, s.isbn, s.chubanshijian, s.chubanshe, s.benxiaoshifoyongshu, s.fenlei, s.state,s.jifen,s.paiming,s.wenjian,s.createtime,s.zhubian,s.fuzhubian
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname,p.dept_id parent_id, s.user_id, s.mingcheng, s.isbn, s.chubanshijian, s.chubanshe, s.benxiaoshifoyongshu, s.fenlei, s.state,s.jifen,
+        case when #{role} = 'research' or #{role} = 'sci_tesearch' then 
+            COALESCE((select ranking from sci_jiaocairuanzhu_member where jiaocai_id = s.id and member_id = s.user_id), s.paiming)
+        else 
+            COALESCE((select ranking from sci_jiaocairuanzhu_member where jiaocai_id = s.id and member_id = #{uid}), s.paiming)
+        end as paiming,
+        s.wenjian,s.createtime,s.zhubian,s.fuzhubian,
+        case when #{role} = 'research' or #{role} = 'sci_tesearch' then 
+            COALESCE((select research_score from sci_jiaocairuanzhu_member where jiaocai_id = s.id and member_id = s.user_id), 0)
+        else 
+            COALESCE((select research_score from sci_jiaocairuanzhu_member where jiaocai_id = s.id and member_id = #{uid}), 0)
+        end as personalScore
         from sci_jiaocairuanzhu s left join sys_user u on  s.user_id=u.user_id
                                   left join sys_dept d on u.dept_id = d.dept_id
                                   left join sys_dept p on d.parent_id =p.dept_id
@@ -142,7 +154,7 @@
 
     <select id="selectSciJiaocairuanzhuList4" parameterType="SciJiaocairuanzhu" resultMap="SciJiaocairuanzhuResult">
         <include refid="selectSciJiaocairuanzhuVo"/>
-        where  s.user_id = #{uid} or state in (4,6)
+        where  s.user_id = #{uid} or state in (2,4,6)
         <if test="jiaoyanshi != null  and jiaoyanshi != ''">and  d.dept_name like concat('%', #{jiaoyanshi}, '%')</if>
         <if test="xingming != null  and xingming != ''">and  u.user_name like concat('%', #{xingming}, '%')</if>
         <if test="xueyuan != null  and xueyuan != ''"> and p.dept_name = #{xueyuan}</if>
@@ -198,7 +210,7 @@
     <!-- 新方法：科研处查询 -->
     <select id="selectSciPaperAListKY" parameterType="SciJiaocairuanzhu" resultMap="SciJiaocairuanzhuResult">
         <include refid="selectSciJiaocairuanzhuVo"/>
-        where  s.user_id = #{uid} or state in (4,6)
+        where  s.user_id = #{uid} or state in (2,4,6)
         <if test="jiaoyanshi != null  and jiaoyanshi != ''">and  d.dept_name like concat('%', #{jiaoyanshi}, '%')</if>
         <if test="xingming != null  and xingming != ''">and  u.user_name like concat('%', #{xingming}, '%')</if>
         <if test="xueyuan != null  and xueyuan != ''"> and p.dept_name = #{xueyuan}</if>
@@ -222,6 +234,26 @@
         <if test="fenlei != null  and fenlei != ''"> and fenlei = #{fenlei}</if>
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(createtime,INTERVAL 1 MONTH)) = #{year}</if>
         <if test="userId != null  and userId != ''">and s.user_id = #{uid}</if>
+    </select>
+
+    <!-- 统一查询教材软著列表（所有角色均可查看所有状态） -->
+    <select id="selectSciJiaocairuanzhuListAll" parameterType="SciJiaocairuanzhu" resultMap="SciJiaocairuanzhuResult">
+        <include refid="selectSciJiaocairuanzhuVo"/>
+        where state in (0,1,2,3,4,5,6,7)
+        <if test="jiaoyanshi != null  and jiaoyanshi != ''">and  d.dept_name like concat('%', #{jiaoyanshi}, '%')</if>
+        <if test="xingming != null  and xingming != ''">and  u.user_name like concat('%', #{xingming}, '%')</if>
+        <if test="mingcheng != null  and mingcheng != ''"> and mingcheng like concat('%', #{mingcheng}, '%')</if>
+        <if test="chubanshijian != null "> and chubanshijian = #{chubanshijian}</if>
+        <if test="fenlei != null  and fenlei != ''"> and fenlei = #{fenlei}</if>
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(createtime,INTERVAL 1 MONTH)) = #{year}</if>
+        <if test="userId != null  and userId != ''">and s.user_id = #{uid}</if>
+        ${params.dataScope}
+        <if test="params.orderByColumn != null and params.orderByColumn != ''">
+            order by ${params.orderByColumn} ${params.isAsc}
+        </if>
+        <if test="params.orderByColumn == null or params.orderByColumn == ''">
+            order by chubanshijian desc
+        </if>
     </select>
 
     <select id="selectSciJiaocairuanzhuById" parameterType="Integer" resultMap="SciJiaocairuanzhuResult">
@@ -279,6 +311,7 @@
             <if test="paiming != null and paiming != ''">paiming = #{paiming},</if>
             <if test="zhubian != null and zhubian != ''">zhubian = #{zhubian},</if>
             <if test="fuzhubian != null and fuzhubian != ''">fuzhubian = #{fuzhubian},</if>
+            <if test="jifen != null and jifen != ''">jifen = #{jifen},</if>
             <if test="wenjian != null and wenjian != ''">wenjian = #{wenjian},</if>
             state = "0"
 

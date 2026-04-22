@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('修改审批状态')" />
+</head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-state-edit" th:object="${sysApprovalState}">
+            <input name="id" type="hidden" th:field="*{id}">
+            <div class="form-group">
+                <label class="col-sm-3 control-label">所属流程编码：</label>
+                <div class="col-sm-8">
+                    <input class="form-control" type="text" name="processCode" th:field="*{processCode}" placeholder="为空表示通用">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label is-required">状态编码：</label>
+                <div class="col-sm-8">
+                    <input class="form-control" type="text" name="stateCode" th:field="*{stateCode}" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label is-required">状态名称：</label>
+                <div class="col-sm-8">
+                    <input class="form-control" type="text" name="stateName" th:field="*{stateName}" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">排序：</label>
+                <div class="col-sm-8">
+                    <input class="form-control" type="number" name="sort" th:field="*{sort}">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">状态：</label>
+                <div class="col-sm-8">
+                    <div class="radio-box">
+                        <input type="radio" id="status0" name="status" value="0" th:checked="*{status == '0'}">
+                        <label for="status0">启用</label>
+                    </div>
+                    <div class="radio-box">
+                        <input type="radio" id="status1" name="status" value="1" th:checked="*{status == '1'}">
+                        <label for="status1">停用</label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">备注：</label>
+                <div class="col-sm-8">
+                    <textarea name="remark" class="form-control">[[*{remark}]]</textarea>
+                </div>
+            </div>
+        </form>
+    </div>
+    <th:block th:include="include :: footer" />
+    <script type="text/javascript">
+        var prefix = ctx + "approval/state";
+
+        $("#form-state-edit").validate({
+            onkeyup: false,
+            rules: {
+                stateCode: {
+                    required: true
+                },
+                stateName: {
+                    required: true
+                },
+                sort: {
+                    digits: true
+                }
+            },
+            messages: {
+                stateCode: {
+                    required: "请输入状态编码"
+                },
+                stateName: {
+                    required: "请输入状态名称"
+                }
+            },
+            focusCleanup: true
+        });
+
+        function submitHandler() {
+            if ($.validate.form()) {
+                $.operate.save(prefix + "/edit", $('#form-state-edit').serialize());
+            }
+        }
+    </script>
+</body>
+</html>

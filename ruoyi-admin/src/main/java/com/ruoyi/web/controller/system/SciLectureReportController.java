@@ -10,7 +10,6 @@ import com.ruoyi.system.domain.SciLectureReportOpinion;
 import com.ruoyi.system.service.ISciLectureReportIntegralService;
 import com.ruoyi.system.service.ISciLectureReportOpinionService;
 import com.ruoyi.system.service.ISysUserService;
-import io.swagger.models.auth.In;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,64 +64,33 @@ public class SciLectureReportController extends BaseController
             "marxism_college", // 马克思主义学院管理员
             "general" //综合院部管理员
     ));
+
     @RequiresPermissions("system:report:view")
     @GetMapping()
-    public String report()
+    public String report(ModelMap mmap)
     {
+        // 将当前用户信息传递到模板，用于前端角色识别
+        mmap.put("user", getSysUser());
         return prefix + "/report";
     }
 
     /**
      * 查询讲座报告列表
+     * 功能：根据角色和表格ID查询讲座报告列表
+     * SQL：根据角色不同，执行不同的查询语句
      */
     @RequiresPermissions("system:report:list")
+    @Log(title = "查询讲座报告列表", businessType = BusinessType.OTHER)
     @PostMapping("/list/{tableId}")
     @ResponseBody
-    public TableDataInfo list(@PathVariable("tableId") String tableId,String year,SciLectureReport sciLectureReport)
+    public TableDataInfo list(@PathVariable("tableId") String tableId, String year, SciLectureReport sciLectureReport)
     {
-        System.out.println(tableId);
-        sciLectureReport.setYear(year);
         sciLectureReport.setUid(getUserId());
+        sciLectureReport.setYear(year);
+        
+        // 统一使用一个查询方法，通过@DataScope控制数据权限
         startPage();
-        List<SysRole> roles = getSysUser().getRoles();
-        String role = "";
-        for (SysRole r :roles){
-            if(r.getRoleKey().equals("sci_tesearch")){
-                role ="sci_tesearch";
-                break;
-            }else if (r.getRoleKey().equals("research")){
-                role="research";
-                break;
-            }else if (r.getRoleKey().equals("admin")){
-                role="admin";
-                break;
-            } else if (TEACHER_ROLES.contains(r.getRoleKey())) {
-                role = "dept_teacher";
-                break;
-            }
-        }
-        sciLectureReport.setRole(role);
-        List<SciLectureReport> list = new ArrayList<>();
-
-        // ====》 调整
-        // 科研室
-        if(role.equals("sci_tesearch")){
-            sciLectureReport.setStatelist(Arrays.asList(2,4)); // 查询时状态设置
-        }
-        // 教研室
-        else if(role.equals("research")){
-            sciLectureReport.setStatelist(Arrays.asList(1,6)); // 查询时状态设置
-        }
-        // 学院
-        else if(role.equals("dept_teacher")){
-            sciLectureReport.setStatelist(Arrays.asList(6,2)); // 查询时状态设置
-        }
-        // 普通用户以及管理员
-        else{
-            sciLectureReport.setStatelist(Arrays.asList(0, 1, 2, 3, 5, 4, 6, 7)); // 查询时状态设置
-        }
-        list = sciLectureReportService.selectSciLectureReportList(sciLectureReport);
-
+        List<SciLectureReport> list = sciLectureReportService.selectSciLectureReportListAll(sciLectureReport);
         return getDataTable(list);
     }
 
@@ -141,22 +109,27 @@ public class SciLectureReportController extends BaseController
             SysUser currentUser = ShiroUtils.getSysUser();
             sciLectureReport.setUid(currentUser.getUserId());
             List<SysRole> roles = getSysUser().getRoles();
-            for (SysRole r :roles){
-                if(r.getRoleKey().equals("sci_tesearch")){ // 科研处
-                    sciLectureReport.setStatelist(Arrays.asList(2,5,4)); // 查询时状态设置
-                    break;
-                }else if (r.getRoleKey().equals("research")){ // 教研室
-                    sciLectureReport.setStatelist(Arrays.asList(1,6, 3, 4,5,7)); // 查询时状态设置
-                    break;
-                }else if (r.getRoleKey().equals("admin")){ // 管理员
-                    sciLectureReport.setStatelist(Arrays.asList(0,1, 2, 3, 5,4,6,7)); // 查询时状态设置
-                    break;
-                } else if (TEACHER_ROLES.contains(r.getRoleKey())) { // 学院
-                    sciLectureReport.setStatelist(Arrays.asList(2,4,6,7,5)); // 查询时状态设置
-                    break;
-                } else if (r.getRoleKey().equals("teacher")) { // 普通教师
-                    sciLectureReport.setStatelist(Arrays.asList(0,1, 2, 3, 5,4,6,7)); // 查询时状态设置
-                }
+            Integer roleId = null;
+            for (SysRole r : roles) {
+                roleId = Math.toIntExact(r.getRoleId());
+                break; // 只取第一个角色
+            }
+            
+            // 根据角色ID设置状态列表
+            if(roleId != null && roleId == 101){ // 科研处：角色ID 101
+                sciLectureReport.setStatelist(Arrays.asList(2,5,4)); // 查询时状态设置
+            }else if(roleId != null && roleId == 102){ // 教研室：角色ID 102
+                sciLectureReport.setStatelist(Arrays.asList(1,6, 3, 4,5,7)); // 查询时状态设置
+            }else if(roleId != null && (roleId == 103 || roleId == 104 || roleId == 105 || roleId == 106 || 
+                                     roleId == 107 || roleId == 108 || roleId == 116 || roleId == 117 || 
+                                     roleId == 118 || roleId == 119 || roleId == 120)){ // 学院
+                sciLectureReport.setStatelist(Arrays.asList(2,4,6,7,5)); // 查询时状态设置
+            }else if(roleId != null && roleId == 100){ // 教师：角色ID 100
+                sciLectureReport.setStatelist(Arrays.asList(0,1, 2, 3, 5,4,6,7)); // 查询时状态设置
+            }else if(roleId != null && roleId == 1){ // 管理员：角色ID 1
+                sciLectureReport.setStatelist(Arrays.asList(0,1, 2, 3, 5,4,6,7)); // 查询时状态设置
+            }else{ // 其他用户
+                sciLectureReport.setStatelist(Arrays.asList(0,1, 2, 3, 5,4,6,7)); // 查询时状态设置
             }
             list = sciLectureReportService.selectSciLectureReportList(sciLectureReport);
         }else {
@@ -269,7 +242,6 @@ public class SciLectureReportController extends BaseController
      * 讲座报告 （批阅  核查  查看 ）操作根据id查询对应的数据
      * detail ===> 详细页面
      */
-    @RequiresPermissions(value = {"system:report:process","system:report:check","system:report:info","system:report:xyprocess"},logical= Logical.OR)
     @GetMapping("/detail/{id}/{urlFlag}")
     public String detail(@PathVariable("id") Integer id, @PathVariable("urlFlag") String urlFlag, ModelMap mmap)
     {
@@ -323,7 +295,6 @@ public class SciLectureReportController extends BaseController
         return getDataTable(list);
     }
 
-    @RequiresPermissions("system:report:edit")
     @GetMapping("/opinion/{rid}")
     @ResponseBody
     public TableDataInfo getopinion(@PathVariable("rid")Integer rid)

@@ -334,44 +334,48 @@
                     <div class="panel-body">
                         <div class="container-div">
                             <div class="row">
-<!--                                <div class="col-sm-12 search-collapse " shiro:hasPermission="system:apply:select">-->
-<!--                                    <form id="formId0">-->
-<!--                                        <div class="select-list">-->
-<!--                                            <ul>-->
-<!--                                                <li>-->
-<!--                                                    <label>申请人：</label>-->
-<!--                                                    <input type="text" name="userName"/>-->
-<!--                                                </li>-->
-<!--                                                <li>-->
-<!--                                                    <label>课题：</label>-->
-<!--                                                    <input type="text" name="topName"/>-->
-<!--                                                </li>-->
-<!--                                                <li shiro:hasPermission="system:apply:dname">-->
-<!--                                                    <label>教研室：</label>-->
-<!--                                                    <input type="text" name="dname"   />-->
-<!--                                                </li>-->
-<!--&lt;!&ndash;                                                <li>&ndash;&gt;-->
-<!--&lt;!&ndash;                                                    <label>状态：</label>&ndash;&gt;-->
-<!--&lt;!&ndash;                                                    <select name="state" th:with="type=${@dict.getType('sci_crosswise_tasks')}">&ndash;&gt;-->
-<!--&lt;!&ndash;                                                        <option value="">所有</option>&ndash;&gt;-->
-<!--&lt;!&ndash;                                                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>&ndash;&gt;-->
-<!--&lt;!&ndash;                                                    </select>&ndash;&gt;-->
-<!--&lt;!&ndash;                                                </li>&ndash;&gt;-->
-<!--                                                <li>-->
-<!--                                                    <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search('formId0','bootstrap-table0')"><i class="fa fa-search"></i>&nbsp;搜索</a>-->
-<!--                                                    <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset('formId0')"><i class="fa fa-refresh"></i>&nbsp;重置</a>-->
-<!--                                                </li>-->
-<!--                                            </ul>-->
-<!--                                        </div>-->
-<!--                                    </form>-->
-<!--                                </div>-->
+                                <div class="col-sm-12 search-collapse">
+                                    <form id="formId0">
+                                        <div class="select-list">
+                                            <ul>
+                                                <!-- 学院：仅科研处可见（文本输入框） -->
+                                                <li class="college-field" style="display:none;">
+                                                    <label>学院：</label>
+                                                    <input type="text" name="xueyuan" placeholder="请输入学院名称"/>
+                                                </li>
+                                                <!-- 专业：学院、科研处可见（文本输入框） -->
+                                                <li class="major-field" style="display:none;">
+                                                    <label>专业：</label>
+                                                    <input type="text" name="keyanshi" placeholder="请输入专业名称"/>
+                                                </li>
+                                                <!-- 主持人：教研室、学院、科研处可见 -->
+                                                <li class="host-name-field" style="display:none;">
+                                                    <label>主持人：</label>
+                                                    <input type="text" name="userName"/>
+                                                </li>
+                                                <!-- 课题名称：所有角色可见 -->
+                                                <li>
+                                                    <label>课题名称：</label>
+                                                    <input type="text" name="topName"/>
+                                                </li>
+                                                <li>
+                                                    <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search('formId0','bootstrap-table0')"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                                                    <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset('formId0')"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </form>
+                                </div>
 
                                 <div id="toolbar0" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-<!--                                    <div class="btn-group-sm"  role="group" style="display: inline-flex; gap: 4px;">-->
-<!--                                        <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:apply:export">-->
-<!--                                            <i class="fa fa-download"></i> 导出-->
-<!--                                        </a>-->
-<!--                                    </div>-->
+                                    <div class="btn-group-sm"  role="group" style="display: inline-flex; gap: 4px;">
+                                        <a class="btn btn-primary" onclick="batchDownload('horizontal', 'bootstrap-table0')">
+                                            <i class="fa fa-download"></i> 批量下载
+                                        </a>
+                                        <a class="btn btn-warning" onclick="recalculateScore('bootstrap-table0')">
+                                            <i class="fa fa-calculator"></i> 重新计算科研分
+                                        </a>
+                                    </div>
                                     <div style="display: flex; align-items: center; gap: 15px; padding: 6px 36px; border-radius: 4px;">
                                         <th:block th:replace="include :: status-circles"/>
                                     </div>
@@ -389,39 +393,47 @@
                     <div class="panel-body">
                         <div class="container-div">
                             <div class="row">
-<!--                                <div class="col-sm-12 search-collapse" shiro:hasPermission="system:apply:select">-->
-<!--                                    <form id="formId1">-->
-<!--                                        <div class="select-list">-->
-<!--                                            <ul>-->
-<!--                                                <li>-->
-<!--                                                    <label>申请人：</label>-->
-<!--                                                    <input type="text" name="userName"/>-->
-<!--                                                </li>-->
-<!--                                                <li>-->
-<!--                                                    <label>课题：</label>-->
-<!--                                                    <input type="text" name="topName"/>-->
-<!--                                                </li>-->
-<!--                                                <li shiro:hasPermission="system:apply:dname">-->
-<!--                                                    <label>教研室：</label>-->
-<!--                                                    <input type="text" name="dname"   />-->
-<!--                                                </li>-->
-<!--                                                <li>-->
-<!--                                                    <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search('formId1','bootstrap-table1')"><i class="fa fa-search"></i>&nbsp;搜索</a>-->
-<!--                                                    <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset('formId1')"><i class="fa fa-refresh"></i>&nbsp;重置</a>-->
-<!--                                                </li>-->
-<!--                                            </ul>-->
-<!--                                        </div>-->
-<!--                                    </form>-->
-<!--                                </div>-->
+                                <div class="col-sm-12 search-collapse">
+                                    <form id="formId1">
+                                        <div class="select-list">
+                                            <ul>
+                                                <!-- 学院：仅科研处可见（文本输入框） -->
+                                                <li class="college-field" style="display:none;">
+                                                    <label>学院：</label>
+                                                    <input type="text" name="xueyuan" placeholder="请输入学院名称"/>
+                                                </li>
+                                                <!-- 专业：学院、科研处可见（文本输入框） -->
+                                                <li class="major-field" style="display:none;">
+                                                    <label>专业：</label>
+                                                    <input type="text" name="keyanshi" placeholder="请输入专业名称"/>
+                                                </li>
+                                                <!-- 主持人：教研室、学院、科研处可见 -->
+                                                <li class="host-name-field" style="display:none;">
+                                                    <label>主持人：</label>
+                                                    <input type="text" name="userName"/>
+                                                </li>
+                                                <!-- 课题名称：所有角色可见 -->
+                                                <li>
+                                                    <label>课题名称：</label>
+                                                    <input type="text" name="topName"/>
+                                                </li>
+                                                <li>
+                                                    <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search('formId1','bootstrap-table1')"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                                                    <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset('formId1')"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </form>
+                                </div>
 
                                 <div id="toolbar1" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
                                     <div class="btn-group-sm"  role="group" style="display: inline-flex; gap: 4px;">
                                         <a class="btn btn-success" onclick="$.operate.addTab()" shiro:hasPermission="system:apply:add">
                                             <i class="fa fa-plus"></i> 添加
                                         </a>
-<!--                                        <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:apply:export">-->
-<!--                                            <i class="fa fa-download"></i> 导出-->
-<!--                                        </a>-->
+                                        <a class="btn btn-primary" onclick="batchDownload('horizontal', 'bootstrap-table1')">
+                                            <i class="fa fa-download"></i> 批量下载
+                                        </a>
                                     </div>
                                     <div style="display: flex; align-items: center; gap: 15px; padding: 6px 36px; border-radius: 4px;">
                                         <th:block th:replace="include :: status-circles"/>
@@ -438,37 +450,45 @@
                     <div class="panel-body">
                         <div class="container-div">
                             <div class="row">
-<!--                                <div class="col-sm-12 search-collapse" shiro:hasPermission="system:apply:select">-->
-<!--                                    <form id="formId2">-->
-<!--                                        <div class="select-list">-->
-<!--                                            <ul>-->
-<!--                                                <li>-->
-<!--                                                    <label>申请人：</label>-->
-<!--                                                    <input type="text" name="userName"/>-->
-<!--                                                </li>-->
-<!--                                                <li>-->
-<!--                                                    <label>课题：</label>-->
-<!--                                                    <input type="text" name="topName"/>-->
-<!--                                                </li>-->
-<!--                                                <li shiro:hasPermission="system:apply:dname">-->
-<!--                                                    <label>教研室：</label>-->
-<!--                                                    <input type="text" name="dname"   />-->
-<!--                                                </li>-->
-<!--                                                <li>-->
-<!--                                                    <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search('formId2','bootstrap-table2')"><i class="fa fa-search"></i>&nbsp;搜索</a>-->
-<!--                                                    <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset('formId2')"><i class="fa fa-refresh"></i>&nbsp;重置</a>-->
-<!--                                                </li>-->
-<!--                                            </ul>-->
-<!--                                        </div>-->
-<!--                                    </form>-->
-<!--                                </div>-->
+                                <div class="col-sm-12 search-collapse">
+                                    <form id="formId2">
+                                        <div class="select-list">
+                                            <ul>
+                                                <!-- 学院：仅科研处可见（文本输入框） -->
+                                                <li class="college-field" style="display:none;">
+                                                    <label>学院：</label>
+                                                    <input type="text" name="xueyuan" placeholder="请输入学院名称"/>
+                                                </li>
+                                                <!-- 专业：学院、科研处可见（文本输入框） -->
+                                                <li class="major-field" style="display:none;">
+                                                    <label>专业：</label>
+                                                    <input type="text" name="keyanshi" placeholder="请输入专业名称"/>
+                                                </li>
+                                                <!-- 主持人：教研室、学院、科研处可见 -->
+                                                <li class="host-name-field" style="display:none;">
+                                                    <label>主持人：</label>
+                                                    <input type="text" name="userName"/>
+                                                </li>
+                                                <!-- 课题名称：所有角色可见 -->
+                                                <li>
+                                                    <label>课题名称：</label>
+                                                    <input type="text" name="topName"/>
+                                                </li>
+                                                <li>
+                                                    <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search('formId2','bootstrap-table2')"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                                                    <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset('formId2')"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </form>
+                                </div>
 
                                 <div id="toolbar2" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-<!--                                    <div class="btn-group-sm"  role="group" style="display: inline-flex; gap: 4px;">-->
-<!--                                        <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:apply:export">-->
-<!--                                            <i class="fa fa-download"></i> 导出-->
-<!--                                        </a>-->
-<!--                                    </div>-->
+                                    <div class="btn-group-sm"  role="group" style="display: inline-flex; gap: 4px;">
+                                        <a class="btn btn-primary" onclick="batchDownload('horizontal', 'bootstrap-table2')">
+                                            <i class="fa fa-download"></i> 批量下载
+                                        </a>
+                                    </div>
                                     <div style="display: flex; align-items: center; gap: 15px; padding: 6px 36px; border-radius: 4px;">
                                         <th:block th:replace="include :: status-circles"/>
                                     </div>
@@ -484,37 +504,45 @@
                     <div class="panel-body">
                         <div class="container-div">
                             <div class="row">
-<!--                                <div class="col-sm-12 search-collapse" shiro:hasPermission="system:apply:select">-->
-<!--                                    <form id="formId3">-->
-<!--                                        <div class="select-list">-->
-<!--                                            <ul>-->
-<!--                                                <li>-->
-<!--                                                    <label>申请人：</label>-->
-<!--                                                    <input type="text" name="userName"/>-->
-<!--                                                </li>-->
-<!--                                                <li>-->
-<!--                                                    <label>课题：</label>-->
-<!--                                                    <input type="text" name="topName"/>-->
-<!--                                                </li>-->
-<!--                                                <li shiro:hasPermission="system:apply:dname">-->
-<!--                                                    <label>教研室：</label>-->
-<!--                                                    <input type="text" name="dname"/>-->
-<!--                                                </li>-->
-<!--                                                <li>-->
-<!--                                                    <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search('formId3','bootstrap-table3')"><i class="fa fa-search"></i>&nbsp;搜索</a>-->
-<!--                                                    <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset('formId3')"><i class="fa fa-refresh"></i>&nbsp;重置</a>-->
-<!--                                                </li>-->
-<!--                                            </ul>-->
-<!--                                        </div>-->
-<!--                                    </form>-->
-<!--                                </div>-->
+                                <div class="col-sm-12 search-collapse">
+                                    <form id="formId3">
+                                        <div class="select-list">
+                                            <ul>
+                                                <!-- 学院：仅科研处可见（文本输入框） -->
+                                                <li class="college-field" style="display:none;">
+                                                    <label>学院：</label>
+                                                    <input type="text" name="xueyuan" placeholder="请输入学院名称"/>
+                                                </li>
+                                                <!-- 专业：学院、科研处可见（文本输入框） -->
+                                                <li class="major-field" style="display:none;">
+                                                    <label>专业：</label>
+                                                    <input type="text" name="keyanshi" placeholder="请输入专业名称"/>
+                                                </li>
+                                                <!-- 主持人：教研室、学院、科研处可见 -->
+                                                <li class="host-name-field" style="display:none;">
+                                                    <label>主持人：</label>
+                                                    <input type="text" name="userName"/>
+                                                </li>
+                                                <!-- 课题名称：所有角色可见 -->
+                                                <li>
+                                                    <label>课题名称：</label>
+                                                    <input type="text" name="topName"/>
+                                                </li>
+                                                <li>
+                                                    <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search('formId3','bootstrap-table3')"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                                                    <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset('formId3')"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </form>
+                                </div>
 
                                 <div id="toolbar3" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-<!--                                    <div class="btn-group-sm"  role="group" style="display: inline-flex; gap: 4px;">-->
-<!--                                        <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:apply:export">-->
-<!--                                            <i class="fa fa-download"></i> 导出-->
-<!--                                        </a>-->
-<!--                                    </div>-->
+                                    <div class="btn-group-sm"  role="group" style="display: inline-flex; gap: 4px;">
+                                        <a class="btn btn-primary" onclick="batchDownload('horizontal', 'bootstrap-table3')">
+                                            <i class="fa fa-download"></i> 批量下载
+                                        </a>
+                                    </div>
                                     <div style="display: flex; align-items: center; gap: 15px; padding: 6px 36px; border-radius: 4px;">
                                         <th:block th:replace="include :: status-circles"/>
                                     </div>
@@ -597,22 +625,88 @@
 
 <th:block th:include="include :: footer" />
 <script th:inline="javascript">
-<!--    教研室-->
-    var proFlag = [[${@permission.hasPermi('system:apply:process')}]];
-    var editFlag = [[${@permission.hasPermi('system:apply:edit')}]];
-    var DeptFlag = [[${@permission.hasPermi('system:apply:Dept')}]];
-    var removeFlag = [[${@permission.hasPermi('system:apply:remove')}]];
-    var editInfo = [[${@permission.hasPermi('system:apply:info')}]];
-    var hechaFlag = [[${@permission.hasPermi('system:apply:hecha')}]];
-    var createFlag = [[${@permission.hasPermi('system:apply:add')}]];
-    var downloadFlag = [[${@permission.hasPermi('system:apply:download')}]];
+    // 教研室权限
+    var proFlag = /*[[${@permission.hasPermi('system:apply:process')}]]*/ 'hidden';
+    var editFlag = /*[[${@permission.hasPermi('system:apply:edit')}]]*/ 'hidden';
+    var DeptFlag = /*[[${@permission.hasPermi('system:apply:Dept')}]]*/ 'hidden';
+    var removeFlag = /*[[${@permission.hasPermi('system:apply:remove')}]]*/ 'hidden';
+    var editInfo = /*[[${@permission.hasPermi('system:apply:info')}]]*/ 'hidden';
+    var hechaFlag = /*[[${@permission.hasPermi('system:apply:hecha')}]]*/ 'hidden';
+    var createFlag = /*[[${@permission.hasPermi('system:apply:add')}]]*/ 'hidden';
+    var downloadFlag = /*[[${@permission.hasPermi('system:apply:download')}]]*/ 'hidden';
 
-    var topTypeDatas = [[${@dict.getType('sci_top_type')}]];
-    var datas = [[${@dict.getType('sci_crosswise_tasks')}]];
+    var topTypeDatas = /*[[${@dict.getType('sci_top_type')}]]*/ [];
+    var datas = /*[[${@dict.getType('sci_crosswise_tasks')}]]*/ [];
 
     var prefix = ctx + "system/apply";
 
-    // 动态生成URL
+    function normalizeApplyState(state) {
+        const stateStr = String(state);
+        const stateMap = {
+            '99': 'APPLY_DRAFT',
+            '1': 'APPLY_JYS_AUDIT',
+            '2': 'APPLY_XY_AUDIT',
+            '5': 'APPLY_XY_AUDIT',
+            '22': 'APPLY_XY_AUDIT',
+            '3': 'APPLY_REJECTED',
+            '11': 'APPLY_KYC_AUDIT',
+            '4': 'APPLY_PASSED',
+            '6': 'APPLY_PASSED'
+        };
+        return stateMap[stateStr] || stateStr;
+    }
+
+    function normalizeOverState(state) {
+        const stateStr = String(state);
+        const stateMap = {
+            '7': 'OVER_DRAFT',
+            '8': 'OVER_JYS_AUDIT',
+            '33': 'OVER_XY_AUDIT',
+            '10': 'OVER_XY_AUDIT',
+            '44': 'OVER_KYC_AUDIT',
+            '9': 'OVER_REJECTED',
+            '999': 'OVER_PASSED'
+        };
+        return stateMap[stateStr] || stateStr;
+    }
+
+    function normalizeHorizontalState(state) {
+        const stateStr = String(state);
+        if (stateStr.indexOf('OVER_') === 0 || ['7', '8', '9', '10', '33', '44', '999'].includes(stateStr)) {
+            return normalizeOverState(stateStr);
+        }
+        return normalizeApplyState(stateStr);
+    }
+
+    function isVisibleAction(flag) {
+        return flag && flag !== 'hidden';
+    }
+
+    // 获取当前用户角色信息
+    var userRole = '';
+    var userRoles = /*[[${user.roles}]]*/ [];
+    if (userRoles) {
+        for (var i = 0; i < userRoles.length; i++) {
+            var roleKey = userRoles[i].roleKey;
+            if (roleKey === 'sci_tesearch') {
+                userRole = 'sci_tesearch';  // 科研处
+                break;
+            } else if (roleKey === 'research') {
+                userRole = 'research';  // 教研室
+                break;
+            } else if (['dept_teacher', 'discuss_college', 'dzgc_college', 'yssj_college', 
+                       'student_college', 'marxism_college', 'general'].indexOf(roleKey) !== -1) {
+                userRole = 'dept_teacher';  // 学院
+                break;
+            }
+        }
+    }
+    // 默认为教师角色
+    if (!userRole) {
+        userRole = 'teacher';
+    }
+
+    // 动态生成 URL
     function getUrl(tableId) {
         var year = localStorage.getItem("year");
         return prefix+"/list/"+tableId+"?year="+year;
@@ -621,6 +715,38 @@
 
 
     $(function() {
+        // 根据权限动态渲染搜索区域
+        function initSearchFields() {
+            // 权限 - 查询字段映射规则
+            // 无process/Dept/hecha权限(教师)：仅允许通过"课题名称"检索
+            // 有process权限(教研室)：允许通过"主持人"+"课题名称"检索
+            // 有Dept权限(学院)：允许通过"专业"+"主持人"+"课题名称"检索
+            // 有hecha权限(科研处)：允许通过"学院"+"专业"+"主持人"+"课题名称"全维度检索
+            // 使用Shiro权限配置，避免硬编码角色，便于后续调整
+            
+            if (hechaFlag !== 'hidden') {
+                // 科研处：显示所有字段
+                $('.host-name-field').show();
+                $('.major-field').show();
+                $('.college-field').show();
+            } else if (DeptFlag !== 'hidden') {
+                // 学院：显示专业 + 主持人 + 课题名称
+                $('.host-name-field').show();
+                $('.major-field').show();
+                $('.college-field').hide();
+            } else if (proFlag !== 'hidden') {
+                // 教研室：显示主持人 + 课题名称
+                $('.host-name-field').show();
+                $('.major-field').hide();
+                $('.college-field').hide();
+            } else {
+                // 教师：只显示课题名称，其他隐藏
+                $('.host-name-field').hide();
+                $('.major-field').hide();
+                $('.college-field').hide();
+            }
+        }
+
 
         function initTable(options) {
             // 获取当前表格的ID
@@ -644,22 +770,17 @@
             modalName: "横向课题",
             rowStyle: rowStyle0,
             columns: [{
-                field: 'number',
-                title: '序号',
-                width:5 ,
-                align:'center',
-                switchable:false,
-                formatter:function(value,row,index){
-                    //return index+1; //序号正序排序从1开始
-
-                    //通过表的#id 可以得到每页多少条
-                    var pageSize=$('#bootstrap-table').bootstrapTable('getOptions').pageSize;
-                    //通过表的#id 可以得到当前第几页
-                    var pageNumber=$('#bootstrap-table').bootstrapTable('getOptions').pageNumber;
-                    //返回每条的序号： 每页条数 * （当前页 - 1 ）+ 序号
-                    // return pageSize * (pageNumber - 1) + index + 1;
-                    return $.table.serialNumber(index);
-                }
+                checkbox: true
+            },
+                {
+                    field: 'number',
+                    title: '序号',
+                    width:5 ,
+                    align:'center',
+                    switchable:false,
+                    formatter:function(value,row,index){
+                        return $.table.serialNumber(index);
+                    }
             },
                 {
                     field: 'id',
@@ -705,6 +826,30 @@
                     field: 'creditedAmount',
                     align: 'center',
                     title: '到账金额'
+                },
+                {
+                    align: 'center',
+                    title: '预计得分',
+                    formatter: function(value, row, index) {
+                        var amount = parseFloat(row.creditedAmount || row.amount);
+                        if (isNaN(amount) || amount <= 0) {
+                            return '-';
+                        }
+                        var ranking = 0;
+                        if(row.firstPersonId == row.uid){
+                            ranking = 1;
+                        } else if(row.secondPersonId == row.uid){
+                            ranking = 2;
+                        } else if(row.thirdPersonId == row.uid){
+                            ranking = 3;
+                        } else if(row.fourthPersonId == row.uid){
+                            ranking = 4;
+                        }
+                        if (ranking > 0) {
+                            return researchScore.getScoreByRanking(amount, ranking);
+                        }
+                        return '-';
+                    }
                 },
                 {
                     align: 'center',
@@ -735,15 +880,21 @@
                 // },
                 {
                     title: '操作',
+                    field: 'operate',
+                    width: 220,
                     align: 'center',
                     formatter: function(value, row, index) {
                         var actions = [];
-                        if(row.state ==  6){
+                        if(row.state === 'APPLY_PASSED'){
                             actions.push('<a  class="' + hechaFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000">撤回</a> ');
                             if (hechaFlag !== 'hidden')
                                 actions.push('<br>')
                             actions.push('<a class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
+                            actions.push('<a data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',\'' + row.state + '\')" >流程记录&nbsp;</a> ');
+                        }
+                        if (actions.length === 0) {
+                            actions.push('<a class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
+                            actions.push('<a data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',\'' + row.state + '\')" >流程记录&nbsp;</a> ');
                         }
                         return actions.join('');
                     }
@@ -751,6 +902,9 @@
         };
 
         initTable(options0);
+        
+        // 初始化搜索区域
+        initSearchFields();
 
         // tab-1
         var options1 = {
@@ -769,22 +923,17 @@
             modalName: "横向课题",
             rowStyle: rowStyle0,
             columns: [{
-                field: 'number',
-                title: '序号',
-                width:5 ,
-                align:'center',
-                switchable:false,
-                formatter:function(value,row,index){
-                    //return index+1; //序号正序排序从1开始
-
-                    //通过表的#id 可以得到每页多少条
-                    var pageSize=$('#bootstrap-table').bootstrapTable('getOptions').pageSize;
-                    //通过表的#id 可以得到当前第几页
-                    var pageNumber=$('#bootstrap-table').bootstrapTable('getOptions').pageNumber;
-                    //返回每条的序号： 每页条数 * （当前页 - 1 ）+ 序号
-                    // return pageSize * (pageNumber - 1) + index + 1;
-                    return $.table.serialNumber(index);
-                }
+                checkbox: true
+            },
+                {
+                    field: 'number',
+                    title: '序号',
+                    width:5 ,
+                    align:'center',
+                    switchable:false,
+                    formatter:function(value,row,index){
+                        return $.table.serialNumber(index);
+                    }
             },
                 {
                     field: 'id',
@@ -811,14 +960,6 @@
                     align: 'center',
                     title: '课题名称'
                 },
-                // {
-                //     field: 'topType',
-                //     title: '课题类型',
-                //     formatter: function(value, row, index) {
-                //        return $.table.selectDictLabel(topTypeDatas, value);
-                //     }
-                // },
-
                 {
                     field: 'signingData',
                     align: 'center',
@@ -833,6 +974,30 @@
                     field: 'creditedAmount',
                     align: 'center',
                     title: '到账金额'
+                },
+                {
+                    align: 'center',
+                    title: '预计得分',
+                    formatter: function(value, row, index) {
+                        var amount = parseFloat(row.creditedAmount || row.amount);
+                        if (isNaN(amount) || amount <= 0) {
+                            return '-';
+                        }
+                        var ranking = 0;
+                        if(row.firstPersonId == row.uid){
+                            ranking = 1;
+                        } else if(row.secondPersonId == row.uid){
+                            ranking = 2;
+                        } else if(row.thirdPersonId == row.uid){
+                            ranking = 3;
+                        } else if(row.fourthPersonId == row.uid){
+                            ranking = 4;
+                        }
+                        if (ranking > 0) {
+                            return researchScore.getScoreByRanking(amount, ranking);
+                        }
+                        return '-';
+                    }
                 },
                 {
                     align: 'center',
@@ -863,10 +1028,13 @@
                 // },
                 {
                     title: '操作',
+                    field: 'operate',
+                    width: 220,
                     align: 'center',
                     formatter: function(value, row, index) {
                         var actions = [];
-                        if(row.state == 99 ){
+                        var normalizedState = normalizeApplyState(row.state);
+                        if(normalizedState === 'APPLY_DRAFT'){
                             if (row.userId == row.uid){
                                 actions.push('<a class="' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.push(\'' + row.id + '\')">提交&nbsp;&nbsp;&nbsp;&nbsp;</a>');
                                 actions.push('<a class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')">编辑&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
@@ -874,34 +1042,26 @@
                                 actions.push('<br>')
                             }
                             actions.push('<a class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
+                            actions.push('<a data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',\'' + normalizedState + '\')" >流程记录&nbsp;</a> ');
                         }else
-                        if(row.state == 1 ) {
+                        if(normalizedState === 'APPLY_JYS_AUDIT') {
                             if (row.userId == row.uid) {
                                 actions.push('<a   class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.reamountTab(\'' + row.id + '\')">追加金额&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                             }
-                            if (row.dnameId == row.userdnameId || row.uid == 1) {
+                            if (proFlag !== 'hidden') {
                                 actions.push('<a  class="' + proFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro' + '\')">批阅</a> ');
                                 actions.push('<br>')
                             }
                             actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
+                            actions.push('<a data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',\'' + normalizedState + '\')" >流程记录&nbsp;</a> ');
                         }else
-                        if((row.state == 3 || row.state == 5 ||row.state == 22)  ){
-                            if (row.userId == row.uid){
-                                actions.push('<a   class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')">编辑&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                                actions.push('<br>')
-                            }
-                            actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
-                        }else
-                        if(row.state ==  2){
+                        if(normalizedState === 'APPLY_XY_AUDIT'){
                             let hasButton = false;
                             if (row.userId == row.uid){
                                 actions.push('<a   class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.reamountTab(\'' + row.id + '\')">追加金额&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                                 hasButton = true;
                             }
-                            if (row.ynameId == row.userynameId || row.uid == 1) {
+                            if (DeptFlag !== 'hidden') {
                                 actions.push('<a  class="' + DeptFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/Dept' + '\')">批阅&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                                 hasButton = true;
                             }
@@ -913,9 +1073,17 @@
                                 actions.push('<br>');
                             }
                             actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
+                            actions.push('<a data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',\'' + normalizedState + '\')" >流程记录&nbsp;</a> ');
                         }else
-                        if(row.state ==  4){
+                        if(normalizedState === 'APPLY_REJECTED'){
+                            if (row.userId == row.uid){
+                                actions.push('<a   class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')">编辑&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
+                                actions.push('<br>')
+                            }
+                            actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
+                            actions.push('<a data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',\'' + normalizedState + '\')" >流程记录&nbsp;</a> ');
+                        }else
+                        if(normalizedState === 'APPLY_PASSED'){
                             if(row.userId == row.uid){
                                 actions.push('<a  class="' + createFlag + '" href="javascript:void(0)" onclick="$.operate.overTab(\'' + row.id +'\')">申请结项&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                                 actions.push('<a   class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.reamountTab(\'' + row.id + '\')"> 追加金额&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
@@ -926,19 +1094,25 @@
                                 actions.push('<br>')
                                 }
                             actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
+                            actions.push('<a data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',\'' + normalizedState + '\')" >流程记录&nbsp;</a> ');
                         }else
-                        if(row.state ==  11){
+                        if(normalizedState === 'APPLY_KYC_AUDIT'){
                             if (row.userId == row.uid){
                                 actions.push('<a   class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.reamountTab(\'' + row.id + '\')"> 追加金额&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                             }
-                            actions.push('<a  class="' + hechaFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/hecha'+ '\')">批阅&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
+                            if (hechaFlag !== 'hidden') {
+                                actions.push('<a  class="' + hechaFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/hecha'+ '\')">批阅&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
+                            }
                             if(row.ynameId == row.userynameId || row.uid == 1)
                                 actions.push('<a  class="' + DeptFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000">撤回&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                             if(hechaFlag !== "hidden" || DeptFlag !== "hidden" || (editFlag !== "hidden" && row.uid==row.userId))
                                 actions.push('<br>')
                             actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
+                            actions.push('<a data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',\'' + normalizedState + '\')" >流程记录&nbsp;</a> ');
+                        }
+                        if (actions.length === 0) {
+                            actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
+                            actions.push('<a data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',\'' + normalizedState + '\')" >流程记录&nbsp;</a> ');
                         }
 
                         return actions.join('');
@@ -962,6 +1136,9 @@
             modalName: "横向课题结项",
             rowStyle: rowStyle0,
             columns: [{
+                checkbox: true
+            },
+            {
                 field: 'number',
                 title: '序号',
                 width:5 ,
@@ -1018,6 +1195,41 @@
                     field: 'creditedAmount',
                     align: 'center',
                     title: '到账金额'
+                },
+                {
+                    align: 'center',
+                    title: '预计得分',
+                    formatter: function(value, row, index) {
+                        var amount = parseFloat(row.creditedAmount || row.amount);
+                        if (isNaN(amount) || amount <= 0) {
+                            return '-';
+                        }
+                        var ranking = 0;
+                        if(row.firstPersonId == row.uid){
+                            ranking = 1;
+                        } else if(row.secondPersonId == row.uid){
+                            ranking = 2;
+                        } else if(row.thirdPersonId == row.uid){
+                            ranking = 3;
+                        } else if(row.fourthPersonId == row.uid){
+                            ranking = 4;
+                        }
+                        if (ranking > 0) {
+                            return researchScore.getScoreByRanking(amount, ranking);
+                        }
+                        return '-';
+                    }
+                },
+                {
+                    field: 'researchScore',
+                    align: 'center',
+                    title: '科研分',
+                    formatter: function(value, row, index) {
+                        if (value && value !== '0' && value !== '') {
+                            return value;
+                        }
+                        return '-';
+                    }
                 },
                 {
                     align: 'center',
@@ -1059,60 +1271,59 @@
                     align: 'center',
                     formatter: function(value, row, index) {
                         var actions = [];
-                        if(row.state == 999 ){
+                        var normalizedState = normalizeOverState(row.state);
+                        if(normalizedState === 'OVER_DRAFT'){
                             if (row.userId == row.uid){
                                 actions.push('<a class="' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.push(\'' + row.id + '\')">提交&nbsp;&nbsp;&nbsp;&nbsp;</a>');
                                 actions.push('<a class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')">编辑&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                                 actions.push('<a class="' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')" style="color : #c90000">删除</a>');
-                                actions.push('<br>')
                             }
-                            actions.push('<a class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
-                        }else
-                        if(row.state == 7 ){
-                            // if(row.userId == row.uid){
-                            //     actions.push('<a class="' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"> <i class="fa fa-remove"></i>删除</a>');
-                            //     actions.push('<a   class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"> <i class="fa fa-edit"></i>更新</a> ');
-                            // }
-                            if(row.dnameId == row.userdnameId || row.uid == 1)
+                            if(row.dnameId == row.userdnameId || row.uid == 1) {
                                 actions.push('<a  class="' + proFlag + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id+'/JYSOVER' + '\')">批阅&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                            if (proFlag !== "hidden")
+                            }
+                            if ((row.userId == row.uid && (removeFlag !== "hidden" || editFlag !== "hidden")) || ((row.dnameId == row.userdnameId || row.uid == 1) && proFlag !== "hidden"))
                                 actions.push('<br>')
                             actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
+                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',\'' + normalizedState + '\')" >流程记录&nbsp;</a> ');
 
                         }else
-                        if((row.state == 9 || row.state == 10 || row.state == 44)  ){
+                        if(normalizedState === 'OVER_REJECTED'){
                             if (row.userId == row.uid){
                                 actions.push('<a   class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')">编辑&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                             }
-                            // if (row.dnameId == row.userdnameId)
-                            //     actions.push('<a  class="' + proFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000">撤回&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                            // actions.push('<a  class="' + hechaFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000">撤回&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                            // if(row.ynameId == row.userynameId)
-                            //     actions.push('<a  class="' + DeptFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000">撤回&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                             if(editFlag !== "hidden")
                                 actions.push('<br>')
                             actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
+                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',\'' + normalizedState + '\')" >流程记录&nbsp;</a> ');
 
-                        }else if(row.state ==  8){
-                            if(row.ynameId == row.userynameId || row.uid == 1)
-                                actions.push('<a  class="' + DeptFlag + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id +'/DeptOVER'+ '\')">批阅&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                            if (row.dnameId == row.userdnameId || row.uid == 1)
-                                actions.push('<a  class="' + proFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000">撤回&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
+                        }else if(normalizedState === 'OVER_JYS_AUDIT'){
+                            if(row.dnameId == row.userdnameId || row.uid == 1)
+                                actions.push('<a  class="' + proFlag + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id +'/JYSOVER'+ '\')">批阅&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
+                            if (row.userId == row.uid && (removeFlag !== "hidden" || editFlag !== "hidden"))
+                                actions.push('<a  class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000">撤回&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                             if(proFlag !== "hidden" || DeptFlag !== "hidden")
                                 actions.push('<br>')
                             actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
+                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',\'' + normalizedState + '\')" >流程记录&nbsp;</a> ');
                             }else
-                        if(row.state == 33){
-                            actions.push('<a  class="' + hechaFlag + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id +'/KYCOVER'+ '\')">批阅&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                            actions.push('<a  class="' + DeptFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000">撤回&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
+                        if(normalizedState === 'OVER_XY_AUDIT'){
+                            if(row.ynameId == row.userynameId || row.uid == 1)
+                                actions.push('<a  class="' + DeptFlag + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id +'/DeptOVER'+ '\')">批阅&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
+                            if (row.userId == row.uid && (removeFlag !== "hidden" || editFlag !== "hidden"))
+                                actions.push('<a  class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000">撤回&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                             if (DeptFlag !== "hidden" || hechaFlag !== "hidden")
                                 actions.push('<br>')
                             actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
+                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',\'' + normalizedState + '\')" >流程记录&nbsp;</a> ');
+                        }else if(normalizedState === 'OVER_KYC_AUDIT'){
+                            if (hechaFlag !== "hidden")
+                                actions.push('<a  class="' + hechaFlag + '" href="javascript:void(0)" onclick="$.operate.overdetailTab(\'' + row.id +'/hecha'+ '\')">批阅&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
+                            if (row.userId == row.uid && (removeFlag !== "hidden" || editFlag !== "hidden"))
+                                actions.push('<a  class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000">撤回&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
+                            if (hechaFlag !== "hidden")
+                                actions.push('<br>')
+                            actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
+                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',\'' + normalizedState + '\')" >流程记录&nbsp;</a> ');
                         }
                         return actions.join('');
                     }
@@ -1134,6 +1345,9 @@
             modalName: "追加金额",
             rowStyle: rowStyle0,
             columns: [{
+                checkbox: true
+            },
+            {
                 field: 'number',
                 title: '序号',
                 width:5 ,
@@ -1186,17 +1400,6 @@
                     title: '追加金额'
                 },
                 {
-                    field: 'researchScore',
-                    align: 'center',
-                    title: '科研分',
-                    formatter: function(value, row, index) {
-                        if (value && value !== '0' && value !== '') {
-                            return value;
-                        }
-                        return '-';
-                    }
-                },
-                {
                     align: 'center',
                     title: '个人排名',
                     formatter: function(value, row, index) {
@@ -1220,53 +1423,60 @@
                 },
                 {
                     title: '操作',
+                    field: 'operate',
+                    width: 220,
                     align: 'center',
                     formatter: function(value, row, index) {
                         var actions = [];
-                        if(row.state == 99 ){
+                        var normalizedState = normalizeApplyState(row.state);
+                        if(normalizedState === 'APPLY_DRAFT'){
                             if (row.userId == row.uid){
                                 actions.push('<a class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.reid + '\')">编辑&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                                 actions.push('<a class="' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.reid + '\')" style="color : #c90000">删除</a>');
                                 actions.push('<br>')
                             }
                             actions.push('<a class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.reid +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory1(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
+                            actions.push('<a data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory1(' + row.id + ',\'' + normalizedState + '\')" >流程记录&nbsp;</a> ');
                         }else
-                        if(row.state == 1 ){
+                        if(normalizedState === 'APPLY_JYS_AUDIT'){
                           if(row.dnameId == row.userdnameId || row.uid == 1)
                                 actions.push('<a  class="' + proFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.reid+'/pro' + '\')">批阅</a> ');
                             if(proFlag !== "hidden")
                                 actions.push('<br>')
                             actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.reid +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory1(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
+                            actions.push('<a data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory1(' + row.id + ',\'' + normalizedState + '\')" >流程记录&nbsp;</a> ');
                         }else
-                        if((row.state == 3 || row.state == 5 ||row.state == 22)  ){
+                        if(normalizedState === 'APPLY_XY_AUDIT'){
+                             if(row.ynameId == row.userynameId || row.uid == 1)
+                                actions.push('<a  class="' + DeptFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.reid +'/Dept'+ '\')">批阅</a> ');
+                            if(DeptFlag !== "hidden")
+                                actions.push('<br>')
+                            actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.reid +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
+                            actions.push('<a data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory1(' + row.id + ',\'' + normalizedState + '\')" >流程记录&nbsp;</a> ');
+                        }else
+                        if(normalizedState === 'APPLY_REJECTED'){
                             if (row.userId == row.uid){
                                 actions.push('<a   class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.reid + '\')">编辑&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
                             }
                             if(editFlag !== "hidden")
                                 actions.push('<br>')
                             actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.reid +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory1(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
+                            actions.push('<a data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory1(' + row.id + ',\'' + normalizedState + '\')" >流程记录&nbsp;</a> ');
                         }else
-                        if(row.state ==  2){
-                             if(row.ynameId == row.userynameId || row.uid == 1)
-                                actions.push('<a  class="' + DeptFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.reid +'/Dept'+ '\')">批阅</a> ');
-                            if(DeptFlag !== "hidden")
-                                actions.push('<br>')
+                        if(normalizedState === 'APPLY_PASSED'){
                             actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.reid +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory1(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
+                            actions.push('<a data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory1(' + row.id + ',\'' + normalizedState + '\')" >流程记录&nbsp;</a> ');
                         }else
-                        if(row.state ==  6){
-                            actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.reid +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory1(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
-                        }else
-                        if(row.state ==  11){
+                        if(normalizedState === 'APPLY_KYC_AUDIT'){
                             actions.push('<a  class="' + hechaFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.reid +'/hecha'+ '\')">核查</a> ');
                             if(hechaFlag !== "hidden")
                                 actions.push('<br>')
                             actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.reid +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-                            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory1(' + row.id + ',' + row.state + ')" >流程记录&nbsp;</a> ');
+                            actions.push('<a data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory1(' + row.id + ',\'' + normalizedState + '\')" >流程记录&nbsp;</a> ');
+                        }
+                        if (actions.length === 0) {
+                            actions.push('<a  class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.reid +'/chakan'+ '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
+                            actions.push('<a data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory1(' + row.id + ',\'' + normalizedState + '\')" >流程记录&nbsp;</a> ');
                         }
                         return actions.join('');
                     }
@@ -1296,26 +1506,23 @@
 <script>
 
     function rowStyle0(row, index) {
-        // 定义状态值与颜色的映射关系
         const stateColorMap = {
-            6: '#67c23a', 4: '#67c23a', // 完结 绿色
-            3: '#e6a344',  5: '#e6a344', 9: '#e6a344', 10: '#e6a344', 22: '#e6a344', 44: '#e6a344',99: '#e6a344',999: '#e6a344', // 被驳回，草稿 黄色
-            1: '#2c99ff', 2: '#2c99ff',  7: '#2c99ff', 8: '#2c99ff', 11: '#2c99ff', 33: '#2c99ff' // 审核中 蓝色
+            APPLY_PASSED: '#67c23a', OVER_PASSED: '#67c23a',
+            APPLY_DRAFT: '#e6a344', APPLY_REJECTED: '#e6a344', OVER_REJECTED: '#e6a344',
+            APPLY_JYS_AUDIT: '#2c99ff', APPLY_XY_AUDIT: '#2c99ff', APPLY_KYC_AUDIT: '#2c99ff',
+            OVER_DRAFT: '#2c99ff', OVER_JYS_AUDIT: '#2c99ff', OVER_XY_AUDIT: '#2c99ff', OVER_KYC_AUDIT: '#2c99ff'
         };
 
-        // 统一将 row.state 转换为字符串进行查找
-        const state = String(row.state);
+        const state = normalizeHorizontalState(row.state);
 
-        // 根据状态值查找对应的颜色
         if (state in stateColorMap) {
             return {
                 css: { color: stateColorMap[state] }
             };
         }
 
-        // 默认样式（可自定义）
         return {
-            css: { color: '#000000' } // 默认黑色
+            css: { color: '#000000' }
         };
     }
 
@@ -1403,11 +1610,11 @@
         progressBar.style.width = '0';
 
         // 根据 state 设置相应的步骤颜色
-        if (state === 99) {
+        if (state === 'APPLY_DRAFT' || state === 'OVER_DRAFT') {
             document.getElementById('step-1').classList.add('active');
             document.getElementById('step-1').querySelector('.status-text').classList.add('active');
             progressBar.style.width = '0';
-        } else if ([6, 4].includes(state)) {
+        } else if (['APPLY_PASSED', 'OVER_PASSED'].includes(state)) {
             document.getElementById('step-1').classList.add('completed');
             document.getElementById('step-1').querySelector('.status-text').classList.add('completed');
             document.getElementById('step-2').classList.add('completed');
@@ -1415,7 +1622,7 @@
             document.getElementById('step-3').classList.add('completed');
             document.getElementById('step-3').querySelector('.status-text').classList.add('completed');
             progressBar.style.width = '100%';
-        } else if ([1, 2,  7, 8, 11, 33].includes(state)) {
+        } else if (['APPLY_JYS_AUDIT', 'APPLY_XY_AUDIT', 'APPLY_KYC_AUDIT', 'OVER_JYS_AUDIT', 'OVER_XY_AUDIT', 'OVER_KYC_AUDIT'].includes(state)) {
             document.getElementById('step-1').classList.add('completed');
             document.getElementById('step-1').querySelector('.status-text').classList.add('completed');
 
@@ -1430,6 +1637,88 @@
                 step.querySelector('.status-text').classList.add('pending');
             });
         }
+    }
+
+    /**
+     * 重新计算科研分
+     * @param {string} tableId - 表格ID
+     */
+    function recalculateScore(tableId) {
+        var ids = $.table.selectColumns("id", false, tableId);
+        
+        if (!ids || ids.length === 0) {
+            $.modal.alertWarning("请选择需要重新计算科研分的课题");
+            return;
+        }
+        
+        $.modal.confirm("确定要重新计算所选 " + ids.length + " 条课题的科研分吗？此操作将覆盖原有科研分数据。", function() {
+            $.modal.loading("正在重新计算科研分，请稍候...");
+            
+            $.ajax({
+                url: prefix + "/recalculateScore",
+                type: "POST",
+                data: { ids: ids.join(",") },
+                success: function(result) {
+                    $.modal.closeLoading();
+                    if (result.code === 0) {
+                        $.modal.msgSuccess(result.msg);
+                        $.table.refresh();
+                    } else {
+                        $.modal.alertError(result.msg);
+                    }
+                },
+                error: function() {
+                    $.modal.closeLoading();
+                    $.modal.alertError("重新计算科研分失败，请稍后重试");
+                }
+            });
+        });
+    }
+
+    /**
+     * 预览科研分计算结果
+     * @param {number} id - 课题ID
+     */
+    function previewScore(id) {
+        $.modal.loading("正在获取科研分预览...");
+        
+        $.ajax({
+            url: prefix + "/previewScore/" + id,
+            type: "GET",
+            success: function(result) {
+                $.modal.closeLoading();
+                if (result.code === 0) {
+                    var data = result.data;
+                    var content = "<div style='padding: 15px;'>";
+                    content += "<p><strong>课题名称：</strong>" + (data.topName || '-') + "</p>";
+                    content += "<p><strong>项目金额：</strong>" + (data.amount || '-') + " 万元</p>";
+                    content += "<p><strong>到账金额：</strong>" + (data.creditedAmount || '-') + " 万元</p>";
+                    
+                    if (data.error) {
+                        content += "<p style='color: red;'><strong>错误：</strong>" + data.error + "</p>";
+                    } else if (data.memberScores) {
+                        content += "<hr>";
+                        content += "<h5>科研分分配预览：</h5>";
+                        content += "<table class='table table-bordered'>";
+                        content += "<tr><th>排名</th><th>用户ID</th><th>预计得分</th></tr>";
+                        data.memberScores.forEach(function(item) {
+                            content += "<tr><td>" + item.ranking + "</td><td>" + item.userId + "</td><td>" + item.score + "</td></tr>";
+                        });
+                        content += "</table>";
+                        content += "<p><strong>总分：</strong>" + data.totalScore + "</p>";
+                    }
+                    content += "</div>";
+                    
+                    $.modal.alert(content, "科研分预览");
+                } else {
+                    $.modal.alertError(result.msg);
+                }
+            },
+            error: function() {
+                $.modal.closeLoading();
+                $.modal.alertError("获取科研分预览失败");
+            }
+        });
     }
 </script>
 </body>

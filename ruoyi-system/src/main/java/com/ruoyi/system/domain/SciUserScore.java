@@ -19,6 +19,8 @@ public class SciUserScore extends BaseEntity
     private String changeStatus;
     /**积分*/
     private String changeValue;
+    /**预期科研分*/
+    private String expectedValue;
 
     public String getVerticalId() {
         return VerticalId;
@@ -84,6 +86,14 @@ public class SciUserScore extends BaseEntity
         this.changeValue = changeValue;
     }
 
+    public String getExpectedValue() {
+        return expectedValue;
+    }
+
+    public void setExpectedValue(String expectedValue) {
+        this.expectedValue = expectedValue;
+    }
+
     @Override
     public String toString() {
         return "SciUserScore{" +
@@ -92,6 +102,7 @@ public class SciUserScore extends BaseEntity
                 ", scoreType='" + scoreType + '\'' +
                 ", changeStatus='" + changeStatus + '\'' +
                 ", changeValue='" + changeValue + '\'' +
+                ", expectedValue='" + expectedValue + '\'' +
                 '}';
     }
 }

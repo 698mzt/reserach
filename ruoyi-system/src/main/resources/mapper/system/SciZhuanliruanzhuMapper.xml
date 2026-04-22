@@ -23,6 +23,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="hangyelianhe"    column="hangyelianhe"    />
         <result property="fenlei"    column="fenlei"    />
         <result property="jifen"    column="jifen"    />
+        <result property="expectedJifen" column="expected_jifen" />
+        <result property="finalJifen" column="final_jifen" />
         <result property="wenjian"    column="wenjian"    />
         <result property="createtime" column="createtime" /> <!-- 确保映射正确 -->
         <result property="year" column="year" /> <!-- 确保映射正确 -->
@@ -33,13 +35,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="thirdPersonId" column="third_person_id"/>
         <result property="fourthPersonId" column="fourth_person_id"/>
         <result property="members" column="members"/>
-
+        <result property="kyjcPassTime" column="kyjc_pass_time" />
 
 
     </resultMap>
 
     <sql id="selectSciZhuanliruanzhuVo">
-        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.mingcheng, s.shoquanhao, s.huopishijain, s.shifouyingyon, s.hangyelianhe, s.fenlei, s.state,s.jifen,s.paiming,s.wenjian,s.createtime,s.first_person_id,s.second_person_id,s.third_person_id,s.fourth_person_id,s.members
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.mingcheng, s.shoquanhao, s.huopishijain, s.shifouyingyon, s.hangyelianhe, s.fenlei, s.state,s.jifen,s.expected_jifen,s.final_jifen,s.paiming,s.wenjian,s.createtime,s.first_person_id,s.second_person_id,s.third_person_id,s.fourth_person_id,s.members, s.kyjc_pass_time
         from sci_zhuanliruanzhu s left join sys_user u on  s.user_id=u.user_id
                                   left join sys_dept d on u.dept_id = d.dept_id
                                   left join sys_dept p on d.parent_id =p.dept_id
@@ -48,7 +50,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 <!--    导出语句-->
     <select id="selectSciZhuanliruanzhuList" parameterType="SciZhuanliruanzhu" resultMap="SciZhuanliruanzhuResult">
         <include refid="selectSciZhuanliruanzhuVo"/>
-        where ((state in (1,2,3,4,5,6,7)) or (state = 0 and s.user_id = #{uid}))
+        where 1=1
         <if test="jiaoyanshi != null  and jiaoyanshi != ''">and  d.dept_name like concat('%', #{jiaoyanshi}, '%')</if>
         <if test="xingming != null  and xingming != ''">and  u.user_name like concat('%', #{xingming}, '%')</if>
         <if test="xueyuan != null  and xueyuan != ''"> and p.dept_name like concat('%', #{xueyuan}, '%')</if>
@@ -93,7 +95,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 <!--    教师查询语句-->
     <select id="selectSciZhuanliruanzhuList1" parameterType="SciZhuanliruanzhu" resultMap="SciZhuanliruanzhuResult">
         <include refid="selectSciZhuanliruanzhuVo"/>
-        where (state in (0,1,2,3,4,5,6,7) and s.user_id = #{uid})
+        where state in (0,1,2,3,4,5,6,7) and s.user_id = #{uid}
         <if test="userId != null  and userId != ''">and s.user_id = #{uid}</if>
         <if test="mingcheng != null  and mingcheng != ''"> and mingcheng like concat('%', #{mingcheng}, '%')</if>
             <if test="huopishijain != null "> and huopishijain = #{huopishijain}</if>
@@ -114,11 +116,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         createtime desc
     </select>
 
-
 <!--    教研室查询语句-->
     <select id="selectSciZhuanliruanzhuList2" parameterType="SciZhuanliruanzhu" resultMap="SciZhuanliruanzhuResult">
         <include refid="selectSciZhuanliruanzhuVo"/>
-        where (s.user_id = #{uid} or (state in (1,2) and d.dept_id = #{deptId}))
+        where (s.user_id = #{uid} or d.dept_id = #{deptId})
         <if test="xingming != null  and xingming != ''">and u.user_name like concat('%', #{xingming}, '%')</if>
         <if test="mingcheng != null  and mingcheng != ''"> and mingcheng like concat('%', #{mingcheng}, '%')</if>
         <if test="huopishijain != null "> and huopishijain = #{huopishijain}</if>
@@ -141,7 +142,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 <!--    学院查询语句-->
     <select id="selectSciZhuanliruanzhuList3" parameterType="SciZhuanliruanzhu" resultMap="SciZhuanliruanzhuResult">
         <include refid="selectSciZhuanliruanzhuVo"/>
-        where  (s.user_id = #{uid} or (state in (2,4) and d.parent_id = #{parentId}))
+        where  (s.user_id = #{uid} or d.parent_id = #{parentId})
         <if test="jiaoyanshi != null  and jiaoyanshi != ''">and  d.dept_name like concat('%', #{jiaoyanshi}, '%')</if>
         <if test="xingming != null  and xingming != ''">and  u.user_name like concat('%', #{xingming}, '%')</if>
         <if test="mingcheng != null  and mingcheng != ''"> and mingcheng like concat('%', #{mingcheng}, '%')</if>
@@ -151,11 +152,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         ${params.dataScope}
         order by
         case
---         待学院审核
-        when state = 2 then 1
---         学院通过
-        when state in (4) then 2
-
+--         待科研处审核
+        when state = 4 then 1
+--         待教研室处理
+        when state = 1 then 2
+--           草稿
         when state  = 0 then 3
         end,
         createtime desc
@@ -165,7 +166,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="selectSciZhuanliruanzhuList4" parameterType="SciZhuanliruanzhu" resultMap="SciZhuanliruanzhuResult">
         <include refid="selectSciZhuanliruanzhuVo"/>
-        where  s.user_id = #{uid} or state in (4,6)
+        where  1=1
         <if test="jiaoyanshi != null  and jiaoyanshi != ''">and  d.dept_name like concat('%', #{jiaoyanshi}, '%')</if>
         <if test="xingming != null  and xingming != ''">and  u.user_name like concat('%', #{xingming}, '%')</if>
         <if test="xueyuan != null  and xueyuan != ''"> and p.dept_name like concat('%', #{xueyuan}, '%')</if>
@@ -205,8 +206,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="fenlei != null and fenlei != ''">fenlei,</if>
             <if test="paiming != null and paiming != ''">paiming,</if>
             <if test="jifen != null and jifen != ''">jifen,</if>
+            <if test="expectedJifen != null and expectedJifen != ''">expected_jifen,</if>
+            <if test="finalJifen != null and finalJifen != ''">final_jifen,</if>
             <if test="wenjian != null and wenjian != ''">wenjian,</if>
             <if test="state != null and state != ''">state,</if>
+            <if test="kyjcPassTime != null">kyjc_pass_time,</if>
 
             <if test="firstPersonId != null and firstPersonId != ''">first_person_id,</if>
             <if test="secondPersonId != null and secondPersonId != ''">second_person_id,</if>
@@ -226,8 +230,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="fenlei != null and fenlei != ''">#{fenlei},</if>
             <if test="paiming != null and paiming != ''">#{paiming},</if>
             <if test="jifen != null and jifen != ''">#{jifen},</if>
+            <if test="expectedJifen != null and expectedJifen != ''">#{expectedJifen},</if>
+            <if test="finalJifen != null and finalJifen != ''">#{finalJifen},</if>
             <if test="wenjian != null and wenjian != ''">#{wenjian},</if>
             <if test="state != null and state != ''">#{state},</if>
+            <if test="kyjcPassTime != null">#{kyjcPassTime},</if>
 
             <if test="firstPersonId != null and firstPersonId != ''">#{firstPersonId},</if>
             <if test="secondPersonId != null and secondPersonId != ''">#{secondPersonId},</if>
@@ -255,13 +262,16 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="paiming != null and paiming != ''">paiming = #{paiming},</if>
             <if test="wenjian != null and wenjian != ''">wenjian = #{wenjian},</if>
             <if test="jifen != null and jifen != ''">jifen = #{jifen},</if>
+            <if test="expectedJifen != null and expectedJifen != ''">expected_jifen = #{expectedJifen},</if>
+            <if test="finalJifen != null and finalJifen != ''">final_jifen = #{finalJifen},</if>
+            <if test="kyjcPassTime != null">kyjc_pass_time = #{kyjcPassTime},</if>
 
             <if test="firstPersonId != null and firstPersonId != ''">first_person_id = #{firstPersonId},</if>
             <if test="secondPersonId != null and secondPersonId != ''">second_person_id = #{secondPersonId},</if>
             <if test="thirdPersonId != null and thirdPersonId != ''">third_person_id = #{thirdPersonId},</if>
             <if test="fourthPersonId != null and fourthPersonId != ''">fourth_person_id = #{fourthPersonId},</if>
             <if test="members != null and members != ''">members = #{members},</if>
-            state = "0"
+
 
         </trim>
         where id = #{id}
@@ -283,12 +293,29 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         update sci_zhuanliruanzhu set state = #{state} where id = #{id}
     </update>
 
-
-
+<!--添加统计年度内用户软著数量-->
+    <select id="countSoftWorksByYear" resultType="int">
+        SELECT COUNT(*) FROM sci_zhuanliruanzhu
+        WHERE user_id = #{userId}
+            AND YEAR(kyjc_pass_time) = #{year}
+          AND state = '6' -- 科研处通过
+    </select>
 
     <update id="updateJifen">
         UPDATE sci_zhuanliruanzhu
         SET jifen = #{jifen}
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateFinalJifen">
+        UPDATE sci_zhuanliruanzhu
+        SET final_jifen = #{finalJifen}
+        WHERE id = #{id}
+    </update>
+    <!--科研处通过时写入认定时间-->
+    <update id="updateKyjcPassTime">
+        UPDATE sci_zhuanliruanzhu
+        SET kyjc_pass_time = #{kyjcPassTime}
         WHERE id = #{id}
     </update>
 
