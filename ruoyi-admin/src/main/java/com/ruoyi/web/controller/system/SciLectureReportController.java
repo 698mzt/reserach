@@ -88,10 +88,60 @@ public class SciLectureReportController extends BaseController
         sciLectureReport.setUid(getUserId());
         sciLectureReport.setYear(year);
         
+        // 获取用户角色
+        List<SysRole> roles = getSysUser().getRoles();
+        String role = "";
+        for (SysRole r : roles) {
+            if ("sci_tesearch".equals(r.getRoleKey())) {
+                role = "sci_tesearch";
+                break;
+            } else if ("research".equals(r.getRoleKey())) {
+                role = "research";
+                break;
+            } else if (TEACHER_ROLES.contains(r.getRoleKey())) {
+                role = "dept_teacher";
+                break;
+            }
+        }
+        
+        // 设置角色和表格ID
+        sciLectureReport.setRole(role);
+        sciLectureReport.setTab(tableId);
+        
+        // 基于角色的查询字段白名单校验
+        validateQueryFieldsByRole(sciLectureReport, role);
+        
         // 统一使用一个查询方法，通过@DataScope控制数据权限
         startPage();
         List<SciLectureReport> list = sciLectureReportService.selectSciLectureReportListAll(sciLectureReport);
         return getDataTable(list);
+    }
+    
+    /**
+     * 基于角色的查询字段白名单校验
+     * 教师角色：仅允许通过"课题名称"检索
+     * 教研室角色：允许通过"主持人（论文对应第一作者）"+"课题名称"检索
+     * 学院角色：允许通过"专业"+"主持人（论文对应第一作者）"+"课题名称"检索
+     * 科研处角色：允许通过"学院"+"专业"+"主持人（论文对应第一作者）"+"课题名称"全维度检索
+     * 
+     * @param sciLectureReport 查询条件对象
+     * @param role 用户角色
+     */
+    private void validateQueryFieldsByRole(SciLectureReport sciLectureReport, String role) {
+        if ("teacher".equals(role)) {
+            // 教师：只保留课题名称，清空其他字段
+            sciLectureReport.setTeacherName(null);
+            sciLectureReport.setKeyanshi(null);
+            sciLectureReport.setXueyuan(null);
+        } else if ("research".equals(role)) {
+            // 教研室：只保留主持人 + 课题名称，清空其他字段
+            sciLectureReport.setKeyanshi(null);
+            sciLectureReport.setXueyuan(null);
+        } else if ("dept_teacher".equals(role)) {
+            // 学院：保留专业 + 主持人 + 课题名称，清空学院字段
+            sciLectureReport.setXueyuan(null);
+        }
+        // 科研处角色 (sci_tesearch) 可以使用所有字段，无需清空
     }
 
     /**
@@ -222,7 +272,7 @@ public class SciLectureReportController extends BaseController
     @ResponseBody
     public AjaxResult editSave(SciLectureReport sciLectureReport)
     {
-        sciLectureReport.setState("0");
+        sciLectureReport.setState("LECTURE_DRAFT");
         return toAjax(sciLectureReportService.updateSciLectureReport(sciLectureReport));
     }
 
@@ -242,6 +292,7 @@ public class SciLectureReportController extends BaseController
      * 讲座报告 （批阅  核查  查看 ）操作根据id查询对应的数据
      * detail ===> 详细页面
      */
+    @RequiresPermissions("system:report:info")
     @GetMapping("/detail/{id}/{urlFlag}")
     public String detail(@PathVariable("id") Integer id, @PathVariable("urlFlag") String urlFlag, ModelMap mmap)
     {
@@ -284,7 +335,7 @@ public class SciLectureReportController extends BaseController
      *讲座报告批阅意见表查询
      * opinion  ===> 意见
      */
-    @RequiresPermissions("system:report:edit")
+    @RequiresPermissions("system:report:info")
     @PostMapping("/opinion/{rid}")
     @ResponseBody
     public TableDataInfo opinion(@PathVariable("rid")Integer rid)
