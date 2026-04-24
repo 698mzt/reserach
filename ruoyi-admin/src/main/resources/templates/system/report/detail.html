@@ -16,7 +16,7 @@
 </head>
 <body class="white-bg">
     <div class="wrapper wrapper-content animated fadeInRight ibox-content">
-        <form class="form-horizontal m" id="form-report-edit" th:object="${sciLectureReport}">
+        <form class="form-horizontal m" id="form-report-edit" th:object="${sciLectureReport}" th:attr="onsubmit='return false;'">
             <!--批阅或核查的标识-->
             <input name="urlFlag" id="urlFlag" th:field="*{urlFlag}" type="hidden">
             <!--状态-->
@@ -199,31 +199,36 @@
 
                 var a =$("#state").val();
                 var b =$("#urlFlag").val();
+                console.log("当前urlFlag为："+b);
                 if (b == 'JZBG'){
                     console.log("当前状态为："+a)
                     $(".tdiv2").show();
                     $("#btn3").show();
 
+                }else if (b == "info") {
+                    // 查看模式：只显示查看内容，不显示批阅记录和按钮
+                    if(name.rows.length > 0){
+                        $(".tdiv2").show();
+                    }
+                    $("#btn3").show();
                 }else{
-                    // 当状态是“2待科研室处理”、“1待处理”、“6待学院处理”时，显示批阅记录和退回记录以及功能按钮
-                    if(a == 2 || a == 1 || a == 6 || a == 0){
+                    // 当状态是"LECTURE_JYS_AUDIT"、"LECTURE_KYC_AUDIT"、"LECTURE_DRAFT"时，显示批阅记录和退回记录以及功能按钮
+                    if(a == 'LECTURE_JYS_AUDIT' || a == 'LECTURE_KYC_AUDIT' || a == 'LECTURE_DRAFT'){
                         if(name.rows.length > 0){
                             $(".tdiv2").show();
                         }
-                        if (b != "info"){
-                            $(".tdiv1").show();
-                            $("#btn2").show();
-                        }
-                        if (b != "tuihui" && b != "xytuihui" && b != "info"){
+                        $(".tdiv1").show();
+                        $("#btn2").show();
+                        if (b != "tuihui" && b != "xytuihui"){
                             $("#btn1").show();
                         }
                     }
-                    // 当状态是“4已完成”、“3教研室驳回”、“5科研室驳回”、“7学院驳回”时，显示退回记录
-                    if(a == 4 || a == 3 || a == 5 || a == 7){
+                    // 当状态是"LECTURE_PASSED"、"LECTURE_REJECTED"时，显示退回记录
+                    if(a == 'LECTURE_PASSED' || a == 'LECTURE_REJECTED'){
                         if(name.rows.length > 0){
                             $(".tdiv2").show();
                         }
-                        if (a == 4 && b == "zgqxtuihui"){
+                        if (a == 'LECTURE_PASSED' && b == "zgqxtuihui"){
                             $(".tdiv1").show();
                             $("#btn2").show();
                         }
@@ -237,8 +242,7 @@
 
         $(document).ready(function() {
             var state = $("#state").val();
-            var stateNum = parseInt(state);
-            if ((stateNum === 6) || (stateNum === 2) || (stateNum === 4)) {
+            if (state === 'LECTURE_KYC_AUDIT' || state === 'LECTURE_PASSED') {
                 $("#rejectBtnText").text("撤 回");
             } else {
                 $("#rejectBtnText").text("驳 回");
