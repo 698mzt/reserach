@@ -1,0 +1,211 @@
+﻿<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('撤回成果转化')"/>
+</head>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <form class="form-horizontal m" id="form-apply-recall" th:object="${sciIntraSchoolPro}">
+        <input name="id" id="ktid" th:field="*{id}" type="hidden">
+        <input name="state" id="state" th:field="*{state}" type="hidden">
+        <input name="urlFlag" id="urlFlag" th:field="*{urlFlag}" type="hidden">
+        <input th:field="*{filing}" hidden id="filing" type="text">
+        <input th:field="*{contract}" hidden id="contract" type="text">
+
+        <h4 class="form-header h4">基本信息</h4>
+        <div class="row">
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">主持人：</label>
+                    <div class="col-sm-8">
+                        <input readonly th:field="*{userName}" class="form-control" type="text">
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">课题名称：</label>
+                    <div class="col-sm-8">
+                        <input readonly th:field="*{topName}" class="form-control" type="text">
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">课题类型：</label>
+                    <div class="col-sm-8">
+                        <select disabled class="form-control" th:with="type=${@dict.getType('sci_top_type')}">
+                            <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}" th:field="*{topType}"></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">项目金额：</label>
+                    <div class="col-sm-8">
+                        <input readonly th:field="*{amount}" class="form-control" type="text">
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">甲方：</label>
+                    <div class="col-sm-8">
+                        <input readonly th:field="*{pa}" class="form-control" type="text">
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">乙方：</label>
+                    <div class="col-sm-8">
+                        <input readonly th:field="*{pb}" class="form-control" type="text">
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">签订日期：</label>
+                    <div class="col-sm-8">
+                        <input readonly th:field="*{signingData}" class="form-control" type="text">
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">合同有效日期：</label>
+                    <div class="col-sm-8">
+                        <input readonly th:field="*{validityDate}" class="form-control" type="text">
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">合同：</label>
+                    <div class="col-sm-8">
+                        <button type="button" onclick="previewFile('filing')" class="btn btn-sm btn-primary">预览</button>
+                        <button type="button" onclick="downloadFile('filing')" class="btn btn-sm btn-primary">下载</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">备案表：</label>
+                    <div class="col-sm-8">
+                        <button type="button" onclick="previewFile('contract')" class="btn btn-sm btn-primary">预览</button>
+                        <button type="button" onclick="downloadFile('contract')" class="btn btn-sm btn-primary">下载</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h4 class="form-header h4">批阅记录</h4>
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <table id="bootstrap-table"></table>
+                </div>
+            </div>
+        </div>
+
+        <h4 class="form-header h4">撤回信息</h4>
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="form-group">
+                    <label class="col-sm-2 control-label is-required">撤回原因：</label>
+                    <div class="col-sm-10">
+                        <textarea name="remark" id="remark" maxlength="500" class="form-control" rows="4" required></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="row">
+    <div class="col-sm-offset-5 col-sm-10">
+        <button type="button" id="btn1" class="btn btn-sm btn-danger" onclick="submitHandler()">撤 回</button>&nbsp;
+        <button type="button" id="btn3" class="btn btn-sm btn-warning" onclick="closeItem()">关 闭</button>
+    </div>
+</div>
+<th:block th:include="include :: footer"/>
+<script th:inline="javascript">
+    var prefix = ctx + "IntraSchPro";
+
+    $(function () {
+        var kid = $("#ktid").val();
+        var options = {
+            url: prefix + "/bhyy/" + kid,
+            showSearch: false,
+            showRefresh: false,
+            showToggle: false,
+            showColumns: false,
+            pagination: false,
+            sortName: 'createTime',
+            sortOrder: 'desc',
+            columns: [{
+                field: 'createTime',
+                title: '批阅时间',
+                width: 200,
+                sortable: true
+            }, {
+                field: 'uname',
+                title: '批阅人',
+                width: 100
+            }, {
+                field: 'concate',
+                title: '内容',
+                width: 500
+            }, {
+                field: 'state',
+                title: '审核状态',
+                width: 100
+            }]
+        };
+        $.table.init(options);
+    });
+
+    $("#form-apply-recall").validate({
+        focusCleanup: true
+    });
+
+    function submitHandler() {
+        if ($.validate.form()) {
+            $.operate.saveTab(prefix + "/recallsave", $('#form-apply-recall').serialize());
+        }
+    }
+
+    function previewFile(type) {
+        var relativePath = $("#" + type).val();
+        if (!relativePath) {
+            alert("没有可预览的文件！");
+            return;
+        }
+        var contextPath = '/' + window.location.pathname.split('/')[1];
+        var previewUrl = relativePath.startsWith('/minio/')
+            ? window.location.origin + contextPath + '/common/preview?fileName=' + encodeURIComponent(relativePath)
+            : window.location.origin + contextPath + relativePath;
+        window.open(previewUrl, '_blank');
+    }
+
+    function downloadFile(type) {
+        var relativePath = $("#" + type).val();
+        if (!relativePath) {
+            alert("没有可下载的文件！");
+            return;
+        }
+        var contextPath = '/' + window.location.pathname.split('/')[1];
+        var downloadUrl = relativePath.startsWith('/minio/')
+            ? window.location.origin + contextPath + '/common/download?fileName=' + encodeURIComponent(relativePath)
+            : window.location.origin + contextPath + relativePath;
+        var a = document.createElement("a");
+        a.href = downloadUrl;
+        a.download = "";
+        a.style.display = "none";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }
+</script>
+</body>
+</html>

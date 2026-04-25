@@ -26,6 +26,11 @@ import com.ruoyi.common.core.page.TableSupport;
 @RequestMapping("/IntraSchPro")
 public class SciIntraSchoolProController extends BaseController {
   private String prefix = "system/IntraSchPro";
+  private static final String TEC_TRA_DRAFT = "TEC_TRA_DRAFT";
+  private static final String TEC_TRA_JYS_AUDIT = "TEC_TRA_JYS_AUDIT";
+  private static final String TEC_TRA_KYC_AUDIT = "TEC_TRA_KYC_AUDIT";
+  private static final String TEC_TRA_PASSED = "TEC_TRA_PASSED";
+  private static final String TEC_TRA_REJECTED = "TEC_TRA_REJECTED";
   //
   @Autowired
   private ISciIntraSchProApplyService sciIntraSchProApplyService;
@@ -42,6 +47,7 @@ public class SciIntraSchoolProController extends BaseController {
 
   @Autowired
   private SciTecTraScoreCalculator sciTecTraScoreCalculator;
+
 
   //private String role_str="";
   @GetMapping("")
@@ -379,10 +385,10 @@ public class SciIntraSchoolProController extends BaseController {
 //            return prefix + "/edit_Over";
 //        }
 
-    if (Arrays.asList("1", "2", "3", "4", "5", "11", "12", "15").contains(sciIntraSchoolPro.getState())) {
+    if (Arrays.asList("1", "2", "3", "4", "5", "11", "12", "15", TEC_TRA_DRAFT, TEC_TRA_JYS_AUDIT, TEC_TRA_KYC_AUDIT, TEC_TRA_REJECTED).contains(sciIntraSchoolPro.getState())) {
       System.out.println("1");
       return prefix + "/edit";
-    } else if (sciIntraSchoolPro.getState().equals("6")) {
+    } else if (sciIntraSchoolPro.getState().equals("6") || TEC_TRA_PASSED.equals(sciIntraSchoolPro.getState())) {
       System.out.println("2");
       return prefix + "/is_Over";
     } else {
@@ -490,8 +496,8 @@ public class SciIntraSchoolProController extends BaseController {
 
     SciIntraSchoolPro sciIntraSchoolPro = sciIntraSchProApplyService.sel_IntraSchPro_by_id(id);
     String state = sciIntraSchoolPro.getState();
-    if (state.equals("15")) {
-      state = "1";
+    if (state.equals("15") || TEC_TRA_DRAFT.equals(state) || TEC_TRA_REJECTED.equals(state)) {
+      state = TEC_TRA_JYS_AUDIT;
     } else if (sciIntraSchoolPro.getState().equals("16")) {
       state = "7";
     }
@@ -509,7 +515,10 @@ public class SciIntraSchoolProController extends BaseController {
   @PostMapping("/sch_hxBh")
   @ResponseBody
   public AjaxResult hxBh(String id, String remark, String urlFlag) {
-
+    SciIntraSchoolPro apply = sciIntraSchProApplyService.sel_IntraSchPro_by_id(Integer.valueOf(id));
+    if (!canApproveTecTra(apply, urlFlag)) {
+      return AjaxResult.error("当前账号无此审批权限");
+    }
     return toAjax(sciIntraSchProApplyService.sch_hxBh(id, getUserId(), remark, urlFlag));
   }
 
@@ -523,14 +532,32 @@ public class SciIntraSchoolProController extends BaseController {
   @PostMapping("/sch_hxPass")
   @ResponseBody
   public AjaxResult hxPass(String id, String urlFlag) {
-    //如果是科研室通过，就设置积分
-    if (urlFlag.equals("hecha")) {
-      SciIntraSchoolPro sciIntraSchoolPro1 = sciIntraSchProApplyService.sel_IntraSchPro_by_id(Integer.valueOf(id));
-      //key=0 代表开题
-      sciIntraSchProScoreService.set_SchPro_score(sciIntraSchoolPro1, 0);
+    SciIntraSchoolPro apply = sciIntraSchProApplyService.sel_IntraSchPro_by_id(Integer.valueOf(id));
+    if (!canApproveTecTra(apply, urlFlag)) {
+      return AjaxResult.error("当前账号无此审批权限");
     }
     // 通过，修改状态
-    return toAjax(sciIntraSchProApplyService.sch_hxPass(id, getUserId(), urlFlag));
+    int rows = sciIntraSchProApplyService.sch_hxPass(id, getUserId(), urlFlag);
+    SciIntraSchoolPro updated = sciIntraSchProApplyService.sel_IntraSchPro_by_id(Integer.valueOf(id));
+    if (rows > 0 && updated != null && TEC_TRA_PASSED.equals(updated.getState())) {
+      sciIntraSchProScoreService.set_SchPro_score(updated, 1);
+    }
+    return toAjax(rows);
+  }
+
+  private boolean canApproveTecTra(SciIntraSchoolPro apply, String urlFlag) {
+    if (apply == null) {
+      return false;
+    }
+    String roleStr = panRole_str();
+    String state = apply.getState();
+    if ("pro".equals(urlFlag)) {
+      return "research".equals(roleStr) && ("1".equals(state) || TEC_TRA_JYS_AUDIT.equals(state));
+    }
+    if ("hecha".equals(urlFlag)) {
+      return "sci_tesearch".equals(roleStr) && ("2".equals(state) || TEC_TRA_KYC_AUDIT.equals(state));
+    }
+    return false;
   }
 
   /**
@@ -590,10 +617,41 @@ public class SciIntraSchoolProController extends BaseController {
 //        sciIntraSchoolPro.setId(id);
     //更改积分
     SciIntraSchoolPro sciIntraSchoolPro1 = sciIntraSchProApplyService.sel_IntraSchPro_by_id(Integer.valueOf(id));
+    if (!canRecallTecTra(sciIntraSchoolPro1)) {
+      return AjaxResult.error("当前账号无此撤回权限");
+    }
     int i = sciIntraSchProScoreService.update_SchPro_score(sciIntraSchoolPro1);
     System.out.println("i = " + i);
     //撤回
     return toAjax(sciIntraSchProApplyService.sch_hxCH(id, getUserId(), remark, urlFlag));
+  }
+
+  @GetMapping("/recall/{id}")
+  public String recall(@PathVariable("id") Integer id, ModelMap mmap) {
+    SciIntraSchoolPro sciIntraSchoolPro = sciIntraSchProApplyService.sel_IntraSchPro_by_id(id);
+    sciIntraSchoolPro.setUrlFlag("hecha");
+    mmap.put("sciIntraSchoolPro", sciIntraSchoolPro);
+    return prefix + "/recall";
+  }
+
+  @PostMapping("/recallsave")
+  @ResponseBody
+  public AjaxResult recallSave(String id, String state, String remark, String urlFlag) {
+    SciIntraSchoolPro sciIntraSchoolPro1 = sciIntraSchProApplyService.sel_IntraSchPro_by_id(Integer.valueOf(id));
+    if (!canRecallTecTra(sciIntraSchoolPro1)) {
+      return AjaxResult.error("当前账号无此撤回权限");
+    }
+    sciIntraSchProScoreService.update_SchPro_score(sciIntraSchoolPro1);
+    return toAjax(sciIntraSchProApplyService.sch_hxCH(id, getUserId(), remark, urlFlag));
+  }
+
+  private boolean canRecallTecTra(SciIntraSchoolPro apply) {
+    if (apply == null) {
+      return false;
+    }
+    String roleStr = panRole_str();
+    return ("sci_tesearch".equals(roleStr) || "admin".equals(roleStr))
+            && ("4".equals(apply.getState()) || "6".equals(apply.getState()) || TEC_TRA_PASSED.equals(apply.getState()));
   }
 
   /**
@@ -733,4 +791,6 @@ public class SciIntraSchoolProController extends BaseController {
 
   }
 
+
 }
+

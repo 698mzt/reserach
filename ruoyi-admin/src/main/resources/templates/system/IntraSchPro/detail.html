@@ -420,12 +420,12 @@
                 if (name.rows.length > 0) {
                     $(".tdiv2").show();
                 }
-                if (a == 2 && currentUrlFlag == "hecha") {
+                if (["2", "TEC_TRA_KYC_AUDIT"].includes(String(a)) && currentUrlFlag == "hecha") {
                     $(".tdiv1").show();
                     $("#btn1").show();
                     $("#btn2").show();
                     $("#btn3").show();
-                } else if (a == 4) {
+                } else if (["4", "TEC_TRA_PASSED"].includes(String(a))) {
                     $("#btn3").show();
                 } else {
                     $("#btn3").show();
@@ -440,12 +440,12 @@
                 if (deptNamekey == "0") {
                     $("#btn3").show();
                 } else {
-                    if (a == 1 && currentUrlFlag == "pro") {
+                    if (["1", "TEC_TRA_JYS_AUDIT"].includes(String(a)) && currentUrlFlag == "pro") {
                         $(".tdiv1").show();
                         $("#btn1").show();
                         $("#btn2").show();
                         $("#btn3").show();
-                    } else if (a == 11) {
+                    } else if (["11", "TEC_TRA_KYC_AUDIT"].includes(String(a))) {
                         $("#btn3").show();
                     } else {
                         $("#btn3").show();
@@ -475,16 +475,7 @@
                 if (name.rows.length > 0) {
                     $(".tdiv2").show();
                 }
-                if (a == 11 && currentUrlFlag == "dept_teacher") {
-                    $(".tdiv1").show();
-                    $("#btn1").show();
-                    $("#btn2").show();
-                    $("#btn3").show();
-                } else if (a == 2) {
-                    $("#btn3").show();
-                } else {
-                    $("#btn3").show();
-                }
+                $("#btn3").show();
             }
             // if(a == 1 ||a == 3||a == 4||a == 5){
             //     //批阅记录

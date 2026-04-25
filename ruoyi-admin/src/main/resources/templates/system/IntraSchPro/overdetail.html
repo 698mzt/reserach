@@ -425,14 +425,14 @@
                 if(name.rows.length > 0){
                     $(".tdiv2").show();
                 }
-                if(a == 7 ||a == 9||a == 10){
+                if(a == 7 || a == 9 || a == 10 || a == "ACH_OVER_JYS_AUDIT" || a == "ACH_OVER_REJECTED_JYS" || a == "ACH_OVER_REJECTED_KYC"){
                     $("#btn3").show();
-                }else if (a==8 && currentUrlFlag == "KYCOVER"){
+                }else if ((a == 8 || a == "ACH_OVER_KYC_AUDIT") && currentUrlFlag == "KYCOVER"){
                     $(".tdiv1").show();
                     $("#btn1").show();
                     $("#btn2").show();
                     $("#btn3").show();
-                }else if (a == 6){
+                }else if (a == 6 || a == "ACH_OVER_PASSED"){
                     $("#btn3").show();
                 }
             }
@@ -441,14 +441,14 @@
                 if(name.rows.length > 0){
                     $(".tdiv2").show();
                 }
-                if(a == 9 ||a == 6||a == 10){
+                if(a == 9 || a == 6 || a == 10 || a == "ACH_OVER_REJECTED_JYS" || a == "ACH_OVER_PASSED" || a == "ACH_OVER_REJECTED_KYC"){
                     $("#btn3").show();
-                }else if (a==7 && currentUrlFlag == "JYSOVER"){
+                }else if ((a == 7 || a == "ACH_OVER_JYS_AUDIT") && currentUrlFlag == "JYSOVER"){
                     $(".tdiv1").show();
                     $("#btn1").show();
                     $("#btn2").show();
                     $("#btn3").show();
-                }else if (a == 13){
+                }else if (a == 13 || a == "ACH_OVER_XY_AUDIT"){
                     $("#btn3").show();
                 }
             }
@@ -464,12 +464,12 @@
                 if(name.rows.length > 0){
                     $(".tdiv2").show();
                 }
-                if (a==13 && currentUrlFlag == "dept_teacher"){
+                if ((a == 13 || a == "ACH_OVER_XY_AUDIT") && currentUrlFlag == "dept_teacher"){
                     $(".tdiv1").show();
                     $("#btn1").show();
                     $("#btn2").show();
                     $("#btn3").show();
-                }else if (a == 8){
+                }else if (a == 8 || a == "ACH_OVER_KYC_AUDIT"){
                     $("#btn3").show();
                 }
             }

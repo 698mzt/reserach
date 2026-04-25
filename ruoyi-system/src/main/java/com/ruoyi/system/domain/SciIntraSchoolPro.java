@@ -6,6 +6,64 @@ import com.ruoyi.common.core.domain.BaseEntity;
 public class SciIntraSchoolPro extends BaseEntity {
     private static final long serialVersionUID = 1L;
 
+    public static final String ACH_APPLY_DRAFT = "15";
+    public static final String ACH_APPLY_JYS_AUDIT = "1";
+    public static final String ACH_APPLY_XY_AUDIT = "11";
+    public static final String ACH_APPLY_KYC_AUDIT = "2";
+    public static final String ACH_APPLY_PASSED = "4";
+    public static final String ACH_APPLY_REJECTED_JYS = "3";
+    public static final String ACH_APPLY_REJECTED_XY = "12";
+    public static final String ACH_APPLY_REJECTED_KYC = "5";
+
+    public static final String ACH_OVER_DRAFT = "16";
+    public static final String ACH_OVER_JYS_AUDIT = "7";
+    public static final String ACH_OVER_XY_AUDIT = "13";
+    public static final String ACH_OVER_KYC_AUDIT = "8";
+    public static final String ACH_OVER_PASSED = "6";
+    public static final String ACH_OVER_REJECTED_JYS = "9";
+    public static final String ACH_OVER_REJECTED_XY = "14";
+    public static final String ACH_OVER_REJECTED_KYC = "10";
+
+    public static boolean isApplyDraft(String state) {
+        return ACH_APPLY_DRAFT.equals(state);
+    }
+
+    public static boolean isApplyAudit(String state) {
+        return ACH_APPLY_JYS_AUDIT.equals(state)
+                || ACH_APPLY_XY_AUDIT.equals(state)
+                || ACH_APPLY_KYC_AUDIT.equals(state);
+    }
+
+    public static boolean isApplyRejected(String state) {
+        return ACH_APPLY_REJECTED_JYS.equals(state)
+                || ACH_APPLY_REJECTED_XY.equals(state)
+                || ACH_APPLY_REJECTED_KYC.equals(state);
+    }
+
+    public static boolean isApplyPassed(String state) {
+        return ACH_APPLY_PASSED.equals(state);
+    }
+
+    public static boolean isOverDraft(String state) {
+        return ACH_OVER_DRAFT.equals(state);
+    }
+
+    public static boolean isOverAudit(String state) {
+        return ACH_OVER_JYS_AUDIT.equals(state)
+                || ACH_OVER_XY_AUDIT.equals(state)
+                || ACH_OVER_KYC_AUDIT.equals(state);
+    }
+
+    public static boolean isOverRejected(String state) {
+        return ACH_OVER_REJECTED_JYS.equals(state)
+                || ACH_OVER_REJECTED_XY.equals(state)
+                || ACH_OVER_REJECTED_KYC.equals(state);
+    }
+
+    public static boolean isOverPassed(String state) {
+        return ACH_OVER_PASSED.equals(state);
+    }
+
     private Long uid;
 
     private Integer appid;

@@ -1,26 +1,36 @@
 package com.ruoyi.system.service.impl;
 
 import com.ruoyi.common.annotation.DataScope;
+import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.common.utils.DataScopeUtils;
 import com.ruoyi.common.core.text.Convert;
-import com.ruoyi.system.domain.SciHorizontalApply;
-import com.ruoyi.system.domain.SciHorizontalPiyue;
 import com.ruoyi.system.domain.SciIntraSchProPiyue;
 import com.ruoyi.system.domain.SciIntraSchoolPro;
-import com.ruoyi.system.mapper.SciHorizontalPiyueMapper;
+import com.ruoyi.system.domain.SysApprovalHistory;
 import com.ruoyi.system.mapper.SciIntraSchProApplyMapper;
 import com.ruoyi.system.mapper.SciIntraSchProPiyueMapper;
 import com.ruoyi.system.mapper.SciIntraSchProScoreMapper;
+import com.ruoyi.system.service.IApprovalProcessService;
 import com.ruoyi.system.service.ISciIntraSchProApplyService;
+import com.ruoyi.system.service.ISysApprovalHistoryService;
+import com.ruoyi.system.service.ISysUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 @Service
 public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyService {
+
+    private static final String TEC_TRA_PROCESS_CODE = "INTRASCHPRO_APPLY";
+    private static final String TEC_TRA_DRAFT = "TEC_TRA_DRAFT";
+    private static final String TEC_TRA_JYS_AUDIT = "TEC_TRA_JYS_AUDIT";
+    private static final String TEC_TRA_KYC_AUDIT = "TEC_TRA_KYC_AUDIT";
+    private static final String TEC_TRA_PASSED = "TEC_TRA_PASSED";
+    private static final String TEC_TRA_REJECTED = "TEC_TRA_REJECTED";
 
     @Autowired
     private SciIntraSchProApplyMapper sciIntraSchProApplyMapper;
@@ -30,6 +40,12 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
     SciIntraSchProApplyServiceImpl sciIntraSchProApplyService;
     @Autowired
     SciIntraSchProScoreMapper sciIntraSchProScoreService;
+    @Autowired
+    private IApprovalProcessService approvalProcessService;
+    @Autowired
+    private ISysUserService sysUserService;
+    @Autowired
+    private ISysApprovalHistoryService sysApprovalHistoryService;
     @Override
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciIntraSchoolPro> sel_IntraSchPro_isOVER(SciIntraSchoolPro sciIntraSchoolPro) {
@@ -102,6 +118,48 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
      */
     @Override
     public int sch_hxPass(String id,Long uid,String urlFlag) {
+        SciIntraSchoolPro apply = sciIntraSchProApplyMapper.sel_IntraSchPro_by_id(Integer.valueOf(id));
+        if (apply == null) {
+            return 0;
+        }
+
+        String currentState = normalizeTecTraState(apply.getState());
+        if (isTecTraState(apply.getState())) {
+            String newState = null;
+            String approveText = null;
+            if ("pro".equals(urlFlag) && TEC_TRA_JYS_AUDIT.equals(currentState)) {
+                newState = TEC_TRA_KYC_AUDIT;
+                approveText = "成果转化-教研室审批通过";
+            } else if ("hecha".equals(urlFlag) && TEC_TRA_KYC_AUDIT.equals(currentState)) {
+                newState = TEC_TRA_PASSED;
+                approveText = "成果转化-科研处审批通过";
+            }
+            if (newState == null) {
+                return 0;
+            }
+            int rows = sciIntraSchProApplyMapper.sch_hxPass(id, newState);
+            insertTecTraPiyue(id, uid, approveText, "通过");
+            insertTecTraApprovalHistory(id, uid, currentState, newState, "approve", "通过");
+            return rows;
+        }
+
+        SysUser user = sysUserService.selectUserById(uid);
+        Map<String, Object> result = approvalProcessService.approve(
+                TEC_TRA_PROCESS_CODE,
+                Long.valueOf(id),
+                currentState,
+                "通过",
+                uid,
+                user != null ? user.getUserName() : "",
+                user != null && user.getDept() != null ? user.getDept().getDeptName() : ""
+        );
+        if (Boolean.TRUE.equals(result.get("success"))) {
+            String newState = (String) result.get("newState");
+            int rows = sciIntraSchProApplyMapper.sch_hxPass(id, newState);
+            insertTecTraPiyue(id, uid, getApproveText(newState), "通过");
+            return rows;
+        }
+
         String state = "0";
         SciIntraSchProPiyue sciIntraSchProPiyue = new SciIntraSchProPiyue();
         if(urlFlag.equals("hecha")){
@@ -183,6 +241,41 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
      */
     @Override
     public int sch_hxBh(String id,Long uid, String remark,String urlFlag) {
+        SciIntraSchoolPro apply = sciIntraSchProApplyMapper.sel_IntraSchPro_by_id(Integer.valueOf(id));
+        if (apply == null) {
+            return 0;
+        }
+
+        String currentState = normalizeTecTraState(apply.getState());
+        if (isTecTraState(apply.getState())) {
+            boolean canReject = ("pro".equals(urlFlag) && TEC_TRA_JYS_AUDIT.equals(currentState))
+                    || ("hecha".equals(urlFlag) && TEC_TRA_KYC_AUDIT.equals(currentState));
+            if (!canReject) {
+                return 0;
+            }
+            int rows = sciIntraSchProApplyMapper.sch_hxPass(id, TEC_TRA_REJECTED);
+            insertTecTraPiyue(id, uid, "成果转化-驳回", remark);
+            insertTecTraApprovalHistory(id, uid, currentState, TEC_TRA_REJECTED, "reject", remark);
+            return rows;
+        }
+
+        SysUser user = sysUserService.selectUserById(uid);
+        Map<String, Object> result = approvalProcessService.reject(
+                TEC_TRA_PROCESS_CODE,
+                Long.valueOf(id),
+                currentState,
+                remark,
+                uid,
+                user != null ? user.getUserName() : "",
+                user != null && user.getDept() != null ? user.getDept().getDeptName() : ""
+        );
+        if (Boolean.TRUE.equals(result.get("success"))) {
+            String newState = (String) result.get("newState");
+            int rows = sciIntraSchProApplyMapper.sch_hxPass(id, newState);
+            insertTecTraPiyue(id, uid, "成果转化-驳回", remark);
+            return rows;
+        }
+
         String state = "0";
         SciIntraSchProPiyue sciIntraSchProPiyue = new SciIntraSchProPiyue();
         //科研
@@ -251,22 +344,35 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
      */
     @Override
     public int sch_hxCH(String id, Long userId, String remark, String urlFlag) {
+        SciIntraSchoolPro apply = sciIntraSchProApplyMapper.sel_IntraSchPro_by_id(Integer.valueOf(id));
+        if (apply == null) {
+            return 0;
+        }
+        String currentState = normalizeTecTraState(apply.getState());
         String state = "0";
         SciIntraSchProPiyue sciIntraSchProPiyue = new SciIntraSchProPiyue();
-        if(urlFlag.equals("pro")){
+        if (TEC_TRA_PASSED.equals(currentState)) {
+            sciIntraSchProPiyue.setState("成果转化-科研处撤回");
+            sciIntraSchProPiyue.setConcate("成果转化-科研处撤回");
+            state = TEC_TRA_REJECTED;
+        } else if (TEC_TRA_KYC_AUDIT.equals(currentState)) {
+            sciIntraSchProPiyue.setState("成果转化-教研室撤回");
+            sciIntraSchProPiyue.setConcate("成果转化-教研室撤回");
+            state = TEC_TRA_REJECTED;
+        } else if(urlFlag.equals("pro")){
             sciIntraSchProPiyue.setState("开题：教研驳回（撤回）");
             sciIntraSchProPiyue.setConcate("开题：教研驳回（撤回）");
-            state ="1";
+            state = TEC_TRA_REJECTED;
 
         }else if(urlFlag.equals("hecha")){
             sciIntraSchProPiyue.setState("开题：科研驳回（撤回）");
             sciIntraSchProPiyue.setConcate("开题：科研驳回（撤回）");
-            state ="2";
+            state = TEC_TRA_REJECTED;
 
         }else if(urlFlag.equals("dept_teacher")){
             sciIntraSchProPiyue.setState("开题：学院驳回（撤回）");
             sciIntraSchProPiyue.setConcate("开题：学院驳回（撤回）");
-            state ="11";
+            state = TEC_TRA_REJECTED;
 
         }
         if ("0".equals(state)) {
@@ -278,6 +384,7 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
         sciIntraSchProPiyue.setSchxktId(Integer.valueOf(id));
         sciIntraSchProPiyue.setConcate(remark);
         sciIntraSchProPiyueMapper.insertIntraSchProPiyue(sciIntraSchProPiyue);
+        insertTecTraApprovalHistory(id, userId, currentState, state, "recall", remark);
 
         return a;
     }
@@ -326,13 +433,16 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
         String NowState = sciIntraSchProApplyMapper.geStaticById(sciIntraSchoolPro.getId());
 
         String id = String.valueOf(sciIntraSchoolPro.getId());
-        if (NowState.equals("3") || NowState.equals("5") ||NowState.equals("12")){
-            sciIntraSchProApplyMapper.sch_hxPass(id,"15");
+        if (NowState.equals("3") || NowState.equals("5") || NowState.equals("12") || TEC_TRA_REJECTED.equals(NowState)){
+            sciIntraSchoolPro.setState(TEC_TRA_DRAFT);
         }else if (NowState.equals("9") || NowState.equals("10") ||NowState.equals("14")){
-
-            sciIntraSchProApplyMapper.sch_hxPass(id,"16");
+            sciIntraSchoolPro.setState("16");
         }
-        return sciIntraSchProApplyMapper.updateIntraSchoolApply(sciIntraSchoolPro);
+        int rows = sciIntraSchProApplyMapper.updateIntraSchoolApply(sciIntraSchoolPro);
+        if (rows > 0 && TEC_TRA_DRAFT.equals(sciIntraSchoolPro.getState())) {
+            insertTecTraApprovalHistory(id, sciIntraSchoolPro.getUserId() != null ? sciIntraSchoolPro.getUserId().longValue() : null, normalizeTecTraState(NowState), TEC_TRA_DRAFT, "edit", "编辑保存");
+        }
+        return rows;
     }
 
     @Override
@@ -418,6 +528,15 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int subDraft(String id, Long userid,String state) {
+        SciIntraSchoolPro apply = sciIntraSchProApplyMapper.sel_IntraSchPro_by_id(Integer.valueOf(id));
+        if (apply != null && isTecTraState(apply.getState())) {
+            String currentState = normalizeTecTraState(apply.getState());
+            sciIntraSchProApplyMapper.sch_hxPass(id, TEC_TRA_JYS_AUDIT);
+            insertTecTraPiyue(id, userid, "成果转化-提交", "提交审批");
+            insertTecTraApprovalHistory(id, userid, currentState, TEC_TRA_JYS_AUDIT, "submit", "提交审批");
+            return 1;
+        }
+
         //1.更改草稿状态
         sciIntraSchProApplyMapper.sch_hxPass(id,state);
         //2.插入操作记录
@@ -446,6 +565,92 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
         DataScopeUtils.applyDataScopeToMap(params, "d", "u", "");
         return sciIntraSchProApplyMapper.getStatsQueryToCheck(params);
     }
+
+    private boolean isTecTraState(String state) {
+        if (state == null) {
+            return false;
+        }
+        return state.startsWith("TEC_TRA_") || "15".equals(state) || "1".equals(state) || "2".equals(state)
+                || "3".equals(state) || "4".equals(state) || "5".equals(state) || "11".equals(state)
+                || "12".equals(state);
+    }
+
+    private String normalizeTecTraState(String state) {
+        if (state == null || state.trim().isEmpty()) {
+            return TEC_TRA_DRAFT;
+        }
+        switch (state) {
+            case "15":
+                return TEC_TRA_DRAFT;
+            case "1":
+            case "11":
+                return TEC_TRA_JYS_AUDIT;
+            case "2":
+                return TEC_TRA_KYC_AUDIT;
+            case "4":
+            case "6":
+                return TEC_TRA_PASSED;
+            case "3":
+            case "5":
+            case "12":
+                return TEC_TRA_REJECTED;
+            default:
+                return state;
+        }
+    }
+
+    private String getApproveText(String newState) {
+        if (TEC_TRA_KYC_AUDIT.equals(newState)) {
+            return "成果转化-教研室审批通过";
+        }
+        if (TEC_TRA_PASSED.equals(newState)) {
+            return "成果转化-科研处审批通过";
+        }
+        return "成果转化-审批通过";
+    }
+
+    private void insertTecTraPiyue(String id, Long uid, String state, String concate) {
+        SciIntraSchProPiyue piyue = new SciIntraSchProPiyue();
+        piyue.setUid(uid);
+        piyue.setSchxktId(Integer.valueOf(id));
+        piyue.setState(state);
+        piyue.setConcate(concate == null || concate.trim().isEmpty() ? state : concate);
+        sciIntraSchProPiyueMapper.insertIntraSchProPiyue(piyue);
+    }
+
+    private void insertTecTraApprovalHistory(String id, Long uid, String oldState, String newState, String action, String comment) {
+        SysUser user = uid != null ? sysUserService.selectUserById(uid) : null;
+        SysApprovalHistory history = new SysApprovalHistory();
+        history.setProcessCode(TEC_TRA_PROCESS_CODE);
+        history.setBusinessId(Long.valueOf(id));
+        history.setNodeName(getTecTraNodeName(oldState, action));
+        history.setAction(action);
+        history.setOperatorId(uid);
+        history.setOperatorName(user != null ? user.getUserName() : "");
+        history.setOperatorDept(user != null && user.getDept() != null ? user.getDept().getDeptName() : "");
+        history.setOldState(oldState);
+        history.setNewState(newState);
+        history.setComment(comment);
+        history.setCreateTime(new Date());
+        sysApprovalHistoryService.insertSysApprovalHistory(history);
+    }
+
+    private String getTecTraNodeName(String state, String action) {
+        if ("submit".equals(action)) {
+            return "提交申请";
+        }
+        if ("edit".equals(action)) {
+            return "编辑保存";
+        }
+        if (TEC_TRA_JYS_AUDIT.equals(state)) {
+            return "教研室审批";
+        }
+        if (TEC_TRA_KYC_AUDIT.equals(state) || TEC_TRA_PASSED.equals(state)) {
+            return "科研处审批";
+        }
+        return "成果转化审批";
+    }
 }
+
 
 

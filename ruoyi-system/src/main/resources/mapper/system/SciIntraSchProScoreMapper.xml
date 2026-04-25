@@ -32,7 +32,6 @@
     <update id="set_SchPro_JT_score" parameterType="SciIntraSchoolScore" >
         update  sci_IntraSchPro_score
         <trim prefix="SET" suffixOverrides=",">
-            <if test="score != null">earnedJT_Points = #{score},</if>
             <if test="totalScore != null">earnedALL_Points = #{totalScore},</if>
         </trim>
         where sciIntraSch_Id = #{id} and userid = #{useridd}
@@ -60,9 +59,9 @@
     <select id="getScoreById" >
         SELECT
             CASE
-                WHEN earned_Points IS NULL THEN 0
-                ELSE earned_Points
-                END AS earned_Points
+                WHEN earnedALL_Points IS NULL THEN 0
+                ELSE earnedALL_Points
+                END AS earnedALL_Points
         FROM
             sci_IntraSchPro_score
         WHERE

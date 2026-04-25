@@ -428,10 +428,10 @@
 
     function getStageKey(state) {
         var normalizedState = normalizeState(state);
-        if (normalizedState === "6") {
+        if (["4", "6", "TEC_TRA_PASSED"].includes(normalizedState)) {
             return "completed";
         }
-        if (["1", "2", "3", "4", "5", "11", "12", "15"].includes(normalizedState)) {
+        if (["1", "2", "3", "4", "5", "11", "12", "15", "TEC_TRA_DRAFT", "TEC_TRA_JYS_AUDIT", "TEC_TRA_KYC_AUDIT", "TEC_TRA_REJECTED"].includes(normalizedState)) {
             return "approval";
         }
         if (["7", "8", "9", "10", "13", "14", "16"].includes(normalizedState)) {
@@ -446,7 +446,7 @@
             return "已完结";
         }
         if (stage === "approval") {
-            return "立项申请";
+            return "成果转化审批";
         }
         if (stage === "closure") {
             return "结项申请";
@@ -496,55 +496,39 @@
     }
 
     function openStagePage(id, state, urlFlag, title) {
-        var stage = getStageKey(state);
-        var detailPrefix = stage === "approval" ? prefix + "/detail/" : prefix + "/overdetail/";
-        $.modal.openTab(title || "查看成果转化", detailPrefix + id + "/" + urlFlag);
+        $.modal.openTab(title || "查看成果转化", prefix + "/detail/" + id + "/" + urlFlag);
     }
 
     function buildApprovalActions(row, actions) {
         var state = normalizeState(row.state);
 
-        if (state === "15") {
+        if (["15", "TEC_TRA_DRAFT"].includes(state)) {
             actions.push('<a class="link-button" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')">编辑</a>');
             actions.push('<a class="link-button" href="javascript:void(0)" onclick="subDraft(\'' + row.id + '\')">提交</a>');
             actions.push('<a class="del-link-button" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')">删除</a>');
         }
 
         if (row.role === "research") {
-            if (isDeptMatched(row) && row.userId != row.uid) {
-                if (state === "1") {
-                    actions.push('<a class="link-button" href="javascript:void(0)" onclick="openStagePage(' + row.id + ', \'' + state + '\', \'pro\', \'详细成果转化\')">批阅</a>');
-                }
-            } else if (row.userId == row.uid) {
-                if (state === "1") {
-                    actions.push('<a class="link-button" href="javascript:void(0)" onclick="openStagePage(' + row.id + ', \'' + state + '\', \'pro\', \'详细成果转化\')">批阅</a>');
-                } else if (state === "4") {
-                    actions.push('<a class="link-button" href="javascript:void(0)" onclick="$.operate.overTab(\'' + row.id + '\')">申请结项</a>');
-                } else if (["3", "12", "5"].includes(state)) {
-                    actions.push('<a class="link-button" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')">编辑</a>');
-                }
+            if (["1", "TEC_TRA_JYS_AUDIT"].includes(state)) {
+                actions.push('<a class="link-button" href="javascript:void(0)" onclick="openStagePage(' + row.id + ', \'' + state + '\', \'pro\', \'详细成果转化\')">批阅</a>');
+            } else if (row.userId == row.uid && ["3", "12", "5", "TEC_TRA_REJECTED"].includes(state)) {
+                actions.push('<a class="link-button" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')">编辑</a>');
             }
         } else if (row.role === "dept_teacher") {
-            if (state === "11" && isDeptMatched(row)) {
+            if (["11", "TEC_TRA_KYC_AUDIT"].includes(state) && false && isDeptMatched(row)) {
                 actions.push('<a class="link-button" href="javascript:void(0)" onclick="openStagePage(' + row.id + ', \'' + state + '\', \'dept_teacher\', \'详细成果转化\')">批阅</a>');
             } else if (row.userId == row.uid && ["9", "10", "14"].includes(state)) {
                 actions.push('<a class="link-button" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')">编辑</a>');
             }
         } else if (row.role === "sci_tesearch") {
-            if (state === "2") {
+            if (["2", "TEC_TRA_KYC_AUDIT"].includes(state)) {
                 actions.push('<a class="link-button" href="javascript:void(0)" onclick="openStagePage(' + row.id + ', \'' + state + '\', \'hecha\', \'详细成果转化\')">批阅</a>');
-            } else if (state === "4") {
-                if (row.userId == row.uid) {
-                    actions.push('<a class="link-button" href="javascript:void(0)" onclick="$.operate.overTab(\'' + row.id + '\')">申请结项</a>');
-                }
-            } else if (row.userId == row.uid && ["3", "12", "5"].includes(state)) {
+            } else if (row.userId == row.uid && ["3", "12", "5", "TEC_TRA_REJECTED"].includes(state)) {
                 actions.push('<a class="link-button" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')">编辑</a>');
             }
         } else if (row.role === "teacher") {
             if (row.userId == row.uid) {
-                if (state === "4") {
-                    actions.push('<a class="link-button" href="javascript:void(0)" onclick="$.operate.overTab(\'' + row.id + '\')">申请结项</a>');
-                } else if (["3", "12", "5"].includes(state)) {
+                if (["3", "12", "5", "TEC_TRA_REJECTED"].includes(state)) {
                     actions.push('<a class="link-button" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')">编辑</a>');
                 }
             }
@@ -608,12 +592,13 @@
     function getOperationButtons(row) {
         var actions = [];
         var stage = getStageKey(row.state);
+        var state = normalizeState(row.state);
 
-        if (stage !== "completed") {
-            actions.push('<a class="link-button" data-toggle="modal" data-target="#myModal" onclick="loadReviewRecords(' + row.id + ', \'' + normalizeState(row.state) + '\')">流程记录</a>');
+        actions.push('<a class="link-button" href="javascript:void(0)" onclick="openStagePage(' + row.id + ', \'' + state + '\', \'chakan\', \'查看成果转化\')">查看</a>');
+        actions.push('<a class="link-button" data-toggle="modal" data-target="#myModal" onclick="loadReviewRecords(' + row.id + ', \'' + state + '\')">流程记录</a>');
+        if (stage === "completed" && ["sci_tesearch", "admin"].includes(row.role)) {
+            actions.push('<a class="del-link-button" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')">撤回</a>');
         }
-
-        actions.push('<a class="link-button" href="javascript:void(0)" onclick="openStagePage(' + row.id + ', \'' + normalizeState(row.state) + '\', \'chakan\', \'查看成果转化\')">查看</a>');
 
         if (stage === "approval") {
             buildApprovalActions(row, actions);
@@ -626,16 +611,16 @@
 
     function rowStyle0(row, index) {
         var state = normalizeState(row.state);
-        if (["6", "4"].includes(state)) {
+        if (["6", "4", "TEC_TRA_PASSED"].includes(state)) {
             return {css: {"color": "#67c23a"}};
         }
-        if (["15", "16"].includes(state)) {
+        if (["15", "16", "TEC_TRA_DRAFT"].includes(state)) {
             return {css: {"color": "#c78045"}};
         }
-        if (["1", "2", "11", "7", "8", "13"].includes(state)) {
+        if (["1", "2", "11", "7", "8", "13", "TEC_TRA_JYS_AUDIT", "TEC_TRA_KYC_AUDIT"].includes(state)) {
             return {css: {"color": "#2c99ff"}};
         }
-        if (["3", "5", "12", "9", "10", "14"].includes(state)) {
+        if (["3", "5", "12", "9", "10", "14", "TEC_TRA_REJECTED"].includes(state)) {
             return {css: {"color": "#c78045"}};
         }
         return {};
@@ -674,10 +659,10 @@
         });
         progressBar.style.width = "0";
 
-        if (["15", "9", "16"].includes(normalizedState)) {
+        if (["15", "9", "16", "TEC_TRA_DRAFT", "TEC_TRA_REJECTED"].includes(normalizedState)) {
             document.getElementById("step-1").classList.add("active");
             document.getElementById("step-1").querySelector(".status-text").classList.add("active");
-        } else if (["6", "4"].includes(normalizedState)) {
+        } else if (["6", "4", "TEC_TRA_PASSED"].includes(normalizedState)) {
             document.getElementById("step-1").classList.add("completed");
             document.getElementById("step-1").querySelector(".status-text").classList.add("completed");
             document.getElementById("step-2").classList.add("completed");
@@ -685,7 +670,7 @@
             document.getElementById("step-3").classList.add("completed");
             document.getElementById("step-3").querySelector(".status-text").classList.add("completed");
             progressBar.style.width = "100%";
-        } else if (["1", "2", "7", "8", "11", "13"].includes(normalizedState)) {
+        } else if (["1", "2", "7", "8", "11", "13", "TEC_TRA_JYS_AUDIT", "TEC_TRA_KYC_AUDIT"].includes(normalizedState)) {
             document.getElementById("step-1").classList.add("completed");
             document.getElementById("step-1").querySelector(".status-text").classList.add("completed");
             document.getElementById("step-2").classList.add("completed");
@@ -841,6 +826,7 @@
                 overUrl: prefix + "/overadd?id={id}",
                 updateUrl: prefix + "/edit/{id}",
                 removeUrl: prefix + "/remove",
+                recallUrl: prefix + "/recall/{id}",
                 exportUrl: prefix + "/export",
                 subDraftUrl: prefix + "/subDraft/",
                 rowStyle: rowStyle0,

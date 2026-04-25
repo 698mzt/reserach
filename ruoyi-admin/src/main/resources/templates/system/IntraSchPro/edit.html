@@ -363,10 +363,15 @@
     });
 
 
+    var contractUrl = $("input[name='contract']").val();
+    var filingUrl = $("input[name='filing']").val();
+
     $(".file-upload1").fileinput({
         //prefix+"/upload",
         uploadUrl: ctx + 'common/upload/cgzh',
         initialPreviewAsData: true,
+        initialPreview: contractUrl ? [contractUrl] : [],
+        initialPreviewConfig: contractUrl ? [{caption: contractUrl.substring(contractUrl.lastIndexOf('/') + 1), key: 1}] : [],
         maxFileCount: 1,
         maxFileSize: 51200,
         autoReplace: true,
@@ -399,6 +404,8 @@
         //prefix+"/upload",
         uploadUrl: ctx + 'common/upload/cgzh',
         initialPreviewAsData: true,
+        initialPreview: filingUrl ? [filingUrl] : [],
+        initialPreviewConfig: filingUrl ? [{caption: filingUrl.substring(filingUrl.lastIndexOf('/') + 1), key: 1}] : [],
         maxFileCount: 1,
         maxFileSize: 51200,
         autoReplace: true,
