@@ -259,6 +259,12 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
     
     /**
      * 保存审批历史记录
+     * @param businessId 业务ID
+     * @param oldState 原状态
+     * @param newState 新状态
+     * @param operatorId 操作人ID
+     * @param action 操作类型
+     * @param comment 审批意见
      */
     private void saveApprovalHistory(Integer businessId, String oldState, String newState, Long operatorId, String action, String comment) {
         try {
@@ -296,6 +302,18 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
                     history.setNodeId(1L);
                     history.setNodeName("提交申请");
                 }
+            } else if (oldState.equals("TEXTBOOK_KYC_AUDIT") && newState.equals("TEXTBOOK_JYS_AUDIT")) {
+                // 科研处撤回
+                history.setNodeId(3L);
+                history.setNodeName("科研处审批");
+            } else if (oldState.equals("TEXTBOOK_PASSED") && newState.equals("TEXTBOOK_KYC_AUDIT")) {
+                // 已通过撤回
+                history.setNodeId(3L);
+                history.setNodeName("科研处审批");
+            } else {
+                // 默认节点信息
+                history.setNodeId(1L);
+                history.setNodeName("提交申请");
             }
             
             history.setAction(action);
@@ -415,6 +433,10 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
     @Override
     @Transactional
     public int recall(Integer id, String state, Long uid, String remark, String urlFlag) {
+        // 获取原始状态
+        SciJiaocairuanzhu originalJiaocairuanzhu = sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuById(id);
+        String oldState = originalJiaocairuanzhu.getState();
+        
         String newState = state;
         SciJiaocairuanzhuPiyue sciJiaocairuanzhuPiyue = new SciJiaocairuanzhuPiyue();
 
@@ -441,6 +463,10 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
         sciJiaocairuanzhuPiyue.setConcate(remark);
 
         sciJiaocairuanzhuPiyueMapper.insertSciJiaocairuanzhuPiyue(sciJiaocairuanzhuPiyue);
+        
+        // 保存审批历史记录
+        saveApprovalHistory(id, oldState, newState, uid, "recall", remark);
+        
         return a;
     }
 

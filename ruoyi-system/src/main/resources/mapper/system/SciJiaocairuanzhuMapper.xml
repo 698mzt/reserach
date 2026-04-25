@@ -30,7 +30,7 @@
         <result property="fuzhubian" column="fuzhubian" />
     </resultMap>
     <sql id="selectSciJiaocairuanzhuVo">
-        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname,p.dept_id parent_id, s.user_id, s.mingcheng, s.isbn, s.chubanshijian, s.chubanshe, s.benxiaoshifoyongshu, s.fenlei, s.state,s.jifen,
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname,p.dept_id parent_id, s.user_id, s.mingcheng, s.isbn, s.chubanshijian, s.chubanshe, s.benxiaoshifoyongshu, s.fenlei, s.state,s.jifen, s.expected_jifen as expectedJifen, s.amount,
         case when #{role} = 'research' or #{role} = 'sci_tesearch' then 
             COALESCE((select ranking from sci_jiaocairuanzhu_member where jiaocai_id = s.id and member_id = s.user_id), s.paiming)
         else 
@@ -276,6 +276,8 @@
             <if test="zhubian != null and zhubian != ''">zhubian,</if>
             <if test="fuzhubian != null and fuzhubian != ''">fuzhubian,</if>
             <if test="jifen != null and jifen != ''">jifen,</if>
+            <if test="expectedJifen != null and expectedJifen != ''">expected_jifen,</if>
+            <if test="amount != null and amount != ''">amount,</if>
             <if test="wenjian != null and wenjian != ''">wenjian,</if>
 
         </trim>
@@ -292,6 +294,8 @@
             <if test="zhubian != null and zhubian != ''">#{zhubian},</if>
             <if test="fuzhubian != null and fuzhubian != ''">#{fuzhubian},</if>
             <if test="jifen != null and jifen != ''">#{jifen},</if>
+            <if test="expectedJifen != null and expectedJifen != ''">#{expectedJifen},</if>
+            <if test="amount != null and amount != ''">#{amount},</if>
             <if test="wenjian != null and wenjian != ''">#{wenjian},</if>
 
         </trim>
@@ -312,6 +316,8 @@
             <if test="zhubian != null and zhubian != ''">zhubian = #{zhubian},</if>
             <if test="fuzhubian != null and fuzhubian != ''">fuzhubian = #{fuzhubian},</if>
             <if test="jifen != null and jifen != ''">jifen = #{jifen},</if>
+            <if test="expectedJifen != null and expectedJifen != ''">expected_jifen = #{expectedJifen},</if>
+            <if test="amount != null and amount != ''">amount = #{amount},</if>
             <if test="wenjian != null and wenjian != ''">wenjian = #{wenjian},</if>
             state = "0"
 

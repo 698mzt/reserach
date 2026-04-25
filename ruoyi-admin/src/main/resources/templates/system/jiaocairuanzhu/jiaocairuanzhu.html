@@ -725,6 +725,13 @@
           }
         },
         {
+          field: 'expectedJifen',
+          title: '预期积分',
+          formatter: function (value, row, index) {
+            return row.expectedJifen || 0;
+          }
+        },
+        {
           field: 'jifen',
           title: '积分',
           formatter: function (value, row, index) {
