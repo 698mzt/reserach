@@ -13,6 +13,7 @@ import com.ruoyi.system.domain.SciLectureReportIntegral;
 import com.ruoyi.system.domain.SciLectureReportOpinion;
 import com.ruoyi.system.mapper.SciLectureReportIntegralMapper;
 import com.ruoyi.system.mapper.SciLectureReportOpinionMapper;
+import com.ruoyi.system.service.IApprovalProcessService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.ruoyi.system.mapper.SciLectureReportMapper;
@@ -37,6 +38,9 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService
     // 讲座报告积分的Mapper接口
     @Autowired
     private SciLectureReportIntegralMapper reportIntegralMapper;
+    // 流程管理服务
+    @Autowired
+    private IApprovalProcessService approvalProcessService;
 
     /**
      * 查询讲座报告
@@ -175,10 +179,34 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService
     // 结项申请保存
     @Override
     public int SciLectureReportOverAdd(SciLectureReport sciLectureReport) {
-        if (sciLectureReport.getState().equals("4")){
-            sciLectureReport.setState("6");
+        try {
+            // 1. 获取当前用户信息
+            SysUser currentUser = ShiroUtils.getSysUser();
+            
+            // 2. 使用流程管理服务提交结项审批
+            java.util.Map<String, Object> result = approvalProcessService.submitApproval(
+                    "LECTURE_APPROVAL", // 讲座报告审批流程编码
+                    sciLectureReport.getId().longValue(), // 业务ID
+                    sciLectureReport.getState(), // 当前状态
+                    "提交结项申请", // 审批意见
+                    currentUser.getUserId(), // 操作人ID
+                    currentUser.getUserName(), // 操作人姓名
+                    currentUser.getDept().getDeptName() // 操作人部门
+            );
+            
+            // 3. 检查提交结果
+            if (result != null && (boolean) result.get("success")) {
+                // 4. 获取新状态
+                String newState = (String) result.get("newState");
+                // 5. 设置新状态
+                sciLectureReport.setState(newState);
+                // 6. 保存结项申请
+                return sciLectureReportMapper.SciLectureReportOverAdd(sciLectureReport);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        return sciLectureReportMapper.SciLectureReportOverAdd(sciLectureReport);
+        return 0;
     }
 
 //    @Override
@@ -208,7 +236,7 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService
         
         // 设置默认状态为草稿
         if (sciLectureReport.getState() == null || sciLectureReport.getState().isEmpty()) {
-            sciLectureReport.setState("0");
+            sciLectureReport.setState("LECTURE_DRAFT");
         }
         
         // 确保userId不为空
@@ -338,25 +366,33 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService
             try {
                 // 4. 转换为Integer类型
                 Integer id = Integer.valueOf(idArray[0].trim());
-                String state = "1"; // 固定状态值
                 // 获取当前的用户信息
                 SysUser currentUser = ShiroUtils.getSysUser();
+                
+                // 5. 获取当前讲座报告的状态
+                SciLectureReport report = sciLectureReportMapper.selectSciLectureReportById(id);
+                if (report == null) {
+                    return 0;
+                }
+                
+                // 6. 直接更新状态为待教研室审核
+                String newState = "LECTURE_JYS_AUDIT";
+                int updateResult = sciLectureReportMapper.criticism(id, newState);
+                
+                // 7. 记录审批意见
                 SciLectureReportOpinion sciLectureReportOpinion = new SciLectureReportOpinion();
-                // 向批阅记录实例中添加用户id
                 sciLectureReportOpinion.setUid(currentUser.getUserId());
-                // 提交的报告的id
                 sciLectureReportOpinion.setBaogaoId(id);
                 sciLectureReportOpinion.setConcate("数据所有者提交");
                 sciLectureReportOpinion.setState("提交");
-                // 将批阅记录插入数据库
                 opinionMapper.opinionadd(sciLectureReportOpinion);
-                // 5. 调用Mapper执行更新
-                return sciLectureReportMapper.criticism(id, state);
+                
+                return updateResult;
             } catch (NumberFormatException e) {
                 return 0;
             }
         }
-        // 7. 非单ID情况直接返回
+        // 10. 非单ID情况直接返回
         return 0;
     }
 
@@ -375,81 +411,121 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService
     // 通过批阅修改讲座报告的状态，并将批阅意见插入数据库
     @Override
     public int criticism(Integer rid, Long userId, String remark, String urlFlag) {
-        String state;
-        if (urlFlag.equals("pro")){
-            state = "6"; // 教研室通过
-        }else if (urlFlag.equals("check")){
-            state = "4"; // 科研室通过
+        try {
+            // 1. 获取当前讲座报告
             SciLectureReport report = sciLectureReportMapper.selectSciLectureReportById(rid);
-            if (report != null && report.getReportClassify() != null && !report.getReportClassify().isEmpty()) {
-                Integer classifyId = Integer.parseInt(report.getReportClassify());
-                SciLectureReportIntegral sciLectureReportIntegral = reportIntegralMapper.selectSciLectureReportIntegralById(classifyId);
-                if (sciLectureReportIntegral != null && sciLectureReportIntegral.getIntegral() != null) {
-                    int kyf = sciLectureReportMapper.reportKeyanfen(rid, sciLectureReportIntegral.getIntegral());
-                }
+            if (report == null) {
+                return 0;
             }
-        } else if (urlFlag.equals("xypro")) {
-            state = "2"; // 学院通过
-        } else {
-            return 0;
+            
+            // 2. 获取当前用户信息
+            SysUser currentUser = ShiroUtils.getSysUser();
+            
+            // 3. 使用流程管理服务进行审批
+            java.util.Map<String, Object> result = approvalProcessService.approve(
+                    "LECTURE_APPROVAL", // 讲座报告审批流程编码
+                    rid.longValue(), // 业务ID
+                    report.getState(), // 当前状态
+                    remark != null && !remark.isEmpty() ? remark : "通过", // 审批意见
+                    userId, // 操作人ID
+                    currentUser.getUserName(), // 操作人姓名
+                    currentUser.getDept().getDeptName() // 操作人部门
+            );
+            
+            // 4. 检查审批结果
+                if (result != null && (boolean) result.get("success")) {
+                    // 5. 获取新状态
+                    String newState = (String) result.get("newState");
+                    // 6. 更新讲座报告状态
+                    int updateResult = sciLectureReportMapper.criticism(rid, newState);
+                
+                // 7. 记录审批意见
+                SciLectureReportOpinion sciLectureReportOpinion = new SciLectureReportOpinion();
+                sciLectureReportOpinion.setUid(userId);
+                sciLectureReportOpinion.setBaogaoId(rid); // 被批阅的报告id
+                if (remark.equals("")){
+                    remark = "通过";
+                }
+                sciLectureReportOpinion.setConcate(remark);
+                sciLectureReportOpinion.setState("通过");
+                opinionMapper.opinionadd(sciLectureReportOpinion); // 将批阅记录插入数据库
+                
+                // 8. 如果是科研处通过，计算科研分
+                if (newState != null && newState.equals("LECTURE_PASSED")) {
+                    if (report != null && report.getReportClassify() != null && !report.getReportClassify().isEmpty()) {
+                        Integer classifyId = Integer.parseInt(report.getReportClassify());
+                        SciLectureReportIntegral sciLectureReportIntegral = reportIntegralMapper.selectSciLectureReportIntegralById(classifyId);
+                        if (sciLectureReportIntegral != null && sciLectureReportIntegral.getIntegral() != null) {
+                            int kyf = sciLectureReportMapper.reportKeyanfen(rid, sciLectureReportIntegral.getIntegral());
+                        }
+                    }
+                }
+                
+                return updateResult;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        int i = sciLectureReportMapper.criticism(rid, state);  // 修改讲座报告的状态
-        SciLectureReportOpinion sciLectureReportOpinion = new SciLectureReportOpinion();
-        sciLectureReportOpinion.setUid(userId);
-        sciLectureReportOpinion.setBaogaoId(rid); // 被批阅的报告id
-        if (remark.equals("")){
-            remark = "通过";
-        }
-        sciLectureReportOpinion.setConcate(remark);
-        sciLectureReportOpinion.setState("通过");
-        opinionMapper.opinionadd(sciLectureReportOpinion); // 将批阅记录插入数据库
-        return i;
+        return 0;
     }
 
     // 驳回业务处理方法
     @Override
     public int reject(Integer id, Long userId, String remark, String urlFlag) {
-        // 批阅记录实例
-        SciLectureReportOpinion sciLectureReportOpinion = new SciLectureReportOpinion();
-        String state;
-        // 根据不同的操作设计讲座报告数据表中数据的状态，并将驳回原因插入讲座报告批阅记录表中，其中3为教研室驳回，5为科研室驳回，7为学院驳回
-        switch (urlFlag) {
-            case "pro": // 教研室驳回操作
-                sciLectureReportOpinion.setState("驳回");
-                state = "3";
-                break;
-            case "tuihui": // 教研室撤回操作
-                sciLectureReportOpinion.setState("撤回");
-                state = "1";
-                break;
-            case "check": // 科研室驳回操作
-                sciLectureReportOpinion.setState("驳回");
-                state = "5";
-                sciLectureReportMapper.reportKeyanfen(id, "0");
-                break;
-            case "zgqxtuihui": // 科研室撤回操作
-                sciLectureReportOpinion.setState("撤回");
-                state = "2";
-                sciLectureReportMapper.reportKeyanfen(id, "0");
-                break;
-            case "xypro": // 学院驳回操作
-                sciLectureReportOpinion.setState("驳回");
-                state = "7";
-                break;
-            case "xytuihui": // 学院撤回操作
-                sciLectureReportOpinion.setState("撤回");
-                state = "6";
-                break;
-            default:
+        try {
+            // 1. 获取当前讲座报告
+            SciLectureReport report = sciLectureReportMapper.selectSciLectureReportById(id);
+            if (report == null) {
                 return 0;
+            }
+            
+            // 2. 获取当前用户信息
+            SysUser currentUser = ShiroUtils.getSysUser();
+            
+            // 3. 使用流程管理服务进行驳回
+            java.util.Map<String, Object> result = approvalProcessService.reject(
+                    "LECTURE_APPROVAL", // 讲座报告审批流程编码
+                    id.longValue(), // 业务ID
+                    report.getState(), // 当前状态
+                    remark, // 审批意见
+                    userId, // 操作人ID
+                    currentUser.getUserName(), // 操作人姓名
+                    currentUser.getDept().getDeptName() // 操作人部门
+            );
+            
+            // 4. 检查驳回结果
+            if (result != null && (boolean) result.get("success")) {
+                // 5. 获取新状态
+                String newState = (String) result.get("newState");
+                // 6. 更新讲座报告状态
+                int updateResult = sciLectureReportMapper.criticism(id, newState);
+                
+                // 7. 记录审批意见
+                SciLectureReportOpinion sciLectureReportOpinion = new SciLectureReportOpinion();
+                sciLectureReportOpinion.setUid(userId);
+                sciLectureReportOpinion.setBaogaoId(id); // 被批阅的报告id
+                sciLectureReportOpinion.setConcate(remark);
+                
+                // 8. 根据操作类型设置状态
+                if (urlFlag.equals("tuihui") || urlFlag.equals("zgqxtuihui")) {
+                    sciLectureReportOpinion.setState("撤回");
+                } else {
+                    sciLectureReportOpinion.setState("驳回");
+                }
+                
+                opinionMapper.opinionadd(sciLectureReportOpinion); // 将批阅记录插入数据库
+                
+                // 9. 如果是科研室驳回，清除科研分
+                if (newState != null && newState.equals("LECTURE_REJECTED")) {
+                    sciLectureReportMapper.reportKeyanfen(id, "0");
+                }
+                
+                return updateResult;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        int i = sciLectureReportMapper.criticism(id, state);  // 修改讲座报告的状态
-        sciLectureReportOpinion.setUid(userId);
-        sciLectureReportOpinion.setBaogaoId(id); // 被批阅的报告id
-        sciLectureReportOpinion.setConcate(remark);
-//        sciLectureReportOpinion.setState("未通过");
-        opinionMapper.opinionadd(sciLectureReportOpinion); // 将批阅记录插入数据库
-        return i;
+        return 0;
     }
     @Override
     public List<SciLectureReport> getStatsQuery(Map<String, String> params) {

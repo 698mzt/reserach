@@ -171,7 +171,14 @@
             <if test="researchRoom != null  and researchRoom != ''"> and d.dept_name like concat('%', #{researchRoom}, '%')</if>
             <if test="firstAuthorName != null  and firstAuthorName != ''"> and pa1.user_name like concat('%', #{firstAuthorName}, '%')</if>
         </where>
-      order  by field(p.state ,'PAPER_JYS_AUDIT','PAPER_KYC_AUDIT')
+      order by 
+        case 
+          when p.state = 'PAPER_DRAFT' or p.state = 'PAPER_REJECTED' then 1
+          when p.state = 'PAPER_JYS_AUDIT' or p.state = 'PAPER_KYC_AUDIT' then 2
+          when p.state = 'PAPER_PASSED' then 3
+          else 4
+        end,
+        p.create_time desc
     </select>
     
     <select id="selectSciPaperAListAll" parameterType="SciPaperA" resultMap="SciPaperAResult">
@@ -280,7 +287,14 @@
             <if test="researchRoom != null  and researchRoom != ''"> and d.dept_name like concat('%', #{researchRoom}, '%')</if>
             <if test="firstAuthorName != null  and firstAuthorName != ''"> and pa1.user_name like concat('%', #{firstAuthorName}, '%')</if>
         </where>
-      order  by field(p.state ,'PAPER_JYS_AUDIT','PAPER_KYC_AUDIT')
+      order by 
+        case 
+          when p.state = 'PAPER_DRAFT' or p.state = 'PAPER_REJECTED' then 1
+          when p.state = 'PAPER_JYS_AUDIT' or p.state = 'PAPER_KYC_AUDIT' then 2
+          when p.state = 'PAPER_PASSED' then 3
+          else 4
+        end,
+        p.create_time desc
     </select>
 <!--待科研处审核，完成-->
     <select id="selectSciPaperAListKY" parameterType="SciPaperA" resultMap="SciPaperAResult">
@@ -416,7 +430,14 @@
             <if test="remarks != null  and remarks != ''"> and remarks = #{remarks}</if>
             <if test="year != null  and year != ''"> and YEAR(publication_time) = #{year}</if>
         </where>
-      order  by field(p.state ,'PAPER_JYS_AUDIT','PAPER_KYC_AUDIT','PAPER_PASSED')
+      order by 
+        case 
+          when p.state = 'PAPER_DRAFT' or p.state = 'PAPER_REJECTED' then 1
+          when p.state = 'PAPER_JYS_AUDIT' or p.state = 'PAPER_KYC_AUDIT' then 2
+          when p.state = 'PAPER_PASSED' then 3
+          else 4
+        end,
+        p.create_time desc
     </select>
 
     <select id="selectSciPaperAListCxList" parameterType="SciPaperA" resultMap="SciPaperAResult">
@@ -506,7 +527,14 @@
             <if test="year != null  and year != ''"> and YEAR(publication_time) = #{year}</if>
         </where>
 
-      order  by field(p.state ,'PAPER_JYS_AUDIT','PAPER_KYC_AUDIT')
+      order by 
+        case 
+          when p.state = 'PAPER_DRAFT' or p.state = 'PAPER_REJECTED' then 1
+          when p.state = 'PAPER_JYS_AUDIT' or p.state = 'PAPER_KYC_AUDIT' then 2
+          when p.state = 'PAPER_PASSED' then 3
+          else 4
+        end,
+        p.create_time desc
 
 </select>
 
@@ -645,7 +673,14 @@
         <if test="remarks != null  and remarks != ''"> and remarks = #{remarks}</if>
         <if test="year != null  and year != ''"> and YEAR(publication_time) = #{year}</if>
       </where>
-      order  by field(p.state ,'PAPER_JYS_AUDIT','PAPER_KYC_AUDIT')
+      order by 
+        case 
+          when p.state = 'PAPER_DRAFT' or p.state = 'PAPER_REJECTED' then 1
+          when p.state = 'PAPER_JYS_AUDIT' or p.state = 'PAPER_KYC_AUDIT' then 2
+          when p.state = 'PAPER_PASSED' then 3
+          else 4
+        end,
+        p.create_time desc
     </select>
 
     <select id="selectSciPaperAByroleId" parameterType="Long" resultType="String">

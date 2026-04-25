@@ -265,10 +265,12 @@ public class SciPaperAController extends BaseController {
                     throw new RuntimeException("此类论文的一作必须为自己");
                 } else if (i==-4) {
                     throw new RuntimeException("未找到论文类型");
-                }else if (i==-5){
+                } else if (i==-5){
                     throw new RuntimeException("作者重复");
                 } else if (i==-6){
                     throw new RuntimeException("一作和通讯作者都是校外人员，只能录入本校论文");
+                } else if (i==-7){
+                    throw new RuntimeException("没有选择作者");
                 }
 
                 SciPaperAr sciPaperAr = new SciPaperAr();
@@ -300,6 +302,12 @@ public class SciPaperAController extends BaseController {
         }
         // 这里只是限制了人数 ,没有详细限制是第几作者
         int key = (sciPaperA.getFirstPersonId()==null|| sciPaperA.getFirstPersonId().isEmpty() ?0:1 )+ (sciPaperA.getSecondPersonId()==null|| sciPaperA.getSecondPersonId().isEmpty()?0:1) + (sciPaperA.getThirdPersonId()==null|| sciPaperA.getThirdPersonId().isEmpty()?0:1) + (sciPaperA.getFourthPersonId()==null|| sciPaperA.getFourthPersonId().isEmpty()?0:1);
+        
+        // 如果四个作者都没有添加，返回错误
+        if (key == 0) {
+            return -7; // 表示没有选择作者
+        }
+        
         Set<String> countAuthors = new HashSet<>();
         if (sciPaperA.getFirstPersonId() != null && !sciPaperA.getFirstPersonId().isEmpty()) {
             countAuthors.add(sciPaperA.getFirstPersonId());
@@ -650,8 +658,8 @@ public class SciPaperAController extends BaseController {
     @PostMapping("/pytg/{id}")
     @ResponseBody
     public AjaxResult pytg(@PathVariable("id") String id, String comment, String paperCategory) {
-        String order = paperCategory;
-        return toAjax(sciPaperAService.pytg(id, getUserId(), comment, order));
+//        String order = paperCategory;
+        return toAjax(sciPaperAService.pytg(id, getUserId(), comment, paperCategory));
     }
 
     /**

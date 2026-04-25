@@ -395,22 +395,16 @@ public class SciLectureReport extends BaseEntity
         }
         switch (this.state) {
 
-            case "1":
-                return "待教研室处理";
-            case "2":
-                return "待科研处处理";
-            case "3":
-                return "教研室驳回";
-            case "4":
-                return "已通过";
-            case "5":
-                return "科研处驳回";
-            case "6":
-                return "待学院处理";
-            case "7":
-                return "学院驳回";
-            case "0":
+            case "LECTURE_DRAFT":
                 return "草稿箱";
+            case "LECTURE_JYS_AUDIT":
+                return "待教研室处理";
+            case "LECTURE_KYC_AUDIT":
+                return "待科研处处理";
+            case "LECTURE_PASSED":
+                return "已通过";
+            case "LECTURE_REJECTED":
+                return "已驳回";
 
         }
         return this.state;

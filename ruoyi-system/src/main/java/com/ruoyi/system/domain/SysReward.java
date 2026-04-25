@@ -390,14 +390,11 @@ public class SysReward extends BaseEntity
             return "";
         }
         switch (this.state) {
-            case "1": return "待教研室处理";
-            case "2": return "待学院审核";
-            case "3": return "教研室退回";
-            case "4": return "待科研处审核";
-            case "5": return "学院退回";
-            case "6": return "科研处通过";
-            case "7": return "科研处退回";
-            case "11": return "草稿箱";
+            case "REWARD_DRAFT": return "草稿箱";
+            case "REWARD_JYS_AUDIT": return "奖励-教研室审批";
+            case "REWARD_KYC_AUDIT": return "奖励-科研处审批";
+            case "REWARD_PASSED": return "奖励-通过";
+            case "REWARD_REJECTED": return "奖励-驳回";
             default: return this.state;
         }
     }

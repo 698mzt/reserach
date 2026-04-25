@@ -574,22 +574,16 @@
             rowStyle: function(row, index) {
                 // 根据状态返回样式对象
                 switch(row.state) {
-                    case '0': // 草稿
+                    case 'LECTURE_DRAFT': // 草稿
                         return { css: { "color": "#e6a344" } }; // 黄色
-                    case '1': // 待教研室审核
+                    case 'LECTURE_JYS_AUDIT': // 待教研室审核
                         return { css: { "color": "#2c99ff" } }; // 蓝色
-                    case '2': // 待科研处审核
+                    case 'LECTURE_KYC_AUDIT': // 待科研处审核
                         return { css: { "color": "#2c99ff" } }; // 蓝色
-                    case '3': // 教研室驳回
+                    case 'LECTURE_REJECTED': // 已驳回
                         return { css: { "color": "#e6a344" } }; // 黄色
-                    case '4': // 已通过
+                    case 'LECTURE_PASSED': // 已通过
                         return { css: { "color": "#67c23a" } }; // 绿色
-                    case '5': // 科研处驳回
-                        return { css: { "color": "#e6a344" } }; // 黄色
-                    case '6': // 待学院处理
-                        return { css: { "color": "#2c99ff" } }; // 蓝色
-                    case '7': // 学院驳回
-                        return { css: { "color": "#e6a344" } }; // 黄色
                     default:
                         return {css: { "color": "#000000" }};
                 }
@@ -662,60 +656,34 @@
                     align: 'center',
                     title: '参与人数'
                 },
-                {
-                    field: 'reportKeyanfen',
-                    align: 'center',
-                    title: '积分'
-                },
-                {
-                    title: '操作',
-                    align: 'center',
-                    formatter: function (value, row, index) {
-                        var actions = [];
-                        var hasPreviousButtons = false; // 标记前面是否有按钮
+                {                    field: 'reportKeyanfen',                    align: 'center',                    title: '积分'                },                {                    field: 'state',                    title: '状态',                    align: 'center',                    formatter: function(value, row, index) {                        const stateMap = {                            'LECTURE_DRAFT': '草稿箱',                            'LECTURE_JYS_AUDIT': '待教研室审核',                            'LECTURE_KYC_AUDIT': '待科研处审核',                            'LECTURE_PASSED': '已通过',                            'LECTURE_REJECTED': '已驳回'                        };
+                        return stateMap[value] || value;                    }                },                {                    title: '操作',                    align: 'center',                    formatter: function (value, row, index) {                        var actions = [];                        var hasPreviousButtons = false; // 标记前面是否有按钮
 
-                        if (row.state == 0) {
+                        if (row.state == 'LECTURE_DRAFT') {
                             if (row.userId == row.uid) {
                                 actions.push('<a  class="btn  btn-xs ' + submitFlag + '" href="javascript:void(0)" onclick="$.operate.tijiao(\'' + row.id + '\')">提交</a> ');
                                 actions.push('<a   class="btn  btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '/xiugai' + '\')">编辑</a> ');
                                 actions.push('<a style="color: red" class="btn  btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')">删除</a>');
                                 hasPreviousButtons = true; // 设置前面有按钮的标志为true
                             }
-                        }else if (row.state == 1 && userRole === 'research') { // 待教研室审核 - 仅教研室角色
+                        }else if (row.state == 'LECTURE_JYS_AUDIT' && userRole === 'research') { // 待教研室审核 - 仅教研室角色
                             actions.push('<a  class="btn btn-xs ' + proFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro' + '\')">批阅</a> ');
                             if (proFlag != 'hidden')
                                 hasPreviousButtons = true; // 设置前面有按钮的标志为true
-                        } else if (row.state == 6){
-                            if (userRole === 'sci_tesearch') { // 待科研处审核 - 仅科研处角色
-                              actions.push('<a  class="btn btn-xs ' + xyproFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/xypro' + '\')">批阅</a> ');
-                            actions.push('<a style="color: red" class="btn btn-xs ' + tuihuiFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/tuihui' + '\')">撤销</a> ');
-                            if (tuihuiFlag != 'hidden' || xyproFlag != 'hidden')
-                                hasPreviousButtons = true; // 设置前面有按钮的标志为true
-                            } else if (userRole === 'dept_teacher') { // 待学院处理 - 仅学院角色
-                              actions.push('<a  class="btn btn-xs ' + xyproFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/xypro' + '\')">批阅</a> ');
-                            actions.push('<a style="color: red" class="btn btn-xs ' + chexiaoFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/xytuihui' + '\')">撤销</a> ');
-                            if (chexiaoFlag != 'hidden' || xyproFlag != 'hidden')
-                                hasPreviousButtons = true; // 设置前面有按钮的标志为true
-                            }
-
-                        } else if ((row.state == 3 || row.state == 5 || row.state == 7) && row.userId == row.uid) {
+                        } else if (row.state == 'LECTURE_REJECTED' && row.userId == row.uid) {
                             actions.push('<a class="btn btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '/gengxin' +'\')">编辑</a> ');
                             hasPreviousButtons = true; // 设置前面有按钮的标志为true
                         }
-                        else if (row.state == 2) {
+                        else if (row.state == 'LECTURE_KYC_AUDIT') {
                             if (userRole === 'sci_tesearch') { // 待科研处审核 - 仅科研处角色
                               actions.push('<a  class="btn btn-xs ' + checkFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/check' + '\')">批阅</a> ');
                             actions.push('<a style="color: red" class="btn btn-xs ' + chexiaoFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/xytuihui' + '\')">撤销</a> ');
                             if (checkFlag != 'hidden' || chexiaoFlag != 'hidden')
                                 hasPreviousButtons = true; // 设置前面有按钮的标志为true
-                              } else if (userRole === 'dept_teacher') { // 待科研处处理 - 学院角色
-                            actions.push('<a style="color: red" class="btn btn-xs ' + chexiaoFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/xytuihui' + '\')">撤销</a> ');
-                            if (chexiaoFlag != 'hidden')
-                                hasPreviousButtons = true; // 设置前面有按钮的标志为true
-                            }
+                              }
                         }
-                        else if (row.state == 4) {
-                            if (userRole === 'sci_tesearch' || userRole === 'dept_teacher') { // 已完成 - 科研处和学院角色
+                        else if (row.state == 'LECTURE_PASSED') {
+                            if (userRole === 'sci_tesearch') { // 已完成 - 仅科研处角色
                             actions.push('<a style="color: red" class="btn btn-xs ' + zgqxtuihuiFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/zgqxtuihui' + '\')">撤销</a> ');
                             if (zgqxtuihuiFlag != 'hidden')
                                 hasPreviousButtons = true;
@@ -725,7 +693,7 @@
                             actions.push('<br>'); // 只有前面有按钮时才换行
                         }
                         actions.push('<a  class="btn btn-xs ' + infoFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/info' + '\')">查看</a> ');
-                        actions.push('<a class="btn btn-xs" data-toggle="modal" data-target="#lcjl_Moda" onclick="controlProgressBar(\'' + row.id + '\', ' + row.state + ')">流程记录</a>');
+                        actions.push('<a class="btn btn-xs" data-toggle="modal" data-target="#lcjl_Moda" onclick="controlProgressBar(\'' + row.id + '\', \'' + row.state + '\')">流程记录</a>');
                          return actions.join('');
                     }
                 }
@@ -875,11 +843,11 @@
         progressBar.style.width = '0';
 
         // 根据 state 设置相应的步骤颜色
-        if (state === 0) {
+        if (state === 'LECTURE_DRAFT') {
             document.getElementById('step-1').classList.add('active');
             document.getElementById('step-1').querySelector('.status-text').classList.add('active');
             progressBar.style.width = '0';
-        } else if (state === 4) {
+        } else if (state === 'LECTURE_PASSED') {
             document.getElementById('step-1').classList.add('completed');
             document.getElementById('step-1').querySelector('.status-text').classList.add('completed');
             document.getElementById('step-2').classList.add('completed');
@@ -887,7 +855,7 @@
             document.getElementById('step-3').classList.add('completed');
             document.getElementById('step-3').querySelector('.status-text').classList.add('completed');
             progressBar.style.width = '100%';
-        } else if ([1, 2, 6].includes(state)) {
+        } else if (['LECTURE_JYS_AUDIT', 'LECTURE_KYC_AUDIT'].includes(state)) {
             document.getElementById('step-1').classList.add('completed');
             document.getElementById('step-1').querySelector('.status-text').classList.add('completed');
 

@@ -17,4 +17,6 @@ public interface SysApprovalProcessMapper
     public int deleteSysApprovalProcessById(Long id);
 
     public int deleteSysApprovalProcessByIds(Long[] ids);
+
+    public SysApprovalProcess selectSysApprovalProcessByProcessCode(String processCode);
 }
