@@ -43,7 +43,7 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
     @Override
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciHorizontalApplyVertical> selectSciHorizontalApplyVerticalList(SciHorizontalApplyVertical sciHorizontalApplyVertical) {
-        return sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalListAll(sciHorizontalApplyVertical);
+        return sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalList(sciHorizontalApplyVertical);
     }
 
     /**
@@ -139,6 +139,12 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
         return id;
     }
 
+    /**
+     * 保存纵向课题成员（从第5位开始）
+     * 功能：保存纵向课题的成员列表，从第5位开始排序
+     * SQL：DELETE FROM sci_persion_vertical WHERE verticalid = ?
+     * SQL：INSERT INTO sci_persion_vertical
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void saveVerticalPersons(Integer verticalId, java.util.List<String> personIds) {
@@ -197,6 +203,11 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
     }
 
 
+    /**
+     * 查询纵向课题成员ID列表
+     * 功能：根据课题ID查询所有成员的ID列表
+     * SQL：SELECT persionid FROM sci_persion_vertical WHERE verticalid = ? ORDER BY ranking
+     */
     @Override
     public java.util.List<String> selectPersionIdsByVerticalId(Integer verticalId) {
         return sciHorizontalApplyVerticalMapper.selectPersionIdsByVerticalId(verticalId);
@@ -417,6 +428,14 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
 
 
 
+    /**
+     * 纵向课题结项申请通过
+     * 功能：审批通过纵向课题结项申请，计算并分配科研分
+     * SQL：DELETE FROM sci_user_score WHERE vertical_id = ? AND change_status = ?
+     * SQL：INSERT INTO sci_user_score
+     * SQL：UPDATE sci_horizontal_apply_vertical SET state = ?, subject_source = ? WHERE id = ?
+     * SQL：INSERT INTO sci_horizontal_piyue
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int overPass(String id, Long userId, String urlFlag,List score,List persion,String verticalId,String subjectSource) {
@@ -505,6 +524,11 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
 
 
 
+    /**
+     * 查询纵向课题结项列表
+     * 功能：根据角色查询纵向课题结项列表，支持多条件筛选
+     * SQL：根据角色不同，执行不同的查询语句
+     */
     @Override
     @DataScope(deptAlias = "d",userAlias = "u")
     public List<SciHorizontalApplyVertical> selectSciHorizontalApplyVerticalListJX(SciHorizontalApplyVertical sciHorizontalApplyVertical) {
@@ -521,6 +545,11 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
         return list;
     }
 
+    /**
+     * 查询纵向课题已完成结项列表
+     * 功能：查询纵向课题已完成结项的列表，支持多条件筛选
+     * SQL：SELECT * FROM sci_horizontal_apply_vertical WHERE state = 'V_OVER_PASS'
+     */
     @Override
     @DataScope(deptAlias = "d",userAlias = "u")
     public List<SciHorizontalApplyVertical> selectSciHorizontalApplyVerticalListOVER(SciHorizontalApplyVertical sciHorizontalApplyVertical) {
@@ -551,33 +580,36 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
     public int recall(Integer id, String state, Long userId, String remark, String urlFlag) {
         String newState = state;
         switch (state){
-//            教研室
-            case "2": case "3":
-                newState = "1";
+//            立项申请 - 待教研室
+            case "V_APPLY_JYS": case "V_APPLY_REJ":
+                newState = "V_APPLY_DRAFT";
                 break;
-            case "22": case "33":
-                newState = "11";
+//            立项申请 - 待科研处
+            case "V_APPLY_KYC":
+                newState = "V_APPLY_JYS";
                 break;
-//                学院
-            case "4":  case "5":
-                newState = "2";
+//            立项申请 - 已完结
+            case "V_APPLY_PASS":
+                newState = "V_APPLY_KYC";
                 break;
-            case "44": case"55":
-                newState = "22";
+//            结项申请 - 待教研室
+            case "V_OVER_JYS": case "V_OVER_REJ":
+                newState = "V_OVER_DRAFT";
                 break;
-//                科研处
-            case "6":  case "7":
-                newState = "4";
+//            结项申请 - 待科研处
+            case "V_OVER_KYC":
+                newState = "V_OVER_JYS";
                 break;
-            case "66": case "77":
-                newState = "44";
+//            结项申请 - 已完结
+            case "V_OVER_PASS":
+                newState = "V_OVER_KYC";
                 break;
         }
-        if(state.equals("6")){
+        if(state.equals("V_APPLY_PASS")){
             String status = "立项";
 //            sciUserScoreMapper.deleteVerticalScoreById(id.toString(),status);
         }else
-        if(state.equals("66")){
+        if(state.equals("V_OVER_PASS")){
             String status = "结项";
 //            sciUserScoreMapper.deleteVerticalScoreById(id.toString(),status);
         }
@@ -595,6 +627,11 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
 
 
 
+    /**
+     * 根据用户ID查询纵向课题列表
+     * 功能：根据用户ID和角色查询纵向课题列表，支持不同表格类型的筛选
+     * SQL：根据角色和表格类型不同，执行不同的查询语句
+     */
     @Override
     public List<SciHorizontalApplyVertical> selectOtherListByUid(SciHorizontalApplyVertical sciHorizontalApplyVertical) {
         String role = sciHorizontalApplyVertical.getRole();
@@ -677,12 +714,22 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
         // 校验通过，执行更新
         return sciHorizontalApplyVerticalMapper.updateSciHorizontalApplyVertical(sciHorizontalApplyVertical);
     }
+    /**
+     * 统计查询纵向课题数据
+     * 功能：根据参数统计查询纵向课题数据，支持多条件筛选
+     * SQL：根据参数执行不同的统计查询语句
+     */
     @Override
     @DataScope(deptAlias = "d",userAlias = "u")
     public List<SciHorizontalApplyVertical> getStatsQuery(Map<String, String> params) {
         return sciHorizontalApplyVerticalMapper.getStatsQuery(params);
     }
 
+    /**
+     * 统计查询纵向课题数据（带权限检查）
+     * 功能：根据参数统计查询纵向课题数据，支持多条件筛选和数据权限检查
+     * SQL：根据参数执行不同的统计查询语句
+     */
     @Override
     @DataScope(deptAlias = "d",userAlias = "u")
     public List<SciHorizontalApplyVertical> getStatsQueryToCheck(Map<String, String> params) {
