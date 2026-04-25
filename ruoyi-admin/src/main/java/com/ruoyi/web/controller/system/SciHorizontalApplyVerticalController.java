@@ -931,7 +931,6 @@ public class SciHorizontalApplyVerticalController extends BaseController {
     }
 
 
-
     /**
      * 查询纵向课题批阅意见
      * 功能：根据课题ID查询纵向课题的批阅意见列表
@@ -977,7 +976,7 @@ public class SciHorizontalApplyVerticalController extends BaseController {
         return prefix + "/recall";
     }
     /**
-     *  撤回操作
+     * 撤回操作
      */
     @RequiresPermissions(value={"system:apply_vertical:JYS","system:apply_vertical:KYC","system:apply_vertical:Dept"},logical= Logical.OR)
     @Log(title = "撤回操作", businessType = BusinessType.UPDATE)
@@ -986,5 +985,41 @@ public class SciHorizontalApplyVerticalController extends BaseController {
     public AjaxResult recallSave(Integer id,String state,String remark,String urlFlag)
     {
         return toAjax(sciHorizontalApplyVerticalService.recall(id,state,getUserId(),remark,urlFlag));
+    }
+
+    /**
+     * 获取预期科研分
+     */
+    @PostMapping( "/getExpectedScores")
+    @ResponseBody
+    public AjaxResult getExpectedScores(String verticalId)
+    {
+        // 查询该课题的所有成员的预期科研分
+        List<SciUserScore> scores = sciUserScoreMapper.selectScoreVerticalByApplyIds(Collections.singleton(Integer.valueOf(verticalId)));
+        
+        // 构建返回结果
+        Map<String, String> result = new HashMap<>();
+        
+        for (SciUserScore score : scores) {
+            // 根据用户ID和课题ID，确定是哪个成员的预期科研分
+            String userId = score.getUserId();
+            String expectedValue = score.getExpectedValue();
+            
+            // 查询课题信息，获取成员顺序
+            SciHorizontalApplyVertical apply = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalById(Integer.valueOf(verticalId));
+            if (apply != null) {
+                if (apply.getFirstPersonId().equals(userId)) {
+                    result.put("firstPerson", expectedValue);
+                } else if (apply.getSecondPersonId().equals(userId)) {
+                    result.put("secondPerson", expectedValue);
+                } else if (apply.getThirdPersonId().equals(userId)) {
+                    result.put("thirdPerson", expectedValue);
+                } else if (apply.getFourthPersonId().equals(userId)) {
+                    result.put("fourthPerson", expectedValue);
+                }
+            }
+        }
+        
+        return AjaxResult.success(result);
     }
 }
