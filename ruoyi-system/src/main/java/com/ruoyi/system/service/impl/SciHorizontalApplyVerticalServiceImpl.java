@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.Collections;
 
 import static com.ruoyi.common.utils.ShiroUtils.getSysUser;
 
@@ -454,30 +455,23 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
             String status = "结项";
 //            sciUserScoreMapper.deleteVerticalScoreById(id.toString(),status);
             sciUserScore.setChangeStatus("结项");
+            
+            // 查询该课题的立项积分记录，获取预期科研分
+            List<SciUserScore> projectScoreRecords = sciUserScoreMapper.selectScoreVerticalByApplyIds(Collections.singleton(Integer.valueOf(id)));
+            // 构建用户ID到预期科研分的映射
+            Map<String, String> expectedScoreMap = new HashMap<>();
+            for (SciUserScore scoreRecord : projectScoreRecords) {
+                if ("立项".equals(scoreRecord.getChangeStatus()) && scoreRecord.getExpectedValue() != null) {
+                    expectedScoreMap.put(scoreRecord.getUserId(), scoreRecord.getExpectedValue());
+                }
+            }
+            
             for (int i = 0; i < persion.size(); i++) {
-                sciUserScore.setUserId(persion.get(i).toString());
+                String memberId = persion.get(i).toString();
+                sciUserScore.setUserId(memberId);
                 sciUserScore.setChangeValue(score.get(i).toString());
-                // 使用前端计算好的预期科研分
-                String expectedScore = "0";
-                if (sciHorizontalApplyVertical != null) {
-                    switch (i) {
-                        case 0:
-                            expectedScore = sciHorizontalApplyVertical.getExpectedScore1();
-                            break;
-                        case 1:
-                            expectedScore = sciHorizontalApplyVertical.getExpectedScore2();
-                            break;
-                        case 2:
-                            expectedScore = sciHorizontalApplyVertical.getExpectedScore3();
-                            break;
-                        case 3:
-                            expectedScore = sciHorizontalApplyVertical.getExpectedScore4();
-                            break;
-                    }
-                }
-                if (StringUtils.isEmpty(expectedScore)) {
-                    expectedScore = "0";
-                }
+                // 从立项积分记录中获取预期科研分
+                String expectedScore = expectedScoreMap.getOrDefault(memberId, "0");
                 sciUserScore.setExpectedValue(expectedScore);
                 sciUserScoreMapper.insertScoreVertical(sciUserScore);
             }

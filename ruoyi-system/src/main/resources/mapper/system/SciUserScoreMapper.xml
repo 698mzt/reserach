@@ -70,7 +70,7 @@
     </select>
     
     <select id="selectScoreVerticalByApplyIds" parameterType="java.util.Set" resultMap="SciUserScoreResult">
-        select s.user_id,s.vertical_id,s.change_value,s.expected_value from sci_user_score_vertical s 
+        select s.user_id,s.vertical_id,s.change_value,s.expected_value,s.change_status from sci_user_score_vertical s 
         where s.vertical_id in
         <foreach collection="applyIds" item="applyId" open="(" separator="," close=")">
             #{applyId}
