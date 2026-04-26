@@ -156,5 +156,26 @@ public interface ISciJiaocairuanzhuService
      */
     List<SciJiaocairuanzhu> selectSciJiaocairuanzhuListAll(SciJiaocairuanzhu sciJiaocairuanzhu);
 
+    /**
+     * 查询下一级状态方法
+     * 获取当前审批节点信息及下一步节点信息
+     * @param currentState 当前业务数据的状态
+     * @return 包含当前节点、下一节点等信息的Map
+     */
+    Map<String, Object> getNextState(String currentState);
+
+    /**
+     * 操作记录方法
+     * 记录审批操作的历史信息
+     * @param businessId 业务ID
+     * @param oldState 原状态
+     * @param newState 新状态
+     * @param operatorId 操作人ID
+     * @param action 操作类型
+     * @param comment 审批意见
+     * @return 操作结果
+     */
+    Map<String, Object> recordApprovalAction(Integer businessId, String oldState, String newState, Long operatorId, String action, String comment);
+
 
 }
