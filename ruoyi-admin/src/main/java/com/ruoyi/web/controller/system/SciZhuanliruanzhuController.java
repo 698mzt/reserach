@@ -10,6 +10,7 @@ import com.ruoyi.system.mapper.SciZhuanliruanzhuMapper;
 import com.ruoyi.system.service.ISciHorizontalPiyueService;
 import com.ruoyi.system.service.ISciZhuanliruanzhuPiyueService;
 import com.ruoyi.system.service.ISysUserService;
+import com.ruoyi.system.service.IApprovalProcessService;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,10 +53,14 @@ public class SciZhuanliruanzhuController extends BaseController
     @Autowired
     private SciZhuanliruanzhuMapper sciZhuanliruanzhuMapper;
 
+    @Autowired
+    private IApprovalProcessService approvalProcessService;
+
     @RequiresPermissions("system:zhuanliruanzhu:view")
     @GetMapping()
-    public String zhuanliruanzhu()
+    public String zhuanliruanzhu(ModelMap mmap)
     {
+        mmap.put("role", getRoleKey());
         return prefix + "/zhuanliruanzhu";
     }
 
@@ -94,19 +99,44 @@ public class SciZhuanliruanzhuController extends BaseController
      * 判断是否有审批权限
      */
     //根据审批状态和用户角色判断是否有审批权限
+    private static final java.util.Map<String, String> STATE_TO_CODE = new java.util.LinkedHashMap<>();
+    private static final java.util.Map<String, String> CODE_TO_STATE = new java.util.LinkedHashMap<>();
+    static {
+        STATE_TO_CODE.put("0", "PATENT_DRAFT");
+        STATE_TO_CODE.put("1", "PATENT_JYS_AUDIT");
+        STATE_TO_CODE.put("4", "PATENT_KYC_AUDIT");
+        STATE_TO_CODE.put("6", "PATENT_PASSED");
+        for (java.util.Map.Entry<String, String> e : STATE_TO_CODE.entrySet()) {
+            CODE_TO_STATE.put(e.getValue(), e.getKey());
+        }
+    }
+
+    private String toCode(String numericState) {
+        return STATE_TO_CODE.getOrDefault(numericState, numericState);
+    }
+
+    private String toNumeric(String codeState) {
+        if ("PATENT_REJECTED".equals(codeState)) return "0";
+        String result = CODE_TO_STATE.get(codeState);
+        if (result != null) return result;
+        try {
+            Integer.parseInt(codeState);
+            return codeState;
+        } catch (NumberFormatException e) {
+            return "0";
+        }
+    }
+
     private boolean canApprove(String state, String roleKey) {
         try {
-            int stateInt = Integer.parseInt(state); // 转换为整数
-            // state=1: 待教研室审核
+            int stateInt = Integer.parseInt(state);
             if (stateInt == 1 && "research".equals(roleKey)) {
                 return true;
             }
-            // state=4: 待科研处审核
             if (stateInt == 4 && "sci_tesearch".equals(roleKey)) {
                 return true;
             }
         } catch (NumberFormatException e) {
-            // 处理转换异常，返回 false
         }
         return false;
     }
@@ -119,8 +149,27 @@ public class SciZhuanliruanzhuController extends BaseController
         if (roles == null || roles.isEmpty()) {
             return "";
         }
-        // 返回第一个角色的 roleKey
-        return roles.get(0).getRoleKey();
+        String roleKey = "";
+        for (SysRole r : roles) {
+            switch (r.getRoleKey()) {
+                case "admin":
+                    return "admin";
+                case "sci_tesearch":
+                    roleKey = "sci_tesearch";
+                    break;
+                case "dept_teacher":
+                    if (!"sci_tesearch".equals(roleKey)) {
+                        roleKey = "dept_teacher";
+                    }
+                    break;
+                case "research":
+                    if (roleKey.isEmpty()) {
+                        roleKey = "research";
+                    }
+                    break;
+            }
+        }
+        return roleKey;
     }
 
     private boolean isInMembers(String members, String uid) {
@@ -173,21 +222,21 @@ public class SciZhuanliruanzhuController extends BaseController
         sciZhuanliruanzhu.setParentId(user.getDept().getParentId());
 
         List<SciZhuanliruanzhu> list = new ArrayList<>();
-//        科研处
         switch (role) {
             case "sci_tesearch":
-
-                list = sciZhuanliruanzhuService.selectSciZhuanliruanzhuList(sciZhuanliruanzhu);   //导出科研处的下的所有数据
+            case "admin":
+                list = sciZhuanliruanzhuService.selectSciZhuanliruanzhuList(sciZhuanliruanzhu);
                 break;
-            //      学院负责人
             case "dept_teacher":
-                list = sciZhuanliruanzhuService.selectSciZhuanliruanzhuList31(sciZhuanliruanzhu);  //导出此学院下的所有数据
+                list = sciZhuanliruanzhuService.selectSciZhuanliruanzhuList31(sciZhuanliruanzhu);
                 break;
-//        教研室
             case "research":
-                list = sciZhuanliruanzhuService.selectSciZhuanliruanzhuList21(sciZhuanliruanzhu);   //导出此教研室下的所有数据
+                list = sciZhuanliruanzhuService.selectSciZhuanliruanzhuList21(sciZhuanliruanzhu);
                 break;
-
+            default:
+                sciZhuanliruanzhu.setUid(getUserId());
+                list = sciZhuanliruanzhuService.selectSciZhuanliruanzhuList(sciZhuanliruanzhu);
+                break;
         }
 
         // 处理状态显示：状态为6显示"已完结"，其他显示"审批中"
@@ -284,6 +333,7 @@ public class SciZhuanliruanzhuController extends BaseController
         mmap.put("sciZhuanliruanzhu", sciZhuanliruanzhu);
         mmap.put("canApprove", canApprove);
         mmap.put("role", roleKey);
+        mmap.put("sysUser", getSysUser());
 
         return prefix + "/detail";
     }
@@ -417,9 +467,14 @@ public class SciZhuanliruanzhuController extends BaseController
             mmap.put("errorMsg", "数据不存在，请刷新页面重试");
         } else {
             sciZhuanliruanzhu.setUrlFlag(urlFlag);
+            String roleKey = getRoleKey();
+            boolean canApprove = canApprove(sciZhuanliruanzhu.getState(), roleKey);
             List<SysUser> userList1 =  userService.selectAllUser();
             mmap.put("sysUsers1",userList1);
             mmap.put("sciZhuanliruanzhu", sciZhuanliruanzhu);
+            mmap.put("canApprove", canApprove);
+            mmap.put("role", roleKey);
+            mmap.put("sysUser", getSysUser());
         }
         return prefix + "/detail";
     }
@@ -514,6 +569,165 @@ public class SciZhuanliruanzhuController extends BaseController
         ob.setHxktId(kid);
         List<SciZhuanliruanzhuPiyue> list = piyueService.selectSciZhuanliruanzhuPiyueList(ob);
         return getDataTable(list);
+    }
+
+    /**
+     * 专利审核通过
+     * @param id 专利ID
+     * @param comment 审批意见
+     * @param paperCategory 专利类别
+     * @return 审核结果
+     */
+    @RequiresPermissions(value = {"system:zhuanliruanzhu:xypy", "system:zhuanliruanzhu:process", "system:zhuanliruanzhu:kypy", "system:zhuanliruanzhu:chayue"}, logical = Logical.OR)
+    @Log(title = "专利审核通过", businessType = BusinessType.UPDATE)
+    @PostMapping("/pytg/{id}")
+    @ResponseBody
+    public AjaxResult pytg(@PathVariable("id") String id, String comment, String paperCategory) {
+        SciZhuanliruanzhu zhuanli = sciZhuanliruanzhuService.selectSciZhuanliruanzhuById(Integer.valueOf(id));
+        if (zhuanli == null) {
+            return AjaxResult.error("数据不存在");
+        }
+        String currentState = zhuanli.getState();
+        String currentCode = toCode(currentState);
+        SysUser currentUser = getSysUser();
+
+        String newState;
+        boolean isLast;
+        switch (currentState) {
+            case "1":
+                newState = "4";
+                isLast = false;
+                break;
+            case "4":
+                newState = "6";
+                isLast = true;
+                break;
+            default:
+                return AjaxResult.error("当前状态不允许审批通过");
+        }
+
+        int rows = sciZhuanliruanzhuService.hxPass(id, getUserId(), newState, isLast);
+        if (rows <= 0) {
+            return AjaxResult.error("操作失败");
+        }
+
+        approvalProcessService.approve("PATENT_APPLY", Long.valueOf(id), currentCode,
+                comment, currentUser.getUserId(), currentUser.getUserName(),
+                currentUser.getDept() != null ? currentUser.getDept().getDeptName() : "");
+        return AjaxResult.success();
+    }
+
+    @RequiresPermissions(value = {"system:zhuanliruanzhu:xypy", "system:zhuanliruanzhu:process", "system:zhuanliruanzhu:kypy", "system:zhuanliruanzhu:chayue", "system:zhuanliruanzhu:xyrevoke", "system:zhuanliruanzhu:kyrevoke", "system:zhuanliruanzhu:info"}, logical = Logical.OR)
+    @Log(title = "专利审核驳回", businessType = BusinessType.UPDATE)
+    @PostMapping("/pybh/{id}")
+    @ResponseBody
+    public AjaxResult pybh(@PathVariable("id") String id, String remark, String operationType) {
+        SciZhuanliruanzhu zhuanli = sciZhuanliruanzhuService.selectSciZhuanliruanzhuById(Integer.valueOf(id));
+        if (zhuanli == null) {
+            return AjaxResult.error("数据不存在");
+        }
+        String currentState = zhuanli.getState();
+        String currentCode = toCode(currentState);
+        SysUser currentUser = getSysUser();
+
+        if ("recall".equals(operationType)) {
+            String recallState;
+            String roleKey = getRoleKey();
+            switch (currentState) {
+                case "0":
+                    recallState = "1";
+                    break;
+                case "1":
+                    if ("sci_tesearch".equals(roleKey)) {
+                        recallState = "4";
+                    } else {
+                        recallState = "0";
+                    }
+                    break;
+                case "4":
+                    recallState = "1";
+                    break;
+                case "6":
+                    recallState = "4";
+                    break;
+                default:
+                    return AjaxResult.error("当前状态不允许撤回");
+            }
+            int rows = sciZhuanliruanzhuService.recallDirect(id, getUserId(), recallState,
+                    remark != null ? remark : "撤回");
+            if (rows <= 0) {
+                return AjaxResult.error("撤回失败");
+            }
+            approvalProcessService.recall("PATENT_APPLY", Long.valueOf(id), currentCode,
+                    remark != null ? remark : "撤回", currentUser.getUserId(), currentUser.getUserName(),
+                    currentUser.getDept() != null ? currentUser.getDept().getDeptName() : "");
+            return AjaxResult.success();
+        }
+
+        String newState;
+        switch (currentState) {
+            case "1":
+                newState = "0";
+                break;
+            case "4":
+                newState = "1";
+                break;
+            default:
+                return AjaxResult.error("当前状态不允许驳回");
+        }
+
+        int rows = sciZhuanliruanzhuService.hxBh(id, getUserId(), remark, newState, true);
+        if (rows <= 0) {
+            return AjaxResult.error("操作失败");
+        }
+
+        approvalProcessService.reject("PATENT_APPLY", Long.valueOf(id), currentCode,
+                remark, currentUser.getUserId(), currentUser.getUserName(),
+                currentUser.getDept() != null ? currentUser.getDept().getDeptName() : "");
+        return AjaxResult.success();
+    }
+
+    /**
+     * 查看驳回信息
+     * @param arid 专利审核记录ID
+     * @return 审核记录列表
+     */
+    @RequiresPermissions("system:apply:edit")
+    @Log(title = "专利驳回信息查看", businessType = BusinessType.OTHER)
+    @PostMapping("/bhxs/{kid}")
+    @ResponseBody
+    public TableDataInfo bhxs(@PathVariable("kid") String arid) {
+        SciZhuanliruanzhuPiyue sciZhuanliruanzhuPiyue = new SciZhuanliruanzhuPiyue();
+        sciZhuanliruanzhuPiyue.setHxktId(Integer.valueOf(arid));
+        List<SciZhuanliruanzhuPiyue> list = piyueService.selectSciZhuanliruanzhuPiyueList(sciZhuanliruanzhuPiyue);
+        return getDataTable(list);
+    }
+
+    /**
+     * 提交专利草稿
+     * @param id 专利ID
+     * @return 提交结果
+     */
+    @Log(title = "专利草稿提交", businessType = BusinessType.UPDATE)
+    @PostMapping("/tj/{id}")
+    @ResponseBody
+    public AjaxResult tj(@PathVariable("id") Integer id) {
+        SciZhuanliruanzhu zhuanli = sciZhuanliruanzhuService.selectSciZhuanliruanzhuById(id);
+        if (zhuanli == null) {
+            return AjaxResult.error("数据不存在");
+        }
+        if (!"0".equals(zhuanli.getState())) {
+            return AjaxResult.error("当前状态不允许提交");
+        }
+        SysUser currentUser = getSysUser();
+        int rows = sciZhuanliruanzhuService.hxPass(id.toString(), getUserId(), "1", false);
+        if (rows <= 0) {
+            return AjaxResult.error("操作失败");
+        }
+        approvalProcessService.approve("PATENT_APPLY", Long.valueOf(id), "PATENT_DRAFT",
+                "提交申请", currentUser.getUserId(), currentUser.getUserName(),
+                currentUser.getDept() != null ? currentUser.getDept().getDeptName() : "");
+        return AjaxResult.success();
     }
 
 

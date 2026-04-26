@@ -7,6 +7,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <resultMap type="SciZhuanliruanzhu" id="SciZhuanliruanzhuResult">
         <result property="id"    column="id"    />
         <result property="userId"    column="user_id"    />
+        <result property="uid"    column="uid"    />
 
 
         <result property="xueyuan" column="yname"/> <!-- 学院 -->
