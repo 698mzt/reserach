@@ -13,10 +13,12 @@ import com.ruoyi.system.domain.*;
 import com.ruoyi.system.mapper.SciLectureReportIntegralMapper;
 import com.ruoyi.system.mapper.SciLectureReportOpinionMapper;
 import com.ruoyi.system.service.IApprovalProcessService;
+import com.ruoyi.system.service.ISysApprovalHistoryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.apache.commons.lang3.StringUtils;
 import com.ruoyi.system.mapper.SciLectureReportMapper;
 import com.ruoyi.system.service.ISciLectureReportService;
 import com.ruoyi.common.core.text.Convert;
@@ -43,6 +45,9 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService {
     // 流程管理服务
     @Autowired
     private IApprovalProcessService approvalProcessService;
+
+    @Autowired
+    private ISysApprovalHistoryService sysApprovalHistoryService;
 
     /**
      * 查询讲座报告
@@ -86,114 +91,11 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService {
     // return sciLectureReportMapper.selectSciLectureReportList(sciLectureReport);
     // }
 
-    @Override
-    @DataScope(deptAlias = "d", userAlias = "u")
-    public List<SciLectureReport> selectSciLectureReportListJYS_Tab0(SciLectureReport sciLectureReport) {
-        return sciLectureReportMapper.selectSciLectureReportList(sciLectureReport);
-    }
 
-    // 教研室管理员的项目申请Tab页查询讲座报告列表
-    @Override
-    @DataScope(deptAlias = "d", userAlias = "u")
-    public List<SciLectureReport> selectSciLectureReportListJYS_Tab1(SciLectureReport sciLectureReport) {
-        // List<SciLectureReport> sciLectureReportList =
-        // sciLectureReportMapper.selectSciLectureReportList(sciLectureReport);
-        // List<SciLectureReport> list = new ArrayList<>();
-        // for (SciLectureReport sciLectureReport1 : sciLectureReportList) {
-        //// sciLectureReport1.getUserId()!=(sciLectureReport.getUid())
-        // // 当前状态为2，并且不是当前用户的项目，则不显示
-        // if (sciLectureReport1.getState().equals("2") &&
-        // !Objects.equals(sciLectureReport1.getUserId() != null ?
-        // sciLectureReport1.getUserId().longValue() : null,
-        // sciLectureReport.getUid())){
-        // continue;
-        // }
-        // // 当前状态为4，并且是当前用户的项目，则不显示
-        // if (sciLectureReport1.getState().equals("4") &&
-        // Objects.equals(sciLectureReport1.getUserId() != null ?
-        // sciLectureReport1.getUserId().longValue() : null,
-        // sciLectureReport.getUid())){
-        // continue;
-        // }
-        // list.add(sciLectureReport1);
-        // }
-        // return list;
-        return sciLectureReportMapper.selectSciLectureReportList(sciLectureReport);
-    }
-
-    @Override
-    @DataScope(deptAlias = "d", userAlias = "u")
-    public List<SciLectureReport> selectSciLectureReportListJYS_Tab2(SciLectureReport sciLectureReport) {
-        // List<SciLectureReport> sciLectureReportList =
-        // sciLectureReportMapper.selectSciLectureReportList(sciLectureReport);
-        // List<SciLectureReport> list = new ArrayList<>();
-        // for (SciLectureReport sciLectureReport1 : sciLectureReportList) {
-        //// sciLectureReport1.getUserId()!=(sciLectureReport.getUid())
-        // // 当前状态为4，并且不是当前用户的项目，则不显示
-        // if (sciLectureReport1.getState().equals("4") &&
-        // !Objects.equals(sciLectureReport1.getUserId() != null ?
-        // sciLectureReport1.getUserId().longValue() : null,
-        // sciLectureReport.getUid())){
-        // continue;
-        // }
-        // list.add(sciLectureReport1);
-        // }
-        // return list;
-        return sciLectureReportMapper.selectSciLectureReportList(sciLectureReport);
-    }
-
-    // 科研室项目申请tab页讲座报告数据查询
-    @Override
-    @DataScope(deptAlias = "d", userAlias = "u")
-    public List<SciLectureReport> selectSciLectureReportListKYS_Tab1(SciLectureReport sciLectureReport) {
-        // List<SciLectureReport> sciLectureReportList =
-        // sciLectureReportMapper.selectSciLectureReportList(sciLectureReport);
-        // List<SciLectureReport> list = new ArrayList<>();
-        // for (SciLectureReport sciLectureReport1 : sciLectureReportList) {
-        //// sciLectureReport1.getUserId()!=(sciLectureReport.getUid())
-        // // 当前状态为2，并且不是当前用户的项目，则不显示
-        //// if (sciLectureReport1.getState().equals("2") &&
-        // !Objects.equals(sciLectureReport1.getUserId() != null ?
-        // sciLectureReport1.getUserId().longValue() : null,
-        // sciLectureReport.getUid())){
-        //// continue;
-        //// }
-        // // 当前状态为4，并且是当前用户的项目，则不显示
-        // if (sciLectureReport1.getState().equals("4") &&
-        // Objects.equals(sciLectureReport1.getUserId() != null ?
-        // sciLectureReport1.getUserId().longValue() : null,
-        // sciLectureReport.getUid())){
-        // continue;
-        // }
-        // list.add(sciLectureReport1);
-        // }
-        // return sciLectureReportList;
-        return sciLectureReportMapper.selectSciLectureReportList(sciLectureReport);
-    }
-
-    // 结项申请tab页
-    @Override
-    public List<SciLectureReport> selectSciLectureReportListKYS_Tab2(SciLectureReport sciLectureReport) {
-        // List<SciLectureReport> sciLectureReportList =
-        // sciLectureReportMapper.selectSciLectureReportList(sciLectureReport);
-        // List<SciLectureReport> list = new ArrayList<>();
-        // for (SciLectureReport sciLectureReport1 : sciLectureReportList) {
-        //// sciLectureReport1.getUserId()!=(sciLectureReport.getUid())
-        // // 当前状态为4，并且不是当前用户的项目，则不显示
-        // if (sciLectureReport1.getState().equals("4") &&
-        // !Objects.equals(sciLectureReport1.getUserId() != null ?
-        // sciLectureReport1.getUserId().longValue() : null,
-        // sciLectureReport.getUid())){
-        // continue;
-        // }
-        // list.add(sciLectureReport1);
-        // }
-        // return list;
-        return sciLectureReportMapper.selectSciLectureReportList(sciLectureReport);
-    }
 
     // 结项申请保存
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int SciLectureReportOverAdd(SciLectureReport sciLectureReport) {
         try {
             // 1. 获取当前用户信息
@@ -212,10 +114,21 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService {
                 // 5. 设置新状态
                 sciLectureReport.setState(newState);
                 // 6. 保存结项申请
-                return sciLectureReportMapper.SciLectureReportOverAdd(sciLectureReport);
+                int updateResult = sciLectureReportMapper.SciLectureReportOverAdd(sciLectureReport);
+                if (updateResult > 0) {
+                    // 记录审批意见
+                    SciLectureReportOpinion sciLectureReportOpinion = new SciLectureReportOpinion();
+                    sciLectureReportOpinion.setUid(currentUser.getUserId());
+                    sciLectureReportOpinion.setBaogaoId(sciLectureReport.getId());
+                    sciLectureReportOpinion.setConcate("提交结项申请");
+                    sciLectureReportOpinion.setState("提交");
+                    opinionMapper.opinionadd(sciLectureReportOpinion);
+                    return updateResult;
+                }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("讲座报告结项申请异常", e);
+            throw e; // 抛出异常，触发事务回滚
         }
         return 0;
     }
@@ -384,14 +297,18 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService {
                 ApprovalResult result = approvalProcessService.submitApproval(submitRequest);
 
                 if (result != null && result.isSuccess()) {
-                    SciLectureReportOpinion sciLectureReportOpinion = new SciLectureReportOpinion();
-                    sciLectureReportOpinion.setUid(currentUser.getUserId());
-                    sciLectureReportOpinion.setBaogaoId(id);
-                    sciLectureReportOpinion.setConcate("数据所有者提交");
-                    sciLectureReportOpinion.setState("提交");
-                    opinionMapper.opinionadd(sciLectureReportOpinion);
+                    // 更新讲座报告状态
+                    int updateResult = sciLectureReportMapper.criticism(id, result.getNewState());
+                    if (updateResult > 0) {
+                        SciLectureReportOpinion sciLectureReportOpinion = new SciLectureReportOpinion();
+                        sciLectureReportOpinion.setUid(currentUser.getUserId());
+                        sciLectureReportOpinion.setBaogaoId(id);
+                        sciLectureReportOpinion.setConcate("数据所有者提交");
+                        sciLectureReportOpinion.setState("提交");
+                        opinionMapper.opinionadd(sciLectureReportOpinion);
 
-                    return 1;
+                        return updateResult;
+                    }
                 }
             } catch (NumberFormatException e) {
                 return 0;
@@ -413,6 +330,7 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService {
 
     // 通过批阅修改讲座报告的状态，并将批阅意见插入数据库
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int criticism(Integer rid, Long userId, String remark, String urlFlag) {
         try {
             SciLectureReport report = sciLectureReportMapper.selectSciLectureReportById(rid);
@@ -422,9 +340,10 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService {
 
             SysUser currentUser = ShiroUtils.getSysUser();
 
+            // 调用封装好的approve方法处理审批通过
             ApprovalRequest approveRequest = ApprovalRequest.of("LECTURE_APPROVAL",
                     rid.longValue(), report.getState(),
-                    remark != null && !remark.isEmpty() ? remark : "通过",
+                    remark != null && !remark.isEmpty() ? remark : "通过", 
                     userId, currentUser.getUserName(),
                     currentUser.getDept().getDeptName());
 
@@ -432,39 +351,47 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService {
 
             if (result != null && result.isSuccess()) {
                 String newState = result.getNewState();
+                
+                // 更新讲座报告状态
+                int updateResult = sciLectureReportMapper.criticism(rid, newState);
+                if (updateResult > 0) {
+                    // 记录审批意见
+                    SciLectureReportOpinion sciLectureReportOpinion = new SciLectureReportOpinion();
+                    sciLectureReportOpinion.setUid(userId);
+                    sciLectureReportOpinion.setBaogaoId(rid);
+                    if (remark == null || remark.equals("")) {
+                        remark = "通过";
+                    }
+                    sciLectureReportOpinion.setConcate(remark);
+                    sciLectureReportOpinion.setState("通过");
+                    opinionMapper.opinionadd(sciLectureReportOpinion);
 
-                SciLectureReportOpinion sciLectureReportOpinion = new SciLectureReportOpinion();
-                sciLectureReportOpinion.setUid(userId);
-                sciLectureReportOpinion.setBaogaoId(rid);
-                if (remark == null || remark.equals("")) {
-                    remark = "通过";
-                }
-                sciLectureReportOpinion.setConcate(remark);
-                sciLectureReportOpinion.setState("通过");
-                opinionMapper.opinionadd(sciLectureReportOpinion);
-
-                if (newState != null && newState.equals("LECTURE_PASSED")) {
-                    if (report.getReportClassify() != null && !report.getReportClassify().isEmpty()) {
-                        Integer classifyId = Integer.parseInt(report.getReportClassify());
-                        SciLectureReportIntegral sciLectureReportIntegral = reportIntegralMapper
-                                .selectSciLectureReportIntegralById(classifyId);
-                        if (sciLectureReportIntegral != null && sciLectureReportIntegral.getIntegral() != null) {
-                            sciLectureReportMapper.reportKeyanfen(rid,
-                                    sciLectureReportIntegral.getIntegral());
+                    // 计算科研分（如果需要）
+                    if (newState != null && newState.equals("LECTURE_PASSED")) {
+                        if (report.getReportClassify() != null && !report.getReportClassify().isEmpty()) {
+                            Integer classifyId = Integer.parseInt(report.getReportClassify());
+                            SciLectureReportIntegral sciLectureReportIntegral = reportIntegralMapper
+                                    .selectSciLectureReportIntegralById(classifyId);
+                            if (sciLectureReportIntegral != null && sciLectureReportIntegral.getIntegral() != null) {
+                                sciLectureReportMapper.reportKeyanfen(rid,
+                                        sciLectureReportIntegral.getIntegral());
+                            }
                         }
                     }
-                }
 
-                return 1;
+                    return updateResult;
+                }
             }
         } catch (Exception e) {
             log.error("讲座报告审批通过异常", e);
+            throw e; // 抛出异常，触发事务回滚
         }
         return 0;
     }
 
     // 驳回业务处理方法
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int reject(Integer id, Long userId, String remark, String urlFlag) {
         try {
             SciLectureReport report = sciLectureReportMapper.selectSciLectureReportById(id);
@@ -472,8 +399,14 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService {
                 return 0;
             }
 
+            // 校验驳回原因不能为空
+            if (remark == null || remark.trim().isEmpty()) {
+                throw new IllegalArgumentException("驳回原因不能为空");
+            }
+
             SysUser currentUser = ShiroUtils.getSysUser();
 
+            // 调用封装好的reject方法处理审批驳回
             ApprovalRequest rejectRequest = ApprovalRequest.of("LECTURE_APPROVAL",
                     id.longValue(), report.getState(),
                     remark, userId, currentUser.getUserName(),
@@ -483,28 +416,80 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService {
 
             if (result != null && result.isSuccess()) {
                 String newState = result.getNewState();
+                
+                // 更新讲座报告状态
+                int updateResult = sciLectureReportMapper.criticism(id, newState);
+                if (updateResult > 0) {
+                    // 记录审批意见
+                    SciLectureReportOpinion sciLectureReportOpinion = new SciLectureReportOpinion();
+                    sciLectureReportOpinion.setUid(userId);
+                    sciLectureReportOpinion.setBaogaoId(id);
+                    sciLectureReportOpinion.setConcate(remark);
 
-                SciLectureReportOpinion sciLectureReportOpinion = new SciLectureReportOpinion();
-                sciLectureReportOpinion.setUid(userId);
-                sciLectureReportOpinion.setBaogaoId(id);
-                sciLectureReportOpinion.setConcate(remark);
+                    if ("tuihui".equals(urlFlag) || "zgqxtuihui".equals(urlFlag)) {
+                        sciLectureReportOpinion.setState("撤回");
+                    } else {
+                        sciLectureReportOpinion.setState("驳回");
+                    }
 
-                if ("tuihui".equals(urlFlag) || "zgqxtuihui".equals(urlFlag)) {
-                    sciLectureReportOpinion.setState("撤回");
-                } else {
-                    sciLectureReportOpinion.setState("驳回");
+                    opinionMapper.opinionadd(sciLectureReportOpinion);
+
+                    // 处理科研分（如果需要）
+                    if (newState != null && newState.equals("LECTURE_REJECTED")) {
+                        sciLectureReportMapper.reportKeyanfen(id, "0");
+                    }
+
+                    return updateResult;
                 }
-
-                opinionMapper.opinionadd(sciLectureReportOpinion);
-
-                if (newState != null && newState.equals("LECTURE_REJECTED")) {
-                    sciLectureReportMapper.reportKeyanfen(id, "0");
-                }
-
-                return 1;
             }
         } catch (Exception e) {
             log.error("讲座报告驳回异常", e);
+            throw e; // 抛出异常，触发事务回滚
+        }
+        return 0;
+    }
+
+    // 撤回审批业务处理方法
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int recall(Integer id, Long userId, String remark) {
+        try {
+            SciLectureReport report = sciLectureReportMapper.selectSciLectureReportById(id);
+            if (report == null) {
+                return 0;
+            }
+
+            SysUser currentUser = ShiroUtils.getSysUser();
+
+            // 调用封装好的recall方法处理审批撤回
+            ApprovalRequest recallRequest = ApprovalRequest.of("LECTURE_APPROVAL",
+                    id.longValue(), report.getState(),
+                    remark != null && !remark.isEmpty() ? remark : "撤回审批", 
+                    userId, currentUser.getUserName(),
+                    currentUser.getDept().getDeptName());
+
+            ApprovalResult result = approvalProcessService.recall(recallRequest);
+
+            if (result != null && result.isSuccess()) {
+                String newState = result.getNewState();
+                
+                // 更新讲座报告状态
+                int updateResult = sciLectureReportMapper.criticism(id, newState);
+                if (updateResult > 0) {
+                    // 记录审批意见
+                    SciLectureReportOpinion sciLectureReportOpinion = new SciLectureReportOpinion();
+                    sciLectureReportOpinion.setUid(userId);
+                    sciLectureReportOpinion.setBaogaoId(id);
+                    sciLectureReportOpinion.setConcate(remark != null && !remark.isEmpty() ? remark : "撤回审批");
+                    sciLectureReportOpinion.setState("撤回");
+                    opinionMapper.opinionadd(sciLectureReportOpinion);
+
+                    return updateResult;
+                }
+            }
+        } catch (Exception e) {
+            log.error("讲座报告撤回异常", e);
+            throw e; // 抛出异常，触发事务回滚
         }
         return 0;
     }
@@ -564,89 +549,7 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService {
         }
     }
 
-    /**
-     * 教师查询讲座报告列表（课题名称查询）
-     *
-     * @param sciLectureReport 讲座报告
-     * @return 讲座报告集合
-     */
-    @Override
-    @DataScope(deptAlias = "d", userAlias = "u")
-    public List<SciLectureReport> selectSciLectureReportListCx(SciLectureReport sciLectureReport) {
-        return sciLectureReportMapper.selectSciLectureReportListCx(sciLectureReport);
-    }
 
-    /**
-     * 教研室查询讲座报告列表（第一作者、课题名称查询）
-     *
-     * @param sciLectureReport 讲座报告
-     * @return 讲座报告集合
-     */
-    @Override
-    @DataScope(deptAlias = "d", userAlias = "u")
-    public List<SciLectureReport> selectSciLectureReportListCxList(SciLectureReport sciLectureReport) {
-        return sciLectureReportMapper.selectSciLectureReportListCxList(sciLectureReport);
-    }
-
-    /**
-     * 学院查询讲座报告列表（专业、第一作者、课题名称查询）
-     *
-     * @param sciLectureReport 讲座报告
-     * @return 讲座报告集合
-     */
-    @Override
-    @DataScope(deptAlias = "d", userAlias = "u")
-    public List<SciLectureReport> selectSciLectureReportListXY(SciLectureReport sciLectureReport) {
-        return sciLectureReportMapper.selectSciLectureReportListXY(sciLectureReport);
-    }
-
-    /**
-     * 科研处查询讲座报告列表（学院、专业、第一作者、课题名称查询）
-     *
-     * @param sciLectureReport 讲座报告
-     * @return 讲座报告集合
-     */
-    @Override
-    @DataScope(deptAlias = "d", userAlias = "u")
-    public List<SciLectureReport> selectSciLectureReportListKY(SciLectureReport sciLectureReport) {
-        return sciLectureReportMapper.selectSciLectureReportListKY(sciLectureReport);
-    }
-
-    /**
-     * 查询已结项的讲座报告列表
-     *
-     * @param sciLectureReport 讲座报告
-     * @return 讲座报告集合
-     */
-    @Override
-    @DataScope(deptAlias = "d", userAlias = "u")
-    public List<SciLectureReport> selectSciLectureReportListOVER(SciLectureReport sciLectureReport) {
-        return sciLectureReportMapper.selectSciLectureReportList(sciLectureReport);
-    }
-
-    /**
-     * 查询教研室相关的讲座报告列表
-     *
-     * @param sciLectureReport 讲座报告
-     * @return 讲座报告集合
-     */
-    @Override
-    @DataScope(deptAlias = "d", userAlias = "u")
-    public List<SciLectureReport> selectSciLectureReportListJX(SciLectureReport sciLectureReport) {
-        return sciLectureReportMapper.selectSciLectureReportList(sciLectureReport);
-    }
-
-    /**
-     * 查询用户参与的其他讲座报告列表
-     *
-     * @param sciLectureReport 讲座报告
-     * @return 讲座报告集合
-     */
-    @Override
-    @DataScope(deptAlias = "d", userAlias = "u")
-    public List<SciLectureReport> selectOtherListByUid(SciLectureReport sciLectureReport) {
-        return sciLectureReportMapper.selectSciLectureReportList(sciLectureReport);
-    }
 
     /**
      * 统一查询讲座报告列表
