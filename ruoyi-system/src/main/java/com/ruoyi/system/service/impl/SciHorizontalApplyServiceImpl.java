@@ -14,6 +14,8 @@ import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.system.domain.*;
 import com.ruoyi.system.mapper.*;
 import com.ruoyi.system.service.SciHorizontalReamountService;
+import com.ruoyi.system.service.IApprovalProcessService;
+import com.ruoyi.system.service.ISysUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.ruoyi.system.service.ISciHorizontalApplyService;
@@ -55,6 +57,48 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
     private SciHorizontalReamountMapper sciHorizontalReamountMapper;
     @Autowired
     private SciProjectScoreCfgMapper sciProjectScoreCfgMapper;
+    @Autowired
+    private ISysUserService userService;
+
+    /**
+     * 将业务状态编码转换为审批节点编码
+     * 业务状态编码格式: {阶段}_{节点}_{状态} (如 APPLY_JYS_AUDIT)
+     * 审批节点编码格式: {阶段}_{节点} (如 APPLY_JYS)
+     * 两者概念不同：状态编码表示业务数据当前所处状态，节点编码标识审批流程中的节点
+     *
+     * @param stateCode 业务状态编码
+     * @return 审批节点编码
+     */
+    private String stateToNodeCode(String stateCode) {
+        if (stateCode == null || stateCode.isEmpty()) {
+            return stateCode;
+        }
+        if (stateCode.endsWith("_AUDIT")) {
+            return stateCode.substring(0, stateCode.length() - 6);
+        }
+        return stateCode;
+    }
+
+    /**
+     * 将审批节点编码转换为业务状态编码
+     * 仅对审批中状态的节点编码添加 _AUDIT 后缀
+     * 终态（PASSED/REJECTED）和草稿态（DRAFT）不加后缀
+     *
+     * @param nodeCode 审批节点编码
+     * @return 业务状态编码
+     */
+    private String nodeCodeToState(String nodeCode) {
+        if (nodeCode == null || nodeCode.isEmpty()) {
+            return nodeCode;
+        }
+        if (nodeCode.endsWith("_PASSED") || nodeCode.endsWith("_REJECTED") || nodeCode.endsWith("_DRAFT")) {
+            return nodeCode;
+        }
+        if (!nodeCode.endsWith("_AUDIT")) {
+            return nodeCode + "_AUDIT";
+        }
+        return nodeCode;
+    }
 
     /**
      * 查询横向课题
@@ -302,24 +346,35 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
 
     @Override
     public int hxPass(String id,Long uid,String urlFlag) {
-        String state = "0";
-        if(urlFlag.equals("hecha")){
-            state ="4";
-        }else if(urlFlag.equals("pro")){
-            state ="2";
-//            学院通过
-        }else if (urlFlag.equals("Dept")){
-            state ="11";
+        try {
+            Integer applyId = Integer.valueOf(id);
+            SciHorizontalApply apply = sciHorizontalApplyMapper.selectSciHorizontalApplyById(applyId);
+            if (apply == null) {
+                return 0;
+            }
+            SysUser user = userService.selectUserById(uid);
+            if (user == null) {
+                return 0;
+            }
+            List<String> roleKeys = user.getRoles() == null ? new ArrayList<>() : user.getRoles().stream()
+                    .map(SysRole::getRoleKey)
+                    .collect(Collectors.toList());
+            List<Long> deptIds = buildOperatorDeptIds(user);
+            ApprovalResult result = approveApply(
+                    applyId,
+                    apply.getState(),
+                    uid,
+                    user.getUserName(),
+                    user.getDept() != null ? user.getDept().getDeptName() : "",
+                    roleKeys,
+                    deptIds,
+                    null
+            );
+            return result.isSuccess() ? 1 : 0;
+        } catch (Exception e) {
+            log.error("横向课题立项审批通过失败: id={}, operatorId={}", id, uid, e);
+            return 0;
         }
-
-        int a =  sciHorizontalApplyMapper.hxPass(id,state);
-        SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
-        sciHorizontalPiyue.setUid(uid);
-        sciHorizontalPiyue.setHxktId(Integer.valueOf(id));
-        sciHorizontalPiyue.setConcate("同意");
-        sciHorizontalPiyue.setState("通过");
-        sciHorizontalPiyueMapper.insertSciHorizontalPiyue(sciHorizontalPiyue);
-        return a;
     }
 
     @Override
@@ -359,71 +414,101 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
 
     @Override
     public int hxover(String id,Long uid,String urlFlag) {
-        String state = "0";
-//        SciUserScore sciUserScore = new SciUserScore();
-//        sciUserScore.setApplyId(applyId.toString());
-        if(urlFlag.equals("JYSOVER")){
-            state ="8";
-        }else if(urlFlag.equals("KYCOVER")){
-            state ="6";
-            //            以负责人列表大小为准，顺序匹配每个负责人所对应的分数，记录到sciUserScore中。
-//            for (int i = 0; i < persion.size(); i++) {
-//                sciUserScore.setUserId(persion.get(i).toString());
-//                sciUserScore.setChangeValue(score.get(i).toString());
-//                sciUserScore.setChangeStatus("结项");
-//                sciUserScoreMapper.insertScoreHistory(sciUserScore);
-//            }
-        }else if (urlFlag.equals("DeptOVER")){
-            state ="33";
+        try {
+            Integer applyId = Integer.valueOf(id);
+            SciHorizontalApply apply = sciHorizontalApplyMapper.selectSciHorizontalApplyById(applyId);
+            if (apply == null) {
+                return 0;
+            }
+            SysUser user = userService.selectUserById(uid);
+            if (user == null) {
+                return 0;
+            }
+            List<String> roleKeys = user.getRoles() == null ? new ArrayList<>() : user.getRoles().stream()
+                    .map(SysRole::getRoleKey)
+                    .collect(Collectors.toList());
+            List<Long> deptIds = buildOperatorDeptIds(user);
+            ApprovalResult result = approveOver(
+                    applyId,
+                    apply.getState(),
+                    uid,
+                    user.getUserName(),
+                    user.getDept() != null ? user.getDept().getDeptName() : "",
+                    roleKeys,
+                    deptIds,
+                    null
+            );
+            return result.isSuccess() ? 1 : 0;
+        } catch (Exception e) {
+            log.error("横向课题结项审批通过失败: id={}, operatorId={}", id, uid, e);
+            return 0;
         }
-        int a =  sciHorizontalApplyMapper.hxPass(id,state);
-        SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
-        sciHorizontalPiyue.setUid(uid);
-        sciHorizontalPiyue.setHxktId(Integer.valueOf(id));
-        sciHorizontalPiyue.setConcate("同意");
-        sciHorizontalPiyue.setState("通过");
-        sciHorizontalPiyueMapper.insertSciHorizontalPiyue(sciHorizontalPiyue);
-        return a;
     }
 
     @Override
     public int hxBh(String id,Long uid, String remark,String urlFlag) {
-        String state = "0";
-        if(urlFlag.equals("hecha")){
-            state ="5";
-        }else if(urlFlag.equals("pro")){
-            state ="3";
-        }else if (urlFlag.equals("Dept")){
-            state ="22";
+        try {
+            Integer applyId = Integer.valueOf(id);
+            SciHorizontalApply apply = sciHorizontalApplyMapper.selectSciHorizontalApplyById(applyId);
+            if (apply == null) {
+                return 0;
+            }
+            SysUser user = userService.selectUserById(uid);
+            if (user == null) {
+                return 0;
+            }
+            List<String> roleKeys = user.getRoles() == null ? new ArrayList<>() : user.getRoles().stream()
+                    .map(SysRole::getRoleKey)
+                    .collect(Collectors.toList());
+            List<Long> deptIds = buildOperatorDeptIds(user);
+            ApprovalResult result = rejectApply(
+                    applyId,
+                    apply.getState(),
+                    uid,
+                    user.getUserName(),
+                    user.getDept() != null ? user.getDept().getDeptName() : "",
+                    roleKeys,
+                    deptIds,
+                    remark
+            );
+            return result.isSuccess() ? 1 : 0;
+        } catch (Exception e) {
+            log.error("横向课题立项审批驳回失败: id={}, operatorId={}", id, uid, e);
+            return 0;
         }
-        int a = sciHorizontalApplyMapper.hxPass(id,state);
-        SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
-        sciHorizontalPiyue.setUid(uid);
-        sciHorizontalPiyue.setHxktId(Integer.valueOf(id));
-        sciHorizontalPiyue.setConcate(remark);
-        sciHorizontalPiyue.setState("驳回");
-        sciHorizontalPiyueMapper.insertSciHorizontalPiyue(sciHorizontalPiyue);
-        return a;
     }
 
     @Override
     public int hxoverBh(String id, Long uid, String remark, String urlFlag) {
-        String state = "0";
-        if(urlFlag.equals("JYSOVER")){
-            state ="9";
-        }else if(urlFlag.equals("KYCOVER")){
-            state ="10";
-        }else if (urlFlag.equals("DeptOVER")){
-            state ="44";
+        try {
+            Integer applyId = Integer.valueOf(id);
+            SciHorizontalApply apply = sciHorizontalApplyMapper.selectSciHorizontalApplyById(applyId);
+            if (apply == null) {
+                return 0;
+            }
+            SysUser user = userService.selectUserById(uid);
+            if (user == null) {
+                return 0;
+            }
+            List<String> roleKeys = user.getRoles() == null ? new ArrayList<>() : user.getRoles().stream()
+                    .map(SysRole::getRoleKey)
+                    .collect(Collectors.toList());
+            List<Long> deptIds = buildOperatorDeptIds(user);
+            ApprovalResult result = rejectOver(
+                    applyId,
+                    apply.getState(),
+                    uid,
+                    user.getUserName(),
+                    user.getDept() != null ? user.getDept().getDeptName() : "",
+                    roleKeys,
+                    deptIds,
+                    remark
+            );
+            return result.isSuccess() ? 1 : 0;
+        } catch (Exception e) {
+            log.error("横向课题结项审批驳回失败: id={}, operatorId={}", id, uid, e);
+            return 0;
         }
-        int a =  sciHorizontalApplyMapper.hxPass(id,state);
-        SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
-        sciHorizontalPiyue.setUid(uid);
-        sciHorizontalPiyue.setHxktId(Integer.valueOf(id));
-        sciHorizontalPiyue.setConcate(remark);
-        sciHorizontalPiyue.setState("被驳回");
-        sciHorizontalPiyueMapper.insertSciHorizontalPiyue(sciHorizontalPiyue);
-        return a;
     }
 
 
@@ -586,52 +671,43 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
 
     @Override
     public int recall(Integer id, String state,Long uid, String remark, String urlFlag) {
-        String newState = state;
-        switch (state){
-//            教研室
-            case "2": case "3":
-                newState = "1";
-                break;
-            case "8": case "9":
-                newState = "7";
-                break;
-//                学院
-            case "11":  case "22":
-                newState = "2";
-                break;
-            case "33": case"44":
-                newState = "8";
-                break;
-//                科研处
-            case "4":  case "5":
-                newState = "11";
-                break;
-            case "6": case "10":
-                newState = "33";
-                break;
-//                教师
-            case "7":
-                newState = "4";
-                break;
+        try {
+            SciHorizontalApply apply = sciHorizontalApplyMapper.selectSciHorizontalApplyById(id);
+            if (apply == null) {
+                return 0;
+            }
+            SysUser user = userService.selectUserById(uid);
+            if (user == null) {
+                return 0;
+            }
+            String currentState = apply.getState();
+            ApprovalResult result;
+            if (StringUtils.startsWith(currentState, "APPLY_")) {
+                result = recallApply(
+                        id,
+                        currentState,
+                        uid,
+                        user.getUserName(),
+                        user.getDept() != null ? user.getDept().getDeptName() : "",
+                        remark
+                );
+            } else if (StringUtils.startsWith(currentState, "OVER_")) {
+                result = recallOver(
+                        id,
+                        currentState,
+                        uid,
+                        user.getUserName(),
+                        user.getDept() != null ? user.getDept().getDeptName() : "",
+                        remark
+                );
+            } else {
+                return 0;
+            }
+            return result.isSuccess() ? 1 : 0;
+        } catch (Exception e) {
+            log.error("横向课题撤回失败: id={}, operatorId={}", id, uid, e);
+            return 0;
         }
-        if(state.equals("4")){
-            String status = "立项";
-            sciUserScoreMapper.deleteScoreById(id.toString(),status);
-        }else
-        if(state.equals("6")){
-            String status = "结项";
-            sciUserScoreMapper.deleteScoreById(id.toString(),status);
-        }
-//        设置状态
-        int a =sciHorizontalApplyMapper.hxPass(id.toString(),newState);
-//        插入日志
-        SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
-        sciHorizontalPiyue.setUid(uid);
-        sciHorizontalPiyue.setHxktId(id);
-        sciHorizontalPiyue.setConcate(remark);
-        sciHorizontalPiyue.setState("撤回");
-        sciHorizontalPiyueMapper.insertSciHorizontalPiyue(sciHorizontalPiyue);
-        return a;
     }
 
     @Override
@@ -657,6 +733,20 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
     @Override
     public List<creditedAmount> selectCreditedAmount() {
         return sciHorizontalApplyMapper.selectCreditedAmount();
+    }
+
+    private List<Long> buildOperatorDeptIds(SysUser user) {
+        List<Long> deptIds = new ArrayList<>();
+        if (user == null) {
+            return deptIds;
+        }
+        if (user.getDeptId() != null) {
+            deptIds.add(user.getDeptId());
+        }
+        if (user.getDept() != null && user.getDept().getParentId() != null) {
+            deptIds.add(user.getDept().getParentId());
+        }
+        return deptIds;
     }
 
     /**
@@ -1616,5 +1706,559 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
         } else {
             return new int[]{0, 0, 0, 0};
         }
+    }
+
+    //*******************************************************************************************************
+    // 审批流程相关方法实现（集成IApprovalProcessService）
+
+    @Autowired
+    private IApprovalProcessService approvalProcessService;
+
+    /**
+     * 提交立项申请审批
+     * <p>
+     * 通过调用IApprovalProcessService.submitApproval()实现，
+     * 确保状态流转的规范性和审批历史的完整记录。
+     * </p>
+     *
+     * @param applyId 申请ID
+     * @param operatorId 操作人ID
+     * @param operatorName 操作人姓名
+     * @param operatorDept 操作人部门
+     * @param comment 提交说明（可选）
+     * @return 审批结果
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public ApprovalResult submitApplyApproval(Integer applyId, Long operatorId,
+            String operatorName, String operatorDept, String comment) {
+        if (applyId == null || operatorId == null) {
+            return ApprovalResult.fail("参数不完整");
+        }
+
+        SciHorizontalApply apply = sciHorizontalApplyMapper.selectSciHorizontalApplyById(applyId);
+        if (apply == null) {
+            return ApprovalResult.fail("立项申请不存在");
+        }
+
+        if (!"APPLY_DRAFT".equals(apply.getState())) {
+            return ApprovalResult.fail("只有草稿状态的申请才能提交");
+        }
+
+        ApprovalRequest request = ApprovalRequest.of(
+                "HORIZONTAL_APPLY",
+                applyId.longValue(),
+                apply.getState(),
+                comment,
+                operatorId,
+                operatorName,
+                operatorDept
+        );
+
+        ApprovalResult result = approvalProcessService.submitApproval(request);
+        
+        if (result.isSuccess()) {
+            String newState = result.getNewState();
+            String correctedState = nodeCodeToState(newState);
+            if (!correctedState.equals(newState)) {
+                sciHorizontalApplyMapper.updateState(applyId, correctedState);
+                result = ApprovalResult.ok(result.getMessage(), correctedState);
+            }
+            log.info("立项申请提交成功: applyId={}, newState={}, operator={}", 
+                    applyId, correctedState, operatorName);
+        } else {
+            log.error("立项申请提交失败: applyId={}, reason={}", applyId, result.getMessage());
+        }
+        
+        return result;
+    }
+
+    /**
+     * 立项申请审批通过
+     * <p>
+     * 通过调用IApprovalProcessService.approve()实现，
+     * 自动根据节点配置流转到下一状态。
+     * </p>
+     *
+     * @param applyId 申请ID
+     * @param currentState 当前状态
+     * @param operatorId 操作人ID
+     * @param operatorName 操作人姓名
+     * @param operatorDept 操作人部门
+     * @param operatorRoleKeys 操作人角色列表
+     * @param operatorDeptIds 操作人部门ID列表
+     * @param comment 审批意见（可选）
+     * @return 审批结果
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public ApprovalResult approveApply(Integer applyId, String currentState,
+            Long operatorId, String operatorName, String operatorDept,
+            List<String> operatorRoleKeys, List<Long> operatorDeptIds, String comment) {
+        if (applyId == null || StringUtils.isEmpty(currentState) || operatorId == null) {
+            return ApprovalResult.fail("参数不完整");
+        }
+
+        SciHorizontalApply apply = sciHorizontalApplyMapper.selectSciHorizontalApplyById(applyId);
+        if (apply == null) {
+            return ApprovalResult.fail("立项申请不存在");
+        }
+
+        if (!currentState.equals(apply.getState())) {
+            return ApprovalResult.fail("申请状态已变更，请刷新后重试");
+        }
+
+        String nodeCode = stateToNodeCode(currentState);
+
+        ApprovalRequest request = ApprovalRequest.of(
+                "HORIZONTAL_APPLY",
+                applyId.longValue(),
+                nodeCode,
+                comment,
+                operatorId,
+                operatorName,
+                operatorDept,
+                operatorRoleKeys,
+                operatorDeptIds
+        );
+
+        ApprovalResult result = approvalProcessService.approve(request);
+        
+        if (result.isSuccess()) {
+            String newState = result.getNewState();
+            String correctedState = nodeCodeToState(newState);
+            if (!correctedState.equals(newState)) {
+                sciHorizontalApplyMapper.updateState(applyId, correctedState);
+                result = ApprovalResult.ok(result.getMessage(), correctedState);
+            }
+            log.info("立项申请审批通过: applyId={}, currentState={}, newState={}, operator={}", 
+                    applyId, currentState, correctedState, operatorName);
+        } else {
+            log.error("立项申请审批通过失败: applyId={}, reason={}", applyId, result.getMessage());
+        }
+        
+        return result;
+    }
+
+    /**
+     * 立项申请审批驳回
+     * <p>
+     * 通过调用IApprovalProcessService.reject()实现，
+     * 状态回退到草稿或上一节点。
+     * </p>
+     *
+     * @param applyId 申请ID
+     * @param currentState 当前状态
+     * @param operatorId 操作人ID
+     * @param operatorName 操作人姓名
+     * @param operatorDept 操作人部门
+     * @param operatorRoleKeys 操作人角色列表
+     * @param operatorDeptIds 操作人部门ID列表
+     * @param comment 驳回原因
+     * @return 审批结果
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public ApprovalResult rejectApply(Integer applyId, String currentState,
+            Long operatorId, String operatorName, String operatorDept,
+            List<String> operatorRoleKeys, List<Long> operatorDeptIds, String comment) {
+        if (applyId == null || StringUtils.isEmpty(currentState) || operatorId == null) {
+            return ApprovalResult.fail("参数不完整");
+        }
+
+        SciHorizontalApply apply = sciHorizontalApplyMapper.selectSciHorizontalApplyById(applyId);
+        if (apply == null) {
+            return ApprovalResult.fail("立项申请不存在");
+        }
+
+        if (!currentState.equals(apply.getState())) {
+            return ApprovalResult.fail("申请状态已变更，请刷新后重试");
+        }
+
+        String nodeCode = stateToNodeCode(currentState);
+
+        ApprovalRequest request = ApprovalRequest.of(
+                "HORIZONTAL_APPLY",
+                applyId.longValue(),
+                nodeCode,
+                comment,
+                operatorId,
+                operatorName,
+                operatorDept,
+                operatorRoleKeys,
+                operatorDeptIds
+        );
+
+        ApprovalResult result = approvalProcessService.reject(request);
+        
+        if (result.isSuccess()) {
+            String newState = result.getNewState();
+            String correctedState = nodeCodeToState(newState);
+            if (!correctedState.equals(newState)) {
+                sciHorizontalApplyMapper.updateState(applyId, correctedState);
+                result = ApprovalResult.ok(result.getMessage(), correctedState);
+            }
+            log.info("立项申请审批驳回: applyId={}, currentState={}, newState={}, operator={}, reason={}", 
+                    applyId, currentState, correctedState, operatorName, comment);
+        } else {
+            log.error("立项申请审批驳回失败: applyId={}, reason={}", applyId, result.getMessage());
+        }
+        
+        return result;
+    }
+
+    /**
+     * 立项申请撤回
+     * <p>
+     * 通过调用IApprovalProcessService.recall()实现，
+     * 状态回退到草稿。
+     * </p>
+     *
+     * @param applyId 申请ID
+     * @param currentState 当前状态
+     * @param operatorId 操作人ID
+     * @param operatorName 操作人姓名
+     * @param operatorDept 操作人部门
+     * @param comment 撤回原因（可选）
+     * @return 审批结果
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public ApprovalResult recallApply(Integer applyId, String currentState,
+            Long operatorId, String operatorName, String operatorDept, String comment) {
+        if (applyId == null || StringUtils.isEmpty(currentState) || operatorId == null) {
+            return ApprovalResult.fail("参数不完整");
+        }
+
+        SciHorizontalApply apply = sciHorizontalApplyMapper.selectSciHorizontalApplyById(applyId);
+        if (apply == null) {
+            return ApprovalResult.fail("立项申请不存在");
+        }
+
+        if (!currentState.equals(apply.getState())) {
+            return ApprovalResult.fail("申请状态已变更，请刷新后重试");
+        }
+
+        if (!operatorId.equals(apply.getUserId().longValue())) {
+            return ApprovalResult.fail("只有申请人才能撤回申请");
+        }
+
+        String nodeCode = stateToNodeCode(currentState);
+
+        ApprovalRequest request = ApprovalRequest.of(
+                "HORIZONTAL_APPLY",
+                applyId.longValue(),
+                nodeCode,
+                comment,
+                operatorId,
+                operatorName,
+                operatorDept
+        );
+
+        ApprovalResult result = approvalProcessService.recall(request);
+        
+        if (result.isSuccess()) {
+            String newState = result.getNewState();
+            String correctedState = nodeCodeToState(newState);
+            if (!correctedState.equals(newState)) {
+                sciHorizontalApplyMapper.updateState(applyId, correctedState);
+                result = ApprovalResult.ok(result.getMessage(), correctedState);
+            }
+            log.info("立项申请撤回成功: applyId={}, currentState={}, newState={}, operator={}", 
+                    applyId, currentState, correctedState, operatorName);
+        } else {
+            log.error("立项申请撤回失败: applyId={}, reason={}", applyId, result.getMessage());
+        }
+        
+        return result;
+    }
+
+    /**
+     * 提交结项申请审批
+     * <p>
+     * 通过调用IApprovalProcessService.submitApproval()实现。
+     * </p>
+     *
+     * @param applyId 申请ID
+     * @param operatorId 操作人ID
+     * @param operatorName 操作人姓名
+     * @param operatorDept 操作人部门
+     * @param comment 提交说明（可选）
+     * @return 审批结果
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public ApprovalResult submitOverApproval(Integer applyId, Long operatorId,
+            String operatorName, String operatorDept, String comment) {
+        if (applyId == null || operatorId == null) {
+            return ApprovalResult.fail("参数不完整");
+        }
+
+        SciHorizontalApply apply = sciHorizontalApplyMapper.selectSciHorizontalApplyById(applyId);
+        if (apply == null) {
+            return ApprovalResult.fail("结项申请不存在");
+        }
+
+        if (!"OVER_DRAFT".equals(apply.getState())) {
+            return ApprovalResult.fail("只有草稿状态的申请才能提交");
+        }
+
+        ApprovalRequest request = ApprovalRequest.of(
+                "HORIZONTAL_OVER",
+                applyId.longValue(),
+                apply.getState(),
+                comment,
+                operatorId,
+                operatorName,
+                operatorDept
+        );
+
+        ApprovalResult result = approvalProcessService.submitApproval(request);
+        
+        if (result.isSuccess()) {
+            String newState = result.getNewState();
+            String correctedState = nodeCodeToState(newState);
+            if (!correctedState.equals(newState)) {
+                sciHorizontalApplyMapper.updateState(applyId, correctedState);
+                result = ApprovalResult.ok(result.getMessage(), correctedState);
+            }
+            log.info("结项申请提交成功: applyId={}, newState={}, operator={}", 
+                    applyId, correctedState, operatorName);
+        } else {
+            log.error("结项申请提交失败: applyId={}, reason={}", applyId, result.getMessage());
+        }
+        
+        return result;
+    }
+
+    /**
+     * 结项申请审批通过
+     * <p>
+     * 通过调用IApprovalProcessService.approve()实现。
+     * </p>
+     *
+     * @param applyId 申请ID
+     * @param currentState 当前状态
+     * @param operatorId 操作人ID
+     * @param operatorName 操作人姓名
+     * @param operatorDept 操作人部门
+     * @param operatorRoleKeys 操作人角色列表
+     * @param operatorDeptIds 操作人部门ID列表
+     * @param comment 审批意见（可选）
+     * @return 审批结果
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public ApprovalResult approveOver(Integer applyId, String currentState,
+            Long operatorId, String operatorName, String operatorDept,
+            List<String> operatorRoleKeys, List<Long> operatorDeptIds, String comment) {
+        if (applyId == null || StringUtils.isEmpty(currentState) || operatorId == null) {
+            return ApprovalResult.fail("参数不完整");
+        }
+
+        SciHorizontalApply apply = sciHorizontalApplyMapper.selectSciHorizontalApplyById(applyId);
+        if (apply == null) {
+            return ApprovalResult.fail("结项申请不存在");
+        }
+
+        if (!currentState.equals(apply.getState())) {
+            return ApprovalResult.fail("申请状态已变更，请刷新后重试");
+        }
+
+        String nodeCode = stateToNodeCode(currentState);
+
+        ApprovalRequest request = ApprovalRequest.of(
+                "HORIZONTAL_OVER",
+                applyId.longValue(),
+                nodeCode,
+                comment,
+                operatorId,
+                operatorName,
+                operatorDept,
+                operatorRoleKeys,
+                operatorDeptIds
+        );
+
+        ApprovalResult result = approvalProcessService.approve(request);
+        
+        if (result.isSuccess()) {
+            String newState = result.getNewState();
+            String correctedState = nodeCodeToState(newState);
+            if (!correctedState.equals(newState)) {
+                sciHorizontalApplyMapper.updateState(applyId, correctedState);
+                result = ApprovalResult.ok(result.getMessage(), correctedState);
+            }
+            log.info("结项申请审批通过: applyId={}, currentState={}, newState={}, operator={}", 
+                    applyId, currentState, correctedState, operatorName);
+        } else {
+            log.error("结项申请审批通过失败: applyId={}, reason={}", applyId, result.getMessage());
+        }
+        
+        return result;
+    }
+
+    /**
+     * 结项申请审批驳回
+     * <p>
+     * 通过调用IApprovalProcessService.reject()实现。
+     * </p>
+     *
+     * @param applyId 申请ID
+     * @param currentState 当前状态
+     * @param operatorId 操作人ID
+     * @param operatorName 操作人姓名
+     * @param operatorDept 操作人部门
+     * @param operatorRoleKeys 操作人角色列表
+     * @param operatorDeptIds 操作人部门ID列表
+     * @param comment 驳回原因
+     * @return 审批结果
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public ApprovalResult rejectOver(Integer applyId, String currentState,
+            Long operatorId, String operatorName, String operatorDept,
+            List<String> operatorRoleKeys, List<Long> operatorDeptIds, String comment) {
+        if (applyId == null || StringUtils.isEmpty(currentState) || operatorId == null) {
+            return ApprovalResult.fail("参数不完整");
+        }
+
+        SciHorizontalApply apply = sciHorizontalApplyMapper.selectSciHorizontalApplyById(applyId);
+        if (apply == null) {
+            return ApprovalResult.fail("结项申请不存在");
+        }
+
+        if (!currentState.equals(apply.getState())) {
+            return ApprovalResult.fail("申请状态已变更，请刷新后重试");
+        }
+
+        String nodeCode = stateToNodeCode(currentState);
+
+        ApprovalRequest request = ApprovalRequest.of(
+                "HORIZONTAL_OVER",
+                applyId.longValue(),
+                nodeCode,
+                comment,
+                operatorId,
+                operatorName,
+                operatorDept,
+                operatorRoleKeys,
+                operatorDeptIds
+        );
+
+        ApprovalResult result = approvalProcessService.reject(request);
+        
+        if (result.isSuccess()) {
+            String newState = result.getNewState();
+            String correctedState = nodeCodeToState(newState);
+            if (!correctedState.equals(newState)) {
+                sciHorizontalApplyMapper.updateState(applyId, correctedState);
+                result = ApprovalResult.ok(result.getMessage(), correctedState);
+            }
+            log.info("结项申请审批驳回: applyId={}, currentState={}, newState={}, operator={}, reason={}", 
+                    applyId, currentState, correctedState, operatorName, comment);
+        } else {
+            log.error("结项申请审批驳回失败: applyId={}, reason={}", applyId, result.getMessage());
+        }
+        
+        return result;
+    }
+
+    /**
+     * 结项申请撤回
+     * <p>
+     * 通过调用IApprovalProcessService.recall()实现。
+     * </p>
+     *
+     * @param applyId 申请ID
+     * @param currentState 当前状态
+     * @param operatorId 操作人ID
+     * @param operatorName 操作人姓名
+     * @param operatorDept 操作人部门
+     * @param comment 撤回原因（可选）
+     * @return 审批结果
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public ApprovalResult recallOver(Integer applyId, String currentState,
+            Long operatorId, String operatorName, String operatorDept, String comment) {
+        if (applyId == null || StringUtils.isEmpty(currentState) || operatorId == null) {
+            return ApprovalResult.fail("参数不完整");
+        }
+
+        SciHorizontalApply apply = sciHorizontalApplyMapper.selectSciHorizontalApplyById(applyId);
+        if (apply == null) {
+            return ApprovalResult.fail("结项申请不存在");
+        }
+
+        if (!currentState.equals(apply.getState())) {
+            return ApprovalResult.fail("申请状态已变更，请刷新后重试");
+        }
+
+        if (!operatorId.equals(apply.getUserId().longValue())) {
+            return ApprovalResult.fail("只有申请人才能撤回申请");
+        }
+
+        String nodeCode = stateToNodeCode(currentState);
+
+        ApprovalRequest request = ApprovalRequest.of(
+                "HORIZONTAL_OVER",
+                applyId.longValue(),
+                nodeCode,
+                comment,
+                operatorId,
+                operatorName,
+                operatorDept
+        );
+
+        ApprovalResult result = approvalProcessService.recall(request);
+        
+        if (result.isSuccess()) {
+            String newState = result.getNewState();
+            String correctedState = nodeCodeToState(newState);
+            if (!correctedState.equals(newState)) {
+                sciHorizontalApplyMapper.updateState(applyId, correctedState);
+                result = ApprovalResult.ok(result.getMessage(), correctedState);
+            }
+            log.info("结项申请撤回成功: applyId={}, currentState={}, newState={}, operator={}", 
+                    applyId, currentState, correctedState, operatorName);
+        } else {
+            log.error("结项申请撤回失败: applyId={}, reason={}", applyId, result.getMessage());
+        }
+        
+        return result;
+    }
+
+    /**
+     * 查询立项申请审批历史
+     *
+     * @param applyId 申请ID
+     * @return 审批历史列表
+     */
+    @Override
+    public List<SysApprovalHistory> getApplyApprovalHistory(Integer applyId) {
+        if (applyId == null) {
+            return new ArrayList<>();
+        }
+        return approvalProcessService.getApprovalHistory(
+                "HORIZONTAL_APPLY", 
+                applyId.longValue()
+        );
+    }
+
+    /**
+     * 查询结项申请审批历史
+     *
+     * @param applyId 申请ID
+     * @return 审批历史列表
+     */
+    @Override
+    public List<SysApprovalHistory> getOverApprovalHistory(Integer applyId) {
+        if (applyId == null) {
+            return new ArrayList<>();
+        }
+        return approvalProcessService.getApprovalHistory(
+                "HORIZONTAL_OVER", 
+                applyId.longValue()
+        );
     }
 }

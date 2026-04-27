@@ -65,13 +65,13 @@
         <if test="newsql != null  and newsql != '' ">
             <choose>
                 <when test="newsql == '00' ">
-                    and s.state = 6
+                    and s.state = 'OVER_PASSED'
                 </when>
                 <when test="newsql == '01'">
-                    and s.state in (1,2,3,4,5,11,22,99)
+                    and s.state in ('APPLY_DRAFT','APPLY_JYS_AUDIT','APPLY_KYC_AUDIT','APPLY_PASSED')
                 </when>
                 <when test="newsql == '02'">
-                    and s.state in (999,7,8,9,10,33,44)
+                    and s.state in ('OVER_DRAFT','OVER_JYS_AUDIT','OVER_KYC_AUDIT','OVER_PASSED')
                 </when>
             </choose>
         </if>
@@ -89,7 +89,7 @@
     <!--    查询申请流程-->
     <select id="selectSciHorizontalApplyList" parameterType="SciHorizontalApply" resultMap="SciHorizontalApplyResult" >
         <include refid="selectSciHorizontalApplyVo"/>
-        where state in (1,2,3,4,5,11,22,99)
+        where state in ('APPLY_DRAFT','APPLY_JYS_AUDIT','APPLY_KYC_AUDIT','APPLY_PASSED')
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
         <if test="topNumber != null  and topNumber != ''"> or top_number = #{topNumber}</if>
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
@@ -103,14 +103,11 @@
         ${params.dataScope}
         order  by
         case
---         草稿箱
-        when state = 99 then 1
---         被驳回
-        when state in (3,22,5) then 2
---         申请结项
-        when state = 4 then 3
---         审核中
-        when state in (1,2,11) then 4
+        when state = 'APPLY_DRAFT' then 1
+        when state = 'APPLY_JYS_AUDIT' then 2
+        when state = 'APPLY_KYC_AUDIT' then 3
+        when state = 'APPLY_PASSED' then 4
+        else 5
         end,
         createtime desc
     </select>
@@ -134,18 +131,15 @@
         ${params.dataScope}
         order  by
         case
---         草稿箱(state=0)
-        when s.state = 0 then 0
---         已驳回(state=99)
-        when s.state = 99 then 1
---         被驳回(state=3,22,5)
-        when s.state in (3,22,5) then 2
---         申请结项(state=4)
-        when s.state = 4 then 3
---         审核中(state=1,2,11)
-        when s.state in (1,2,11) then 4
---         其他状态
-        else 5
+        when s.state = 'APPLY_DRAFT' then 1
+        when s.state = 'APPLY_JYS_AUDIT' then 2
+        when s.state = 'APPLY_KYC_AUDIT' then 3
+        when s.state = 'APPLY_PASSED' then 4
+        when s.state = 'OVER_DRAFT' then 5
+        when s.state = 'OVER_JYS_AUDIT' then 6
+        when s.state = 'OVER_KYC_AUDIT' then 7
+        when s.state = 'OVER_PASSED' then 8
+        else 9
         end,
         s.createtime desc
     </select>
@@ -166,11 +160,10 @@
         ${params.dataScope}
         order  by
         case
---         待教研室审核
-        when state = 1 then 1
---         教研室通过
-        when state = 2 then 2
---         when state in (4,11) then 3
+        when state = 'APPLY_JYS_AUDIT' then 1
+        when state = 'APPLY_KYC_AUDIT' then 2
+        when state = 'APPLY_PASSED' then 3
+        else 4
         end,
         createtime desc
     </select>
@@ -194,10 +187,9 @@
         ${params.dataScope}
         order  by
         case
---         待科研处审核
-        when state = 11 then 2
---         科研处通过
-        when state = 4 then 1
+        when state = 'APPLY_KYC_AUDIT' then 1
+        when state = 'APPLY_PASSED' then 2
+        else 3
         end,
         createtime desc
     </select>
@@ -219,14 +211,7 @@
         <if test="state != null  and state != ''"> and state = #{state}</if>
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
         ${params.dataScope}
-        order  by
-        case
---         待学院审核
-        when state = 2 then 1
---         学院通过
-        when state = 11 then 2
-        end,
-        createtime desc
+        order  by createtime desc
     </select>
 
     <!--    查询结项申请流程-->
@@ -236,8 +221,7 @@
         left join sys_user u on  s.user_id=u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
-        where 1=1
-        <!-- 移除状态过滤条件，允许通过参数动态过滤 -->
+        where s.state in ('OVER_DRAFT','OVER_JYS_AUDIT','OVER_KYC_AUDIT','OVER_PASSED')
         <if test="state != null  and state != ''"> and s.state = #{state}</if>
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
@@ -246,14 +230,14 @@
         <if test="dnameId != null and dnameId != ''"> and d.dept_id = #{dnameId}</if>
         <if test="ynameId != null and ynameId != ''"> and p.dept_id = #{ynameId}</if>
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(validity_Date,INTERVAL 1 MONTH)) = #{year}</if>
-        <!-- 数据范围过滤 - 核心权限控制 -->
         ${params.dataScope}
         order  by
         case
---         被驳回
-        when state in (9,10,44,999) then 2
---         审核中
-        when state in (7,8,33) then 4
+        when state = 'OVER_DRAFT' then 1
+        when state = 'OVER_JYS_AUDIT' then 2
+        when state = 'OVER_KYC_AUDIT' then 3
+        when state = 'OVER_PASSED' then 4
+        else 5
         end,
         s.createtime desc
     </select>
@@ -277,10 +261,10 @@
         ${params.dataScope}
         order  by
         case
---         待教研室审核
-        when state = 7 then 1
---         教研室审核通过
-        when state = 8 then 2
+        when state = 'OVER_JYS_AUDIT' then 1
+        when state = 'OVER_KYC_AUDIT' then 2
+        when state = 'OVER_PASSED' then 3
+        else 4
         end,
         s.createtime desc
     </select>
@@ -303,10 +287,9 @@
         ${params.dataScope}
         order  by
         case
---         待科研处审核
-        when state = 33 then 1
---         科研处审核通过
-        when state = 4 then 2
+        when state = 'OVER_KYC_AUDIT' then 1
+        when state = 'OVER_PASSED' then 2
+        else 3
         end,
         s.createtime desc
     </select>
@@ -328,14 +311,7 @@
         <if test="state != null  and state != ''"> and state = #{state}</if>
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(validity_Date,INTERVAL 1 MONTH)) = #{year}</if>
         ${params.dataScope}
-        order  by
-        case
---         待学院审核
-        when state = 8 then 1
---         学院通过
-        when state = 33 then 2
-        end,
-        s.createtime desc
+        order  by s.createtime desc
     </select>
 
     <!--查询已结项-->
@@ -1487,4 +1463,10 @@
         and s.top_name is not null  and sush.change_status is not NULL
         order by yname asc, dname asc, u.login_name asc
     </select>
+
+    <update id="updateState">
+        UPDATE sci_horizontal_apply
+        SET state = #{state}
+        WHERE id = #{applyId}
+    </update>
 </mapper>
