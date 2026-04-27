@@ -510,6 +510,12 @@ public class SciHorizontalApplyVerticalController extends BaseController {
         mmap.put("extraMembers", extraMembers);
         return prefix + "/overadd";
     }
+    /**
+     * 保存结项申请
+     * 功能：保存纵向课题结项申请信息
+     * SQL：UPDATE sci_horizontal_apply_vertical
+     * SQL：INSERT INTO sci_horizontal_piyue
+     */
     @RequiresPermissions("system:apply_vertical:add")
     @Log(title = "结项", businessType = BusinessType.INSERT)
     @PostMapping("/overadd")
@@ -572,6 +578,10 @@ public class SciHorizontalApplyVerticalController extends BaseController {
     public AjaxResult editSave(SciHorizontalApplyVertical sciHorizontalApplyVertical, javax.servlet.http.HttpServletRequest request)
     {
         sciHorizontalApplyVertical.setNewsql("111");
+        // 如果课题状态是被驳回，编辑后改为草稿状态，以便教师重新提交
+        if (sciHorizontalApplyVertical.getState().equals("V_APPLY_REJ")) {
+            sciHorizontalApplyVertical.setState("V_APPLY_DRAFT");
+        }
         // 合并编辑页成员（前四位 + 动态 members[]），保序去重并写入 sci_persion_vertical（ranking 从1开始）
         String first = String.valueOf(getUserId());
         String second = request.getParameter("secondPersonId");
@@ -630,7 +640,12 @@ public class SciHorizontalApplyVerticalController extends BaseController {
         return prefix + "/overedit";
     }
     /**
-     *保存修改结项
+     * 保存修改结项申请
+     * 功能：保存修改后的纵向课题结项申请信息，包括成员信息
+     * SQL：UPDATE sci_horizontal_apply_vertical
+     * SQL：DELETE FROM sci_persion_vertical WHERE verticalid = ?
+     * SQL：INSERT INTO sci_persion_vertical
+     * SQL：INSERT INTO sci_horizontal_piyue
      */
     @RequiresPermissions("system:apply_vertical:edit")
     @Log(title = "更新立项申请", businessType = BusinessType.UPDATE)
@@ -916,7 +931,11 @@ public class SciHorizontalApplyVerticalController extends BaseController {
     }
 
 
-
+    /**
+     * 查询纵向课题批阅意见
+     * 功能：根据课题ID查询纵向课题的批阅意见列表
+     * SQL：SELECT * FROM sci_horizontal_piyue WHERE vertical_id = ?
+     */
     @Log(title = "查询纵向课题批阅意见", businessType = BusinessType.OTHER)
     @PostMapping("/abhyy/{kid}")
     @ResponseBody
@@ -957,7 +976,7 @@ public class SciHorizontalApplyVerticalController extends BaseController {
         return prefix + "/recall";
     }
     /**
-     *  撤回操作
+     * 撤回操作
      */
     @RequiresPermissions(value={"system:apply_vertical:JYS","system:apply_vertical:KYC","system:apply_vertical:Dept"},logical= Logical.OR)
     @Log(title = "撤回操作", businessType = BusinessType.UPDATE)
@@ -966,5 +985,41 @@ public class SciHorizontalApplyVerticalController extends BaseController {
     public AjaxResult recallSave(Integer id,String state,String remark,String urlFlag)
     {
         return toAjax(sciHorizontalApplyVerticalService.recall(id,state,getUserId(),remark,urlFlag));
+    }
+
+    /**
+     * 获取预期科研分
+     */
+    @PostMapping( "/getExpectedScores")
+    @ResponseBody
+    public AjaxResult getExpectedScores(String verticalId)
+    {
+        // 查询该课题的所有成员的预期科研分
+        List<SciUserScore> scores = sciUserScoreMapper.selectScoreVerticalByApplyIds(Collections.singleton(Integer.valueOf(verticalId)));
+        
+        // 构建返回结果
+        Map<String, String> result = new HashMap<>();
+        
+        for (SciUserScore score : scores) {
+            // 根据用户ID和课题ID，确定是哪个成员的预期科研分
+            String userId = score.getUserId();
+            String expectedValue = score.getExpectedValue();
+            
+            // 查询课题信息，获取成员顺序
+            SciHorizontalApplyVertical apply = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalById(Integer.valueOf(verticalId));
+            if (apply != null) {
+                if (apply.getFirstPersonId().equals(userId)) {
+                    result.put("firstPerson", expectedValue);
+                } else if (apply.getSecondPersonId().equals(userId)) {
+                    result.put("secondPerson", expectedValue);
+                } else if (apply.getThirdPersonId().equals(userId)) {
+                    result.put("thirdPerson", expectedValue);
+                } else if (apply.getFourthPersonId().equals(userId)) {
+                    result.put("fourthPerson", expectedValue);
+                }
+            }
+        }
+        
+        return AjaxResult.success(result);
     }
 }
