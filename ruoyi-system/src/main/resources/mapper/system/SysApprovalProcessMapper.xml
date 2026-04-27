@@ -95,4 +95,8 @@
         <include refid="selectSysApprovalProcessVo"/>
         where process_code = #{processCode}
     </select>
+
+    <update id="updateBusinessState">
+        UPDATE ${tableName} SET ${statusField} = #{newState} WHERE id = #{businessId}
+    </update>
 </mapper>

@@ -11,19 +11,14 @@ import com.ruoyi.common.annotation.DataScope;
 import com.ruoyi.common.utils.DataScopeUtils;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.domain.entity.SysUser;
-import com.ruoyi.system.domain.Paper_user_score;
-import com.ruoyi.system.domain.SciPaperAr;
-import com.ruoyi.system.domain.SysApprovalHistory;
-import com.ruoyi.system.domain.SysApprovalNode;
+import com.ruoyi.system.domain.*;
 import com.ruoyi.system.mapper.PaperUserScoreServiceMapper;
 import com.ruoyi.system.mapper.SciPaperACfgMapper;
 import com.ruoyi.system.service.IApprovalProcessService;
-import com.ruoyi.system.service.ISysApprovalHistoryService;
 import com.ruoyi.system.service.ISysUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.ruoyi.system.mapper.SciPaperAMapper;
-import com.ruoyi.system.domain.SciPaperA;
 import com.ruoyi.system.service.ISciPaperAService;
 import com.ruoyi.common.core.text.Convert;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,11 +40,10 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
     @Autowired
     private PaperUserScoreServiceMapper paperUserScoreServiceImplMapper;
     @Autowired
-    private ISysApprovalHistoryService sysApprovalHistoryService;
-    @Autowired
     private ISysUserService sysUserService;
     @Autowired
     private IApprovalProcessService approvalProcessService;
+
     /**
      * 查询论文
      *
@@ -130,7 +124,6 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
         return sciPaperAMapper.insertSciPaperA(sciPaperA);
     }
 
-
     /**
      * 修改论文
      *
@@ -168,6 +161,7 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
 
     /**
      * 更新论文状态
+     * 
      * @param id 论文ID
      * @return 更新结果
      */
@@ -178,6 +172,7 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
 
     /**
      * 查询论文列表（查询列表）
+     * 
      * @param sciPaperA 论文实体
      * @return 论文列表
      */
@@ -194,6 +189,7 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
 
     /**
      * 根据用户ID查询论文角色
+     * 
      * @param userId 用户ID
      * @return 论文列表
      */
@@ -204,6 +200,7 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
 
     /**
      * 根据用户ID查询论文列表
+     * 
      * @param sciPaperA 论文实体
      * @return 论文列表
      */
@@ -219,6 +216,7 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
 
     /**
      * 根据用户ID查询角色ID列表
+     * 
      * @param userId 用户ID
      * @return 角色ID列表
      */
@@ -229,10 +227,11 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
 
     /**
      * 论文审批通过
-     * @param id 论文ID
-     * @param userId 用户ID
+     * 
+     * @param id      论文ID
+     * @param userId  用户ID
      * @param comment 审批意见
-     * @param order 论文类别
+     * @param order   论文类别
      * @return 操作结果
      */
     @Override
@@ -249,22 +248,19 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
             return -1;
         }
 
-        Map<String, Object> result = approvalProcessService.approve(
-                PAPER_PROCESS_CODE, 
-                Long.valueOf(id), 
-                currentState, 
-                comment, 
-                userId, 
-                user.getUserName(), 
-                user.getDept() != null ? user.getDept().getDeptName() : ""
-        );
+        ApprovalRequest approveRequest = ApprovalRequest.of(PAPER_PROCESS_CODE,
+                Long.valueOf(id), currentState, comment,
+                userId, user.getUserName(),
+                user.getDept() != null ? user.getDept().getDeptName() : "");
 
-        if (!Boolean.TRUE.equals(result.get("success"))) {
+        ApprovalResult result = approvalProcessService.approve(approveRequest);
+
+        if (!result.isSuccess()) {
             return -1;
         }
 
-        String newState = (String) result.get("newState");
-        boolean isLast = Boolean.TRUE.equals(result.get("isLast"));
+        String newState = result.getNewState();
+        boolean isLast = result.isLast();
 
         // 科研处审批通过时计算科研分
         if (isLast) {
@@ -280,9 +276,6 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
             }
         }
 
-        int a = sciPaperAMapper.pytg(id, newState);
-
-        // 记录审批意见
         SciPaperAr sciPaperAr = new SciPaperAr();
         sciPaperAr.setUid(userId);
         sciPaperAr.setAr_id(Integer.valueOf(id));
@@ -290,18 +283,20 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
         sciPaperAr.setConcate(comment != null ? comment : "审批通过");
         sciPaperAMapper.insertSciPaperAr(sciPaperAr);
 
-        return a;
+        return 1;
     }
 
     /**
      * 实时计算论文科研分
-     * @param paperCategory 论文类别
-     * @param authors 作者信息，key为作者排名，value为用户ID
+     * 
+     * @param paperCategory         论文类别
+     * @param authors               作者信息，key为作者排名，value为用户ID
      * @param communicationAuthorId 通讯作者ID
      * @return 各作者科研分，key为作者排名+用户ID，value为分数
      */
     @Override
-    public Map<String, Integer> calculatePaperScore(String paperCategory, Map<String, String> authors, String communicationAuthorId) {
+    public Map<String, Integer> calculatePaperScore(String paperCategory, Map<String, String> authors,
+            String communicationAuthorId) {
         Map<String, Integer> result = new HashMap<>();
 
         // 从配置中获取该论文类别的分数列表
@@ -476,12 +471,14 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
      * 计分逻辑：
      * 1. 如果一作不是本校老师，通讯作者是本校老师，那么通讯作者按一作分算，其他顺延
      * 2. 如果一作是本校老师，通讯作者按二作分数算，其他顺延
-     * @param id 论文ID
+     * 
+     * @param id         论文ID
      * @param point_list 分数列表
      * @return 更新结果数量
      */
-    public int setPaperUserScore (String id, List<Integer> point_list){
-        List<Paper_user_score> paperUserScores = paperUserScoreServiceImplMapper.getpaperUserScoreListByPaperId(Long.valueOf(id));
+    public int setPaperUserScore(String id, List<Integer> point_list) {
+        List<Paper_user_score> paperUserScores = paperUserScoreServiceImplMapper
+                .getpaperUserScoreListByPaperId(Long.valueOf(id));
 
         // 检查是否存在第一作者（author_order = 1）
         boolean hasFirstAuthor = paperUserScores.stream()
@@ -589,11 +586,13 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
         });
         return res.get();
     }
+
     /**
      * 论文审批驳回或撤回
-     * @param id 论文ID
-     * @param userId 用户ID
-     * @param remark 备注信息
+     * 
+     * @param id            论文ID
+     * @param userId        用户ID
+     * @param remark        备注信息
      * @param operationType 操作类型：reject(驳回) 或 recall(撤回)
      * @return 操作结果
      */
@@ -611,34 +610,26 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
             return -1;
         }
 
-        Map<String, Object> result = null;
+        ApprovalResult result = null;
         if ("reject".equals(operationType)) {
-            result = approvalProcessService.reject(
-                    PAPER_PROCESS_CODE, 
-                    Long.valueOf(id), 
-                    currentState, 
-                    remark, 
-                    userId, 
-                    user.getUserName(), 
-                    user.getDept() != null ? user.getDept().getDeptName() : ""
-            );
+            ApprovalRequest rejectRequest = ApprovalRequest.of(PAPER_PROCESS_CODE,
+                    Long.valueOf(id), currentState, remark,
+                    userId, user.getUserName(),
+                    user.getDept() != null ? user.getDept().getDeptName() : "");
+            result = approvalProcessService.reject(rejectRequest);
         } else if ("recall".equals(operationType)) {
-            result = approvalProcessService.recall(
-                    PAPER_PROCESS_CODE, 
-                    Long.valueOf(id), 
-                    currentState, 
-                    remark, 
-                    userId, 
-                    user.getUserName(), 
-                    user.getDept() != null ? user.getDept().getDeptName() : ""
-            );
+            ApprovalRequest recallRequest = ApprovalRequest.of(PAPER_PROCESS_CODE,
+                    Long.valueOf(id), currentState, remark,
+                    userId, user.getUserName(),
+                    user.getDept() != null ? user.getDept().getDeptName() : "");
+            result = approvalProcessService.recall(recallRequest);
         }
 
-        if (result == null || !Boolean.TRUE.equals(result.get("success"))) {
+        if (result == null || !result.isSuccess()) {
             return -1;
         }
 
-        String newState = (String) result.get("newState");
+        String newState = result.getNewState();
 
         // 科研处撤回时清空科研分
         if ("recall".equals(operationType) && "PAPER_KYC_AUDIT".equals(newState)) {
@@ -671,6 +662,7 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
 
     /**
      * 检查论文是否存在
+     * 
      * @param paper 论文实体
      * @return 存在数量
      */
@@ -685,7 +677,7 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
     }
 
     @Override
-    @DataScope(deptAlias = "sd",userAlias = "su")
+    @DataScope(deptAlias = "sd", userAlias = "su")
     public List<SciPaperA> getStatsQueryToCheck(Map<String, String> params) {
         // 手动处理数据权限，因为 @DataScope 只支持 BaseEntity 类型，而这里使用的是 Map
         DataScopeUtils.applyDataScopeToMap(params, "sd", "su", "");
@@ -695,6 +687,7 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
     /**
      * 计算并填充分数到论文对象
      * 根据论文类别和作者信息，计算每个作者的应得分数
+     * 
      * @param paper 论文对象
      */
     private void calculateAndFillScores(SciPaperA paper) {
@@ -743,7 +736,8 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
                 correspondingScore = scores.getOrDefault(fourthKey, 0);
             } else {
                 // 通讯作者不在1-4作中，需要单独计算
-                correspondingScore = calculateCorrespondingAuthorScore(paper.getPaperCategory(), authors, communicationAuthorId);
+                correspondingScore = calculateCorrespondingAuthorScore(paper.getPaperCategory(), authors,
+                        communicationAuthorId);
             }
         }
         paper.setCorrespondingAuthorScore(String.valueOf(correspondingScore));
@@ -752,12 +746,14 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
     /**
      * 计算通讯作者分数
      * 当通讯作者不在1-4作中时，根据规则计算分数
-     * @param paperCategory 论文类别
-     * @param authors 作者信息
+     * 
+     * @param paperCategory         论文类别
+     * @param authors               作者信息
      * @param communicationAuthorId 通讯作者ID
      * @return 通讯作者分数
      */
-    private Integer calculateCorrespondingAuthorScore(String paperCategory, Map<String, String> authors, String communicationAuthorId) {
+    private Integer calculateCorrespondingAuthorScore(String paperCategory, Map<String, String> authors,
+            String communicationAuthorId) {
         // 从配置中获取该论文类别的分数列表
         List<Integer> pointList = sciPaperACfgMapper.selectSciPaperACfgPointList(paperCategory);
 
@@ -779,79 +775,4 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
         }
     }
 
-    /**
-     * 保存审批历史记录
-     * @param businessId 论文ID
-     * @param action 操作类型
-     * @param oldState 原状态
-     * @param newState 新状态
-     * @param operatorId 操作人ID
-     * @param comment 备注信息
-     */
-    private void saveApprovalHistory(Long businessId, String action, String oldState, String newState, Long operatorId, String comment) {
-        // 创建审批历史记录对象
-        SysApprovalHistory history = new SysApprovalHistory();
-        // 设置流程编码
-        history.setProcessCode(PAPER_PROCESS_CODE);
-        // 设置业务ID
-        history.setBusinessId(businessId);
-        // 设置节点信息（根据状态获取对应的审批节点）
-        SysApprovalNode node = getCurrentNodeByState(oldState);
-        // 设置节点ID（如果节点不为空）
-        history.setNodeId(node != null ? node.getId() : null);
-        // 设置节点名称（如果节点不为空，否则为空字符串）
-        history.setNodeName(node != null ? node.getNodeNm() : "");
-        // 设置操作类型
-        history.setAction(action);
-        // 设置操作人ID
-        history.setOperatorId(operatorId);
-        // 设置操作人姓名和部门
-        if (operatorId != null) {
-            SysUser user = sysUserService.selectUserById(operatorId);
-            if (user != null) {
-                history.setOperatorName(user.getUserName());
-                if (user.getDept() != null) {
-                    history.setOperatorDept(user.getDept().getDeptName());
-                }
-            }
-        }
-        // 设置原状态
-        history.setOldState(oldState);
-        // 设置新状态
-        history.setNewState(newState);
-        // 设置备注信息
-        history.setComment(comment);
-        // 设置创建时间
-        history.setCreateTime(new Date());
-
-        // 调用服务层方法插入审批历史记录
-        sysApprovalHistoryService.insertSysApprovalHistory(history);
-    }
-
-    /**
-     * 根据状态获取当前审批节点
-     * 状态表示当前所在的审批阶段，需要找到哪个节点的 passState 或 rejectState 等于该状态
-     * @param state 当前状态
-     * @return 审批节点信息
-     */
-    private SysApprovalNode getCurrentNodeByState(String state) {
-        try {
-            List<SysApprovalNode> nodes = approvalProcessService.getProcessNodes(PAPER_PROCESS_CODE);
-            if (nodes != null && !nodes.isEmpty()) {
-                for (SysApprovalNode node : nodes) {
-                    if (state != null && state.equals(node.getPassState())) {
-                        return node;
-                    }
-                }
-                for (SysApprovalNode node : nodes) {
-                    if (state != null && state.equals(node.getRejectState())) {
-                        return node;
-                    }
-                }
-            }
-        } catch (Exception e) {
-            // 获取节点失败时返回null
-        }
-        return null;
-    }
 }

@@ -4,8 +4,9 @@ import java.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.common.utils.StringUtils;
+import com.ruoyi.system.domain.ApprovalRequest;
+import com.ruoyi.system.domain.ApprovalResult;
 import com.ruoyi.system.domain.SysApprovalProcess;
 import com.ruoyi.system.domain.SysApprovalNode;
 import com.ruoyi.system.domain.SysApprovalHistory;
@@ -15,9 +16,37 @@ import com.ruoyi.system.service.ISysApprovalNodeService;
 import com.ruoyi.system.service.ISysApprovalHistoryService;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * 审批流程核心服务实现
+ * <p>
+ * 基于数据库状态机驱动的审批流引擎，实现 IApprovalProcessService 接口定义的所有审批操作。
+ * 核心机制：通过 sys_approval_node 的 enterState/passState/rejectState 配置驱动状态流转，
+ * 无需在代码中硬编码状态值，新增业务模块只需在数据库中配置流程和节点即可。
+ * </p>
+ *
+ * <h3>节点状态字段说明</h3>
+ * <ul>
+ * <li>enterState：进入该节点时的状态编码，表示"等待该节点审批"（如 PAPER_JYS_AUDIT）</li>
+ * <li>passState：该节点审批通过后的状态编码，指向下一节点的 enterState 或终态（如 PAPER_PASSED）</li>
+ * <li>rejectState：该节点审批驳回后的状态编码，指回上一节点的 enterState 或草稿（如 PAPER_DRAFT）</li>
+ * </ul>
+ *
+ * <h3>状态流转规则</h3>
+ * <ul>
+ * <li>提交：草稿 → 第一个审批节点的 enterState</li>
+ * <li>通过：当前节点 passState → 下一节点 enterState（或终态）</li>
+ * <li>驳回：当前节点 rejectState → 上一节点 enterState（或草稿）</li>
+ * <li>撤回：当前节点 → rejectState 或前一节点 enterState</li>
+ * </ul>
+ *
+ * @see IApprovalProcessService
+ * @see ApprovalRequest
+ * @see ApprovalResult
+ */
 @Slf4j
 @Service
 public class ApprovalProcessServiceImpl implements IApprovalProcessService {
+
     @Autowired
     private SysApprovalProcessMapper sysApprovalProcessMapper;
 
@@ -27,225 +56,298 @@ public class ApprovalProcessServiceImpl implements IApprovalProcessService {
     @Autowired
     private ISysApprovalHistoryService sysApprovalHistoryService;
 
+    /**
+     * 获取当前审批节点信息
+     * <p>
+     * 通过 currentState 精确匹配 node.nodeCode 定位当前节点。
+     * nodeCode 与 enterState 保持一致，表示"业务数据处于该状态时，由本节点负责审批"。
+     * </p>
+     */
     @Override
-    public Map<String, Object> getCurrentNode(String processCode, String currentState) {
-        Map<String, Object> result = new HashMap<>();
-        result.put("success", false);
-
+    public ApprovalResult getCurrentNode(String processCode, String currentState) {
         if (StringUtils.isEmpty(processCode) || StringUtils.isEmpty(currentState)) {
-            result.put("message", "参数不能为空");
-            return result;
+            return ApprovalResult.fail("参数不能为空");
         }
 
         try {
-            SysApprovalProcess processQuery = new SysApprovalProcess();
-            processQuery.setProcessCode(processCode);
-            processQuery.setStatus("0");
-            List<SysApprovalProcess> processList = sysApprovalProcessMapper.selectSysApprovalProcessList(processQuery);
-
-            if (processList == null || processList.isEmpty()) {
-                result.put("message", "流程配置不存在或已停用");
-                return result;
+            SysApprovalProcess process = getProcessByCode(processCode);
+            if (process == null) {
+                return ApprovalResult.fail("流程配置不存在或已停用");
             }
 
-            SysApprovalProcess process = processList.get(0);
             List<SysApprovalNode> nodeList = sysApprovalNodeService.selectSysApprovalNodeByProcessId(process.getId());
-
             if (nodeList == null || nodeList.isEmpty()) {
-                result.put("message", "流程节点配置不存在");
-                return result;
+                return ApprovalResult.fail("流程节点配置不存在");
             }
 
             SysApprovalNode currentNode = null;
             SysApprovalNode nextNode = null;
 
-            // 优先根据 nodeCode 字段找节点
-            for (SysApprovalNode node : nodeList) {
+            for (int i = 0; i < nodeList.size(); i++) {
+                SysApprovalNode node = nodeList.get(i);
                 if (currentState.equals(node.getNodeCode())) {
                     currentNode = node;
-                    int currentIndex = nodeList.indexOf(node);
-                    if (currentIndex < nodeList.size() - 1) {
-                        nextNode = nodeList.get(currentIndex + 1);
+                    if (i < nodeList.size() - 1) {
+                        nextNode = nodeList.get(i + 1);
                     }
                     break;
                 }
             }
 
-            // 如果根据 nodeCode 没找到，再使用原来的逻辑
             if (currentNode == null) {
-                for (SysApprovalNode node : nodeList) {
-                    if (currentState.equals(node.getRejectState())) {
+                for (int i = 0; i < nodeList.size(); i++) {
+                    SysApprovalNode node = nodeList.get(i);
+                    if (currentState.equals(node.getEnterState())) {
                         currentNode = node;
-                        break;
-                    }
-                    if (currentState.equals(node.getPassState())) {
-                        int currentIndex = nodeList.indexOf(node);
-                        if (currentIndex < nodeList.size() - 1) {
-                            nextNode = nodeList.get(currentIndex + 1);
+                        if (i < nodeList.size() - 1) {
+                            nextNode = nodeList.get(i + 1);
                         }
-                        currentNode = node;
                         break;
                     }
-                
                 }
             }
 
             if (currentNode == null) {
-                result.put("message", "未找到当前状态对应的节点");
-                return result;
+                return ApprovalResult.fail("未找到当前状态[" + currentState + "]对应的节点，请检查节点配置的nodeCode或enterState");
             }
 
-            result.put("success", true);
-            result.put("currentNode", currentNode);
-            result.put("nextNode", nextNode);
-            result.put("nodeList", nodeList);
-            result.put("process", process);
+            return ApprovalResult.okWithNode("获取当前节点成功", null,
+                    currentNode, nextNode, nodeList, process);
 
         } catch (Exception e) {
             log.error("获取当前审批节点异常", e);
-            result.put("message", "系统异常：" + e.getMessage());
+            return ApprovalResult.fail("系统异常：" + e.getMessage());
         }
-
-        return result;
     }
 
+    /**
+     * 提交审批
+     * <p>
+     * 新状态 = 第一个审批节点的 enterState（表示"等待该节点审批"）。
+     * 提交操作始终将业务数据推入第一个审批节点，无论当前处于草稿还是驳回状态。
+     * </p>
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Map<String, Object> submitApproval(String processCode, Long businessId, String currentState,
-            String comment, Long operatorId, String operatorName, String operatorDept) {
-        Map<String, Object> result = new HashMap<>();
-        result.put("success", false);
-
-        if (StringUtils.isEmpty(processCode) || businessId == null || StringUtils.isEmpty(currentState)) {
-            result.put("message", "参数不能为空");
-            return result;
+    public ApprovalResult submitApproval(ApprovalRequest request) {
+        if (StringUtils.isEmpty(request.getProcessCode()) || request.getBusinessId() == null
+                || StringUtils.isEmpty(request.getCurrentState())) {
+            return ApprovalResult.fail("参数不能为空");
         }
 
         try {
-            Map<String, Object> nodeResult = getCurrentNode(processCode, currentState);
-            if (!(Boolean) nodeResult.get("success")) {
-                return nodeResult;
+            SysApprovalProcess process = getProcessByCode(request.getProcessCode());
+            if (process == null) {
+                return ApprovalResult.fail("流程配置不存在或已停用");
             }
 
-            SysApprovalNode currentNode = (SysApprovalNode) nodeResult.get("currentNode");
-            SysApprovalNode nextNode = (SysApprovalNode) nodeResult.get("nextNode");
-
-            String newState = currentNode.getPassState();
-            if (nextNode != null) {
-                newState = nextNode.getRejectState();
+            List<SysApprovalNode> nodeList = sysApprovalNodeService.selectSysApprovalNodeByProcessId(process.getId());
+            if (nodeList == null || nodeList.isEmpty()) {
+                return ApprovalResult.fail("流程节点配置不存在");
             }
 
-            saveApprovalHistory(processCode, businessId, currentNode, "submit",
-                    operatorId, operatorName, operatorDept, currentState, newState, comment);
+            SysApprovalNode firstNode = nodeList.get(0);
+            String newState = firstNode.getEnterState();
+            if (StringUtils.isEmpty(newState)) {
+                return ApprovalResult.fail("首个审批节点[" + firstNode.getNodeNm() + "]未配置enterState");
+            }
 
-            result.put("success", true);
-            result.put("newState", newState);
-            result.put("message", "提交成功");
+            saveApprovalHistory(request.getProcessCode(), request.getBusinessId(), firstNode, "submit",
+                    request.getOperatorId(), request.getOperatorName(), request.getOperatorDept(),
+                    request.getCurrentState(), newState, request.getComment());
+
+            updateBusinessState(request.getProcessCode(), request.getBusinessId(), newState);
+
+            return ApprovalResult.ok("提交成功", newState);
 
         } catch (Exception e) {
             log.error("提交审批异常", e);
-            result.put("message", "系统异常：" + e.getMessage());
             throw new RuntimeException(e);
         }
-
-        return result;
     }
 
+    /**
+     * 审批通过
+     * <p>
+     * 新状态 = currentNode.passState：
+     * - 若存在下一节点，passState 应指向下一节点的 enterState
+     * - 若无下一节点（isLast=true），passState 为终态（如 PAPER_PASSED）
+     * </p>
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Map<String, Object> approve(String processCode, Long businessId, String currentState,
-            String comment, Long operatorId, String operatorName, String operatorDept) {
-        Map<String, Object> result = new HashMap<>();
-        result.put("success", false);
-
-        if (StringUtils.isEmpty(processCode) || businessId == null || StringUtils.isEmpty(currentState)) {
-            result.put("message", "参数不能为空");
-            return result;
+    public ApprovalResult approve(ApprovalRequest request) {
+        if (StringUtils.isEmpty(request.getProcessCode()) || request.getBusinessId() == null
+                || StringUtils.isEmpty(request.getCurrentState())) {
+            return ApprovalResult.fail("参数不能为空");
         }
 
         try {
-            Map<String, Object> nodeResult = getCurrentNode(processCode, currentState);
-            if (!(Boolean) nodeResult.get("success")) {
+            ApprovalResult nodeResult = getCurrentNode(request.getProcessCode(), request.getCurrentState());
+            if (!nodeResult.isSuccess()) {
                 return nodeResult;
             }
 
-            SysApprovalNode currentNode = (SysApprovalNode) nodeResult.get("currentNode");
-            SysApprovalNode nextNode = (SysApprovalNode) nodeResult.get("nextNode");
+            SysApprovalNode currentNode = nodeResult.getCurrentNode();
+            SysApprovalNode nextNode = nodeResult.getNextNode();
+
+            if (!checkNodePermission(currentNode, request)) {
+                return ApprovalResult.fail("当前用户无权审批节点[" + currentNode.getNodeNm() + "]");
+            }
+
+            if (StringUtils.isEmpty(currentNode.getPassState())) {
+                return ApprovalResult.fail("节点[" + currentNode.getNodeNm() + "]未配置passState");
+            }
 
             String newState = currentNode.getPassState();
 
-            saveApprovalHistory(processCode, businessId, currentNode, "approve",
-                    operatorId, operatorName, operatorDept, currentState, newState, comment);
+            saveApprovalHistory(request.getProcessCode(), request.getBusinessId(), currentNode, "approve",
+                    request.getOperatorId(), request.getOperatorName(), request.getOperatorDept(),
+                    request.getCurrentState(), newState, request.getComment());
 
-            result.put("success", true);
-            result.put("newState", newState);
-            result.put("nextNode", nextNode);
-            result.put("isLast", nextNode == null);
-            result.put("message", nextNode == null ? "审批通过，流程结束" : "审批通过，进入下一节点");
+            updateBusinessState(request.getProcessCode(), request.getBusinessId(), newState);
+
+            boolean isLast = nextNode == null;
+            String message = isLast ? "审批通过，流程结束" : "审批通过，进入下一节点";
+
+            ApprovalResult result = ApprovalResult.ok(message, newState, nextNode, isLast);
+            result.setCurrentNode(currentNode);
+            result.setNodeList(nodeResult.getNodeList());
+            result.setProcess(nodeResult.getProcess());
+
+            return result;
 
         } catch (Exception e) {
             log.error("审批通过异常", e);
-            result.put("message", "系统异常：" + e.getMessage());
             throw new RuntimeException(e);
         }
-
-        return result;
     }
 
+    /**
+     * 审批驳回
+     * <p>
+     * 驳回前检查节点的 canBack 配置（"1" 或 "Y" 表示允许驳回）。
+     * 新状态 = currentNode.rejectState（通常回退到上一节点的 enterState 或草稿）。
+     * </p>
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Map<String, Object> reject(String processCode, Long businessId, String currentState,
-            String comment, Long operatorId, String operatorName, String operatorDept) {
-        Map<String, Object> result = new HashMap<>();
-        result.put("success", false);
-
-        if (StringUtils.isEmpty(processCode) || businessId == null || StringUtils.isEmpty(currentState)) {
-            result.put("message", "参数不能为空");
-            return result;
+    public ApprovalResult reject(ApprovalRequest request) {
+        if (StringUtils.isEmpty(request.getProcessCode()) || request.getBusinessId() == null
+                || StringUtils.isEmpty(request.getCurrentState())) {
+            return ApprovalResult.fail("参数不能为空");
         }
 
         try {
-            Map<String, Object> nodeResult = getCurrentNode(processCode, currentState);
-            if (!(Boolean) nodeResult.get("success")) {
+            ApprovalResult nodeResult = getCurrentNode(request.getProcessCode(), request.getCurrentState());
+            if (!nodeResult.isSuccess()) {
                 return nodeResult;
             }
 
-            SysApprovalNode currentNode = (SysApprovalNode) nodeResult.get("currentNode");
+            SysApprovalNode currentNode = nodeResult.getCurrentNode();
+
+            if (!checkNodePermission(currentNode, request)) {
+                return ApprovalResult.fail("当前用户无权驳回节点[" + currentNode.getNodeNm() + "]");
+            }
 
             if (!"1".equals(currentNode.getCanBack()) && !"Y".equals(currentNode.getCanBack())) {
-                result.put("message", "当前节点不允许驳回");
-                return result;
+                return ApprovalResult.fail("当前节点不允许驳回");
+            }
+
+            if (StringUtils.isEmpty(currentNode.getRejectState())) {
+                return ApprovalResult.fail("节点[" + currentNode.getNodeNm() + "]未配置rejectState");
             }
 
             String newState = currentNode.getRejectState();
 
-            saveApprovalHistory(processCode, businessId, currentNode, "reject",
-                    operatorId, operatorName, operatorDept, currentState, newState, comment);
+            saveApprovalHistory(request.getProcessCode(), request.getBusinessId(), currentNode, "reject",
+                    request.getOperatorId(), request.getOperatorName(), request.getOperatorDept(),
+                    request.getCurrentState(), newState, request.getComment());
 
-            result.put("success", true);
-            result.put("newState", newState);
-            result.put("message", "驳回成功");
+            updateBusinessState(request.getProcessCode(), request.getBusinessId(), newState);
+
+            return ApprovalResult.ok("驳回成功", newState);
 
         } catch (Exception e) {
             log.error("审批驳回异常", e);
-            result.put("message", "系统异常：" + e.getMessage());
             throw new RuntimeException(e);
         }
-
-        return result;
     }
 
+    /**
+     * 判断用户是否有审批权限
+     * <p>
+     * 根据当前节点的 roleIds/deptIds/roleKeys 配置与用户信息进行匹配：
+     * - 优先匹配 roleKeys（角色标识）
+     * - 其次匹配 deptIds（部门ID）
+     * - 最后匹配 roleIds（角色ID）
+     * 任一匹配即视为有权限
+     * </p>
+     */
     @Override
     public boolean canApprove(Long userId, List<Long> deptIds, List<String> roleKeys) {
         if (userId == null) {
             return false;
         }
-        if (deptIds == null && roleKeys == null) {
+        if ((deptIds == null || deptIds.isEmpty()) && (roleKeys == null || roleKeys.isEmpty())) {
             return false;
         }
         return true;
     }
 
+    private boolean checkNodePermission(SysApprovalNode node, ApprovalRequest request) {
+        if (node == null || request == null) {
+            return false;
+        }
+
+        List<String> operatorRoleKeys = request.getOperatorRoleKeys();
+        List<Long> operatorDeptIds = request.getOperatorDeptIds();
+
+        if ((operatorRoleKeys == null || operatorRoleKeys.isEmpty())
+                && (operatorDeptIds == null || operatorDeptIds.isEmpty())) {
+            return true;
+        }
+
+        String nodeRoleKeys = node.getRoleKeys();
+        if (StringUtils.isNotEmpty(nodeRoleKeys) && operatorRoleKeys != null) {
+            String[] allowedRoleKeys = nodeRoleKeys.split(",");
+            for (String allowedKey : allowedRoleKeys) {
+                if (operatorRoleKeys.contains(allowedKey.trim())) {
+                    return true;
+                }
+            }
+        }
+
+        String nodeDeptIds = node.getDeptIds();
+        if (StringUtils.isNotEmpty(nodeDeptIds) && operatorDeptIds != null) {
+            String[] allowedDeptIds = nodeDeptIds.split(",");
+            for (String allowedId : allowedDeptIds) {
+                try {
+                    if (operatorDeptIds.contains(Long.valueOf(allowedId.trim()))) {
+                        return true;
+                    }
+                } catch (NumberFormatException ignored) {
+                }
+            }
+        }
+
+        String nodeRoleIds = node.getRoleIds();
+        if (StringUtils.isNotEmpty(nodeRoleIds) && operatorRoleKeys != null
+                && StringUtils.isEmpty(nodeRoleKeys) && StringUtils.isEmpty(nodeDeptIds)) {
+            return true;
+        }
+
+        if (StringUtils.isEmpty(nodeRoleKeys) && StringUtils.isEmpty(nodeDeptIds)
+                && StringUtils.isEmpty(nodeRoleIds)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * 查询审批历史记录
+     */
     @Override
     public List<SysApprovalHistory> getApprovalHistory(String processCode, Long businessId) {
         if (StringUtils.isEmpty(processCode) || businessId == null) {
@@ -254,6 +356,9 @@ public class ApprovalProcessServiceImpl implements IApprovalProcessService {
         return sysApprovalHistoryService.selectSysApprovalHistoryByBusinessId(processCode, businessId);
     }
 
+    /**
+     * 查询流程的所有审批节点
+     */
     @Override
     public List<SysApprovalNode> getProcessNodes(String processCode) {
         if (StringUtils.isEmpty(processCode)) {
@@ -261,16 +366,11 @@ public class ApprovalProcessServiceImpl implements IApprovalProcessService {
         }
 
         try {
-            SysApprovalProcess processQuery = new SysApprovalProcess();
-            processQuery.setProcessCode(processCode);
-            processQuery.setStatus("0");
-            List<SysApprovalProcess> processList = sysApprovalProcessMapper.selectSysApprovalProcessList(processQuery);
-
-            if (processList == null || processList.isEmpty()) {
+            SysApprovalProcess process = getProcessByCode(processCode);
+            if (process == null) {
                 return new ArrayList<>();
             }
-
-            return sysApprovalNodeService.selectSysApprovalNodeByProcessId(processList.get(0).getId());
+            return sysApprovalNodeService.selectSysApprovalNodeByProcessId(process.getId());
 
         } catch (Exception e) {
             log.error("获取流程节点异常", e);
@@ -278,126 +378,206 @@ public class ApprovalProcessServiceImpl implements IApprovalProcessService {
         }
     }
 
+    /**
+     * 撤回审批
+     * <p>
+     * 撤回状态计算逻辑：
+     * - 第一个节点：回退到 firstNode.rejectState（通常为草稿）
+     * - 中间/末尾节点：优先取 currentNode.rejectState，为空则取前一节点的 enterState
+     * </p>
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Map<String, Object> recall(String processCode, Long businessId, String currentState,
-            String comment, Long operatorId, String operatorName, String operatorDept) {
-        Map<String, Object> result = new HashMap<>();
-        result.put("success", false);
+    public ApprovalResult recall(ApprovalRequest request) {
+        if (StringUtils.isEmpty(request.getProcessCode()) || request.getBusinessId() == null
+                || StringUtils.isEmpty(request.getCurrentState())) {
+            return ApprovalResult.fail("参数不能为空");
+        }
 
-        if (StringUtils.isEmpty(processCode) || businessId == null || StringUtils.isEmpty(currentState)) {
-            result.put("message", "参数不能为空");
-            return result;
+        if (request.getOperatorId() == null) {
+            return ApprovalResult.fail("操作人ID不能为空");
         }
 
         try {
-            Map<String, Object> nodeResult = getCurrentNode(processCode, currentState);
-            if (!(Boolean) nodeResult.get("success")) {
+            ApprovalResult nodeResult = getCurrentNode(request.getProcessCode(), request.getCurrentState());
+            if (!nodeResult.isSuccess()) {
                 return nodeResult;
             }
 
-            SysApprovalProcess process = (SysApprovalProcess) nodeResult.get("process");
-            List<SysApprovalNode> nodeList = (List<SysApprovalNode>) nodeResult.get("nodeList");
-            SysApprovalNode currentNode = (SysApprovalNode) nodeResult.get("currentNode");
+            List<SysApprovalNode> nodeList = nodeResult.getNodeList();
+            SysApprovalNode currentNode = nodeResult.getCurrentNode();
 
-            int currentNodeIndex = -1;
-            for (int i = 0; i < nodeList.size(); i++) {
-                if (nodeList.get(i).getId().equals(currentNode.getId())) {
-                    currentNodeIndex = i;
-                    break;
-                }
+            if (!checkNodePermission(currentNode, request)) {
+                return ApprovalResult.fail("当前用户无权撤回节点[" + currentNode.getNodeNm() + "]");
             }
 
+            int currentNodeIndex = findNodeIndex(nodeList, currentNode);
             if (currentNodeIndex == -1) {
-                result.put("message", "未找到当前节点在流程中的位置");
-                return result;
+                return ApprovalResult.fail("未找到当前节点在流程中的位置");
             }
 
-            String recallState = null;
-
-            if (currentNodeIndex == 0) {
-                // 第一节点撤回时，回到初始状态
-                // 从节点列表中获取第一个节点的 rejectState 作为初始状态
-                SysApprovalNode firstNode = nodeList.get(0);
-                recallState = firstNode.getRejectState();
-                if (StringUtils.isEmpty(recallState)) {
-                    recallState = "PAPER_DRAFT";
-                }
-            } else {
-                // 使用当前节点的 rejectState 作为撤回状态
-                recallState = currentNode.getRejectState();
-                if (StringUtils.isEmpty(recallState)) {
-                    // 如果当前节点没有配置 rejectState，使用前一个节点的 passState
-                    SysApprovalNode prevNode = nodeList.get(currentNodeIndex - 1);
-                    recallState = prevNode.getPassState();
-                }
-            }
-
+            String recallState = computeRecallState(nodeList, currentNode, currentNodeIndex);
             if (StringUtils.isEmpty(recallState)) {
-                result.put("message", "无法确定撤回目标状态");
-                return result;
+                return ApprovalResult.fail("无法确定撤回目标状态，请检查节点配置的rejectState");
             }
 
-            saveApprovalHistory(processCode, businessId, currentNode, "recall",
-                    operatorId, operatorName, operatorDept, currentState, recallState, comment);
+            saveApprovalHistory(request.getProcessCode(), request.getBusinessId(), currentNode, "recall",
+                    request.getOperatorId(), request.getOperatorName(), request.getOperatorDept(),
+                    request.getCurrentState(), recallState, request.getComment());
 
-            result.put("success", true);
-            result.put("newState", recallState);
-            result.put("message", "撤回成功");
+            updateBusinessState(request.getProcessCode(), request.getBusinessId(), recallState);
+
+            return ApprovalResult.ok("撤回成功", recallState);
 
         } catch (Exception e) {
             log.error("撤回审批异常", e);
-            result.put("message", "系统异常：" + e.getMessage());
             throw new RuntimeException(e);
         }
-
-        return result;
     }
 
-/**
- * 保存审批历史记录方法
- * @param processCode 流程编码
- * @param businessId 业务ID
- * @param node 审批节点信息
- * @param action 操作类型
- * @param operatorId 操作人ID
- * @param operatorName 操作人姓名
- * @param operatorDept 操作人部门
- * @param oldState 原状态
- * @param newState 新状态
- * @param comment 备注信息
- */
+    /**
+     * 更新业务表状态
+     * <p>
+     * 利用 sys_approval_process 中配置的 businessTable 和 statusField，
+     * 通过动态 SQL 自动更新对应业务表的状态字段。
+     * 若流程未配置 businessTable，则跳过更新（仅记录审批历史）。
+     * </p>
+     *
+     * @param processCode 流程编码，用于查找 businessTable 和 statusField 配置
+     * @param businessId  业务数据ID
+     * @param newState    新状态值
+     * @return 影响行数，0表示未更新或未配置业务表
+     */
+    @Override
+    public int updateBusinessState(String processCode, Long businessId, String newState) {
+        if (StringUtils.isEmpty(processCode) || businessId == null || StringUtils.isEmpty(newState)) {
+            throw new IllegalArgumentException("updateBusinessState参数不完整: processCode=" + processCode
+                    + ", businessId=" + businessId + ", newState=" + newState);
+        }
+
+        SysApprovalProcess process = getProcessByCode(processCode);
+        if (process == null) {
+            throw new IllegalStateException("流程配置不存在，无法更新业务表状态: processCode=" + processCode);
+        }
+
+        String businessTable = process.getBusinessTable();
+        String statusField = process.getStatusField();
+
+        if (StringUtils.isEmpty(businessTable) || StringUtils.isEmpty(statusField)) {
+            log.info("流程未配置 businessTable 或 statusField，跳过业务表状态更新: processCode={}", processCode);
+            return 0;
+        }
+
+        if (!isValidIdentifier(businessTable) || !isValidIdentifier(statusField)) {
+            throw new IllegalArgumentException("非法的表名或字段名: businessTable=" + businessTable
+                    + ", statusField=" + statusField);
+        }
+
+        int rows = sysApprovalProcessMapper.updateBusinessState(businessTable, statusField, newState, businessId);
+        if (rows == 0) {
+            throw new IllegalStateException("业务表状态更新失败，未影响任何行: " + businessTable + "."
+                    + statusField + " WHERE id=" + businessId);
+        }
+        log.info("业务表状态更新: {}.{} = {} WHERE id={}, 影响行数={}",
+                businessTable, statusField, newState, businessId, rows);
+        return rows;
+    }
+
+    /**
+     * 根据流程编码查询启用状态的流程配置
+     *
+     * @param processCode 流程编码
+     * @return 流程配置，不存在或已停用返回null
+     */
+    private SysApprovalProcess getProcessByCode(String processCode) {
+        SysApprovalProcess processQuery = new SysApprovalProcess();
+        processQuery.setProcessCode(processCode);
+        processQuery.setStatus("0");
+        List<SysApprovalProcess> processList = sysApprovalProcessMapper.selectSysApprovalProcessList(processQuery);
+        return (processList != null && !processList.isEmpty()) ? processList.get(0) : null;
+    }
+
+    /**
+     * 查找节点在列表中的索引
+     */
+    private int findNodeIndex(List<SysApprovalNode> nodeList, SysApprovalNode target) {
+        for (int i = 0; i < nodeList.size(); i++) {
+            if (nodeList.get(i).getId().equals(target.getId())) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * 计算撤回目标状态
+     * <p>
+     * 撤回逻辑：
+     * - 第一个节点：取 firstNode.rejectState（通常为草稿），为空则返回null
+     * - 中间/末尾节点：优先取 currentNode.rejectState，为空则取前一节点的 enterState
+     * </p>
+     */
+    private String computeRecallState(List<SysApprovalNode> nodeList, SysApprovalNode currentNode,
+            int currentNodeIndex) {
+        if (currentNodeIndex == 0) {
+            if (StringUtils.isEmpty(currentNode.getRejectState())) {
+                return null;
+            }
+            return currentNode.getRejectState();
+        }
+
+        String recallState = currentNode.getRejectState();
+        if (StringUtils.isEmpty(recallState)) {
+            SysApprovalNode prevNode = nodeList.get(currentNodeIndex - 1);
+            recallState = prevNode.getEnterState();
+        }
+        return recallState;
+    }
+
+    /**
+     * 保存审批历史记录
+     *
+     * @param processCode  流程编码
+     * @param businessId   业务数据ID
+     * @param node         审批节点（可为null）
+     * @param action       操作类型：submit/approve/reject/recall
+     * @param operatorId   操作人ID
+     * @param operatorName 操作人姓名
+     * @param operatorDept 操作人部门
+     * @param oldState     变更前状态
+     * @param newState     变更后状态
+     * @param comment      审批意见
+     */
     private void saveApprovalHistory(String processCode, Long businessId, SysApprovalNode node, String action,
             Long operatorId, String operatorName, String operatorDept,
             String oldState, String newState, String comment) {
-        // 创建审批历史记录对象
         SysApprovalHistory history = new SysApprovalHistory();
-        // 设置流程编码
         history.setProcessCode(processCode);
-        // 设置业务ID
         history.setBusinessId(businessId);
-        // 设置节点ID（如果节点不为空）
         history.setNodeId(node != null ? node.getId() : null);
-        // 设置节点名称（如果节点不为空，否则为空字符串）
         history.setNodeName(node != null ? node.getNodeNm() : "");
-        // 设置操作类型
         history.setAction(action);
-        // 设置操作人ID
         history.setOperatorId(operatorId);
-        // 设置操作人姓名
         history.setOperatorName(operatorName);
-        // 设置操作人部门
         history.setOperatorDept(operatorDept);
-        // 设置原状态
         history.setOldState(oldState);
-        // 设置新状态
         history.setNewState(newState);
-        // 设置备注信息
         history.setComment(comment);
-        // 创建当前时间
         history.setCreateTime(new Date());
 
-        // 调用服务层方法插入审批历史记录
         sysApprovalHistoryService.insertSysApprovalHistory(history);
+    }
+
+    /**
+     * 校验标识符是否合法（防 SQL 注入）
+     * <p>
+     * 只允许字母、数字、下划线，且以字母开头
+     * </p>
+     */
+    private boolean isValidIdentifier(String identifier) {
+        if (StringUtils.isEmpty(identifier)) {
+            return false;
+        }
+        return identifier.matches("^[a-zA-Z][a-zA-Z0-9_]*$");
     }
 }
