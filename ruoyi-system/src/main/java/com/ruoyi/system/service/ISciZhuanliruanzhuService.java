@@ -69,6 +69,8 @@ public interface ISciZhuanliruanzhuService
 
     int hxPass(String id,Long uid,String urlFlag);
 
+    int hxPass(String id, Long uid, String newState, boolean isLast);
+
     int updateJifen(Long id, int jifen);
 
 
@@ -77,6 +79,10 @@ public interface ISciZhuanliruanzhuService
 //    int hxover(String id,Long uid,String urlFlag);
 
     int hxBh(String id,Long uid, String remark,String urlFlag);
+
+    int hxBh(String id, Long uid, String remark, String newState, boolean fromApprovalProcess);
+
+    int recallDirect(String id, Long uid, String newState, String remark);
 
     List<SciZhuanliruanzhu> selectSciZhuanliruanzhuList4(SciZhuanliruanzhu sciZhuanliruanzhu);
 

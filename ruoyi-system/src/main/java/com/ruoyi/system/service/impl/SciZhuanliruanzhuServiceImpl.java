@@ -278,28 +278,13 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
             state ="4";
         }
         else if(urlFlag.equals("tijiao")){
-            state ="1";//教师提交→教研室审批
+            state ="1";
 
         }else if(urlFlag.equals("pro")){
-            state ="4";//教研室→科研处审批
+            state ="2";
         }
         else if(urlFlag.equals("chayue")) {
             state = "6";
-//            SciZhuanliruanzhu sciZhuanliruanzhu = sciZhuanliruanzhuMapper.selectSciZhuanliruanzhuById(Integer.valueOf(id));
-//            String a = sciZhuanliruanzhu.getFenlei();
-//            String b = sciZhuanliruanzhu.getPaiming();
-//            SciZhuanliruanzhuScoreCfg sciZhuanliruanzhuScoreCfg = new SciZhuanliruanzhuScoreCfg();
-//            sciZhuanliruanzhuScoreCfg.setFenLei(a);
-//            sciZhuanliruanzhuScoreCfg.setPaiMing(b);
-//            List<SciZhuanliruanzhuScoreCfg> c = sciZhuanliruanzhuScoreCfgMapper.selectSciZhuanliruanzhuScoreCfgList(sciZhuanliruanzhuScoreCfg);
-//
-//            int jifen = 0;
-//            for (SciZhuanliruanzhuScoreCfg cfg : c) {
-//                jifen = Integer.parseInt(cfg.getTotalScore());
-//                System.out.println("Jifen: " + jifen);
-//            }
-//            sciZhuanliruanzhuMapper.updateJifen(Long.valueOf(id), jifen);
-//
 
         }
 
@@ -354,6 +339,51 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
         return a;
     }
 
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int hxPass(String id, Long uid, String newState, boolean isLast) {
+        if (isLast) {
+            SciZhuanliruanzhu sci = sciZhuanliruanzhuMapper.selectSciZhuanliruanzhuById(Integer.valueOf(id));
+            String finalJifen;
+            if (sci != null) {
+                int currentYear = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR);
+                int count = sciZhuanliruanzhuMapper.countSoftWorksByYear(Long.valueOf(sci.getUserId()), currentYear);
+                String baseScore = calculateScore(sci.getFenlei(), sci.getPaiming());
+                if ("N".equals(sci.getShifouyingyon())) {
+                    double score = Double.parseDouble(baseScore) * 0.5;
+                    baseScore = String.valueOf(Math.round(score));
+                }
+                if (count >= 5) {
+                    finalJifen = "0";
+                } else {
+                    finalJifen = baseScore;
+                }
+            } else {
+                finalJifen = "0";
+            }
+            sciZhuanliruanzhuMapper.updateFinalJifen(id, finalJifen);
+            sciZhuanliruanzhuMapper.updateKyjcPassTime(id, new Date());
+        }
+
+        int a = sciZhuanliruanzhuMapper.hxPass(id, newState);
+
+        SciZhuanliruanzhuPiyue piyue = new SciZhuanliruanzhuPiyue();
+        piyue.setUid(uid);
+        piyue.setHxktId(Integer.valueOf(id));
+        if ("1".equals(newState)) {
+            piyue.setConcate("提交申请");
+            piyue.setState("提交");
+        } else if (isLast) {
+            piyue.setConcate("同意");
+            piyue.setState("通过");
+        } else {
+            piyue.setConcate("同意");
+            piyue.setState("通过");
+        }
+        sciZhuanliruanzhuPiyueMapper.insertSciZhuanliruanzhuPiyue(piyue);
+        return a;
+    }
+
     /**
      * 专利软著审核驳回
      *
@@ -383,6 +413,36 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
         sciZhuanliruanzhuPiyue.setConcate(remark);
         sciZhuanliruanzhuPiyue.setState("被驳回");
         sciZhuanliruanzhuPiyueMapper.insertSciZhuanliruanzhuPiyue(sciZhuanliruanzhuPiyue);
+        return a;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int hxBh(String id, Long uid, String remark, String newState, boolean fromApprovalProcess) {
+        int a = sciZhuanliruanzhuMapper.hxPass(id, newState);
+        SciZhuanliruanzhuPiyue sciZhuanliruanzhuPiyue = new SciZhuanliruanzhuPiyue();
+        sciZhuanliruanzhuPiyue.setUid(uid);
+        sciZhuanliruanzhuPiyue.setHxktId(Integer.valueOf(id));
+        sciZhuanliruanzhuPiyue.setConcate(remark != null ? remark : "驳回");
+        sciZhuanliruanzhuPiyue.setState("被驳回");
+        sciZhuanliruanzhuPiyueMapper.insertSciZhuanliruanzhuPiyue(sciZhuanliruanzhuPiyue);
+        return a;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int recallDirect(String id, Long uid, String newState, String remark) {
+        if ("4".equals(newState)) {
+            sciZhuanliruanzhuMapper.updateJifen(Long.valueOf(id), 0);
+            sciZhuanliruanzhuMapper.updateFinalJifen(id, null);
+        }
+        int a = sciZhuanliruanzhuMapper.hxPass(id, newState);
+        SciZhuanliruanzhuPiyue piyue = new SciZhuanliruanzhuPiyue();
+        piyue.setUid(uid);
+        piyue.setHxktId(Integer.valueOf(id));
+        piyue.setConcate(remark != null ? remark : "撤回");
+        piyue.setState("撤回");
+        sciZhuanliruanzhuPiyueMapper.insertSciZhuanliruanzhuPiyue(piyue);
         return a;
     }
 
@@ -476,15 +536,15 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
     public int recall(Integer id, String state,Long uid, String remark, String urlFlag) {
         String newState = state;
         switch (state){
-//            教研室
+            case "1":
+                newState = "0";
+                break;
             case "2":
                 newState = "1";
                 break;
-            //            学院
             case "4":
                 newState = "2";
                 break;
-            //            科研处
             case "6":
                 newState = "4";
                 sciZhuanliruanzhuMapper.updateJifen(Long.valueOf(id),0);
@@ -519,13 +579,8 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
 //        判断该专利名称的该负责人级别已存在，不可重复添加
         if (sciZhuanliruanzhuMapper.checkExist(mingcheng, paiming) > 0) {
             return 1;
-//        校验教师的数据是否大于十条
-        } else if (sciZhuanliruanzhuMapper.checkUserCount(userId) >= 10) {
-            return 2;
-        } else {
-//            提示联系管理员解决
-            return 0;
         }
+        return 0;
     }
 
     /**
@@ -537,6 +592,7 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
     @Override
     @DataScope(deptAlias = "d",userAlias = "u")
     public List<SciZhuanliruanzhu> getStatsQuery(Map<String, String> params) {
+        DataScopeUtils.applyDataScopeToMap(params, "d", "u", "");
         return sciZhuanliruanzhuMapper.getStatsQuery(params);
     }
 
@@ -549,6 +605,7 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
     @Override
     @DataScope(deptAlias = "d",userAlias = "u")
     public List<SciZhuanliruanzhu> getStatsQueryToExcil(Map<String, String> params) {
+        DataScopeUtils.applyDataScopeToMap(params, "d", "u", "");
         return sciZhuanliruanzhuMapper.getStatsQueryToExcil(params);
     }
 
