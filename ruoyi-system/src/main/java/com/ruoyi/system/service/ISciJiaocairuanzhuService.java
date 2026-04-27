@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.ruoyi.common.core.domain.entity.SysUser;
+import com.ruoyi.system.domain.ApprovalResult;
 import com.ruoyi.system.domain.SciJiaocairuanzhu;
 import com.ruoyi.system.domain.SciJiaocairuanzhuMember;
 
@@ -160,9 +161,9 @@ public interface ISciJiaocairuanzhuService
      * 查询下一级状态方法
      * 获取当前审批节点信息及下一步节点信息
      * @param currentState 当前业务数据的状态
-     * @return 包含当前节点、下一节点等信息的Map
+     * @return 包含当前节点、下一节点等信息的ApprovalResult
      */
-    Map<String, Object> getNextState(String currentState);
+    ApprovalResult getNextState(String currentState);
 
     /**
      * 操作记录方法
