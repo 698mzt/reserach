@@ -84,6 +84,17 @@ public interface ISciPaperAService
 
     int pybh(String id, Long userId, String remark, String operationType);
 
+    /**
+     * 论文审批操作（通过/驳回/撤回）
+     * @param id 论文ID
+     * @param userId 用户ID
+     * @param comment 审批意见
+     * @param operationType 操作类型：approve(通过)、reject(驳回)、recall(撤回)
+     * @param order 论文类别（仅通过时需要）
+     * @return 操作结果
+     */
+    int approve(String id, Long userId, String comment, String operationType, String order);
+
     List<SciPaperA> selectAllPaperName(String query);
 
     public List<SciPaperA> selectSciPaperAListCxList(SciPaperA sciPaperA);

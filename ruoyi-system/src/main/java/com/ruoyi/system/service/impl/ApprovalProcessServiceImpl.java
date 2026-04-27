@@ -27,6 +27,14 @@ public class ApprovalProcessServiceImpl implements IApprovalProcessService {
     @Autowired
     private ISysApprovalHistoryService sysApprovalHistoryService;
 
+    /**
+     * 获取当前审批节点及下一步节点
+     * 根据流程编码和当前状态，从流程配置中查找当前所在的审批节点，并计算下一步审批节点
+     * 查找逻辑：优先根据nodeCode匹配，若未找到则根据passState或rejectState匹配
+     * @param processCode 流程编码，用于唯一标识一个审批流程
+     * @param currentState 当前业务数据的状态，用于确定当前处于哪个审批阶段
+     * @return 包含success、currentNode、nextNode、nodeList、process、message等字段的Map对象
+     */
     @Override
     public Map<String, Object> getCurrentNode(String processCode, String currentState) {
         Map<String, Object> result = new HashMap<>();
@@ -109,6 +117,18 @@ public class ApprovalProcessServiceImpl implements IApprovalProcessService {
         return result;
     }
 
+    /**
+     * 提交审批业务处理
+     * 将业务数据从初始状态提交到第一个审批节点，更新状态并记录审批历史
+     * @param processCode 流程编码，唯一标识审批流程
+     * @param businessId 业务数据ID，对应待审批的业务记录
+     * @param currentState 当前业务数据的状态
+     * @param comment 审批意见或备注信息
+     * @param operatorId 操作人ID
+     * @param operatorName 操作人姓名
+     * @param operatorDept 操作人所属部门名称
+     * @return 包含success、newState、message字段的Map对象
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Map<String, Object> submitApproval(String processCode, Long businessId, String currentState,
@@ -151,6 +171,19 @@ public class ApprovalProcessServiceImpl implements IApprovalProcessService {
         return result;
     }
 
+    /**
+     * 审批通过业务处理
+     * 当前审批节点通过后，根据节点配置计算下一状态，记录审批历史
+     * 若存在下一步节点则返回isLast=false，否则表示流程结束返回isLast=true
+     * @param processCode 流程编码，唯一标识审批流程
+     * @param businessId 业务数据ID，对应待审批的业务记录
+     * @param currentState 当前业务数据的状态
+     * @param comment 审批意见或备注信息
+     * @param operatorId 操作人ID
+     * @param operatorName 操作人姓名
+     * @param operatorDept 操作人所属部门名称
+     * @return 包含success、newState、nextNode、isLast、message字段的Map对象
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Map<String, Object> approve(String processCode, Long businessId, String currentState,
@@ -192,6 +225,19 @@ public class ApprovalProcessServiceImpl implements IApprovalProcessService {
         return result;
     }
 
+    /**
+     * 审批驳回业务处理
+     * 当前审批节点驳回业务数据，根据节点配置计算驳回后的目标状态，记录审批历史
+     * 驳回前检查节点是否允许驳回（canBack字段为"1"或"Y"时允许）
+     * @param processCode 流程编码，唯一标识审批流程
+     * @param businessId 业务数据ID，对应待审批的业务记录
+     * @param currentState 当前业务数据的状态
+     * @param comment 审批意见或备注信息
+     * @param operatorId 操作人ID
+     * @param operatorName 操作人姓名
+     * @param operatorDept 操作人所属部门名称
+     * @return 包含success、newState、message字段的Map对象
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Map<String, Object> reject(String processCode, Long businessId, String currentState,
@@ -235,6 +281,14 @@ public class ApprovalProcessServiceImpl implements IApprovalProcessService {
         return result;
     }
 
+    /**
+     * 判断用户是否有审批权限
+     * 根据用户ID、部门ID列表和角色KEY列表综合判断用户是否有权进行审批操作
+     * @param userId 用户ID
+     * @param deptIds 用户所属部门ID列表
+     * @param roleKeys 用户拥有的角色KEY列表
+     * @return true表示有审批权限，false表示无审批权限
+     */
     @Override
     public boolean canApprove(Long userId, List<Long> deptIds, List<String> roleKeys) {
         if (userId == null) {
@@ -246,6 +300,13 @@ public class ApprovalProcessServiceImpl implements IApprovalProcessService {
         return true;
     }
 
+    /**
+     * 获取业务数据的审批历史记录
+     * 根据流程编码和业务ID查询该业务的所有审批历史信息，按时间倒序排列
+     * @param processCode 流程编码，唯一标识审批流程
+     * @param businessId 业务数据ID
+     * @return 包含所有审批历史记录的列表，若无记录则返回空列表
+     */
     @Override
     public List<SysApprovalHistory> getApprovalHistory(String processCode, Long businessId) {
         if (StringUtils.isEmpty(processCode) || businessId == null) {
@@ -254,6 +315,12 @@ public class ApprovalProcessServiceImpl implements IApprovalProcessService {
         return sysApprovalHistoryService.selectSysApprovalHistoryByBusinessId(processCode, businessId);
     }
 
+    /**
+     * 获取指定流程的所有审批节点列表
+     * 根据流程编码查询流程配置，获取该流程下的所有审批节点信息
+     * @param processCode 流程编码，唯一标识审批流程
+     * @return 包含所有审批节点的列表，若流程不存在或无节点则返回空列表
+     */
     @Override
     public List<SysApprovalNode> getProcessNodes(String processCode) {
         if (StringUtils.isEmpty(processCode)) {
@@ -278,6 +345,23 @@ public class ApprovalProcessServiceImpl implements IApprovalProcessService {
         }
     }
 
+    /**
+    /**
+     * 撤回审批流程
+     * 
+     * @param processCode 流程编码
+     * @param businessId 业务ID
+     * @param currentState 当前状态
+     * @param comment 撤回意见
+     * @param operatorId 操作人ID
+     * @param operatorName 操作人姓名
+     * @param operatorDept 操作人部门
+     * @return 包含操作结果的Map，包含以下字段：
+     *         - success: 操作是否成功
+     *         - message: 操作结果消息
+     *         - newState: 撤回后的新状态（成功时）
+     * @throws RuntimeException 当发生系统异常时抛出
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Map<String, Object> recall(String processCode, Long businessId, String currentState,
@@ -323,7 +407,11 @@ public class ApprovalProcessServiceImpl implements IApprovalProcessService {
                 if (StringUtils.isEmpty(recallState)) {
                     recallState = "PAPER_DRAFT";
                 }
-            } else {
+            } else if (currentNodeIndex == nodeList.size() - 1
+                    && currentState.equals(currentNode.getPassState())) {
+                // 最后一个节点且当前状态为该节点的passState（结束状态）时，撤回回到最后一个节点的nodeCode
+                recallState = currentNode.getNodeCode();
+            } else { 
                 // 使用当前节点的 rejectState 作为撤回状态
                 recallState = currentNode.getRejectState();
                 if (StringUtils.isEmpty(recallState)) {
@@ -354,19 +442,20 @@ public class ApprovalProcessServiceImpl implements IApprovalProcessService {
         return result;
     }
 
-/**
- * 保存审批历史记录方法
- * @param processCode 流程编码
- * @param businessId 业务ID
- * @param node 审批节点信息
- * @param action 操作类型
- * @param operatorId 操作人ID
- * @param operatorName 操作人姓名
- * @param operatorDept 操作人部门
- * @param oldState 原状态
- * @param newState 新状态
- * @param comment 备注信息
- */
+    /**
+     * 保存审批历史记录
+     * 根据流程编码、业务ID、审批节点、操作类型、操作人信息、原状态、新状态和备注信息，创建并保存审批历史记录
+     * @param processCode 流程编码
+     * @param businessId 业务ID
+     * @param node 审批节点信息
+     * @param action 操作类型
+     * @param operatorId 操作人ID
+     * @param operatorName 操作人姓名
+     * @param operatorDept 操作人部门
+     * @param oldState 原状态
+     * @param newState 新状态
+     * @param comment 备注信息
+     */
     private void saveApprovalHistory(String processCode, Long businessId, SysApprovalNode node, String action,
             Long operatorId, String operatorName, String operatorDept,
             String oldState, String newState, String comment) {

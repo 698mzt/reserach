@@ -228,16 +228,17 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
     }
 
     /**
-     * 论文审批通过
+     * 论文审批操作（通过/驳回/撤回）
      * @param id 论文ID
      * @param userId 用户ID
      * @param comment 审批意见
-     * @param order 论文类别
+     * @param operationType 操作类型：approve(通过)、reject(驳回)、recall(撤回)
+     * @param order 论文类别（仅通过时需要）
      * @return 操作结果
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public int pytg(String id, Long userId, String comment, String order) {
+    public int approve(String id, Long userId, String comment, String operationType, String order) {
         SciPaperA paper = sciPaperAMapper.selectSciPaperAById(Long.valueOf(id));
         if (paper == null) {
             return -1;
@@ -249,48 +250,112 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
             return -1;
         }
 
-        Map<String, Object> result = approvalProcessService.approve(
-                PAPER_PROCESS_CODE, 
-                Long.valueOf(id), 
-                currentState, 
-                comment, 
-                userId, 
-                user.getUserName(), 
-                user.getDept() != null ? user.getDept().getDeptName() : ""
-        );
+        Map<String, Object> result = null;
+        if ("approve".equals(operationType)) {
+            result = approvalProcessService.approve(
+                    PAPER_PROCESS_CODE,
+                    Long.valueOf(id),
+                    currentState,
+                    comment,
+                    userId,
+                    user.getUserName(),
+                    user.getDept() != null ? user.getDept().getDeptName() : ""
+            );
+        } else if ("reject".equals(operationType)) {
+            result = approvalProcessService.reject(
+                    PAPER_PROCESS_CODE,
+                    Long.valueOf(id),
+                    currentState,
+                    comment,
+                    userId,
+                    user.getUserName(),
+                    user.getDept() != null ? user.getDept().getDeptName() : ""
+            );
+        } else if ("recall".equals(operationType)) {
+            result = approvalProcessService.recall(
+                    PAPER_PROCESS_CODE,
+                    Long.valueOf(id),
+                    currentState,
+                    comment,
+                    userId,
+                    user.getUserName(),
+                    user.getDept() != null ? user.getDept().getDeptName() : ""
+            );
+        }
 
-        if (!Boolean.TRUE.equals(result.get("success"))) {
+        if (result == null || !Boolean.TRUE.equals(result.get("success"))) {
             return -1;
         }
 
         String newState = (String) result.get("newState");
-        boolean isLast = Boolean.TRUE.equals(result.get("isLast"));
 
-        // 科研处审批通过时计算科研分
-        if (isLast) {
-            List<Integer> point_list = sciPaperACfgMapper.selectSciPaperACfgPointList(order);
-            int res = setPaperUserScore(id, point_list);
-            if (res < 1 || res > 4) {
-                return -1;
-            }
+        if ("approve".equals(operationType)) {
+            boolean isLast = Boolean.TRUE.equals(result.get("isLast"));
+            if (isLast) {
+                List<Integer> point_list = sciPaperACfgMapper.selectSciPaperACfgPointList(order);
+                int res = setPaperUserScore(id, point_list);
+                if (res < 1 || res > 4) {
+                    return -1;
+                }
 
-            if (!point_list.isEmpty()) {
-                int researchScore = point_list.get(0);
-                sciPaperAMapper.updatePaperResearchScore(Long.valueOf(id), researchScore);
+                if (!point_list.isEmpty()) {
+                    int researchScore = point_list.get(0);
+                    sciPaperAMapper.updatePaperResearchScore(Long.valueOf(id), researchScore);
+                }
             }
+        } else if ("recall".equals(operationType) && "PAPER_KYC_AUDIT".equals(newState)) {
+            int points = 0;
+            paperUserScoreServiceImplMapper.updateScoreByPaperId(Long.valueOf(id), points);
         }
 
         int a = sciPaperAMapper.pytg(id, newState);
 
-        // 记录审批意见
         SciPaperAr sciPaperAr = new SciPaperAr();
         sciPaperAr.setUid(userId);
         sciPaperAr.setAr_id(Integer.valueOf(id));
-        sciPaperAr.setState("通过");
-        sciPaperAr.setConcate(comment != null ? comment : "审批通过");
+        if ("approve".equals(operationType)) {
+            sciPaperAr.setState("通过");
+            sciPaperAr.setConcate(comment != null ? comment : "审批通过");
+        } else if ("reject".equals(operationType)) {
+            sciPaperAr.setState("驳回");
+            sciPaperAr.setConcate(comment != null ? comment : "审批驳回");
+        } else if ("recall".equals(operationType)) {
+            sciPaperAr.setState("撤回");
+            sciPaperAr.setConcate(comment != null ? comment : "审批撤回");
+        }
         sciPaperAMapper.insertSciPaperAr(sciPaperAr);
 
         return a;
+    }
+
+    /**
+     * 论文审批通过
+     * @param id 论文ID
+     * @param userId 用户ID
+     * @param comment 审批意见
+     * @param order 论文类别
+     * @return 操作结果
+     * @deprecated 请使用 approve 方法替代
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int pytg(String id, Long userId, String comment, String order) {
+        return approve(id, userId, comment, "approve", order);
+    }
+
+    /**
+     * 论文审批驳回或撤回
+     * @param id 论文ID
+     * @param userId 用户ID
+     * @param remark 备注信息
+     * @param operationType 操作类型：reject(驳回) 或 recall(撤回)
+     * @return 操作结果
+     * @deprecated 请使用 approve 方法替代
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int pybh(String id, Long userId, String remark, String operationType) {
+        return approve(id, userId, remark, operationType, null);
     }
 
     /**
@@ -315,6 +380,17 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
         String firstAuthorId = authors.get("1");
         boolean isFirstAuthorLocal = firstAuthorId != null && !firstAuthorId.equals("-1") && !firstAuthorId.equals("");
 
+        // 检查所有四位作者是否均为校内人员
+        boolean allAuthorsLocal = true;
+        for (int i = 1; i <= 4; i++) {
+            String authorOrder = String.valueOf(i);
+            String userId = authors.get(authorOrder);
+            if (userId != null && !userId.equals("") && userId.equals("-1")) {
+                allAuthorsLocal = false;
+                break;
+            }
+        }
+
         // 找出通讯作者的排名
         int correspondingAuthorRank = -1;
         // 只有当通讯作者ID不为空时，才查找通讯作者排名
@@ -326,16 +402,6 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
                     correspondingAuthorRank = Integer.parseInt(authorOrder);
                     break;
                 }
-            }
-        }
-
-        // 获取实际的作者排名列表，过滤掉无效作者
-        List<Integer> actualAuthorRanks = new ArrayList<>();
-        for (int i = 1; i <= 4; i++) {
-            String authorOrder = String.valueOf(i);
-            String userId = authors.get(authorOrder);
-            if (userId != null && !userId.equals("-1") && !userId.equals("")) {
-                actualAuthorRanks.add(i);
             }
         }
 
@@ -351,73 +417,20 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
                 // 确定该作者应得的分数位置
                 int scorePosition = 1;
 
-                // 特殊情况：一作同时是通讯作者，保持一作分数不变
-                if (i == 1 && isCorrespondingAuthor) {
-                    scorePosition = 1;
+                // 无通讯作者情况或普通作者情况
+                if (!isCorrespondingAuthor) {
+                    // 无论一作是否是本校老师，都按实际排名计算分数
+                    // "其他"作者也算排名，所以直接使用实际位置
+                    scorePosition = i;
                 }
-                // 无通讯作者情况
-                else if (correspondingAuthorRank == -1) {
-                    if (isFirstAuthorLocal) {
-                        // 一作是本校老师，直接按作者排名计算分数
-                        scorePosition = i;
-                    } else {
-                        // 一作不是本校老师，其他作者的分数从一作位置开始
-                        if (i == 1) {
-                            // 一作不是本校老师，不给分
-                            scorePosition = -1;
-                        } else {
-                            // 其他作者，分数从一作位置开始
-                            scorePosition = i - 1;
-                        }
-                    }
-                }
-                // 有通讯作者情况
+                // 通讯作者情况
                 else {
-                    if (isCorrespondingAuthor) {
-                        // 通讯作者的分数位置
-                        if (isFirstAuthorLocal) {
-                            // 一作是本校老师，通讯作者按二作分数算
-                            scorePosition = 2;
-                        } else {
-                            // 一作不是本校老师，通讯作者按一作分数算
-                            scorePosition = 1;
-                        }
-                    }
-                    // 普通作者的情况
-                    else {
-                        if (i == 1) {
-                            // 一作
-                            if (isFirstAuthorLocal) {
-                                // 一作是本校老师，一作按一作分数算
-                                scorePosition = 1;
-                            } else {
-                                // 一作不是本校老师，一作按0分算
-                                scorePosition = -1;
-                            }
-                        } else {
-                            // 其他普通作者
-                            if (isFirstAuthorLocal) {
-                                // 一作是本校老师的情况
-                                if (i < correspondingAuthorRank) {
-                                    // 作者在通讯作者之前，分数位置 = i + 1
-                                    scorePosition = i + 1;
-                                } else {
-                                    // 作者在通讯作者之后，分数位置 = i
-                                    scorePosition = i;
-                                }
-                            } else {
-                                // 一作不是本校老师的情况
-                                if (i < correspondingAuthorRank) {
-                                    // 作者在通讯作者之前，分数位置 = i
-                                    scorePosition = i;
-                                } else if (i > correspondingAuthorRank) {
-                                    // 作者在通讯作者之后，分数位置 = i - 1
-                                    scorePosition = i - 1;
-                                } else {
-                                    // 作者是通讯作者，已经在上面处理
-                                }
-                            }
-                        }
+                    if (!isFirstAuthorLocal) {
+                        // 一作不是本校老师，通讯作者按一作位置的分数计算
+                        scorePosition = 1;
+                    } else {
+                        // 一作是本校老师，通讯作者按实际排名计算分数
+                        scorePosition = i;
                     }
                 }
 
@@ -434,38 +447,17 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
                     // 如果越界，取最后一个分数
                     score = point_list.get(point_list.size() - 1);
                 }
+                
+                // 特殊处理：当一作不是本校老师时，通讯作者分数为第一作者分数的50%
+                // 这里的第一作者指的是一作位置的分数，而不是实际排名的第一作者
+                if (isCorrespondingAuthor && !isFirstAuthorLocal) {
+                    score = (int) (score * 0.5);
+                }
             }
 
             // 存储结果，key为作者排名+用户ID
             String key = authorOrder + "_" + userId;
             result.put(key, score);
-        }
-
-        // 特殊处理：当一作不是本校老师且存在通讯作者时，重新计算通讯作者之前的普通作者分数
-        if (!isFirstAuthorLocal && correspondingAuthorRank > -1) {
-            // 遍历所有作者，重新计算通讯作者之前的普通作者分数
-            for (int i = 1; i <= 4; i++) {
-                String authorOrder = String.valueOf(i);
-                String userId = authors.get(authorOrder);
-                if (userId != null && !userId.equals("-1") && !userId.equals("")) {
-                    boolean isCorrespondingAuthor = userId.equals(communicationAuthorId);
-                    if (!isCorrespondingAuthor && i < correspondingAuthorRank) {
-                        // 作者在通讯作者之前且不是通讯作者
-                        // 重新计算分数位置：当前排名
-                        int newScorePosition = i;
-                        // 转换为索引，从0开始
-                        int newTargetIndex = newScorePosition - 1;
-                        int newScore = 0;
-                        if (newTargetIndex >= 0 && newTargetIndex < point_list.size()) {
-                            newScore = point_list.get(newTargetIndex);
-                        } else {
-                            newScore = point_list.get(point_list.size() - 1);
-                        }
-                        String key = authorOrder + "_" + userId;
-                        result.put(key, newScore);
-                    }
-                }
-            }
         }
 
         return result;
@@ -474,25 +466,32 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
     /**
      * 计算论文作者科研分
      * 计分逻辑：
-     * 1. 如果一作不是本校老师，通讯作者是本校老师，那么通讯作者按一作分算，其他顺延
-     * 2. 如果一作是本校老师，通讯作者按二作分数算，其他顺延
+     * 1. 普通作者按实际排名计算分数
+     * 2. 通讯作者：如果一作是校外，按一作分数*0.5；如果四个作者都是校内，按实际排名分数
      * @param id 论文ID
      * @param point_list 分数列表
      * @return 更新结果数量
      */
     public int setPaperUserScore (String id, List<Integer> point_list){
+        final List<Integer> finalPointList = point_list;
         List<Paper_user_score> paperUserScores = paperUserScoreServiceImplMapper.getpaperUserScoreListByPaperId(Long.valueOf(id));
-
-        // 检查是否存在第一作者（author_order = 1）
-        boolean hasFirstAuthor = paperUserScores.stream()
-                .anyMatch(score -> "1".equals(score.getAuthorOrder()));
 
         // 检查一作是否是本校老师
         Paper_user_score firstAuthor = paperUserScores.stream()
                 .filter(score -> "1".equals(score.getAuthorOrder()))
                 .findFirst()
                 .orElse(null);
-        boolean isFirstAuthorLocal = firstAuthor != null && !firstAuthor.getAuthorLevel().equals("-1");
+        final boolean isFirstAuthorLocal = firstAuthor != null && !firstAuthor.getAuthorLevel().equals("-1");
+
+        // 检查所有四位作者是否均为校内人员
+        boolean tempAllAuthorsLocal = true;
+        for (Paper_user_score score : paperUserScores) {
+            if (!"0".equals(score.getAuthorLevel()) && score.getAuthorLevel().equals("-1")) {
+                tempAllAuthorsLocal = false;
+                break;
+            }
+        }
+        final boolean allAuthorsLocal = tempAllAuthorsLocal;
 
         // 找出通讯作者
         Paper_user_score correspondingAuthor = paperUserScores.stream()
@@ -502,163 +501,78 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
         boolean hasCorrespondingAuthor = correspondingAuthor != null;
 
         AtomicInteger res = new AtomicInteger(0); // 使用 AtomicInteger 替代 int
-        // 先处理所有普通作者，保存一作的分数
-        Map<Long, Integer> originalScores = new HashMap<>();
+        
+        // 处理所有作者
         paperUserScores.forEach(score -> {
             try {
-                // 先处理普通作者，保存分数
-                if (!"0".equals(score.getAuthorLevel())) {
+                if ("0".equals(score.getAuthorLevel())) {
+                    // 通讯作者
+                    int calculatedScore = 0;
+                    
+                    // 检查该通讯作者是否同时是某个排名的作者
+                    Paper_user_score correspondingAuthorWithOrder = paperUserScores.stream()
+                            .filter(s -> s.getPusId().equals(score.getPusId()) && !"0".equals(s.getAuthorLevel()))
+                            .findFirst()
+                            .orElse(null);
+                    
+                    if (correspondingAuthorWithOrder != null) {
+                        // 通讯作者同时是某个排名的作者
+                        String authorOrder = correspondingAuthorWithOrder.getAuthorOrder();
+                        int authorIndex = Integer.parseInt(authorOrder) - 1;
+                        
+                        if (!isFirstAuthorLocal) {
+                            // 一作不是本校老师，通讯作者按第一作者分数的50%算
+                            if (!finalPointList.isEmpty()) {
+                                calculatedScore = (int) (finalPointList.get(0) * 0.5);
+                            }
+                        } else if (allAuthorsLocal) {
+                            // 所有四位作者均为校内人员，通讯作者按实际排名分数算
+                            if (authorIndex >= 0 && authorIndex < finalPointList.size()) {
+                                calculatedScore = finalPointList.get(authorIndex);
+                            } else if (!finalPointList.isEmpty()) {
+                                calculatedScore = finalPointList.get(finalPointList.size() - 1);
+                            }
+                        } else {
+                            // 一作是本校老师但并非所有作者都是校内人员，通讯作者按实际排名分数算
+                            if (authorIndex >= 0 && authorIndex < finalPointList.size()) {
+                                calculatedScore = finalPointList.get(authorIndex);
+                            } else if (!finalPointList.isEmpty()) {
+                                calculatedScore = finalPointList.get(finalPointList.size() - 1);
+                            }
+                        }
+                    } else {
+                        // 通讯作者不在1-4作中
+                        if (!isFirstAuthorLocal && !finalPointList.isEmpty()) {
+                            // 一作不是本校老师，通讯作者按第一作者分数的50%算
+                            calculatedScore = (int) (finalPointList.get(0) * 0.5);
+                        } else if (!finalPointList.isEmpty()) {
+                            // 其他情况，按二作分数算
+                            calculatedScore = finalPointList.size() > 1 ? finalPointList.get(1) : finalPointList.get(0);
+                        }
+                    }
+                    
+                    // 更新分数
+                    int i = paperUserScoreServiceImplMapper.updateScoreById(score.getPusId(), calculatedScore);
+                    res.addAndGet(i);
+                } else {
                     // 普通作者
                     String authorOrder = score.getAuthorOrder();
                     int authorIndex = Integer.parseInt(authorOrder) - 1;
 
                     int calculatedScore = 0;
-                    if (!isFirstAuthorLocal) {
-                        // 一作不是本校老师，其他作者顺延
-                        if (authorIndex == 0) {
-                            // 一作不是本校老师，不给分
-                            calculatedScore = 0;
-                        } else {
-                            // 其他作者位置减1
-                            int newIndex = Math.max(0, authorIndex - 1);
-                            calculatedScore = point_list.get(Math.min(newIndex, point_list.size() - 1));
-                        }
-                    } else {
-                        // 一作是本校老师
-                        if (hasCorrespondingAuthor) {
-                            // 有通讯作者，其他作者按正常顺序计算
-                            calculatedScore = point_list.get(Math.min(authorIndex, point_list.size() - 1));
-                        } else {
-                            // 没有通讯作者，按正常顺序计算
-                            calculatedScore = point_list.get(Math.min(authorIndex, point_list.size() - 1));
-                        }
-                    }
-                    // 保存计算出的分数
-                    originalScores.put(score.getPusId(), calculatedScore);
-                }
-            } catch (NumberFormatException e) {
-            }
-        });
-
-        // 然后处理通讯作者，注意避免覆盖一作的分数
-        paperUserScores.forEach(score -> {
-            try {
-                if ("0".equals(score.getAuthorLevel())) {
-                    // 检查该通讯作者是否同时是一作
-                    boolean isFirstAndCorresponding = paperUserScores.stream()
-                            .anyMatch(s -> s.getPusId().equals(score.getPusId()) && "1".equals(s.getAuthorOrder()));
-
-                    if (isFirstAndCorresponding) {
-                        // 一作同时是通讯作者，保持一作的分数不变
-                        Integer points = originalScores.get(score.getPusId());
-                        if (points != null) {
-                            int i = paperUserScoreServiceImplMapper.updateScoreById(score.getPusId(), points);
-                            res.addAndGet(i);
-                        }
-                    } else {
-                        // 普通通讯作者，按原有逻辑处理
-                        if (!hasFirstAuthor && !point_list.isEmpty()) {
-                            // 如果没有第一作者，通讯作者按第一作者分数计算
-                            Integer points = point_list.get(0);
-                            int i = paperUserScoreServiceImplMapper.updateScoreById(score.getPusId(), points);
-                            res.addAndGet(i);
-                        } else {
-                            if (!isFirstAuthorLocal) {
-                                // 一作不是本校老师，通讯作者按一作分数算
-                                Integer points = point_list.get(0);
-                                int i = paperUserScoreServiceImplMapper.updateScoreById(score.getPusId(), points);
-                                res.addAndGet(i);
-                            } else {
-                                // 一作是本校老师，通讯作者按二作分数算
-                                Integer points = point_list.size() > 1 ? point_list.get(1) : point_list.get(0);
-                                int i = paperUserScoreServiceImplMapper.updateScoreById(score.getPusId(), points);
-                                res.addAndGet(i);
-                            }
-                        }
-                    }
-                } else {
-                    // 普通作者，使用之前计算的分数
-                    Integer points = originalScores.get(score.getPusId());
-                    if (points != null) {
-                        int i = paperUserScoreServiceImplMapper.updateScoreById(score.getPusId(), points);
-                        res.addAndGet(i);
-                    }
+                    // 无论一作是否是本校老师，都按实际排名计算分数
+                    // "其他"作者也算排名，所以直接使用实际位置
+                    calculatedScore = finalPointList.get(Math.min(authorIndex, finalPointList.size() - 1));
+                    
+                    // 更新分数
+                    int i = paperUserScoreServiceImplMapper.updateScoreById(score.getPusId(), calculatedScore);
+                    res.addAndGet(i);
                 }
             } catch (NumberFormatException e) {
             }
         });
         return res.get();
     }
-    /**
-     * 论文审批驳回或撤回
-     * @param id 论文ID
-     * @param userId 用户ID
-     * @param remark 备注信息
-     * @param operationType 操作类型：reject(驳回) 或 recall(撤回)
-     * @return 操作结果
-     */
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public int pybh(String id, Long userId, String remark, String operationType) {
-        SciPaperA paper = sciPaperAMapper.selectSciPaperAById(Long.valueOf(id));
-        if (paper == null) {
-            return -1;
-        }
-
-        String currentState = paper.getState();
-        SysUser user = sysUserService.selectUserById(userId);
-        if (user == null) {
-            return -1;
-        }
-
-        Map<String, Object> result = null;
-        if ("reject".equals(operationType)) {
-            result = approvalProcessService.reject(
-                    PAPER_PROCESS_CODE, 
-                    Long.valueOf(id), 
-                    currentState, 
-                    remark, 
-                    userId, 
-                    user.getUserName(), 
-                    user.getDept() != null ? user.getDept().getDeptName() : ""
-            );
-        } else if ("recall".equals(operationType)) {
-            result = approvalProcessService.recall(
-                    PAPER_PROCESS_CODE, 
-                    Long.valueOf(id), 
-                    currentState, 
-                    remark, 
-                    userId, 
-                    user.getUserName(), 
-                    user.getDept() != null ? user.getDept().getDeptName() : ""
-            );
-        }
-
-        if (result == null || !Boolean.TRUE.equals(result.get("success"))) {
-            return -1;
-        }
-
-        String newState = (String) result.get("newState");
-
-        // 科研处撤回时清空科研分
-        if ("recall".equals(operationType) && "PAPER_KYC_AUDIT".equals(newState)) {
-            int points = 0;
-            paperUserScoreServiceImplMapper.updateScoreByPaperId(Long.valueOf(id), points);
-        }
-
-        int a = sciPaperAMapper.pytg(id, newState);
-
-        // 记录审批意见
-        SciPaperAr sciPaperAr = new SciPaperAr();
-        sciPaperAr.setUid(userId);
-        sciPaperAr.setAr_id(Integer.valueOf(id));
-        sciPaperAr.setState("reject".equals(operationType) ? "驳回" : "撤回");
-        sciPaperAr.setConcate(remark != null ? remark : ("reject".equals(operationType) ? "审批驳回" : "审批撤回"));
-        sciPaperAMapper.insertSciPaperAr(sciPaperAr);
-
-        return a;
-    }
-
     @Override
     public List<SciPaperAr> selectSciPaperArList(SciPaperAr sciPaperAr) {
         return sciPaperAMapper.selectSciPaperArList(sciPaperAr);
@@ -769,12 +683,27 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
         String firstAuthorId = authors.get("1");
         boolean isFirstAuthorLocal = firstAuthorId != null && !firstAuthorId.equals("-1") && !firstAuthorId.isEmpty();
 
+        // 检查所有四位作者是否均为校内人员
+        boolean allAuthorsLocal = true;
+        for (int i = 1; i <= 4; i++) {
+            String authorOrder = String.valueOf(i);
+            String userId = authors.get(authorOrder);
+            if (userId != null && !userId.equals("") && userId.equals("-1")) {
+                allAuthorsLocal = false;
+                break;
+            }
+        }
+
         // 根据规则计算通讯作者分数
         if (!isFirstAuthorLocal) {
-            // 一作不是本校老师，通讯作者按一作分数算
-            return pointList.get(0);
+            // 一作不是本校老师，通讯作者按一作分数的50%算
+            return (int) (pointList.get(0) * 0.5);
+        } else if (allAuthorsLocal) {
+            // 所有四位作者均为校内人员，通讯作者按实际排名分数算
+            // 由于通讯作者不在1-4作中，按二作分数算
+            return pointList.size() > 1 ? pointList.get(1) : pointList.get(0);
         } else {
-            // 一作是本校老师，通讯作者按二作分数算
+            // 一作是本校老师但并非所有作者都是校内人员，通讯作者按二作分数算
             return pointList.size() > 1 ? pointList.get(1) : pointList.get(0);
         }
     }

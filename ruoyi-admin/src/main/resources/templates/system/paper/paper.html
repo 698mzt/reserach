@@ -654,7 +654,9 @@
                         var actions = [];
 
                       if((row.state == 'PAPER_DRAFT' || row.state == 'PAPER_REJECTED') && (row.userId == row.uid || row.uid == 1)){
+                        if( row.state != 'PAPER_REJECTED'){
                             actions.push('<a class="' + editFlag + '" href="javascript:void(0)" onclick="pushTh(\'' + row.id + '\')"></i>提交</a>&nbsp;&nbsp;&nbsp;');
+                        }
                             actions.push('<a class="' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"></i>删除</a><br>&nbsp;&nbsp;&nbsp;');
                             actions.push('<a class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"></i>编辑</a>&nbsp;&nbsp;&nbsp;');
                         }

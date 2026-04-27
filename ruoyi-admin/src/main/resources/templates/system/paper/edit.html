@@ -57,8 +57,8 @@
                 <label class="col-sm-3 control-label">发表时间：</label>
               <div class="col-sm-8">
                 <div class="input-group date">
-                    <input autocomplete="off" name="publicationTime" th:field="*{publicationTime}"
-                           th:value="${#dates.format(publicationTime, 'yyyy-MM-dd')}"  class="form-control"
+                    <input autocomplete="off" name="publicationTime" id="publicationTime"
+                           class="form-control"
                            placeholder="yyyy-MM-dd" type="text">
                     <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
                 </div>
@@ -161,7 +161,7 @@
                         <div class="col-sm-8 first-author-input">
                             <div class="input-group">
                                 <select name="firstPersonId" class="form-control m-b" id="firstPersonId">
-                                    <option value="">---请选择--</option>
+                                    <option value="" th:selected="${sciPaperA.firstPersonId == null or sciPaperA.firstPersonId == ''}">---其他---</option>
                                     <option th:each="user : ${sysUsers}"
                                             th:text="${user.userName}"
                                             th:value="${user.userId}"
@@ -190,7 +190,7 @@
                         <div class="col-sm-8">
                             <div class="input-group">
                                 <select name="secondPersonId" class="form-control m-b" id="secondPersonId">
-                                    <option value="">---请选择--</option>
+                                    <option value="" th:selected="${sciPaperA.secondPersonId == null or sciPaperA.secondPersonId == ''}">---其他---</option>
                                     <option th:each="user : ${sysUsers}"
                                             th:text="${user.userName}"
                                             th:value="${user.userId}"
@@ -219,7 +219,7 @@
                         <div class="col-sm-8">
                             <div class="input-group">
                                 <select name="thirdPersonId" class="form-control m-b" id="thirdPersonId">
-                                    <option value="">---请选择--</option>
+                                    <option value="" th:selected="${sciPaperA.thirdPersonId == null or sciPaperA.thirdPersonId == ''}">---其他--</option>
                                     <option th:each="user : ${sysUsers}"
                                             th:text="${user.userName}"
                                             th:value="${user.userId}"
@@ -248,7 +248,7 @@
                         <div class="col-sm-8">
                             <div class="input-group">
                                 <select name="fourthPersonId" class="form-control m-b" id="fourthPersonId">
-                                    <option value="">--请选择--</option>
+                                    <option value="" th:selected="${sciPaperA.fourthPersonId == null or sciPaperA.fourthPersonId == ''}">---其他--</option>
                                     <option th:each="user : ${sysUsers}"
                                             th:text="${user.userName}"
                                             th:value="${user.userId}"
@@ -276,7 +276,7 @@
                         <label class="col-sm-4 control-label is-required">通讯作者：</label>
                         <div class="col-sm-8">
                             <select name="communicationAuthorId" class="form-control m-b" id="correspondingAuthorId">
-                                <option value="">--请选择--</option>
+                                <option value="">---其他--</option>
                             </select>
                         </div>
                     </div>
@@ -496,7 +496,7 @@
             
             // 清空下拉框
             correspondingAuthorSelect.empty();
-            correspondingAuthorSelect.append('<option value="">--请选择--</option>');
+            correspondingAuthorSelect.append('<option value="">---其他---</option>');
             
             // 添加选中的作者作为选项
             selectedAuthors.forEach(function(author) {
@@ -601,17 +601,29 @@
         });
 
         $(document).ready(function() {
+            // 初始化发表时间日期选择器的值
+            var publicationTime = /*[[${sciPaperA.publicationTime}]]*/ '';
+            if (publicationTime) {
+                var date = new Date(publicationTime);
+                var year = date.getFullYear();
+                var month = (date.getMonth() + 1).toString().padStart(2, '0');
+                var day = date.getDate().toString().padStart(2, '0');
+                var formattedDate = year + '-' + month + '-' + day;
+                $('#publicationTime').val(formattedDate);
+            }
+
             // 初始化选择器为select2，提供搜索能力
             $('#firstPersonId, #secondPersonId, #thirdPersonId, #fourthPersonId, #correspondingAuthorId').select2({
                 width: '100%',
-                placeholder: '--请选择--',
-                allowClear: true
+                placeholder: '---其他--',
+                allowClear: false
             });
 
             // 初始化通讯作者下拉框（在页面加载时）
+            // 先更新通讯作者选项
             updateCorrespondingAuthorOptions();
-
-            // 设置默认选中的通讯作者
+            
+            // 然后设置默认选中的通讯作者
             var communicationAuthorId = /*[[${sciPaperA.communicationAuthorId}]]*/ '';
             if (communicationAuthorId && communicationAuthorId !== '') {
                 $('#correspondingAuthorId').val(communicationAuthorId).trigger('change');
@@ -826,6 +838,27 @@
             updateCorrespondingAuthorOptions();
         }
         
+        // 保存原始选项列表
+        var originalOptions = {};
+        
+        // 初始化原始选项
+        function initOriginalOptions() {
+            var selectIds = ['firstPersonId', 'secondPersonId', 'thirdPersonId', 'fourthPersonId'];
+            selectIds.forEach(id => {
+                originalOptions[id] = [];
+                $('#' + id).find('option').each(function() {
+                    originalOptions[id].push({ 
+                        value: $(this).val(), 
+                        text: $(this).text(),
+                        selected: $(this).prop('selected')
+                    });
+                });
+            });
+        }
+        
+        // 初始化原始选项
+        initOriginalOptions();
+        
         // 作者互斥逻辑：确保第一到第四作者不能重复选择
         function updateAuthorDropdownOptions() {
             // 构造所有未禁用select及其已选值
@@ -841,13 +874,26 @@
             selects.forEach(currentSel => {
                 // 只处理未禁用的下拉框
                 if (currentSel.$el.prop('disabled')) return;
-                currentSel.$el.find('option').each(function() {
-                    var val = $(this).val();
-                    if (!val || val === '') return; // 保留"请选择"等空选项
-                    // 如果该选项被其它未禁用下拉选中则禁用(但自身已选要保留)
-                    var isByOtherSelected = selectedIds.includes(val) && currentSel.selected !== val;
-                    $(this).prop('disabled', isByOtherSelected);
+                
+                // 保存当前选中值
+                var currentSelected = currentSel.selected;
+                
+                // 清空当前下拉框，保留第一个"请选择"选项
+                currentSel.$el.empty().append('<option value="">--请选择--</option>');
+                
+                // 重新填充选项，排除被其他下拉框选中的选项
+                originalOptions[currentSel.id].forEach(option => {
+                    if (!option.value || option.value === '') return; // 跳过空值选项
+                    // 如果该选项未被其他下拉框选中，或者是当前下拉框的已选项，则添加
+                    if (!selectedIds.includes(option.value) || option.value === currentSelected) {
+                        var $option = $('<option>').val(option.value).text(option.text);
+                        if (option.value === currentSelected) {
+                            $option.prop('selected', true);
+                        }
+                        currentSel.$el.append($option);
+                    }
                 });
+                
                 // 让select2刷新可选项
                 if (currentSel.$el.data('select2')) {
                     currentSel.$el.trigger('change.select2');

@@ -45,6 +45,12 @@ public class SysApprovalHistoryServiceImpl implements ISysApprovalHistoryService
         List<SysApprovalHistory> list = sysApprovalHistoryMapper.selectSysApprovalHistoryList(sysApprovalHistory);
         if (list != null && !list.isEmpty()) {
             fillRelatedData(list);
+            if (sysApprovalHistory.getBusinessName() != null && !sysApprovalHistory.getBusinessName().trim().isEmpty()) {
+                final String businessNameSearch = sysApprovalHistory.getBusinessName().trim();
+                list = list.stream()
+                    .filter(h -> h.getBusinessName() != null && h.getBusinessName().contains(businessNameSearch))
+                    .collect(java.util.stream.Collectors.toList());
+            }
         }
         return list != null ? list : new java.util.ArrayList<>();
     }
