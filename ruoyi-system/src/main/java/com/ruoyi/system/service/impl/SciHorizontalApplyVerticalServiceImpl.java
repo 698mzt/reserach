@@ -8,6 +8,7 @@ import com.ruoyi.system.domain.*;
 import com.ruoyi.system.mapper.SciHorizontalApplyVerticalMapper;
 import com.ruoyi.system.mapper.SciHorizontalPiyueMapper;
 import com.ruoyi.system.mapper.SciUserScoreMapper;
+import com.ruoyi.system.service.IApprovalProcessService;
 import com.ruoyi.system.service.ISciHorizontalApplyVerticalService;
 import com.ruoyi.system.service.SciHorizontalReamountService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,12 +29,18 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
 
     @Autowired
     private SciHorizontalApplyVerticalMapper sciHorizontalApplyVerticalMapper;
+
     @Autowired
     private SciHorizontalPiyueMapper sciHorizontalPiyueMapper;
+
     @Autowired
     private SciUserScoreMapper sciUserScoreMapper;
+
     @Autowired
     private SciHorizontalReamountService sciHorizontalReamountService;
+
+    @Autowired
+    private IApprovalProcessService approvalProcessService;
 
     /**
      * 查询纵向课题列表
@@ -324,28 +331,42 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
     /**
      * 纵向课题申请通过
      * 功能：审批通过纵向课题申请，计算并分配科研分
-     * SQL：DELETE FROM sci_user_score WHERE vertical_id = ? AND change_status = ?
-     * SQL：INSERT INTO sci_user_score
-     * SQL：UPDATE sci_horizontal_apply_vertical SET state = ?, subject_source = ? WHERE id = ?
-     * SQL：INSERT INTO sci_horizontal_piyue
+     * 使用公有方法实现审批流程
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int applyPass(String id, Long userId, String urlFlag,List score,List persion,String verticalId,SciHorizontalApplyVertical sciHorizontalApplyVertical1) {
-        String state = "";
-        SciUserScore sciUserScore = new SciUserScore();
-        sciUserScore.setVerticalId(verticalId);
         // 通过id查询获取SciHorizontalApplyVertical对象
         SciHorizontalApplyVertical sciHorizontalApplyVertical = sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalById(Integer.valueOf(id));
-        if(urlFlag.equals("JYS")){
-            state ="V_APPLY_KYC"; // 教研室审核通过后直接流转到科研处审核
-        }else if(urlFlag.equals("KYC")){
-            state ="V_APPLY_PASS";
-//            if (persion.size() > score.size()) {
-//                throw new RuntimeException("积分配置与成员数量不匹配");
-//            }
+        String currentState = sciHorizontalApplyVertical.getState();
+        
+        // 创建审批请求对象
+        ApprovalRequest request = ApprovalRequest.of(
+                "VERTICAL_APPLY", // 流程编码
+                Long.valueOf(id), // 业务ID
+                currentState, // 当前状态
+                "同意", // 审批意见
+                userId, // 操作人ID
+                getSysUser().getUserName(), // 操作人姓名
+                getSysUser().getDept().getDeptName() // 操作人所属部门
+        );
+        
+        // 调用审批通过方法
+        ApprovalResult result = approvalProcessService.approve(request);
+        
+        // 如果审批失败，抛出异常
+        if (!result.isSuccess()) {
+            throw new RuntimeException(result.getMessage());
+        }
+        
+        // 获取新状态
+        String newState = result.getNewState();
+        
+        // 如果是科研处审批通过，计算并分配科研分
+        if (urlFlag.equals("KYC")) {
+            SciUserScore sciUserScore = new SciUserScore();
+            sciUserScore.setVerticalId(verticalId);
             String status = "立项";
-//            sciUserScoreMapper.deleteVerticalScoreById(id.toString(),status);
             sciUserScore.setChangeStatus("立项");
             for (int i = 0; i < persion.size(); i++) {
                 sciUserScore.setUserId(persion.get(i).toString());
@@ -392,38 +413,66 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
                 sciUserScoreMapper.insertScoreVertical(sciUserScore);
             }
         }
-        int a =  sciHorizontalApplyVerticalMapper.applyPass(id,state,sciHorizontalApplyVertical1 != null ? sciHorizontalApplyVertical1.getSubjectSource() : null);
+        
+        // 更新纵向课题状态
+        int a = sciHorizontalApplyVerticalMapper.applyPass(id, newState, sciHorizontalApplyVertical1 != null ? sciHorizontalApplyVertical1.getSubjectSource() : null);
+        
+        // 添加审批记录
         SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
         sciHorizontalPiyue.setUid(userId);
         sciHorizontalPiyue.setVerticalId(Integer.valueOf(id));
         sciHorizontalPiyue.setConcate("同意");
         sciHorizontalPiyue.setState("通过");
         sciHorizontalPiyueMapper.insertVerticalPiyue(sciHorizontalPiyue);
+        
         return a;
     }
 
     /**
      * 纵向课题申请驳回
      * 功能：驳回纵向课题申请，添加审批记录
-     * SQL：UPDATE sci_horizontal_apply_vertical SET state = ? WHERE id = ?
-     * SQL：INSERT INTO sci_horizontal_piyue
+     * 使用公有方法实现审批流程
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int applyBh(String id, Long userId, String remark, String urlFlag) {
-        String state = "";
-        if(urlFlag.equals("JYS")){
-            state ="V_APPLY_REJ";
-        }else if(urlFlag.equals("KYC")){
-            state ="V_APPLY_REJ";
+        // 通过id查询获取SciHorizontalApplyVertical对象
+        SciHorizontalApplyVertical sciHorizontalApplyVertical = sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalById(Integer.valueOf(id));
+        String currentState = sciHorizontalApplyVertical.getState();
+        
+        // 创建审批请求对象
+        ApprovalRequest request = ApprovalRequest.of(
+                "VERTICAL_APPLY", // 流程编码
+                Long.valueOf(id), // 业务ID
+                currentState, // 当前状态
+                remark, // 审批意见
+                userId, // 操作人ID
+                getSysUser().getUserName(), // 操作人姓名
+                getSysUser().getDept().getDeptName() // 操作人所属部门
+        );
+        
+        // 调用审批驳回方法
+        ApprovalResult result = approvalProcessService.reject(request);
+        
+        // 如果审批失败，抛出异常
+        if (!result.isSuccess()) {
+            throw new RuntimeException(result.getMessage());
         }
-        int a =  sciHorizontalApplyVerticalMapper.applyPass(id,state,null);
+        
+        // 获取新状态
+        String newState = result.getNewState();
+        
+        // 更新纵向课题状态
+        int a = sciHorizontalApplyVerticalMapper.applyPass(id, newState, null);
+        
+        // 添加审批记录
         SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
         sciHorizontalPiyue.setUid(userId);
         sciHorizontalPiyue.setVerticalId(Integer.valueOf(id));
         sciHorizontalPiyue.setConcate(remark);
         sciHorizontalPiyue.setState("被驳回");
         sciHorizontalPiyueMapper.insertVerticalPiyue(sciHorizontalPiyue);
+        
         return a;
     }
 
@@ -432,28 +481,42 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
     /**
      * 纵向课题结项申请通过
      * 功能：审批通过纵向课题结项申请，计算并分配科研分
-     * SQL：DELETE FROM sci_user_score WHERE vertical_id = ? AND change_status = ?
-     * SQL：INSERT INTO sci_user_score
-     * SQL：UPDATE sci_horizontal_apply_vertical SET state = ?, subject_source = ? WHERE id = ?
-     * SQL：INSERT INTO sci_horizontal_piyue
+     * 使用公有方法实现审批流程
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int overPass(String id, Long userId, String urlFlag,List score,List persion,String verticalId,String subjectSource) {
-        String state = "";
-        SciUserScore sciUserScore = new SciUserScore();
-        sciUserScore.setVerticalId(verticalId);
         // 通过id查询获取SciHorizontalApplyVertical对象
         SciHorizontalApplyVertical sciHorizontalApplyVertical = sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalById(Integer.valueOf(id));
-        if(urlFlag.equals("JYS")){
-            state ="V_OVER_KYC"; // 教研室审批通过后直接流转到科研处
-        }else if(urlFlag.equals("KYC")){
-            state ="V_OVER_PASS";
-            if (persion.size() > score.size()) {
-                throw new RuntimeException("积分配置与成员数量不匹配");
-            }
+        String currentState = sciHorizontalApplyVertical.getState();
+        
+        // 创建审批请求对象
+        ApprovalRequest request = ApprovalRequest.of(
+                "VERTICAL_OVER", // 流程编码
+                Long.valueOf(id), // 业务ID
+                currentState, // 当前状态
+                "同意", // 审批意见
+                userId, // 操作人ID
+                getSysUser().getUserName(), // 操作人姓名
+                getSysUser().getDept().getDeptName() // 操作人所属部门
+        );
+        
+        // 调用审批通过方法
+        ApprovalResult result = approvalProcessService.approve(request);
+        
+        // 如果审批失败，抛出异常
+        if (!result.isSuccess()) {
+            throw new RuntimeException(result.getMessage());
+        }
+        
+        // 获取新状态
+        String newState = result.getNewState();
+        
+        // 如果是科研处审批通过，计算并分配科研分
+        if (urlFlag.equals("KYC")) {
+            SciUserScore sciUserScore = new SciUserScore();
+            sciUserScore.setVerticalId(verticalId);
             String status = "结项";
-//            sciUserScoreMapper.deleteVerticalScoreById(id.toString(),status);
             sciUserScore.setChangeStatus("结项");
             
             // 查询该课题的立项积分记录，获取预期科研分
@@ -475,43 +538,67 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
                 sciUserScore.setExpectedValue(expectedScore);
                 sciUserScoreMapper.insertScoreVertical(sciUserScore);
             }
-        }else if(urlFlag.equals("Dept")){
-            state ="V_OVER_KYC";
         }
-        int a =  sciHorizontalApplyVerticalMapper.overPass(id,state,subjectSource);
+        
+        // 更新纵向课题状态
+        int a = sciHorizontalApplyVerticalMapper.overPass(id, newState, subjectSource);
+        
+        // 添加审批记录
         SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
         sciHorizontalPiyue.setUid(userId);
         sciHorizontalPiyue.setVerticalId(Integer.valueOf(id));
         sciHorizontalPiyue.setConcate("同意");
         sciHorizontalPiyue.setState("通过");
         sciHorizontalPiyueMapper.insertVerticalPiyue(sciHorizontalPiyue);
+        
         return a;
     }
 
     /**
      * 纵向课题结项申请驳回
      * 功能：驳回纵向课题结项申请，添加审批记录
-     * SQL：UPDATE sci_horizontal_apply_vertical SET state = ? WHERE id = ?
-     * SQL：INSERT INTO sci_horizontal_piyue
+     * 使用公有方法实现审批流程
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int overBh(String id, Long userId, String remark, String urlFlag) {
-        String state = "";
-        if(urlFlag.equals("JYS")){
-            state ="V_OVER_REJ";
-        }else if(urlFlag.equals("KYC")){
-            state ="V_OVER_REJ";
-        }else if (urlFlag.equals("Dept")){
-            state ="V_OVER_REJ";
+        // 通过id查询获取SciHorizontalApplyVertical对象
+        SciHorizontalApplyVertical sciHorizontalApplyVertical = sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalById(Integer.valueOf(id));
+        String currentState = sciHorizontalApplyVertical.getState();
+        
+        // 创建审批请求对象
+        ApprovalRequest request = ApprovalRequest.of(
+                "VERTICAL_OVER", // 流程编码
+                Long.valueOf(id), // 业务ID
+                currentState, // 当前状态
+                remark, // 审批意见
+                userId, // 操作人ID
+                getSysUser().getUserName(), // 操作人姓名
+                getSysUser().getDept().getDeptName() // 操作人所属部门
+        );
+        
+        // 调用审批驳回方法
+        ApprovalResult result = approvalProcessService.reject(request);
+        
+        // 如果审批失败，抛出异常
+        if (!result.isSuccess()) {
+            throw new RuntimeException(result.getMessage());
         }
-        int a =  sciHorizontalApplyVerticalMapper.overPass(id,state,null);
+        
+        // 获取新状态
+        String newState = result.getNewState();
+        
+        // 更新纵向课题状态
+        int a = sciHorizontalApplyVerticalMapper.overPass(id, newState, null);
+        
+        // 添加审批记录
         SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
         sciHorizontalPiyue.setUid(userId);
         sciHorizontalPiyue.setVerticalId(Integer.valueOf(id));
         sciHorizontalPiyue.setConcate(remark);
         sciHorizontalPiyue.setState("被驳回");
         sciHorizontalPiyueMapper.insertVerticalPiyue(sciHorizontalPiyue);
+        
         return a;
     }
 
