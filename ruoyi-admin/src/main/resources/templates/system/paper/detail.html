@@ -557,7 +557,7 @@
                 $("#btn4").hide();
             }
 
-            if (['kyth', 'xyth', 'proth'].includes(urlFlag)) {
+            if (['kyc_recall', 'jys_recall', 'proth'].includes(urlFlag)) {
                 //handleSpecialView();
                 $(".tdiv1").show();
                 $(".tdiv2").show();
@@ -600,9 +600,9 @@
         var paperCategory = $("#paperCategory").val();
         var remark = $('#remark').val();
         // 构建完整的URL
-        var Url = prefix + "/pytg/" + encodeURIComponent($("#pid").val());
+        var Url = prefix + "/approve/" + encodeURIComponent($("#pid").val());
 
-        $.operate.saveTab(Url, {"comment": remark,"paperCategory":paperCategory}, function(response){
+        $.operate.saveTab(Url, {"comment": remark,"paperCategory":paperCategory, "operationType": "approve"}, function(response){
             // console.log("Server response:", response);
         });
     }
@@ -619,13 +619,13 @@
                 $.modal.confirm("批注不能为空");
                 return false;
             }
-        } else if (['proth', 'xyth', 'kyth'].includes(urlFlag)) {
+        } else if (['proth', 'jys_recall', 'kyc_recall'].includes(urlFlag)) {
             operationType = 'recall';
         }
         
         if ($.validate.form() && operationType) {
             var remark = $('#remark').val();
-            var url = prefix + "/pybh/" + encodeURIComponent($("#pid").val());
+            var url = prefix + "/approve/" + encodeURIComponent($("#pid").val());
 
             if (operationType === 'reject') {
                 $.modal.confirm("确定 驳回 吗" ,function() {

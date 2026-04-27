@@ -16,7 +16,6 @@
         <result property="roleKeys"    column="role_keys"    />
         <result property="passState"    column="pass_state"    />
         <result property="rejectState"    column="reject_state"    />
-        <result property="enterState"    column="enter_state"    />
         <result property="canTransfer"    column="can_transfer"    />
         <result property="canBack"    column="can_back"    />
         <result property="sort"    column="sort"    />
@@ -29,9 +28,9 @@
     </resultMap>
 
     <sql id="selectSysApprovalNodeVo">
-        select n.id, n.process_id, p.process_name, n.node_order, n.node_code, n.node_name, 
-               n.dept_ids, n.role_ids, n.role_keys, n.pass_state, n.reject_state, n.enter_state,
-               n.can_transfer, n.can_back, n.sort, n.status, n.create_by, n.create_time, 
+        select n.id, n.process_id, p.process_name, n.node_order, n.node_code, n.node_name,
+               n.dept_ids, n.role_ids, n.role_keys, n.pass_state, n.reject_state,
+               n.can_transfer, n.can_back, n.sort, n.status, n.create_by, n.create_time,
                n.update_by, n.update_time, n.remark 
         from sys_approval_node n
         left join sys_approval_process p on n.process_id = p.id
@@ -71,7 +70,6 @@
             <if test="roleKeys != null and roleKeys != ''">role_keys,</if>
             <if test="passState != null and passState != ''">pass_state,</if>
             <if test="rejectState != null and rejectState != ''">reject_state,</if>
-            <if test="enterState != null and enterState != ''">enter_state,</if>
             <if test="canTransfer != null and canTransfer != ''">can_transfer,</if>
             <if test="canBack != null and canBack != ''">can_back,</if>
             <if test="sort != null">sort,</if>
@@ -90,7 +88,6 @@
             <if test="roleKeys != null and roleKeys != ''">#{roleKeys},</if>
             <if test="passState != null and passState != ''">#{passState},</if>
             <if test="rejectState != null and rejectState != ''">#{rejectState},</if>
-            <if test="enterState != null and enterState != ''">#{enterState},</if>
             <if test="canTransfer != null and canTransfer != ''">#{canTransfer},</if>
             <if test="canBack != null and canBack != ''">#{canBack},</if>
             <if test="sort != null">#{sort},</if>
@@ -113,7 +110,6 @@
             <if test="roleKeys != null">role_keys = #{roleKeys},</if>
             <if test="passState != null and passState != ''">pass_state = #{passState},</if>
             <if test="rejectState != null and rejectState != ''">reject_state = #{rejectState},</if>
-            <if test="enterState != null and enterState != ''">enter_state = #{enterState},</if>
             <if test="canTransfer != null and canTransfer != ''">can_transfer = #{canTransfer},</if>
             <if test="canBack != null and canBack != ''">can_back = #{canBack},</if>
             <if test="sort != null">sort = #{sort},</if>

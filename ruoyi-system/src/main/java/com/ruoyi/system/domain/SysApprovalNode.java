@@ -39,9 +39,6 @@ public class SysApprovalNode extends BaseEntity {
     @Excel(name = "驳回后的状态")
     private String rejectState;
 
-    @Excel(name = "进入该节点时的状态")
-    private String enterState;
-
     @Excel(name = "是否可转办", readConverterExp = "0=否,1=是")
     private String canTransfer;
 

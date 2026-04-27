@@ -759,6 +759,22 @@ public class SciPaperAController extends BaseController {
         return toAjax(sciPaperAService.pybh(id, getUserId(), remark, operationType));
     }
 
+    /**
+     * 论文审批操作（通过/驳回/撤回）
+     * @param id 论文ID
+     * @param comment 审批意见
+     * @param operationType 操作类型：approve(通过)、reject(驳回)、recall(撤回)
+     * @param paperCategory 论文类别（仅通过时需要）
+     * @return 审批结果
+     */
+    @RequiresPermissions(value = {"system:paper:xypy", "system:paper:process", "system:paper:kypy", "system:paper:xyrevoke", "system:paper:kyrevoke"}, logical = Logical.OR)
+    @Log(title = "论文审批操作", businessType = BusinessType.UPDATE)
+    @PostMapping("/approve/{id}")
+    @ResponseBody
+    public AjaxResult approve(@PathVariable("id") String id, String comment, String operationType, String paperCategory) {
+        return toAjax(sciPaperAService.approve(id, getUserId(), comment, operationType, paperCategory));
+    }
+
 
     /**
      * 查看驳回信息
