@@ -90,15 +90,12 @@ public interface ISciLectureReportService
 
     int reject(Integer id, Long userId, String remark, String urlFlag);
 
-    List<SciLectureReport> selectSciLectureReportListJYS_Tab1(SciLectureReport sciLectureReport);
+    /**
+     * 撤回审批
+     */
+    int recall(Integer id, Long userId, String remark);
 
-    List<SciLectureReport> selectSciLectureReportListJYS_Tab0(SciLectureReport sciLectureReport);
 
-    List<SciLectureReport> selectSciLectureReportListJYS_Tab2(SciLectureReport sciLectureReport);
-
-    List<SciLectureReport> selectSciLectureReportListKYS_Tab1(SciLectureReport sciLectureReport);
-
-    List<SciLectureReport> selectSciLectureReportListKYS_Tab2(SciLectureReport sciLectureReport);
 
     int SciLectureReportOverAdd(SciLectureReport sciLectureReport);
 
@@ -114,61 +111,7 @@ public interface ISciLectureReportService
 
 //    List<SciLectureReport> selectSciLectureReportListByKYS(SciLectureReport sciLectureReport);
 
-    /**
-     * 教师查询讲座报告列表（课题名称查询）
-     *
-     * @param sciLectureReport 讲座报告
-     * @return 讲座报告集合
-     */
-    List<SciLectureReport> selectSciLectureReportListCx(SciLectureReport sciLectureReport);
 
-    /**
-     * 教研室查询讲座报告列表（第一作者、课题名称查询）
-     *
-     * @param sciLectureReport 讲座报告
-     * @return 讲座报告集合
-     */
-    List<SciLectureReport> selectSciLectureReportListCxList(SciLectureReport sciLectureReport);
-
-    /**
-     * 学院查询讲座报告列表（专业、第一作者、课题名称查询）
-     *
-     * @param sciLectureReport 讲座报告
-     * @return 讲座报告集合
-     */
-    List<SciLectureReport> selectSciLectureReportListXY(SciLectureReport sciLectureReport);
-
-    /**
-     * 科研处查询讲座报告列表（学院、专业、第一作者、课题名称查询）
-     *
-     * @param sciLectureReport 讲座报告
-     * @return 讲座报告集合
-     */
-    List<SciLectureReport> selectSciLectureReportListKY(SciLectureReport sciLectureReport);
-
-    /**
-     * 查询已结项的讲座报告列表
-     *
-     * @param sciLectureReport 讲座报告
-     * @return 讲座报告集合
-     */
-    List<SciLectureReport> selectSciLectureReportListOVER(SciLectureReport sciLectureReport);
-
-    /**
-     * 查询教研室相关的讲座报告列表
-     *
-     * @param sciLectureReport 讲座报告
-     * @return 讲座报告集合
-     */
-    List<SciLectureReport> selectSciLectureReportListJX(SciLectureReport sciLectureReport);
-
-    /**
-     * 查询用户参与的其他讲座报告列表
-     *
-     * @param sciLectureReport 讲座报告
-     * @return 讲座报告集合
-     */
-    List<SciLectureReport> selectOtherListByUid(SciLectureReport sciLectureReport);
 
     /**
      * 统一查询讲座报告列表

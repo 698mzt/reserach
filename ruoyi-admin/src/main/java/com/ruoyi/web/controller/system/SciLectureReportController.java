@@ -10,6 +10,9 @@ import com.ruoyi.system.domain.SciLectureReportOpinion;
 import com.ruoyi.system.service.ISciLectureReportIntegralService;
 import com.ruoyi.system.service.ISciLectureReportOpinionService;
 import com.ruoyi.system.service.ISysUserService;
+import com.ruoyi.system.service.IApprovalProcessService;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,12 +68,107 @@ public class SciLectureReportController extends BaseController
             "general" //综合院部管理员
     ));
 
+    // 状态转换映射
+    private static final Map<String, String> STATE_TO_CODE = new LinkedHashMap<>();
+    private static final Map<String, String> CODE_TO_STATE = new LinkedHashMap<>();
+    static {
+        STATE_TO_CODE.put("0", "LECTURE_DRAFT");
+        STATE_TO_CODE.put("1", "LECTURE_JYS_AUDIT");
+        STATE_TO_CODE.put("4", "LECTURE_KYC_AUDIT");
+        STATE_TO_CODE.put("6", "LECTURE_PASSED");
+        for (Map.Entry<String, String> e : STATE_TO_CODE.entrySet()) {
+            CODE_TO_STATE.put(e.getValue(), e.getKey());
+        }
+    }
+
+    // 审批流程服务
+    @Autowired
+    private IApprovalProcessService approvalProcessService;
+
+    /**
+     * 状态转换：数字状态码转流程状态码
+     */
+    private String toCode(String numericState) {
+        return STATE_TO_CODE.getOrDefault(numericState, numericState);
+    }
+
+    /**
+     * 状态转换：流程状态码转数字状态码
+     */
+    private String toNumeric(String codeState) {
+        if ("LECTURE_REJECTED".equals(codeState)) return "0";
+        String result = CODE_TO_STATE.get(codeState);
+        if (result != null) return result;
+        try {
+            Integer.parseInt(codeState);
+            return codeState;
+        } catch (NumberFormatException e) {
+            return "0";
+        }
+    }
+
+    /**
+     * 获取当前用户角色
+     */
+    private String getRoleKey() {
+        List<SysRole> roles = getSysUser().getRoles();
+        if (roles == null || roles.isEmpty()) {
+            return "";
+        }
+        String roleKey = "";
+        for (SysRole r : roles) {
+            switch (r.getRoleKey()) {
+                case "admin":
+                    return "admin";
+                case "sci_tesearch":
+                    roleKey = "sci_tesearch";
+                    break;
+                case "dept_teacher":
+                    if (!"sci_tesearch".equals(roleKey)) {
+                        roleKey = "dept_teacher";
+                    }
+                    break;
+                case "research":
+                    if (roleKey.isEmpty()) {
+                        roleKey = "research";
+                    }
+                    break;
+            }
+        }
+        return roleKey;
+    }
+
+    /**
+     * 判断是否有审批权限
+     */
+    private boolean canApprove(String state, String roleKey) {
+        try {
+            int stateInt = Integer.parseInt(state);
+            if (stateInt == 1 && "research".equals(roleKey)) {
+                return true;
+            }
+            if (stateInt == 4 && "sci_tesearch".equals(roleKey)) {
+                return true;
+            }
+        } catch (NumberFormatException e) {
+            // 处理流程状态码
+            if ("LECTURE_JYS_AUDIT".equals(state) && "research".equals(roleKey)) {
+                return true;
+            }
+            if ("LECTURE_KYC_AUDIT".equals(state) && "sci_tesearch".equals(roleKey)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     @RequiresPermissions("system:report:view")
     @GetMapping()
     public String report(ModelMap mmap)
     {
         // 将当前用户信息传递到模板，用于前端角色识别
         mmap.put("user", getSysUser());
+        mmap.put("role", getRoleKey());
         return prefix + "/report";
     }
 
@@ -297,10 +395,21 @@ public class SciLectureReportController extends BaseController
     public String detail(@PathVariable("id") Integer id, @PathVariable("urlFlag") String urlFlag, ModelMap mmap)
     {
         SciLectureReport sciLectureReport = sciLectureReportService.selectSciLectureReportById(id);
-        sciLectureReport.setUrlFlag(urlFlag);
-        List<SysUser> userList =  userService.selectAllUser();
-        mmap.put("sysUsers",userList);
-        mmap.put("sciLectureReport", sciLectureReport);
+        if (sciLectureReport == null) {
+            mmap.put("sciLectureReport", sciLectureReport);
+            mmap.put("error", "数据不存在，请刷新页面重试");
+            mmap.put("errorMsg", "数据不存在，请刷新页面重试");
+        } else {
+            sciLectureReport.setUrlFlag(urlFlag);
+            String roleKey = getRoleKey();
+            boolean canApprove = canApprove(sciLectureReport.getState(), roleKey);
+            List<SysUser> userList =  userService.selectAllUser();
+            mmap.put("sysUsers", userList);
+            mmap.put("sciLectureReport", sciLectureReport);
+            mmap.put("canApprove", canApprove);
+            mmap.put("role", roleKey);
+            mmap.put("sysUser", getSysUser());
+        }
         return prefix + "/detail";
     }
 
@@ -328,7 +437,37 @@ public class SciLectureReportController extends BaseController
     @ResponseBody
     public AjaxResult reject(Integer id,String remark,String urlFlag)
     {
+        if (remark == null || remark.trim().isEmpty()) {
+            return AjaxResult.error("驳回原因不能为空");
+        }
         return toAjax(sciLectureReportService.reject(id,getUserId(),remark,urlFlag));
+    }
+
+    /**
+     * 撤销讲座报告
+     */
+    @RequiresPermissions(value = {"system:report:process","system:report:check","system:report:xyprocess","system:report:tuihui","system:report:chexiao"},logical= Logical.OR)
+    @Log(title = "撤销讲座报告", businessType = BusinessType.OTHER)
+    @GetMapping("/recall/{id}")
+    public String recall(@PathVariable("id") Integer id, ModelMap mmap)
+    {
+        SciLectureReport sciLectureReport = sciLectureReportService.selectSciLectureReportById(id);
+        List<SysUser> userList =  userService.selectAllUser();
+        mmap.put("sysUsers", userList);
+        mmap.put("sciLectureReport", sciLectureReport);
+        return prefix + "/recall";
+    }
+
+    /**
+     * 撤销
+     */
+    @RequiresPermissions(value = {"system:report:process","system:report:check","system:report:xyprocess","system:report:tuihui","system:report:chexiao"},logical= Logical.OR)
+    @Log(title = "撤销", businessType = BusinessType.UPDATE)
+    @PostMapping("/recallsave")
+    @ResponseBody
+    public AjaxResult recallSave(Integer id, String state, String remark, String urlFlag)
+    {
+        return toAjax(sciLectureReportService.recall(id, getUserId(), remark));
     }
 
     /**
