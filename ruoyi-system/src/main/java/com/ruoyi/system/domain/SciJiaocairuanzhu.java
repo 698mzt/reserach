@@ -113,6 +113,22 @@ public class SciJiaocairuanzhu extends BaseEntity
         this.personalScore = personalScore;
     }
 
+    public String getExpectedJifen() {
+        return expectedJifen;
+    }
+
+    public void setExpectedJifen(String expectedJifen) {
+        this.expectedJifen = expectedJifen;
+    }
+
+    public String getAmount() {
+        return amount;
+    }
+
+    public void setAmount(String amount) {
+        this.amount = amount;
+    }
+
 
 
     public String getYear() {
@@ -260,8 +276,12 @@ public class SciJiaocairuanzhu extends BaseEntity
     /** 科研分 */
     @Excel(name = "积分", sort = 5)
     private String jifen;
+    /** 预期积分 */
+    private String expectedJifen;
     /** 个人积分 */
     private String personalScore;
+    /** 项目金额 */
+    private String amount;
     private String wenjian;
 
     public String getState() {

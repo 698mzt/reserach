@@ -19,13 +19,13 @@ import java.util.Map;
 public class SysApprovalHistoryServiceImpl implements ISysApprovalHistoryService {
     @Autowired
     private SysApprovalHistoryMapper sysApprovalHistoryMapper;
-    
+
     @Autowired
     private SysApprovalProcessMapper sysApprovalProcessMapper;
-    
+
     @Autowired
     private SysApprovalStateMapper sysApprovalStateMapper;
-    
+
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
@@ -48,7 +48,7 @@ public class SysApprovalHistoryServiceImpl implements ISysApprovalHistoryService
         }
         return list != null ? list : new java.util.ArrayList<>();
     }
-    
+
     /**
      * 根据业务表名和业务ID获取业务名称
      * @param businessTable 业务表名
@@ -91,7 +91,7 @@ public class SysApprovalHistoryServiceImpl implements ISysApprovalHistoryService
         // 获取所有流程编码
         Map<String, SysApprovalProcess> processMap = new HashMap<>();
         Map<String, Map<String, SysApprovalState>> stateMap = new HashMap<>();
-        
+
         // 收集所有流程编码
         for (SysApprovalHistory history : historyList) {
             String processCode = history.getProcessCode();
@@ -111,7 +111,7 @@ public class SysApprovalHistoryServiceImpl implements ISysApprovalHistoryService
                 }
             }
         }
-        
+
         // 填充关联数据
         for (SysApprovalHistory history : historyList) {
             String processCode = history.getProcessCode();
@@ -119,7 +119,7 @@ public class SysApprovalHistoryServiceImpl implements ISysApprovalHistoryService
             if (processCode != null && processMap.containsKey(processCode)) {
                 history.setProcessName(processMap.get(processCode).getProcessName());
             }
-            
+
             // 填充状态名称
             if (processCode != null && stateMap.containsKey(processCode)) {
                 Map<String, SysApprovalState> stateCodeMap = stateMap.get(processCode);
@@ -132,7 +132,7 @@ public class SysApprovalHistoryServiceImpl implements ISysApprovalHistoryService
                     history.setNewStateName(stateCodeMap.get(history.getNewState()).getStateName());
                 }
             }
-            
+
             // 填充业务名称
             if (processCode != null && processMap.containsKey(processCode)) {
                 String businessTable = processMap.get(processCode).getBusinessTable();

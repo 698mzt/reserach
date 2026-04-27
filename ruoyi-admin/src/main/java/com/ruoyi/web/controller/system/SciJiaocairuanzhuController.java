@@ -7,10 +7,12 @@ import java.util.List;
 import com.ruoyi.common.core.domain.entity.SysRole;
 import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.system.domain.*;
+import com.ruoyi.system.domain.SysApprovalHistory;
 import com.ruoyi.system.mapper.SciJiaocairuanzhuMapper;
 import com.ruoyi.system.service.ISciJiaocairuanzhuPiyueService;
 import com.ruoyi.system.service.ISysUserService;
 import com.ruoyi.system.service.ISciJiaocairuanzhuScoreCfgService;
+import com.ruoyi.system.service.ISysApprovalHistoryService;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,6 +58,9 @@ public class SciJiaocairuanzhuController extends BaseController
 
     @Autowired
     private ISciJiaocairuanzhuScoreCfgService sciJiaocairuanzhuScoreCfgService;
+
+    @Autowired
+    private ISysApprovalHistoryService sysApprovalHistoryService;
 
     /**
      * 跳转到教材软著页面
@@ -488,8 +493,20 @@ public class SciJiaocairuanzhuController extends BaseController
         return getDataTable(list);
     }
 
-
-
+    /**
+     * 查询教材软著审批历史记录
+     * 根据教材著作ID查询对应的审批历史记录
+     */
+    @RequiresPermissions(value={"system:jiaocairuanzhu:hecha","system:jiaocairuanzhu:process","system:jiaocairuanzhu:edit","system:jiaocairuanzhu:chayue"},logical= Logical.OR)
+    @Log(title = "教材软著审批历史查询", businessType = BusinessType.OTHER)
+    @PostMapping("/approvalHistory/{kid}")
+    @ResponseBody
+    public TableDataInfo approvalHistory(@PathVariable("kid")Integer kid)
+    {
+        // 查询审批历史记录（会填充关联数据）
+        List<SysApprovalHistory> list = sysApprovalHistoryService.selectSysApprovalHistoryByBusinessId("textbook_approval", kid.longValue());
+        return getDataTable(list);
+    }
 
 }
 

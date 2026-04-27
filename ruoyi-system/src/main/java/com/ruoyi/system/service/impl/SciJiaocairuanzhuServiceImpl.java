@@ -2,6 +2,9 @@ package com.ruoyi.system.service.impl;
 
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
+import java.util.Date;
+import com.ruoyi.system.domain.SysApprovalNode;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -20,6 +23,7 @@ import com.ruoyi.system.mapper.SciJiaocairuanzhuPiyueMapper;
 import com.ruoyi.system.mapper.SciJiaocairuanzhuScoreCfgMapper;
 import com.ruoyi.system.service.ISysApprovalHistoryService;
 import com.ruoyi.system.service.ISysUserService;
+import com.ruoyi.system.service.IApprovalProcessService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.ruoyi.system.mapper.SciJiaocairuanzhuMapper;
@@ -57,6 +61,9 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
 
     @Autowired
     private ISysApprovalHistoryService sysApprovalHistoryService;
+
+    @Autowired
+    private IApprovalProcessService approvalProcessService;
 
 
     /**
@@ -251,14 +258,20 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
         }
         sciJiaocairuanzhuPiyueMapper.insertSciJiaocairuanzhuPiyue(sciJiaocairuanzhuPiyue);
         
-        // 保存审批历史记录
-        saveApprovalHistory(Integer.valueOf(id), oldState, state, uid, "approve", comment);
+        // 统一调用操作记录方法保存审批历史记录
+        recordApprovalAction(Integer.valueOf(id), oldState, state, uid, "approve", comment);
 
         return a;
     }
     
     /**
      * 保存审批历史记录
+     * @param businessId 业务ID
+     * @param oldState 原状态
+     * @param newState 新状态
+     * @param operatorId 操作人ID
+     * @param action 操作类型
+     * @param comment 审批意见
      */
     private void saveApprovalHistory(Integer businessId, String oldState, String newState, Long operatorId, String action, String comment) {
         try {
@@ -296,6 +309,18 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
                     history.setNodeId(1L);
                     history.setNodeName("提交申请");
                 }
+            } else if (oldState.equals("TEXTBOOK_KYC_AUDIT") && newState.equals("TEXTBOOK_JYS_AUDIT")) {
+                // 科研处撤回
+                history.setNodeId(3L);
+                history.setNodeName("科研处审批");
+            } else if (oldState.equals("TEXTBOOK_PASSED") && newState.equals("TEXTBOOK_KYC_AUDIT")) {
+                // 已通过撤回
+                history.setNodeId(3L);
+                history.setNodeName("科研处审批");
+            } else {
+                // 默认节点信息
+                history.setNodeId(1L);
+                history.setNodeName("提交申请");
             }
             
             history.setAction(action);
@@ -342,8 +367,8 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
 
         sciJiaocairuanzhuPiyueMapper.insertSciJiaocairuanzhuPiyue(sciJiaocairuanzhuPiyue);
         
-        // 保存审批历史记录
-        saveApprovalHistory(Integer.valueOf(id), oldState, state, uid, "reject", comment);
+        // 统一调用操作记录方法保存审批历史记录
+        recordApprovalAction(Integer.valueOf(id), oldState, state, uid, "reject", comment);
         
         return a;
     }
@@ -407,6 +432,79 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
         return sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuList31(sciJiaocairuanzhu);
     }
 
+    /**
+     * 查询下一级状态方法
+     * 获取当前审批节点信息及下一步节点信息
+     * @param currentState 当前业务数据的状态
+     * @return 包含当前节点、下一节点等信息的Map
+     */
+    @Override
+    public Map<String, Object> getNextState(String currentState) {
+        return approvalProcessService.getCurrentNode("textbook_approval", currentState);
+    }
+
+    /**
+     * 操作记录方法
+     * 记录审批操作的历史信息
+     * @param businessId 业务ID
+     * @param oldState 原状态
+     * @param newState 新状态
+     * @param operatorId 操作人ID
+     * @param action 操作类型
+     * @param comment 审批意见
+     * @return 操作结果
+     */
+    @Override
+    @Transactional
+    public Map<String, Object> recordApprovalAction(Integer businessId, String oldState, String newState, Long operatorId, String action, String comment) {
+        Map<String, Object> result = new HashMap<>();
+        result.put("success", false);
+
+        try {
+            SysUser operator = userService.selectUserById(operatorId);
+            if (operator == null) {
+                result.put("message", "操作人不存在");
+                return result;
+            }
+
+            // 获取当前节点信息
+            Map<String, Object> nodeResult = getNextState(oldState);
+            if (!(Boolean) nodeResult.get("success")) {
+                return nodeResult;
+            }
+
+            SysApprovalNode currentNode = (SysApprovalNode) nodeResult.get("currentNode");
+
+            // 保存审批历史记录
+            SysApprovalHistory history = new SysApprovalHistory();
+            history.setProcessCode("textbook_approval");
+            history.setBusinessId(businessId.longValue());
+            history.setNodeId(currentNode != null ? currentNode.getId() : null);
+            history.setNodeName(currentNode != null ? currentNode.getNodeNm() : "");
+            history.setAction(action);
+            history.setOperatorId(operatorId);
+            history.setOperatorName(operator.getUserName());
+            history.setOperatorDept(operator.getDept().getDeptName());
+            history.setOldState(oldState);
+            history.setNewState(newState);
+            history.setComment(comment);
+            history.setCreateTime(new Date());
+
+            int insertResult = sysApprovalHistoryService.insertSysApprovalHistory(history);
+            if (insertResult > 0) {
+                result.put("success", true);
+                result.put("message", "操作记录保存成功");
+            } else {
+                result.put("message", "操作记录保存失败");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            result.put("message", "系统异常：" + e.getMessage());
+        }
+
+        return result;
+    }
+
     @Override
     public List<SciJiaocairuanzhu> selectSciJiaocairuanzhuList21(SciJiaocairuanzhu sciJiaocairuanzhu) {
         return sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuList21(sciJiaocairuanzhu);
@@ -415,6 +513,10 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
     @Override
     @Transactional
     public int recall(Integer id, String state, Long uid, String remark, String urlFlag) {
+        // 获取原始状态
+        SciJiaocairuanzhu originalJiaocairuanzhu = sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuById(id);
+        String oldState = originalJiaocairuanzhu.getState();
+        
         String newState = state;
         SciJiaocairuanzhuPiyue sciJiaocairuanzhuPiyue = new SciJiaocairuanzhuPiyue();
 
@@ -441,6 +543,10 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
         sciJiaocairuanzhuPiyue.setConcate(remark);
 
         sciJiaocairuanzhuPiyueMapper.insertSciJiaocairuanzhuPiyue(sciJiaocairuanzhuPiyue);
+        
+        // 统一调用操作记录方法保存审批历史记录
+        recordApprovalAction(id, oldState, newState, uid, "recall", remark);
+        
         return a;
     }
 

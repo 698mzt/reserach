@@ -80,6 +80,26 @@
             </div>
         </div>
 
+        <!-- 项目金额 -->
+        <div class="row">
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">项目金额(万)：</label>
+                    <div class="col-sm-8">
+                        <input name="amount" th:field="*{amount}" class="form-control" type="number" required step="0.0001" maxlength="9">
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">预期积分：</label>
+                    <div class="col-sm-8">
+                        <input name="expectedJifen" th:field="*{expectedJifen}" class="form-control" type="text" readonly placeholder="选择课题类型后自动计算">
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- 成员管理 -->
         <div class="row">
             <div class="col-xs-6">
@@ -761,6 +781,8 @@
                 chubanshe: $('input[name="chubanshe"]').val(),
                 benxiaoshifoyongshu: $('input[name="benxiaoshifoyongshu"]:checked').val(),
                 fenlei: $('select[name="fenlei"]').val(),
+                amount: $('input[name="amount"]').val(),
+                expectedJifen: $('input[name="expectedJifen"]').val(),
                 wenjian: $('input[name="wenjian"]').val(),
                 members: JSON.stringify(members),
                 zhubian: $('#editorSelect').val() ? $('#editorSelect').val().join(',') : '',
