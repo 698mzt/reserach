@@ -583,38 +583,8 @@ public class SciZhuanliruanzhuController extends BaseController
     @PostMapping("/pytg/{id}")
     @ResponseBody
     public AjaxResult pytg(@PathVariable("id") String id, String comment, String paperCategory) {
-        SciZhuanliruanzhu zhuanli = sciZhuanliruanzhuService.selectSciZhuanliruanzhuById(Integer.valueOf(id));
-        if (zhuanli == null) {
-            return AjaxResult.error("数据不存在");
-        }
-        String currentState = zhuanli.getState();
-        String currentCode = toCode(currentState);
-        SysUser currentUser = getSysUser();
-
-        String newState;
-        boolean isLast;
-        switch (currentState) {
-            case "1":
-                newState = "4";
-                isLast = false;
-                break;
-            case "4":
-                newState = "6";
-                isLast = true;
-                break;
-            default:
-                return AjaxResult.error("当前状态不允许审批通过");
-        }
-
-        int rows = sciZhuanliruanzhuService.hxPass(id, getUserId(), newState, isLast);
-        if (rows <= 0) {
-            return AjaxResult.error("操作失败");
-        }
-
-        approvalProcessService.approve("PATENT_APPLY", Long.valueOf(id), currentCode,
-                comment, currentUser.getUserId(), currentUser.getUserName(),
-                currentUser.getDept() != null ? currentUser.getDept().getDeptName() : "");
-        return AjaxResult.success();
+        // 直接调用服务层的 hxPass 方法，内部会使用审批流程服务处理
+        return toAjax(sciZhuanliruanzhuService.hxPass(id, getUserId(), "approve"));
     }
 
     @RequiresPermissions(value = {"system:zhuanliruanzhu:xypy", "system:zhuanliruanzhu:process", "system:zhuanliruanzhu:kypy", "system:zhuanliruanzhu:chayue", "system:zhuanliruanzhu:xyrevoke", "system:zhuanliruanzhu:kyrevoke", "system:zhuanliruanzhu:info"}, logical = Logical.OR)
@@ -622,69 +592,17 @@ public class SciZhuanliruanzhuController extends BaseController
     @PostMapping("/pybh/{id}")
     @ResponseBody
     public AjaxResult pybh(@PathVariable("id") String id, String remark, String operationType) {
-        SciZhuanliruanzhu zhuanli = sciZhuanliruanzhuService.selectSciZhuanliruanzhuById(Integer.valueOf(id));
-        if (zhuanli == null) {
-            return AjaxResult.error("数据不存在");
-        }
-        String currentState = zhuanli.getState();
-        String currentCode = toCode(currentState);
-        SysUser currentUser = getSysUser();
-
         if ("recall".equals(operationType)) {
-            String recallState;
-            String roleKey = getRoleKey();
-            switch (currentState) {
-                case "0":
-                    recallState = "1";
-                    break;
-                case "1":
-                    if ("sci_tesearch".equals(roleKey)) {
-                        recallState = "4";
-                    } else {
-                        recallState = "0";
-                    }
-                    break;
-                case "4":
-                    recallState = "1";
-                    break;
-                case "6":
-                    recallState = "4";
-                    break;
-                default:
-                    return AjaxResult.error("当前状态不允许撤回");
+            // 直接调用服务层的 recall 方法，内部会使用审批流程服务处理
+            SciZhuanliruanzhu zhuanli = sciZhuanliruanzhuService.selectSciZhuanliruanzhuById(Integer.valueOf(id));
+            if (zhuanli == null) {
+                return AjaxResult.error("数据不存在");
             }
-            int rows = sciZhuanliruanzhuService.recallDirect(id, getUserId(), recallState,
-                    remark != null ? remark : "撤回");
-            if (rows <= 0) {
-                return AjaxResult.error("撤回失败");
-            }
-            approvalProcessService.recall("PATENT_APPLY", Long.valueOf(id), currentCode,
-                    remark != null ? remark : "撤回", currentUser.getUserId(), currentUser.getUserName(),
-                    currentUser.getDept() != null ? currentUser.getDept().getDeptName() : "");
-            return AjaxResult.success();
+            return toAjax(sciZhuanliruanzhuService.recall(Integer.valueOf(id), zhuanli.getState(), getUserId(), remark, "recall"));
+        } else {
+            // 直接调用服务层的 hxBh 方法，内部会使用审批流程服务处理
+            return toAjax(sciZhuanliruanzhuService.hxBh(id, getUserId(), remark, "reject"));
         }
-
-        String newState;
-        switch (currentState) {
-            case "1":
-                newState = "0";
-                break;
-            case "4":
-                newState = "1";
-                break;
-            default:
-                return AjaxResult.error("当前状态不允许驳回");
-        }
-
-        int rows = sciZhuanliruanzhuService.hxBh(id, getUserId(), remark, newState, true);
-        if (rows <= 0) {
-            return AjaxResult.error("操作失败");
-        }
-
-        approvalProcessService.reject("PATENT_APPLY", Long.valueOf(id), currentCode,
-                remark, currentUser.getUserId(), currentUser.getUserName(),
-                currentUser.getDept() != null ? currentUser.getDept().getDeptName() : "");
-        return AjaxResult.success();
     }
 
     /**
@@ -712,22 +630,8 @@ public class SciZhuanliruanzhuController extends BaseController
     @PostMapping("/tj/{id}")
     @ResponseBody
     public AjaxResult tj(@PathVariable("id") Integer id) {
-        SciZhuanliruanzhu zhuanli = sciZhuanliruanzhuService.selectSciZhuanliruanzhuById(id);
-        if (zhuanli == null) {
-            return AjaxResult.error("数据不存在");
-        }
-        if (!"0".equals(zhuanli.getState())) {
-            return AjaxResult.error("当前状态不允许提交");
-        }
-        SysUser currentUser = getSysUser();
-        int rows = sciZhuanliruanzhuService.hxPass(id.toString(), getUserId(), "1", false);
-        if (rows <= 0) {
-            return AjaxResult.error("操作失败");
-        }
-        approvalProcessService.approve("PATENT_APPLY", Long.valueOf(id), "PATENT_DRAFT",
-                "提交申请", currentUser.getUserId(), currentUser.getUserName(),
-                currentUser.getDept() != null ? currentUser.getDept().getDeptName() : "");
-        return AjaxResult.success();
+        // 直接调用服务层的 hxPass 方法，内部会使用审批流程服务处理
+        return toAjax(sciZhuanliruanzhuService.hxPass(id.toString(), getUserId(), "tijiao"));
     }
 
 
