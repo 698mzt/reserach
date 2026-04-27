@@ -15,6 +15,9 @@ import com.ruoyi.system.mapper.SciHorizontalPiyueMapper;
 import com.ruoyi.system.mapper.SciZhuanliruanzhuPiyueMapper;
 import com.ruoyi.system.mapper.SciZhuanliruanzhuScoreCfgMapper;
 import com.ruoyi.system.service.ISysUserService;
+import com.ruoyi.system.service.IApprovalProcessService;
+import com.ruoyi.system.domain.ApprovalRequest;
+import com.ruoyi.system.domain.ApprovalResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.ruoyi.system.mapper.SciZhuanliruanzhuMapper;
@@ -49,6 +52,9 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
 
     @Autowired
     private ISysUserService userService;
+
+    @Autowired
+    private IApprovalProcessService approvalProcessService;
 
 
     /**
@@ -270,27 +276,46 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-        public int hxPass(String id,Long uid,String urlFlag) {
-        String state = "8";
-//        SciZhuanliruanzhu sciZhuanliruanzhu = new SciZhuanliruanzhu();
-
-        if(urlFlag.equals("hecha")){
-            state ="4";
-        }
-        else if(urlFlag.equals("tijiao")){
-            state ="1";
-
-        }else if(urlFlag.equals("pro")){
-            state ="2";
-        }
-        else if(urlFlag.equals("chayue")) {
-            state = "6";
-
+    public int hxPass(String id, Long uid, String urlFlag) {
+        // 获取专利软著信息，用于获取当前状态
+        SciZhuanliruanzhu sci = sciZhuanliruanzhuMapper.selectSciZhuanliruanzhuById(Integer.valueOf(id));
+        if (sci == null) {
+            return 0;
         }
 
-        // 科研处通过（state=6）时：写入最终积分（final_jifen）
-        if (urlFlag.equals("chayue")) {
-            SciZhuanliruanzhu sci = sciZhuanliruanzhuMapper.selectSciZhuanliruanzhuById(Integer.valueOf(id));
+        // 构建审批请求
+        ApprovalRequest request = new ApprovalRequest();
+        request.setProcessCode("PATENT_APPLY"); // 专利软著审批流程编码
+        request.setBusinessId(Long.valueOf(id));
+        request.setCurrentState(sci.getState());
+        request.setOperatorId(uid);
+
+        // 获取操作人信息
+        SysUser user = userService.selectUserById(uid);
+        if (user != null) {
+            request.setOperatorName(user.getUserName());
+            if (user.getDept() != null) {
+                request.setOperatorDept(user.getDept().getDeptName());
+            }
+        }
+
+        ApprovalResult result;
+
+        // 根据操作类型执行不同的审批操作
+        if (urlFlag.equals("tijiao")) {
+            // 提交审批
+            result = approvalProcessService.submitApproval(request);
+        } else {
+            // 审批通过
+            result = approvalProcessService.approve(request);
+        }
+
+        if (!result.isSuccess()) {
+            throw new RuntimeException("审批操作失败: " + result.getMessage());
+        }
+
+        // 科研处通过（流程结束）时：写入最终积分（final_jifen）
+        if (result.isLast()) {
             String finalJifen;
             if (sci != null) {
                 // 计算年度
@@ -318,25 +343,8 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
             sciZhuanliruanzhuMapper.updateKyjcPassTime(id, new Date());
         }
 
-        int a =  sciZhuanliruanzhuMapper.hxPass(id,state);
-
-        if (urlFlag.equals("tijiao")){
-            SciZhuanliruanzhuPiyue sciZhuanliruanzhuPiyue = new SciZhuanliruanzhuPiyue();
-            sciZhuanliruanzhuPiyue.setUid(uid);
-            sciZhuanliruanzhuPiyue.setHxktId(Integer.valueOf(id));
-            sciZhuanliruanzhuPiyue.setConcate("提交申请");
-            sciZhuanliruanzhuPiyue.setState("提交");
-            sciZhuanliruanzhuPiyueMapper.insertSciZhuanliruanzhuPiyue(sciZhuanliruanzhuPiyue);
-        }
-        else if (urlFlag.equals("pro") || urlFlag.equals("hecha") || urlFlag.equals("chayue")) {
-
-            SciZhuanliruanzhuPiyue sciZhuanliruanzhuPiyue = new SciZhuanliruanzhuPiyue();
-            sciZhuanliruanzhuPiyue.setUid(uid);
-            sciZhuanliruanzhuPiyue.setHxktId(Integer.valueOf(id));
-            sciZhuanliruanzhuPiyue.setConcate("同意");
-            sciZhuanliruanzhuPiyue.setState("通过");
-            sciZhuanliruanzhuPiyueMapper.insertSciZhuanliruanzhuPiyue(sciZhuanliruanzhuPiyue);}
-        return a;
+        // 审批流程服务已经更新了业务表状态并记录了审批历史，这里不需要再手动更新
+        return 1;
     }
 
     @Override
@@ -395,25 +403,39 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public int hxBh(String id,Long uid, String remark,String urlFlag) {
-        String state = "8";
+    public int hxBh(String id, Long uid, String remark, String urlFlag) {
+        // 获取专利软著信息，用于获取当前状态
+        SciZhuanliruanzhu sci = sciZhuanliruanzhuMapper.selectSciZhuanliruanzhuById(Integer.valueOf(id));
+        if (sci == null) {
+            return 0;
+        }
 
-        if(urlFlag.equals("hecha")){
-            state ="5";
+        // 构建审批请求
+        ApprovalRequest request = new ApprovalRequest();
+        request.setProcessCode("PATENT_APPLY"); // 专利软著审批流程编码
+        request.setBusinessId(Long.valueOf(id));
+        request.setCurrentState(sci.getState());
+        request.setOperatorId(uid);
+        request.setComment(remark);
+
+        // 获取操作人信息
+        SysUser user = userService.selectUserById(uid);
+        if (user != null) {
+            request.setOperatorName(user.getUserName());
+            if (user.getDept() != null) {
+                request.setOperatorDept(user.getDept().getDeptName());
+            }
         }
-       else if(urlFlag.equals("pro")){
-            state ="3";
-        }else if(urlFlag.equals("chayue")){
-            state ="7";
+
+        // 执行驳回操作
+        ApprovalResult result = approvalProcessService.reject(request);
+
+        if (!result.isSuccess()) {
+            throw new RuntimeException("驳回操作失败: " + result.getMessage());
         }
-        int a = sciZhuanliruanzhuMapper.hxPass(id,state);
-        SciZhuanliruanzhuPiyue sciZhuanliruanzhuPiyue = new SciZhuanliruanzhuPiyue();
-        sciZhuanliruanzhuPiyue.setUid(uid);
-        sciZhuanliruanzhuPiyue.setHxktId(Integer.valueOf(id));
-        sciZhuanliruanzhuPiyue.setConcate(remark);
-        sciZhuanliruanzhuPiyue.setState("被驳回");
-        sciZhuanliruanzhuPiyueMapper.insertSciZhuanliruanzhuPiyue(sciZhuanliruanzhuPiyue);
-        return a;
+
+        // 审批流程服务已经更新了业务表状态并记录了审批历史，这里不需要再手动更新
+        return 1;
     }
 
     @Override
@@ -533,36 +555,33 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public int recall(Integer id, String state,Long uid, String remark, String urlFlag) {
-        String newState = state;
-        switch (state){
-            case "1":
-                newState = "0";
-                break;
-            case "2":
-                newState = "1";
-                break;
-            case "4":
-                newState = "2";
-                break;
-            case "6":
-                newState = "4";
-                sciZhuanliruanzhuMapper.updateJifen(Long.valueOf(id),0);
-                sciZhuanliruanzhuMapper.updateFinalJifen(id.toString(), null);
-                break;
+    public int recall(Integer id, String state, Long uid, String remark, String urlFlag) {
+        // 构建审批请求
+        ApprovalRequest request = new ApprovalRequest();
+        request.setProcessCode("PATENT_APPLY"); // 专利软著审批流程编码
+        request.setBusinessId(Long.valueOf(id));
+        request.setCurrentState(state);
+        request.setOperatorId(uid);
+        request.setComment(remark);
+
+        // 获取操作人信息
+        SysUser user = userService.selectUserById(uid);
+        if (user != null) {
+            request.setOperatorName(user.getUserName());
+            if (user.getDept() != null) {
+                request.setOperatorDept(user.getDept().getDeptName());
+            }
         }
 
+        // 执行撤回操作
+        ApprovalResult result = approvalProcessService.recall(request);
 
-//        设置状态
-        int a =sciZhuanliruanzhuMapper.hxPass(id.toString(),newState);
-//        插入日志
-        SciZhuanliruanzhuPiyue sciZhuanliruanzhuPiyue = new SciZhuanliruanzhuPiyue();
-        sciZhuanliruanzhuPiyue.setUid(uid);
-        sciZhuanliruanzhuPiyue.setHxktId(id);
-        sciZhuanliruanzhuPiyue.setConcate(remark);
-        sciZhuanliruanzhuPiyue.setState("撤回");
-        sciZhuanliruanzhuPiyueMapper.insertSciZhuanliruanzhuPiyue(sciZhuanliruanzhuPiyue);
-        return a;
+        if (!result.isSuccess()) {
+            throw new RuntimeException("撤回操作失败: " + result.getMessage());
+        }
+
+        // 审批流程服务已经更新了业务表状态并记录了审批历史，这里不需要再手动更新
+        return 1;
     }
 
 
