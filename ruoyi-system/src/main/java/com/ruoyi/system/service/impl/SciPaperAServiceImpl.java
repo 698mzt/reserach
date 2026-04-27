@@ -650,6 +650,88 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
         return a;
     }
 
+    /**
+     * 论文审批操作（通过/驳回/撤回）
+     * @param id 论文ID
+     * @param userId 用户ID
+     * @param comment 审批意见
+     * @param operationType 操作类型：approve(通过)、reject(驳回)、recall(撤回)
+     * @param order 论文类别（仅通过时需要）
+     * @return 操作结果
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int approve(String id, Long userId, String comment, String operationType, String order) {
+        SciPaperA paper = sciPaperAMapper.selectSciPaperAById(Long.valueOf(id));
+        if (paper == null) {
+            return -1;
+        }
+
+        String currentState = paper.getState();
+        SysUser user = sysUserService.selectUserById(userId);
+        if (user == null) {
+            return -1;
+        }
+
+        ApprovalResult result = null;
+        ApprovalRequest request = ApprovalRequest.of(PAPER_PROCESS_CODE,
+                Long.valueOf(id), currentState, comment,
+                userId, user.getUserName(),
+                user.getDept() != null ? user.getDept().getDeptName() : "");
+
+        if ("approve".equals(operationType)) {
+            result = approvalProcessService.approve(request);
+        } else if ("reject".equals(operationType)) {
+            result = approvalProcessService.reject(request);
+        } else if ("recall".equals(operationType)) {
+            result = approvalProcessService.recall(request);
+        }
+
+        if (result == null || !result.isSuccess()) {
+            return -1;
+        }
+
+        String newState = result.getNewState();
+
+        if ("approve".equals(operationType)) {
+            boolean isLast = result.isLast();
+            if (isLast) {
+                List<Integer> point_list = sciPaperACfgMapper.selectSciPaperACfgPointList(order);
+                int res = setPaperUserScore(id, point_list);
+                if (res < 1 || res > 4) {
+                    return -1;
+                }
+
+                if (!point_list.isEmpty()) {
+                    int researchScore = point_list.get(0);
+                    sciPaperAMapper.updatePaperResearchScore(Long.valueOf(id), researchScore);
+                }
+            }
+        } else if ("recall".equals(operationType) && "PAPER_KYC_AUDIT".equals(newState)) {
+            int points = 0;
+            paperUserScoreServiceImplMapper.updateScoreByPaperId(Long.valueOf(id), points);
+        }
+
+        int a = sciPaperAMapper.pytg(id, newState);
+
+        SciPaperAr sciPaperAr = new SciPaperAr();
+        sciPaperAr.setUid(userId);
+        sciPaperAr.setAr_id(Integer.valueOf(id));
+        if ("approve".equals(operationType)) {
+            sciPaperAr.setState("通过");
+            sciPaperAr.setConcate(comment != null ? comment : "审批通过");
+        } else if ("reject".equals(operationType)) {
+            sciPaperAr.setState("驳回");
+            sciPaperAr.setConcate(comment != null ? comment : "审批驳回");
+        } else if ("recall".equals(operationType)) {
+            sciPaperAr.setState("撤回");
+            sciPaperAr.setConcate(comment != null ? comment : "审批撤回");
+        }
+        sciPaperAMapper.insertSciPaperAr(sciPaperAr);
+
+        return a;
+    }
+
     @Override
     public List<SciPaperAr> selectSciPaperArList(SciPaperAr sciPaperAr) {
         return sciPaperAMapper.selectSciPaperArList(sciPaperAr);

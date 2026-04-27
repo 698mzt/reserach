@@ -212,6 +212,29 @@ public class SciPaperAController extends BaseController {
                 return error("该论文已存在");
             } else {
                 Long userId = getUserId();
+                String userIdStr = String.valueOf(userId);
+
+                // 验证第一位本校老师必须是当前登录用户（按一作、二作、三作、四作顺序检查）
+                String firstPersonId = sciPaperA.getFirstPersonId();
+                String secondPersonId = sciPaperA.getSecondPersonId();
+                String thirdPersonId = sciPaperA.getThirdPersonId();
+                String fourthPersonId = sciPaperA.getFourthPersonId();
+
+                String firstValidAuthor = null;
+                if (firstPersonId != null && !firstPersonId.isEmpty() && !firstPersonId.equals("")) {
+                    firstValidAuthor = firstPersonId;
+                } else if (secondPersonId != null && !secondPersonId.isEmpty() && !secondPersonId.equals("")) {
+                    firstValidAuthor = secondPersonId;
+                } else if (thirdPersonId != null && !thirdPersonId.isEmpty() && !thirdPersonId.equals("")) {
+                    firstValidAuthor = thirdPersonId;
+                } else if (fourthPersonId != null && !fourthPersonId.isEmpty() && !fourthPersonId.equals("")) {
+                    firstValidAuthor = fourthPersonId;
+                }
+
+                if (firstValidAuthor == null || !firstValidAuthor.equals(userIdStr)) {
+                    return error("当前用户不是第一位本校老师");
+                }
+
                 sciPaperA.setUserId(userId);
                 String user_name = userService.selectUserByLoginName(getLoginName()).getUserName();
                 sciPaperA.setTeacherName(user_name);
@@ -243,9 +266,30 @@ public class SciPaperAController extends BaseController {
                     // 计算分数
                     Map<String, Integer> scores = sciPaperAService.calculatePaperScore(paperCategory, authors, communicationAuthorId);
                     
-                    // 取第一作者的分数作为预计科研分
-                    String firstKey = "1_" + sciPaperA.getFirstPersonId();
-                    int expectedScore = scores.getOrDefault(firstKey, 0);
+                    // 取预计科研分：如果有通讯作者，使用通讯作者的分数；否则使用第一作者的分数
+                    int expectedScore = 0;
+                    if (communicationAuthorId != null && !communicationAuthorId.isEmpty()) {
+                        // 检查通讯作者是否在1-4作中
+                        boolean isAuthor = false;
+                        for (int i = 1; i <= 4; i++) {
+                            String authorId = authors.get(String.valueOf(i));
+                            if (communicationAuthorId.equals(authorId)) {
+                                String key = i + "_" + communicationAuthorId;
+                                expectedScore = scores.getOrDefault(key, 0);
+                                isAuthor = true;
+                                break;
+                            }
+                        }
+                        // 如果通讯作者不在1-4作中，使用专门的通讯作者分数
+                        if (!isAuthor) {
+                            String commKey = "comm_" + communicationAuthorId;
+                            expectedScore = scores.getOrDefault(commKey, 0);
+                        }
+                    } else {
+                        // 没有通讯作者，使用第一作者的分数
+                        String firstKey = "1_" + sciPaperA.getFirstPersonId();
+                        expectedScore = scores.getOrDefault(firstKey, 0);
+                    }
                     sciPaperA.setExpectedResearchScore(String.valueOf(expectedScore));
                 }
 
@@ -578,6 +622,29 @@ public class SciPaperAController extends BaseController {
     @Transactional(rollbackFor = Exception.class)
     public AjaxResult editSave(SciPaperA sciPaperA) {
         try {
+            Long userId = getUserId();
+            String userIdStr = String.valueOf(userId);
+
+            // 验证第一位本校老师必须是当前登录用户（按一作、二作、三作、四作顺序检查）
+            String firstPersonId = sciPaperA.getFirstPersonId();
+            String secondPersonId = sciPaperA.getSecondPersonId();
+            String thirdPersonId = sciPaperA.getThirdPersonId();
+            String fourthPersonId = sciPaperA.getFourthPersonId();
+
+            String firstValidAuthor = null;
+            if (firstPersonId != null && !firstPersonId.isEmpty() && !firstPersonId.equals("")) {
+                firstValidAuthor = firstPersonId;
+            } else if (secondPersonId != null && !secondPersonId.isEmpty() && !secondPersonId.equals("")) {
+                firstValidAuthor = secondPersonId;
+            } else if (thirdPersonId != null && !thirdPersonId.isEmpty() && !thirdPersonId.equals("")) {
+                firstValidAuthor = thirdPersonId;
+            } else if (fourthPersonId != null && !fourthPersonId.isEmpty() && !fourthPersonId.equals("")) {
+                firstValidAuthor = fourthPersonId;
+            }
+
+            if (firstValidAuthor == null || !firstValidAuthor.equals(userIdStr)) {
+                return error("当前用户不是第一位本校老师");
+            }
 //            if (!sciPaperA.getPaperCategory().equals("9")) {
 //                if (sciPaperA.getText_paper() == null || sciPaperA.getText_paper().length() <= 0){
 //                    throw new RuntimeException("非校刊录用/检索证明不能为空");
@@ -604,6 +671,21 @@ public class SciPaperAController extends BaseController {
                 int expectedScore = scores.getOrDefault(firstKey, 0);
                 sciPaperA.setExpectedResearchScore(String.valueOf(expectedScore));
             }
+            
+            // 确保state字段不为null，即使没有修改状态
+            if (sciPaperA.getState() == null) {
+                // 如果state为null，先从数据库获取当前状态
+                SciPaperA existingPaper = sciPaperAService.selectSciPaperAById(sciPaperA.getId());
+                if (existingPaper != null) {
+                    sciPaperA.setState(existingPaper.getState());
+                }
+            }
+            
+            // 如果论文状态是驳回，编辑保存后改为草稿状态，需要重新提交
+            if (SciPaperA.PAPER_REJECTED.equals(sciPaperA.getState())) {
+                sciPaperA.setState(SciPaperA.PAPER_DRAFT);
+            }
+            
             // 更新论文基本信息
             int result = sciPaperAService.updateSciPaperA(sciPaperA);
             
@@ -675,6 +757,22 @@ public class SciPaperAController extends BaseController {
     @ResponseBody
     public AjaxResult pybh(@PathVariable("id") String id, String remark, String operationType) {
         return toAjax(sciPaperAService.pybh(id, getUserId(), remark, operationType));
+    }
+
+    /**
+     * 论文审批操作（通过/驳回/撤回）
+     * @param id 论文ID
+     * @param comment 审批意见
+     * @param operationType 操作类型：approve(通过)、reject(驳回)、recall(撤回)
+     * @param paperCategory 论文类别（仅通过时需要）
+     * @return 审批结果
+     */
+    @RequiresPermissions(value = {"system:paper:xypy", "system:paper:process", "system:paper:kypy", "system:paper:xyrevoke", "system:paper:kyrevoke"}, logical = Logical.OR)
+    @Log(title = "论文审批操作", businessType = BusinessType.UPDATE)
+    @PostMapping("/approve/{id}")
+    @ResponseBody
+    public AjaxResult approve(@PathVariable("id") String id, String comment, String operationType, String paperCategory) {
+        return toAjax(sciPaperAService.approve(id, getUserId(), comment, operationType, paperCategory));
     }
 
 

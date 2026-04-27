@@ -97,7 +97,7 @@ public class ApprovalProcessServiceImpl implements IApprovalProcessService {
             if (currentNode == null) {
                 for (int i = 0; i < nodeList.size(); i++) {
                     SysApprovalNode node = nodeList.get(i);
-                    if (currentState.equals(node.getEnterState())) {
+                    if (currentState.equals(node.getRejectState()) || currentState.equals(node.getPassState())) {
                         currentNode = node;
                         if (i < nodeList.size() - 1) {
                             nextNode = nodeList.get(i + 1);
@@ -108,7 +108,7 @@ public class ApprovalProcessServiceImpl implements IApprovalProcessService {
             }
 
             if (currentNode == null) {
-                return ApprovalResult.fail("未找到当前状态[" + currentState + "]对应的节点，请检查节点配置的nodeCode或enterState");
+                return ApprovalResult.fail("未找到当前状态[" + currentState + "]对应的节点，请检查节点配置的nodeCode、passState或rejectState");
             }
 
             return ApprovalResult.okWithNode("获取当前节点成功", null,
@@ -147,9 +147,9 @@ public class ApprovalProcessServiceImpl implements IApprovalProcessService {
             }
 
             SysApprovalNode firstNode = nodeList.get(0);
-            String newState = firstNode.getEnterState();
+            String newState = firstNode.getNodeCode();
             if (StringUtils.isEmpty(newState)) {
-                return ApprovalResult.fail("首个审批节点[" + firstNode.getNodeNm() + "]未配置enterState");
+                return ApprovalResult.fail("首个审批节点[" + firstNode.getNodeNm() + "]未配置nodeCode");
             }
 
             saveApprovalHistory(request.getProcessCode(), request.getBusinessId(), firstNode, "submit",
@@ -416,7 +416,7 @@ public class ApprovalProcessServiceImpl implements IApprovalProcessService {
                 return ApprovalResult.fail("未找到当前节点在流程中的位置");
             }
 
-            String recallState = computeRecallState(nodeList, currentNode, currentNodeIndex);
+            String recallState = computeRecallState(nodeList, currentNode, currentNodeIndex, request.getCurrentState());
             if (StringUtils.isEmpty(recallState)) {
                 return ApprovalResult.fail("无法确定撤回目标状态，请检查节点配置的rejectState");
             }
@@ -514,11 +514,12 @@ public class ApprovalProcessServiceImpl implements IApprovalProcessService {
      * <p>
      * 撤回逻辑：
      * - 第一个节点：取 firstNode.rejectState（通常为草稿），为空则返回null
-     * - 中间/末尾节点：优先取 currentNode.rejectState，为空则取前一节点的 enterState
+     * - 最后一个节点且当前状态为该节点的passState（结束状态）：返回该节点的nodeCode
+     * - 中间/末尾节点：优先取 currentNode.rejectState，为空则取前一节点的 passState
      * </p>
      */
     private String computeRecallState(List<SysApprovalNode> nodeList, SysApprovalNode currentNode,
-            int currentNodeIndex) {
+            int currentNodeIndex, String currentState) {
         if (currentNodeIndex == 0) {
             if (StringUtils.isEmpty(currentNode.getRejectState())) {
                 return null;
@@ -526,10 +527,15 @@ public class ApprovalProcessServiceImpl implements IApprovalProcessService {
             return currentNode.getRejectState();
         }
 
+        if (currentNodeIndex == nodeList.size() - 1 && currentState.equals(currentNode.getPassState())) {
+            // 最后一个节点且当前状态为该节点的passState（结束状态）时，撤回回到最后一个节点的nodeCode
+            return currentNode.getNodeCode();
+        }
+
         String recallState = currentNode.getRejectState();
         if (StringUtils.isEmpty(recallState)) {
             SysApprovalNode prevNode = nodeList.get(currentNodeIndex - 1);
-            recallState = prevNode.getEnterState();
+            recallState = prevNode.getPassState();
         }
         return recallState;
     }

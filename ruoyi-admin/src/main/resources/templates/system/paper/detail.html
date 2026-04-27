@@ -110,9 +110,8 @@
                     <div class="col-sm-8">
                         <div class="input-group date">
                             <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                            <input disabled name="publicationTime" th:field="*{publicationTime}"
-                                   th:value="${#dates.format(publicationTime, 'yyyy-MM-dd')}" class="form-control"
-                                   placeholder="yyyy-MM-dd" type="text">
+                            <input disabled name="publicationTimeDisplay" id="publicationTimeDisplay"
+                                   class="form-control" placeholder="yyyy-MM-dd" type="text">
                         </div>
                     </div>
                 </div>
@@ -325,11 +324,20 @@
                            onmouseenter="showTooltip(this)"
                            onmouseleave="hideTooltip()"
                         >
-                            <span th:if="*{search_web != null and #strings.length(search_web) > 44}" 
+                            <span th:if="*{search_web != null and #strings.length(search_web) > 44}"
                                   th:text="*{#strings.substring(search_web, 0, 44)} + '...'"></span>
-                            <span th:if="*{search_web == null or #strings.length(search_web) <= 44}" 
+                            <span th:if="*{search_web == null or #strings.length(search_web) <= 44}"
                                   th:text="*{search_web}"></span>
                         </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">备注：</label>
+                    <div class="col-sm-7">
+                        <input disabled name="remarks" th:field="*{remarks}" class="form-control" type="text">
                     </div>
                 </div>
             </div>
@@ -549,7 +557,7 @@
                 $("#btn4").hide();
             }
 
-            if (['kyth', 'xyth', 'proth'].includes(urlFlag)) {
+            if (['kyc_recall', 'jys_recall', 'proth'].includes(urlFlag)) {
                 //handleSpecialView();
                 $(".tdiv1").show();
                 $(".tdiv2").show();
@@ -592,9 +600,9 @@
         var paperCategory = $("#paperCategory").val();
         var remark = $('#remark').val();
         // 构建完整的URL
-        var Url = prefix + "/pytg/" + encodeURIComponent($("#pid").val());
+        var Url = prefix + "/approve/" + encodeURIComponent($("#pid").val());
 
-        $.operate.saveTab(Url, {"comment": remark,"paperCategory":paperCategory}, function(response){
+        $.operate.saveTab(Url, {"comment": remark,"paperCategory":paperCategory, "operationType": "approve"}, function(response){
             // console.log("Server response:", response);
         });
     }
@@ -611,13 +619,13 @@
                 $.modal.confirm("批注不能为空");
                 return false;
             }
-        } else if (['proth', 'xyth', 'kyth'].includes(urlFlag)) {
+        } else if (['proth', 'jys_recall', 'kyc_recall'].includes(urlFlag)) {
             operationType = 'recall';
         }
         
         if ($.validate.form() && operationType) {
             var remark = $('#remark').val();
-            var url = prefix + "/pybh/" + encodeURIComponent($("#pid").val());
+            var url = prefix + "/approve/" + encodeURIComponent($("#pid").val());
 
             if (operationType === 'reject') {
                 $.modal.confirm("确定 驳回 吗" ,function() {
@@ -707,7 +715,20 @@
         displayFileName('text_paper', 'contractFileName');
         displayFileName('word_paper', 'wordFileName');
         calculateAndUpdateScores();
+        initPublicationTime();
     };
+
+    function initPublicationTime() {
+        var publicationTime = /*[[${sciPaperA.publicationTime}]]*/ '';
+        if (publicationTime) {
+            var date = new Date(publicationTime);
+            var year = date.getFullYear();
+            var month = (date.getMonth() + 1).toString().padStart(2, '0');
+            var day = date.getDate().toString().padStart(2, '0');
+            var formattedDate = year + '-' + month + '-' + day;
+            $('#publicationTimeDisplay').val(formattedDate);
+        }
+    }
     
     // 获取当前作者信息
     function getCurrentAuthors() {

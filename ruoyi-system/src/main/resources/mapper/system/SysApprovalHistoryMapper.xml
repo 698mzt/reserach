@@ -18,21 +18,24 @@
         <result property="newState"    column="new_state"    />
         <result property="comment"    column="comment"    />
         <result property="createTime"    column="create_time"    />
+        <result property="processName"    column="process_name"    />
     </resultMap>
 
     <sql id="selectSysApprovalHistoryVo">
-        select id, process_code, business_id, node_id, node_name, action, operator_id, operator_name, operator_dept, old_state, new_state, comment, create_time from sys_approval_history
+        select h.id, h.process_code, h.business_id, h.node_id, h.node_name, h.action, h.operator_id, h.operator_name, h.operator_dept, h.old_state, h.new_state, h.comment, h.create_time,
+               p.process_name
+        from sys_approval_history h
+        left join sys_approval_process p on h.process_code = p.process_code
     </sql>
 
     <select id="selectSysApprovalHistoryList" parameterType="SysApprovalHistory" resultMap="SysApprovalHistoryResult">
         <include refid="selectSysApprovalHistoryVo"/>
         <where>
-            <if test="processCode != null  and processCode != ''"> and process_code = #{processCode}</if>
-            <if test="businessId != null"> and business_id = #{businessId}</if>
-            <if test="operatorName != null  and operatorName != ''"> and operator_name like concat('%', #{operatorName}, '%')</if>
-            <if test="action != null  and action != ''"> and action = #{action}</if>
+            <if test="processName != null  and processName != ''"> and p.process_name like concat('%', #{processName}, '%')</if>
+            <if test="operatorName != null  and operatorName != ''"> and h.operator_name like concat('%', #{operatorName}, '%')</if>
+            <if test="action != null  and action != ''"> and h.action = #{action}</if>
         </where>
-        order by create_time desc
+        order by h.create_time desc
     </select>
 
     <select id="selectSysApprovalHistoryById" parameterType="Long" resultMap="SysApprovalHistoryResult">
