@@ -3,6 +3,7 @@ package com.ruoyi.web.controller.system;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.ruoyi.common.core.domain.entity.SysRole;
 import com.ruoyi.common.core.domain.entity.SysUser;
@@ -506,6 +507,40 @@ public class SciJiaocairuanzhuController extends BaseController
         // 查询审批历史记录（会填充关联数据）
         List<SysApprovalHistory> list = sysApprovalHistoryService.selectSysApprovalHistoryByBusinessId("textbook_approval", kid.longValue());
         return getDataTable(list);
+    }
+
+    /**
+     * 获取状态字典列表
+     * GET /system/jiaocairuanzhu/getStateDict
+     * 
+     * @return AjaxResult 状态字典列表
+     */
+    @GetMapping("/getStateDict")
+    @ResponseBody
+    public AjaxResult getStateDict() {
+        List<Map<String, String>> stateList = new ArrayList<>();
+        
+        // 教材专著状态
+        stateList.add(createStateDict("TEXTBOOK_DRAFT", "草稿"));
+        stateList.add(createStateDict("TEXTBOOK_JYS_AUDIT", "教研室审批中"));
+        stateList.add(createStateDict("TEXTBOOK_KYC_AUDIT", "科研处审批中"));
+        stateList.add(createStateDict("TEXTBOOK_PASSED", "通过"));
+        stateList.add(createStateDict("TEXTBOOK_REJECTED", "驳回"));
+        
+        return AjaxResult.success(stateList);
+    }
+
+    /**
+     * 创建状态字典对象
+     * @param code 状态编码
+     * @param label 状态标签
+     * @return Map 状态字典
+     */
+    private Map<String, String> createStateDict(String code, String label) {
+        Map<String, String> map = new HashMap<>();
+        map.put("code", code);
+        map.put("label", label);
+        return map;
     }
 
 }
