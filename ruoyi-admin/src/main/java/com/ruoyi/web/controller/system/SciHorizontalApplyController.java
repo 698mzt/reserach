@@ -15,6 +15,7 @@ import com.ruoyi.system.mapper.SciUserScoreMapper;
 import com.ruoyi.system.service.ISciHorizontalPiyueService;
 import com.ruoyi.system.service.ISysUserService;
 import com.ruoyi.system.service.SciHorizontalReamountService;
+import com.ruoyi.system.service.IApprovalProcessService;
 import org.apache.ibatis.annotations.Param;
 import org.apache.shiro.authz.annotation.Logical;
 
@@ -67,6 +68,8 @@ public class SciHorizontalApplyController extends BaseController
     private SciUserScoreMapper sciUserScoreMapper;
     @Autowired
     private SciHorizontalReamountService sciHorizontalReamountService;
+    @Autowired
+    private IApprovalProcessService approvalProcessService;
 
     /**
      * 计算横向课题预期积分
@@ -524,7 +527,7 @@ public class SciHorizontalApplyController extends BaseController
         }
 
         sciHorizontalReamount.setApplyId(id.toString());
-        sciHorizontalReamount.setState("99");
+        sciHorizontalReamount.setState("APPLY_DRAFT");
         sciHorizontalReamount.setUid(getUserId());
         if (sciHorizontalReamount.getReAmount() != null && !sciHorizontalReamount.getReAmount().isEmpty()){
             sciHorizontalReamountService.insertAmount(sciHorizontalReamount);
@@ -546,15 +549,15 @@ public class SciHorizontalApplyController extends BaseController
         sciHorizontalApply.setUserId(Integer.valueOf(getSysUser().getUserId().toString()));
         if ( sciHorizontalApply1.getValidityDate() !=  null && !sciHorizontalApply1.getValidityDate().isEmpty()){
             sciHorizontalApply.setNewsql("999");
-            sciHorizontalApply.setState("7");
+            sciHorizontalApply.setState("OVER_JYS_AUDIT");
         }
         else{
             sciHorizontalApply.setNewsql("99");
-            sciHorizontalApply.setState("1");
+            sciHorizontalApply.setState("APPLY_JYS_AUDIT");
         }
         int a = sciHorizontalApplyService.updateSciHorizontalApply(sciHorizontalApply);
-        sciHorizontalReamount.setState("1");
-        sciHorizontalReamountService.push(getUserId(),sciHorizontalApply.getId(),"1");
+        sciHorizontalReamount.setState("APPLY_JYS_AUDIT");
+        sciHorizontalReamountService.push(getUserId(),sciHorizontalApply.getId(),"APPLY_JYS_AUDIT");
         return toAjax(a);
     }
 
@@ -597,7 +600,7 @@ public class SciHorizontalApplyController extends BaseController
     {
         Integer id = sciHorizontalApply.getId();
         sciHorizontalReamount.setApplyId(id.toString());
-        sciHorizontalReamount.setState("1");
+        sciHorizontalReamount.setState("OVER_JYS_AUDIT");
         sciHorizontalApply.setUserId(Integer.valueOf(getSysUser().getUserId().toString()));
         int result = sciHorizontalApplyService.overSaveSciHorizontalApply(sciHorizontalApply);
         if (result == -1) {
@@ -636,7 +639,7 @@ public class SciHorizontalApplyController extends BaseController
         mmap.put("role", roleKey);
         
         // 判断是否可批阅
-        Integer state = sciHorizontalApply.getState() != null ? Integer.valueOf(sciHorizontalApply.getState()) : null;
+        String state = sciHorizontalApply.getState();
         boolean canApprove = canApprove(state, roleKey);
         mmap.put("canApprove", canApprove);
         
@@ -670,83 +673,127 @@ public class SciHorizontalApplyController extends BaseController
     
     /**
      * 判断当前用户是否可以批阅申请课题
-     * 基于Shiro权限配置进行校验，避免硬编码角色与状态的映射关系
-     * 
-     * 权限与状态映射关系（由Shiro配置决定）：
-     * - system:apply:process -> 可审批状态 1 (待教研室审核)
-     * - system:apply:Dept    -> 可审批状态 2 (待学院审核)
-     * - system:apply:hecha   -> 可审批状态 11 (待科研处审核)
-     * 
+     * 使用审批流服务获取节点配置，根据节点配置的roleIds判断权限
+     *
      * @param state 课题状态
      * @return true-可以批阅，false-不可批阅
      */
-    private boolean canApproveApply(Integer state) {
-        if (state == null) {
+    private boolean canApproveApply(String state) {
+        if (state == null || state.isEmpty()) {
             return false;
         }
-        
-        Subject subject = SecurityUtils.getSubject();
-        if (subject == null) {
+
+        String nodeCode = stateToNodeCode(state);
+
+        SysUser user = getSysUser();
+        if (user == null) {
             return false;
         }
-        
-        // 基于权限校验，而非硬编码角色
-        // 如果学校需要调整审核流程，只需修改Shiro权限配置，无需改动代码
-        switch (state) {
-            case 1:  // 待教研室审核
-                return subject.isPermitted("system:apply:process");
-            case 2:  // 待学院审核
-                return subject.isPermitted("system:apply:Dept");
-            case 11: // 待科研处审核
-                return subject.isPermitted("system:apply:hecha");
-            default:
-                return false;
+
+        String processCode = "HORIZONTAL_APPLY";
+
+        ApprovalResult nodeResult = approvalProcessService.getCurrentNode(processCode, nodeCode);
+        if (!nodeResult.isSuccess() || nodeResult.getCurrentNode() == null) {
+            return false;
         }
+
+        SysApprovalNode currentNode = nodeResult.getCurrentNode();
+
+        List<Long> deptIds = new ArrayList<>();
+        if (user.getDept() != null) {
+            deptIds.add(user.getDept().getDeptId());
+        }
+
+        List<String> roleKeys = new ArrayList<>();
+        if (user.getRoles() != null) {
+            for (SysRole role : user.getRoles()) {
+                roleKeys.add(role.getRoleKey());
+            }
+        }
+
+        return approvalProcessService.canApprove(user.getUserId(), deptIds, roleKeys);
     }
-    
+
     /**
      * 判断当前用户是否可以批阅结项课题
-     * 基于Shiro权限配置进行校验
-     * 
+     * 使用审批流服务获取节点配置，根据节点配置的roleIds判断权限
+     *
      * @param state 课题状态
      * @return true-可以批阅，false-不可批阅
      */
-    private boolean canApproveOver(Integer state) {
-        if (state == null) {
+    private boolean canApproveOver(String state) {
+        if (state == null || state.isEmpty()) {
             return false;
         }
-        
-        Subject subject = SecurityUtils.getSubject();
-        if (subject == null) {
+
+        String nodeCode = stateToNodeCode(state);
+
+        SysUser user = getSysUser();
+        if (user == null) {
             return false;
         }
-        
-        switch (state) {
-            case 7:  // 结项待教研室审核
-                return subject.isPermitted("system:apply:process");
-            case 8:  // 结项待学院审核
-                return subject.isPermitted("system:apply:Dept");
-            case 33: // 结项待科研处审核
-                return subject.isPermitted("system:apply:hecha");
-            default:
-                return false;
+
+        String processCode = "HORIZONTAL_OVER";
+
+        ApprovalResult nodeResult = approvalProcessService.getCurrentNode(processCode, nodeCode);
+        if (!nodeResult.isSuccess() || nodeResult.getCurrentNode() == null) {
+            return false;
         }
+
+        SysApprovalNode currentNode = nodeResult.getCurrentNode();
+
+        List<Long> deptIds = new ArrayList<>();
+        if (user.getDept() != null) {
+            deptIds.add(user.getDept().getDeptId());
+        }
+
+        List<String> roleKeys = new ArrayList<>();
+        if (user.getRoles() != null) {
+            for (SysRole role : user.getRoles()) {
+                roleKeys.add(role.getRoleKey());
+            }
+        }
+
+        return approvalProcessService.canApprove(user.getUserId(), deptIds, roleKeys);
     }
-    
+
     /**
      * 判断当前用户是否可以批阅该课题（兼容旧方法）
-     * 
+     *
      * @param state 课题状态
      * @param roleKey 用户角色标识（已废弃，保留参数用于兼容）
      * @return true-可以批阅，false-不可批阅
      */
-    private boolean canApprove(Integer state, String roleKey) {
+    private boolean canApprove(String state, String roleKey) {
+        if (state == null) {
+            return false;
+        }
+
+        // 判断是否为字符串状态码
+        if (state.length() > 0 && Character.isLetter(state.charAt(0))) {
+            // 字符串状态码
+            if (state.startsWith("APPLY_")) {
+                return canApproveApply(state);
+            } else if (state.startsWith("OVER_")) {
+                return canApproveOver(state);
+            }
+            return false;
+        }
+
+        // 整数状态码（兼容旧数据）
+        Integer stateInt;
+        try {
+            stateInt = Integer.valueOf(state);
+        } catch (NumberFormatException e) {
+            return false;
+        }
+
         // 申请审核状态
-        if (Arrays.asList(1, 2, 11).contains(state)) {
+        if (Arrays.asList(1, 2, 11).contains(stateInt)) {
             return canApproveApply(state);
         }
         // 结项审核状态
-        if (Arrays.asList(7, 8, 33).contains(state)) {
+        if (Arrays.asList(7, 8, 33).contains(stateInt)) {
             return canApproveOver(state);
         }
         return false;
@@ -768,9 +815,15 @@ public class SciHorizontalApplyController extends BaseController
 
         mmap.put("sysUsers1",userList1);
         mmap.put("sciHorizontalApply", sciHorizontalApply);
-        // 传递当前登录用户ID，用于权限判断
         mmap.put("currentUserId", getUserId());
-        // 查询全部成员并注入第5位及以后
+
+        String roleKey = getUserRoleKey();
+        mmap.put("role", roleKey);
+
+        String state = sciHorizontalApply.getState();
+        boolean canApprove = canApprove(state, roleKey);
+        mmap.put("canApprove", canApprove);
+
         List<String> allMemberIds = sciHorizontalApplyService.selectPersionIdsByApplyId(id);
         List<String> extraMembers = new java.util.ArrayList<>();
         if (allMemberIds != null && allMemberIds.size() > 4) {
@@ -823,14 +876,14 @@ public class SciHorizontalApplyController extends BaseController
         if (apply == null) {
             return AjaxResult.error("课题不存在");
         }
-        
+
         // 2. 状态+权限联合校验
-        Integer state = apply.getState() != null ? Integer.valueOf(apply.getState()) : null;
+        String state = apply.getState();
         if (!canApproveApply(state)) {
             String stepDesc = getApprovalStepDesc(state);
             return AjaxResult.error("无权操作：当前课题" + stepDesc + "，您没有对应的审核权限");
         }
-        
+
         // 3. 执行审核
         return toAjax(sciHorizontalApplyService.hxPass(id, getUserId(), urlFlag));
     }
@@ -850,14 +903,14 @@ public class SciHorizontalApplyController extends BaseController
         if (apply == null) {
             return AjaxResult.error("课题不存在");
         }
-        
+
         // 2. 状态+权限联合校验
-        Integer state = apply.getState() != null ? Integer.valueOf(apply.getState()) : null;
+        String state = apply.getState();
         if (!canApproveOver(state)) {
             String stepDesc = getApprovalStepDesc(state);
             return AjaxResult.error("无权操作：当前课题" + stepDesc + "，您没有对应的审核权限");
         }
-        
+
         // 3. 执行审核
         return toAjax(sciHorizontalApplyService.hxover(id, getUserId(), urlFlag));
     }
@@ -877,18 +930,18 @@ public class SciHorizontalApplyController extends BaseController
         if (apply == null) {
             return AjaxResult.error("课题不存在");
         }
-        
+
         // 2. 状态+权限联合校验
-        Integer state = apply.getState() != null ? Integer.valueOf(apply.getState()) : null;
+        String state = apply.getState();
         if (!canApproveApply(state)) {
             String stepDesc = getApprovalStepDesc(state);
             return AjaxResult.error("无权操作：当前课题" + stepDesc + "，您没有对应的审核权限");
         }
-        
+
         // 3. 执行驳回
         return toAjax(sciHorizontalApplyService.hxBh(id, getUserId(), remark, urlFlag));
     }
-    
+
     /**
      * 结项横向课题驳回
      * 增加状态+权限联合校验，防止越权审核
@@ -904,29 +957,86 @@ public class SciHorizontalApplyController extends BaseController
         if (apply == null) {
             return AjaxResult.error("课题不存在");
         }
-        
+
         // 2. 状态+权限联合校验
-        Integer state = apply.getState() != null ? Integer.valueOf(apply.getState()) : null;
+        String state = apply.getState();
         if (!canApproveOver(state)) {
             String stepDesc = getApprovalStepDesc(state);
             return AjaxResult.error("无权操作：当前课题" + stepDesc + "，您没有对应的审核权限");
         }
-        
+
         // 3. 执行驳回
         return toAjax(sciHorizontalApplyService.hxoverBh(id, getUserId(), remark, urlFlag));
     }
-    
+
+    /**
+     * 将业务状态编码转换为审批节点编码
+     * 业务状态编码格式: {阶段}_{节点}_{状态} (如 APPLY_JYS_AUDIT)
+     * 审批节点编码格式: {阶段}_{节点} (如 APPLY_JYS)
+     *
+     * @param stateCode 业务状态编码
+     * @return 审批节点编码
+     */
+    private String stateToNodeCode(String stateCode) {
+        if (stateCode == null || stateCode.isEmpty()) {
+            return stateCode;
+        }
+        if (stateCode.endsWith("_AUDIT")) {
+            return stateCode.substring(0, stateCode.length() - 6);
+        }
+        return stateCode;
+    }
+
     /**
      * 获取状态对应的审核环节描述
-     * 
-     * @param state 课题状态
+     *
+     * @param state 课题状态（支持字符串或整数）
      * @return 审核环节描述
      */
-    private String getApprovalStepDesc(Integer state) {
+    private String getApprovalStepDesc(String state) {
         if (state == null) {
             return "状态未知";
         }
-        switch (state) {
+
+        // 判断是否为字符串状态码
+        if (state.length() > 0 && Character.isLetter(state.charAt(0))) {
+            switch (state) {
+                case "APPLY_DRAFT":
+                    return "立项草稿";
+                case "APPLY_JYS_AUDIT":
+                    return "待教研室审核";
+                case "APPLY_XY_AUDIT":
+                    return "待学院审核";
+                case "APPLY_KYC_AUDIT":
+                    return "待科研处审核";
+                case "OVER_DRAFT":
+                    return "结项草稿";
+                case "OVER_JYS_AUDIT":
+                    return "结项待教研室审核";
+                case "OVER_XY_AUDIT":
+                    return "结项待学院审核";
+                case "OVER_KYC_AUDIT":
+                    return "结项待科研处审核";
+                case "APPLY_PASSED":
+                case "OVER_PASSED":
+                    return "已完成";
+                case "APPLY_REJECTED":
+                case "OVER_REJECTED":
+                    return "已驳回";
+                default:
+                    return "状态(" + state + ")";
+            }
+        }
+
+        // 整数状态码（兼容旧数据）
+        Integer stateInt;
+        try {
+            stateInt = Integer.valueOf(state);
+        } catch (NumberFormatException e) {
+            return "状态未知";
+        }
+
+        switch (stateInt) {
             case 1:
                 return "待教研室审核";
             case 2:
@@ -946,7 +1056,7 @@ public class SciHorizontalApplyController extends BaseController
             case 99:
                 return "已驳回";
             default:
-                return "状态(" + state + ")";
+                return "状态(" + stateInt + ")";
         }
     }
 
@@ -989,12 +1099,13 @@ public class SciHorizontalApplyController extends BaseController
     {
         sciHorizontalApply.setUserId(Integer.valueOf(getSysUser().getUserId().toString()));
         sciHorizontalApply.setNewsql("");
-        if (sciHorizontalApply.getState().equals("3") || sciHorizontalApply.getState().equals("5") || sciHorizontalApply.getState().equals("22")){
+        String currentState = sciHorizontalApply.getState();
+        if ("APPLY_REJECTED".equals(currentState) || "OVER_REJECTED".equals(currentState) || "99".equals(currentState) || "100".equals(currentState)){
             sciHorizontalApply.setNewsql("");
-            sciHorizontalApply.setState("99");
+            sciHorizontalApply.setState("APPLY_DRAFT");
         }
         if (sciHorizontalReamount.getReAmount() != null && !sciHorizontalReamount.getReAmount().isEmpty()) {
-            sciHorizontalReamount.setState("99");
+            sciHorizontalReamount.setState("APPLY_DRAFT");
             sciHorizontalReamountService.insertAmount(sciHorizontalReamount);
         }
         int update = sciHorizontalApplyService.updateSciHorizontalApply(sciHorizontalApply);
@@ -1063,9 +1174,10 @@ public class SciHorizontalApplyController extends BaseController
     {
         sciHorizontalApply.setUserId(Integer.valueOf(getSysUser().getUserId().toString()));
         sciHorizontalApply.setNewsql("");
-        if (sciHorizontalApply.getState().equals("9") || sciHorizontalApply.getState().equals("10") || sciHorizontalApply.getState().equals("44")){
+        String currentOverState = sciHorizontalApply.getState();
+        if ("OVER_REJECTED".equals(currentOverState) || "100".equals(currentOverState)){
             sciHorizontalApply.setNewsql("999");
-            sciHorizontalApply.setState("999");
+            sciHorizontalApply.setState("OVER_DRAFT");
         }
         int update = sciHorizontalApplyService.updateSciHorizontalApply(sciHorizontalApply);
         if (update == -1) {
@@ -1175,14 +1287,14 @@ public class SciHorizontalApplyController extends BaseController
         if (apply == null) {
             return AjaxResult.error("课题不存在");
         }
-        
+
         // 2. 状态+权限联合校验（删除审批使用申请审核的权限映射）
-        Integer currentState = apply.getState() != null ? Integer.valueOf(apply.getState()) : null;
+        String currentState = apply.getState();
         if (!canApproveApply(currentState)) {
             String stepDesc = getApprovalStepDesc(currentState);
             return AjaxResult.error("无权操作：当前课题" + stepDesc + "，您没有对应的审批权限");
         }
-        
+
         // 3. 执行删除审批
         return toAjax(sciHorizontalApplyService.recall(id, state, getUserId(), remark, urlFlag));
     }
@@ -1279,14 +1391,14 @@ public class SciHorizontalApplyController extends BaseController
         if (amountRecord == null) {
             return AjaxResult.error("到账金额记录不存在");
         }
-        
+
         // 2. 状态+权限联合校验（到账金额使用申请审核的权限映射）
-        Integer state = amountRecord.getState() != null ? Integer.valueOf(amountRecord.getState()) : null;
+        String state = amountRecord.getState();
         if (!canApproveApply(state)) {
             String stepDesc = getApprovalStepDesc(state);
             return AjaxResult.error("无权操作：当前到账金额" + stepDesc + "，您没有对应的审核权限");
         }
-        
+
         // 3. 执行审核
 //        初始化一个新对象，存储最大值和最小值
         SciProjectScoreCfg sciProjectScoreCfg1 = new SciProjectScoreCfg();
@@ -1356,14 +1468,14 @@ public class SciHorizontalApplyController extends BaseController
         if (amountRecord == null) {
             return AjaxResult.error("到账金额记录不存在");
         }
-        
+
         // 2. 状态+权限联合校验（到账金额使用申请审核的权限映射）
-        Integer state = amountRecord.getState() != null ? Integer.valueOf(amountRecord.getState()) : null;
+        String state = amountRecord.getState();
         if (!canApproveApply(state)) {
             String stepDesc = getApprovalStepDesc(state);
             return AjaxResult.error("无权操作：当前到账金额" + stepDesc + "，您没有对应的审核权限");
         }
-        
+
         // 3. 执行驳回
         return toAjax(sciHorizontalApplyService.removeAmount(id, reid, getUserId(), remark, urlFlag));
     }
@@ -1401,7 +1513,7 @@ public class SciHorizontalApplyController extends BaseController
     @ResponseBody
     public AjaxResult reamounteditSave(SciHorizontalReamount sciHorizontalReamount)
     {
-        sciHorizontalReamount.setState("1");
+        sciHorizontalReamount.setState("APPLY_DRAFT");
         return toAjax(sciHorizontalReamountService.amountedit(sciHorizontalReamount));
     }
 
@@ -1508,5 +1620,45 @@ public class SciHorizontalApplyController extends BaseController
         } catch (Exception e) {
             return AjaxResult.error("获取科研分预览失败：" + e.getMessage());
         }
+    }
+
+    /**
+     * 获取状态字典
+     * @return AjaxResult 状态字典列表
+     */
+    @GetMapping("/getStateDict")
+    @ResponseBody
+    public AjaxResult getStateDict()
+    {
+        List<Map<String, String>> stateList = new ArrayList<>();
+        // 立项审批状态
+        stateList.add(createStateDict("APPLY_DRAFT", "立项-草稿"));
+        stateList.add(createStateDict("APPLY_JYS_AUDIT", "立项-教研室审批中"));
+        stateList.add(createStateDict("APPLY_XY_AUDIT", "立项-学院审批中"));
+        stateList.add(createStateDict("APPLY_KYC_AUDIT", "立项-科研处审批中"));
+        stateList.add(createStateDict("APPLY_PASSED", "立项-通过"));
+        stateList.add(createStateDict("APPLY_REJECTED", "立项-驳回"));
+        // 结项审批状态
+        stateList.add(createStateDict("OVER_DRAFT", "结项-草稿"));
+        stateList.add(createStateDict("OVER_JYS_AUDIT", "结项-教研室审批中"));
+        stateList.add(createStateDict("OVER_XY_AUDIT", "结项-学院审批中"));
+        stateList.add(createStateDict("OVER_KYC_AUDIT", "结项-科研处审批中"));
+        stateList.add(createStateDict("OVER_PASSED", "结项-通过"));
+        stateList.add(createStateDict("OVER_REJECTED", "结项-驳回"));
+        return AjaxResult.success(stateList);
+    }
+
+    /**
+     * 创建状态字典对象
+     * @param code 状态编码
+     * @param label 状态标签
+     * @return Map 状态字典
+     */
+    private Map<String, String> createStateDict(String code, String label)
+    {
+        Map<String, String> map = new HashMap<>();
+        map.put("code", code);
+        map.put("label", label);
+        return map;
     }
 }

@@ -330,4 +330,13 @@ public interface SciHorizontalApplyMapper
      * @return 横向课题集合
      */
     List<SciHorizontalApply> getStatsQueryToCheck(Map<String, String> params);
+
+    /**
+     * 更新申请状态
+     *
+     * @param applyId 申请ID
+     * @param state 新状态编码
+     * @return 影响行数
+     */
+    int updateState(@Param("applyId") Integer applyId, @Param("state") String state);
 }

@@ -221,4 +221,177 @@ public interface ISciHorizontalApplyService
      * @return 预览结果Map
      */
     Map<String, Object> previewScore(Integer id);
+
+    //*******************************************************************************************************
+    // 审批流程相关方法（集成IApprovalProcessService）
+    
+    /**
+     * 提交立项申请审批
+     * <p>
+     * 将立项申请从草稿状态提交到第一个审批节点（教研室审批）。
+     * 通过调用IApprovalProcessService.submitApproval()实现，确保状态流转的规范性。
+     * </p>
+     *
+     * @param applyId 申请ID
+     * @param operatorId 操作人ID
+     * @param operatorName 操作人姓名
+     * @param operatorDept 操作人部门
+     * @param comment 提交说明（可选）
+     * @return 审批结果
+     */
+    com.ruoyi.system.domain.ApprovalResult submitApplyApproval(Integer applyId, Long operatorId, 
+            String operatorName, String operatorDept, String comment);
+
+    /**
+     * 立项申请审批通过
+     * <p>
+     * 当前审批节点通过，状态流转到下一节点或终态。
+     * 通过调用IApprovalProcessService.approve()实现。
+     * </p>
+     *
+     * @param applyId 申请ID
+     * @param currentState 当前状态
+     * @param operatorId 操作人ID
+     * @param operatorName 操作人姓名
+     * @param operatorDept 操作人部门
+     * @param operatorRoleKeys 操作人角色列表
+     * @param operatorDeptIds 操作人部门ID列表
+     * @param comment 审批意见（可选）
+     * @return 审批结果
+     */
+    com.ruoyi.system.domain.ApprovalResult approveApply(Integer applyId, String currentState, 
+            Long operatorId, String operatorName, String operatorDept,
+            java.util.List<String> operatorRoleKeys, java.util.List<Long> operatorDeptIds, String comment);
+
+    /**
+     * 立项申请审批驳回
+     * <p>
+     * 当前审批节点驳回，状态回退到草稿或上一节点。
+     * 通过调用IApprovalProcessService.reject()实现。
+     * </p>
+     *
+     * @param applyId 申请ID
+     * @param currentState 当前状态
+     * @param operatorId 操作人ID
+     * @param operatorName 操作人姓名
+     * @param operatorDept 操作人部门
+     * @param operatorRoleKeys 操作人角色列表
+     * @param operatorDeptIds 操作人部门ID列表
+     * @param comment 驳回原因
+     * @return 审批结果
+     */
+    com.ruoyi.system.domain.ApprovalResult rejectApply(Integer applyId, String currentState,
+            Long operatorId, String operatorName, String operatorDept,
+            java.util.List<String> operatorRoleKeys, java.util.List<Long> operatorDeptIds, String comment);
+
+    /**
+     * 立项申请撤回
+     * <p>
+     * 提交者撤回已提交的立项申请，状态回退到草稿。
+     * 通过调用IApprovalProcessService.recall()实现。
+     * </p>
+     *
+     * @param applyId 申请ID
+     * @param currentState 当前状态
+     * @param operatorId 操作人ID
+     * @param operatorName 操作人姓名
+     * @param operatorDept 操作人部门
+     * @param comment 撤回原因（可选）
+     * @return 审批结果
+     */
+    com.ruoyi.system.domain.ApprovalResult recallApply(Integer applyId, String currentState,
+            Long operatorId, String operatorName, String operatorDept, String comment);
+
+    /**
+     * 提交结项申请审批
+     * <p>
+     * 将结项申请从草稿状态提交到第一个审批节点（教研室审批）。
+     * 通过调用IApprovalProcessService.submitApproval()实现。
+     * </p>
+     *
+     * @param applyId 申请ID
+     * @param operatorId 操作人ID
+     * @param operatorName 操作人姓名
+     * @param operatorDept 操作人部门
+     * @param comment 提交说明（可选）
+     * @return 审批结果
+     */
+    com.ruoyi.system.domain.ApprovalResult submitOverApproval(Integer applyId, Long operatorId,
+            String operatorName, String operatorDept, String comment);
+
+    /**
+     * 结项申请审批通过
+     * <p>
+     * 当前审批节点通过，状态流转到下一节点或终态。
+     * 通过调用IApprovalProcessService.approve()实现。
+     * </p>
+     *
+     * @param applyId 申请ID
+     * @param currentState 当前状态
+     * @param operatorId 操作人ID
+     * @param operatorName 操作人姓名
+     * @param operatorDept 操作人部门
+     * @param operatorRoleKeys 操作人角色列表
+     * @param operatorDeptIds 操作人部门ID列表
+     * @param comment 审批意见（可选）
+     * @return 审批结果
+     */
+    com.ruoyi.system.domain.ApprovalResult approveOver(Integer applyId, String currentState,
+            Long operatorId, String operatorName, String operatorDept,
+            java.util.List<String> operatorRoleKeys, java.util.List<Long> operatorDeptIds, String comment);
+
+    /**
+     * 结项申请审批驳回
+     * <p>
+     * 当前审批节点驳回，状态回退到草稿或上一节点。
+     * 通过调用IApprovalProcessService.reject()实现。
+     * </p>
+     *
+     * @param applyId 申请ID
+     * @param currentState 当前状态
+     * @param operatorId 操作人ID
+     * @param operatorName 操作人姓名
+     * @param operatorDept 操作人部门
+     * @param operatorRoleKeys 操作人角色列表
+     * @param operatorDeptIds 操作人部门ID列表
+     * @param comment 驳回原因
+     * @return 审批结果
+     */
+    com.ruoyi.system.domain.ApprovalResult rejectOver(Integer applyId, String currentState,
+            Long operatorId, String operatorName, String operatorDept,
+            java.util.List<String> operatorRoleKeys, java.util.List<Long> operatorDeptIds, String comment);
+
+    /**
+     * 结项申请撤回
+     * <p>
+     * 提交者撤回已提交的结项申请，状态回退到草稿。
+     * 通过调用IApprovalProcessService.recall()实现。
+     * </p>
+     *
+     * @param applyId 申请ID
+     * @param currentState 当前状态
+     * @param operatorId 操作人ID
+     * @param operatorName 操作人姓名
+     * @param operatorDept 操作人部门
+     * @param comment 撤回原因（可选）
+     * @return 审批结果
+     */
+    com.ruoyi.system.domain.ApprovalResult recallOver(Integer applyId, String currentState,
+            Long operatorId, String operatorName, String operatorDept, String comment);
+
+    /**
+     * 查询立项申请审批历史
+     *
+     * @param applyId 申请ID
+     * @return 审批历史列表
+     */
+    java.util.List<com.ruoyi.system.domain.SysApprovalHistory> getApplyApprovalHistory(Integer applyId);
+
+    /**
+     * 查询结项申请审批历史
+     *
+     * @param applyId 申请ID
+     * @return 审批历史列表
+     */
+    java.util.List<com.ruoyi.system.domain.SysApprovalHistory> getOverApprovalHistory(Integer applyId);
 }
