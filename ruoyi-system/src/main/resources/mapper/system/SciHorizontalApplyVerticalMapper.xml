@@ -22,6 +22,7 @@
         <result property="overfile"    column="over_file"    />
         <result property="amount"    column="amount"    />
         <result property="state"    column="state"    />
+        <result property="stateName"    column="state_name"    />
         <result property="userName"    column="userName"    />
         <result property="yname"    column="yname"    />
         <result property="dname"    column="dname"    />
@@ -43,11 +44,12 @@
      * 返回字段：课题基本信息、申请人信息、部门信息、文件信息、课题来源
      -->
     <select id="selectSciHorizontalApplyVerticalAllList" resultType="SciHorizontalApplyVertical" resultMap="SciHorizontalApplyVerticalResult">
-        select s.id,u.user_name userName,d.dept_id,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,s.top_number ,s.top_type,  s.signing_data, s.validity_data, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file,s.open_file,s.mid_file,s.over_file, s.subject_source
+        select s.id,u.user_name userName,d.dept_id,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,s.top_number ,s.top_type,  s.signing_data, s.validity_data, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,st.state_name,s.file,s.open_file,s.mid_file,s.over_file, s.subject_source
         from  sci_horizontal_apply_vertical s left join sci_persion pe on pe.apply_id = s.id
                                               left join sys_user u on  s.user_id=u.user_id
                                               left join sys_dept d on u.dept_id = d.dept_id
                                               left join sys_dept p on d.parent_id =p.dept_id
+                                              left join sys_approval_state st on s.state = st.state_code
         where s.state != 'V_APPLY_DRAFT'
         <if test="dnameId != null and dnameId != ''"> and d.dept_id = #{dnameId}</if>
         <if test="ynameId != null and ynameId != ''"> and p.dept_id = #{ynameId}</if>
@@ -62,10 +64,11 @@
      * 返回字段：课题基本信息、申请人信息、部门信息、文件信息、课题来源
      -->
     <select id="selectSciHorizontalApplyVerticalList"  resultType="SciHorizontalApplyVertical" resultMap="SciHorizontalApplyVerticalResult">
-        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,s.top_number, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file,s.open_file,s.mid_file,s.over_file, s.subject_source
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,s.top_number, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,st.state_name,s.file,s.open_file,s.mid_file,s.over_file, s.subject_source
         from  sci_horizontal_apply_vertical s left join sys_user u on  s.user_id=u.user_id
                                               left join sys_dept d on u.dept_id = d.dept_id
                                               left join sys_dept p on d.parent_id =p.dept_id
+                                              left join sys_approval_state st on s.state = st.state_code
         where  s.state in ('V_APPLY_DRAFT','V_APPLY_JYS','V_APPLY_XY','V_APPLY_KYC','V_APPLY_REJ','V_APPLY_PASS')
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
@@ -98,10 +101,11 @@
      * 返回字段：课题基本信息、申请人信息、部门信息、文件信息、课题来源
      -->
     <select id="selectSciHorizontalApplyVerticalListAll"  resultType="SciHorizontalApplyVertical" resultMap="SciHorizontalApplyVerticalResult">
-        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,s.top_number, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file,s.open_file,s.mid_file,s.over_file, s.subject_source
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,s.top_number, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,st.state_name,s.file,s.open_file,s.mid_file,s.over_file, s.subject_source
         from  sci_horizontal_apply_vertical s left join sys_user u on  s.user_id=u.user_id
                                               left join sys_dept d on u.dept_id = d.dept_id
                                               left join sys_dept p on d.parent_id =p.dept_id
+                                              left join sys_approval_state st on s.state = st.state_code
         where 1=1
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
@@ -146,10 +150,11 @@
      * 返回字段：课题基本信息、申请人信息、部门信息、文件信息、课题来源
      -->
     <select id="selectSciHorizontalApplyVerticalListJYS"  resultType="SciHorizontalApplyVertical" resultMap="SciHorizontalApplyVerticalResult">
-        select #{uid} uid,s.id,u.user_name userName,d.dept_id,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,s.top_number, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file,s.open_file,s.mid_file,s.over_file, s.subject_source
+        select #{uid} uid,s.id,u.user_name userName,d.dept_id,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,s.top_number, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,st.state_name,s.file,s.open_file,s.mid_file,s.over_file, s.subject_source
         from  sci_horizontal_apply_vertical s left join sys_user u on  s.user_id=u.user_id
                                               left join sys_dept d on u.dept_id = d.dept_id
                                               left join sys_dept p on d.parent_id =p.dept_id
+                                              left join sys_approval_state st on s.state = st.state_code
         where  s.state in ('V_APPLY_JYS','V_APPLY_XY')
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
@@ -167,10 +172,11 @@
     </select>
 
     <select id="selectSciHorizontalApplyVerticalListDept"  resultType="SciHorizontalApplyVertical" resultMap="SciHorizontalApplyVerticalResult">
-        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_id ynameId,p.dept_name yname, s.user_id, s.top_name,s.top_number, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file,s.open_file,s.mid_file,s.over_file, s.subject_source
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_id ynameId,p.dept_name yname, s.user_id, s.top_name,s.top_number, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,st.state_name,s.file,s.open_file,s.mid_file,s.over_file, s.subject_source
         from  sci_horizontal_apply_vertical s left join sys_user u on  s.user_id=u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
+        left join sys_approval_state st on s.state = st.state_code
         where  s.state in ('V_APPLY_XY','V_APPLY_KYC')
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
@@ -189,10 +195,11 @@
     </select>
 
     <select id="selectSciHorizontalApplyVerticalListKYC"  resultType="SciHorizontalApplyVertical" resultMap="SciHorizontalApplyVerticalResult">
-        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,s.top_number, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file,s.open_file,s.mid_file,s.over_file, s.subject_source
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,s.top_number, s.top_type,  s.signing_data,  s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,st.state_name,s.file,s.open_file,s.mid_file,s.over_file, s.subject_source
         from  sci_horizontal_apply_vertical s left join sys_user u on  s.user_id=u.user_id
                                               left join sys_dept d on u.dept_id = d.dept_id
                                               left join sys_dept p on d.parent_id =p.dept_id
+                                              left join sys_approval_state st on s.state = st.state_code
         where  s.state in ('V_APPLY_KYC','V_APPLY_PASS')
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
@@ -213,10 +220,11 @@
 
 
     <select id="selectSciHorizontalApplyVerticalListJX"  resultType="SciHorizontalApplyVertical" resultMap="SciHorizontalApplyVerticalResult" >
-        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,s.top_number, s.top_type,  s.signing_data, s.validity_data, s.first_person_id,  s.second_person_id, s.third_person_id, s.fourth_person_id, concat( s.amount,'万') amount, s.state,s.file,s.open_file,s.mid_file,s.over_file, s.subject_source
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,s.top_number, s.top_type,  s.signing_data, s.validity_data, s.first_person_id,  s.second_person_id, s.third_person_id, s.fourth_person_id, concat( s.amount,'万') amount, s.state,st.state_name,s.file,s.open_file,s.mid_file,s.over_file, s.subject_source
         from  sci_horizontal_apply_vertical s left join sys_user u on  s.user_id=u.user_id
                                               left join sys_dept d on u.dept_id = d.dept_id
                                               left join sys_dept p on d.parent_id =p.dept_id
+                                              left join sys_approval_state st on s.state = st.state_code
         where  s.state in ('V_OVER_DRAFT','V_OVER_JYS','V_OVER_XY','V_OVER_KYC','V_OVER_REJ')
         <if test="year != null and year != ''">
             AND YEAR(DATE_ADD(COALESCE(validity_data, signing_data), INTERVAL 1 MONTH)) = #{year}
@@ -235,10 +243,11 @@
     </select>
 
     <select id="selectSciHorizontalApplyVerticalListJYSJX"  resultType="SciHorizontalApplyVertical" resultMap="SciHorizontalApplyVerticalResult" >
-        select #{uid} uid,s.id,u.user_name userName,d.dept_id,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,s.top_number, s.top_type,  s.signing_data, s.validity_data, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file,s.open_file,s.mid_file,s.over_file, s.subject_source
+        select #{uid} uid,s.id,u.user_name userName,d.dept_id,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,s.top_number, s.top_type,  s.signing_data, s.validity_data, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,st.state_name,s.file,s.open_file,s.mid_file,s.over_file, s.subject_source
         from  sci_horizontal_apply_vertical s left join sys_user u on  s.user_id=u.user_id
                                               left join sys_dept d on u.dept_id = d.dept_id
                                               left join sys_dept p on d.parent_id =p.dept_id
+                                              left join sys_approval_state st on s.state = st.state_code
         where  s.state  in ('V_OVER_JYS','V_OVER_XY')
         <if test="year != null and year != ''">
             AND YEAR(DATE_ADD(COALESCE(validity_data, signing_data), INTERVAL 1 MONTH)) = #{year}
@@ -258,10 +267,11 @@
     </select>
 
     <select id="selectSciHorizontalApplyVerticalListDeptJX"  resultType="SciHorizontalApplyVertical" resultMap="SciHorizontalApplyVerticalResult" >
-        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_id ynameId,p.dept_name yname, s.user_id, s.top_name,s.top_number, s.top_type,  s.signing_data, s.validity_data, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file,s.open_file,s.mid_file,s.over_file, s.subject_source
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_id ynameId,p.dept_name yname, s.user_id, s.top_name,s.top_number, s.top_type,  s.signing_data, s.validity_data, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,st.state_name,s.file,s.open_file,s.mid_file,s.over_file, s.subject_source
         from  sci_horizontal_apply_vertical s left join sys_user u on  s.user_id=u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
+        left join sys_approval_state st on s.state = st.state_code
         where  s.state  in ('V_OVER_XY','V_OVER_KYC')
         <if test="year != null and year != ''">
             AND YEAR(DATE_ADD(COALESCE(validity_data, signing_data), INTERVAL 1 MONTH)) = #{year}
@@ -282,10 +292,11 @@
     </select>
 
     <select id="selectSciHorizontalApplyVerticalListKYCJX"  resultType="SciHorizontalApplyVertical" resultMap="SciHorizontalApplyVerticalResult" >
-        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,s.top_number, s.top_type,  s.signing_data, s.validity_data, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file,s.open_file,s.mid_file,s.over_file, s.subject_source
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,s.top_number, s.top_type,  s.signing_data, s.validity_data, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,st.state_name,s.file,s.open_file,s.mid_file,s.over_file, s.subject_source
         from  sci_horizontal_apply_vertical s left join sys_user u on  s.user_id=u.user_id
                                               left join sys_dept d on u.dept_id = d.dept_id
                                               left join sys_dept p on d.parent_id =p.dept_id
+                                              left join sys_approval_state st on s.state = st.state_code
         where s.state in ('V_OVER_KYC')
         <if test="year != null and year != ''">
             AND YEAR(DATE_ADD(COALESCE(validity_data, signing_data), INTERVAL 1 MONTH)) = #{year}
@@ -300,10 +311,11 @@
     </select>
 
     <select id="selectSciHorizontalApplyVerticalListOVER"  resultType="SciHorizontalApplyVertical" resultMap="SciHorizontalApplyVerticalResult" >
-        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,s.top_number, s.top_type,  s.signing_data, s.validity_data, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file,s.open_file,s.mid_file,s.over_file, s.subject_source
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,s.top_number, s.top_type,  s.signing_data, s.validity_data, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,st.state_name,s.file,s.open_file,s.mid_file,s.over_file, s.subject_source
         from  sci_horizontal_apply_vertical s left join sys_user u on  s.user_id=u.user_id
                                               left join sys_dept d on u.dept_id = d.dept_id
                                               left join sys_dept p on d.parent_id =p.dept_id
+                                              left join sys_approval_state st on s.state = st.state_code
         where  s.state = 'V_OVER_PASS'
         <if test="year != null and year != ''">
             AND YEAR(DATE_ADD(COALESCE(validity_data, signing_data), INTERVAL 1 MONTH)) = #{year}
@@ -364,10 +376,11 @@
      * 返回字段：课题基本信息、申请人信息、部门信息、文件信息、课题来源
      -->
     <select id="selectSciHorizontalApplyVerticalById" resultMap="SciHorizontalApplyVerticalResult" parameterType="Integer">
-        select s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,s.top_number, s.top_type,  s.signing_data, s.validity_data,  s.first_person_id,  s.second_person_id, s.third_person_id, s.fourth_person_id, s.amount, s.state,s.file,s.open_file,s.mid_file,s.over_file,s.subject_source
+        select s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,s.top_number, s.top_type,  s.signing_data, s.validity_data,  s.first_person_id,  s.second_person_id, s.third_person_id, s.fourth_person_id, s.amount, s.state,st.state_name,s.file,s.open_file,s.mid_file,s.over_file,s.subject_source
         from  sci_horizontal_apply_vertical s left join sys_user u on  s.user_id=u.user_id
                                               left join sys_dept d on u.dept_id = d.dept_id
                                               left join sys_dept p on d.parent_id =p.dept_id
+                                              left join sys_approval_state st on s.state = st.state_code
         where s.id=#{id}
     </select>
 
@@ -465,11 +478,12 @@
      * 返回字段：课题基本信息、申请人信息、部门信息、文件信息、课题来源
      -->
     <select id="selectOtherListByUid" parameterType="Long" resultMap="SciHorizontalApplyVerticalResult">
-        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,s.top_number, s.top_type,  s.signing_data, s.validity_data, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,s.file,s.over_file, s.subject_source
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name,s.top_number, s.top_type,  s.signing_data, s.validity_data, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, concat( s.amount,'万') amount, s.state,st.state_name,s.file,s.over_file, s.subject_source
         from sci_horizontal_apply_vertical s left join sci_persion_vertical pe on pe.vertical_id = s.id
         left join sys_user u on  s.user_id=u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
+        left join sys_approval_state st on s.state = st.state_code
         where pe.persion_id = #{uid}
         <if test="newsql != null  and newsql != '' ">
             <choose>
