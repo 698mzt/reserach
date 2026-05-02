@@ -707,6 +707,11 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
 
         String newState = result.getNewState();
 
+        // 驳回操作直接设置为PAPER_REJECTED状态，不进入下一审批节点
+        if ("reject".equals(operationType)) {
+            newState = SciPaperA.PAPER_REJECTED;
+        }
+
         if ("approve".equals(operationType)) {
             boolean isLast = result.isLast();
             if (isLast) {
@@ -787,51 +792,75 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
      * @param paper 论文对象
      */
     private void calculateAndFillScores(SciPaperA paper) {
-        // 如果论文类别为空，无法计算分数
         if (paper.getPaperCategory() == null || paper.getPaperCategory().isEmpty()) {
             return;
         }
 
-        // 构建作者信息Map
         Map<String, String> authors = new HashMap<>();
-        authors.put("1", paper.getFirstPersonId());
-        authors.put("2", paper.getSecondPersonId());
-        authors.put("3", paper.getThirdPersonId());
-        authors.put("4", paper.getFourthPersonId());
-
-        // 获取通讯作者ID
+        String firstPersonId = paper.getFirstPersonId();
+        String secondPersonId = paper.getSecondPersonId();
+        String thirdPersonId = paper.getThirdPersonId();
+        String fourthPersonId = paper.getFourthPersonId();
         String communicationAuthorId = paper.getCommunicationAuthorId();
 
-        // 调用计算分数方法
+        if (firstPersonId != null && !firstPersonId.isEmpty()) {
+            authors.put("1", firstPersonId);
+        }
+        if (secondPersonId != null && !secondPersonId.isEmpty()) {
+            authors.put("2", secondPersonId);
+        }
+        if (thirdPersonId != null && !thirdPersonId.isEmpty()) {
+            authors.put("3", thirdPersonId);
+        }
+        if (fourthPersonId != null && !fourthPersonId.isEmpty()) {
+            authors.put("4", fourthPersonId);
+        }
+
         Map<String, Integer> scores = calculatePaperScore(paper.getPaperCategory(), authors, communicationAuthorId);
 
-        // 将计算出的分数填充到论文对象
-        String firstKey = "1_" + paper.getFirstPersonId();
-        String secondKey = "2_" + paper.getSecondPersonId();
-        String thirdKey = "3_" + paper.getThirdPersonId();
-        String fourthKey = "4_" + paper.getFourthPersonId();
-        String correspondingKey = communicationAuthorId != null ? "0_" + communicationAuthorId : null;
+        if (firstPersonId != null && !firstPersonId.isEmpty()) {
+            String firstKey = "1_" + firstPersonId;
+            paper.setFirstAuthorScore(String.valueOf(scores.getOrDefault(firstKey, 0)));
+        } else {
+            paper.setFirstAuthorScore("0");
+        }
 
-        // 设置各作者分数（转换为字符串类型）
-        paper.setFirstAuthorScore(String.valueOf(scores.getOrDefault(firstKey, 0)));
-        paper.setSecondAuthorScore(String.valueOf(scores.getOrDefault(secondKey, 0)));
-        paper.setThirdAuthorScore(String.valueOf(scores.getOrDefault(thirdKey, 0)));
-        paper.setFourthAuthorScore(String.valueOf(scores.getOrDefault(fourthKey, 0)));
+        if (secondPersonId != null && !secondPersonId.isEmpty()) {
+            String secondKey = "2_" + secondPersonId;
+            paper.setSecondAuthorScore(String.valueOf(scores.getOrDefault(secondKey, 0)));
+        } else {
+            paper.setSecondAuthorScore("0");
+        }
 
-        // 通讯作者分数需要根据通讯作者ID找到对应的排名
+        if (thirdPersonId != null && !thirdPersonId.isEmpty()) {
+            String thirdKey = "3_" + thirdPersonId;
+            paper.setThirdAuthorScore(String.valueOf(scores.getOrDefault(thirdKey, 0)));
+        } else {
+            paper.setThirdAuthorScore("0");
+        }
+
+        if (fourthPersonId != null && !fourthPersonId.isEmpty()) {
+            String fourthKey = "4_" + fourthPersonId;
+            paper.setFourthAuthorScore(String.valueOf(scores.getOrDefault(fourthKey, 0)));
+        } else {
+            paper.setFourthAuthorScore("0");
+        }
+
         Integer correspondingScore = 0;
         if (communicationAuthorId != null && !communicationAuthorId.isEmpty()) {
-            // 检查通讯作者是否同时是某个排名的作者
-            if (communicationAuthorId.equals(paper.getFirstPersonId())) {
+            if (communicationAuthorId.equals(firstPersonId)) {
+                String firstKey = "1_" + firstPersonId;
                 correspondingScore = scores.getOrDefault(firstKey, 0);
-            } else if (communicationAuthorId.equals(paper.getSecondPersonId())) {
+            } else if (communicationAuthorId.equals(secondPersonId)) {
+                String secondKey = "2_" + secondPersonId;
                 correspondingScore = scores.getOrDefault(secondKey, 0);
-            } else if (communicationAuthorId.equals(paper.getThirdPersonId())) {
+            } else if (communicationAuthorId.equals(thirdPersonId)) {
+                String thirdKey = "3_" + thirdPersonId;
                 correspondingScore = scores.getOrDefault(thirdKey, 0);
-            } else if (communicationAuthorId.equals(paper.getFourthPersonId())) {
+            } else if (communicationAuthorId.equals(fourthPersonId)) {
+                String fourthKey = "4_" + fourthPersonId;
                 correspondingScore = scores.getOrDefault(fourthKey, 0);
             } else {
-                // 通讯作者不在1-4作中，需要单独计算
                 correspondingScore = calculateCorrespondingAuthorScore(paper.getPaperCategory(), authors,
                         communicationAuthorId);
             }

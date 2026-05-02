@@ -70,6 +70,10 @@ public class SciPaperAController extends BaseController {
 
     @Resource
     private IPaperUserScoreService paperUserScoreService;
+
+    @Resource
+    private IPageRenderService pageRenderService;
+
     private List<Long> collage_role_ids = new ArrayList<>(Arrays.asList(103L, 104L, 105L, 106L, 107L, 108L, 116L, 117L, 118L, 119L));
 
 
@@ -341,11 +345,19 @@ public class SciPaperAController extends BaseController {
 
     /**
      * 保存1-4作信息到 Paper_user_score 表
+     * @param sciPaperA 论文实体
+     * @return 保存结果，成功返回保存数量，失败返回错误码
+     * 错误码：-1表示当前用户不是作者，-2表示作者数量错误，-3表示一作必须为自己，
+     * -4表示未找到论文类型，-5表示作者重复，-6表示一作和通讯都是校外，-7表示没有选择作者，0表示保存失败
      */
     private int savePaperAuthorsToScoreTable(SciPaperA sciPaperA) {
-        // 如果作者没有当前登录人，返回失败
-        if (!sciPaperA.getAuthorIds().contains(getUserId().toString())) {
-            return -1;
+        Long currentUserId = getUserId();
+        // 如果当前用户是系统管理员，跳过作者验证
+        if (!SysUser.isAdmin(currentUserId)) {
+            // 如果作者没有当前登录人，返回失败
+            if (!sciPaperA.getAuthorIds().contains(currentUserId.toString())) {
+                return -1;
+            }
         }
         // 这里只是限制了人数 ,没有详细限制是第几作者
         int key = (sciPaperA.getFirstPersonId()==null|| sciPaperA.getFirstPersonId().isEmpty() ?0:1 )+ (sciPaperA.getSecondPersonId()==null|| sciPaperA.getSecondPersonId().isEmpty()?0:1) + (sciPaperA.getThirdPersonId()==null|| sciPaperA.getThirdPersonId().isEmpty()?0:1) + (sciPaperA.getFourthPersonId()==null|| sciPaperA.getFourthPersonId().isEmpty()?0:1);
@@ -379,9 +391,8 @@ public class SciPaperAController extends BaseController {
                 if (key!=1){
                     return -2;
                 }
-                // 如果普通和校办论文的这个人不是自己
-                //if (!sciPaperA.getCommunicationAuthorId().equals(String.valueOf(getUserId())) || !sciPaperA.getFirstPersonId().equals(String.valueOf(getUserId()))){
-                if (!sciPaperA.getFirstPersonId().equals(String.valueOf(getUserId()))){
+                // 如果普通和校办论文的这个人不是自己，管理员豁免此检查
+                if (!SysUser.isAdmin(currentUserId) && !sciPaperA.getFirstPersonId().equals(String.valueOf(currentUserId))){
                     return -3 ;
                 }
             }
@@ -821,6 +832,18 @@ public class SciPaperAController extends BaseController {
     @ResponseBody
     @Transactional(rollbackFor = Exception.class)
     public AjaxResult tj(@PathVariable("id") Integer id) {
+        // 验证权限：只有论文作者或系统管理员可以提交
+        SciPaperA paper = sciPaperAService.selectSciPaperAById(Long.valueOf(id));
+        if (paper == null) {
+            return error("论文不存在");
+        }
+        
+        Long currentUserId = getUserId();
+        // 如果不是作者且不是管理员，拒绝操作
+        if (!paper.getUserId().equals(currentUserId) && !SysUser.isAdmin(currentUserId)) {
+            return error("无权操作该论文");
+        }
+        
         SciPaperAr sciPaperAr = new SciPaperAr();
         sciPaperAr.setAr_id(id);
         sciPaperAr.setUid(getUserId());
@@ -865,6 +888,27 @@ public class SciPaperAController extends BaseController {
             return AjaxResult.success(scores);
         } catch (Exception e) {
             return AjaxResult.error("计算科研分失败：" + e.getMessage());
+        }
+    }
+
+    /**
+     * 刷新页面渲染配置缓存
+     * 管理员修改审批流程配置后，可调用此接口手动刷新缓存
+     * @return 刷新结果
+     */
+    @RequiresPermissions("system:paper:edit")
+    @Log(title = "刷新页面渲染配置缓存", businessType = BusinessType.OTHER)
+    @PostMapping("/refreshRenderCache")
+    @ResponseBody
+    public AjaxResult refreshRenderCache() {
+        try {
+            if (pageRenderService instanceof com.ruoyi.system.service.impl.PageRenderServiceImpl) {
+                ((com.ruoyi.system.service.impl.PageRenderServiceImpl) pageRenderService).refreshCache();
+                return AjaxResult.success("配置缓存刷新成功");
+            }
+            return AjaxResult.error("页面渲染服务不支持缓存刷新");
+        } catch (Exception e) {
+            return AjaxResult.error("刷新配置缓存失败：" + e.getMessage());
         }
     }
 }

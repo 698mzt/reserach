@@ -581,7 +581,7 @@
                 },
                 {
                     field: 'concate',
-                    title: '内容',
+                    title: '批阅内容',
                     width: 500
                 },
                 {
@@ -600,11 +600,12 @@
             // 批阅记录区域显示控制
             if (urlFlagVal === 'chakan' || urlFlagVal === 'LW') {
                 $(".tdiv2").show();
-            } else {
-                if (['PAPER_JYS_AUDIT', 'PAPER_KYC_AUDIT', 'PAPER_PASSED'].includes(stateVal)) {
-                    if (rows.length > 0) {
-                        $(".tdiv2").show();
-                    }
+            } else if (['PAPER_JYS_AUDIT', 'PAPER_KYC_AUDIT', 'PAPER_PASSED'].includes(stateVal)) {
+                if (rows.length > 0) {
+                    $(".tdiv2").show();
+                }
+                // 审批页面（pro、kyc_approve）需要显示批注输入框
+                if (['pro', 'kyc_approve'].includes(urlFlagVal)) {
                     $(".tdiv1").show();
                 }
             }
@@ -632,11 +633,11 @@
         var operationType = '';
         
         // 根据urlFlag确定操作类型
-        if (['pro', 'xytg', 'kytg'].includes(urlFlag)) {
+        if (['pro', 'kyc_approve', 'xytg', 'kytg'].includes(urlFlag)) {
             operationType = 'reject';
             // 驳回不能不写批注
             if (!$('#remark').val().trim()) {
-                $.modal.confirm("批注不能为空");
+                $.modal.msgWarning("批注不能为空");
                 return false;
             }
         } else if (['proth', 'jys_recall', 'kyc_recall'].includes(urlFlag)) {
@@ -649,11 +650,11 @@
 
             if (operationType === 'reject') {
                 $.modal.confirm("确定 驳回 吗" ,function() {
-                    $.operate.saveTab(url, {"operationType": operationType, "remark": remark});
+                    $.operate.saveTab(url, {"operationType": operationType, "comment": remark});
                 });
             } else if (operationType === 'recall') {
                 $.modal.confirm("确定 撤回 吗" ,function() {
-                    $.operate.saveTab(url, {"operationType": operationType, "remark": remark});
+                    $.operate.saveTab(url, {"operationType": operationType, "comment": remark});
                 });
             }
         } else {
