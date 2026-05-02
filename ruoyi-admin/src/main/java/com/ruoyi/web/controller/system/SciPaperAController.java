@@ -215,24 +215,27 @@ public class SciPaperAController extends BaseController {
                 String userIdStr = String.valueOf(userId);
 
                 // 验证第一位本校老师必须是当前登录用户（按一作、二作、三作、四作顺序检查）
-                String firstPersonId = sciPaperA.getFirstPersonId();
-                String secondPersonId = sciPaperA.getSecondPersonId();
-                String thirdPersonId = sciPaperA.getThirdPersonId();
-                String fourthPersonId = sciPaperA.getFourthPersonId();
+                // 如果当前用户是系统管理员（userId=1），则默认通过验证
+                if (!SysUser.isAdmin(userId)) {
+                    String firstPersonId = sciPaperA.getFirstPersonId();
+                    String secondPersonId = sciPaperA.getSecondPersonId();
+                    String thirdPersonId = sciPaperA.getThirdPersonId();
+                    String fourthPersonId = sciPaperA.getFourthPersonId();
 
-                String firstValidAuthor = null;
-                if (firstPersonId != null && !firstPersonId.isEmpty() && !firstPersonId.equals("")) {
-                    firstValidAuthor = firstPersonId;
-                } else if (secondPersonId != null && !secondPersonId.isEmpty() && !secondPersonId.equals("")) {
-                    firstValidAuthor = secondPersonId;
-                } else if (thirdPersonId != null && !thirdPersonId.isEmpty() && !thirdPersonId.equals("")) {
-                    firstValidAuthor = thirdPersonId;
-                } else if (fourthPersonId != null && !fourthPersonId.isEmpty() && !fourthPersonId.equals("")) {
-                    firstValidAuthor = fourthPersonId;
-                }
+                    String firstValidAuthor = null;
+                    if (firstPersonId != null && !firstPersonId.isEmpty() && !firstPersonId.equals("")) {
+                        firstValidAuthor = firstPersonId;
+                    } else if (secondPersonId != null && !secondPersonId.isEmpty() && !secondPersonId.equals("")) {
+                        firstValidAuthor = secondPersonId;
+                    } else if (thirdPersonId != null && !thirdPersonId.isEmpty() && !thirdPersonId.equals("")) {
+                        firstValidAuthor = thirdPersonId;
+                    } else if (fourthPersonId != null && !fourthPersonId.isEmpty() && !fourthPersonId.equals("")) {
+                        firstValidAuthor = fourthPersonId;
+                    }
 
-                if (firstValidAuthor == null || !firstValidAuthor.equals(userIdStr)) {
-                    return error("当前用户不是第一位本校老师");
+                    if (firstValidAuthor == null || !firstValidAuthor.equals(userIdStr)) {
+                        return error("当前用户不是第一位本校老师");
+                    }
                 }
 
                 sciPaperA.setUserId(userId);
@@ -578,13 +581,18 @@ public class SciPaperAController extends BaseController {
     @RequiresPermissions(value = {"system:paper:xypy", "system:paper:process", "system:paper:kypy", "system:paper:info"}, logical = Logical.OR)
     @Log(title = "论文详情查看", businessType = BusinessType.OTHER)
     @GetMapping("/detail/{id}/{urlFlag}")
-    public String detail(@PathVariable("id") Long id, @PathVariable("urlFlag") String urlFlag, ModelMap mmap) {
+    public String detail(@PathVariable("id") Long id, @PathVariable("urlFlag") String urlFlag, ModelMap mmap) throws com.fasterxml.jackson.core.JsonProcessingException {
         SciPaperA sciPaperA = sciPaperAService.selectSciPaperAById(id);
         if (sciPaperA == null) {
             return prefix + "/paper";
         }
         sciPaperA.setUrlFlag(urlFlag);
         mmap.put("sciPaperA", sciPaperA);
+        // 将actions序列化为JSON字符串供前端使用
+        com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+        String actionsJson = (sciPaperA.getActions() != null && !sciPaperA.getActions().isEmpty())
+                ? mapper.writeValueAsString(sciPaperA.getActions()) : "[]";
+        mmap.put("actionsJson", actionsJson);
         return prefix + "/detail";
     }
     
@@ -597,13 +605,18 @@ public class SciPaperAController extends BaseController {
     @RequiresPermissions(value = {"system:paper:xypy", "system:paper:process", "system:paper:kypy", "system:paper:info"}, logical = Logical.OR)
     @Log(title = "论文详情查看", businessType = BusinessType.OTHER)
     @GetMapping("/detail/{id}")
-    public String detail(@PathVariable("id") Long id, ModelMap mmap) {
+    public String detail(@PathVariable("id") Long id, ModelMap mmap) throws com.fasterxml.jackson.core.JsonProcessingException {
         SciPaperA sciPaperA = sciPaperAService.selectSciPaperAById(id);
         if (sciPaperA == null) {
             return prefix + "/paper";
         }
         sciPaperA.setUrlFlag("");
         mmap.put("sciPaperA", sciPaperA);
+        // 将actions序列化为JSON字符串供前端使用
+        com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+        String actionsJson = (sciPaperA.getActions() != null && !sciPaperA.getActions().isEmpty())
+                ? mapper.writeValueAsString(sciPaperA.getActions()) : "[]";
+        mmap.put("actionsJson", actionsJson);
         return prefix + "/detail";
     }
 
@@ -626,24 +639,27 @@ public class SciPaperAController extends BaseController {
             String userIdStr = String.valueOf(userId);
 
             // 验证第一位本校老师必须是当前登录用户（按一作、二作、三作、四作顺序检查）
-            String firstPersonId = sciPaperA.getFirstPersonId();
-            String secondPersonId = sciPaperA.getSecondPersonId();
-            String thirdPersonId = sciPaperA.getThirdPersonId();
-            String fourthPersonId = sciPaperA.getFourthPersonId();
+            // 如果当前用户是系统管理员（userId=1），则默认通过验证
+            if (!SysUser.isAdmin(userId)) {
+                String firstPersonId = sciPaperA.getFirstPersonId();
+                String secondPersonId = sciPaperA.getSecondPersonId();
+                String thirdPersonId = sciPaperA.getThirdPersonId();
+                String fourthPersonId = sciPaperA.getFourthPersonId();
 
-            String firstValidAuthor = null;
-            if (firstPersonId != null && !firstPersonId.isEmpty() && !firstPersonId.equals("")) {
-                firstValidAuthor = firstPersonId;
-            } else if (secondPersonId != null && !secondPersonId.isEmpty() && !secondPersonId.equals("")) {
-                firstValidAuthor = secondPersonId;
-            } else if (thirdPersonId != null && !thirdPersonId.isEmpty() && !thirdPersonId.equals("")) {
-                firstValidAuthor = thirdPersonId;
-            } else if (fourthPersonId != null && !fourthPersonId.isEmpty() && !fourthPersonId.equals("")) {
-                firstValidAuthor = fourthPersonId;
-            }
+                String firstValidAuthor = null;
+                if (firstPersonId != null && !firstPersonId.isEmpty() && !firstPersonId.equals("")) {
+                    firstValidAuthor = firstPersonId;
+                } else if (secondPersonId != null && !secondPersonId.isEmpty() && !secondPersonId.equals("")) {
+                    firstValidAuthor = secondPersonId;
+                } else if (thirdPersonId != null && !thirdPersonId.isEmpty() && !thirdPersonId.equals("")) {
+                    firstValidAuthor = thirdPersonId;
+                } else if (fourthPersonId != null && !fourthPersonId.isEmpty() && !fourthPersonId.equals("")) {
+                    firstValidAuthor = fourthPersonId;
+                }
 
-            if (firstValidAuthor == null || !firstValidAuthor.equals(userIdStr)) {
-                return error("当前用户不是第一位本校老师");
+                if (firstValidAuthor == null || !firstValidAuthor.equals(userIdStr)) {
+                    return error("当前用户不是第一位本校老师");
+                }
             }
 //            if (!sciPaperA.getPaperCategory().equals("9")) {
 //                if (sciPaperA.getText_paper() == null || sciPaperA.getText_paper().length() <= 0){

@@ -5,16 +5,21 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import com.ruoyi.common.annotation.DataScope;
 import com.ruoyi.common.utils.DataScopeUtils;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.domain.entity.SysUser;
+import com.ruoyi.common.utils.ShiroUtils;
 import com.ruoyi.system.domain.*;
 import com.ruoyi.system.mapper.PaperUserScoreServiceMapper;
 import com.ruoyi.system.mapper.SciPaperACfgMapper;
 import com.ruoyi.system.service.IApprovalProcessService;
+import com.ruoyi.system.service.IPageRenderService;
+import com.ruoyi.system.service.ISysMenuService;
 import com.ruoyi.system.service.ISysUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -43,6 +48,10 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
     private ISysUserService sysUserService;
     @Autowired
     private IApprovalProcessService approvalProcessService;
+    @Autowired
+    private IPageRenderService pageRenderService;
+    @Autowired
+    private ISysMenuService sysMenuService;
 
     /**
      * 查询论文
@@ -53,7 +62,11 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
     @Override
     @DataScope(deptAlias = "d", userAlias = "u")
     public SciPaperA selectSciPaperAById(Long id) {
-        return sciPaperAMapper.selectSciPaperAById(id);
+        SciPaperA paper = sciPaperAMapper.selectSciPaperAById(id);
+        if (paper != null) {
+            fillPageRenderData(paper);
+        }
+        return paper;
     }
 
     /**
@@ -66,9 +79,10 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciPaperA> selectSciPaperAList(SciPaperA sciPaperA) {
         List<SciPaperA> list = sciPaperAMapper.selectSciPaperAList(sciPaperA);
-        // 为每条论文记录计算并填充分数
+        // 为每条论文记录计算并填充分数，并填充页面渲染数据
         for (SciPaperA paper : list) {
             calculateAndFillScores(paper);
+            fillPageRenderData(paper);
         }
         return list;
     }
@@ -77,9 +91,9 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciPaperA> selectSciPaperAListAll(SciPaperA sciPaperA) {
         List<SciPaperA> list = sciPaperAMapper.selectSciPaperAListAll(sciPaperA);
-        // 为每条论文记录计算并填充分数
         for (SciPaperA paper : list) {
             calculateAndFillScores(paper);
+            fillPageRenderData(paper);
         }
         return list;
     }
@@ -94,9 +108,9 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciPaperA> selectSciPaperAListKY(SciPaperA sciPaperA) {
         List<SciPaperA> list = sciPaperAMapper.selectSciPaperAListKY(sciPaperA);
-        // 为每条论文记录计算并填充分数
         for (SciPaperA paper : list) {
             calculateAndFillScores(paper);
+            fillPageRenderData(paper);
         }
         return list;
     }
@@ -105,9 +119,9 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciPaperA> selectSciPaperAListXY(SciPaperA sciPaperA) {
         List<SciPaperA> list = sciPaperAMapper.selectSciPaperAListXY(sciPaperA);
-        // 为每条论文记录计算并填充分数
         for (SciPaperA paper : list) {
             calculateAndFillScores(paper);
+            fillPageRenderData(paper);
         }
         return list;
     }
@@ -180,9 +194,9 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
     @DataScope(deptAlias = "pt", userAlias = "u")
     public List<SciPaperA> selectSciPaperAListCxList(SciPaperA sciPaperA) {
         List<SciPaperA> list = sciPaperAMapper.selectSciPaperAListCxList(sciPaperA);
-        // 为每条论文记录计算并填充分数
         for (SciPaperA paper : list) {
             calculateAndFillScores(paper);
+            fillPageRenderData(paper);
         }
         return list;
     }
@@ -207,9 +221,9 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
     @Override
     public List<SciPaperA> selectSciPaperAListCx(SciPaperA sciPaperA) {
         List<SciPaperA> list = sciPaperAMapper.selectSciPaperAListCx(sciPaperA);
-        // 为每条论文记录计算并填充分数
         for (SciPaperA paper : list) {
             calculateAndFillScores(paper);
+            fillPageRenderData(paper);
         }
         return list;
     }
@@ -854,6 +868,55 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
         } else {
             // 一作是本校老师，通讯作者按二作分数算
             return pointList.size() > 1 ? pointList.get(1) : pointList.get(0);
+        }
+    }
+
+    /**
+     * 填充页面渲染数据（statusMeta和actions）
+     * 通过sysMenuService获取用户权限，构造PageRenderContext并调用PageRenderService生成渲染数据
+     *
+     * @param paper 论文对象
+     */
+    private void fillPageRenderData(SciPaperA paper) {
+        try {
+            SysUser currentUser = ShiroUtils.getSysUser();
+            if (currentUser == null) {
+                return;
+            }
+
+            // 通过菜单服务获取当前用户权限列表
+            List<String> permissions = new ArrayList<>();
+            Set<String> permsSet = sysMenuService.selectPermsByUserId(currentUser.getUserId());
+            if (permsSet != null) {
+                permissions.addAll(permsSet);
+            }
+
+            // 获取当前用户角色key列表
+            List<String> roleKeys = new ArrayList<>();
+            if (currentUser.getRoles() != null) {
+                roleKeys = currentUser.getRoles().stream()
+                        .map(com.ruoyi.common.core.domain.entity.SysRole::getRoleKey)
+                        .collect(Collectors.toList());
+            }
+
+            // 构造页面渲染上下文
+            PageRenderContext context = new PageRenderContext();
+            context.setModuleCode("PAPER");
+            context.setBusinessId(paper.getId());
+            context.setCurrentState(paper.getState());
+            context.setCreatorId(paper.getUserId());
+            context.setCurrentUser(currentUser);
+            context.setPermissions(permissions);
+            context.setRoleKeys(roleKeys);
+
+            // 构建状态和动作信息
+            PageRenderStatusMeta statusMeta = pageRenderService.buildStatusMeta(context);
+            List<PageRenderActionItem> actions = pageRenderService.buildActions(context);
+
+            paper.setStatusMeta(statusMeta);
+            paper.setActions(actions);
+        } catch (Exception e) {
+            // 页面渲染数据填充失败不影响主流程
         }
     }
 

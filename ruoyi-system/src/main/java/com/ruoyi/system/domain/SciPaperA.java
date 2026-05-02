@@ -8,6 +8,7 @@ import com.ruoyi.common.core.domain.BaseEntity;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 /**
  * 论文对象 sci_paper_a
@@ -273,6 +274,14 @@ public class SciPaperA extends BaseEntity {
     private String totalTeacherScore;
     @Excel(name = "第几作者")
     private String authorOrder;
+
+    /** 页面渲染：状态展示信息 */
+    @JsonInclude(JsonInclude.Include.ALWAYS)
+    private PageRenderStatusMeta statusMeta;
+
+    /** 页面渲染：按钮动作列表 */
+    @JsonInclude(JsonInclude.Include.ALWAYS)
+    private List<PageRenderActionItem> actions;
 
     public String getUserName() {
         return userName;

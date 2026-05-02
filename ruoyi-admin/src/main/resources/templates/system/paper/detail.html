@@ -403,16 +403,13 @@
 </div>
 
 <div class="row">
-    <div class="col-sm-offset-5 col-sm-10">
-        <button type="button" id="btn1" class="btn btn-sm btn-primary" onclick="submitHandler()">  通 过</button>&nbsp;
-        <button type="button" id="btn2" class="btn btn-sm btn-danger" onclick="submitHandlerBH()"> 驳 回</button>
-        <button type="button" id="btn4" class="btn btn-sm btn-danger" onclick="submitHandlerBH()"> 撤 回</button>
-        <button type="button" id="btn3" class="btn btn-sm btn-warning" onclick="closeItem()"> 关 闭 </button>
+    <div class="col-sm-offset-5 col-sm-10" id="action-buttons-container">
     </div>
 </div>
 
 <th:block th:include="include :: footer" />
 <th:block th:include="include :: datetimepicker-js" />
+<script th:src="@{/ruoyi/js/page-render.js}"></script>
 <script th:inline="javascript">
     var prefix = ctx + "system/paper";
     var QWERDates = [[${@dict.getType('sci_paper_qwer')}]];
@@ -482,8 +479,87 @@
     }
 
     $(function() {
+        // 注册PageRender动作处理器
+        PageRender.registerHandlers({
+            'view': function(actionKey, data) {
+                closeItem();
+            },
+            'viewProcess': function(actionKey, data) {
+                viewProcess(data.id);
+            },
+            'approve': function(actionKey, data) {
+                submitHandler();
+            },
+            'reject': function(actionKey, data) {
+                submitHandlerBH();
+            },
+            'recall': function(actionKey, data) {
+                submitHandlerBH();
+            }
+        });
+
+        // 使用PageRender渲染底部按钮
+        var paperActions = /*[[${actionsJson}]]*/ null;
+        if (typeof paperActions === 'string') {
+            try {
+                paperActions = JSON.parse(paperActions);
+            } catch (e) {
+                paperActions = [];
+            }
+        }
+        if (!paperActions) {
+            paperActions = [];
+        }
+        var urlFlag = $("#urlFlag").val();
+        var state = $("#state").val();
+
+        if (paperActions && paperActions.length > 0) {
+            // 根据urlFlag过滤按钮
+            var filteredActions = paperActions.filter(function(action) {
+                if (urlFlag === 'chakan' || urlFlag === 'LW') {
+                    return action.actionKey === 'view' || action.actionKey === 'viewProcess';
+                }
+                if (urlFlag === 'pro' || urlFlag === 'kyc_approve') {
+                    return action.actionKey === 'approve' || action.actionKey === 'reject';
+                }
+                if (urlFlag === 'jys_recall' || urlFlag === 'kyc_recall' || urlFlag === 'proth') {
+                    return action.actionKey === 'recall';
+                }
+                return true;
+            });
+
+            var $container = $('#action-buttons-container');
+            if (filteredActions.length > 0) {
+                PageRender.renderActions($container, filteredActions, {style: 'page'}, {
+                    id: $("#pid").val(),
+                    state: state,
+                    urlFlag: urlFlag
+                });
+            }
+            // 始终添加关闭按钮
+            $container.append('<button type="button" class="btn btn-sm btn-default" onclick="closeItem()"> 关 闭 </button>');
+        } else {
+            // 后端未返回actions时，使用旧逻辑兜底
+            var $container = $('#action-buttons-container');
+            if (urlFlag === 'chakan' || urlFlag === 'LW') {
+                $container.html('<button type="button" class="btn btn-sm btn-default" onclick="closeItem()"> 关 闭 </button>');
+            } else if (['PAPER_JYS_AUDIT', 'PAPER_KYC_AUDIT'].includes(state)) {
+                $container.html(
+                    '<button type="button" class="btn btn-sm btn-success" onclick="submitHandler()"> 通 过</button> ' +
+                    '<button type="button" class="btn btn-sm btn-danger" onclick="submitHandlerBH()"> 驳 回</button> ' +
+                    '<button type="button" class="btn btn-sm btn-default" onclick="closeItem()"> 关 闭 </button>'
+                );
+            } else if (['kyc_recall', 'jys_recall', 'proth'].includes(urlFlag)) {
+                $container.html(
+                    '<button type="button" class="btn btn-sm btn-warning" onclick="submitHandlerBH()"> 撤 回</button> ' +
+                    '<button type="button" class="btn btn-sm btn-default" onclick="closeItem()"> 关 闭 </button>'
+                );
+            } else {
+                $container.html('<button type="button" class="btn btn-sm btn-default" onclick="closeItem()"> 关 闭 </button>');
+            }
+        }
+
         var pid = $("#pid").val();
-        // console.log("pid:",pid);
         var options = {
             url: prefix + "/bhxs/" + pid,
             showSearch: false,
@@ -517,83 +593,27 @@
         $.table.init(options);
 
         $('#bootstrap-table').on('load-success.bs.table', function (e, data) {
-            // 确定rows数组
-            const rows = data && data.rows ? data.rows : [];
+            var rows = data && data.rows ? data.rows : [];
+            var urlFlagVal = $("#urlFlag").val();
+            var stateVal = $("#state").val();
 
-            // 获取状态值和urlFlag值
-            const state = $("#state").val();
-            const urlFlag = $("#urlFlag").val();
-
-            // console.log("State:", state);
-            //关闭
-            $("#btn3").show();
-            if (urlFlag === 'chakan' || urlFlag === 'LW') {
-                //handleChakanView();
-                $("#btn1").hide();
-                $("#btn2").hide();
-                // 批阅记录
+            // 批阅记录区域显示控制
+            if (urlFlagVal === 'chakan' || urlFlagVal === 'LW') {
                 $(".tdiv2").show();
-                $("#btn4").hide();
-
-
             } else {
-                if (['PAPER_JYS_AUDIT', 'PAPER_KYC_AUDIT', 'PAPER_PASSED'].includes(state)) {
-                    //handleStandardView(rows);
+                if (['PAPER_JYS_AUDIT', 'PAPER_KYC_AUDIT', 'PAPER_PASSED'].includes(stateVal)) {
                     if (rows.length > 0) {
                         $(".tdiv2").show();
                     }
                     $(".tdiv1").show();
-                    $("#btn1").show();
-                    $("#btn2").show();
-                    $("#btn4").hide();
-
-
                 }
             }
 
-            if (['PAPER_REJECTED'].includes(state)) {
-                $("#btn1").hide();
-                $("#btn2").hide();
-                $("#btn4").hide();
-            }
-
-            if (['kyc_recall', 'jys_recall', 'proth'].includes(urlFlag)) {
-                //handleSpecialView();
+            if (['kyc_recall', 'jys_recall', 'proth'].includes(urlFlagVal)) {
                 $(".tdiv1").show();
                 $(".tdiv2").show();
-                $("#btn1").hide();
-                $("#btn2").hide();
-                $("#btn4").show();
             }
         });
-
-        // // 处理'chakan'视图
-        // function handleChakanView() {
-        //     $("#btn1").hide();
-        //     $("#btn2").hide();
-        //     $(".tdiv2").show();
-        //     $("#btn3").show();
-        // }
-        //
-        // // 处理标准视图（state为1, 2, 或4）
-        // function handleStandardView(rows) {
-        //     if (rows.length > 0) {
-        //         $(".tdiv2").show();
-        //     }
-        //     $(".tdiv1").show();
-        //     $("#btn1").show();
-        //     $("#btn2").show();
-        //     $("#btn3").show();
-        // }
-        //
-        // // 处理特殊视图（urlFlag为'kyth', 'xyth', 或'proth'）
-        // function handleSpecialView() {
-        //     $(".tdiv1").show();
-        //     $(".tdiv2").show();
-        //     $("#btn1").hide();
-        //     $("#btn2").show();
-        //     $("#btn3").show();
-        // }
     })
 
     function submitHandler() {
