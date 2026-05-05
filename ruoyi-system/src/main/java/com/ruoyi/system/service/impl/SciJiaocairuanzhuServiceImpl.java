@@ -373,25 +373,11 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
             comment = "科研处驳回: " + remark;
         }
         
-        ApprovalRequest request = ApprovalRequest.of(
-                "textbook_approval",
-                Long.valueOf(id),
-                oldState,
-                comment,
-                uid,
-                operator.getUserName(),
-                operator.getDept().getDeptName()
-        );
-        
-        // 调用审批驳回方法
-        ApprovalResult result = approvalProcessService.reject(request);
-        
-        if (!result.isSuccess()) {
-            return 0;
-        }
+        // 直接设置状态为草稿
+        String newState = "TEXTBOOK_DRAFT";
         
         // 更改状态
-        int a = sciJiaocairuanzhuMapper.hxPass(id, result.getNewState());
+        int a = sciJiaocairuanzhuMapper.hxPass(id, newState);
 
         // 插入批阅记录
         SciJiaocairuanzhuPiyue sciJiaocairuanzhuPiyue = new SciJiaocairuanzhuPiyue();
@@ -408,6 +394,9 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
         }
         
         sciJiaocairuanzhuPiyueMapper.insertSciJiaocairuanzhuPiyue(sciJiaocairuanzhuPiyue);
+        
+        // 保存审批历史记录
+        saveApprovalHistory(Integer.valueOf(id), oldState, newState, uid, "驳回", comment);
         
         return a;
     }
