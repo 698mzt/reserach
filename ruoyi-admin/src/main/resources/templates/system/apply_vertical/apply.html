@@ -723,19 +723,7 @@
                     title: '状态',
                     align: 'center',
                     formatter: function(value, row, index) {
-                        const stateMap = {
-                            'V_APPLY_DRAFT': '待提交',
-                            'V_APPLY_JYS': '待教研室',
-                            'V_APPLY_KYC': '待科研处',
-                            'V_APPLY_PASS': '已完结',
-                            'V_APPLY_REJ': '已驳回',
-                            'V_OVER_DRAFT': '待提交',
-                            'V_OVER_JYS': '待教研室',
-                            'V_OVER_KYC': '待科研处',
-                            'V_OVER_PASS': '已完结',
-                            'V_OVER_REJ': '已驳回'
-                        };
-                        return stateMap[value] || value;
+                        return row.stateName || value;
                     }
                 }  ,
                 {
@@ -883,19 +871,7 @@
                     title: '状态',
                     align: 'center',
                     formatter: function(value, row, index) {
-                        const stateMap = {
-                            'V_APPLY_DRAFT': '待提交',
-                            'V_APPLY_JYS': '待教研室',
-                            'V_APPLY_KYC': '待科研处',
-                            'V_APPLY_PASS': '已完结',
-                            'V_APPLY_REJ': '已驳回',
-                            'V_OVER_DRAFT': '待提交',
-                            'V_OVER_JYS': '待教研室',
-                            'V_OVER_KYC': '待科研处',
-                            'V_OVER_PASS': '已完结',
-                            'V_OVER_REJ': '已驳回'
-                        };
-                        return stateMap[value] || value;
+                        return row.stateName || value;
                     }
                 }  ,
                 {
@@ -1082,19 +1058,7 @@
                     title: '状态',
                     align: 'center',
                     formatter: function(value, row, index) {
-                        const stateMap = {
-                            'V_APPLY_DRAFT': '待提交',
-                            'V_APPLY_JYS': '待教研室',
-                            'V_APPLY_KYC': '待科研处',
-                            'V_APPLY_PASS': '已完结',
-                            'V_APPLY_REJ': '已驳回',
-                            'V_OVER_DRAFT': '待提交',
-                            'V_OVER_JYS': '待教研室',
-                            'V_OVER_KYC': '待科研处',
-                            'V_OVER_PASS': '已完结',
-                            'V_OVER_REJ': '已驳回'
-                        };
-                        return stateMap[value] || value;
+                        return row.stateName || value;
                     }
                 }  ,
                 {

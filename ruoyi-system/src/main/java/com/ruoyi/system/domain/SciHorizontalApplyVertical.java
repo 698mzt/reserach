@@ -143,6 +143,9 @@ public class SciHorizontalApplyVertical extends BaseEntity {
     @Excel(name = "状态", sort = 12)
     private String state;
 
+    /** 状态名称 */
+    private String stateName;
+
     /** 课题来源 */
     @Excel(name = "课题来源", sort = 4)
     private String subjectSource;
@@ -383,6 +386,14 @@ public class SciHorizontalApplyVertical extends BaseEntity {
 
     public void setState(String state) {
         this.state = state;
+    }
+
+    public String getStateName() {
+        return stateName;
+    }
+
+    public void setStateName(String stateName) {
+        this.stateName = stateName;
     }
 
     public String getTopNumber() {
