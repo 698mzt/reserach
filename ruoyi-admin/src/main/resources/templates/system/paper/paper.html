@@ -423,6 +423,7 @@
     </div>
 </div>
 <th:block th:include="include :: footer"/>
+<script th:src="@{/ruoyi/js/page-render.js}"></script>
 <script th:inline="javascript">
     var editFlag = /*[[${@permission.hasPermi('system:paper:edit')}]]*/ 'hidden';
     var removeFlag = /*[[${@permission.hasPermi('system:paper:remove')}]]*/ 'hidden';
@@ -455,6 +456,76 @@
   }
 
     $(function() {
+        // 注册PageRender动作处理器
+        PageRender.registerHandlers({
+            'view': function(actionKey, data) {
+                $.operate.detailTab(data.id + '/chakan');
+            },
+            'viewProcess': function(actionKey, data) {
+                viewProcess(data.id + ',' + data.state);
+            },
+            'edit': function(actionKey, data) {
+                $.operate.editTab(data.id);
+            },
+            'remove': function(actionKey, data) {
+                $.operate.remove(data.id);
+            },
+            'submit': function(actionKey, data) {
+                pushTh(data.id);
+            },
+            'review': function(actionKey, data) {
+                $.operate.detailTab(data.id + '/pro');
+            },
+            'kyReview': function(actionKey, data) {
+                $.operate.detailTab(data.id + '/kyc_approve');
+            },
+            'approve': function(actionKey, data) {
+                var urlFlag = data.state === 'PAPER_JYS_AUDIT' ? 'pro' : 'kyc_approve';
+                $.operate.detailTab(data.id + '/' + urlFlag);
+            },
+            'reject': function(actionKey, data) {
+                var urlFlag = data.state === 'PAPER_JYS_AUDIT' ? 'pro' : 'kyc_approve';
+                $.operate.detailTab(data.id + '/' + urlFlag);
+            },
+            'recall': function(actionKey, data) {
+                $.ajax({
+                    url: prefix + "/approve/" + data.id,
+                    type: "post",
+                    data: { operationType: "recall" },
+                    success: function (result) {
+                        if (result.code === 0) {
+                            $.modal.msgSuccess("撤回成功");
+                            $("#bootstrap-table").bootstrapTable('refresh');
+                        } else {
+                            $.modal.alertError(result.msg);
+                        }
+                    },
+                    error: function () {
+                        $.modal.alertError("撤回失败，请稍后重试");
+                    }
+                });
+            }
+        });
+
+        // 绑定PageRender按钮点击事件
+        $(document).off('click.prAction').on('click.prAction', 'button[data-action-key], a[data-action-key]', function(e) {
+            e.preventDefault();
+            var $btn = $(this);
+            var actionKey = $btn.data('action-key');
+            var confirmMsg = $btn.data('confirm');
+            // 从最近的tr中获取行数据
+            var $tr = $btn.closest('tr');
+            var row = $('#bootstrap-table').bootstrapTable('getData')[$tr.data('index')];
+
+            if (confirmMsg) {
+                $.modal.confirm(confirmMsg, function() {
+                    PageRender.dispatchAction(actionKey, row);
+                });
+            } else {
+                PageRender.dispatchAction(actionKey, row);
+            }
+        });
+
         var options = {
         // url:getUrl($('table').attr('id')),
         createUrl: prefix + "/add",
@@ -604,20 +675,10 @@
                     field: 'approvalStage',
                     title: '审批阶段',
                     formatter: function (value, row, index) {
-                        switch (row.state) {
-                            case 'PAPER_DRAFT':
-                                return '草稿';
-                            case 'PAPER_JYS_AUDIT':
-                                return '教研室审批';
-                            case 'PAPER_KYC_AUDIT':
-                                return '科研处审批';
-                            case 'PAPER_PASSED':
-                                return '审批通过';
-                            case 'PAPER_REJECTED':
-                                return '审批驳回';
-                            default:
-                                return '未知';
+                        if (row.statusMeta) {
+                            return PageRender.renderStatusToString(row.statusMeta);
                         }
+                        return '<span class="label label-default">未知</span>';
                     }
                 },
                 {
@@ -635,50 +696,26 @@
                 {
                     title: '操作',
                     align: 'center',
-                    width: '150px',
+                    width: '200px',
                     formatter: function(value, row, index) {
-                        // console.log("row.roleId:",row.roleId)
-                        // console.log("row.rolekey:",row.rolekey)
-                        //
-                        // console.log("row.state:",row.state)
-                        // console.log("row.userId:",row.userId) // 角色自己ID
-                        // console.log("row.uid:",row.uid) //登录人的ID
-
-                        $(document).ready(function () {
-                            // 点击按钮时显示模态框
-                            $('#showModalButton').on('click', function () {
-                                $('#myModal1111').modal('show'); // 使用 Bootstrap 的 modal 方法显示模态框
+                        if (row.actions && row.actions.length > 0) {
+                            // 列表页过滤掉"通过"和"驳回"按钮，这些只在详情页显示
+                            var listActions = row.actions.filter(function(a) {
+                                return a.actionKey !== 'approve' && a.actionKey !== 'reject';
                             });
-                        });
-                        var actions = [];
-
-                      if((row.state == 'PAPER_DRAFT' || row.state == 'PAPER_REJECTED') && (row.userId == row.uid || row.uid == 1)){
-                        if( row.state != 'PAPER_REJECTED'){
-                            actions.push('<a class="' + editFlag + '" href="javascript:void(0)" onclick="pushTh(\'' + row.id + '\')"></i>提交</a>&nbsp;&nbsp;&nbsp;');
-                        }
-                            actions.push('<a class="' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"></i>删除</a><br>&nbsp;&nbsp;&nbsp;');
-                            actions.push('<a class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"></i>编辑</a>&nbsp;&nbsp;&nbsp;');
-                        }
-                        // 所有具有查看权限的角色都应该有查看、查看流程按钮
-                        actions.push('<a class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan\')"></i>查看</a>&nbsp;');
-                        actions.push('<a class="' + editInfo + '" href="javascript:void(0)" onclick="viewProcess(\'' + row.id +','+row.state+ '\')"></i>查看流程</a><br>');
-                        
-                        // 批阅按钮：仅当前审批节点的管理员角色显示
-                        if (row.state == 'PAPER_JYS_AUDIT' && proFlag != 'hidden') { // 待处理 - 教研室审批
-                            actions.push('<a href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro\')"></i>批阅</a>');
-                        } else if (row.state == 'PAPER_KYC_AUDIT') { // 科研处审批
-                            if (Revoke != 'hidden') { // 教研室权限 - 显示撤回按钮
-                                actions.push('<a href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/jys_recall\')"></i>撤回</a><br>');
+                            if (listActions.length > 0) {
+                                return PageRender.renderActionsToString(listActions, {style: 'table'});
                             }
-                            if (KYPYFlag != 'hidden') { // 科研处权限 - 显示科研核查按钮
-                                actions.push('<a href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/kyc_approve\')"></i>科研核查</a>');
-                            }
-                        } else if (row.state == 'PAPER_PASSED' && KyRevoke != 'hidden') { // 完成 - 科研处撤回
-                            actions.push('<a href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/kyc_recall\')"></i>撤回</a> ');
                         }
-                        // 退回状态下，作者可以更新
-
-                        return actions.join('');
+                        // 兜底：后端未返回actions时显示基本操作
+                        var fallbackActions = [];
+                        if (editInfo !== 'hidden') {
+                            fallbackActions.push('<a href="javascript:void(0)" class="btn btn-xs btn-info" onclick="$.operate.detailTab(\'' + row.id + '/chakan\')">查看</a>');
+                        }
+                        if (editInfo !== 'hidden') {
+                            fallbackActions.push('<a href="javascript:void(0)" class="btn btn-xs btn-info" onclick="viewProcess(\'' + row.id + ',' + row.state + '\')">查看流程</a>');
+                        }
+                        return fallbackActions.join(' ');
                     }
                 }]
         };

@@ -24,6 +24,7 @@
     <div class="wrapper wrapper-content animated fadeInRight ibox-content">
         <form class="form-horizontal m" id="form-paper-edit" th:object="${sciPaperA}">
             <input name="id" id="p_id" th:field="*{id}" type="hidden">
+            <input name="state" id="state" th:field="*{state}" type="hidden">
 
             <div class="form-group">
                 <label class="col-sm-3 control-label">论文名称：</label>
@@ -416,7 +417,7 @@
                     },
                     {
                         field : 'concate',
-                        title : '内容',
+                        title : '批阅内容',
                         width: 500
                     },
                     {
@@ -427,16 +428,10 @@
             };
             $.table.init(options);
 
-            $('#bootstrap-table').on('load-success.bs.table', function (e, name, args) {
-                // console.log('Event Name:', name.rows);
-                var a =$("#state").val();
-
-                if(a != 'PAPER_DRAFT'){
-                    if(name.rows.length > 0){
-                        $(".tdiv2").show();
-                    }
+            $('#bootstrap-table').on('load-success.bs.table', function (e, data) {
+                if (data && data.rows && data.rows.length > 0) {
+                    $(".tdiv2").show();
                 }
-
             });
         })
 

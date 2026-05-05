@@ -5,16 +5,21 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import com.ruoyi.common.annotation.DataScope;
 import com.ruoyi.common.utils.DataScopeUtils;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.domain.entity.SysUser;
+import com.ruoyi.common.utils.ShiroUtils;
 import com.ruoyi.system.domain.*;
 import com.ruoyi.system.mapper.PaperUserScoreServiceMapper;
 import com.ruoyi.system.mapper.SciPaperACfgMapper;
 import com.ruoyi.system.service.IApprovalProcessService;
+import com.ruoyi.system.service.IPageRenderService;
+import com.ruoyi.system.service.ISysMenuService;
 import com.ruoyi.system.service.ISysUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -43,6 +48,10 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
     private ISysUserService sysUserService;
     @Autowired
     private IApprovalProcessService approvalProcessService;
+    @Autowired
+    private IPageRenderService pageRenderService;
+    @Autowired
+    private ISysMenuService sysMenuService;
 
     /**
      * 查询论文
@@ -53,7 +62,11 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
     @Override
     @DataScope(deptAlias = "d", userAlias = "u")
     public SciPaperA selectSciPaperAById(Long id) {
-        return sciPaperAMapper.selectSciPaperAById(id);
+        SciPaperA paper = sciPaperAMapper.selectSciPaperAById(id);
+        if (paper != null) {
+            fillPageRenderData(paper);
+        }
+        return paper;
     }
 
     /**
@@ -66,9 +79,10 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciPaperA> selectSciPaperAList(SciPaperA sciPaperA) {
         List<SciPaperA> list = sciPaperAMapper.selectSciPaperAList(sciPaperA);
-        // 为每条论文记录计算并填充分数
+        // 为每条论文记录计算并填充分数，并填充页面渲染数据
         for (SciPaperA paper : list) {
             calculateAndFillScores(paper);
+            fillPageRenderData(paper);
         }
         return list;
     }
@@ -77,9 +91,9 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciPaperA> selectSciPaperAListAll(SciPaperA sciPaperA) {
         List<SciPaperA> list = sciPaperAMapper.selectSciPaperAListAll(sciPaperA);
-        // 为每条论文记录计算并填充分数
         for (SciPaperA paper : list) {
             calculateAndFillScores(paper);
+            fillPageRenderData(paper);
         }
         return list;
     }
@@ -94,9 +108,9 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciPaperA> selectSciPaperAListKY(SciPaperA sciPaperA) {
         List<SciPaperA> list = sciPaperAMapper.selectSciPaperAListKY(sciPaperA);
-        // 为每条论文记录计算并填充分数
         for (SciPaperA paper : list) {
             calculateAndFillScores(paper);
+            fillPageRenderData(paper);
         }
         return list;
     }
@@ -105,9 +119,9 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciPaperA> selectSciPaperAListXY(SciPaperA sciPaperA) {
         List<SciPaperA> list = sciPaperAMapper.selectSciPaperAListXY(sciPaperA);
-        // 为每条论文记录计算并填充分数
         for (SciPaperA paper : list) {
             calculateAndFillScores(paper);
+            fillPageRenderData(paper);
         }
         return list;
     }
@@ -180,9 +194,9 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
     @DataScope(deptAlias = "pt", userAlias = "u")
     public List<SciPaperA> selectSciPaperAListCxList(SciPaperA sciPaperA) {
         List<SciPaperA> list = sciPaperAMapper.selectSciPaperAListCxList(sciPaperA);
-        // 为每条论文记录计算并填充分数
         for (SciPaperA paper : list) {
             calculateAndFillScores(paper);
+            fillPageRenderData(paper);
         }
         return list;
     }
@@ -207,9 +221,9 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
     @Override
     public List<SciPaperA> selectSciPaperAListCx(SciPaperA sciPaperA) {
         List<SciPaperA> list = sciPaperAMapper.selectSciPaperAListCx(sciPaperA);
-        // 为每条论文记录计算并填充分数
         for (SciPaperA paper : list) {
             calculateAndFillScores(paper);
+            fillPageRenderData(paper);
         }
         return list;
     }
@@ -693,6 +707,11 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
 
         String newState = result.getNewState();
 
+        // 驳回操作直接设置为PAPER_REJECTED状态，不进入下一审批节点
+        if ("reject".equals(operationType)) {
+            newState = SciPaperA.PAPER_REJECTED;
+        }
+
         if ("approve".equals(operationType)) {
             boolean isLast = result.isLast();
             if (isLast) {
@@ -773,51 +792,75 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
      * @param paper 论文对象
      */
     private void calculateAndFillScores(SciPaperA paper) {
-        // 如果论文类别为空，无法计算分数
         if (paper.getPaperCategory() == null || paper.getPaperCategory().isEmpty()) {
             return;
         }
 
-        // 构建作者信息Map
         Map<String, String> authors = new HashMap<>();
-        authors.put("1", paper.getFirstPersonId());
-        authors.put("2", paper.getSecondPersonId());
-        authors.put("3", paper.getThirdPersonId());
-        authors.put("4", paper.getFourthPersonId());
-
-        // 获取通讯作者ID
+        String firstPersonId = paper.getFirstPersonId();
+        String secondPersonId = paper.getSecondPersonId();
+        String thirdPersonId = paper.getThirdPersonId();
+        String fourthPersonId = paper.getFourthPersonId();
         String communicationAuthorId = paper.getCommunicationAuthorId();
 
-        // 调用计算分数方法
+        if (firstPersonId != null && !firstPersonId.isEmpty()) {
+            authors.put("1", firstPersonId);
+        }
+        if (secondPersonId != null && !secondPersonId.isEmpty()) {
+            authors.put("2", secondPersonId);
+        }
+        if (thirdPersonId != null && !thirdPersonId.isEmpty()) {
+            authors.put("3", thirdPersonId);
+        }
+        if (fourthPersonId != null && !fourthPersonId.isEmpty()) {
+            authors.put("4", fourthPersonId);
+        }
+
         Map<String, Integer> scores = calculatePaperScore(paper.getPaperCategory(), authors, communicationAuthorId);
 
-        // 将计算出的分数填充到论文对象
-        String firstKey = "1_" + paper.getFirstPersonId();
-        String secondKey = "2_" + paper.getSecondPersonId();
-        String thirdKey = "3_" + paper.getThirdPersonId();
-        String fourthKey = "4_" + paper.getFourthPersonId();
-        String correspondingKey = communicationAuthorId != null ? "0_" + communicationAuthorId : null;
+        if (firstPersonId != null && !firstPersonId.isEmpty()) {
+            String firstKey = "1_" + firstPersonId;
+            paper.setFirstAuthorScore(String.valueOf(scores.getOrDefault(firstKey, 0)));
+        } else {
+            paper.setFirstAuthorScore("0");
+        }
 
-        // 设置各作者分数（转换为字符串类型）
-        paper.setFirstAuthorScore(String.valueOf(scores.getOrDefault(firstKey, 0)));
-        paper.setSecondAuthorScore(String.valueOf(scores.getOrDefault(secondKey, 0)));
-        paper.setThirdAuthorScore(String.valueOf(scores.getOrDefault(thirdKey, 0)));
-        paper.setFourthAuthorScore(String.valueOf(scores.getOrDefault(fourthKey, 0)));
+        if (secondPersonId != null && !secondPersonId.isEmpty()) {
+            String secondKey = "2_" + secondPersonId;
+            paper.setSecondAuthorScore(String.valueOf(scores.getOrDefault(secondKey, 0)));
+        } else {
+            paper.setSecondAuthorScore("0");
+        }
 
-        // 通讯作者分数需要根据通讯作者ID找到对应的排名
+        if (thirdPersonId != null && !thirdPersonId.isEmpty()) {
+            String thirdKey = "3_" + thirdPersonId;
+            paper.setThirdAuthorScore(String.valueOf(scores.getOrDefault(thirdKey, 0)));
+        } else {
+            paper.setThirdAuthorScore("0");
+        }
+
+        if (fourthPersonId != null && !fourthPersonId.isEmpty()) {
+            String fourthKey = "4_" + fourthPersonId;
+            paper.setFourthAuthorScore(String.valueOf(scores.getOrDefault(fourthKey, 0)));
+        } else {
+            paper.setFourthAuthorScore("0");
+        }
+
         Integer correspondingScore = 0;
         if (communicationAuthorId != null && !communicationAuthorId.isEmpty()) {
-            // 检查通讯作者是否同时是某个排名的作者
-            if (communicationAuthorId.equals(paper.getFirstPersonId())) {
+            if (communicationAuthorId.equals(firstPersonId)) {
+                String firstKey = "1_" + firstPersonId;
                 correspondingScore = scores.getOrDefault(firstKey, 0);
-            } else if (communicationAuthorId.equals(paper.getSecondPersonId())) {
+            } else if (communicationAuthorId.equals(secondPersonId)) {
+                String secondKey = "2_" + secondPersonId;
                 correspondingScore = scores.getOrDefault(secondKey, 0);
-            } else if (communicationAuthorId.equals(paper.getThirdPersonId())) {
+            } else if (communicationAuthorId.equals(thirdPersonId)) {
+                String thirdKey = "3_" + thirdPersonId;
                 correspondingScore = scores.getOrDefault(thirdKey, 0);
-            } else if (communicationAuthorId.equals(paper.getFourthPersonId())) {
+            } else if (communicationAuthorId.equals(fourthPersonId)) {
+                String fourthKey = "4_" + fourthPersonId;
                 correspondingScore = scores.getOrDefault(fourthKey, 0);
             } else {
-                // 通讯作者不在1-4作中，需要单独计算
                 correspondingScore = calculateCorrespondingAuthorScore(paper.getPaperCategory(), authors,
                         communicationAuthorId);
             }
@@ -854,6 +897,55 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
         } else {
             // 一作是本校老师，通讯作者按二作分数算
             return pointList.size() > 1 ? pointList.get(1) : pointList.get(0);
+        }
+    }
+
+    /**
+     * 填充页面渲染数据（statusMeta和actions）
+     * 通过sysMenuService获取用户权限，构造PageRenderContext并调用PageRenderService生成渲染数据
+     *
+     * @param paper 论文对象
+     */
+    private void fillPageRenderData(SciPaperA paper) {
+        try {
+            SysUser currentUser = ShiroUtils.getSysUser();
+            if (currentUser == null) {
+                return;
+            }
+
+            // 通过菜单服务获取当前用户权限列表
+            List<String> permissions = new ArrayList<>();
+            Set<String> permsSet = sysMenuService.selectPermsByUserId(currentUser.getUserId());
+            if (permsSet != null) {
+                permissions.addAll(permsSet);
+            }
+
+            // 获取当前用户角色key列表
+            List<String> roleKeys = new ArrayList<>();
+            if (currentUser.getRoles() != null) {
+                roleKeys = currentUser.getRoles().stream()
+                        .map(com.ruoyi.common.core.domain.entity.SysRole::getRoleKey)
+                        .collect(Collectors.toList());
+            }
+
+            // 构造页面渲染上下文
+            PageRenderContext context = new PageRenderContext();
+            context.setModuleCode("PAPER");
+            context.setBusinessId(paper.getId());
+            context.setCurrentState(paper.getState());
+            context.setCreatorId(paper.getUserId());
+            context.setCurrentUser(currentUser);
+            context.setPermissions(permissions);
+            context.setRoleKeys(roleKeys);
+
+            // 构建状态和动作信息
+            PageRenderStatusMeta statusMeta = pageRenderService.buildStatusMeta(context);
+            List<PageRenderActionItem> actions = pageRenderService.buildActions(context);
+
+            paper.setStatusMeta(statusMeta);
+            paper.setActions(actions);
+        } catch (Exception e) {
+            // 页面渲染数据填充失败不影响主流程
         }
     }
 
