@@ -1,11 +1,13 @@
 package com.ruoyi.system.domain;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
+import java.util.List;
 
 /**
  * 横向课题对象 sci_horizontal_apply
@@ -177,6 +179,14 @@ public class SciHorizontalApply extends BaseEntity
     /** 状态 */
     @Excel(name = "状态", sort = 18)
     private String state;
+
+    /** 页面渲染：状态展示信息 */
+    @JsonInclude(JsonInclude.Include.ALWAYS)
+    private PageRenderStatusMeta statusMeta;
+
+    /** 页面渲染：按钮动作列表 */
+    @JsonInclude(JsonInclude.Include.ALWAYS)
+    private List<PageRenderActionItem> actions;
 
 //    用户角色字段
     private String role;

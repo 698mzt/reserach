@@ -38,6 +38,15 @@ public class PageRenderActionConstants {
     /** 科研核查（科研处审批入口） */
     public static final String ACTION_KY_REVIEW = "kyReview";
 
+    /** 申请结项（横向课题特有） */
+    public static final String ACTION_OVER_APPLY = "overApply";
+
+    /** 追加金额（横向课题特有） */
+    public static final String ACTION_REAMOUNT = "reamount";
+
+    /** 学院批阅（学院审批入口） */
+    public static final String ACTION_DEPT_REVIEW = "deptReview";
+
     private PageRenderActionConstants() {
     }
 }

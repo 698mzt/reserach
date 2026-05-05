@@ -39,6 +39,12 @@ public class PageRenderServiceImpl implements IPageRenderService {
     /** 论文模块流程编码 */
     private static final String PAPER_PROCESS_CODE = "paper_approval";
 
+    /** 横向课题立项流程编码 */
+    private static final String HORIZONTAL_APPLY_PROCESS_CODE = "HORIZONTAL_APPLY";
+
+    /** 横向课题结项流程编码 */
+    private static final String HORIZONTAL_OVER_PROCESS_CODE = "HORIZONTAL_OVER";
+
     @Autowired
     private SysApprovalStateMapper approvalStateMapper;
 
@@ -54,6 +60,18 @@ public class PageRenderServiceImpl implements IPageRenderService {
     /** 论文模块审批节点配置（从数据库动态加载） */
     private final Map<String, SysApprovalNode> paperNodeMapping = new HashMap<>();
 
+    /** 横向课题立项流程状态映射配置 */
+    private final Map<String, StatusMapping> horizontalApplyStatusMapping = new HashMap<>();
+
+    /** 横向课题立项流程审批节点配置 */
+    private final Map<String, SysApprovalNode> horizontalApplyNodeMapping = new HashMap<>();
+
+    /** 横向课题结项流程状态映射配置 */
+    private final Map<String, StatusMapping> horizontalOverStatusMapping = new HashMap<>();
+
+    /** 横向课题结项流程审批节点配置 */
+    private final Map<String, SysApprovalNode> horizontalOverNodeMapping = new HashMap<>();
+
     /**
      * 应用启动时从数据库加载审批流程配置，初始化状态映射和节点映射
      * 避免硬编码状态，支持通过数据库配置动态调整
@@ -64,8 +82,14 @@ public class PageRenderServiceImpl implements IPageRenderService {
             log.info("开始加载审批流程配置...");
             loadStatusMapping();
             loadNodeMapping();
-            log.info("审批流程配置加载完成，状态数: {}, 节点数: {}", 
-                    paperStatusMapping.size(), paperNodeMapping.size());
+            loadHorizontalApplyStatusMapping();
+            loadHorizontalApplyNodeMapping();
+            loadHorizontalOverStatusMapping();
+            loadHorizontalOverNodeMapping();
+            log.info("审批流程配置加载完成，论文状态数: {}, 论文节点数: {}, 立项状态数: {}, 立项节点数: {}, 结项状态数: {}, 结项节点数: {}", 
+                    paperStatusMapping.size(), paperNodeMapping.size(),
+                    horizontalApplyStatusMapping.size(), horizontalApplyNodeMapping.size(),
+                    horizontalOverStatusMapping.size(), horizontalOverNodeMapping.size());
         } catch (Exception e) {
             log.error("加载审批流程配置失败，将使用空配置", e);
         }
@@ -130,6 +154,88 @@ public class PageRenderServiceImpl implements IPageRenderService {
     public void refreshCache() {
         log.info("手动刷新审批流程配置缓存...");
         init();
+    }
+
+    /**
+     * 从数据库加载横向课题立项流程状态映射配置
+     */
+    private void loadHorizontalApplyStatusMapping() {
+        horizontalApplyStatusMapping.clear();
+        List<SysApprovalState> states = approvalStateMapper.selectSysApprovalStateByProcessCode(HORIZONTAL_APPLY_PROCESS_CODE);
+        if (states == null || states.isEmpty()) {
+            log.warn("未找到流程 {} 的状态配置，请检查sys_approval_state表", HORIZONTAL_APPLY_PROCESS_CODE);
+            return;
+        }
+        for (SysApprovalState state : states) {
+            if ("0".equals(state.getStatus())) {
+                String colorType = getColorTypeBySort(state.getSort());
+                horizontalApplyStatusMapping.put(state.getStateCode(),
+                        new StatusMapping(state.getStateName(), colorType, getSemanticByStateCode(state.getStateCode())));
+            }
+        }
+    }
+
+    /**
+     * 从数据库加载横向课题立项流程审批节点配置
+     */
+    private void loadHorizontalApplyNodeMapping() {
+        horizontalApplyNodeMapping.clear();
+        com.ruoyi.system.domain.SysApprovalProcess process = approvalProcessMapper.selectSysApprovalProcessByProcessCode(HORIZONTAL_APPLY_PROCESS_CODE);
+        if (process == null) {
+            log.warn("未找到流程编码 {} 的配置，请检查sys_approval_process表", HORIZONTAL_APPLY_PROCESS_CODE);
+            return;
+        }
+        List<SysApprovalNode> nodes = approvalNodeMapper.selectSysApprovalNodeByProcessId(process.getId());
+        if (nodes == null || nodes.isEmpty()) {
+            log.warn("未找到流程 {} 的节点配置，请检查sys_approval_node表", HORIZONTAL_APPLY_PROCESS_CODE);
+            return;
+        }
+        for (SysApprovalNode node : nodes) {
+            if ("0".equals(node.getStatus())) {
+                horizontalApplyNodeMapping.put(node.getNodeCode(), node);
+            }
+        }
+    }
+
+    /**
+     * 从数据库加载横向课题结项流程状态映射配置
+     */
+    private void loadHorizontalOverStatusMapping() {
+        horizontalOverStatusMapping.clear();
+        List<SysApprovalState> states = approvalStateMapper.selectSysApprovalStateByProcessCode(HORIZONTAL_OVER_PROCESS_CODE);
+        if (states == null || states.isEmpty()) {
+            log.warn("未找到流程 {} 的状态配置，请检查sys_approval_state表", HORIZONTAL_OVER_PROCESS_CODE);
+            return;
+        }
+        for (SysApprovalState state : states) {
+            if ("0".equals(state.getStatus())) {
+                String colorType = getColorTypeBySort(state.getSort());
+                horizontalOverStatusMapping.put(state.getStateCode(),
+                        new StatusMapping(state.getStateName(), colorType, getSemanticByStateCode(state.getStateCode())));
+            }
+        }
+    }
+
+    /**
+     * 从数据库加载横向课题结项流程审批节点配置
+     */
+    private void loadHorizontalOverNodeMapping() {
+        horizontalOverNodeMapping.clear();
+        com.ruoyi.system.domain.SysApprovalProcess process = approvalProcessMapper.selectSysApprovalProcessByProcessCode(HORIZONTAL_OVER_PROCESS_CODE);
+        if (process == null) {
+            log.warn("未找到流程编码 {} 的配置，请检查sys_approval_process表", HORIZONTAL_OVER_PROCESS_CODE);
+            return;
+        }
+        List<SysApprovalNode> nodes = approvalNodeMapper.selectSysApprovalNodeByProcessId(process.getId());
+        if (nodes == null || nodes.isEmpty()) {
+            log.warn("未找到流程 {} 的节点配置，请检查sys_approval_node表", HORIZONTAL_OVER_PROCESS_CODE);
+            return;
+        }
+        for (SysApprovalNode node : nodes) {
+            if ("0".equals(node.getStatus())) {
+                horizontalOverNodeMapping.put(node.getNodeCode(), node);
+            }
+        }
     }
 
     /**
@@ -216,8 +322,13 @@ public class PageRenderServiceImpl implements IPageRenderService {
         if ("PAPER".equals(moduleCode)) {
             return buildPaperActions(context);
         }
+        if ("HORIZONTAL_APPLY".equals(moduleCode)) {
+            return buildHorizontalApplyActions(context);
+        }
+        if ("HORIZONTAL_OVER".equals(moduleCode)) {
+            return buildHorizontalOverActions(context);
+        }
 
-        // 其它模块暂返回空列表，后续按需扩展
         return Collections.emptyList();
     }
 
@@ -362,7 +473,248 @@ public class PageRenderServiceImpl implements IPageRenderService {
     }
 
     /**
-     * 获取模块状态映射配置
+     * 构建横向课题立项流程按钮动作列表
+     * 状态编码使用项目实际编码：APPLY_DRAFT, APPLY_JYS_AUDIT, APPLY_XY_AUDIT, APPLY_KYC_AUDIT, APPLY_PASSED, APPLY_REJECTED
+     *
+     * @param context 页面渲染上下文
+     * @return 按钮动作列表
+     */
+    private List<PageRenderActionItem> buildHorizontalApplyActions(PageRenderContext context) {
+        List<PageRenderActionItem> actions = new ArrayList<>();
+        String state = context.getCurrentState();
+        boolean isOwner = context.isOwner();
+        boolean isAdmin = context.hasRole("admin");
+
+        boolean isDraft = state != null && state.endsWith("_DRAFT");
+        boolean isPassed = state != null && state.endsWith("_PASSED");
+        boolean isRejected = state != null && state.endsWith("_REJECTED");
+        boolean isJysAudit = "APPLY_JYS_AUDIT".equals(state) || "APPLY_JYS".equals(state);
+        boolean isXyAudit = "APPLY_XY_AUDIT".equals(state) || "APPLY_XY".equals(state);
+        boolean isKycAudit = "APPLY_KYC_AUDIT".equals(state) || "APPLY_KYC".equals(state);
+        boolean isInAudit = isJysAudit || isXyAudit || isKycAudit;
+
+        // 查看按钮：所有状态
+        if (context.hasPermission("system:apply:info")) {
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_VIEW, "查看",
+                    PageRenderColorConstants.COLOR_INFO, 100));
+        }
+
+        // 查看流程按钮：非草稿状态
+        if (!isDraft && context.hasPermission("system:apply:info")) {
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_VIEW_PROCESS, "流程记录",
+                    PageRenderColorConstants.COLOR_INFO, 101));
+        }
+
+        // 编辑按钮：草稿或驳回状态，课题负责人
+        if ((isDraft || isRejected) && (isOwner || isAdmin)
+                && context.hasPermission("system:apply:edit")) {
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_EDIT, "编辑",
+                    PageRenderColorConstants.COLOR_PRIMARY, 10));
+        }
+
+        // 删除按钮：草稿状态，课题负责人
+        if (isDraft && (isOwner || isAdmin)
+                && context.hasPermission("system:apply:remove")) {
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_REMOVE, "删除",
+                    PageRenderColorConstants.COLOR_DANGER, 20, "确定要删除该课题吗？"));
+        }
+
+        // 提交按钮：草稿状态，课题负责人
+        if (isDraft && (isOwner || isAdmin)
+                && context.hasPermission("system:apply:edit")) {
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_SUBMIT, "提交",
+                    PageRenderColorConstants.COLOR_SUCCESS, 5, "确定要提交该课题吗？"));
+        }
+
+        // 教研室审批按钮：教研室审批状态，仅教研室用户可见
+        // 批阅按钮用于列表页跳转详情页，通过/驳回按钮用于详情页执行审批
+        if (isJysAudit && context.hasPermission("system:apply:process")) {
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_REVIEW, "批阅",
+                    PageRenderColorConstants.COLOR_PRIMARY, 30));
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_APPROVE, "通过",
+                    PageRenderColorConstants.COLOR_SUCCESS, 31, "确定要通过该课题吗？"));
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_REJECT, "驳回",
+                    PageRenderColorConstants.COLOR_DANGER, 32, "确定要驳回该课题吗？"));
+        }
+
+        // 科研处审批按钮：科研处审批状态，仅科研处用户可见
+        // 批阅按钮用于列表页跳转详情页，通过/驳回按钮用于详情页执行审批
+        if (isKycAudit && context.hasPermission("system:apply:hecha")) {
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_KY_REVIEW, "批阅",
+                    PageRenderColorConstants.COLOR_PRIMARY, 30));
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_APPROVE, "通过",
+                    PageRenderColorConstants.COLOR_SUCCESS, 31, "确定要通过该课题吗？"));
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_REJECT, "驳回",
+                    PageRenderColorConstants.COLOR_DANGER, 32, "确定要驳回该课题吗？"));
+        }
+
+        // 追加金额按钮：审批中或已通过状态，课题负责人
+        if ((isInAudit || isPassed) && (isOwner || isAdmin)
+                && context.hasPermission("system:apply:edit")) {
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_REAMOUNT, "追加金额",
+                    PageRenderColorConstants.COLOR_PRIMARY, 50));
+        }
+
+        // 申请结项按钮：科研处审批中或已通过状态，课题负责人
+        if ((isKycAudit || isPassed) && (isOwner || isAdmin)
+                && context.hasPermission("system:apply:add")) {
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_OVER_APPLY, "申请结项",
+                    PageRenderColorConstants.COLOR_SUCCESS, 55));
+        }
+
+        // 撤回按钮：学院/科研处审批中状态，课题负责人
+        if ((isXyAudit || isKycAudit) && isOwner
+                && context.hasPermission("system:apply:edit")) {
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_RECALL, "撤回",
+                    PageRenderColorConstants.COLOR_WARNING, 60, "确定要撤回该课题吗？"));
+        }
+
+        // 科研处审批状态，教研室审批人可撤回
+        if (isKycAudit && context.hasPermission("system:apply:process")) {
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_RECALL, "撤回",
+                    PageRenderColorConstants.COLOR_WARNING, 61, "确定要撤回该课题吗？"));
+        }
+
+        // 通过状态，科研处可撤回
+        if (isPassed && context.hasPermission("system:apply:hecha")) {
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_RECALL, "撤回",
+                    PageRenderColorConstants.COLOR_WARNING, 62, "确定要撤回该课题吗？"));
+        }
+
+        Collections.sort(actions);
+        return actions;
+    }
+
+    /**
+     * 构建横向课题结项流程按钮动作列表
+     * 状态编码使用项目实际编码：OVER_DRAFT, OVER_JYS_AUDIT, OVER_XY_AUDIT, OVER_KYC_AUDIT, OVER_PASSED, OVER_REJECTED
+     *
+     * @param context 页面渲染上下文
+     * @return 按钮动作列表
+     */
+    private List<PageRenderActionItem> buildHorizontalOverActions(PageRenderContext context) {
+        List<PageRenderActionItem> actions = new ArrayList<>();
+        String state = context.getCurrentState();
+        boolean isOwner = context.isOwner();
+        boolean isAdmin = context.hasRole("admin");
+
+        boolean isDraft = state != null && state.endsWith("_DRAFT");
+        boolean isPassed = state != null && state.endsWith("_PASSED");
+        boolean isRejected = state != null && state.endsWith("_REJECTED");
+        boolean isJysAudit = "OVER_JYS_AUDIT".equals(state) || "OVER_JYS".equals(state);
+        boolean isXyAudit = "OVER_XY_AUDIT".equals(state) || "OVER_XY".equals(state);
+        boolean isKycAudit = "OVER_KYC_AUDIT".equals(state) || "OVER_KYC".equals(state);
+        boolean isInAudit = isJysAudit || isXyAudit || isKycAudit;
+
+        // 查看按钮：所有状态
+        if (context.hasPermission("system:apply:info")) {
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_VIEW, "查看",
+                    PageRenderColorConstants.COLOR_INFO, 100));
+        }
+
+        // 查看流程按钮：非草稿状态
+        if (!isDraft && context.hasPermission("system:apply:info")) {
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_VIEW_PROCESS, "流程记录",
+                    PageRenderColorConstants.COLOR_INFO, 101));
+        }
+
+        // 编辑按钮：草稿或驳回状态，课题负责人
+        if ((isDraft || isRejected) && (isOwner || isAdmin)
+                && context.hasPermission("system:apply:edit")) {
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_EDIT, "编辑",
+                    PageRenderColorConstants.COLOR_PRIMARY, 10));
+        }
+
+        // 删除按钮：草稿状态，课题负责人
+        if (isDraft && (isOwner || isAdmin)
+                && context.hasPermission("system:apply:remove")) {
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_REMOVE, "删除",
+                    PageRenderColorConstants.COLOR_DANGER, 20, "确定要删除该结项申请吗？"));
+        }
+
+        // 提交按钮：草稿状态，课题负责人
+        if (isDraft && (isOwner || isAdmin)
+                && context.hasPermission("system:apply:edit")) {
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_SUBMIT, "提交",
+                    PageRenderColorConstants.COLOR_SUCCESS, 5, "确定要提交该结项申请吗？"));
+        }
+
+        // 教研室审批按钮：教研室审批状态，仅教研室用户可见
+        // 批阅按钮用于列表页跳转详情页，通过/驳回按钮用于详情页执行审批
+        if (isJysAudit && context.hasPermission("system:apply:process")) {
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_REVIEW, "批阅",
+                    PageRenderColorConstants.COLOR_PRIMARY, 30));
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_APPROVE, "通过",
+                    PageRenderColorConstants.COLOR_SUCCESS, 31, "确定要通过该结项申请吗？"));
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_REJECT, "驳回",
+                    PageRenderColorConstants.COLOR_DANGER, 32, "确定要驳回该结项申请吗？"));
+        }
+
+        // 科研处审批按钮：科研处审批状态，仅科研处用户可见
+        // 批阅按钮用于列表页跳转详情页，通过/驳回按钮用于详情页执行审批
+        if (isKycAudit && context.hasPermission("system:apply:hecha")) {
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_KY_REVIEW, "批阅",
+                    PageRenderColorConstants.COLOR_PRIMARY, 30));
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_APPROVE, "通过",
+                    PageRenderColorConstants.COLOR_SUCCESS, 31, "确定要通过该结项申请吗？"));
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_REJECT, "驳回",
+                    PageRenderColorConstants.COLOR_DANGER, 32, "确定要驳回该结项申请吗？"));
+        }
+
+        // 撤回按钮：学院/科研处审批中状态，课题负责人
+        if ((isXyAudit || isKycAudit) && isOwner
+                && context.hasPermission("system:apply:edit")) {
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_RECALL, "撤回",
+                    PageRenderColorConstants.COLOR_WARNING, 60, "确定要撤回该结项申请吗？"));
+        }
+
+        // 科研处审批状态，教研室审批人可撤回
+        if (isKycAudit && context.hasPermission("system:apply:process")) {
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_RECALL, "撤回",
+                    PageRenderColorConstants.COLOR_WARNING, 61, "确定要撤回该结项申请吗？"));
+        }
+
+        // 通过状态，科研处可撤回
+        if (isPassed && context.hasPermission("system:apply:hecha")) {
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_RECALL, "撤回",
+                    PageRenderColorConstants.COLOR_WARNING, 62, "确定要撤回该结项申请吗？"));
+        }
+
+        Collections.sort(actions);
+        return actions;
+    }
+
+    /**
      * 从数据库加载的缓存中获取状态映射，避免硬编码
      *
      * @param moduleCode 模块编码
@@ -372,7 +724,12 @@ public class PageRenderServiceImpl implements IPageRenderService {
         if ("PAPER".equals(moduleCode)) {
             return paperStatusMapping;
         }
-        // 其它模块暂返回空映射，后续按需扩展
+        if ("HORIZONTAL_APPLY".equals(moduleCode)) {
+            return horizontalApplyStatusMapping;
+        }
+        if ("HORIZONTAL_OVER".equals(moduleCode)) {
+            return horizontalOverStatusMapping;
+        }
         return Collections.emptyMap();
     }
 

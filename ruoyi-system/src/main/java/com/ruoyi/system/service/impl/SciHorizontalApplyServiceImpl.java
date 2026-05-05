@@ -11,8 +11,11 @@ import com.ruoyi.common.utils.DataScopeUtils;
 import com.ruoyi.common.core.domain.entity.SysRole;
 import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.common.utils.StringUtils;
+import com.ruoyi.common.utils.ShiroUtils;
 import com.ruoyi.system.domain.*;
 import com.ruoyi.system.mapper.*;
+import com.ruoyi.system.service.IPageRenderService;
+import com.ruoyi.system.service.ISysMenuService;
 import com.ruoyi.system.service.SciHorizontalReamountService;
 import com.ruoyi.system.service.IApprovalProcessService;
 import com.ruoyi.system.service.ISysUserService;
@@ -59,6 +62,71 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
     private SciProjectScoreCfgMapper sciProjectScoreCfgMapper;
     @Autowired
     private ISysUserService userService;
+
+    @Autowired
+    private IPageRenderService pageRenderService;
+
+    @Autowired
+    private ISysMenuService sysMenuService;
+
+    /**
+     * 填充页面渲染数据（状态展示信息和按钮动作列表）
+     * @param apply 横向课题对象
+     */
+    private void fillPageRenderData(SciHorizontalApply apply) {
+        try {
+            SysUser currentUser = ShiroUtils.getSysUser();
+            if (currentUser == null) {
+                return;
+            }
+
+            List<String> permissions = new ArrayList<>();
+            Set<String> permsSet = sysMenuService.selectPermsByUserId(currentUser.getUserId());
+            if (permsSet != null) {
+                permissions.addAll(permsSet);
+            }
+
+            List<String> roleKeys = new ArrayList<>();
+            if (currentUser.getRoles() != null) {
+                roleKeys = currentUser.getRoles().stream()
+                        .map(SysRole::getRoleKey).collect(Collectors.toList());
+            }
+
+            String moduleCode = determineModuleCode(apply.getState());
+
+            PageRenderContext context = new PageRenderContext();
+            context.setModuleCode(moduleCode);
+            context.setBusinessId(apply.getId() != null ? apply.getId().longValue() : null);
+            context.setCurrentState(apply.getState());
+            context.setCreatorId(apply.getUserId() != null ? apply.getUserId().longValue() : null);
+            context.setCurrentUser(currentUser);
+            context.setPermissions(permissions);
+            context.setRoleKeys(roleKeys);
+
+            PageRenderStatusMeta statusMeta = pageRenderService.buildStatusMeta(context);
+            List<PageRenderActionItem> actions = pageRenderService.buildActions(context);
+
+            apply.setStatusMeta(statusMeta);
+            apply.setActions(actions);
+        } catch (Exception e) {
+            log.error("填充页面渲染数据失败", e);
+        }
+    }
+
+    /**
+     * 根据状态编码确定模块编码
+     * 立项流程状态以 APPLY_ 开头，使用 HORIZONTAL_APPLY
+     * 结项流程状态以 OVER_ 开头，使用 HORIZONTAL_OVER
+     *
+     * @param state 状态编码
+     * @return 模块编码
+     */
+    private String determineModuleCode(String state) {
+        if (state != null && state.startsWith("OVER_")) {
+            return "HORIZONTAL_OVER";
+        }
+        return "HORIZONTAL_APPLY";
+    }
 
     /**
      * 将业务状态编码转换为审批节点编码
@@ -109,7 +177,11 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
     @Override
     public SciHorizontalApply selectSciHorizontalApplyById(Integer id)
     {
-        return sciHorizontalApplyMapper.selectSciHorizontalApplyById(id);
+        SciHorizontalApply apply = sciHorizontalApplyMapper.selectSciHorizontalApplyById(id);
+        if (apply != null) {
+            fillPageRenderData(apply);
+        }
+        return apply;
     }
 
     /**
@@ -122,7 +194,9 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
     @DataScope(deptAlias = "d",userAlias = "u")
     public List<SciHorizontalApply> selectSciHorizontalApplyList(SciHorizontalApply sciHorizontalApply)
     {
-        return sciHorizontalApplyMapper.selectSciHorizontalApplyList(sciHorizontalApply);
+        List<SciHorizontalApply> list = sciHorizontalApplyMapper.selectSciHorizontalApplyList(sciHorizontalApply);
+        list.forEach(this::fillPageRenderData);
+        return list;
     }
 
     /**
@@ -136,20 +210,26 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciHorizontalApply> selectSciHorizontalApplyListAll(SciHorizontalApply sciHorizontalApply)
     {
-        return sciHorizontalApplyMapper.selectSciHorizontalApplyListAll(sciHorizontalApply);
+        List<SciHorizontalApply> list = sciHorizontalApplyMapper.selectSciHorizontalApplyListAll(sciHorizontalApply);
+        list.forEach(this::fillPageRenderData);
+        return list;
     }
 
     @Override
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciHorizontalApply> selectSciHorizontalApplyListByKYC(SciHorizontalApply sciHorizontalApply)
     {
-        return sciHorizontalApplyMapper.selectSciHorizontalApplyListByKYC(sciHorizontalApply);
+        List<SciHorizontalApply> list = sciHorizontalApplyMapper.selectSciHorizontalApplyListByKYC(sciHorizontalApply);
+        list.forEach(this::fillPageRenderData);
+        return list;
     }
 
     @Override
     @DataScope(deptAlias = "d",userAlias = "u")
     public List<SciHorizontalApply> selectSciHorizontalApplyListByJYS(SciHorizontalApply sciHorizontalApply) {
-        return sciHorizontalApplyMapper.selectSciHorizontalApplyListByJYS(sciHorizontalApply);
+        List<SciHorizontalApply> list = sciHorizontalApplyMapper.selectSciHorizontalApplyListByJYS(sciHorizontalApply);
+        list.forEach(this::fillPageRenderData);
+        return list;
     }
 
     /**
@@ -162,31 +242,41 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
     @Override
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciHorizontalApply> selectSciHorizontalApplyListByOverApply(SciHorizontalApply sciHorizontalApply) {
-        return sciHorizontalApplyMapper.selectSciHorizontalApplyListByOverApply(sciHorizontalApply);
+        List<SciHorizontalApply> list = sciHorizontalApplyMapper.selectSciHorizontalApplyListByOverApply(sciHorizontalApply);
+        list.forEach(this::fillPageRenderData);
+        return list;
     }
 
     @Override
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciHorizontalApply> selectSciHorizontalApplyListByOverApplyJYS(SciHorizontalApply sciHorizontalApply) {
-        return sciHorizontalApplyMapper.selectSciHorizontalApplyListByOverApplyJYS(sciHorizontalApply);
+        List<SciHorizontalApply> list = sciHorizontalApplyMapper.selectSciHorizontalApplyListByOverApplyJYS(sciHorizontalApply);
+        list.forEach(this::fillPageRenderData);
+        return list;
     }
 
     @Override
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciHorizontalApply> selectSciHorizontalApplyListByOverApplyKYC(SciHorizontalApply sciHorizontalApply) {
-        return sciHorizontalApplyMapper.selectSciHorizontalApplyListByOverApplyKYC(sciHorizontalApply);
+        List<SciHorizontalApply> list = sciHorizontalApplyMapper.selectSciHorizontalApplyListByOverApplyKYC(sciHorizontalApply);
+        list.forEach(this::fillPageRenderData);
+        return list;
     }
 
 
     @Override
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciHorizontalApply> selectSciHorizontalApplyListByOVER(SciHorizontalApply sciHorizontalApply) {
-        return sciHorizontalApplyMapper.selectSciHorizontalApplyListByOVER(sciHorizontalApply);
+        List<SciHorizontalApply> list = sciHorizontalApplyMapper.selectSciHorizontalApplyListByOVER(sciHorizontalApply);
+        list.forEach(this::fillPageRenderData);
+        return list;
     }
     @Override
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciHorizontalApply> selectSciHorizontalApplyListByOVERKYC(SciHorizontalApply sciHorizontalApply) {
-        return sciHorizontalApplyMapper.selectSciHorizontalApplyListByOVERKYC(sciHorizontalApply);
+        List<SciHorizontalApply> list = sciHorizontalApplyMapper.selectSciHorizontalApplyListByOVERKYC(sciHorizontalApply);
+        list.forEach(this::fillPageRenderData);
+        return list;
     }
 
 
@@ -655,13 +745,17 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
     @Override
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciHorizontalApply> selectSciHorizontalApplyListByDept(SciHorizontalApply sciHorizontalApply) {
-        return sciHorizontalApplyMapper.selectSciHorizontalApplyListByDept(sciHorizontalApply);
+        List<SciHorizontalApply> list = sciHorizontalApplyMapper.selectSciHorizontalApplyListByDept(sciHorizontalApply);
+        list.forEach(this::fillPageRenderData);
+        return list;
     }
 
     @Override
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciHorizontalApply> selectSciHorizontalApplyListByOverDept(SciHorizontalApply sciHorizontalApply) {
-        return sciHorizontalApplyMapper.selectSciHorizontalApplyListByOverDept(sciHorizontalApply);
+        List<SciHorizontalApply> list = sciHorizontalApplyMapper.selectSciHorizontalApplyListByOverDept(sciHorizontalApply);
+        list.forEach(this::fillPageRenderData);
+        return list;
     }
 
     @Override

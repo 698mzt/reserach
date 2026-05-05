@@ -617,7 +617,7 @@ public class SciHorizontalApplyController extends BaseController
 //detail 审批
     @RequiresPermissions("system:apply:info")
     @GetMapping("/detail/{id}/{urlFlag}")
-    public String detail(@PathVariable("id") Integer id,@PathVariable("urlFlag") String urlFlag, ModelMap mmap)
+    public String detail(@PathVariable("id") Integer id,@PathVariable("urlFlag") String urlFlag, ModelMap mmap) throws com.fasterxml.jackson.core.JsonProcessingException
     {
         SciHorizontalApply sciHorizontalApply = sciHorizontalApplyService.selectSciHorizontalApplyById(id);
         List<SysUser> userList1 =  userService.selectAllUser();
@@ -650,6 +650,12 @@ public class SciHorizontalApplyController extends BaseController
             extraMembers = allMemberIds.subList(4, allMemberIds.size());
         }
         mmap.put("extraMembers", extraMembers);
+
+        com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+        String actionsJson = (sciHorizontalApply.getActions() != null && !sciHorizontalApply.getActions().isEmpty())
+                ? mapper.writeValueAsString(sciHorizontalApply.getActions()) : "[]";
+        mmap.put("actionsJson", actionsJson);
+
         return prefix + "/detail";
     }
     
@@ -801,7 +807,7 @@ public class SciHorizontalApplyController extends BaseController
 
     @RequiresPermissions("system:apply:info")
     @GetMapping("/overdetail/{id}/{urlFlag}")
-    public String overdetail(@PathVariable("id") Integer id,@PathVariable("urlFlag") String urlFlag, ModelMap mmap)
+    public String overdetail(@PathVariable("id") Integer id,@PathVariable("urlFlag") String urlFlag, ModelMap mmap) throws com.fasterxml.jackson.core.JsonProcessingException
     {
         SciHorizontalApply sciHorizontalApply = sciHorizontalApplyService.selectSciHorizontalApplyById(id);
         List<SysUser> userList1 =  userService.selectAllUser();
@@ -830,6 +836,12 @@ public class SciHorizontalApplyController extends BaseController
             extraMembers = allMemberIds.subList(4, allMemberIds.size());
         }
         mmap.put("extraMembers", extraMembers);
+
+        com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+        String actionsJson = (sciHorizontalApply.getActions() != null && !sciHorizontalApply.getActions().isEmpty())
+                ? mapper.writeValueAsString(sciHorizontalApply.getActions()) : "[]";
+        mmap.put("actionsJson", actionsJson);
+
         return prefix + "/overdetail";
     }
 
