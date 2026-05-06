@@ -3,6 +3,7 @@ package com.ruoyi.web.controller.system;
 import java.util.*;
 
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.PageHelper;
 import com.ruoyi.common.config.RuoYiConfig;
 import com.ruoyi.common.config.ServerConfig;
@@ -10,31 +11,16 @@ import com.ruoyi.common.utils.file.FileUploadUtils;
 import com.ruoyi.common.utils.file.FileUtils;
 import com.ruoyi.system.mapper.SciPaperAMapper;
 import com.ruoyi.system.service.impl.PageRenderServiceImpl;
-import org.apache.ibatis.annotations.Param;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-
-import com.ruoyi.common.core.domain.entity.SysRole;
 import com.ruoyi.common.core.domain.entity.SysUser;
-import com.ruoyi.common.utils.ShiroUtils;
-import com.ruoyi.system.domain.SciHorizontalApply;
-import com.ruoyi.system.domain.SciHorizontalPiyue;
 import com.ruoyi.system.domain.SciPaperAr;
 import com.ruoyi.system.domain.Paper_user_score;
-import com.ruoyi.system.domain.SysApprovalHistory;
 import com.ruoyi.system.service.*;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.*;
 import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.system.domain.SciPaperA;
@@ -43,6 +29,7 @@ import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.common.core.page.TableDataInfo;
 import org.springframework.web.multipart.MultipartFile;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 import javax.annotation.Resource;
 
@@ -593,7 +580,7 @@ public class SciPaperAController extends BaseController {
     @RequiresPermissions(value = {"system:paper:xypy", "system:paper:process", "system:paper:kypy", "system:paper:info"}, logical = Logical.OR)
     @Log(title = "论文详情查看", businessType = BusinessType.OTHER)
     @GetMapping("/detail/{id}/{urlFlag}")
-    public String detail(@PathVariable("id") Long id, @PathVariable("urlFlag") String urlFlag, ModelMap mmap) throws com.fasterxml.jackson.core.JsonProcessingException {
+    public String detail(@PathVariable("id") Long id, @PathVariable("urlFlag") String urlFlag, ModelMap mmap) throws JsonProcessingException {
         SciPaperA sciPaperA = sciPaperAService.selectSciPaperAById(id);
         if (sciPaperA == null) {
             return prefix + "/paper";
@@ -601,7 +588,7 @@ public class SciPaperAController extends BaseController {
         sciPaperA.setUrlFlag(urlFlag);
         mmap.put("sciPaperA", sciPaperA);
         // 将actions序列化为JSON字符串供前端使用
-        com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+        ObjectMapper mapper = new ObjectMapper();
         String actionsJson = (sciPaperA.getActions() != null && !sciPaperA.getActions().isEmpty())
                 ? mapper.writeValueAsString(sciPaperA.getActions()) : "[]";
         mmap.put("actionsJson", actionsJson);
@@ -617,7 +604,7 @@ public class SciPaperAController extends BaseController {
     @RequiresPermissions(value = {"system:paper:xypy", "system:paper:process", "system:paper:kypy", "system:paper:info"}, logical = Logical.OR)
     @Log(title = "论文详情查看", businessType = BusinessType.OTHER)
     @GetMapping("/detail/{id}")
-    public String detail(@PathVariable("id") Long id, ModelMap mmap) throws com.fasterxml.jackson.core.JsonProcessingException {
+    public String detail(@PathVariable("id") Long id, ModelMap mmap) throws JsonProcessingException {
         SciPaperA sciPaperA = sciPaperAService.selectSciPaperAById(id);
         if (sciPaperA == null) {
             return prefix + "/paper";
@@ -625,7 +612,7 @@ public class SciPaperAController extends BaseController {
         sciPaperA.setUrlFlag("");
         mmap.put("sciPaperA", sciPaperA);
         // 将actions序列化为JSON字符串供前端使用
-        com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+        ObjectMapper mapper = new ObjectMapper();
         String actionsJson = (sciPaperA.getActions() != null && !sciPaperA.getActions().isEmpty())
                 ? mapper.writeValueAsString(sciPaperA.getActions()) : "[]";
         mmap.put("actionsJson", actionsJson);
