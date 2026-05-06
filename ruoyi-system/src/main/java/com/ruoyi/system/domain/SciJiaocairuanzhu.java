@@ -1,6 +1,7 @@
 package com.ruoyi.system.domain;
 
 import java.util.Date;
+import java.util.List;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -513,5 +514,26 @@ public class SciJiaocairuanzhu extends BaseEntity
         return this.state;
     }
 
+    /** 状态展示元数据 */
+    private PageRenderStatusMeta statusMeta;
+
+    /** 按钮动作列表 */
+    private List<PageRenderActionItem> actions;
+
+    public PageRenderStatusMeta getStatusMeta() {
+        return statusMeta;
+    }
+
+    public void setStatusMeta(PageRenderStatusMeta statusMeta) {
+        this.statusMeta = statusMeta;
+    }
+
+    public List<PageRenderActionItem> getActions() {
+        return actions;
+    }
+
+    public void setActions(List<PageRenderActionItem> actions) {
+        this.actions = actions;
+    }
 
 }
