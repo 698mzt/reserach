@@ -9,6 +9,7 @@ import com.ruoyi.common.config.ServerConfig;
 import com.ruoyi.common.utils.file.FileUploadUtils;
 import com.ruoyi.common.utils.file.FileUtils;
 import com.ruoyi.system.mapper.SciPaperAMapper;
+import com.ruoyi.system.service.impl.PageRenderServiceImpl;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -902,8 +903,8 @@ public class SciPaperAController extends BaseController {
     @ResponseBody
     public AjaxResult refreshRenderCache() {
         try {
-            if (pageRenderService instanceof com.ruoyi.system.service.impl.PageRenderServiceImpl) {
-                ((com.ruoyi.system.service.impl.PageRenderServiceImpl) pageRenderService).refreshCache();
+            if (pageRenderService instanceof PageRenderServiceImpl) {
+                ((PageRenderServiceImpl) pageRenderService).refreshCache();
                 return AjaxResult.success("配置缓存刷新成功");
             }
             return AjaxResult.error("页面渲染服务不支持缓存刷新");
