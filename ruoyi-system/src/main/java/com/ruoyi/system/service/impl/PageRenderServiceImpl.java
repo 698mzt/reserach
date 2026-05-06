@@ -2,14 +2,9 @@ package com.ruoyi.system.service.impl;
 
 import com.ruoyi.system.constant.PageRenderActionConstants;
 import com.ruoyi.system.constant.PageRenderColorConstants;
-import com.ruoyi.system.domain.PageRenderActionItem;
-import com.ruoyi.system.domain.PageRenderContext;
-import com.ruoyi.system.domain.PageRenderResult;
-import com.ruoyi.system.domain.PageRenderStatusMeta;
-import com.ruoyi.system.domain.SciPaperA;
-import com.ruoyi.system.domain.SysApprovalNode;
-import com.ruoyi.system.domain.SysApprovalState;
+import com.ruoyi.system.domain.*;
 import com.ruoyi.system.mapper.SysApprovalNodeMapper;
+import com.ruoyi.system.mapper.SysApprovalProcessMapper;
 import com.ruoyi.system.mapper.SysApprovalStateMapper;
 import com.ruoyi.system.service.IPageRenderService;
 import org.slf4j.Logger;
@@ -36,8 +31,35 @@ public class PageRenderServiceImpl implements IPageRenderService {
 
     private static final Logger log = LoggerFactory.getLogger(PageRenderServiceImpl.class);
 
-    /** 论文模块流程编码 */
+    /** 横向课题立项审批 */
+    private static final String HORIZONTAL_APPLY_PROCESS_CODE = "horizontal_apply";
+
+    /** 横向课题结项审批 */
+    private static final String HORIZONTAL_OVER_PROCESS_CODE = "horizontal_over";
+
+    /** 纵向课题立项审批 */
+    private static final String VERTICAL_APPLY_PROCESS_CODE = "vertical_apply";
+
+    /** 纵向课题结项审批 */
+    private static final String VERTICAL_OVER_PROCESS_CODE = "vertical_over";
+
+    /** 论文审批流程 */
     private static final String PAPER_PROCESS_CODE = "paper_approval";
+
+    /** 教材专著审批流程 */
+    private static final String TEXTBOOK_APPROVAL_PROCESS_CODE = "textbook_approval";
+
+    /** 成果转化审批 */
+    private static final String INTRASCHPRO_APPLY_PROCESS_CODE = "intraschpro_apply";
+
+    /** 奖励审批 */
+    private static final String REWARD_APPLY_PROCESS_CODE = "reward_apply";
+
+    /** 讲座报告审批 */
+    private static final String LECTURE_APPROVAL_PROCESS_CODE = "lecture_approval";
+
+    /** 专利软著审批 */
+    private static final String PATENT_APPLY_PROCESS_CODE = "patent_apply";
 
     @Autowired
     private SysApprovalStateMapper approvalStateMapper;
@@ -46,7 +68,7 @@ public class PageRenderServiceImpl implements IPageRenderService {
     private SysApprovalNodeMapper approvalNodeMapper;
 
     @Autowired
-    private com.ruoyi.system.mapper.SysApprovalProcessMapper approvalProcessMapper;
+    private SysApprovalProcessMapper approvalProcessMapper;
 
     /** 论文模块状态映射配置（从数据库动态加载） */
     private final Map<String, StatusMapping> paperStatusMapping = new HashMap<>();
@@ -64,7 +86,7 @@ public class PageRenderServiceImpl implements IPageRenderService {
             log.info("开始加载审批流程配置...");
             loadStatusMapping();
             loadNodeMapping();
-            log.info("审批流程配置加载完成，状态数: {}, 节点数: {}", 
+            log.info("审批流程配置加载完成，状态数: {}, 节点数: {}",
                     paperStatusMapping.size(), paperNodeMapping.size());
         } catch (Exception e) {
             log.error("加载审批流程配置失败，将使用空配置", e);
@@ -77,19 +99,19 @@ public class PageRenderServiceImpl implements IPageRenderService {
      */
     private void loadStatusMapping() {
         paperStatusMapping.clear();
-        
+
         // 查询论文流程的所有状态
         List<SysApprovalState> states = approvalStateMapper.selectSysApprovalStateByProcessCode(PAPER_PROCESS_CODE);
         if (states == null || states.isEmpty()) {
             log.warn("未找到流程 {} 的状态配置，请检查sys_approval_state表", PAPER_PROCESS_CODE);
             return;
         }
-        
+
         for (SysApprovalState state : states) {
             // 只加载启用的状态（status=0）
             if ("0".equals(state.getStatus())) {
                 String colorType = getColorTypeBySort(state.getSort());
-                paperStatusMapping.put(state.getStateCode(), 
+                paperStatusMapping.put(state.getStateCode(),
                         new StatusMapping(state.getStateName(), colorType, getSemanticByStateCode(state.getStateCode())));
             }
         }
@@ -101,21 +123,21 @@ public class PageRenderServiceImpl implements IPageRenderService {
      */
     private void loadNodeMapping() {
         paperNodeMapping.clear();
-        
+
         // 先根据流程编码查询流程ID，避免硬编码
-        com.ruoyi.system.domain.SysApprovalProcess process = approvalProcessMapper.selectSysApprovalProcessByProcessCode(PAPER_PROCESS_CODE);
+        SysApprovalProcess process = approvalProcessMapper.selectSysApprovalProcessByProcessCode(PAPER_PROCESS_CODE);
         if (process == null) {
             log.warn("未找到流程编码 {} 的配置，请检查sys_approval_process表", PAPER_PROCESS_CODE);
             return;
         }
-        
+
         // 查询论文流程的所有节点
         List<SysApprovalNode> nodes = approvalNodeMapper.selectSysApprovalNodeByProcessId(process.getId());
         if (nodes == null || nodes.isEmpty()) {
             log.warn("未找到流程 {} 的节点配置，请检查sys_approval_node表", PAPER_PROCESS_CODE);
             return;
         }
-        
+
         for (SysApprovalNode node : nodes) {
             // 只加载启用的节点（status=0）
             if ("0".equals(node.getStatus())) {
@@ -250,7 +272,7 @@ public class PageRenderServiceImpl implements IPageRenderService {
         String state = context.getCurrentState();
         boolean isOwner = context.isOwner();
         boolean isAdmin = context.hasRole("admin");
-        
+
         // 从数据库节点配置获取当前节点信息
         SysApprovalNode currentNode = paperNodeMapping.get(state);
         boolean isInAudit = currentNode != null && state.endsWith("_AUDIT");

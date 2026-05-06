@@ -23,6 +23,12 @@ public class PageRenderActionConstants {
     /** 提交 */
     public static final String ACTION_SUBMIT = "submit";
 
+    /** 申请结项（横向课题特有） */
+    public static final String ACTION_OVER_APPLY = "overApply";
+
+    /** 追加金额（横向课题特有） */
+    public static final String ACTION_REAMOUNT = "reamount";
+
     /** 审批通过 */
     public static final String ACTION_APPROVE = "approve";
 
@@ -37,6 +43,9 @@ public class PageRenderActionConstants {
 
     /** 科研核查（科研处审批入口） */
     public static final String ACTION_KY_REVIEW = "kyReview";
+
+    /** 学院批阅（学院审批入口） */
+    public static final String ACTION_DEPT_REVIEW = "deptReview";
 
     private PageRenderActionConstants() {
     }
