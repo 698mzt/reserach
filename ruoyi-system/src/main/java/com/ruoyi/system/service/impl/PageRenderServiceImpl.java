@@ -2,14 +2,9 @@ package com.ruoyi.system.service.impl;
 
 import com.ruoyi.system.constant.PageRenderActionConstants;
 import com.ruoyi.system.constant.PageRenderColorConstants;
-import com.ruoyi.system.domain.PageRenderActionItem;
-import com.ruoyi.system.domain.PageRenderContext;
-import com.ruoyi.system.domain.PageRenderResult;
-import com.ruoyi.system.domain.PageRenderStatusMeta;
-import com.ruoyi.system.domain.SciPaperA;
-import com.ruoyi.system.domain.SysApprovalNode;
-import com.ruoyi.system.domain.SysApprovalState;
+import com.ruoyi.system.domain.*;
 import com.ruoyi.system.mapper.SysApprovalNodeMapper;
+import com.ruoyi.system.mapper.SysApprovalProcessMapper;
 import com.ruoyi.system.mapper.SysApprovalStateMapper;
 import com.ruoyi.system.service.IPageRenderService;
 import org.slf4j.Logger;
@@ -73,7 +68,7 @@ public class PageRenderServiceImpl implements IPageRenderService {
     private SysApprovalNodeMapper approvalNodeMapper;
 
     @Autowired
-    private com.ruoyi.system.mapper.SysApprovalProcessMapper approvalProcessMapper;
+    private SysApprovalProcessMapper approvalProcessMapper;
 
     /** 论文模块状态映射配置（从数据库动态加载） */
     private final Map<String, StatusMapping> paperStatusMapping = new HashMap<>();
@@ -130,7 +125,7 @@ public class PageRenderServiceImpl implements IPageRenderService {
         paperNodeMapping.clear();
         
         // 先根据流程编码查询流程ID，避免硬编码
-        com.ruoyi.system.domain.SysApprovalProcess process = approvalProcessMapper.selectSysApprovalProcessByProcessCode(PAPER_PROCESS_CODE);
+        SysApprovalProcess process = approvalProcessMapper.selectSysApprovalProcessByProcessCode(PAPER_PROCESS_CODE);
         if (process == null) {
             log.warn("未找到流程编码 {} 的配置，请检查sys_approval_process表", PAPER_PROCESS_CODE);
             return;
