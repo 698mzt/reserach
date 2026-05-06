@@ -33,6 +33,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.system.service.ISciHorizontalApplyService;
@@ -70,6 +72,8 @@ public class SciHorizontalApplyController extends BaseController
     private SciHorizontalReamountService sciHorizontalReamountService;
     @Autowired
     private IApprovalProcessService approvalProcessService;
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     /**
      * 计算横向课题预期积分
@@ -225,8 +229,7 @@ public class SciHorizontalApplyController extends BaseController
 
     @RequiresPermissions("system:apply:view")
     @GetMapping()
-    public String apply(ModelMap mmap)
-    {
+    public String apply(ModelMap mmap) {
         // 将当前用户信息传递到模板，用于前端角色识别
         mmap.put("user", getSysUser());
         return prefix + "/apply";
@@ -596,8 +599,7 @@ public class SciHorizontalApplyController extends BaseController
     @Log(title = "申请结项横向课题", businessType = BusinessType.INSERT)
     @PostMapping("/overadd")
     @ResponseBody
-    public AjaxResult overaddSave(SciHorizontalApply sciHorizontalApply,SciHorizontalReamount sciHorizontalReamount)
-    {
+    public AjaxResult overaddSave(SciHorizontalApply sciHorizontalApply, SciHorizontalReamount sciHorizontalReamount) {
         Integer id = sciHorizontalApply.getId();
         sciHorizontalReamount.setApplyId(id.toString());
         sciHorizontalReamount.setState("OVER_JYS_AUDIT");
@@ -617,8 +619,7 @@ public class SciHorizontalApplyController extends BaseController
 //detail 审批
     @RequiresPermissions("system:apply:info")
     @GetMapping("/detail/{id}/{urlFlag}")
-    public String detail(@PathVariable("id") Integer id,@PathVariable("urlFlag") String urlFlag, ModelMap mmap) throws com.fasterxml.jackson.core.JsonProcessingException
-    {
+    public String detail(@PathVariable("id") Integer id, @PathVariable("urlFlag") String urlFlag, ModelMap mmap) throws JsonProcessingException {
         SciHorizontalApply sciHorizontalApply = sciHorizontalApplyService.selectSciHorizontalApplyById(id);
         List<SysUser> userList1 =  userService.selectAllUser();
         sciHorizontalApply.setUrlFlag(urlFlag);
@@ -651,9 +652,8 @@ public class SciHorizontalApplyController extends BaseController
         }
         mmap.put("extraMembers", extraMembers);
 
-        com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
         String actionsJson = (sciHorizontalApply.getActions() != null && !sciHorizontalApply.getActions().isEmpty())
-                ? mapper.writeValueAsString(sciHorizontalApply.getActions()) : "[]";
+                ? objectMapper.writeValueAsString(sciHorizontalApply.getActions()) : "[]";
         mmap.put("actionsJson", actionsJson);
 
         return prefix + "/detail";
@@ -807,8 +807,7 @@ public class SciHorizontalApplyController extends BaseController
 
     @RequiresPermissions("system:apply:info")
     @GetMapping("/overdetail/{id}/{urlFlag}")
-    public String overdetail(@PathVariable("id") Integer id,@PathVariable("urlFlag") String urlFlag, ModelMap mmap) throws com.fasterxml.jackson.core.JsonProcessingException
-    {
+    public String overdetail(@PathVariable("id") Integer id, @PathVariable("urlFlag") String urlFlag, ModelMap mmap) throws JsonProcessingException {
         SciHorizontalApply sciHorizontalApply = sciHorizontalApplyService.selectSciHorizontalApplyById(id);
         List<SysUser> userList1 =  userService.selectAllUser();
         sciHorizontalApply.setUrlFlag(urlFlag);
@@ -837,9 +836,8 @@ public class SciHorizontalApplyController extends BaseController
         }
         mmap.put("extraMembers", extraMembers);
 
-        com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
         String actionsJson = (sciHorizontalApply.getActions() != null && !sciHorizontalApply.getActions().isEmpty())
-                ? mapper.writeValueAsString(sciHorizontalApply.getActions()) : "[]";
+                ? objectMapper.writeValueAsString(sciHorizontalApply.getActions()) : "[]";
         mmap.put("actionsJson", actionsJson);
 
         return prefix + "/overdetail";
@@ -848,8 +846,7 @@ public class SciHorizontalApplyController extends BaseController
     /**已结项查看 */
     @RequiresPermissions("system:apply:info")
     @GetMapping("/overView/{id}/{urlFlag}")
-    public String overView(@PathVariable("id") Integer id,@PathVariable("urlFlag") String urlFlag, ModelMap mmap)
-    {
+    public String overView(@PathVariable("id") Integer id, @PathVariable("urlFlag") String urlFlag, ModelMap mmap) {
         SciHorizontalApply sciHorizontalApply = sciHorizontalApplyService.selectSciHorizontalApplyById(id);
         List<SysUser> userList1 =  userService.selectAllUser();
         sciHorizontalApply.setUrlFlag(urlFlag);
@@ -1236,8 +1233,7 @@ public class SciHorizontalApplyController extends BaseController
     @RequiresPermissions("system:apply:edit")
     @PostMapping("/abhyy/{kid}")
     @ResponseBody
-    public TableDataInfo abhyy(@PathVariable("kid")Integer kid)
-    {
+    public TableDataInfo abhyy(@PathVariable("kid") Integer kid) {
         SciHorizontalPiyue ob = new SciHorizontalPiyue();
         ob.setHxktId(kid);
         List<SciHorizontalPiyue> list = piyueService.selectSciHorizontalAmountPiyueList(ob);
@@ -1260,10 +1256,9 @@ public class SciHorizontalApplyController extends BaseController
     /**
      * 删除审批 横向课题操作
      */
-    @RequiresPermissions(value={"system:apply:hecha","system:apply:process","system:apply:Dept"},logical= Logical.OR)
+    @RequiresPermissions(value={"system:apply:hecha","system:apply:process","system:apply:Dept"}, logical= Logical.OR)
     @GetMapping("/recall/{id}")
-    public String recall(@PathVariable("id") Integer id, ModelMap mmap)
-    {
+    public String recall(@PathVariable("id") Integer id, ModelMap mmap) {
         SciHorizontalApply sciHorizontalApply = sciHorizontalApplyService.selectSciHorizontalApplyById(id);
         List<SysUser> userList1 =  userService.selectAllUser();
         //        创建一个“其他”

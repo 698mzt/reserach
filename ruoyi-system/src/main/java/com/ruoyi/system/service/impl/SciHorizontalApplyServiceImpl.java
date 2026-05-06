@@ -73,8 +73,7 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
 
     /**
      * 填充页面渲染数据（状态展示信息和按钮动作列表）
-     * 在不修改 PageRenderServiceImpl 的前提下，横向课题模块自行补齐状态与动作。
-     * 优先使用实际业务状态编码（APPLY_/OVER_）构建 statusMeta，并按当前用户权限生成 actions。
+     * 优先直接调用 PageRender 公共服务构建状态与动作，横向课题特有规则仍在本模块兜底补齐。
      *
      * @param apply 横向课题对象
      */
@@ -98,7 +97,10 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
             context.setRoleKeys(roleKeys);
 
             PageRenderStatusMeta statusMeta = buildHorizontalStatusMeta(context);
-            List<PageRenderActionItem> actions = buildHorizontalActions(context);
+            List<PageRenderActionItem> actions = pageRenderService.buildActions(context);
+            if (actions == null || actions.isEmpty()) {
+                actions = buildHorizontalActions(context);
+            }
 
             apply.setStatusMeta(statusMeta);
             apply.setActions(actions);
@@ -165,7 +167,7 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
 
     /**
      * 构建横向课题按钮动作列表。
-     * PageRenderServiceImpl 当前未覆盖横向课题模块，因此此处在服务层按横向课题规则补齐动作集。
+     * 先直接调用 PageRender 公共服务；若公共服务未返回横向课题动作，再按横向课题规则补齐。
      * 规则说明：
      * 1. 草稿：view / edit / remove / submit
      * 2. 驳回：view / edit / submit
