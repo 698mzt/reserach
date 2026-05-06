@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 import com.ruoyi.common.annotation.DataScope;
 import com.ruoyi.common.utils.DataScopeUtils;
-import com.ruoyi.common.core.domain.AjaxResult;
+import com.ruoyi.common.core.domain.entity.SysRole;
 import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.common.utils.ShiroUtils;
 import com.ruoyi.system.domain.*;
@@ -924,7 +924,7 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
             List<String> roleKeys = new ArrayList<>();
             if (currentUser.getRoles() != null) {
                 roleKeys = currentUser.getRoles().stream()
-                        .map(com.ruoyi.common.core.domain.entity.SysRole::getRoleKey)
+                        .map(SysRole::getRoleKey)
                         .collect(Collectors.toList());
             }
 
