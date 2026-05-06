@@ -3,6 +3,8 @@ package com.ruoyi.system.service.impl;
 import com.ruoyi.system.constant.PageRenderActionConstants;
 import com.ruoyi.system.constant.PageRenderColorConstants;
 import com.ruoyi.system.domain.*;
+import com.ruoyi.system.mapper.SysApprovalNodeMapper;
+import com.ruoyi.system.mapper.SysApprovalProcessMapper;
 import com.ruoyi.system.mapper.SysApprovalStateMapper;
 import com.ruoyi.system.service.IPageRenderService;
 import org.slf4j.Logger;
@@ -19,10 +21,10 @@ import java.util.Map;
 
 /**
  * 页面渲染公共服务实现类
- * 实现统一的状态展示构造和按钮动作构造逻辑，支持八大模块通用化
+ * 实现统一的通用规则引擎，支持八大模块通用化
  * 状态映射和按钮规则从数据库审批流程配置中动态加载，避免硬编码
  *
- * 八大模块：论文、教材软著、专利软著、讲座报告、奖励、横向项目、纵向项目、成果转化
+ * 八大模块：论文、教材软著、专利软著、讲座报告、奖励、横向项目申报、横向项目结题、纵向项目申报、纵向项目结题、成果转化
  *
  * @author ruoyi
  */
@@ -66,25 +68,28 @@ public class PageRenderServiceImpl implements IPageRenderService {
      * 包含流程编码、权限前缀、模块名称等，用于通用化按钮规则构造
      */
     private static class ModuleConfig {
-        /** 流程编码（用于查询数据库状态/节点配置） */
+        private final String moduleCode;
+        private final String permPrefix;
         private final String processCode;
-        /** 权限前缀（如 system:paper:、system:reward:） */
-        private final String permissionPrefix;
-        /** 模块名称（用于日志输出） */
         private final String moduleName;
 
-        ModuleConfig(String processCode, String permissionPrefix, String moduleName) {
+        ModuleConfig(String moduleCode, String permPrefix, String processCode, String moduleName) {
+            this.moduleCode = moduleCode;
+            this.permPrefix = permPrefix;
             this.processCode = processCode;
-            this.permissionPrefix = permissionPrefix;
             this.moduleName = moduleName;
+        }
+
+        String getModuleCode() {
+            return moduleCode;
+        }
+
+        String getPermPrefix() {
+            return permPrefix;
         }
 
         String getProcessCode() {
             return processCode;
-        }
-
-        String getPermissionPrefix() {
-            return permissionPrefix;
         }
 
         String getModuleName() {
@@ -98,31 +103,42 @@ public class PageRenderServiceImpl implements IPageRenderService {
          * @return 完整权限标识（如 system:paper:info）
          */
         String buildPermission(String action) {
-            return permissionPrefix + action;
+            return permPrefix + ":" + action;
         }
     }
 
     @Autowired
     private SysApprovalStateMapper approvalStateMapper;
 
-    /** 八大模块配置注册表（模块编码 -> 模块配置） */
-    private final Map<String, ModuleConfig> moduleConfigs = new HashMap<>();
+    @Autowired
+    private SysApprovalNodeMapper approvalNodeMapper;
 
-    /** 各模块状态映射配置（模块编码 -> 状态编码 -> 状态映射） */
+    @Autowired
+    private SysApprovalProcessMapper approvalProcessMapper;
+
+    /** 八大模块配置注册表（moduleCode -> ModuleConfig） */
+    private final Map<String, ModuleConfig> MODULE_REGISTRY = new HashMap<>();
+
+    /** 各流程状态映射配置（processCode -> stateCode -> StatusMapping） */
     private final Map<String, Map<String, StatusMapping>> allStatusMappings = new HashMap<>();
 
+    /** 各流程审批节点配置（processCode -> nodeCode -> SysApprovalNode） */
+    private final Map<String, Map<String, SysApprovalNode>> allNodeMappings = new HashMap<>();
+
+    /** 模块编码到流程编码的映射缓存（moduleCode -> SysApprovalProcess） */
+    private final Map<String, SysApprovalProcess> moduleProcessCache = new HashMap<>();
+
     /**
-     * 应用启动时从数据库加载审批流程配置，初始化所有模块的状态映射
-     * 避免硬编码状态，支持通过数据库配置动态调整
+     * 应用启动时从数据库加载审批流程配置，初始化所有模块的状态映射和节点映射
      */
     @PostConstruct
     public void init() {
         try {
             log.info("开始加载八大模块审批流程配置...");
             registerModuleConfigs();
-            loadAllStatusMappings();
-            log.info("八大模块审批流程配置加载完成，模块数: {}, 总状态数: {}",
-                    moduleConfigs.size(), countAllStatusMappings());
+            loadAllModuleConfigs();
+            log.info("八大模块审批流程配置加载完成，注册模块数: {}, 总状态数: {}, 总节点数: {}",
+                    MODULE_REGISTRY.size(), countAllStatusMappings(), countAllNodeMappings());
         } catch (Exception e) {
             log.error("加载八大模块审批流程配置失败，将使用空配置", e);
         }
@@ -130,33 +146,54 @@ public class PageRenderServiceImpl implements IPageRenderService {
 
     /**
      * 注册八大模块配置
-     * 每个模块注册流程编码和权限前缀，用于通用化按钮规则构造
+     * 每个模块注册 moduleCode、权限前缀、流程编码和模块名称
      */
     private void registerModuleConfigs() {
-        moduleConfigs.put("PAPER", new ModuleConfig(PAPER_PROCESS_CODE, "system:paper:", "论文"));
-        moduleConfigs.put("REWARD", new ModuleConfig(REWARD_APPLY_PROCESS_CODE, "system:reward:", "奖励"));
-        moduleConfigs.put("TEXTBOOK", new ModuleConfig(TEXTBOOK_APPROVAL_PROCESS_CODE, "system:textbook:", "教材软著"));
-        moduleConfigs.put("PATENT", new ModuleConfig(PATENT_APPLY_PROCESS_CODE, "system:patent:", "专利软著"));
-        moduleConfigs.put("LECTURE", new ModuleConfig(LECTURE_APPROVAL_PROCESS_CODE, "system:lecture:", "讲座报告"));
-        moduleConfigs.put("HORIZONTAL_APPLY", new ModuleConfig(HORIZONTAL_APPLY_PROCESS_CODE, "system:horizontal:", "横向项目申报"));
-        moduleConfigs.put("HORIZONTAL_OVER", new ModuleConfig(HORIZONTAL_OVER_PROCESS_CODE, "system:horizontal:", "横向项目结题"));
-        moduleConfigs.put("VERTICAL_APPLY", new ModuleConfig(VERTICAL_APPLY_PROCESS_CODE, "system:vertical:", "纵向项目申报"));
-        moduleConfigs.put("VERTICAL_OVER", new ModuleConfig(VERTICAL_OVER_PROCESS_CODE, "system:vertical:", "纵向项目结题"));
-        moduleConfigs.put("TEC_TRA", new ModuleConfig(INTRASCHPRO_APPLY_PROCESS_CODE, "system:teccar:", "成果转化"));
-        log.info("已注册 {} 个模块配置", moduleConfigs.size());
+        MODULE_REGISTRY.put("PAPER", new ModuleConfig("PAPER", "system:paper", PAPER_PROCESS_CODE, "论文"));
+        MODULE_REGISTRY.put("REWARD", new ModuleConfig("REWARD", "system:reward", REWARD_APPLY_PROCESS_CODE, "奖励"));
+        MODULE_REGISTRY.put("TEXTBOOK", new ModuleConfig("TEXTBOOK", "system:textbook", TEXTBOOK_APPROVAL_PROCESS_CODE, "教材软著"));
+        MODULE_REGISTRY.put("PATENT", new ModuleConfig("PATENT", "system:patent", PATENT_APPLY_PROCESS_CODE, "专利软著"));
+        MODULE_REGISTRY.put("LECTURE", new ModuleConfig("LECTURE", "system:lecture", LECTURE_APPROVAL_PROCESS_CODE, "讲座报告"));
+        MODULE_REGISTRY.put("HORIZONTAL_APPLY", new ModuleConfig("HORIZONTAL_APPLY", "system:apply", HORIZONTAL_APPLY_PROCESS_CODE, "横向项目申报"));
+        MODULE_REGISTRY.put("HORIZONTAL_OVER", new ModuleConfig("HORIZONTAL_OVER", "system:apply", HORIZONTAL_OVER_PROCESS_CODE, "横向项目结题"));
+        MODULE_REGISTRY.put("VERTICAL_APPLY", new ModuleConfig("VERTICAL_APPLY", "system:vertical", VERTICAL_APPLY_PROCESS_CODE, "纵向项目申报"));
+        MODULE_REGISTRY.put("VERTICAL_OVER", new ModuleConfig("VERTICAL_OVER", "system:vertical", VERTICAL_OVER_PROCESS_CODE, "纵向项目结题"));
+        MODULE_REGISTRY.put("TEC_TRA", new ModuleConfig("TEC_TRA", "system:teccar", INTRASCHPRO_APPLY_PROCESS_CODE, "成果转化"));
+        log.info("已注册 {} 个模块配置", MODULE_REGISTRY.size());
     }
 
     /**
-     * 从数据库加载所有模块的状态映射配置
-     * 遍历已注册的模块配置，查询每个流程下的状态，构建模块编码到状态映射的二级缓存
+     * 从数据库加载所有启用流程的状态映射和节点配置
+     * 查询 sys_approval_process 表中所有启用流程，为每个流程加载状态和节点
      */
-    private void loadAllStatusMappings() {
+    private void loadAllModuleConfigs() {
         allStatusMappings.clear();
-        for (Map.Entry<String, ModuleConfig> entry : moduleConfigs.entrySet()) {
-            String moduleCode = entry.getKey();
-            ModuleConfig config = entry.getValue();
-            Map<String, StatusMapping> statusMapping = loadStatusMappingForProcess(config.getProcessCode(), config.getModuleName());
-            allStatusMappings.put(moduleCode, statusMapping);
+        allNodeMappings.clear();
+        moduleProcessCache.clear();
+
+        // 从注册表中获取所有流程编码
+        for (ModuleConfig config : MODULE_REGISTRY.values()) {
+            String processCode = config.getProcessCode();
+            String moduleCode = config.getModuleCode();
+            String moduleName = config.getModuleName();
+
+            // 查询流程信息
+            SysApprovalProcess process = approvalProcessMapper.selectSysApprovalProcessByProcessCode(processCode);
+            if (process == null) {
+                log.warn("未找到流程编码 {} ({}) 的配置，请检查sys_approval_process表", processCode, moduleName);
+                continue;
+            }
+
+            // 缓存流程信息
+            moduleProcessCache.put(moduleCode, process);
+
+            // 加载状态映射
+            Map<String, StatusMapping> statusMapping = loadStatusMappingForProcess(processCode, moduleName);
+            allStatusMappings.put(processCode, statusMapping);
+
+            // 加载节点映射
+            Map<String, SysApprovalNode> nodeMapping = loadNodeMappingForProcess(process.getId(), processCode, moduleName);
+            allNodeMappings.put(processCode, nodeMapping);
         }
     }
 
@@ -175,7 +212,6 @@ public class PageRenderServiceImpl implements IPageRenderService {
             return mapping;
         }
         for (SysApprovalState state : states) {
-            // 只加载启用的状态（status=0）
             if ("0".equals(state.getStatus())) {
                 String colorType = getColorTypeByStateCode(state.getStateCode());
                 mapping.put(state.getStateCode(),
@@ -187,13 +223,50 @@ public class PageRenderServiceImpl implements IPageRenderService {
     }
 
     /**
-     * 统计所有模块的状态映射总数
+     * 从数据库加载指定流程的审批节点配置
+     *
+     * @param processId 流程ID
+     * @param processCode 流程编码
+     * @param moduleName 模块名称（用于日志输出）
+     * @return 节点编码到节点信息的映射表
+     */
+    private Map<String, SysApprovalNode> loadNodeMappingForProcess(Long processId, String processCode, String moduleName) {
+        Map<String, SysApprovalNode> mapping = new HashMap<>();
+        List<SysApprovalNode> nodes = approvalNodeMapper.selectSysApprovalNodeByProcessId(processId);
+        if (nodes == null || nodes.isEmpty()) {
+            log.warn("未找到流程 {} ({}) 的节点配置，请检查sys_approval_node表", processCode, moduleName);
+            return mapping;
+        }
+        for (SysApprovalNode node : nodes) {
+            if ("0".equals(node.getStatus())) {
+                mapping.put(node.getNodeCode(), node);
+            }
+        }
+        log.debug("流程 {} ({}) 加载了 {} 个节点", processCode, moduleName, mapping.size());
+        return mapping;
+    }
+
+    /**
+     * 统计所有流程的状态映射总数
      *
      * @return 状态映射总数
      */
     private int countAllStatusMappings() {
         int count = 0;
         for (Map<String, StatusMapping> mapping : allStatusMappings.values()) {
+            count += mapping.size();
+        }
+        return count;
+    }
+
+    /**
+     * 统计所有流程的节点映射总数
+     *
+     * @return 节点映射总数
+     */
+    private int countAllNodeMappings() {
+        int count = 0;
+        for (Map<String, SysApprovalNode> mapping : allNodeMappings.values()) {
             count += mapping.size();
         }
         return count;
@@ -208,61 +281,90 @@ public class PageRenderServiceImpl implements IPageRenderService {
     }
 
     /**
+     * 状态语义枚举
+     */
+    enum StateSemantic {
+        DRAFT, JYS_AUDIT, KYC_AUDIT, PASSED, REJECTED, UNKNOWN
+    }
+
+    /**
+     * 根据状态编码后缀推导状态语义
+     *
+     * @param stateCode 状态编码
+     * @return 状态语义
+     */
+    private StateSemantic parseStateSemantic(String stateCode) {
+        if (stateCode == null) {
+            return StateSemantic.UNKNOWN;
+        }
+        if (stateCode.endsWith("_DRAFT")) {
+            return StateSemantic.DRAFT;
+        }
+        if (stateCode.contains("_JYS_") && stateCode.endsWith("_AUDIT")) {
+            return StateSemantic.JYS_AUDIT;
+        }
+        if (stateCode.contains("_KYC_") && stateCode.endsWith("_AUDIT")) {
+            return StateSemantic.KYC_AUDIT;
+        }
+        if (stateCode.endsWith("_PASSED")) {
+            return StateSemantic.PASSED;
+        }
+        if (stateCode.endsWith("_REJECTED")) {
+            return StateSemantic.REJECTED;
+        }
+        return StateSemantic.UNKNOWN;
+    }
+
+    /**
      * 根据状态编码计算颜色类型
-     * 基于状态编码后缀判断语义，统一颜色规则
      *
      * @param stateCode 状态编码
      * @return 颜色类型
      */
     private String getColorTypeByStateCode(String stateCode) {
-        if (stateCode == null) {
-            return PageRenderColorConstants.COLOR_DEFAULT;
+        StateSemantic semantic = parseStateSemantic(stateCode);
+        switch (semantic) {
+            case DRAFT:
+                return PageRenderColorConstants.COLOR_DEFAULT;
+            case JYS_AUDIT:
+                return PageRenderColorConstants.COLOR_WARNING;
+            case KYC_AUDIT:
+                return PageRenderColorConstants.COLOR_INFO;
+            case PASSED:
+                return PageRenderColorConstants.COLOR_SUCCESS;
+            case REJECTED:
+                return PageRenderColorConstants.COLOR_DANGER;
+            default:
+                return PageRenderColorConstants.COLOR_PRIMARY;
         }
-        if (stateCode.endsWith("_DRAFT")) {
-            return PageRenderColorConstants.COLOR_DEFAULT;
-        }
-        if (stateCode.endsWith("_AUDIT")) {
-            return PageRenderColorConstants.COLOR_WARNING;
-        }
-        if (stateCode.endsWith("_PASSED")) {
-            return PageRenderColorConstants.COLOR_SUCCESS;
-        }
-        if (stateCode.endsWith("_REJECTED")) {
-            return PageRenderColorConstants.COLOR_DANGER;
-        }
-        return PageRenderColorConstants.COLOR_PRIMARY;
     }
 
     /**
      * 根据状态编码获取通用语义
-     * 从状态编码中提取语义信息，用于前端按钮展示
      *
      * @param stateCode 状态编码
      * @return 语义描述
      */
     private String getSemanticByStateCode(String stateCode) {
-        if (stateCode == null) {
-            return "未知";
+        StateSemantic semantic = parseStateSemantic(stateCode);
+        switch (semantic) {
+            case DRAFT:
+                return "待提交";
+            case JYS_AUDIT:
+            case KYC_AUDIT:
+                return "审批中";
+            case PASSED:
+                return "通过";
+            case REJECTED:
+                return "驳回";
+            default:
+                return "未知";
         }
-        if (stateCode.endsWith("_DRAFT")) {
-            return "待提交";
-        }
-        if (stateCode.endsWith("_AUDIT")) {
-            return "审批中";
-        }
-        if (stateCode.endsWith("_PASSED")) {
-            return "通过";
-        }
-        if (stateCode.endsWith("_REJECTED")) {
-            return "驳回";
-        }
-        return "未知";
     }
 
     /**
      * 构建状态展示信息
-     * 根据模块编码与当前状态生成状态文案和颜色信息
-     * 状态信息从数据库配置缓存中读取，避免硬编码
+     * 优先从统一缓存按当前流程的 processCode 查找，兜底使用状态编码后缀自动推导
      *
      * @param context 页面渲染上下文
      * @return 状态展示对象
@@ -273,20 +375,27 @@ public class PageRenderServiceImpl implements IPageRenderService {
             return PageRenderStatusMeta.of("", "未知", PageRenderColorConstants.COLOR_DEFAULT);
         }
 
-        Map<String, StatusMapping> mapping = getStatusMapping(context.getModuleCode());
-        StatusMapping rule = mapping.get(context.getCurrentState());
+        String stateCode = context.getCurrentState();
+        String processCode = context.getProcessCode();
 
-        if (rule == null) {
-            return PageRenderStatusMeta.of(context.getCurrentState(), context.getCurrentState(), PageRenderColorConstants.COLOR_DEFAULT);
+        // 优先从统一缓存查找
+        if (processCode != null && allStatusMappings.containsKey(processCode)) {
+            Map<String, StatusMapping> mapping = allStatusMappings.get(processCode);
+            StatusMapping rule = mapping.get(stateCode);
+            if (rule != null) {
+                return PageRenderStatusMeta.of(stateCode, rule.getText(), rule.getColorType());
+            }
         }
 
-        return PageRenderStatusMeta.of(context.getCurrentState(), rule.getText(), rule.getColorType());
+        // 兜底使用状态编码后缀自动推导
+        String text = stateCode;
+        String colorType = getColorTypeByStateCode(stateCode);
+        return PageRenderStatusMeta.of(stateCode, text, colorType);
     }
 
     /**
      * 构建按钮动作列表
-     * 根据状态、权限、当前用户身份生成按钮列表
-     * 通用化实现：基于状态编码后缀和节点配置，动态构造按钮规则，支持八大模块
+     * 统一入口：调用通用规则引擎 + 模块特有按钮扩展
      *
      * @param context 页面渲染上下文
      * @return 按钮动作列表
@@ -298,84 +407,147 @@ public class PageRenderServiceImpl implements IPageRenderService {
         }
 
         String moduleCode = context.getModuleCode();
-        ModuleConfig config = moduleConfigs.get(moduleCode);
-        if (config == null) {
-            log.warn("未找到模块 {} 的配置，返回空按钮列表", moduleCode);
+        if (moduleCode == null) {
             return Collections.emptyList();
         }
 
-        return buildGenericActions(context, config);
+        List<PageRenderActionItem> actions = new ArrayList<>();
+
+        // 1. 调用通用规则引擎
+        actions.addAll(buildCommonActions(context));
+
+        // 2. 追加模块特有按钮
+        actions.addAll(addModuleSpecificActions(context));
+
+        // 3. 按排序号排序
+        Collections.sort(actions);
+
+        return actions;
     }
 
     /**
      * 构建通用按钮动作列表
-     * 基于状态编码后缀（_DRAFT、_AUDIT、_PASSED、_REJECTED）和节点配置，通用化构造按钮规则
-     * 八大模块共用同一套按钮构造逻辑，仅权限前缀不同
+     * 根据状态编码后缀语义 + 审批节点配置 + 权限前缀动态生成按钮列表
      *
      * @param context 页面渲染上下文
-     * @param config 模块配置
      * @return 按钮动作列表
      */
-    private List<PageRenderActionItem> buildGenericActions(PageRenderContext context, ModuleConfig config) {
+    private List<PageRenderActionItem> buildCommonActions(PageRenderContext context) {
         List<PageRenderActionItem> actions = new ArrayList<>();
         String state = context.getCurrentState();
+        if (state == null) {
+            return actions;
+        }
+
         boolean isOwner = context.isOwner();
         boolean isAdmin = context.hasRole("admin");
+        StateSemantic semantic = parseStateSemantic(state);
 
-        // 基于状态编码后缀判断状态类型（不依赖节点Map，因为nodeCode和stateCode不同）
-        // 状态编码格式示例：PAPER_JYS_AUDIT（教研室审批中）、PAPER_KYC_AUDIT（科研处审批中）
-        boolean isInAudit = state != null && state.endsWith("_AUDIT");
-        boolean isDraft = state != null && state.endsWith("_DRAFT");
-        boolean isPassed = state != null && state.endsWith("_PASSED");
-        boolean isRejected = state != null && state.endsWith("_REJECTED");
-        // 判断是否为科研处审批（两级审批中的第二级）
-        // 状态编码中包含 KYC 表示科研处审批，JYS 表示教研室审批
-        boolean isKyAudit = state != null && state.contains("_KYC_");
+        // 获取权限前缀（优先从context取，兜底从注册表取）
+        String permPrefix = context.getPermPrefix();
+        if (permPrefix == null) {
+            ModuleConfig config = MODULE_REGISTRY.get(context.getModuleCode());
+            if (config != null) {
+                permPrefix = config.getPermPrefix();
+            }
+        }
 
-        // 查看按钮：所有状态都显示，权限 {prefix}info
-        if (context.hasPermission(config.buildPermission("info"))) {
+        // 查看按钮：所有状态都显示
+        if (permPrefix != null && context.hasPermission(permPrefix + ":info")) {
             actions.add(PageRenderActionItem.of(
                     PageRenderActionConstants.ACTION_VIEW, "查看",
                     PageRenderColorConstants.COLOR_INFO, 100));
         }
 
-        // 查看流程按钮：非草稿状态显示，权限 {prefix}info
-        if (!isDraft && context.hasPermission(config.buildPermission("info"))) {
+        // 查看流程按钮：非草稿状态显示
+        if (semantic != StateSemantic.DRAFT && permPrefix != null && context.hasPermission(permPrefix + ":info")) {
             actions.add(PageRenderActionItem.of(
                     PageRenderActionConstants.ACTION_VIEW_PROCESS, "查看流程",
                     PageRenderColorConstants.COLOR_INFO, 101));
         }
 
-        // 编辑按钮：草稿或驳回状态，作者本人或管理员，权限 {prefix}edit
-        if ((isDraft || isRejected)
-                && (isOwner || isAdmin) && context.hasPermission(config.buildPermission("edit"))) {
-            actions.add(PageRenderActionItem.of(
-                    PageRenderActionConstants.ACTION_EDIT, "编辑",
-                    PageRenderColorConstants.COLOR_PRIMARY, 10));
+        // 草稿状态按钮
+        if (semantic == StateSemantic.DRAFT) {
+            // 编辑按钮
+            if ((isOwner || isAdmin) && permPrefix != null && context.hasPermission(permPrefix + ":edit")) {
+                actions.add(PageRenderActionItem.of(
+                        PageRenderActionConstants.ACTION_EDIT, "编辑",
+                        PageRenderColorConstants.COLOR_PRIMARY, 10));
+            }
+            // 删除按钮
+            if ((isOwner || isAdmin) && permPrefix != null && context.hasPermission(permPrefix + ":remove")) {
+                actions.add(PageRenderActionItem.of(
+                        PageRenderActionConstants.ACTION_REMOVE, "删除",
+                        PageRenderColorConstants.COLOR_DANGER, 20, "确定要删除该记录吗？"));
+            }
+            // 提交按钮
+            if ((isOwner || isAdmin) && permPrefix != null && context.hasPermission(permPrefix + ":edit")) {
+                actions.add(PageRenderActionItem.of(
+                        PageRenderActionConstants.ACTION_SUBMIT, "提交",
+                        PageRenderColorConstants.COLOR_SUCCESS, 5, "确定要提交该记录吗？"));
+            }
         }
 
-        // 删除按钮：草稿或驳回状态，作者本人或管理员，权限 {prefix}remove
-        if ((isDraft || isRejected) && (isOwner || isAdmin)
-                && context.hasPermission(config.buildPermission("remove"))) {
-            actions.add(PageRenderActionItem.of(
-                    PageRenderActionConstants.ACTION_REMOVE, "删除",
-                    PageRenderColorConstants.COLOR_DANGER, 20, "确定要删除该记录吗？"));
+        // 驳回状态按钮
+        if (semantic == StateSemantic.REJECTED) {
+            // 编辑按钮
+            if ((isOwner || isAdmin) && permPrefix != null && context.hasPermission(permPrefix + ":edit")) {
+                actions.add(PageRenderActionItem.of(
+                        PageRenderActionConstants.ACTION_EDIT, "编辑",
+                        PageRenderColorConstants.COLOR_PRIMARY, 10));
+            }
+            // 重新提交按钮（编辑保存后状态会变回草稿，这里不额外提供重新提交）
         }
 
-        // 提交按钮：草稿状态，作者本人或管理员，权限 {prefix}edit
-        if (isDraft && (isOwner || isAdmin)
-                && context.hasPermission(config.buildPermission("edit"))) {
-            actions.add(PageRenderActionItem.of(
-                    PageRenderActionConstants.ACTION_SUBMIT, "提交",
-                    PageRenderColorConstants.COLOR_SUCCESS, 5, "确定要提交该记录吗？"));
+        // 审批中状态按钮
+        if (semantic == StateSemantic.JYS_AUDIT || semantic == StateSemantic.KYC_AUDIT) {
+            addAuditActions(context, actions, semantic, permPrefix, isOwner, isAdmin);
         }
 
-        // 审批节点按钮：处于审批中的节点，有审批权限的用户可以看到批阅/通过/驳回按钮
-        if (isInAudit && context.hasPermission(config.buildPermission("process"))) {
+        // 通过状态按钮
+        if (semantic == StateSemantic.PASSED) {
+            // 撤回按钮（需有撤回权限）
+            if (permPrefix != null && context.hasPermission(permPrefix + ":kyrevoke")) {
+                actions.add(PageRenderActionItem.of(
+                        PageRenderActionConstants.ACTION_RECALL, "撤回",
+                        PageRenderColorConstants.COLOR_WARNING, 40, "确定要撤回该记录吗？"));
+            }
+        }
+
+        return actions;
+    }
+
+    /**
+     * 根据节点配置动态生成审批按钮
+     * 不引用业务模块常量，通过节点配置和状态语义判断
+     *
+     * @param context 页面渲染上下文
+     * @param actions 按钮列表（追加）
+     * @param semantic 状态语义
+     * @param permPrefix 权限前缀
+     * @param isOwner 是否为创建人
+     * @param isAdmin 是否为管理员
+     */
+    private void addAuditActions(PageRenderContext context, List<PageRenderActionItem> actions,
+                                  StateSemantic semantic, String permPrefix, boolean isOwner, boolean isAdmin) {
+        String state = context.getCurrentState();
+        if (state == null || permPrefix == null) {
+            return;
+        }
+
+        // 获取当前节点
+        SysApprovalNode currentNode = getNodeByState(context.getProcessCode(), state);
+
+        // 判断是否为最后一级节点（科研处审批）
+        boolean isLastAuditNode = semantic == StateSemantic.KYC_AUDIT;
+        // 判断是否为第一级节点（教研室审批）
+        boolean isFirstAuditNode = semantic == StateSemantic.JYS_AUDIT;
+
+        // 审批人按钮：有审批权限的用户可以看到批阅/通过/驳回按钮
+        if (context.hasPermission(permPrefix + ":process")) {
             actions.add(PageRenderActionItem.of(
                     PageRenderActionConstants.ACTION_REVIEW, "批阅",
                     PageRenderColorConstants.COLOR_PRIMARY, 30));
-            // 审批人进入批阅页面后需要"通过"和"驳回"按钮
             actions.add(PageRenderActionItem.of(
                     PageRenderActionConstants.ACTION_APPROVE, "通过",
                     PageRenderColorConstants.COLOR_SUCCESS, 31, "确定要通过该记录吗？"));
@@ -384,30 +556,84 @@ public class PageRenderServiceImpl implements IPageRenderService {
                     PageRenderColorConstants.COLOR_DANGER, 32, "确定要驳回该记录吗？"));
         }
 
-        // 审批中状态，仅科研处审批支持撤回（教研室审批不可撤回）
-        // 所有模块均为两级审批（教研室→科研处），仅第二级科研处审批时可撤回
-        if (isKyAudit && context.hasPermission(config.buildPermission("revoke"))) {
+        // 撤回按钮规则：
+        // 1. 教研室审批（第一级）：仅记录创建者可撤回
+        // 2. 科研处审批（第二级）：教研室审批人可撤回，不限制作者本人
+        if (isFirstAuditNode && isOwner) {
+            // 教研室审批中，仅作者可撤回
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_RECALL, "撤回",
+                    PageRenderColorConstants.COLOR_WARNING, 40, "确定要撤回该记录吗？"));
+        } else if (isLastAuditNode && context.hasPermission(permPrefix + ":revoke")) {
+            // 科研处审批中，有撤回权限的用户可撤回
             actions.add(PageRenderActionItem.of(
                     PageRenderActionConstants.ACTION_RECALL, "撤回",
                     PageRenderColorConstants.COLOR_WARNING, 40, "确定要撤回该记录吗？"));
         }
+    }
 
-        // 通过状态，管理员可撤回（需有撤回权限）
-        if (isPassed && context.hasPermission(config.buildPermission("kyrevoke"))) {
-            actions.add(PageRenderActionItem.of(
-                    PageRenderActionConstants.ACTION_RECALL, "撤回",
-                    PageRenderColorConstants.COLOR_WARNING, 40, "确定要撤回该记录吗？"));
+    /**
+     * 根据状态编码获取当前审批节点
+     *
+     * @param processCode 流程编码
+     * @param state 状态编码
+     * @return 节点信息，未找到返回null
+     */
+    private SysApprovalNode getNodeByState(String processCode, String state) {
+        if (processCode == null || state == null) {
+            return null;
+        }
+        Map<String, SysApprovalNode> nodeMapping = allNodeMappings.get(processCode);
+        if (nodeMapping == null) {
+            return null;
+        }
+        // 节点编码和状态编码命名规则一致时可直接查找
+        // 如 PAPER_JYS_AUDIT 对应 PAPER_JYS_AUDIT 节点
+        return nodeMapping.get(state);
+    }
+
+    /**
+     * 追加模块特有按钮
+     * 在通用按钮规则之后，追加模块特有的按钮
+     *
+     * @param context 页面渲染上下文
+     * @return 特有按钮列表
+     */
+    private List<PageRenderActionItem> addModuleSpecificActions(PageRenderContext context) {
+        List<PageRenderActionItem> specificActions = new ArrayList<>();
+        String moduleCode = context.getModuleCode();
+        if (moduleCode == null) {
+            return specificActions;
         }
 
-        // 按排序号排序
-        Collections.sort(actions);
+        String permPrefix = context.getPermPrefix();
+        if (permPrefix == null) {
+            ModuleConfig config = MODULE_REGISTRY.get(moduleCode);
+            if (config != null) {
+                permPrefix = config.getPermPrefix();
+            }
+        }
 
-        return actions;
+        // 横向课题立项通过后显示"提交结项申请"和"追加金额"按钮
+        if ("HORIZONTAL_APPLY".equals(moduleCode) && context.getCurrentState() != null
+                && context.getCurrentState().endsWith("_PASSED")) {
+            boolean isOwner = context.isOwner();
+            boolean isAdmin = context.hasRole("admin");
+            if ((isOwner || isAdmin) && permPrefix != null && context.hasPermission(permPrefix + ":add")) {
+                specificActions.add(PageRenderActionItem.of(
+                        "submitOver", "提交结项申请",
+                        PageRenderColorConstants.COLOR_PRIMARY, 50));
+                specificActions.add(PageRenderActionItem.of(
+                        "addAmount", "追加金额",
+                        PageRenderColorConstants.COLOR_SUCCESS, 51));
+            }
+        }
+
+        return specificActions;
     }
 
     /**
      * 构建页面渲染汇总结果
-     * 统一入口方法，将状态展示信息与按钮列表组装为完整返回对象
      *
      * @param context      页面渲染上下文
      * @param businessData 业务数据
@@ -419,22 +645,6 @@ public class PageRenderServiceImpl implements IPageRenderService {
         PageRenderStatusMeta statusMeta = buildStatusMeta(context);
         List<PageRenderActionItem> actions = buildActions(context);
         return PageRenderResult.of(statusMeta, actions, businessData);
-    }
-
-    /**
-     * 获取模块状态映射配置
-     * 从数据库加载的缓存中获取状态映射，避免硬编码
-     *
-     * @param moduleCode 模块编码
-     * @return 状态映射配置
-     */
-    private Map<String, StatusMapping> getStatusMapping(String moduleCode) {
-        Map<String, StatusMapping> mapping = allStatusMappings.get(moduleCode);
-        if (mapping != null) {
-            return mapping;
-        }
-        // 未找到模块配置时返回空映射
-        return Collections.emptyMap();
     }
 
     /**
