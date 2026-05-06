@@ -1331,8 +1331,13 @@
                 $.operate.push(data.id);
             },
             'review': function(actionKey, data) {
-                if (data.state && data.state.indexOf('OVER') !== -1) {
+                var state = data.state || '';
+                if (state.indexOf('OVER_XY_AUDIT') !== -1) {
+                    $.operate.overdetailTab(data.id + '/DeptOVER');
+                } else if (state.indexOf('OVER') !== -1) {
                     $.operate.overdetailTab(data.id + '/JYSOVER');
+                } else if (state.indexOf('APPLY_XY_AUDIT') !== -1) {
+                    $.operate.detailTab(data.id + '/Dept');
                 } else {
                     $.operate.detailTab(data.id + '/pro');
                 }
