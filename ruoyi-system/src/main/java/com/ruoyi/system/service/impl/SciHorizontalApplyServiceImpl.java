@@ -11,8 +11,13 @@ import com.ruoyi.common.utils.DataScopeUtils;
 import com.ruoyi.common.core.domain.entity.SysRole;
 import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.common.utils.StringUtils;
+import com.ruoyi.common.utils.ShiroUtils;
+import com.ruoyi.system.constant.PageRenderActionConstants;
+import com.ruoyi.system.constant.PageRenderColorConstants;
 import com.ruoyi.system.domain.*;
 import com.ruoyi.system.mapper.*;
+import com.ruoyi.system.service.IPageRenderService;
+import com.ruoyi.system.service.ISysMenuService;
 import com.ruoyi.system.service.SciHorizontalReamountService;
 import com.ruoyi.system.service.IApprovalProcessService;
 import com.ruoyi.system.service.ISysUserService;
@@ -59,6 +64,424 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
     private SciProjectScoreCfgMapper sciProjectScoreCfgMapper;
     @Autowired
     private ISysUserService userService;
+
+    @Autowired
+    private IPageRenderService pageRenderService;
+
+    @Autowired
+    private ISysMenuService sysMenuService;
+
+    /**
+     * 填充页面渲染数据（状态展示信息和按钮动作列表）
+     * 优先直接调用 PageRender 公共服务构建状态与动作，横向课题特有规则仍在本模块兜底补齐。
+     *
+     * @param apply 横向课题对象
+     */
+    private void fillPageRenderData(SciHorizontalApply apply) {
+        if (apply == null) {
+            return;
+        }
+        try {
+            SysUser currentUser = ShiroUtils.getSysUser();
+            List<String> permissions = buildCurrentPermissions(currentUser);
+            List<String> roleKeys = buildCurrentRoleKeys(currentUser);
+            String moduleCode = determineModuleCode(apply.getState());
+
+            PageRenderContext context = new PageRenderContext();
+            context.setModuleCode(moduleCode);
+            context.setBusinessId(apply.getId() != null ? apply.getId().longValue() : null);
+            context.setCurrentState(apply.getState());
+            context.setCreatorId(apply.getUserId() != null ? apply.getUserId().longValue() : null);
+            context.setCurrentUser(currentUser);
+            context.setPermissions(permissions);
+            context.setRoleKeys(roleKeys);
+
+            PageRenderStatusMeta statusMeta = buildHorizontalStatusMeta(context);
+            List<PageRenderActionItem> actions = pageRenderService.buildActions(context);
+            if (actions == null || actions.isEmpty()) {
+                actions = buildHorizontalActions(context);
+            }
+
+            apply.setStatusMeta(statusMeta);
+            apply.setActions(actions);
+        } catch (Exception e) {
+            log.error("填充横向课题页面渲染数据失败, applyId={}", apply.getId(), e);
+            apply.setStatusMeta(buildFallbackStatusMeta(apply.getState()));
+            apply.setActions(new ArrayList<>());
+        }
+    }
+
+    /**
+     * 构建当前登录用户权限列表。
+     *
+     * @param currentUser 当前登录用户
+     * @return 权限列表
+     */
+    private List<String> buildCurrentPermissions(SysUser currentUser) {
+        if (currentUser == null) {
+            return new ArrayList<>();
+        }
+        Set<String> permsSet = sysMenuService.selectPermsByUserId(currentUser.getUserId());
+        if (permsSet == null || permsSet.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return new ArrayList<>(permsSet);
+    }
+
+    /**
+     * 构建当前登录用户角色列表。
+     *
+     * @param currentUser 当前登录用户
+     * @return 角色Key列表
+     */
+    private List<String> buildCurrentRoleKeys(SysUser currentUser) {
+        if (currentUser == null || currentUser.getRoles() == null) {
+            return new ArrayList<>();
+        }
+        return currentUser.getRoles().stream()
+                .filter(Objects::nonNull)
+                .map(SysRole::getRoleKey)
+                .filter(StringUtils::isNotEmpty)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 构建横向课题状态展示信息。
+     *
+     * @param context 页面渲染上下文
+     * @return 状态展示对象
+     */
+    private PageRenderStatusMeta buildHorizontalStatusMeta(PageRenderContext context) {
+        if (context == null || StringUtils.isEmpty(context.getCurrentState())) {
+            return PageRenderStatusMeta.of("", "未知", PageRenderColorConstants.COLOR_DEFAULT);
+        }
+
+        PageRenderStatusMeta pageRenderStatusMeta = pageRenderService.buildStatusMeta(context);
+        if (pageRenderStatusMeta != null
+                && !PageRenderColorConstants.COLOR_DEFAULT.equals(pageRenderStatusMeta.getColorType())) {
+            pageRenderStatusMeta.setStatusCode(context.getCurrentState());
+            return pageRenderStatusMeta;
+        }
+        return buildFallbackStatusMeta(context.getCurrentState());
+    }
+
+    /**
+     * 构建横向课题按钮动作列表。
+     * 先直接调用 PageRender 公共服务；若公共服务未返回横向课题动作，再按横向课题规则补齐。
+     * 规则说明：
+     * 1. 草稿：view / edit / remove / submit
+     * 2. 驳回：view / edit / submit
+     * 3. 教研室审批：view / viewProcess / 作者recall / review
+     * 4. 科研处审批：view / viewProcess / 教研室recall / kyReview
+     * 5. 通过：view / viewProcess / 科研处recall
+     * 6. 若存在学院审批，则按现有横向流程插入为：view / viewProcess / 教研室recall / review（学院审批入口）
+     *
+     * @param context 页面渲染上下文
+     * @return 按钮动作列表
+     */
+    private List<PageRenderActionItem> buildHorizontalActions(PageRenderContext context) {
+        if (context == null || StringUtils.isEmpty(context.getCurrentState())) {
+            return new ArrayList<>();
+        }
+
+        List<PageRenderActionItem> actions = new ArrayList<>();
+        String state = context.getCurrentState();
+        boolean isOwner = context.isOwner();
+        boolean isAdmin = context.hasRole("admin");
+        boolean isResearchRole = context.hasRole("research");
+        boolean canView = context.hasPermission("system:apply:info");
+        boolean canEdit = context.hasPermission("system:apply:edit");
+        boolean canRemove = context.hasPermission("system:apply:remove");
+        boolean canAdd = context.hasPermission("system:apply:add");
+        boolean canJysReview = context.hasPermission("system:apply:process") && isResearchRole;
+        boolean canCollegeReview = false;
+        boolean canKycReview = context.hasPermission("system:apply:hecha") && context.hasRole("sci_tesearch");
+
+        if (canView) {
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_VIEW,
+                    "查看",
+                    PageRenderColorConstants.COLOR_INFO,
+                    100));
+        }
+
+        if (isHorizontalDraftState(state)) {
+            if ((isOwner || isAdmin) && canEdit) {
+                actions.add(PageRenderActionItem.of(
+                        PageRenderActionConstants.ACTION_EDIT,
+                        "编辑",
+                        PageRenderColorConstants.COLOR_PRIMARY,
+                        10));
+            }
+            if ((isOwner || isAdmin) && canRemove) {
+                actions.add(PageRenderActionItem.of(
+                        PageRenderActionConstants.ACTION_REMOVE,
+                        "删除",
+                        PageRenderColorConstants.COLOR_DANGER,
+                        20,
+                        isApplyState(state) ? "确定要删除该立项申请吗？" : "确定要删除该结项申请吗？"));
+            }
+            if ((isOwner || isAdmin) && canEdit) {
+                actions.add(PageRenderActionItem.of(
+                        PageRenderActionConstants.ACTION_SUBMIT,
+                        "提交",
+                        PageRenderColorConstants.COLOR_SUCCESS,
+                        30,
+                        isApplyState(state) ? "确定要提交该立项申请吗？" : "确定要提交该结项申请吗？"));
+            }
+        } else if (isHorizontalRejectedState(state)) {
+            if ((isOwner || isAdmin) && canEdit) {
+                actions.add(PageRenderActionItem.of(
+                        PageRenderActionConstants.ACTION_EDIT,
+                        "编辑",
+                        PageRenderColorConstants.COLOR_PRIMARY,
+                        10));
+                actions.add(PageRenderActionItem.of(
+                        PageRenderActionConstants.ACTION_SUBMIT,
+                        "提交",
+                        PageRenderColorConstants.COLOR_SUCCESS,
+                        30,
+                        isApplyState(state) ? "确定要重新提交该立项申请吗？" : "确定要重新提交该结项申请吗？"));
+            }
+        } else if (isJysAuditState(state)) {
+            addViewProcessAction(actions, canView);
+            if (isOwner || isAdmin) {
+                actions.add(PageRenderActionItem.of(
+                        PageRenderActionConstants.ACTION_RECALL,
+                        "撤回",
+                        PageRenderColorConstants.COLOR_WARNING,
+                        20,
+                        isApplyState(state) ? "确定要撤回该立项申请吗？" : "确定要撤回该结项申请吗？"));
+            }
+            if (canJysReview) {
+                actions.add(PageRenderActionItem.of(
+                        PageRenderActionConstants.ACTION_REVIEW,
+                        "审批",
+                        PageRenderColorConstants.COLOR_PRIMARY,
+                        30));
+            }
+        } else if (isXyAuditState(state)) {
+            addViewProcessAction(actions, canView);
+            if (canJysReview) {
+                actions.add(PageRenderActionItem.of(
+                        PageRenderActionConstants.ACTION_RECALL,
+                        "撤回",
+                        PageRenderColorConstants.COLOR_WARNING,
+                        20,
+                        isApplyState(state) ? "确定要撤回该立项申请吗？" : "确定要撤回该结项申请吗？"));
+            }
+            if (canCollegeReview) {
+                actions.add(PageRenderActionItem.of(
+                        PageRenderActionConstants.ACTION_REVIEW,
+                        "审批",
+                        PageRenderColorConstants.COLOR_PRIMARY,
+                        30));
+            }
+        } else if (isKycAuditState(state)) {
+            addViewProcessAction(actions, canView);
+            boolean canRecallFromPreviousNode = hasXyNode(state) ? canCollegeReview : canJysReview;
+            if (canRecallFromPreviousNode) {
+                actions.add(PageRenderActionItem.of(
+                        PageRenderActionConstants.ACTION_RECALL,
+                        "撤回",
+                        PageRenderColorConstants.COLOR_WARNING,
+                        20,
+                        isApplyState(state) ? "确定要撤回该立项申请吗？" : "确定要撤回该结项申请吗？"));
+            }
+            if (canKycReview) {
+                actions.add(PageRenderActionItem.of(
+                        PageRenderActionConstants.ACTION_KY_REVIEW,
+                        "审批",
+                        PageRenderColorConstants.COLOR_PRIMARY,
+                        30));
+            }
+        } else if (isHorizontalPassedState(state)) {
+            addViewProcessAction(actions, canView);
+            if (isApplyState(state) && (isOwner || isAdmin) && canAdd) {
+                actions.add(PageRenderActionItem.of(
+                        "overApply",
+                        "提交结项申请",
+                        PageRenderColorConstants.COLOR_SUCCESS,
+                        15));
+            }
+            if (canKycReview) {
+                actions.add(PageRenderActionItem.of(
+                        PageRenderActionConstants.ACTION_RECALL,
+                        "撤回",
+                        PageRenderColorConstants.COLOR_WARNING,
+                        20,
+                        isApplyState(state) ? "确定要撤回该立项申请吗？" : "确定要撤回该结项申请吗？"));
+            }
+        }
+
+        Collections.sort(actions);
+        return actions;
+    }
+
+    /**
+     * 添加“查看流程”按钮。
+     *
+     * @param actions 按钮列表
+     * @param canView 是否具备查看权限
+     */
+    private void addViewProcessAction(List<PageRenderActionItem> actions, boolean canView) {
+        if (!canView) {
+            return;
+        }
+        actions.add(PageRenderActionItem.of(
+                PageRenderActionConstants.ACTION_VIEW_PROCESS,
+                "查看流程",
+                PageRenderColorConstants.COLOR_INFO,
+                110));
+    }
+
+    /**
+     * 判断是否为立项流程状态。
+     *
+     * @param state 状态编码
+     * @return 是否为立项流程
+     */
+    private boolean isApplyState(String state) {
+        return StringUtils.startsWith(state, "APPLY_");
+    }
+
+    /**
+     * 判断是否为横向草稿状态。
+     *
+     * @param state 状态编码
+     * @return 是否为草稿
+     */
+    private boolean isHorizontalDraftState(String state) {
+        return StringUtils.equalsAny(state, "APPLY_DRAFT", "OVER_DRAFT");
+    }
+
+    /**
+     * 判断是否为横向驳回状态。
+     *
+     * @param state 状态编码
+     * @return 是否为驳回
+     */
+    private boolean isHorizontalRejectedState(String state) {
+        return StringUtils.equalsAny(state, "APPLY_REJECTED", "OVER_REJECTED");
+    }
+
+    /**
+     * 判断是否为教研室审批状态。
+     *
+     * @param state 状态编码
+     * @return 是否为教研室审批
+     */
+    private boolean isJysAuditState(String state) {
+        return StringUtils.equalsAny(state, "APPLY_JYS_AUDIT", "OVER_JYS_AUDIT");
+    }
+
+    /**
+     * 判断是否为学院审批状态。
+     *
+     * @param state 状态编码
+     * @return 是否为学院审批
+     */
+    private boolean isXyAuditState(String state) {
+        return StringUtils.equalsAny(state, "APPLY_XY_AUDIT", "OVER_XY_AUDIT");
+    }
+
+    /**
+     * 判断是否为科研处审批状态。
+     *
+     * @param state 状态编码
+     * @return 是否为科研处审批
+     */
+    private boolean isKycAuditState(String state) {
+        return StringUtils.equalsAny(state, "APPLY_KYC_AUDIT", "OVER_KYC_AUDIT");
+    }
+
+    /**
+     * 判断是否为横向通过状态。
+     *
+     * @param state 状态编码
+     * @return 是否为通过
+     */
+    private boolean isHorizontalPassedState(String state) {
+        return StringUtils.equalsAny(state, "APPLY_PASSED", "OVER_PASSED");
+    }
+
+    /**
+     * 判断当前流程是否存在学院审批节点。
+     * 科研处审批前一节点可能是教研室，也可能是学院；当前模块已存在 XY 审批状态，
+     * 因此按现有横向流程默认识别为存在学院审批节点，不修改公共流程实现。
+     *
+     * @param state 状态编码
+     * @return 是否存在学院审批节点
+     */
+    private boolean hasXyNode(String state) {
+        return StringUtils.equalsAny(state, "APPLY_KYC_AUDIT", "OVER_KYC_AUDIT");
+    }
+
+
+    /**
+     * 构建横向课题状态兜底展示信息。
+     *
+     * @param state 状态编码
+     * @return 状态展示对象
+     */
+    private PageRenderStatusMeta buildFallbackStatusMeta(String state) {
+        if (StringUtils.isEmpty(state)) {
+            return PageRenderStatusMeta.of("", "未知", PageRenderColorConstants.COLOR_DEFAULT);
+        }
+        if ("APPLY_DRAFT".equals(state)) {
+            return PageRenderStatusMeta.of(state, "立项草稿", PageRenderColorConstants.COLOR_WARNING);
+        }
+        if ("APPLY_JYS_AUDIT".equals(state)) {
+            return PageRenderStatusMeta.of(state, "立项待教研室审核", PageRenderColorConstants.COLOR_PRIMARY);
+        }
+        if ("APPLY_XY_AUDIT".equals(state)) {
+            return PageRenderStatusMeta.of(state, "立项待学院审核", PageRenderColorConstants.COLOR_PRIMARY);
+        }
+        if ("APPLY_KYC_AUDIT".equals(state)) {
+            return PageRenderStatusMeta.of(state, "立项待科研处审核", PageRenderColorConstants.COLOR_PRIMARY);
+        }
+        if ("APPLY_PASSED".equals(state)) {
+            return PageRenderStatusMeta.of(state, "立项已通过", PageRenderColorConstants.COLOR_SUCCESS);
+        }
+        if ("APPLY_REJECTED".equals(state)) {
+            return PageRenderStatusMeta.of(state, "立项已驳回", PageRenderColorConstants.COLOR_DANGER);
+        }
+        if ("OVER_DRAFT".equals(state)) {
+            return PageRenderStatusMeta.of(state, "结项草稿", PageRenderColorConstants.COLOR_WARNING);
+        }
+        if ("OVER_JYS_AUDIT".equals(state)) {
+            return PageRenderStatusMeta.of(state, "结项待教研室审核", PageRenderColorConstants.COLOR_PRIMARY);
+        }
+        if ("OVER_XY_AUDIT".equals(state)) {
+            return PageRenderStatusMeta.of(state, "结项待学院审核", PageRenderColorConstants.COLOR_PRIMARY);
+        }
+        if ("OVER_KYC_AUDIT".equals(state)) {
+            return PageRenderStatusMeta.of(state, "结项待科研处审核", PageRenderColorConstants.COLOR_PRIMARY);
+        }
+        if ("OVER_PASSED".equals(state)) {
+            return PageRenderStatusMeta.of(state, "结项已通过", PageRenderColorConstants.COLOR_SUCCESS);
+        }
+        if ("OVER_REJECTED".equals(state)) {
+            return PageRenderStatusMeta.of(state, "结项已驳回", PageRenderColorConstants.COLOR_DANGER);
+        }
+        return PageRenderStatusMeta.of(state, state, PageRenderColorConstants.COLOR_DEFAULT);
+    }
+
+
+    /**
+     * 根据状态编码确定模块编码
+     * 立项流程状态以 APPLY_ 开头，使用 HORIZONTAL_APPLY
+     * 结项流程状态以 OVER_ 开头，使用 HORIZONTAL_OVER
+     *
+     * @param state 状态编码
+     * @return 模块编码
+     */
+    private String determineModuleCode(String state) {
+        if (state != null && state.startsWith("OVER_")) {
+            return "HORIZONTAL_OVER";
+        }
+        return "HORIZONTAL_APPLY";
+    }
 
     /**
      * 将业务状态编码转换为审批节点编码
@@ -109,7 +532,11 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
     @Override
     public SciHorizontalApply selectSciHorizontalApplyById(Integer id)
     {
-        return sciHorizontalApplyMapper.selectSciHorizontalApplyById(id);
+        SciHorizontalApply apply = sciHorizontalApplyMapper.selectSciHorizontalApplyById(id);
+        if (apply != null) {
+            fillPageRenderData(apply);
+        }
+        return apply;
     }
 
     /**
@@ -122,7 +549,9 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
     @DataScope(deptAlias = "d",userAlias = "u")
     public List<SciHorizontalApply> selectSciHorizontalApplyList(SciHorizontalApply sciHorizontalApply)
     {
-        return sciHorizontalApplyMapper.selectSciHorizontalApplyList(sciHorizontalApply);
+        List<SciHorizontalApply> list = sciHorizontalApplyMapper.selectSciHorizontalApplyList(sciHorizontalApply);
+        list.forEach(this::fillPageRenderData);
+        return list;
     }
 
     /**
@@ -136,20 +565,26 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciHorizontalApply> selectSciHorizontalApplyListAll(SciHorizontalApply sciHorizontalApply)
     {
-        return sciHorizontalApplyMapper.selectSciHorizontalApplyListAll(sciHorizontalApply);
+        List<SciHorizontalApply> list = sciHorizontalApplyMapper.selectSciHorizontalApplyListAll(sciHorizontalApply);
+        list.forEach(this::fillPageRenderData);
+        return list;
     }
 
     @Override
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciHorizontalApply> selectSciHorizontalApplyListByKYC(SciHorizontalApply sciHorizontalApply)
     {
-        return sciHorizontalApplyMapper.selectSciHorizontalApplyListByKYC(sciHorizontalApply);
+        List<SciHorizontalApply> list = sciHorizontalApplyMapper.selectSciHorizontalApplyListByKYC(sciHorizontalApply);
+        list.forEach(this::fillPageRenderData);
+        return list;
     }
 
     @Override
     @DataScope(deptAlias = "d",userAlias = "u")
     public List<SciHorizontalApply> selectSciHorizontalApplyListByJYS(SciHorizontalApply sciHorizontalApply) {
-        return sciHorizontalApplyMapper.selectSciHorizontalApplyListByJYS(sciHorizontalApply);
+        List<SciHorizontalApply> list = sciHorizontalApplyMapper.selectSciHorizontalApplyListByJYS(sciHorizontalApply);
+        list.forEach(this::fillPageRenderData);
+        return list;
     }
 
     /**
@@ -162,31 +597,41 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
     @Override
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciHorizontalApply> selectSciHorizontalApplyListByOverApply(SciHorizontalApply sciHorizontalApply) {
-        return sciHorizontalApplyMapper.selectSciHorizontalApplyListByOverApply(sciHorizontalApply);
+        List<SciHorizontalApply> list = sciHorizontalApplyMapper.selectSciHorizontalApplyListByOverApply(sciHorizontalApply);
+        list.forEach(this::fillPageRenderData);
+        return list;
     }
 
     @Override
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciHorizontalApply> selectSciHorizontalApplyListByOverApplyJYS(SciHorizontalApply sciHorizontalApply) {
-        return sciHorizontalApplyMapper.selectSciHorizontalApplyListByOverApplyJYS(sciHorizontalApply);
+        List<SciHorizontalApply> list = sciHorizontalApplyMapper.selectSciHorizontalApplyListByOverApplyJYS(sciHorizontalApply);
+        list.forEach(this::fillPageRenderData);
+        return list;
     }
 
     @Override
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciHorizontalApply> selectSciHorizontalApplyListByOverApplyKYC(SciHorizontalApply sciHorizontalApply) {
-        return sciHorizontalApplyMapper.selectSciHorizontalApplyListByOverApplyKYC(sciHorizontalApply);
+        List<SciHorizontalApply> list = sciHorizontalApplyMapper.selectSciHorizontalApplyListByOverApplyKYC(sciHorizontalApply);
+        list.forEach(this::fillPageRenderData);
+        return list;
     }
 
 
     @Override
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciHorizontalApply> selectSciHorizontalApplyListByOVER(SciHorizontalApply sciHorizontalApply) {
-        return sciHorizontalApplyMapper.selectSciHorizontalApplyListByOVER(sciHorizontalApply);
+        List<SciHorizontalApply> list = sciHorizontalApplyMapper.selectSciHorizontalApplyListByOVER(sciHorizontalApply);
+        list.forEach(this::fillPageRenderData);
+        return list;
     }
     @Override
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciHorizontalApply> selectSciHorizontalApplyListByOVERKYC(SciHorizontalApply sciHorizontalApply) {
-        return sciHorizontalApplyMapper.selectSciHorizontalApplyListByOVERKYC(sciHorizontalApply);
+        List<SciHorizontalApply> list = sciHorizontalApplyMapper.selectSciHorizontalApplyListByOVERKYC(sciHorizontalApply);
+        list.forEach(this::fillPageRenderData);
+        return list;
     }
 
 
@@ -655,13 +1100,17 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
     @Override
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciHorizontalApply> selectSciHorizontalApplyListByDept(SciHorizontalApply sciHorizontalApply) {
-        return sciHorizontalApplyMapper.selectSciHorizontalApplyListByDept(sciHorizontalApply);
+        List<SciHorizontalApply> list = sciHorizontalApplyMapper.selectSciHorizontalApplyListByDept(sciHorizontalApply);
+        list.forEach(this::fillPageRenderData);
+        return list;
     }
 
     @Override
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciHorizontalApply> selectSciHorizontalApplyListByOverDept(SciHorizontalApply sciHorizontalApply) {
-        return sciHorizontalApplyMapper.selectSciHorizontalApplyListByOverDept(sciHorizontalApply);
+        List<SciHorizontalApply> list = sciHorizontalApplyMapper.selectSciHorizontalApplyListByOverDept(sciHorizontalApply);
+        list.forEach(this::fillPageRenderData);
+        return list;
     }
 
     @Override

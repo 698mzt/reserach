@@ -201,12 +201,11 @@
 </div>
 <div class="row">
     <div class="col-sm-offset-5 col-sm-10">
-        <button type="button" id="btn1" style="display:none;" class="btn btn-sm btn-primary" onclick="submitHandler()">  通 过</button>&nbsp;
-        <button type="button" id="btn2" style="display:none;" class="btn btn-sm btn-danger" onclick="submitHandlerBH()"> 驳 回</button>
-        <button type="button" id="btn3" style="display:none;" class="btn btn-sm btn-warning" onclick="closeItem()"> 关 闭 </button>
+        <div id="action-buttons-container"></div>
     </div>
 </div>
 <th:block th:include="include :: footer" />
+<script th:src="@{/ruoyi/js/page-render.js}"></script>
 <th:block th:include="include :: datetimepicker-js" />
 <th:block th:include="include :: bootstrap-fileinput-js"/>
 <th:block th:include="include :: select2-js" />
@@ -330,28 +329,117 @@
 
         $.table.init(options);
 
-        $('#bootstrap-table').on('load-success.bs.table', function (e, data) {
-            var currentUserId = /*[[${currentUserId}]]*/ null;
-            var applyUserId = /*[[${sciHorizontalApply.userId}]]*/ null;
-            var canApprove = /*[[${canApprove}]]*/ false;
-            var isSelfApply = (currentUserId === applyUserId);
-            var urlFlag = $("#urlFlag").val();
+        var currentUserId = /*[[${currentUserId}]]*/ null;
+        var applyUserId = /*[[${sciHorizontalApply.userId}]]*/ null;
+        var urlFlag = $("#urlFlag").val();
+        var state = /*[[${sciHorizontalApply.state}]]*/ '';
 
-            if (urlFlag == 'chakan'){
+        // 注册PageRender动作处理器
+        PageRender.registerHandlers({
+            'view': function(actionKey, data) {
+                closeItem();
+            },
+            'viewProcess': function(actionKey, data) {
+                showhistory(data.id, data.state);
+            },
+            'approve': function(actionKey, data) {
+                submitHandler();
+            },
+            'reject': function(actionKey, data) {
+                submitHandlerBH();
+            },
+            'recall': function(actionKey, data) {
+                submitHandlerRecall();
+            }
+        });
+
+        // 使用PageRender渲染底部按钮
+        var applyActions = /*[[${actionsJson}]]*/ null;
+        if (typeof applyActions === 'string') {
+            try {
+                applyActions = JSON.parse(applyActions);
+            } catch (e) {
+                applyActions = [];
+            }
+        }
+        if (!applyActions) {
+            applyActions = [];
+        }
+
+        var $container = $('#action-buttons-container');
+
+        if (applyActions && applyActions.length > 0) {
+            var isApprovePage = urlFlag === 'JYSOVER' || urlFlag === 'DeptOVER' || urlFlag === 'KYCOVER';
+            if (isApprovePage) {
+                var reviewAction = null;
+                var hasApproveAction = false;
+                var hasRejectAction = false;
+                applyActions.forEach(function(action) {
+                    if (action.actionKey === 'approve') {
+                        hasApproveAction = true;
+                    }
+                    if (action.actionKey === 'reject') {
+                        hasRejectAction = true;
+                    }
+                    if (!reviewAction && (action.actionKey === 'review' || action.actionKey === 'kyReview')) {
+                        reviewAction = action;
+                    }
+                });
+                if (reviewAction) {
+                    if (!hasApproveAction) {
+                        applyActions.push($.extend({}, reviewAction, {
+                            actionKey: 'approve',
+                            actionText: '通过'
+                        }));
+                    }
+                    if (!hasRejectAction) {
+                        applyActions.push($.extend({}, reviewAction, {
+                            actionKey: 'reject',
+                            actionText: '驳回',
+                            sortOrder: (reviewAction.sortOrder || 30) + 1,
+                            confirmMessage: '确定要驳回该结项申请吗？'
+                        }));
+                    }
+                }
+            }
+
+            var filteredActions = applyActions.filter(function(action) {
+                if (urlFlag === 'chakan') {
+                    return action.actionKey === 'view' || action.actionKey === 'viewProcess';
+                }
+                if (urlFlag === 'JYSOVER' || urlFlag === 'DeptOVER' || urlFlag === 'KYCOVER') {
+                    return action.actionKey === 'approve' || action.actionKey === 'reject' || action.actionKey === 'recall';
+                }
+                return action.actionKey === 'view' || action.actionKey === 'viewProcess' || action.actionKey === 'recall';
+            });
+
+            if (filteredActions.length > 0) {
+                PageRender.renderActions($container, filteredActions, {style: 'page'}, {
+                    id: $("#id").val(),
+                    state: state,
+                    urlFlag: urlFlag
+                });
+            }
+            $container.append('<button type="button" class="btn btn-sm btn-default" onclick="closeItem()"> 关 闭 </button>');
+        } else {
+            $container.html('<button type="button" class="btn btn-sm btn-default" onclick="closeItem()"> 关 闭 </button>');
+        }
+
+        // 根据urlFlag显示审批区域
+        $('#bootstrap-table').on('load-success.bs.table', function (e, data) {
+            if (urlFlag === 'chakan') {
                 $(".tdiv2").show();
-                $("#btn3").show();
-            } else if (canApprove) {
+            } else if (urlFlag === 'JYSOVER' || urlFlag === 'KYCOVER' || urlFlag === 'DeptOVER') {
+                var isSelfApply = (currentUserId === applyUserId);
                 if (data && data.rows && data.rows.length > 0) {
                     $(".tdiv2").show();
                 }
-                $(".tdiv1").show();
-                $("#btn3").show();
                 if (!isSelfApply) {
-                    $("#btn1").show();
-                    $("#btn2").show();
+                    $(".tdiv1").show();
                 } else {
-                    $(".tdiv1").prepend('<div class="alert alert-warning" style="margin-top: 10px;"><i class="fa fa-warning"></i> 您不能审批自己申请的项目</div>');
+                    $(".tdiv1").prepend('<div class="alert alert-warning" style="margin-top: 10px;"><i class="fa fa-warning"></i> 您不能审批自己提交的横向课题结项申请</div>');
                 }
+                $(".tdiv3").show();
             }
         });
 
@@ -418,10 +506,16 @@
     function submitHandlerBH() {
         var a = $("#urlFlag").val();
         if ($.validate.form()) {
-            $.modal.confirm("确定 驳回 吗" ,function() {
+            $.modal.confirm("确定驳回当前横向课题结项申请吗？" ,function() {
                 $.operate.saveTab(prefix + "/hxoverBh", $('#form-apply-edit').serialize());
             });
          }
+    }
+
+    function submitHandlerRecall() {
+        $.modal.confirm("确定撤回当前横向课题结项申请吗？", function() {
+            $.operate.recallTab($("#ktid").val());
+        });
     }
 
 
