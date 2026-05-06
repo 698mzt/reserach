@@ -36,8 +36,35 @@ public class PageRenderServiceImpl implements IPageRenderService {
 
     private static final Logger log = LoggerFactory.getLogger(PageRenderServiceImpl.class);
 
-    /** 论文模块流程编码 */
+    /** 横向课题立项审批 */
+    private static final String HORIZONTAL_APPLY_PROCESS_CODE = "horizontal_apply";
+
+    /** 横向课题结项审批 */
+    private static final String HORIZONTAL_OVER_PROCESS_CODE = "horizontal_over";
+
+    /** 纵向课题立项审批 */
+    private static final String VERTICAL_APPLY_PROCESS_CODE = "vertical_apply";
+
+    /** 纵向课题结项审批 */
+    private static final String VERTICAL_OVER_PROCESS_CODE = "vertical_over";
+
+    /** 论文审批流程 */
     private static final String PAPER_PROCESS_CODE = "paper_approval";
+
+    /** 教材专著审批流程 */
+    private static final String TEXTBOOK_APPROVAL_PROCESS_CODE = "textbook_approval";
+
+    /** 成果转化审批 */
+    private static final String INTRASCHPRO_APPLY_PROCESS_CODE = "intraschpro_apply";
+
+    /** 奖励审批 */
+    private static final String REWARD_APPLY_PROCESS_CODE = "reward_apply";
+
+    /** 讲座报告审批 */
+    private static final String LECTURE_APPROVAL_PROCESS_CODE = "lecture_approval";
+
+    /** 专利软著审批 */
+    private static final String PATENT_APPLY_PROCESS_CODE = "patent_apply";
 
     @Autowired
     private SysApprovalStateMapper approvalStateMapper;
