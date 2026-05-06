@@ -412,7 +412,7 @@
 <script th:src="@{/ruoyi/js/page-render.js}"></script>
 <script th:inline="javascript">
     var prefix = ctx + "system/paper";
-    var QWERDates = /*[[${@dict.getType('sci_paper_qwer')}]]*/ [];
+    var QWERDates = [[${@dict.getType('sci_paper_qwer')}]];
 
     function displayFileName(inputId, fileNameId) {
         const input = document.getElementById(inputId);
