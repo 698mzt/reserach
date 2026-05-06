@@ -53,7 +53,7 @@ public class PageRenderServiceImpl implements IPageRenderService {
     private static final String INTRASCHPRO_APPLY_PROCESS_CODE = "intraschpro_apply";
 
     /** 奖励审批 */
-    private static final String REWARD_APPLY_PROCESS_CODE = "reward_apply";
+    private static final String REWARD_APPLY_PROCESS_CODE = "REWARD_APPLY";
 
     /** 讲座报告审批 */
     private static final String LECTURE_APPROVAL_PROCESS_CODE = "lecture_approval";
@@ -73,8 +73,14 @@ public class PageRenderServiceImpl implements IPageRenderService {
     /** 论文模块状态映射配置（从数据库动态加载） */
     private final Map<String, StatusMapping> paperStatusMapping = new HashMap<>();
 
+    /** 奖励模块状态映射配置（从数据库动态加载） */
+    private final Map<String, StatusMapping> rewardStatusMapping = new HashMap<>();
+
     /** 论文模块审批节点配置（从数据库动态加载） */
     private final Map<String, SysApprovalNode> paperNodeMapping = new HashMap<>();
+
+    /** 奖励模块审批节点配置（从数据库动态加载） */
+    private final Map<String, SysApprovalNode> rewardNodeMapping = new HashMap<>();
 
     /**
      * 应用启动时从数据库加载审批流程配置，初始化状态映射和节点映射
@@ -85,9 +91,16 @@ public class PageRenderServiceImpl implements IPageRenderService {
         try {
             log.info("开始加载审批流程配置...");
             loadStatusMapping();
+            loadRewardStatusMapping();
             loadNodeMapping();
+
+            loadRewardNodeMapping();
+            log.info("审批流程配置加载完成，论文状态数: {}, 奖励状态数: {}, 论文节点数: {}, 奖励节点数: {}", 
+                    paperStatusMapping.size(), rewardStatusMapping.size(), paperNodeMapping.size(), rewardNodeMapping.size());
+
             log.info("审批流程配置加载完成，状态数: {}, 节点数: {}",
                     paperStatusMapping.size(), paperNodeMapping.size());
+
         } catch (Exception e) {
             log.error("加载审批流程配置失败，将使用空配置", e);
         }
@@ -118,6 +131,30 @@ public class PageRenderServiceImpl implements IPageRenderService {
     }
 
     /**
+     * 从数据库加载奖励模块状态映射配置
+     * 查询reward_apply流程下所有启用的状态，构建状态编码到展示信息的映射
+     */
+    private void loadRewardStatusMapping() {
+        rewardStatusMapping.clear();
+        
+        // 查询奖励流程的所有状态
+        List<SysApprovalState> states = approvalStateMapper.selectSysApprovalStateByProcessCode(REWARD_APPLY_PROCESS_CODE);
+        if (states == null || states.isEmpty()) {
+            log.warn("未找到流程 {} 的状态配置，请检查sys_approval_state表", REWARD_APPLY_PROCESS_CODE);
+            return;
+        }
+        
+        for (SysApprovalState state : states) {
+            // 只加载启用的状态（status=0）
+            if ("0".equals(state.getStatus())) {
+                String colorType = getColorTypeBySort(state.getSort());
+                rewardStatusMapping.put(state.getStateCode(), 
+                        new StatusMapping(state.getStateName(), colorType, getSemanticByStateCode(state.getStateCode())));
+            }
+        }
+    }
+
+    /**
      * 从数据库加载审批节点配置
      * 查询paper_approval流程下所有启用的节点，构建节点编码到节点信息的映射
      */
@@ -142,6 +179,35 @@ public class PageRenderServiceImpl implements IPageRenderService {
             // 只加载启用的节点（status=0）
             if ("0".equals(node.getStatus())) {
                 paperNodeMapping.put(node.getNodeCode(), node);
+            }
+        }
+    }
+
+    /**
+     * 从数据库加载奖励模块审批节点配置
+     * 查询reward_apply流程下所有启用的节点，构建节点编码到节点信息的映射
+     */
+    private void loadRewardNodeMapping() {
+        rewardNodeMapping.clear();
+        
+        // 先根据流程编码查询流程ID，避免硬编码
+        SysApprovalProcess process = approvalProcessMapper.selectSysApprovalProcessByProcessCode(REWARD_APPLY_PROCESS_CODE);
+        if (process == null) {
+            log.warn("未找到流程编码 {} 的配置，请检查sys_approval_process表", REWARD_APPLY_PROCESS_CODE);
+            return;
+        }
+        
+        // 查询奖励流程的所有节点
+        List<SysApprovalNode> nodes = approvalNodeMapper.selectSysApprovalNodeByProcessId(process.getId());
+        if (nodes == null || nodes.isEmpty()) {
+            log.warn("未找到流程 {} 的节点配置，请检查sys_approval_node表", REWARD_APPLY_PROCESS_CODE);
+            return;
+        }
+        
+        for (SysApprovalNode node : nodes) {
+            // 只加载启用的节点（status=0）
+            if ("0".equals(node.getStatus())) {
+                rewardNodeMapping.put(node.getNodeCode(), node);
             }
         }
     }
@@ -237,6 +303,9 @@ public class PageRenderServiceImpl implements IPageRenderService {
         String moduleCode = context.getModuleCode();
         if ("PAPER".equals(moduleCode)) {
             return buildPaperActions(context);
+        }
+        if ("REWARD".equals(moduleCode)) {
+            return buildRewardActions(context);
         }
 
         // 其它模块暂返回空列表，后续按需扩展
@@ -384,6 +453,129 @@ public class PageRenderServiceImpl implements IPageRenderService {
     }
 
     /**
+     * 构建奖励模块按钮动作列表
+     * 根据奖励状态、用户角色、权限生成对应的按钮列表
+     * 规则参考：八大模块按钮规则表.md
+     *
+     * @param context 页面渲染上下文
+     * @return 按钮动作列表
+     */
+    private List<PageRenderActionItem> buildRewardActions(PageRenderContext context) {
+        List<PageRenderActionItem> actions = new ArrayList<>();
+        String state = context.getCurrentState();
+        boolean isOwner = context.isOwner();
+        boolean isAdmin = context.hasRole("admin");
+        
+        boolean isDraft = state != null && state.endsWith("_DRAFT");
+        boolean isPassed = state != null && state.endsWith("_PASSED");
+        boolean isRejected = state != null && state.endsWith("_REJECTED");
+        boolean isInAudit = state != null && state.endsWith("_AUDIT");
+        boolean isJysAudit = state != null && state.equals("REWARD_JYS_AUDIT");
+        boolean isKycAudit = state != null && state.equals("REWARD_KYC_AUDIT");
+
+        // 查看按钮：所有状态都显示，权限 system:reward:info，颜色 default
+        if (context.hasPermission("system:reward:info")) {
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_VIEW, "查看",
+                    PageRenderColorConstants.COLOR_DEFAULT, 1));
+        }
+
+        // 查看流程按钮：审批中或已通过状态显示，权限 system:reward:info
+        if ((isInAudit || isPassed) && context.hasPermission("system:reward:info")) {
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_VIEW_PROCESS, "查看流程",
+                    PageRenderColorConstants.COLOR_INFO, 2));
+        }
+
+        // 编辑按钮：草稿或驳回状态，记录创建者或管理员，权限 system:reward:edit
+        if ((isDraft || isRejected)
+                && (isOwner || isAdmin) && context.hasPermission("system:reward:edit")) {
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_EDIT, "编辑",
+                    PageRenderColorConstants.COLOR_PRIMARY, 3));
+        }
+
+        // 删除按钮：草稿状态，记录创建者或管理员，权限 system:reward:remove，展示方式 link
+        if (isDraft && (isOwner || isAdmin)
+                && context.hasPermission("system:reward:remove")) {
+            PageRenderActionItem removeAction = PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_REMOVE, "删除",
+                    PageRenderColorConstants.COLOR_DANGER, 4, "确定要删除该奖励吗？");
+            removeAction.setDisplayType("link");
+            actions.add(removeAction);
+        }
+
+        // 提交按钮：草稿状态，记录创建者或管理员，权限 system:reward:edit
+        if (isDraft && (isOwner || isAdmin)
+                && context.hasPermission("system:reward:edit")) {
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_SUBMIT, "提交",
+                    PageRenderColorConstants.COLOR_PRIMARY, 5, "确定要提交该奖励吗？"));
+        }
+
+        // 重新提交按钮：驳回状态，记录创建者或管理员，权限 system:reward:edit
+        if (isRejected && (isOwner || isAdmin)
+                && context.hasPermission("system:reward:edit")) {
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_SUBMIT, "重新提交",
+                    PageRenderColorConstants.COLOR_PRIMARY, 5, "确定要重新提交该奖励吗？"));
+        }
+
+        // 审批中状态 - 当前审批节点处理人：通过、驳回按钮
+        if (isInAudit && context.hasPermission("system:reward:process")) {
+            // 教研室审批人：审批按钮
+            if (isJysAudit) {
+                actions.add(PageRenderActionItem.of(
+                        PageRenderActionConstants.ACTION_REVIEW, "教研室审批",
+                        PageRenderColorConstants.COLOR_PRIMARY, 6));
+            }
+            // 科研处审批人：科研处审批按钮
+            if (isKycAudit && context.hasPermission("system:reward:kypy")) {
+                actions.add(PageRenderActionItem.of(
+                        PageRenderActionConstants.ACTION_KY_REVIEW, "科研处审批",
+                        PageRenderColorConstants.COLOR_PRIMARY, 6));
+            }
+            // 通过按钮
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_APPROVE, "通过",
+                    PageRenderColorConstants.COLOR_SUCCESS, 6));
+            // 驳回按钮
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_REJECT, "驳回",
+                    PageRenderColorConstants.COLOR_DANGER, 7, "确定要驳回该奖励吗？"));
+        }
+
+        // 教研室审批中状态 - 记录创建者可撤回
+        if (isJysAudit && isOwner
+                && context.hasPermission("system:reward:revoke")) {
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_RECALL, "撤回",
+                    PageRenderColorConstants.COLOR_WARNING, 8, "确定要撤回该奖励吗？"));
+        }
+
+        // 科研处审批中状态 - 教研室审批人可撤回
+        if (isKycAudit && context.hasRole("jys")
+                && context.hasPermission("system:reward:revoke")) {
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_RECALL, "撤回",
+                    PageRenderColorConstants.COLOR_WARNING, 8, "确定要撤回该奖励吗？"));
+        }
+
+        // 通过状态 - 科研处审批人可撤回
+        if (isPassed && context.hasRole("ky")
+                && context.hasPermission("system:reward:kyrevoke")) {
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_RECALL, "撤回",
+                    PageRenderColorConstants.COLOR_WARNING, 8, "确定要撤回该奖励吗？"));
+        }
+
+        // 按排序号排序
+        Collections.sort(actions);
+
+        return actions;
+    }
+
+    /**
      * 获取模块状态映射配置
      * 从数据库加载的缓存中获取状态映射，避免硬编码
      *
@@ -393,6 +585,9 @@ public class PageRenderServiceImpl implements IPageRenderService {
     private Map<String, StatusMapping> getStatusMapping(String moduleCode) {
         if ("PAPER".equals(moduleCode)) {
             return paperStatusMapping;
+        }
+        if ("REWARD".equals(moduleCode)) {
+            return rewardStatusMapping;
         }
         // 其它模块暂返回空映射，后续按需扩展
         return Collections.emptyMap();

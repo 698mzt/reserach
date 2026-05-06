@@ -406,6 +406,7 @@
 </div>
 
 <th:block th:include="include :: footer" />
+<script th:src="@{/ruoyi/js/page-render.js}"></script>
 <script th:inline="javascript">
     var editFlag = [[${@permission.hasPermi('system:reward:edit')}]];
     var removeFlag = [[${@permission.hasPermi('system:reward:remove')}]];
@@ -509,15 +510,8 @@
                         return $.table.selectDictLabel(fenleiDatas, value);
                     }
                 },
-                {
-                    field: 'rewardDengji',
-                    align: 'center',
-                    title: '等级',
-                    formatter: function(value, row, index) {
-                        // return $.table.selectDictLabel(dengjiDatas, value);
-                        return value || '';
-                    }
-                },
+                
+            
                 {
                     field: 'rewardPaiming',
                     align: 'center',
@@ -530,6 +524,21 @@
                     field: 'jifen',
                     align: 'center',
                     title: '积分'
+                },
+                {
+                    field: 'expectedJifen',
+                    align: 'center',
+                    title: '预计积分'
+                },
+                {
+                    field: 'approvalStage',
+                    title: '审批阶段',
+                    formatter: function (value, row, index) {
+                        if (row.statusMeta) {
+                            return PageRender.renderStatusToString(row.statusMeta);
+                        }
+                        return '<span class="label label-default">未知</span>';
+                    }
                 },
                 {
                     title: '操作',
