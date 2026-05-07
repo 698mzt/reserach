@@ -10,22 +10,13 @@
 <div class="wrapper wrapper-content animated fadeInRight ibox-content">
     <form class="form-horizontal m" id="form-jiaocairuanzhu-edit" th:object="${sciJiaocairuanzhu}">
         <input name="id" th:field="*{id}" type="hidden">
-        <div class="form-group row">
-            <div class="col-sm-6">
-                <label class="col-sm-4 control-label is-required">学院：</label>
-                <div class="col-sm-8">
-                    <select name="xueyuan" class="form-control" th:with="type=${@dict.getType('sys_dept')}" required disabled="true">
-                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}" th:field="*{xueyuan}"></option>
-                    </select>
-                </div>
-            </div>
-            <div class="col-sm-6">
-                <label class="col-sm-4 control-label is-required">姓名：</label>
-                <div class="col-sm-8">
-                    <select name="userId" class="form-control" disabled="true">
-                        <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ user.userId == sciJiaocairuanzhu.userId}"></option>
-                    </select>
-                </div>
+        
+        <div class="form-group" style="display: none;">
+            <label class="col-sm-3 control-label is-required">姓名：</label>
+            <div class="col-sm-8">
+                <select name="userId" class="form-control m-b">
+                    <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${user.userId == sciJiaocairuanzhu.userId}"></option>
+                </select>
             </div>
         </div>
 
@@ -33,16 +24,17 @@
             <div class="col-sm-6">
                 <label class="col-sm-4 control-label is-required">教材名称：</label>
                 <div class="col-sm-8">
-                    <input name="mingcheng" th:field="*{mingcheng}" class="form-control" type="text" required>
+                    <input name="mingcheng" th:field="*{mingcheng}" class="form-control" type="text" required maxlength="100">
                 </div>
             </div>
             <div class="col-sm-6">
                 <label class="col-sm-4 control-label is-required">ISBN：</label>
                 <div class="col-sm-8">
-                    <input name="isbn" th:field="*{isbn}" class="form-control" type="text" required>
+                    <input name="isbn" th:field="*{isbn}" class="form-control" type="text" required inputmode="numeric" pattern="\d{13}" minlength="13" maxlength="13" title="请输入13位数字ISBN" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
                 </div>
             </div>
         </div>
+
         <div class="form-group">
             <div class="col-sm-6">
                 <label class="col-sm-4 control-label is-required">出版时间：</label>
@@ -56,14 +48,14 @@
             <div class="col-sm-6">
                 <label class="col-sm-4 control-label is-required">出版社：</label>
                 <div class="col-sm-8">
-                    <input name="chubanshe" th:field="*{chubanshe}" class="form-control" type="text" required>
+                    <input name="chubanshe" th:field="*{chubanshe}" class="form-control" type="text" required maxlength="50">
                 </div>
             </div>
         </div>
 
         <div class="form-group">
             <div class="col-sm-6">
-                <label class="col-sm-4 control-label">本校是否用书：</label>
+                <label class="col-sm-4 control-label is-required">本校是否用书：</label>
                 <div class="col-sm-8" th:with="type=${@dict.getType('sys_yes_no')}">
                     <label th:each="dict : ${type}" class="check-box">
                         <input name="benxiaoshifoyongshu" type="radio" th:value="${dict.dictValue}" th:text="${dict.dictLabel}" th:attr="checked=${sciJiaocairuanzhu.benxiaoshifoyongshu.contains(dict.dictValue)?true:false}">
@@ -74,6 +66,7 @@
                 <label class="col-sm-4 control-label is-required">分类：</label>
                 <div class="col-sm-8">
                     <select name="fenlei" class="form-control" th:with="type=${@dict.getType('sys_jiaocairuanzhu_fenlei')}" required>
+                        <option value="" selected>----请选择----</option>
                         <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}" th:field="*{fenlei}"></option>
                     </select>
                 </div>
@@ -91,21 +84,16 @@
                 </div>
             </div>
             <div class="col-xs-6">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label">预期积分：</label>
-                    <div class="col-sm-8">
-                        <input name="expectedJifen" th:field="*{expectedJifen}" class="form-control" type="text" readonly placeholder="选择课题类型后自动计算">
-                    </div>
-                </div>
             </div>
         </div>
 
-        <!-- 成员管理 -->
+        <!-- 主持人和预期科研分 -->
         <div class="row">
             <div class="col-xs-6">
                 <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">主持人：</label>
                     <div class="col-sm-8">
-                        <div th:each="user : ${sysUsers}" th:if="${user.flag}">
+                        <div th:each="user : ${sysUsers}" th:if="${user.userId == sciJiaocairuanzhu.userId}">
                             <input class="form-control" type="text" th:value="${user.userName}" readonly>
                             <input name="firstPersonId" class="form-control" type="hidden" th:value="${user.userId}">
                         </div>
@@ -114,17 +102,38 @@
             </div>
             <div class="col-xs-6">
                 <div class="form-group">
-                    <label class="col-sm-4 control-label is-required">成员1：</label>
+                    <label class="col-sm-4 control-label">预期科研分：</label>
                     <div class="col-sm-8">
-                        <select id="member1Select" name="secondPersonId" class="form-control m-b" onchange="updateMemberLists()" required>
-                            <option value="">---请选择--</option>
-                            <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}" th:if="${user.userId} != 1 and ${user.flag != true}" ></option>
-                        </select>
+                        <input id="expectedScore1" class="form-control" type="text" readonly placeholder="选择课题类型和填写金额后自动计算">
                     </div>
                 </div>
             </div>
         </div>
 
+        <!-- 成员1和预期科研分 -->
+        <div class="row">
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">成员1：</label>
+                    <div class="col-sm-8">
+                        <select id="member1Select" name="secondPersonId" class="form-control m-b" onchange="updateMemberLists()" required>
+                            <option value="">---请选择--</option>
+                            <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}" th:if="${user.userId != sciJiaocairuanzhu.userId}"></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">预期科研分：</label>
+                    <div class="col-sm-8">
+                        <input id="expectedScore2" class="form-control" type="text" readonly placeholder="选择课题类型和填写金额后自动计算">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 成员2和预期科研分 -->
         <div class="row">
             <div class="col-xs-6">
                 <div class="form-group">
@@ -132,34 +141,39 @@
                     <div class="col-sm-8">
                         <select id="member2Select" name="thirdPersonId" class="form-control m-b" onchange="updateMemberLists()" required>
                             <option value="">---请选择--</option>
-                            <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}" th:if="${user.userId} != 1 and ${user.flag != true}"></option>
+                            <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}" th:if="${user.userId != sciJiaocairuanzhu.userId}"></option>
                         </select>
                     </div>
                 </div>
             </div>
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">预期科研分：</label>
+                    <div class="col-sm-8">
+                        <input id="expectedScore3" class="form-control" type="text" readonly placeholder="选择课题类型和填写金额后自动计算">
+                    </div>
+                </div>
+            </div>
+        </div>
 
+        <!-- 成员3和预期科研分 -->
+        <div class="row">
             <div class="col-xs-6">
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">成员3：</label>
                     <div class="col-sm-8">
                         <select id="member3Select" name="fourthPersonId" class="form-control m-b" onchange="updateMemberLists()" required>
                             <option value="">---请选择--</option>
-                            <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}" th:if="${user.userId} != 1 and ${user.flag != true}"></option>
+                            <option th:each="user : ${sysUsers}" th:text="${user.userName}" th:value="${user.userId}" th:if="${user.userId != sciJiaocairuanzhu.userId}"></option>
                         </select>
                     </div>
                 </div>
             </div>
-        </div>
-        <!-- 第5位及以后 -->
-        <div class="row">
-            <div class="col-xs-12">
+            <div class="col-xs-6">
                 <div class="form-group">
-                    <label class="col-sm-2 control-label">更多成员：</label>
-                    <div class="col-sm-10">
-                        <div id="memberContainer" class="row"></div>
-                        <button type="button" id="addMemberBtn" class="btn btn-white btn-sm" title="新增成员">
-                            <a href="#"><i class="fa fa-plus-circle" ></i>增加成员</a>
-                        </button>
+                    <label class="col-sm-4 control-label">预期科研分：</label>
+                    <div class="col-sm-8">
+                        <input id="expectedScore4" class="form-control" type="text" readonly placeholder="选择课题类型和填写金额后自动计算">
                     </div>
                 </div>
             </div>
@@ -194,7 +208,6 @@
                 </div>
             </div>
             <div class="col-sm-6">
-                <!-- 可以在这里添加另一个输入框，如果没有则留空 -->
             </div>
         </div>
 
@@ -221,8 +234,9 @@
     var members = [];
     var userIdToName = {};
     var backendMembers = [];
+    var scoreConfig = {};
+    var savedScores = {};
     
-    // 从后端获取成员数据
     var jiaocaiId = /*[[${sciJiaocairuanzhu.id}]]*/;
     if (jiaocaiId) {
         $.ajax({
@@ -232,14 +246,21 @@
             success: function(data) {
                 if (data && data.code === 0) {
                     backendMembers = data.data || [];
+                    initSavedScores();
                 }
             }
         });
     }
 
-    // 初始化用户ID到姓名的映射
+    function initSavedScores() {
+        savedScores = {};
+        for (var i = 0; i < backendMembers.length; i++) {
+            var member = backendMembers[i];
+            savedScores[member.ranking] = member.researchScore || '0';
+        }
+    }
+
     $(document).ready(function() {
-        // 从成员选择框中获取所有用户信息
         $('#member1Select option').each(function() {
             var userId = $(this).val();
             var userName = $(this).text();
@@ -248,95 +269,107 @@
             }
         });
 
-        // 保存原始选项数据
         $('#member1Select, #member2Select, #member3Select').each(function() {
             var originalOptions = $(this).html();
             $(this).data('original-options', originalOptions);
         });
 
-        // 初始化Select2组件
         $('#editorSelect, #viceEditorSelect').select2({
             placeholder: '请选择',
             allowClear: true,
             width: '100%'
         });
 
-        // 初始化成员选择框的Select2
         $('#member1Select, #member2Select, #member3Select').select2({
             placeholder: '---请选择--',
             allowClear: true,
             width: '100%'
         });
 
-        // 监听主编和副主编的变化，实现互斥选择
         $('#editorSelect').on('change', updateViceEditorOptions);
         $('#viceEditorSelect').on('change', updateEditorOptions);
 
-        // 动态新增成员下拉（第5位起）
-        $('#addMemberBtn').on('click', function(){
-            // 获取原始选项数据
-            var originalOptions = $('#member1Select').data('original-options');
-            var memberCount = $('.member-item').length + 1; // 计算当前成员数量
-            var memberId = 'dynamicMember' + memberCount; // 为每个动态成员生成唯一ID
-
-            var tpl = '\
-    <div class="col-xs-3 m-b-xs member-item">\
-        <div class="input-group">\
-            <select id="' + memberId + '" name="members" class="form-control m-b member-select select2-select" onchange="updateMemberLists()">\
-                <option value="">---请选择--</option>\
-            </select>\
-            <span class="input-group-btn">\
-                <button class="btn btn-danger btn-sm remove-member" type="button" title="移除"><i class="fa fa-minus"></i></button>\
-            </span>\
-        </div>\
-    </div>\
-';
-
-            $('#memberContainer').append(tpl);
-            // 初始化新添加的选择框为Select2
-            $('#' + memberId).select2({
-                placeholder: '---请选择--',
-                allowClear: true,
-                width: '100%'
-            });
-            // 添加所有用户选项
-            $('#' + memberId).append(originalOptions);
-            // 移除已经选择的成员
-            updateMemberLists();
-            // 绑定移除按钮事件
-            $('.remove-member').off('click').on('click', function() {
-                $(this).closest('.member-item').remove();
-                updateMemberLists();
-            });
-        });
-
-        // 初始化成员列表和选择框
         initMembers();
         updateMembersTable();
         updateEditorSelect();
+
+        $('select[name="fenlei"]').on('change', function() {
+            var fenLei = $(this).val();
+            if (fenLei) {
+                $.ajax({
+                    url: prefix + "/getScoreConfig",
+                    type: "POST",
+                    data: { fenLei: fenLei },
+                    success: function(res) {
+                        if (res.code === 0 && res.data && res.data.length > 0) {
+                            updateScoreConfig(fenLei, res.data);
+                            
+                            var scoreMap = {};
+                            for (var i = 0; i < res.data.length; i++) {
+                                var cfg = res.data[i];
+                                var rankingText = '';
+                                switch (cfg.paiMing) {
+                                    case '1':
+                                        rankingText = '排名第一';
+                                        break;
+                                    case '2':
+                                        rankingText = '排名第二';
+                                        break;
+                                    case '3':
+                                        rankingText = '排名第三';
+                                        break;
+                                    case '4':
+                                        rankingText = '排名第四';
+                                        break;
+                                }
+                                scoreMap[rankingText] = cfg.totalScore;
+                            }
+                            
+                            $('#expectedScore1').val(savedScores['1'] || scoreMap['排名第一'] || '0');
+                            $('#expectedScore2').val(savedScores['2'] || scoreMap['排名第二'] || '0');
+                            $('#expectedScore3').val(savedScores['3'] || scoreMap['排名第三'] || '0');
+                            $('#expectedScore4').val(savedScores['4'] || scoreMap['排名第四'] || '0');
+                        } else {
+                            $('#expectedScore1').val(savedScores['1'] || '0');
+                            $('#expectedScore2').val(savedScores['2'] || '0');
+                            $('#expectedScore3').val(savedScores['3'] || '0');
+                            $('#expectedScore4').val(savedScores['4'] || '0');
+                        }
+                    },
+                    error: function() {
+                        $('#expectedScore1').val(savedScores['1'] || '0');
+                        $('#expectedScore2').val(savedScores['2'] || '0');
+                        $('#expectedScore3').val(savedScores['3'] || '0');
+                        $('#expectedScore4').val(savedScores['4'] || '0');
+                    }
+                });
+            } else {
+                $('#expectedScore1').val(savedScores['1'] || '');
+                $('#expectedScore2').val(savedScores['2'] || '');
+                $('#expectedScore3').val(savedScores['3'] || '');
+                $('#expectedScore4').val(savedScores['4'] || '');
+            }
+        });
+
+        $('select[name="fenlei"]').trigger('change');
     });
 
     $("#form-jiaocairuanzhu-edit").validate({
         focusCleanup: true
     });
 
-    // 初始化成员列表（从后端数据加载已有的成员信息）
     function initMembers() {
         members = [];
         
-        // 首先从后端数据加载成员信息
         if (backendMembers && backendMembers.length > 0) {
-            // 按排名排序
             backendMembers.sort(function(a, b) {
                 return parseInt(a.ranking) - parseInt(b.ranking);
             });
             
-            // 填充成员选择框
             for (var i = 0; i < backendMembers.length; i++) {
                 var member = backendMembers[i];
                 var ranking = parseInt(member.ranking);
                 
-                // 根据排名设置对应的选择框
                 if (ranking === 2) {
                     $('#member1Select').val(member.memberId).trigger('change');
                 } else if (ranking === 3) {
@@ -345,7 +378,6 @@
                     $('#member3Select').val(member.memberId).trigger('change');
                 }
                 
-                // 添加到成员数组
                 members.push({
                     memberId: member.memberId,
                     memberName: member.memberName,
@@ -354,8 +386,6 @@
                 });
             }
         } else {
-            // 如果没有后端数据，从表单字段获取
-            // 收集成员1
             var member1Id = $('#member1Select').val();
             var member1Name = $('#member1Select option:selected').text();
             if (member1Id && member1Name && member1Name !== '---请选择--') {
@@ -367,7 +397,6 @@
                 });
             }
             
-            // 收集成员2
             var member2Id = $('#member2Select').val();
             var member2Name = $('#member2Select option:selected').text();
             if (member2Id && member2Name && member2Name !== '---请选择--') {
@@ -379,7 +408,6 @@
                 });
             }
             
-            // 收集成员3
             var member3Id = $('#member3Select').val();
             var member3Name = $('#member3Select option:selected').text();
             if (member3Id && member3Name && member3Name !== '---请选择--') {
@@ -393,11 +421,9 @@
         }
     }
     
-    // 更新成员列表（当成员选择框的值改变时被调用）
     function updateMemberLists() {
         members = [];
         
-        // 收集成员1
         var member1Id = $('#member1Select').val();
         var member1Name = $('#member1Select option:selected').text();
         if (member1Id && member1Name && member1Name !== '---请选择--') {
@@ -409,7 +435,6 @@
             });
         }
         
-        // 收集成员2
         var member2Id = $('#member2Select').val();
         var member2Name = $('#member2Select option:selected').text();
         if (member2Id && member2Name && member2Name !== '---请选择--') {
@@ -421,7 +446,6 @@
             });
         }
         
-        // 收集成员3
         var member3Id = $('#member3Select').val();
         var member3Name = $('#member3Select option:selected').text();
         if (member3Id && member3Name && member3Name !== '---请选择--') {
@@ -433,36 +457,62 @@
             });
         }
         
-        // 收集动态添加的成员
-        var dynamicRank = 5;
-        $('.member-select').each(function() {
-            var memberId = $(this).val();
-            var memberName = $(this).find('option:selected').text();
-            if (memberId && memberName && memberName !== '---请选择--') {
-                members.push({
-                    memberId: memberId,
-                    memberName: memberName,
-                    ranking: dynamicRank.toString(),
-                    researchScore: calculateResearchScore(dynamicRank.toString())
-                });
-                dynamicRank++;
-            }
-        });
-        
-        // 更新主编和副主编选择框
         updateEditorSelect();
     }
     
-    // 更新主编和副主编选择列表
+    function updateScoreConfig(fenLei, config) {
+        scoreConfig[fenLei] = {};
+        for (var i = 0; i < config.length; i++) {
+            var cfg = config[i];
+            var rankingText = '';
+            switch (cfg.paiMing) {
+                case '1':
+                    rankingText = '排名第一';
+                    break;
+                case '2':
+                    rankingText = '排名第二';
+                    break;
+                case '3':
+                    rankingText = '排名第三';
+                    break;
+                case '4':
+                    rankingText = '排名第四';
+                    break;
+            }
+            scoreConfig[fenLei][rankingText] = parseInt(cfg.totalScore) || 0;
+        }
+    }
+
+    function calculateResearchScore(ranking) {
+        var fenLei = $('select[name="fenlei"]').val();
+        if (fenLei && scoreConfig[fenLei]) {
+            var rankingText = '';
+            switch (ranking) {
+                case '1':
+                    rankingText = '排名第一';
+                    break;
+                case '2':
+                    rankingText = '排名第二';
+                    break;
+                case '3':
+                    rankingText = '排名第三';
+                    break;
+                case '4':
+                    rankingText = '排名第四';
+                    break;
+            }
+            return scoreConfig[fenLei][rankingText] || 0;
+        }
+        return savedScores[ranking] || 0;
+    }
+    
     function updateEditorSelect() {
         var editorSelect = $('#editorSelect');
         var viceEditorSelect = $('#viceEditorSelect');
         
-        // 清空现有选项
         editorSelect.empty();
         viceEditorSelect.empty();
         
-        // 从members数组中获取所有成员
         var allMembers = [];
         if (members.length > 0) {
             for (var i = 0; i < members.length; i++) {
@@ -472,63 +522,44 @@
                 });
             }
         } else {
-            // 如果members数组为空，从选择框中获取成员信息
-            // 添加成员1
             var member1Id = $('#member1Select').val();
             var member1Name = $('#member1Select option:selected').text();
             if (member1Id && member1Name && member1Name !== '---请选择--') {
                 allMembers.push({ memberId: member1Id, memberName: member1Name });
             }
             
-            // 添加成员2
             var member2Id = $('#member2Select').val();
             var member2Name = $('#member2Select option:selected').text();
             if (member2Id && member2Name && member2Name !== '---请选择--') {
                 allMembers.push({ memberId: member2Id, memberName: member2Name });
             }
             
-            // 添加成员3
             var member3Id = $('#member3Select').val();
             var member3Name = $('#member3Select option:selected').text();
             if (member3Id && member3Name && member3Name !== '---请选择--') {
                 allMembers.push({ memberId: member3Id, memberName: member3Name });
             }
-            
-            // 添加动态成员
-            $('.member-select').each(function() {
-                var memberId = $(this).val();
-                var memberName = $(this).find('option:selected').text();
-                if (memberId && memberName && memberName !== '---请选择--') {
-                    allMembers.push({ memberId: memberId, memberName: memberName });
-                }
-            });
         }
         
-        // 添加已添加的成员作为选项
         for (var i = 0; i < allMembers.length; i++) {
             var member = allMembers[i];
             editorSelect.append('<option value="' + member.memberId + '">' + member.memberName + '</option>');
             viceEditorSelect.append('<option value="' + member.memberId + '">' + member.memberName + '</option>');
         }
         
-        // 从表单中获取已保存的主编和副主编信息
         var savedEditor = $('input[name="zhubian"]').val();
         var savedViceEditor = $('input[name="fuzhubian"]').val();
         
-        // 处理已保存的主编信息
         if (savedEditor) {
             var editorIds = savedEditor.split(',');
-            // 确保每个已保存的主编ID都有对应的选项
             for (var i = 0; i < editorIds.length; i++) {
                 var editorId = editorIds[i];
                 var hasOption = false;
-                // 检查是否已有该选项
                 editorSelect.find('option').each(function() {
                     if ($(this).val() === editorId) {
                         hasOption = true;
                     }
                 });
-                // 如果没有该选项，从用户列表中查找并添加
                 if (!hasOption) {
                     var userName = userIdToName[editorId];
                     if (userName) {
@@ -536,24 +567,19 @@
                     }
                 }
             }
-            // 设置主编选择
             editorSelect.val(editorIds);
         }
         
-        // 处理已保存的副主编信息
         if (savedViceEditor) {
             var viceEditorIds = savedViceEditor.split(',');
-            // 确保每个已保存的副主编ID都有对应的选项
             for (var i = 0; i < viceEditorIds.length; i++) {
                 var viceEditorId = viceEditorIds[i];
                 var hasOption = false;
-                // 检查是否已有该选项
                 viceEditorSelect.find('option').each(function() {
                     if ($(this).val() === viceEditorId) {
                         hasOption = true;
                     }
                 });
-                // 如果没有该选项，从用户列表中查找并添加
                 if (!hasOption) {
                     var userName = userIdToName[viceEditorId];
                     if (userName) {
@@ -561,85 +587,13 @@
                     }
                 }
             }
-            // 设置副主编选择
             viceEditorSelect.val(viceEditorIds);
         }
         
-        // 触发select2更新
         editorSelect.trigger('change');
         viceEditorSelect.trigger('change');
     }
 
-    // 添加成员
-    function addMember() {
-        var memberId = $('#memberSelect').val();
-        var ranking = $('#memberRanking').val();
-
-        if (!memberId || !ranking) {
-            $.modal.alertWarning("请选择成员并输入排名");
-            return;
-        }
-
-        // 检查是否已添加该成员
-        for (var i = 0; i < members.length; i++) {
-            if (members[i].memberId == memberId) {
-                $.modal.alertWarning("该成员已添加");
-                return;
-            }
-        }
-
-        // 检查排名是否已存在
-        for (var i = 0; i < members.length; i++) {
-            if (members[i].ranking == ranking) {
-                $.modal.alertWarning("该排名已存在");
-                return;
-            }
-        }
-
-        var memberName = userIdToName[memberId];
-        var researchScore = calculateResearchScore(ranking);
-
-        var member = {
-            memberId: memberId,
-            memberName: memberName,
-            ranking: ranking,
-            researchScore: researchScore
-        };
-
-        members.push(member);
-        updateMembersTable();
-        updateTotalScore();
-        updateEditorOptions();
-
-        // 清空输入框
-        $('#memberSelect').val('');
-        $('#memberRanking').val('');
-    }
-
-    // 计算科研分数
-    function calculateResearchScore(ranking) {
-        // 根据排名计算科研分数，这里可以根据实际需求调整计算规则
-        var score = 0;
-        switch (ranking) {
-            case '1':
-                score = 10;
-                break;
-            case '2':
-                score = 8;
-                break;
-            case '3':
-                score = 6;
-                break;
-            case '4':
-                score = 4;
-                break;
-            default:
-                score = 2;
-        }
-        return score;
-    }
-
-    // 更新成员表格
     function updateMembersTable() {
         var tbody = $('#membersTableBody');
         tbody.empty();
@@ -658,7 +612,6 @@
         }
     }
 
-    // 删除成员
     function removeMember(index) {
         members.splice(index, 1);
         updateMembersTable();
@@ -667,7 +620,6 @@
         updateViceEditorOptions();
     }
 
-    // 更新科研总分
     function updateTotalScore() {
         var totalScore = 0;
         for (var i = 0; i < members.length; i++) {
@@ -677,38 +629,11 @@
         $('#totalScoreInput').val(totalScore);
     }
 
-    // 更新主编和副主编的可选选项
-    function updateEditorOptions() {
-        var editor = $('#editorSelect');
-        var viceEditor = $('#viceEditorSelect');
-
-        // 保存当前选中的值
-        var currentEditorValues = editor.val() || [];
-        var currentViceEditorValues = viceEditor.val() || [];
-
-        // 清空现有选项
-        editor.empty();
-        viceEditor.empty();
-
-        // 添加新选项
-        for (var i = 0; i < members.length; i++) {
-            var member = members[i];
-            editor.append('<option value="' + member.memberId + '">' + member.memberName + '</option>');
-            viceEditor.append('<option value="' + member.memberId + '">' + member.memberName + '</option>');
-        }
-
-        // 恢复选中状态，不重新初始化Select2以避免重复选项
-        editor.val(currentEditorValues).trigger('change.select2');
-        viceEditor.val(currentViceEditorValues).trigger('change.select2');
-    }
-
-    // 更新副主编的可选选项（排除已选为主编的成员）
     function updateViceEditorOptions() {
         var editorValues = $('#editorSelect').val() || [];
         var viceEditor = $('#viceEditorSelect');
         var viceEditorValues = viceEditor.val() || [];
 
-        // 保存当前选中的副主编值
         var currentViceEditorValues = [];
         for (var i = 0; i < viceEditorValues.length; i++) {
             if (editorValues.indexOf(viceEditorValues[i]) === -1) {
@@ -716,7 +641,6 @@
             }
         }
 
-        // 更新副主编选项的禁用状态
         viceEditor.find('option').each(function() {
             var value = $(this).val();
             if (editorValues.indexOf(value) !== -1) {
@@ -726,17 +650,14 @@
             }
         });
 
-        // 更新Select2并设置选中值，不重新初始化以避免重复选项
         viceEditor.val(currentViceEditorValues).trigger('change.select2');
     }
 
-    // 更新主编的可选选项（排除已选为副主编的成员）
     function updateEditorOptions() {
         var viceEditorValues = $('#viceEditorSelect').val() || [];
         var editor = $('#editorSelect');
         var editorValues = editor.val() || [];
 
-        // 保存当前选中的主编值
         var currentEditorValues = [];
         for (var i = 0; i < editorValues.length; i++) {
             if (viceEditorValues.indexOf(editorValues[i]) === -1) {
@@ -744,7 +665,6 @@
             }
         }
 
-        // 更新主编选项的禁用状态
         editor.find('option').each(function() {
             var value = $(this).val();
             if (viceEditorValues.indexOf(value) !== -1) {
@@ -754,25 +674,20 @@
             }
         });
 
-        // 更新Select2并设置选中值，不重新初始化以避免重复选项
         editor.val(currentEditorValues).trigger('change.select2');
     }
 
     function submitHandler() {
         if ($.validate.form()) {
-            // 检查文件输入框的值
             if ($("input[name='wenjian']").val() == "")
                 return $.modal.alertError("请上传教材文件");
 
-            // 检查是否添加了成员
             if (members.length === 0) {
                 return $.modal.alertWarning("请至少添加一个成员");
             }
 
-            // 将成员信息转换为JSON字符串
             $('#membersInput').val(JSON.stringify(members));
 
-            // 手动构建表单数据，确保所有字段都被包含
             var formData = {
                 id: $('input[name="id"]').val(),
                 mingcheng: $('input[name="mingcheng"]').val(),
@@ -782,7 +697,7 @@
                 benxiaoshifoyongshu: $('input[name="benxiaoshifoyongshu"]:checked').val(),
                 fenlei: $('select[name="fenlei"]').val(),
                 amount: $('input[name="amount"]').val(),
-                expectedJifen: $('input[name="expectedJifen"]').val(),
+                expectedJifen: $('#expectedScore1').val(),
                 wenjian: $('input[name="wenjian"]').val(),
                 members: JSON.stringify(members),
                 zhubian: $('#editorSelect').val() ? $('#editorSelect').val().join(',') : '',
@@ -796,7 +711,6 @@
                 success: function (res) {
                     if (res.code === 0) {
                         $.modal.msgSuccess("保存成功");
-                        // 跳转到教材管理列表页面
                         setTimeout(function() {
                             window.location.href = prefix;
                         }, 1000);
@@ -827,22 +741,19 @@
                     $.modal.alertError("请先输入教材名称");
                     return false;
                 }
-                // 自定义文件名生成规则
                 fileExtension = filename.split('.').pop();
                 const year = new Date().getFullYear();
                 const newName = year +"-"+ $("input[name='mingcheng']").val() +"-"+ "教材软著"+ "." + fileExtension;
                 return newName;
             },
-            showUpload: false,  // 隐藏上传按钮
+            showUpload: false,
         }).on('fileuploaded', function (event, data, previewId, index) {
             $("input[name='" + event.currentTarget.id + "']").val(data.response.url)
         }).on('fileremoved', function (event, id, index) {
             $("input[name='" + event.currentTarget.id + "']").val('')
         }).on('filebatchselected', function(event) {
-            // 批量选择文件后立即上传
             $(this).fileinput('upload');
         }).on('fileselected', function(event) {
-            // 单个文件选择后立即上传
             $(this).fileinput('upload');
         })
         $(this).fileinput('_initFileActions');

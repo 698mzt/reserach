@@ -746,32 +746,6 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
         PageRenderStatusMeta statusMeta = pageRenderService.buildStatusMeta(context);
         List<PageRenderActionItem> actions = pageRenderService.buildActions(context);
 
-        // 驳回状态额外处理：添加删除和提交按钮
-        if ("TEXTBOOK_REJECTED".equals(normalizedState)) {
-            boolean isOwner = jiaocairuanzhu.getUserId() != null && currentUser != null 
-                    && jiaocairuanzhu.getUserId().longValue() == currentUser.getUserId();
-            boolean isAdmin = currentUser != null && currentUser.getRoles() != null 
-                    && currentUser.getRoles().stream().anyMatch(r -> "admin".equals(r.getRoleKey()));
-            
-            // 添加删除按钮
-            if ((isOwner || isAdmin) && permissions.contains(PERM_PREFIX + ":remove")) {
-                boolean hasRemove = actions.stream().anyMatch(a -> "remove".equals(a.getActionKey()));
-                if (!hasRemove) {
-                    actions.add(PageRenderActionItem.of(
-                            "remove", "删除", PageRenderColorConstants.COLOR_DANGER, 20, "确定要删除该记录吗？"));
-                }
-            }
-            
-            // 添加提交按钮（驳回后重新提交）
-            if ((isOwner || isAdmin) && permissions.contains(PERM_PREFIX + ":edit")) {
-                boolean hasSubmit = actions.stream().anyMatch(a -> "submit".equals(a.getActionKey()));
-                if (!hasSubmit) {
-                    actions.add(PageRenderActionItem.of(
-                            "submit", "提交", PageRenderColorConstants.COLOR_SUCCESS, 5, "确定要提交该记录吗？"));
-                }
-            }
-        }
-
         jiaocairuanzhu.setStatusMeta(statusMeta);
         jiaocairuanzhu.setActions(actions);
     }
