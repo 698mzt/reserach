@@ -517,7 +517,8 @@
             // 根据urlFlag过滤按钮
             var filteredActions = paperActions.filter(function(action) {
                 if (urlFlag === 'chakan' || urlFlag === 'LW') {
-                    return action.actionKey === 'view' || action.actionKey === 'viewProcess';
+                    // 查看模式不显示任何操作按钮，只保留关闭按钮
+                    return false;
                 }
                 if (urlFlag === 'pro' || urlFlag === 'kyc_approve') {
                     return action.actionKey === 'approve' || action.actionKey === 'reject';
