@@ -438,7 +438,7 @@ public class SciLectureReportController extends BaseController
     public AjaxResult reject(Integer id,String remark,String urlFlag)
     {
         if (remark == null || remark.trim().isEmpty()) {
-            return AjaxResult.error("驳回原因不能为空");
+            return AjaxResult.error("驳回批注不能为空");
         }
         return toAjax(sciLectureReportService.reject(id,getUserId(),remark,urlFlag));
     }
@@ -493,6 +493,35 @@ public class SciLectureReportController extends BaseController
         op.setBaogaoId(rid);
         List<SciLectureReportOpinion> list = opinion.opinionlist(op);
         return getDataTable(list);
+    }
+
+    /**
+     * 获取状态字典列表
+     * GET /system/report/getStateDict
+     */
+    @GetMapping("/getStateDict")
+    @ResponseBody
+    public AjaxResult getStateDict() {
+        List<Map<String, String>> stateList = new ArrayList<>();
+        stateList.add(createStateDict("LECTURE_DRAFT", "草稿箱"));
+        stateList.add(createStateDict("LECTURE_JYS_AUDIT", "待教研室审核"));
+        stateList.add(createStateDict("LECTURE_KYC_AUDIT", "待科研处审核"));
+        stateList.add(createStateDict("LECTURE_PASSED", "已通过"));
+        stateList.add(createStateDict("LECTURE_REJECTED", "已驳回"));
+        return AjaxResult.success(stateList);
+    }
+
+    /**
+     * 创建状态字典对象
+     * @param code 状态编码
+     * @param label 状态标签
+     * @return Map 状态字典
+     */
+    private Map<String, String> createStateDict(String code, String label) {
+        Map<String, String> map = new HashMap<>();
+        map.put("code", code);
+        map.put("label", label);
+        return map;
     }
 
     /**

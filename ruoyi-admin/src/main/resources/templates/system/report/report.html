@@ -458,7 +458,80 @@
     var chexiaoFlag = [[${@permission.hasPermi('system:report:chexiao')}]];  // 撤销 == 》 学院负责人的特权
     var zgqxtuihuiFlag = [[${@permission.hasPermi('system:report:zgqxtuihui')}]];  // 驳回  == 》 科研室负责人的特权
     var submitFlag = [[${@permission.hasPermi('system:report:submit')}]];  // 提交
-    
+
+    // 本地状态映射（兜底方案）
+    var stateNameMap = {
+        'LECTURE_DRAFT': '草稿箱',
+        'LECTURE_JYS_AUDIT': '待教研室审核',
+        'LECTURE_KYC_AUDIT': '待科研处审核',
+        'LECTURE_PASSED': '已通过',
+        'LECTURE_REJECTED': '已驳回'
+    };
+
+    // 状态字典对象（从后端加载）
+    var stateDict = {};
+
+    // 根据状态编码获取颜色配置
+    function getStateColors(stateCode) {
+        if (!stateCode) {
+            return { color: '#999', bgColor: '#f5f5f5' };
+        }
+        if (stateCode.indexOf('DRAFT') !== -1) {
+            return { color: '#999', bgColor: '#f5f5f5' };
+        } else if (stateCode.indexOf('JYS') !== -1) {
+            return { color: '#ff9800', bgColor: '#fff3e0' };
+        } else if (stateCode.indexOf('XY') !== -1) {
+            return { color: '#2196f3', bgColor: '#e3f2fd' };
+        } else if (stateCode.indexOf('KYC') !== -1) {
+            return { color: '#2196f3', bgColor: '#e3f2fd' };
+        } else if (stateCode.indexOf('PASSED') !== -1) {
+            return { color: '#4caf50', bgColor: '#e8f5e9' };
+        } else if (stateCode.indexOf('REJECTED') !== -1) {
+            return { color: '#f44336', bgColor: '#ffebee' };
+        } else {
+            return { color: '#999', bgColor: '#f5f5f5' };
+        }
+    }
+
+    // 状态格式化函数
+    function formatState(value, row, index) {
+        var state = String(value);
+        var stateInfo = stateDict[state];
+        if (!stateInfo && stateNameMap[state]) {
+            stateInfo = { label: stateNameMap[state] };
+        }
+        if (stateInfo) {
+            var colors = getStateColors(state);
+            return '<span style="color:' + colors.color + '; background-color:' + colors.bgColor +
+                   '; padding:4px 8px; border-radius:4px; font-weight:500;">' + stateInfo.label + '</span>';
+        }
+        return '<span style="color:#999; background-color:#f5f5f5; padding:4px 8px; border-radius:4px;">' + state + '</span>';
+    }
+
+    // 加载状态字典
+    function loadStateDict() {
+        $.ajax({
+            url: prefix + "/getStateDict",
+            type: "GET",
+            async: false,
+            success: function(result) {
+                if (result.code === 0 && result.data) {
+                    result.data.forEach(function(item) {
+                        stateDict[item.code] = {
+                            label: item.label
+                        };
+                    });
+                }
+            },
+            error: function() {
+                console.error("加载状态字典失败");
+            }
+        });
+    }
+
+    // 页面加载前执行，确保状态字典可用
+    loadStateDict();
+
     // 获取当前用户角色信息
     var userRole = '';
     var userRoles = [[${user.roles}]];  // 从后端获取的角色列表
@@ -656,8 +729,21 @@
                     align: 'center',
                     title: '参与人数'
                 },
-                {                    field: 'reportKeyanfen',                    align: 'center',                    title: '积分'                },                {                    field: 'state',                    title: '状态',                    align: 'center',                    formatter: function(value, row, index) {                        const stateMap = {                            'LECTURE_DRAFT': '草稿箱',                            'LECTURE_JYS_AUDIT': '待教研室审核',                            'LECTURE_KYC_AUDIT': '待科研处审核',                            'LECTURE_PASSED': '已通过',                            'LECTURE_REJECTED': '已驳回'                        };
-                        return stateMap[value] || value;                    }                },                {                    title: '操作',                    align: 'center',                    formatter: function (value, row, index) {                        var actions = [];                        var hasPreviousButtons = false; // 标记前面是否有按钮
+                {
+                    field: 'reportKeyanfen',
+                    align: 'center',
+                    title: '积分'
+                },
+                {
+                    field: 'state',
+                    title: '状态',
+                    align: 'center',
+                    formatter: formatState
+                },
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function (value, row, index) {                        var actions = [];                        var hasPreviousButtons = false; // 标记前面是否有按钮
 
                         if (row.state == 'LECTURE_DRAFT') {
                             if (row.userId == row.uid) {
