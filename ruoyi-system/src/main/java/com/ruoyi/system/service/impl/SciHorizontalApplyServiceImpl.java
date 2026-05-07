@@ -245,7 +245,7 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
             }
         } else if (isJysAuditState(state)) {
             addViewProcessAction(actions, canView);
-            if (isOwner || isAdmin) {
+            if (canJysReview) {
                 actions.add(PageRenderActionItem.of(
                         PageRenderActionConstants.ACTION_RECALL,
                         "撤回",
@@ -299,10 +299,17 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
             addViewProcessAction(actions, canView);
             if (isApplyState(state) && (isOwner || isAdmin) && canAdd) {
                 actions.add(PageRenderActionItem.of(
-                        "overApply",
+                        PageRenderActionConstants.ACTION_OVER_APPLY,
                         "提交结项申请",
                         PageRenderColorConstants.COLOR_SUCCESS,
                         15));
+            }
+            if (isApplyState(state) && (isOwner || isAdmin) && canAdd) {
+                actions.add(PageRenderActionItem.of(
+                        PageRenderActionConstants.ACTION_REAMOUNT,
+                        "追加金额",
+                        PageRenderColorConstants.COLOR_PRIMARY,
+                        16));
             }
             if (canKycReview) {
                 actions.add(PageRenderActionItem.of(
@@ -2388,10 +2395,6 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
             return ApprovalResult.fail("申请状态已变更，请刷新后重试");
         }
 
-        if (!operatorId.equals(apply.getUserId().longValue())) {
-            return ApprovalResult.fail("只有申请人才能撤回申请");
-        }
-
         String nodeCode = stateToNodeCode(currentState);
 
         ApprovalRequest request = ApprovalRequest.of(
@@ -2641,10 +2644,6 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
 
         if (!currentState.equals(apply.getState())) {
             return ApprovalResult.fail("申请状态已变更，请刷新后重试");
-        }
-
-        if (!operatorId.equals(apply.getUserId().longValue())) {
-            return ApprovalResult.fail("只有申请人才能撤回申请");
         }
 
         String nodeCode = stateToNodeCode(currentState);

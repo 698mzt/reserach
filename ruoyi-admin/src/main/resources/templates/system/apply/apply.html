@@ -1283,7 +1283,7 @@
                         if (row.actions && row.actions.length > 0) {
                             var listActions = row.actions.filter(function(a) {
                                 return a.actionKey !== 'approve' && a.actionKey !== 'reject'
-                                    && a.actionKey !== 'overApply' && a.actionKey !== 'reamount';
+                                    && a.actionKey !== 'overApply';
                             });
                             if (listActions.length > 0) {
                                 return PageRender.renderActionsToString(listActions, {style: 'table'});
