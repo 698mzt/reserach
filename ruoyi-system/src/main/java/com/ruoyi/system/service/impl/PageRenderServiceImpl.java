@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -23,6 +24,7 @@ import java.util.Map;
  * 页面渲染公共服务实现类
  * 实现统一的通用规则引擎，支持八大模块通用化
  * 状态映射和按钮规则从数据库审批流程配置中动态加载，避免硬编码
+ * 各模块权限通过 ModuleConfig 权限映射表动态解析，消除 if-else
  *
  * 八大模块：论文、教材软著、专利软著、讲座报告、奖励、横向项目申报、横向项目结题、纵向项目申报、纵向项目结题、成果转化
  *
@@ -52,7 +54,7 @@ public class PageRenderServiceImpl implements IPageRenderService {
     private static final String TEXTBOOK_APPROVAL_PROCESS_CODE = "TEXTBOOK_APPROVAL";
 
     /** 成果转化审批 */
-    private static final String INTRASCHPRO_APPLY_PROCESS_CODE = "INTRASCHPRO_APPLY";
+    private static final String TEC_TRA_APPROVAL_PROCESS_CODE = "TEC_TRA_APPROVAL";
 
     /** 奖励审批 */
     private static final String REWARD_APPLY_PROCESS_CODE = "REWARD_APPLY";
@@ -65,19 +67,23 @@ public class PageRenderServiceImpl implements IPageRenderService {
 
     /**
      * 模块配置内部类，封装单个模块的渲染配置信息
-     * 包含流程编码、权限前缀、模块名称等，用于通用化按钮规则构造
+     * 包含流程编码、权限前缀、模块名称、权限映射表，用于通用化按钮规则构造
      */
     private static class ModuleConfig {
         private final String moduleCode;
         private final String permPrefix;
         private final String processCode;
         private final String moduleName;
+        /** 权限映射表：通用动作标识 -> 实际权限后缀 */
+        private final Map<String, String> permissionMap;
 
-        ModuleConfig(String moduleCode, String permPrefix, String processCode, String moduleName) {
+        ModuleConfig(String moduleCode, String permPrefix, String processCode,
+                     String moduleName, Map<String, String> permissionMap) {
             this.moduleCode = moduleCode;
             this.permPrefix = permPrefix;
             this.processCode = processCode;
             this.moduleName = moduleName;
+            this.permissionMap = permissionMap != null ? permissionMap : new HashMap<>();
         }
 
         String getModuleCode() {
@@ -97,13 +103,15 @@ public class PageRenderServiceImpl implements IPageRenderService {
         }
 
         /**
-         * 拼接完整权限标识
+         * 根据通用动作标识获取完整权限标识
+         * 自动从权限映射表中查找实际权限后缀，实现动态权限解析
          *
-         * @param action 权限动作（如 info、edit、remove）
-         * @return 完整权限标识（如 system:paper:info）
+         * @param actionKey 通用动作标识（如 info、edit、approve、kypy、revoke 等）
+         * @return 完整权限标识（如 system:paper:kypy、system:vertical:KYC）
          */
-        String buildPermission(String action) {
-            return permPrefix + ":" + action;
+        String getPermission(String actionKey) {
+            String suffix = permissionMap.getOrDefault(actionKey, actionKey);
+            return permPrefix + ":" + suffix;
         }
     }
 
@@ -145,21 +153,146 @@ public class PageRenderServiceImpl implements IPageRenderService {
     }
 
     /**
-     * 注册八大模块配置
-     * 每个模块注册 moduleCode、权限前缀、流程编码和模块名称
+     * 注册各模块配置及权限映射表
+     * 权限映射表以数据库中实际存在的权限名称为准，不遵循统一命名规范
      */
     private void registerModuleConfigs() {
-        MODULE_REGISTRY.put("PAPER", new ModuleConfig("PAPER", "system:paper", PAPER_PROCESS_CODE, "论文"));
-        MODULE_REGISTRY.put("REWARD", new ModuleConfig("REWARD", "system:reward", REWARD_APPLY_PROCESS_CODE, "奖励"));
-        MODULE_REGISTRY.put("TEXTBOOK", new ModuleConfig("TEXTBOOK", "system:textbook", TEXTBOOK_APPROVAL_PROCESS_CODE, "教材软著"));
-        MODULE_REGISTRY.put("PATENT", new ModuleConfig("PATENT", "system:patent", PATENT_APPLY_PROCESS_CODE, "专利软著"));
-        MODULE_REGISTRY.put("LECTURE", new ModuleConfig("LECTURE", "system:lecture", LECTURE_APPROVAL_PROCESS_CODE, "讲座报告"));
-        MODULE_REGISTRY.put("HORIZONTAL_APPLY", new ModuleConfig("HORIZONTAL_APPLY", "system:apply", HORIZONTAL_APPLY_PROCESS_CODE, "横向项目申报"));
-        MODULE_REGISTRY.put("HORIZONTAL_OVER", new ModuleConfig("HORIZONTAL_OVER", "system:apply", HORIZONTAL_OVER_PROCESS_CODE, "横向项目结题"));
-        MODULE_REGISTRY.put("VERTICAL_APPLY", new ModuleConfig("VERTICAL_APPLY", "system:vertical", VERTICAL_APPLY_PROCESS_CODE, "纵向项目申报"));
-        MODULE_REGISTRY.put("VERTICAL_OVER", new ModuleConfig("VERTICAL_OVER", "system:vertical", VERTICAL_OVER_PROCESS_CODE, "纵向项目结题"));
-        MODULE_REGISTRY.put("TEC_TRA", new ModuleConfig("TEC_TRA", "system:teccar", INTRASCHPRO_APPLY_PROCESS_CODE, "成果转化"));
-        log.info("已注册 {} 个模块配置", MODULE_REGISTRY.size());
+        // 论文模块：教研室批阅=process, 学院批阅=xypy, 科研批阅=kypy, 撤回=revoke, 科研退回=kyrevoke
+        MODULE_REGISTRY.put("PAPER", new ModuleConfig("PAPER", "system:paper", PAPER_PROCESS_CODE, "论文",
+                new HashMap<String, String>() {{
+                    put("info", "info");
+                    put("edit", "edit");
+                    put("add", "add");
+                    put("remove", "remove");
+                    put("approve", "process");       // 教研室批阅
+                    put("kypy", "kypy");             // 科研处批阅
+                    put("revoke", "revoke");         // 作者撤回
+                    put("kyrevoke", "kyrevoke");     // 科研处退回
+                    put("xyrevoke", "xyrevoke");     // 学院退回
+                }}));
+
+        // 奖励模块：批阅=process, 核查=hecha, 查阅=chayue
+        MODULE_REGISTRY.put("REWARD", new ModuleConfig("REWARD", "system:reward", REWARD_APPLY_PROCESS_CODE, "奖励",
+                new HashMap<String, String>() {{
+                    put("info", "info");
+                    put("edit", "edit");
+                    put("add", "add");
+                    put("remove", "remove");
+                    put("approve", "process");
+                    put("kypy", "hecha");
+                    put("revoke", "revoke");
+                    put("kyrevoke", "kyrevoke");
+                }}));
+
+        // 教材软著模块：批阅=process, 核查=hecha, 查阅=chayue, 撤销=chexiao, 提交=tijiao
+        MODULE_REGISTRY.put("TEXTBOOK", new ModuleConfig("TEXTBOOK", "system:jiaocairuanzhu", TEXTBOOK_APPROVAL_PROCESS_CODE, "教材软著",
+                new HashMap<String, String>() {{
+                    put("info", "info");
+                    put("edit", "edit");
+                    put("add", "add");
+                    put("remove", "remove");
+                    put("approve", "process");
+                    put("kypy", "hecha");
+                    put("revoke", "chexiao");
+                    put("kyrevoke", "kyrevoke");
+                    put("submit", "tijiao");
+                }}));
+
+        // 专利软著模块：批阅=process, 核查=hecha, 查阅=chayue, 撤销=chexiao
+        MODULE_REGISTRY.put("PATENT", new ModuleConfig("PATENT", "system:zhuanliruanzhu", PATENT_APPLY_PROCESS_CODE, "专利软著",
+                new HashMap<String, String>() {{
+                    put("info", "info");
+                    put("edit", "edit");
+                    put("add", "add");
+                    put("remove", "remove");
+                    put("approve", "process");
+                    put("kypy", "hecha");
+                    put("revoke", "chexiao");
+                    put("kyrevoke", "kyrevoke");
+                }}));
+
+        // 讲座报告模块：批阅=process, 核查=check, 学院批阅=xyprocess
+        MODULE_REGISTRY.put("LECTURE", new ModuleConfig("LECTURE", "system:report", LECTURE_APPROVAL_PROCESS_CODE, "讲座报告",
+                new HashMap<String, String>() {{
+                    put("info", "info");
+                    put("edit", "edit");
+                    put("add", "add");
+                    put("remove", "remove");
+                    put("approve", "process");
+                    put("kypy", "check");
+                    put("revoke", "revoke");
+                    put("kyrevoke", "kyrevoke");
+                    put("xyprocess", "xyprocess");
+                }}));
+
+        // 横向项目申报模块：批阅=process, 科研室批阅=reprocess, 核查=hecha, 学院审批=Dept, 结项=apply_over
+        MODULE_REGISTRY.put("HORIZONTAL_APPLY", new ModuleConfig("HORIZONTAL_APPLY", "system:apply", HORIZONTAL_APPLY_PROCESS_CODE, "横向项目申报",
+                new HashMap<String, String>() {{
+                    put("info", "info");
+                    put("edit", "edit");
+                    put("add", "add");
+                    put("remove", "remove");
+                    put("approve", "process");
+                    put("kypy", "hecha");
+                    put("revoke", "revoke");
+                    put("kyrevoke", "kyrevoke");
+                    put("reprocess", "reprocess");
+                }}));
+
+        // 横向项目结题模块：权限同立项
+        MODULE_REGISTRY.put("HORIZONTAL_OVER", new ModuleConfig("HORIZONTAL_OVER", "system:apply", HORIZONTAL_OVER_PROCESS_CODE, "横向项目结题",
+                new HashMap<String, String>() {{
+                    put("info", "info");
+                    put("edit", "edit");
+                    put("add", "add");
+                    put("remove", "remove");
+                    put("approve", "process");
+                    put("kypy", "hecha");
+                    put("revoke", "revoke");
+                    put("kyrevoke", "kyrevoke");
+                    put("reprocess", "reprocess");
+                }}));
+
+        // 纵向项目申报模块：JYS批阅=JYS, 学院审批=Dept, KYC批阅=KYC (大写！)
+        MODULE_REGISTRY.put("VERTICAL_APPLY", new ModuleConfig("VERTICAL_APPLY", "system:apply_vertical", VERTICAL_APPLY_PROCESS_CODE, "纵向项目申报",
+                new HashMap<String, String>() {{
+                    put("info", "info");
+                    put("edit", "edit");
+                    put("add", "add");
+                    put("remove", "remove");
+                    put("approve", "JYS");            // 纵向教研室批阅
+                    put("kypy", "KYC");              // 纵向科研处批阅（注意大写）
+                    put("revoke", "revoke");
+                    put("kyrevoke", "kyrevoke");
+                }}));
+
+        // 纵向项目结题模块：权限同立项
+        MODULE_REGISTRY.put("VERTICAL_OVER", new ModuleConfig("VERTICAL_OVER", "system:apply_vertical", VERTICAL_OVER_PROCESS_CODE, "纵向项目结题",
+                new HashMap<String, String>() {{
+                    put("info", "info");
+                    put("edit", "edit");
+                    put("add", "add");
+                    put("remove", "remove");
+                    put("approve", "JYS");
+                    put("kypy", "KYC");
+                    put("revoke", "revoke");
+                    put("kyrevoke", "kyrevoke");
+                }}));
+
+        // 成果转化模块：教研室批阅=JYPY, 学院批阅=XYPY, 科研室批阅=KYPY, 教研室撤回=JYCH, 学院撤回=XYCH, 科研室撤回=KYCH
+        MODULE_REGISTRY.put("TEC_TRA", new ModuleConfig("TEC_TRA", "system:intraSch", TEC_TRA_APPROVAL_PROCESS_CODE, "成果转化",
+                new HashMap<String, String>() {{
+                    put("info", "info");
+                    put("edit", "edit");
+                    put("add", "add");
+                    put("remove", "remove");
+                    put("approve", "JYPY");           // 教研室批阅
+                    put("kypy", "KYPY");             // 科研室批阅
+                    put("revoke", "JYCH");           // 教研室撤回
+                    put("kyrevoke", "KYCH");         // 科研室撤回
+                }}));
+
+        log.info("已注册 {} 个模块配置，权限映射已就绪", MODULE_REGISTRY.size());
     }
 
     /**
@@ -427,7 +560,8 @@ public class PageRenderServiceImpl implements IPageRenderService {
 
     /**
      * 构建通用按钮动作列表
-     * 根据状态编码后缀语义 + 审批节点配置 + 权限前缀动态生成按钮列表
+     * 根据状态编码后缀语义 + 权限映射表动态生成按钮列表
+     * 所有权限均通过 ModuleConfig.getPermission(actionKey) 动态解析，消除 if-else
      *
      * @param context 页面渲染上下文
      * @return 按钮动作列表
@@ -443,24 +577,21 @@ public class PageRenderServiceImpl implements IPageRenderService {
         boolean isAdmin = context.hasRole("admin");
         StateSemantic semantic = parseStateSemantic(state);
 
-        // 获取权限前缀（优先从context取，兜底从注册表取）
-        String permPrefix = context.getPermPrefix();
-        if (permPrefix == null) {
-            ModuleConfig config = MODULE_REGISTRY.get(context.getModuleCode());
-            if (config != null) {
-                permPrefix = config.getPermPrefix();
-            }
+        // 获取模块配置（用于动态权限解析）
+        ModuleConfig config = getModuleConfig(context.getModuleCode(), context.getPermPrefix());
+        if (config == null) {
+            return actions;
         }
 
         // 查看按钮：所有状态都显示
-        if (permPrefix != null && context.hasPermission(permPrefix + ":info")) {
+        if (context.hasPermission(config.getPermission("info"))) {
             actions.add(PageRenderActionItem.of(
                     PageRenderActionConstants.ACTION_VIEW, "查看",
                     PageRenderColorConstants.COLOR_INFO, 100));
         }
 
-        // 查看流程按钮：非草稿状态显示
-        if (semantic != StateSemantic.DRAFT && permPrefix != null && context.hasPermission(permPrefix + ":info")) {
+        // 查看流程按钮：所有状态都显示（草稿状态也需查看流程定义）
+        if (context.hasPermission(config.getPermission("info"))) {
             actions.add(PageRenderActionItem.of(
                     PageRenderActionConstants.ACTION_VIEW_PROCESS, "查看流程",
                     PageRenderColorConstants.COLOR_INFO, 101));
@@ -469,19 +600,19 @@ public class PageRenderServiceImpl implements IPageRenderService {
         // 草稿状态按钮
         if (semantic == StateSemantic.DRAFT) {
             // 编辑按钮
-            if ((isOwner || isAdmin) && permPrefix != null && context.hasPermission(permPrefix + ":edit")) {
+            if ((isOwner || isAdmin) && context.hasPermission(config.getPermission("edit"))) {
                 actions.add(PageRenderActionItem.of(
                         PageRenderActionConstants.ACTION_EDIT, "编辑",
                         PageRenderColorConstants.COLOR_PRIMARY, 10));
             }
             // 删除按钮
-            if ((isOwner || isAdmin) && permPrefix != null && context.hasPermission(permPrefix + ":remove")) {
+            if ((isOwner || isAdmin) && context.hasPermission(config.getPermission("remove"))) {
                 actions.add(PageRenderActionItem.of(
                         PageRenderActionConstants.ACTION_REMOVE, "删除",
                         PageRenderColorConstants.COLOR_DANGER, 20, "确定要删除该记录吗？"));
             }
             // 提交按钮
-            if ((isOwner || isAdmin) && permPrefix != null && context.hasPermission(permPrefix + ":edit")) {
+            if ((isOwner || isAdmin) && context.hasPermission(config.getPermission("edit"))) {
                 actions.add(PageRenderActionItem.of(
                         PageRenderActionConstants.ACTION_SUBMIT, "提交",
                         PageRenderColorConstants.COLOR_SUCCESS, 5, "确定要提交该记录吗？"));
@@ -491,23 +622,22 @@ public class PageRenderServiceImpl implements IPageRenderService {
         // 驳回状态按钮
         if (semantic == StateSemantic.REJECTED) {
             // 编辑按钮
-            if ((isOwner || isAdmin) && permPrefix != null && context.hasPermission(permPrefix + ":edit")) {
+            if ((isOwner || isAdmin) && context.hasPermission(config.getPermission("edit"))) {
                 actions.add(PageRenderActionItem.of(
                         PageRenderActionConstants.ACTION_EDIT, "编辑",
                         PageRenderColorConstants.COLOR_PRIMARY, 10));
             }
-            // 重新提交按钮（编辑保存后状态会变回草稿，这里不额外提供重新提交）
         }
 
-        // 审批中状态按钮
+        // 审批中状态按钮（教研室/科研处）
         if (semantic == StateSemantic.JYS_AUDIT || semantic == StateSemantic.KYC_AUDIT) {
-            addAuditActions(context, actions, semantic, permPrefix, isOwner, isAdmin);
+            addAuditActions(context, actions, semantic, config, isOwner, isAdmin);
         }
 
         // 通过状态按钮
         if (semantic == StateSemantic.PASSED) {
-            // 撤回按钮（需有撤回权限）
-            if (permPrefix != null && context.hasPermission(permPrefix + ":kyrevoke")) {
+            // 撤回按钮（需有 kyrevoke 权限）
+            if (context.hasPermission(config.getPermission("kyrevoke"))) {
                 actions.add(PageRenderActionItem.of(
                         PageRenderActionConstants.ACTION_RECALL, "撤回",
                         PageRenderColorConstants.COLOR_WARNING, 40, "确定要撤回该记录吗？"));
@@ -518,33 +648,62 @@ public class PageRenderServiceImpl implements IPageRenderService {
     }
 
     /**
+     * 根据模块编码或权限前缀获取模块配置
+     * 优先通过 moduleCode 查找，兜底通过 permPrefix 匹配
+     *
+     * @param moduleCode 模块编码
+     * @param permPrefix 权限前缀（兜底匹配用）
+     * @return 模块配置，未找到返回 null
+     */
+    private ModuleConfig getModuleConfig(String moduleCode, String permPrefix) {
+        if (moduleCode != null && MODULE_REGISTRY.containsKey(moduleCode)) {
+            return MODULE_REGISTRY.get(moduleCode);
+        }
+        // 兜底：通过权限前缀匹配
+        if (permPrefix != null) {
+            for (ModuleConfig config : MODULE_REGISTRY.values()) {
+                if (config.getPermPrefix().equals(permPrefix)) {
+                    return config;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
      * 根据节点配置动态生成审批按钮
-     * 不引用业务模块常量，通过节点配置和状态语义判断
+     * 不引用业务模块常量，通过权限映射表动态获取权限标识
+     *
+     * 权限映射规则：
+     * - 教研室审批（第一级）：使用 config.getPermission("approve") 动态解析
+     * - 科研处审批（第二级）：使用 config.getPermission("kypy") 动态解析
+     * - 撤回（科研处审批中）：教研室审批人使用 config.getPermission("approve") 权限撤回
      *
      * @param context 页面渲染上下文
      * @param actions 按钮列表（追加）
      * @param semantic 状态语义
-     * @param permPrefix 权限前缀
+     * @param config 模块配置（含权限映射表）
      * @param isOwner 是否为创建人
      * @param isAdmin 是否为管理员
      */
     private void addAuditActions(PageRenderContext context, List<PageRenderActionItem> actions,
-                                  StateSemantic semantic, String permPrefix, boolean isOwner, boolean isAdmin) {
+                                  StateSemantic semantic, ModuleConfig config, boolean isOwner, boolean isAdmin) {
         String state = context.getCurrentState();
-        if (state == null || permPrefix == null) {
+        if (state == null || config == null) {
             return;
         }
 
-        // 获取当前节点
-        SysApprovalNode currentNode = getNodeByState(context.getProcessCode(), state);
-
-        // 判断是否为最后一级节点（科研处审批）
-        boolean isLastAuditNode = semantic == StateSemantic.KYC_AUDIT;
         // 判断是否为第一级节点（教研室审批）
         boolean isFirstAuditNode = semantic == StateSemantic.JYS_AUDIT;
+        // 判断是否为最后一级节点（科研处审批）
+        boolean isLastAuditNode = semantic == StateSemantic.KYC_AUDIT;
 
-        // 审批人按钮：有审批权限的用户可以看到批阅/通过/驳回按钮
-        if (context.hasPermission(permPrefix + ":process")) {
+        // 教研室审批按钮：使用 config.getPermission("approve") 动态获取权限
+        // 各模块映射示例：
+        //   论文 -> system:paper:process
+        //   纵向 -> system:apply_vertical:JYS
+        //   成果转化 -> system:intraSch:JYPY
+        if (isFirstAuditNode && context.hasPermission(config.getPermission("approve"))) {
             actions.add(PageRenderActionItem.of(
                     PageRenderActionConstants.ACTION_REVIEW, "批阅",
                     PageRenderColorConstants.COLOR_PRIMARY, 30));
@@ -556,40 +715,33 @@ public class PageRenderServiceImpl implements IPageRenderService {
                     PageRenderColorConstants.COLOR_DANGER, 32, "确定要驳回该记录吗？"));
         }
 
-        // 撤回按钮规则：
-        // 1. 教研室审批（第一级）：仅记录创建者可撤回
-        // 2. 科研处审批（第二级）：教研室审批人可撤回，不限制作者本人
-        if (isFirstAuditNode && isOwner) {
-            // 教研室审批中，仅作者可撤回
+        // 科研处审批按钮：使用 config.getPermission("kypy") 动态获取权限
+        // 各模块映射示例：
+        //   论文 -> system:paper:kypy
+        //   纵向 -> system:apply_vertical:KYC（注意大写）
+        //   成果转化 -> system:intraSch:KYPY
+        //   奖励 -> system:reward:hecha
+        //   横向 -> system:apply:hecha
+        else if (isLastAuditNode && context.hasPermission(config.getPermission("kypy"))) {
             actions.add(PageRenderActionItem.of(
-                    PageRenderActionConstants.ACTION_RECALL, "撤回",
-                    PageRenderColorConstants.COLOR_WARNING, 40, "确定要撤回该记录吗？"));
-        } else if (isLastAuditNode && context.hasPermission(permPrefix + ":revoke")) {
-            // 科研处审批中，有撤回权限的用户可撤回
+                    PageRenderActionConstants.ACTION_KY_REVIEW, "核查",
+                    PageRenderColorConstants.COLOR_PRIMARY, 30));
             actions.add(PageRenderActionItem.of(
-                    PageRenderActionConstants.ACTION_RECALL, "撤回",
-                    PageRenderColorConstants.COLOR_WARNING, 40, "确定要撤回该记录吗？"));
+                    PageRenderActionConstants.ACTION_APPROVE, "通过",
+                    PageRenderColorConstants.COLOR_SUCCESS, 31, "确定要通过该记录吗？"));
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_REJECT, "驳回",
+                    PageRenderColorConstants.COLOR_DANGER, 32, "确定要驳回该记录吗？"));
         }
-    }
 
-    /**
-     * 根据状态编码获取当前审批节点
-     *
-     * @param processCode 流程编码
-     * @param state 状态编码
-     * @return 节点信息，未找到返回null
-     */
-    private SysApprovalNode getNodeByState(String processCode, String state) {
-        if (processCode == null || state == null) {
-            return null;
+        // 撤回按钮规则：
+        // 1. 教研室审批（第一级）：不显示撤回按钮
+        // 2. 科研处审批（第二级）：教研室审批人（有 approve 权限）可撤回
+        if (isLastAuditNode && context.hasPermission(config.getPermission("approve"))) {
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_RECALL, "撤回",
+                    PageRenderColorConstants.COLOR_WARNING, 40, "确定要撤回该记录吗？"));
         }
-        Map<String, SysApprovalNode> nodeMapping = allNodeMappings.get(processCode);
-        if (nodeMapping == null) {
-            return null;
-        }
-        // 节点编码和状态编码命名规则一致时可直接查找
-        // 如 PAPER_JYS_AUDIT 对应 PAPER_JYS_AUDIT 节点
-        return nodeMapping.get(state);
     }
 
     /**
@@ -606,26 +758,20 @@ public class PageRenderServiceImpl implements IPageRenderService {
             return specificActions;
         }
 
-        String permPrefix = context.getPermPrefix();
-        if (permPrefix == null) {
-            ModuleConfig config = MODULE_REGISTRY.get(moduleCode);
-            if (config != null) {
-                permPrefix = config.getPermPrefix();
-            }
+        ModuleConfig config = MODULE_REGISTRY.get(moduleCode);
+        if (config == null) {
+            return specificActions;
         }
 
-        // 横向课题立项通过后显示"提交结项申请"和"追加金额"按钮
+        // 横向课题立项通过后显示"提交结项申请"按钮
         if ("HORIZONTAL_APPLY".equals(moduleCode) && context.getCurrentState() != null
                 && context.getCurrentState().endsWith("_PASSED")) {
             boolean isOwner = context.isOwner();
             boolean isAdmin = context.hasRole("admin");
-            if ((isOwner || isAdmin) && permPrefix != null && context.hasPermission(permPrefix + ":add")) {
+            if ((isOwner || isAdmin) && context.hasPermission(config.getPermission("add"))) {
                 specificActions.add(PageRenderActionItem.of(
                         "submitOver", "提交结项申请",
                         PageRenderColorConstants.COLOR_PRIMARY, 50));
-                specificActions.add(PageRenderActionItem.of(
-                        "addAmount", "追加金额",
-                        PageRenderColorConstants.COLOR_SUCCESS, 51));
             }
         }
 
