@@ -530,7 +530,7 @@ public class SciHorizontalApplyController extends BaseController
         }
 
         sciHorizontalReamount.setApplyId(id.toString());
-        sciHorizontalReamount.setState("APPLY_DRAFT");
+        sciHorizontalReamount.setState("HORIZONTAL_APPLY_DRAFT");
         sciHorizontalReamount.setUid(getUserId());
         if (sciHorizontalReamount.getReAmount() != null && !sciHorizontalReamount.getReAmount().isEmpty()){
             sciHorizontalReamountService.insertAmount(sciHorizontalReamount);
@@ -552,15 +552,15 @@ public class SciHorizontalApplyController extends BaseController
         sciHorizontalApply.setUserId(Integer.valueOf(getSysUser().getUserId().toString()));
         if ( sciHorizontalApply1.getValidityDate() !=  null && !sciHorizontalApply1.getValidityDate().isEmpty()){
             sciHorizontalApply.setNewsql("999");
-            sciHorizontalApply.setState("OVER_JYS_AUDIT");
+            sciHorizontalApply.setState("HORIZONTAL_OVER_JYS_AUDIT");
         }
         else{
             sciHorizontalApply.setNewsql("99");
-            sciHorizontalApply.setState("APPLY_JYS_AUDIT");
+            sciHorizontalApply.setState("HORIZONTAL_APPLY_JYS_AUDIT");
         }
         int a = sciHorizontalApplyService.updateSciHorizontalApply(sciHorizontalApply);
-        sciHorizontalReamount.setState("APPLY_JYS_AUDIT");
-        sciHorizontalReamountService.push(getUserId(),sciHorizontalApply.getId(),"APPLY_JYS_AUDIT");
+        sciHorizontalReamount.setState("HORIZONTAL_APPLY_JYS_AUDIT");
+        sciHorizontalReamountService.push(getUserId(),sciHorizontalApply.getId(),"HORIZONTAL_APPLY_JYS_AUDIT");
         return toAjax(a);
     }
 
@@ -602,7 +602,7 @@ public class SciHorizontalApplyController extends BaseController
     public AjaxResult overaddSave(SciHorizontalApply sciHorizontalApply, SciHorizontalReamount sciHorizontalReamount) {
         Integer id = sciHorizontalApply.getId();
         sciHorizontalReamount.setApplyId(id.toString());
-        sciHorizontalReamount.setState("OVER_JYS_AUDIT");
+        sciHorizontalReamount.setState("HORIZONTAL_OVER_JYS_AUDIT");
         sciHorizontalApply.setUserId(Integer.valueOf(getSysUser().getUserId().toString()));
         int result = sciHorizontalApplyService.overSaveSciHorizontalApply(sciHorizontalApply);
         if (result == -1) {
@@ -980,7 +980,7 @@ public class SciHorizontalApplyController extends BaseController
 
     /**
      * 将业务状态编码转换为审批节点编码
-     * 业务状态编码格式: {阶段}_{节点}_{状态} (如 APPLY_JYS_AUDIT)
+     * 业务状态编码格式: {阶段}_{节点}_{状态} (如 HORIZONTAL_APPLY_JYS_AUDIT)
      * 审批节点编码格式: {阶段}_{节点} (如 APPLY_JYS)
      *
      * @param stateCode 业务状态编码
@@ -1010,27 +1010,27 @@ public class SciHorizontalApplyController extends BaseController
         // 判断是否为字符串状态码
         if (state.length() > 0 && Character.isLetter(state.charAt(0))) {
             switch (state) {
-                case "APPLY_DRAFT":
+                case "HORIZONTAL_APPLY_DRAFT":
                     return "立项草稿";
-                case "APPLY_JYS_AUDIT":
+                case "HORIZONTAL_APPLY_JYS_AUDIT":
                     return "待教研室审核";
-                case "APPLY_XY_AUDIT":
+                case "HORIZONTAL_APPLY_XY_AUDIT":
                     return "待学院审核";
-                case "APPLY_KYC_AUDIT":
+                case "HORIZONTAL_APPLY_KYC_AUDIT":
                     return "待科研处审核";
-                case "OVER_DRAFT":
+                case "HORIZONTAL_OVER_DRAFT":
                     return "结项草稿";
-                case "OVER_JYS_AUDIT":
+                case "HORIZONTAL_OVER_JYS_AUDIT":
                     return "结项待教研室审核";
-                case "OVER_XY_AUDIT":
+                case "HORIZONTAL_OVER_XY_AUDIT":
                     return "结项待学院审核";
-                case "OVER_KYC_AUDIT":
+                case "HORIZONTAL_OVER_KYC_AUDIT":
                     return "结项待科研处审核";
-                case "APPLY_PASSED":
-                case "OVER_PASSED":
+                case "HORIZONTAL_APPLY_PASSED":
+                case "HORIZONTAL_OVER_PASSED":
                     return "已完成";
-                case "APPLY_REJECTED":
-                case "OVER_REJECTED":
+                case "HORIZONTAL_APPLY_REJECTED":
+                case "HORIZONTAL_OVER_REJECTED":
                     return "已驳回";
                 default:
                     return "状态(" + state + ")";
@@ -1109,12 +1109,12 @@ public class SciHorizontalApplyController extends BaseController
         sciHorizontalApply.setUserId(Integer.valueOf(getSysUser().getUserId().toString()));
         sciHorizontalApply.setNewsql("");
         String currentState = sciHorizontalApply.getState();
-        if ("APPLY_REJECTED".equals(currentState) || "OVER_REJECTED".equals(currentState) || "99".equals(currentState) || "100".equals(currentState)){
+        if ("HORIZONTAL_APPLY_REJECTED".equals(currentState) || "HORIZONTAL_OVER_REJECTED".equals(currentState) || "99".equals(currentState) || "100".equals(currentState)){
             sciHorizontalApply.setNewsql("");
-            sciHorizontalApply.setState("APPLY_DRAFT");
+            sciHorizontalApply.setState("HORIZONTAL_APPLY_DRAFT");
         }
         if (sciHorizontalReamount.getReAmount() != null && !sciHorizontalReamount.getReAmount().isEmpty()) {
-            sciHorizontalReamount.setState("APPLY_DRAFT");
+            sciHorizontalReamount.setState("HORIZONTAL_APPLY_DRAFT");
             sciHorizontalReamountService.insertAmount(sciHorizontalReamount);
         }
         int update = sciHorizontalApplyService.updateSciHorizontalApply(sciHorizontalApply);
@@ -1184,9 +1184,9 @@ public class SciHorizontalApplyController extends BaseController
         sciHorizontalApply.setUserId(Integer.valueOf(getSysUser().getUserId().toString()));
         sciHorizontalApply.setNewsql("");
         String currentOverState = sciHorizontalApply.getState();
-        if ("OVER_REJECTED".equals(currentOverState) || "100".equals(currentOverState)){
+        if ("HORIZONTAL_OVER_REJECTED".equals(currentOverState) || "100".equals(currentOverState)){
             sciHorizontalApply.setNewsql("999");
-            sciHorizontalApply.setState("OVER_DRAFT");
+            sciHorizontalApply.setState("HORIZONTAL_OVER_DRAFT");
         }
         int update = sciHorizontalApplyService.updateSciHorizontalApply(sciHorizontalApply);
         if (update == -1) {
@@ -1297,9 +1297,15 @@ public class SciHorizontalApplyController extends BaseController
             return AjaxResult.error("课题不存在");
         }
 
-        // 2. 状态+权限联合校验（删除审批使用申请审核的权限映射）
+        // 2. 状态+权限联合校验：立项与结项分流程判断，撤回不是“批阅当前节点”，通过态/跨节点撤回也应允许既定角色操作
         String currentState = apply.getState();
-        if (!canApproveApply(currentState)) {
+        boolean canRecall;
+        if (currentState != null && currentState.startsWith("HORIZONTAL_OVER_")) {
+            canRecall = canApproveOver(currentState);
+        } else {
+            canRecall = canApproveApply(currentState);
+        }
+        if (!canRecall) {
             String stepDesc = getApprovalStepDesc(currentState);
             return AjaxResult.error("无权操作：当前课题" + stepDesc + "，您没有对应的审批权限");
         }
@@ -1522,7 +1528,7 @@ public class SciHorizontalApplyController extends BaseController
     @ResponseBody
     public AjaxResult reamounteditSave(SciHorizontalReamount sciHorizontalReamount)
     {
-        sciHorizontalReamount.setState("APPLY_DRAFT");
+        sciHorizontalReamount.setState("HORIZONTAL_APPLY_DRAFT");
         return toAjax(sciHorizontalReamountService.amountedit(sciHorizontalReamount));
     }
 
@@ -1641,19 +1647,19 @@ public class SciHorizontalApplyController extends BaseController
     {
         List<Map<String, String>> stateList = new ArrayList<>();
         // 立项审批状态
-        stateList.add(createStateDict("APPLY_DRAFT", "立项-草稿"));
-        stateList.add(createStateDict("APPLY_JYS_AUDIT", "立项-教研室审批中"));
-        stateList.add(createStateDict("APPLY_XY_AUDIT", "立项-学院审批中"));
-        stateList.add(createStateDict("APPLY_KYC_AUDIT", "立项-科研处审批中"));
-        stateList.add(createStateDict("APPLY_PASSED", "立项-通过"));
-        stateList.add(createStateDict("APPLY_REJECTED", "立项-驳回"));
+        stateList.add(createStateDict("HORIZONTAL_APPLY_DRAFT", "立项-草稿"));
+        stateList.add(createStateDict("HORIZONTAL_APPLY_JYS_AUDIT", "立项-教研室审批中"));
+        stateList.add(createStateDict("HORIZONTAL_APPLY_XY_AUDIT", "立项-学院审批中"));
+        stateList.add(createStateDict("HORIZONTAL_APPLY_KYC_AUDIT", "立项-科研处审批中"));
+        stateList.add(createStateDict("HORIZONTAL_APPLY_PASSED", "立项-通过"));
+        stateList.add(createStateDict("HORIZONTAL_APPLY_REJECTED", "立项-驳回"));
         // 结项审批状态
-        stateList.add(createStateDict("OVER_DRAFT", "结项-草稿"));
-        stateList.add(createStateDict("OVER_JYS_AUDIT", "结项-教研室审批中"));
-        stateList.add(createStateDict("OVER_XY_AUDIT", "结项-学院审批中"));
-        stateList.add(createStateDict("OVER_KYC_AUDIT", "结项-科研处审批中"));
-        stateList.add(createStateDict("OVER_PASSED", "结项-通过"));
-        stateList.add(createStateDict("OVER_REJECTED", "结项-驳回"));
+        stateList.add(createStateDict("HORIZONTAL_OVER_DRAFT", "结项-草稿"));
+        stateList.add(createStateDict("HORIZONTAL_OVER_JYS_AUDIT", "结项-教研室审批中"));
+        stateList.add(createStateDict("HORIZONTAL_OVER_XY_AUDIT", "结项-学院审批中"));
+        stateList.add(createStateDict("HORIZONTAL_OVER_KYC_AUDIT", "结项-科研处审批中"));
+        stateList.add(createStateDict("HORIZONTAL_OVER_PASSED", "结项-通过"));
+        stateList.add(createStateDict("HORIZONTAL_OVER_REJECTED", "结项-驳回"));
         return AjaxResult.success(stateList);
     }
 
@@ -1677,26 +1683,27 @@ public class SciHorizontalApplyController extends BaseController
             return "未知";
         }
         switch (state) {
-            case "APPLY_DRAFT":
-            case "OVER_DRAFT":
+            case "HORIZONTAL_APPLY_DRAFT":
+            case "HORIZONTAL_OVER_DRAFT":
                 return "草稿";
-            case "APPLY_JYS_AUDIT":
-            case "OVER_JYS_AUDIT":
+            case "HORIZONTAL_APPLY_JYS_AUDIT":
+            case "HORIZONTAL_OVER_JYS_AUDIT":
                 return "教研室审批中";
-            case "APPLY_XY_AUDIT":
-            case "OVER_XY_AUDIT":
+            case "HORIZONTAL_APPLY_XY_AUDIT":
+            case "HORIZONTAL_OVER_XY_AUDIT":
                 return "学院审批中";
-            case "APPLY_KYC_AUDIT":
-            case "OVER_KYC_AUDIT":
+            case "HORIZONTAL_APPLY_KYC_AUDIT":
+            case "HORIZONTAL_OVER_KYC_AUDIT":
                 return "科研处审批中";
-            case "APPLY_PASSED":
-            case "OVER_PASSED":
+            case "HORIZONTAL_APPLY_PASSED":
+            case "HORIZONTAL_OVER_PASSED":
                 return "已通过";
-            case "APPLY_REJECTED":
-            case "OVER_REJECTED":
+            case "HORIZONTAL_APPLY_REJECTED":
+            case "HORIZONTAL_OVER_REJECTED":
                 return "已驳回";
             default:
                 return state;
         }
     }
 }
+

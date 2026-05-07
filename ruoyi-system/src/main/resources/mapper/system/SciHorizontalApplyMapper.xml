@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+﻿<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
@@ -65,13 +65,13 @@
         <if test="newsql != null  and newsql != '' ">
             <choose>
                 <when test="newsql == '00' ">
-                    and s.state = 'OVER_PASSED'
+                    and s.state = 'HORIZONTAL_OVER_PASSED'
                 </when>
                 <when test="newsql == '01'">
-                    and s.state in ('APPLY_DRAFT','APPLY_JYS_AUDIT','APPLY_KYC_AUDIT','APPLY_PASSED')
+                    and s.state in ('HORIZONTAL_APPLY_DRAFT','HORIZONTAL_APPLY_JYS_AUDIT','HORIZONTAL_APPLY_KYC_AUDIT','HORIZONTAL_APPLY_PASSED')
                 </when>
                 <when test="newsql == '02'">
-                    and s.state in ('OVER_DRAFT','OVER_JYS_AUDIT','OVER_KYC_AUDIT','OVER_PASSED')
+                    and s.state in ('HORIZONTAL_OVER_DRAFT','HORIZONTAL_OVER_JYS_AUDIT','HORIZONTAL_OVER_KYC_AUDIT','HORIZONTAL_OVER_PASSED')
                 </when>
             </choose>
         </if>
@@ -89,7 +89,7 @@
     <!--    查询申请流程-->
     <select id="selectSciHorizontalApplyList" parameterType="SciHorizontalApply" resultMap="SciHorizontalApplyResult" >
         <include refid="selectSciHorizontalApplyVo"/>
-        where state in ('APPLY_DRAFT','APPLY_JYS_AUDIT','APPLY_KYC_AUDIT','APPLY_PASSED')
+        where state in ('HORIZONTAL_APPLY_DRAFT','HORIZONTAL_APPLY_JYS_AUDIT','HORIZONTAL_APPLY_KYC_AUDIT','HORIZONTAL_APPLY_PASSED')
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
         <if test="topNumber != null  and topNumber != ''"> or top_number = #{topNumber}</if>
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
@@ -103,10 +103,10 @@
         ${params.dataScope}
         order  by
         case
-        when state = 'APPLY_DRAFT' then 1
-        when state = 'APPLY_JYS_AUDIT' then 2
-        when state = 'APPLY_KYC_AUDIT' then 3
-        when state = 'APPLY_PASSED' then 4
+        when state = 'HORIZONTAL_APPLY_DRAFT' then 1
+        when state = 'HORIZONTAL_APPLY_JYS_AUDIT' then 2
+        when state = 'HORIZONTAL_APPLY_KYC_AUDIT' then 3
+        when state = 'HORIZONTAL_APPLY_PASSED' then 4
         else 5
         end,
         createtime desc
@@ -131,14 +131,14 @@
         ${params.dataScope}
         order  by
         case
-        when s.state = 'APPLY_DRAFT' then 1
-        when s.state = 'APPLY_JYS_AUDIT' then 2
-        when s.state = 'APPLY_KYC_AUDIT' then 3
-        when s.state = 'APPLY_PASSED' then 4
-        when s.state = 'OVER_DRAFT' then 5
-        when s.state = 'OVER_JYS_AUDIT' then 6
-        when s.state = 'OVER_KYC_AUDIT' then 7
-        when s.state = 'OVER_PASSED' then 8
+        when s.state = 'HORIZONTAL_APPLY_DRAFT' then 1
+        when s.state = 'HORIZONTAL_APPLY_JYS_AUDIT' then 2
+        when s.state = 'HORIZONTAL_APPLY_KYC_AUDIT' then 3
+        when s.state = 'HORIZONTAL_APPLY_PASSED' then 4
+        when s.state = 'HORIZONTAL_OVER_DRAFT' then 5
+        when s.state = 'HORIZONTAL_OVER_JYS_AUDIT' then 6
+        when s.state = 'HORIZONTAL_OVER_KYC_AUDIT' then 7
+        when s.state = 'HORIZONTAL_OVER_PASSED' then 8
         else 9
         end,
         s.createtime desc
@@ -160,9 +160,9 @@
         ${params.dataScope}
         order  by
         case
-        when state = 'APPLY_JYS_AUDIT' then 1
-        when state = 'APPLY_KYC_AUDIT' then 2
-        when state = 'APPLY_PASSED' then 3
+        when state = 'HORIZONTAL_APPLY_JYS_AUDIT' then 1
+        when state = 'HORIZONTAL_APPLY_KYC_AUDIT' then 2
+        when state = 'HORIZONTAL_APPLY_PASSED' then 3
         else 4
         end,
         createtime desc
@@ -187,8 +187,8 @@
         ${params.dataScope}
         order  by
         case
-        when state = 'APPLY_KYC_AUDIT' then 1
-        when state = 'APPLY_PASSED' then 2
+        when state = 'HORIZONTAL_APPLY_KYC_AUDIT' then 1
+        when state = 'HORIZONTAL_APPLY_PASSED' then 2
         else 3
         end,
         createtime desc
@@ -221,7 +221,7 @@
         left join sys_user u on  s.user_id=u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
-        where s.state in ('OVER_DRAFT','OVER_JYS_AUDIT','OVER_KYC_AUDIT','OVER_PASSED')
+        where s.state in ('HORIZONTAL_OVER_DRAFT','HORIZONTAL_OVER_JYS_AUDIT','HORIZONTAL_OVER_KYC_AUDIT','HORIZONTAL_OVER_PASSED')
         <if test="state != null  and state != ''"> and s.state = #{state}</if>
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
@@ -233,10 +233,10 @@
         ${params.dataScope}
         order  by
         case
-        when state = 'OVER_DRAFT' then 1
-        when state = 'OVER_JYS_AUDIT' then 2
-        when state = 'OVER_KYC_AUDIT' then 3
-        when state = 'OVER_PASSED' then 4
+        when state = 'HORIZONTAL_OVER_DRAFT' then 1
+        when state = 'HORIZONTAL_OVER_JYS_AUDIT' then 2
+        when state = 'HORIZONTAL_OVER_KYC_AUDIT' then 3
+        when state = 'HORIZONTAL_OVER_PASSED' then 4
         else 5
         end,
         s.createtime desc
@@ -261,9 +261,9 @@
         ${params.dataScope}
         order  by
         case
-        when state = 'OVER_JYS_AUDIT' then 1
-        when state = 'OVER_KYC_AUDIT' then 2
-        when state = 'OVER_PASSED' then 3
+        when state = 'HORIZONTAL_OVER_JYS_AUDIT' then 1
+        when state = 'HORIZONTAL_OVER_KYC_AUDIT' then 2
+        when state = 'HORIZONTAL_OVER_PASSED' then 3
         else 4
         end,
         s.createtime desc
@@ -287,8 +287,8 @@
         ${params.dataScope}
         order  by
         case
-        when state = 'OVER_KYC_AUDIT' then 1
-        when state = 'OVER_PASSED' then 2
+        when state = 'HORIZONTAL_OVER_KYC_AUDIT' then 1
+        when state = 'HORIZONTAL_OVER_PASSED' then 2
         else 3
         end,
         s.createtime desc
@@ -1470,3 +1470,4 @@
         WHERE id = #{applyId}
     </update>
 </mapper>
+
