@@ -408,8 +408,8 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
         // 获取新状态
         String newState = result.getNewState();
         
-        // 如果是科研处审批通过，计算并分配科研分
-        if (urlFlag.equals("KYC")) {
+        // 如果是科研处审批通过（立项用KYC，结项用KYCOVER），计算并分配科研分
+        if ("KYC".equals(urlFlag) || "KYCOVER".equals(urlFlag)) {
             SciUserScore sciUserScore = new SciUserScore();
             sciUserScore.setVerticalId(verticalId);
             String status = "立项";
@@ -417,41 +417,9 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
             for (int i = 0; i < persion.size(); i++) {
                 sciUserScore.setUserId(persion.get(i).toString());
                 sciUserScore.setChangeValue(score.get(i).toString());
-                // 使用前端传递的预期科研分，如果前端没有传递，则使用从数据库中查询的值
-                String expectedScore = "0";
-                if (sciHorizontalApplyVertical1 != null) {
-                    switch (i) {
-                        case 0:
-                            expectedScore = sciHorizontalApplyVertical1.getExpectedScore1();
-                            break;
-                        case 1:
-                            expectedScore = sciHorizontalApplyVertical1.getExpectedScore2();
-                            break;
-                        case 2:
-                            expectedScore = sciHorizontalApplyVertical1.getExpectedScore3();
-                            break;
-                        case 3:
-                            expectedScore = sciHorizontalApplyVertical1.getExpectedScore4();
-                            break;
-                    }
-                }
-                // 如果前端没有传递预期科研分，则从数据库中查询
-                if (StringUtils.isEmpty(expectedScore) && sciHorizontalApplyVertical != null) {
-                    switch (i) {
-                        case 0:
-                            expectedScore = sciHorizontalApplyVertical.getExpectedScore1();
-                            break;
-                        case 1:
-                            expectedScore = sciHorizontalApplyVertical.getExpectedScore2();
-                            break;
-                        case 2:
-                            expectedScore = sciHorizontalApplyVertical.getExpectedScore3();
-                            break;
-                        case 3:
-                            expectedScore = sciHorizontalApplyVertical.getExpectedScore4();
-                            break;
-                    }
-                }
+                // 从 sci_user_score_vertical 表中查询该成员上一次插入的预期科研分
+                String expectedScore = sciUserScoreMapper.selectLastExpectedValueByUserIdAndVerticalId(
+                        persion.get(i).toString(), verticalId);
                 if (StringUtils.isEmpty(expectedScore)) {
                     expectedScore = "0";
                 }
@@ -558,8 +526,8 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
         // 获取新状态
         String newState = result.getNewState();
         
-        // 如果是科研处审批通过，计算并分配科研分
-        if (urlFlag.equals("KYC")) {
+        // 如果是科研处审批通过（立项用KYC，结项用KYCOVER），计算并分配科研分
+        if ("KYC".equals(urlFlag) || "KYCOVER".equals(urlFlag)) {
             SciUserScore sciUserScore = new SciUserScore();
             sciUserScore.setVerticalId(verticalId);
             String status = "结项";

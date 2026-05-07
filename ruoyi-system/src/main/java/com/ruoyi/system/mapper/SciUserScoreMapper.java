@@ -20,6 +20,9 @@ public interface SciUserScoreMapper {
     /** 批量查询指定verticalIds的积分*/
     public List<SciUserScore> selectScoreVerticalByApplyIds(@Param("applyIds") Set<Integer> applyIds);
 
+    /** 根据用户ID和课题ID查询该成员上一次插入的预期科研分 */
+    public String selectLastExpectedValueByUserIdAndVerticalId(@Param("userId") String userId, @Param("verticalId") String verticalId);
+
     /** 删除指定id的积分*/
     public int deleteScoreById(@Param("id")String id, @Param("status")String status);
     public int deleteVerticalScoreById(@Param("id")String id, @Param("status")String status);
