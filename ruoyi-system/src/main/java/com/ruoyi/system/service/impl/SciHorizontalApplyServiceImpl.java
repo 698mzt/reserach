@@ -85,12 +85,13 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
             SysUser currentUser = ShiroUtils.getSysUser();
             List<String> permissions = buildCurrentPermissions(currentUser);
             List<String> roleKeys = buildCurrentRoleKeys(currentUser);
-            String moduleCode = determineModuleCode(apply.getState());
+            String currentState = apply.getState();
+            String moduleCode = determineModuleCode(currentState);
 
             PageRenderContext context = new PageRenderContext();
             context.setModuleCode(moduleCode);
             context.setBusinessId(apply.getId() != null ? apply.getId().longValue() : null);
-            context.setCurrentState(apply.getState());
+            context.setCurrentState(currentState);
             context.setCreatorId(apply.getUserId() != null ? apply.getUserId().longValue() : null);
             context.setCurrentUser(currentUser);
             context.setPermissions(permissions);
@@ -111,12 +112,11 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
         }
     }
 
-    /**
-     * 构建当前登录用户权限列表。
-     *
-     * @param currentUser 当前登录用户
-     * @return 权限列表
-     */
+    @Override
+    public String getHorizontalStateText(String state) {
+        return buildFallbackStatusMeta(state).getStatusText();
+    }
+
     private List<String> buildCurrentPermissions(SysUser currentUser) {
         if (currentUser == null) {
             return new ArrayList<>();
@@ -158,7 +158,9 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
 
         PageRenderStatusMeta pageRenderStatusMeta = pageRenderService.buildStatusMeta(context);
         if (pageRenderStatusMeta != null
-                && !PageRenderColorConstants.COLOR_DEFAULT.equals(pageRenderStatusMeta.getColorType())) {
+                && StringUtils.isNotEmpty(pageRenderStatusMeta.getStatusText())
+                && !StringUtils.equals(pageRenderStatusMeta.getStatusText(), pageRenderStatusMeta.getStatusCode())
+                && !StringUtils.equals(pageRenderStatusMeta.getStatusText(), context.getCurrentState())) {
             pageRenderStatusMeta.setStatusCode(context.getCurrentState());
             return pageRenderStatusMeta;
         }
@@ -245,7 +247,7 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
             }
         } else if (isJysAuditState(state)) {
             addViewProcessAction(actions, canView);
-            if (isOwner || isAdmin) {
+            if (canJysReview) {
                 actions.add(PageRenderActionItem.of(
                         PageRenderActionConstants.ACTION_RECALL,
                         "撤回",
@@ -299,10 +301,17 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
             addViewProcessAction(actions, canView);
             if (isApplyState(state) && (isOwner || isAdmin) && canAdd) {
                 actions.add(PageRenderActionItem.of(
-                        "overApply",
+                        PageRenderActionConstants.ACTION_OVER_APPLY,
                         "提交结项申请",
                         PageRenderColorConstants.COLOR_SUCCESS,
                         15));
+            }
+            if (isApplyState(state) && (isOwner || isAdmin) && canAdd) {
+                actions.add(PageRenderActionItem.of(
+                        PageRenderActionConstants.ACTION_REAMOUNT,
+                        "追加金额",
+                        PageRenderColorConstants.COLOR_PRIMARY,
+                        16));
             }
             if (canKycReview) {
                 actions.add(PageRenderActionItem.of(
@@ -429,16 +438,16 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
             return PageRenderStatusMeta.of("", "未知", PageRenderColorConstants.COLOR_DEFAULT);
         }
         if ("APPLY_DRAFT".equals(state)) {
-            return PageRenderStatusMeta.of(state, "立项草稿", PageRenderColorConstants.COLOR_WARNING);
+            return PageRenderStatusMeta.of(state, "立项草稿", PageRenderColorConstants.COLOR_DEFAULT);
         }
         if ("APPLY_JYS_AUDIT".equals(state)) {
-            return PageRenderStatusMeta.of(state, "立项待教研室审核", PageRenderColorConstants.COLOR_PRIMARY);
+            return PageRenderStatusMeta.of(state, "立项教研室审批中", PageRenderColorConstants.COLOR_WARNING);
         }
         if ("APPLY_XY_AUDIT".equals(state)) {
-            return PageRenderStatusMeta.of(state, "立项待学院审核", PageRenderColorConstants.COLOR_PRIMARY);
+            return PageRenderStatusMeta.of(state, "立项学院审批中", PageRenderColorConstants.COLOR_WARNING);
         }
         if ("APPLY_KYC_AUDIT".equals(state)) {
-            return PageRenderStatusMeta.of(state, "立项待科研处审核", PageRenderColorConstants.COLOR_PRIMARY);
+            return PageRenderStatusMeta.of(state, "立项科研处审批中", PageRenderColorConstants.COLOR_INFO);
         }
         if ("APPLY_PASSED".equals(state)) {
             return PageRenderStatusMeta.of(state, "立项已通过", PageRenderColorConstants.COLOR_SUCCESS);
@@ -447,16 +456,16 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
             return PageRenderStatusMeta.of(state, "立项已驳回", PageRenderColorConstants.COLOR_DANGER);
         }
         if ("OVER_DRAFT".equals(state)) {
-            return PageRenderStatusMeta.of(state, "结项草稿", PageRenderColorConstants.COLOR_WARNING);
+            return PageRenderStatusMeta.of(state, "结项草稿", PageRenderColorConstants.COLOR_DEFAULT);
         }
         if ("OVER_JYS_AUDIT".equals(state)) {
-            return PageRenderStatusMeta.of(state, "结项待教研室审核", PageRenderColorConstants.COLOR_PRIMARY);
+            return PageRenderStatusMeta.of(state, "结项教研室审批中", PageRenderColorConstants.COLOR_WARNING);
         }
         if ("OVER_XY_AUDIT".equals(state)) {
-            return PageRenderStatusMeta.of(state, "结项待学院审核", PageRenderColorConstants.COLOR_PRIMARY);
+            return PageRenderStatusMeta.of(state, "结项学院审批中", PageRenderColorConstants.COLOR_WARNING);
         }
         if ("OVER_KYC_AUDIT".equals(state)) {
-            return PageRenderStatusMeta.of(state, "结项待科研处审核", PageRenderColorConstants.COLOR_PRIMARY);
+            return PageRenderStatusMeta.of(state, "结项科研处审批中", PageRenderColorConstants.COLOR_INFO);
         }
         if ("OVER_PASSED".equals(state)) {
             return PageRenderStatusMeta.of(state, "结项已通过", PageRenderColorConstants.COLOR_SUCCESS);
@@ -2388,10 +2397,6 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
             return ApprovalResult.fail("申请状态已变更，请刷新后重试");
         }
 
-        if (!operatorId.equals(apply.getUserId().longValue())) {
-            return ApprovalResult.fail("只有申请人才能撤回申请");
-        }
-
         String nodeCode = stateToNodeCode(currentState);
 
         ApprovalRequest request = ApprovalRequest.of(
@@ -2641,10 +2646,6 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
 
         if (!currentState.equals(apply.getState())) {
             return ApprovalResult.fail("申请状态已变更，请刷新后重试");
-        }
-
-        if (!operatorId.equals(apply.getUserId().longValue())) {
-            return ApprovalResult.fail("只有申请人才能撤回申请");
         }
 
         String nodeCode = stateToNodeCode(currentState);
