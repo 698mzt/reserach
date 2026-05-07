@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -21,8 +22,11 @@ import java.util.Map;
 
 /**
  * 页面渲染公共服务实现类
- * 实现统一的状态展示构造和按钮动作构造逻辑，论文模块作为首个试点
+ * 实现统一的通用规则引擎，支持八大模块通用化
  * 状态映射和按钮规则从数据库审批流程配置中动态加载，避免硬编码
+ * 各模块权限通过 ModuleConfig 权限映射表动态解析，消除 if-else
+ *
+ * 八大模块：论文、教材软著、专利软著、讲座报告、奖励、横向项目申报、横向项目结题、纵向项目申报、纵向项目结题、成果转化
  *
  * @author ruoyi
  */
@@ -32,34 +36,84 @@ public class PageRenderServiceImpl implements IPageRenderService {
     private static final Logger log = LoggerFactory.getLogger(PageRenderServiceImpl.class);
 
     /** 横向课题立项审批 */
-    private static final String HORIZONTAL_APPLY_PROCESS_CODE = "horizontal_apply";
+    private static final String HORIZONTAL_APPLY_PROCESS_CODE = "HORIZONTAL_APPLY";
 
     /** 横向课题结项审批 */
-    private static final String HORIZONTAL_OVER_PROCESS_CODE = "horizontal_over";
+    private static final String HORIZONTAL_OVER_PROCESS_CODE = "HORIZONTAL_OVER";
 
     /** 纵向课题立项审批 */
-    private static final String VERTICAL_APPLY_PROCESS_CODE = "vertical_apply";
+    private static final String VERTICAL_APPLY_PROCESS_CODE = "VERTICAL_APPLY";
 
     /** 纵向课题结项审批 */
-    private static final String VERTICAL_OVER_PROCESS_CODE = "vertical_over";
+    private static final String VERTICAL_OVER_PROCESS_CODE = "VERTICAL_OVER";
 
     /** 论文审批流程 */
-    private static final String PAPER_PROCESS_CODE = "paper_approval";
+    private static final String PAPER_PROCESS_CODE = "PAPER_APPROVAL";
 
-    /** 教材专著审批流程 */
-    private static final String TEXTBOOK_APPROVAL_PROCESS_CODE = "textbook_approval";
+    /** 教材专著审批 */
+    private static final String TEXTBOOK_APPROVAL_PROCESS_CODE = "TEXTBOOK_APPROVAL";
 
     /** 成果转化审批 */
-    private static final String INTRASCHPRO_APPLY_PROCESS_CODE = "intraschpro_apply";
+    private static final String TEC_TRA_APPROVAL_PROCESS_CODE = "TEC_TRA_APPROVAL";
 
     /** 奖励审批 */
     private static final String REWARD_APPLY_PROCESS_CODE = "REWARD_APPLY";
 
     /** 讲座报告审批 */
-    private static final String LECTURE_APPROVAL_PROCESS_CODE = "lecture_approval";
+    private static final String LECTURE_APPROVAL_PROCESS_CODE = "LECTURE_APPROVAL";
 
     /** 专利软著审批 */
-    private static final String PATENT_APPLY_PROCESS_CODE = "patent_apply";
+    private static final String PATENT_APPLY_PROCESS_CODE = "PATENT_APPLY";
+
+    /**
+     * 模块配置内部类，封装单个模块的渲染配置信息
+     * 包含流程编码、权限前缀、模块名称、权限映射表，用于通用化按钮规则构造
+     */
+    private static class ModuleConfig {
+        private final String moduleCode;
+        private final String permPrefix;
+        private final String processCode;
+        private final String moduleName;
+        /** 权限映射表：通用动作标识 -> 实际权限后缀 */
+        private final Map<String, String> permissionMap;
+
+        ModuleConfig(String moduleCode, String permPrefix, String processCode,
+                     String moduleName, Map<String, String> permissionMap) {
+            this.moduleCode = moduleCode;
+            this.permPrefix = permPrefix;
+            this.processCode = processCode;
+            this.moduleName = moduleName;
+            this.permissionMap = permissionMap != null ? permissionMap : new HashMap<>();
+        }
+
+        String getModuleCode() {
+            return moduleCode;
+        }
+
+        String getPermPrefix() {
+            return permPrefix;
+        }
+
+        String getProcessCode() {
+            return processCode;
+        }
+
+        String getModuleName() {
+            return moduleName;
+        }
+
+        /**
+         * 根据通用动作标识获取完整权限标识
+         * 自动从权限映射表中查找实际权限后缀，实现动态权限解析
+         *
+         * @param actionKey 通用动作标识（如 info、edit、approve、kypy、revoke 等）
+         * @return 完整权限标识（如 system:paper:kypy、system:vertical:KYC）
+         */
+        String getPermission(String actionKey) {
+            String suffix = permissionMap.getOrDefault(actionKey, actionKey);
+            return permPrefix + ":" + suffix;
+        }
+    }
 
     @Autowired
     private SysApprovalStateMapper approvalStateMapper;
@@ -70,203 +124,380 @@ public class PageRenderServiceImpl implements IPageRenderService {
     @Autowired
     private SysApprovalProcessMapper approvalProcessMapper;
 
-    /** 论文模块状态映射配置（从数据库动态加载） */
-    private final Map<String, StatusMapping> paperStatusMapping = new HashMap<>();
+    /** 八大模块配置注册表（moduleCode -> ModuleConfig） */
+    private final Map<String, ModuleConfig> MODULE_REGISTRY = new HashMap<>();
 
-    /** 奖励模块状态映射配置（从数据库动态加载） */
-    private final Map<String, StatusMapping> rewardStatusMapping = new HashMap<>();
+    /** 各流程状态映射配置（processCode -> stateCode -> StatusMapping） */
+    private final Map<String, Map<String, StatusMapping>> allStatusMappings = new HashMap<>();
 
-    /** 论文模块审批节点配置（从数据库动态加载） */
-    private final Map<String, SysApprovalNode> paperNodeMapping = new HashMap<>();
+    /** 各流程审批节点配置（processCode -> nodeCode -> SysApprovalNode） */
+    private final Map<String, Map<String, SysApprovalNode>> allNodeMappings = new HashMap<>();
 
-    /** 奖励模块审批节点配置（从数据库动态加载） */
-    private final Map<String, SysApprovalNode> rewardNodeMapping = new HashMap<>();
+    /** 模块编码到流程编码的映射缓存（moduleCode -> SysApprovalProcess） */
+    private final Map<String, SysApprovalProcess> moduleProcessCache = new HashMap<>();
 
     /**
-     * 应用启动时从数据库加载审批流程配置，初始化状态映射和节点映射
-     * 避免硬编码状态，支持通过数据库配置动态调整
+     * 应用启动时从数据库加载审批流程配置，初始化所有模块的状态映射和节点映射
      */
     @PostConstruct
     public void init() {
         try {
-            log.info("开始加载审批流程配置...");
-            loadStatusMapping();
-            loadRewardStatusMapping();
-            loadNodeMapping();
-
-            loadRewardNodeMapping();
-            log.info("审批流程配置加载完成，论文状态数: {}, 奖励状态数: {}, 论文节点数: {}, 奖励节点数: {}", 
-                    paperStatusMapping.size(), rewardStatusMapping.size(), paperNodeMapping.size(), rewardNodeMapping.size());
-
-            log.info("审批流程配置加载完成，状态数: {}, 节点数: {}",
-                    paperStatusMapping.size(), paperNodeMapping.size());
-
+            log.info("开始加载八大模块审批流程配置...");
+            registerModuleConfigs();
+            loadAllModuleConfigs();
+            log.info("八大模块审批流程配置加载完成，注册模块数: {}, 总状态数: {}, 总节点数: {}",
+                    MODULE_REGISTRY.size(), countAllStatusMappings(), countAllNodeMappings());
         } catch (Exception e) {
-            log.error("加载审批流程配置失败，将使用空配置", e);
+            log.error("加载八大模块审批流程配置失败，将使用空配置", e);
         }
     }
 
     /**
-     * 从数据库加载状态映射配置
-     * 查询paper_approval流程下所有启用的状态，构建状态编码到展示信息的映射
+     * 注册各模块配置及权限映射表
+     * 权限映射表以数据库中实际存在的权限名称为准，不遵循统一命名规范
      */
-    private void loadStatusMapping() {
-        paperStatusMapping.clear();
+    private void registerModuleConfigs() {
+        // 论文模块：教研室批阅=process, 学院批阅=xypy, 科研批阅=kypy, 撤回=revoke, 科研退回=kyrevoke
+        MODULE_REGISTRY.put("PAPER", new ModuleConfig("PAPER", "system:paper", PAPER_PROCESS_CODE, "论文",
+                new HashMap<String, String>() {{
+                    put("info", "info");
+                    put("edit", "edit");
+                    put("add", "add");
+                    put("remove", "remove");
+                    put("approve", "process");       // 教研室批阅
+                    put("kypy", "kypy");             // 科研处批阅
+                    put("revoke", "revoke");         // 作者撤回
+                    put("kyrevoke", "kyrevoke");     // 科研处退回
+                    put("xyrevoke", "xyrevoke");     // 学院退回
+                }}));
 
-        // 查询论文流程的所有状态
-        List<SysApprovalState> states = approvalStateMapper.selectSysApprovalStateByProcessCode(PAPER_PROCESS_CODE);
-        if (states == null || states.isEmpty()) {
-            log.warn("未找到流程 {} 的状态配置，请检查sys_approval_state表", PAPER_PROCESS_CODE);
-            return;
+        // 奖励模块：批阅=process, 核查=hecha, 查阅=chayue
+        MODULE_REGISTRY.put("REWARD", new ModuleConfig("REWARD", "system:reward", REWARD_APPLY_PROCESS_CODE, "奖励",
+                new HashMap<String, String>() {{
+                    put("info", "info");
+                    put("edit", "edit");
+                    put("add", "add");
+                    put("remove", "remove");
+                    put("approve", "process");
+                    put("kypy", "hecha");
+                    put("revoke", "revoke");
+                    put("kyrevoke", "kyrevoke");
+                }}));
+
+        // 教材软著模块：批阅=process, 核查=hecha, 查阅=chayue, 撤销=chexiao, 提交=tijiao
+        MODULE_REGISTRY.put("TEXTBOOK", new ModuleConfig("TEXTBOOK", "system:jiaocairuanzhu", TEXTBOOK_APPROVAL_PROCESS_CODE, "教材软著",
+                new HashMap<String, String>() {{
+                    put("info", "info");
+                    put("edit", "edit");
+                    put("add", "add");
+                    put("remove", "remove");
+                    put("approve", "process");
+                    put("kypy", "hecha");
+                    put("revoke", "chexiao");
+                    put("kyrevoke", "kyrevoke");
+                    put("submit", "tijiao");
+                }}));
+
+        // 专利软著模块：批阅=process, 核查=hecha, 查阅=chayue, 撤销=chexiao
+        MODULE_REGISTRY.put("PATENT", new ModuleConfig("PATENT", "system:zhuanliruanzhu", PATENT_APPLY_PROCESS_CODE, "专利软著",
+                new HashMap<String, String>() {{
+                    put("info", "info");
+                    put("edit", "edit");
+                    put("add", "add");
+                    put("remove", "remove");
+                    put("approve", "process");
+                    put("kypy", "hecha");
+                    put("revoke", "chexiao");
+                    put("kyrevoke", "kyrevoke");
+                }}));
+
+        // 讲座报告模块：批阅=process, 核查=check, 学院批阅=xyprocess
+        MODULE_REGISTRY.put("LECTURE", new ModuleConfig("LECTURE", "system:report", LECTURE_APPROVAL_PROCESS_CODE, "讲座报告",
+                new HashMap<String, String>() {{
+                    put("info", "info");
+                    put("edit", "edit");
+                    put("add", "add");
+                    put("remove", "remove");
+                    put("approve", "process");
+                    put("kypy", "check");
+                    put("revoke", "revoke");
+                    put("kyrevoke", "kyrevoke");
+                    put("xyprocess", "xyprocess");
+                }}));
+
+        // 横向项目申报模块：批阅=process, 科研室批阅=reprocess, 核查=hecha, 学院审批=Dept, 结项=apply_over
+        MODULE_REGISTRY.put("HORIZONTAL_APPLY", new ModuleConfig("HORIZONTAL_APPLY", "system:apply", HORIZONTAL_APPLY_PROCESS_CODE, "横向项目申报",
+                new HashMap<String, String>() {{
+                    put("info", "info");
+                    put("edit", "edit");
+                    put("add", "add");
+                    put("remove", "remove");
+                    put("approve", "process");
+                    put("kypy", "hecha");
+                    put("revoke", "revoke");
+                    put("kyrevoke", "kyrevoke");
+                    put("reprocess", "reprocess");
+                }}));
+
+        // 横向项目结题模块：权限同立项
+        MODULE_REGISTRY.put("HORIZONTAL_OVER", new ModuleConfig("HORIZONTAL_OVER", "system:apply", HORIZONTAL_OVER_PROCESS_CODE, "横向项目结题",
+                new HashMap<String, String>() {{
+                    put("info", "info");
+                    put("edit", "edit");
+                    put("add", "add");
+                    put("remove", "remove");
+                    put("approve", "process");
+                    put("kypy", "hecha");
+                    put("revoke", "revoke");
+                    put("kyrevoke", "kyrevoke");
+                    put("reprocess", "reprocess");
+                }}));
+
+        // 纵向项目申报模块：JYS批阅=JYS, 学院审批=Dept, KYC批阅=KYC (大写！)
+        MODULE_REGISTRY.put("VERTICAL_APPLY", new ModuleConfig("VERTICAL_APPLY", "system:apply_vertical", VERTICAL_APPLY_PROCESS_CODE, "纵向项目申报",
+                new HashMap<String, String>() {{
+                    put("info", "info");
+                    put("edit", "edit");
+                    put("add", "add");
+                    put("remove", "remove");
+                    put("approve", "JYS");            // 纵向教研室批阅
+                    put("kypy", "KYC");              // 纵向科研处批阅（注意大写）
+                    put("revoke", "revoke");
+                    put("kyrevoke", "kyrevoke");
+                }}));
+
+        // 纵向项目结题模块：权限同立项
+        MODULE_REGISTRY.put("VERTICAL_OVER", new ModuleConfig("VERTICAL_OVER", "system:apply_vertical", VERTICAL_OVER_PROCESS_CODE, "纵向项目结题",
+                new HashMap<String, String>() {{
+                    put("info", "info");
+                    put("edit", "edit");
+                    put("add", "add");
+                    put("remove", "remove");
+                    put("approve", "JYS");
+                    put("kypy", "KYC");
+                    put("revoke", "revoke");
+                    put("kyrevoke", "kyrevoke");
+                }}));
+
+        // 成果转化模块：教研室批阅=JYPY, 学院批阅=XYPY, 科研室批阅=KYPY, 教研室撤回=JYCH, 学院撤回=XYCH, 科研室撤回=KYCH
+        MODULE_REGISTRY.put("TEC_TRA", new ModuleConfig("TEC_TRA", "system:intraSch", TEC_TRA_APPROVAL_PROCESS_CODE, "成果转化",
+                new HashMap<String, String>() {{
+                    put("info", "info");
+                    put("edit", "edit");
+                    put("add", "add");
+                    put("remove", "remove");
+                    put("approve", "JYPY");           // 教研室批阅
+                    put("kypy", "KYPY");             // 科研室批阅
+                    put("revoke", "JYCH");           // 教研室撤回
+                    put("kyrevoke", "KYCH");         // 科研室撤回
+                }}));
+
+        log.info("已注册 {} 个模块配置，权限映射已就绪", MODULE_REGISTRY.size());
+    }
+
+    /**
+     * 从数据库加载所有启用流程的状态映射和节点配置
+     * 查询 sys_approval_process 表中所有启用流程，为每个流程加载状态和节点
+     */
+    private void loadAllModuleConfigs() {
+        allStatusMappings.clear();
+        allNodeMappings.clear();
+        moduleProcessCache.clear();
+
+        // 从注册表中获取所有流程编码
+        for (ModuleConfig config : MODULE_REGISTRY.values()) {
+            String processCode = config.getProcessCode();
+            String moduleCode = config.getModuleCode();
+            String moduleName = config.getModuleName();
+
+            // 查询流程信息
+            SysApprovalProcess process = approvalProcessMapper.selectSysApprovalProcessByProcessCode(processCode);
+            if (process == null) {
+                log.warn("未找到流程编码 {} ({}) 的配置，请检查sys_approval_process表", processCode, moduleName);
+                continue;
+            }
+
+            // 缓存流程信息
+            moduleProcessCache.put(moduleCode, process);
+
+            // 加载状态映射
+            Map<String, StatusMapping> statusMapping = loadStatusMappingForProcess(processCode, moduleName);
+            allStatusMappings.put(processCode, statusMapping);
+
+            // 加载节点映射
+            Map<String, SysApprovalNode> nodeMapping = loadNodeMappingForProcess(process.getId(), processCode, moduleName);
+            allNodeMappings.put(processCode, nodeMapping);
         }
+    }
 
+    /**
+     * 从数据库加载指定流程的状态映射配置
+     *
+     * @param processCode 流程编码
+     * @param moduleName 模块名称（用于日志输出）
+     * @return 状态编码到状态映射的映射表
+     */
+    private Map<String, StatusMapping> loadStatusMappingForProcess(String processCode, String moduleName) {
+        Map<String, StatusMapping> mapping = new HashMap<>();
+        List<SysApprovalState> states = approvalStateMapper.selectSysApprovalStateByProcessCode(processCode);
+        if (states == null || states.isEmpty()) {
+            log.warn("未找到流程 {} ({}) 的状态配置，请检查sys_approval_state表", processCode, moduleName);
+            return mapping;
+        }
         for (SysApprovalState state : states) {
-            // 只加载启用的状态（status=0）
             if ("0".equals(state.getStatus())) {
-                String colorType = getColorTypeBySort(state.getSort());
-                paperStatusMapping.put(state.getStateCode(),
+                String colorType = getColorTypeByStateCode(state.getStateCode());
+                mapping.put(state.getStateCode(),
                         new StatusMapping(state.getStateName(), colorType, getSemanticByStateCode(state.getStateCode())));
             }
         }
+        log.debug("流程 {} ({}) 加载了 {} 个状态", processCode, moduleName, mapping.size());
+        return mapping;
     }
 
     /**
-     * 从数据库加载奖励模块状态映射配置
-     * 查询reward_apply流程下所有启用的状态，构建状态编码到展示信息的映射
+     * 从数据库加载指定流程的审批节点配置
+     *
+     * @param processId 流程ID
+     * @param processCode 流程编码
+     * @param moduleName 模块名称（用于日志输出）
+     * @return 节点编码到节点信息的映射表
      */
-    private void loadRewardStatusMapping() {
-        rewardStatusMapping.clear();
-        
-        // 查询奖励流程的所有状态
-        List<SysApprovalState> states = approvalStateMapper.selectSysApprovalStateByProcessCode(REWARD_APPLY_PROCESS_CODE);
-        if (states == null || states.isEmpty()) {
-            log.warn("未找到流程 {} 的状态配置，请检查sys_approval_state表", REWARD_APPLY_PROCESS_CODE);
-            return;
-        }
-        
-        for (SysApprovalState state : states) {
-            // 只加载启用的状态（status=0）
-            if ("0".equals(state.getStatus())) {
-                String colorType = getColorTypeBySort(state.getSort());
-                rewardStatusMapping.put(state.getStateCode(), 
-                        new StatusMapping(state.getStateName(), colorType, getSemanticByStateCode(state.getStateCode())));
-            }
-        }
-    }
-
-    /**
-     * 从数据库加载审批节点配置
-     * 查询paper_approval流程下所有启用的节点，构建节点编码到节点信息的映射
-     */
-    private void loadNodeMapping() {
-        paperNodeMapping.clear();
-
-        // 先根据流程编码查询流程ID，避免硬编码
-        SysApprovalProcess process = approvalProcessMapper.selectSysApprovalProcessByProcessCode(PAPER_PROCESS_CODE);
-        if (process == null) {
-            log.warn("未找到流程编码 {} 的配置，请检查sys_approval_process表", PAPER_PROCESS_CODE);
-            return;
-        }
-
-        // 查询论文流程的所有节点
-        List<SysApprovalNode> nodes = approvalNodeMapper.selectSysApprovalNodeByProcessId(process.getId());
+    private Map<String, SysApprovalNode> loadNodeMappingForProcess(Long processId, String processCode, String moduleName) {
+        Map<String, SysApprovalNode> mapping = new HashMap<>();
+        List<SysApprovalNode> nodes = approvalNodeMapper.selectSysApprovalNodeByProcessId(processId);
         if (nodes == null || nodes.isEmpty()) {
-            log.warn("未找到流程 {} 的节点配置，请检查sys_approval_node表", PAPER_PROCESS_CODE);
-            return;
+            log.warn("未找到流程 {} ({}) 的节点配置，请检查sys_approval_node表", processCode, moduleName);
+            return mapping;
         }
-
         for (SysApprovalNode node : nodes) {
-            // 只加载启用的节点（status=0）
             if ("0".equals(node.getStatus())) {
-                paperNodeMapping.put(node.getNodeCode(), node);
+                mapping.put(node.getNodeCode(), node);
             }
         }
+        log.debug("流程 {} ({}) 加载了 {} 个节点", processCode, moduleName, mapping.size());
+        return mapping;
     }
 
     /**
-     * 从数据库加载奖励模块审批节点配置
-     * 查询reward_apply流程下所有启用的节点，构建节点编码到节点信息的映射
+     * 统计所有流程的状态映射总数
+     *
+     * @return 状态映射总数
      */
-    private void loadRewardNodeMapping() {
-        rewardNodeMapping.clear();
-        
-        // 先根据流程编码查询流程ID，避免硬编码
-        SysApprovalProcess process = approvalProcessMapper.selectSysApprovalProcessByProcessCode(REWARD_APPLY_PROCESS_CODE);
-        if (process == null) {
-            log.warn("未找到流程编码 {} 的配置，请检查sys_approval_process表", REWARD_APPLY_PROCESS_CODE);
-            return;
+    private int countAllStatusMappings() {
+        int count = 0;
+        for (Map<String, StatusMapping> mapping : allStatusMappings.values()) {
+            count += mapping.size();
         }
-        
-        // 查询奖励流程的所有节点
-        List<SysApprovalNode> nodes = approvalNodeMapper.selectSysApprovalNodeByProcessId(process.getId());
-        if (nodes == null || nodes.isEmpty()) {
-            log.warn("未找到流程 {} 的节点配置，请检查sys_approval_node表", REWARD_APPLY_PROCESS_CODE);
-            return;
+        return count;
+    }
+
+    /**
+     * 统计所有流程的节点映射总数
+     *
+     * @return 节点映射总数
+     */
+    private int countAllNodeMappings() {
+        int count = 0;
+        for (Map<String, SysApprovalNode> mapping : allNodeMappings.values()) {
+            count += mapping.size();
         }
-        
-        for (SysApprovalNode node : nodes) {
-            // 只加载启用的节点（status=0）
-            if ("0".equals(node.getStatus())) {
-                rewardNodeMapping.put(node.getNodeCode(), node);
-            }
-        }
+        return count;
     }
 
     /**
      * 刷新配置缓存（用于管理员修改配置后手动刷新）
      */
     public void refreshCache() {
-        log.info("手动刷新审批流程配置缓存...");
+        log.info("手动刷新八大模块审批流程配置缓存...");
         init();
     }
 
     /**
-     * 根据排序号计算颜色类型
-     * 排序号越小（越早的节点），颜色越浅；终态使用特定颜色
+     * 状态语义枚举
+     */
+    enum StateSemantic {
+        DRAFT, JYS_AUDIT, KYC_AUDIT, PASSED, REJECTED, UNKNOWN
+    }
+
+    /**
+     * 根据状态编码后缀推导状态语义
      *
-     * @param sort 排序号
+     * @param stateCode 状态编码
+     * @return 状态语义
+     */
+    private StateSemantic parseStateSemantic(String stateCode) {
+        if (stateCode == null) {
+            return StateSemantic.UNKNOWN;
+        }
+        if (stateCode.endsWith("_DRAFT")) {
+            return StateSemantic.DRAFT;
+        }
+        if (stateCode.contains("_JYS_") && stateCode.endsWith("_AUDIT")) {
+            return StateSemantic.JYS_AUDIT;
+        }
+        if (stateCode.contains("_KYC_") && stateCode.endsWith("_AUDIT")) {
+            return StateSemantic.KYC_AUDIT;
+        }
+        if (stateCode.endsWith("_PASSED")) {
+            return StateSemantic.PASSED;
+        }
+        if (stateCode.endsWith("_REJECTED")) {
+            return StateSemantic.REJECTED;
+        }
+        return StateSemantic.UNKNOWN;
+    }
+
+    /**
+     * 根据状态编码计算颜色类型
+     *
+     * @param stateCode 状态编码
      * @return 颜色类型
      */
-    private String getColorTypeBySort(Integer sort) {
-        if (sort == null) {
-            return PageRenderColorConstants.COLOR_DEFAULT;
+    private String getColorTypeByStateCode(String stateCode) {
+        StateSemantic semantic = parseStateSemantic(stateCode);
+        switch (semantic) {
+            case DRAFT:
+                return PageRenderColorConstants.COLOR_DEFAULT;
+            case JYS_AUDIT:
+                return PageRenderColorConstants.COLOR_WARNING;
+            case KYC_AUDIT:
+                return PageRenderColorConstants.COLOR_INFO;
+            case PASSED:
+                return PageRenderColorConstants.COLOR_SUCCESS;
+            case REJECTED:
+                return PageRenderColorConstants.COLOR_DANGER;
+            default:
+                return PageRenderColorConstants.COLOR_PRIMARY;
         }
-        if (sort <= 1) {
-            return PageRenderColorConstants.COLOR_WARNING;
-        }
-        return PageRenderColorConstants.COLOR_PRIMARY;
     }
 
     /**
      * 根据状态编码获取通用语义
-     * 从状态编码中提取语义信息，用于前端按钮展示
      *
      * @param stateCode 状态编码
      * @return 语义描述
      */
     private String getSemanticByStateCode(String stateCode) {
-        if (stateCode == null) {
-            return "未知";
+        StateSemantic semantic = parseStateSemantic(stateCode);
+        switch (semantic) {
+            case DRAFT:
+                return "待提交";
+            case JYS_AUDIT:
+            case KYC_AUDIT:
+                return "审批中";
+            case PASSED:
+                return "通过";
+            case REJECTED:
+                return "驳回";
+            default:
+                return "未知";
         }
-        if (stateCode.endsWith("_DRAFT")) {
-            return "待提交";
-        }
-        if (stateCode.endsWith("_AUDIT")) {
-            return "审批中";
-        }
-        if (stateCode.endsWith("_PASSED")) {
-            return "通过";
-        }
-        if (stateCode.endsWith("_REJECTED")) {
-            return "驳回";
-        }
-        return "未知";
     }
 
     /**
      * 构建状态展示信息
-     * 根据模块编码与当前状态生成状态文案和颜色信息
-     * 状态信息从数据库配置缓存中读取，避免硬编码
+     * 优先从统一缓存按当前流程的 processCode 查找，兜底使用状态编码后缀自动推导
      *
      * @param context 页面渲染上下文
      * @return 状态展示对象
@@ -277,19 +508,27 @@ public class PageRenderServiceImpl implements IPageRenderService {
             return PageRenderStatusMeta.of("", "未知", PageRenderColorConstants.COLOR_DEFAULT);
         }
 
-        Map<String, StatusMapping> mapping = getStatusMapping(context.getModuleCode());
-        StatusMapping rule = mapping.get(context.getCurrentState());
+        String stateCode = context.getCurrentState();
+        String processCode = context.getProcessCode();
 
-        if (rule == null) {
-            return PageRenderStatusMeta.of(context.getCurrentState(), context.getCurrentState(), PageRenderColorConstants.COLOR_DEFAULT);
+        // 优先从统一缓存查找
+        if (processCode != null && allStatusMappings.containsKey(processCode)) {
+            Map<String, StatusMapping> mapping = allStatusMappings.get(processCode);
+            StatusMapping rule = mapping.get(stateCode);
+            if (rule != null) {
+                return PageRenderStatusMeta.of(stateCode, rule.getText(), rule.getColorType());
+            }
         }
 
-        return PageRenderStatusMeta.of(context.getCurrentState(), rule.getText(), rule.getColorType());
+        // 兜底使用状态编码后缀自动推导
+        String text = stateCode;
+        String colorType = getColorTypeByStateCode(stateCode);
+        return PageRenderStatusMeta.of(stateCode, text, colorType);
     }
 
     /**
      * 构建按钮动作列表
-     * 根据状态、权限、当前用户身份生成按钮列表
+     * 统一入口：调用通用规则引擎 + 模块特有按钮扩展
      *
      * @param context 页面渲染上下文
      * @return 按钮动作列表
@@ -301,20 +540,246 @@ public class PageRenderServiceImpl implements IPageRenderService {
         }
 
         String moduleCode = context.getModuleCode();
-        if ("PAPER".equals(moduleCode)) {
-            return buildPaperActions(context);
-        }
-        if ("REWARD".equals(moduleCode)) {
-            return buildRewardActions(context);
+        if (moduleCode == null) {
+            return Collections.emptyList();
         }
 
-        // 其它模块暂返回空列表，后续按需扩展
-        return Collections.emptyList();
+        List<PageRenderActionItem> actions = new ArrayList<>();
+
+        // 1. 调用通用规则引擎
+        actions.addAll(buildCommonActions(context));
+
+        // 2. 追加模块特有按钮
+        actions.addAll(addModuleSpecificActions(context));
+
+        // 3. 按排序号排序
+        Collections.sort(actions);
+
+        return actions;
+    }
+
+    /**
+     * 构建通用按钮动作列表
+     * 根据状态编码后缀语义 + 权限映射表动态生成按钮列表
+     * 所有权限均通过 ModuleConfig.getPermission(actionKey) 动态解析，消除 if-else
+     *
+     * @param context 页面渲染上下文
+     * @return 按钮动作列表
+     */
+    private List<PageRenderActionItem> buildCommonActions(PageRenderContext context) {
+        List<PageRenderActionItem> actions = new ArrayList<>();
+        String state = context.getCurrentState();
+        if (state == null) {
+            return actions;
+        }
+
+        boolean isOwner = context.isOwner();
+        boolean isAdmin = context.hasRole("admin");
+        StateSemantic semantic = parseStateSemantic(state);
+
+        // 获取模块配置（用于动态权限解析）
+        ModuleConfig config = getModuleConfig(context.getModuleCode(), context.getPermPrefix());
+        if (config == null) {
+            return actions;
+        }
+
+        // 查看按钮：所有状态都显示
+        if (context.hasPermission(config.getPermission("info"))) {
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_VIEW, "查看",
+                    PageRenderColorConstants.COLOR_INFO, 100));
+        }
+
+        // 查看流程按钮：所有状态都显示（草稿状态也需查看流程定义）
+        if (context.hasPermission(config.getPermission("info"))) {
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_VIEW_PROCESS, "查看流程",
+                    PageRenderColorConstants.COLOR_INFO, 101));
+        }
+
+        // 草稿状态按钮
+        if (semantic == StateSemantic.DRAFT) {
+            // 编辑按钮
+            if ((isOwner || isAdmin) && context.hasPermission(config.getPermission("edit"))) {
+                actions.add(PageRenderActionItem.of(
+                        PageRenderActionConstants.ACTION_EDIT, "编辑",
+                        PageRenderColorConstants.COLOR_PRIMARY, 10));
+            }
+            // 删除按钮
+            if ((isOwner || isAdmin) && context.hasPermission(config.getPermission("remove"))) {
+                actions.add(PageRenderActionItem.of(
+                        PageRenderActionConstants.ACTION_REMOVE, "删除",
+                        PageRenderColorConstants.COLOR_DANGER, 20, "确定要删除该记录吗？"));
+            }
+            // 提交按钮
+            if ((isOwner || isAdmin) && context.hasPermission(config.getPermission("edit"))) {
+                actions.add(PageRenderActionItem.of(
+                        PageRenderActionConstants.ACTION_SUBMIT, "提交",
+                        PageRenderColorConstants.COLOR_SUCCESS, 5, "确定要提交该记录吗？"));
+            }
+        }
+
+        // 驳回状态按钮
+        if (semantic == StateSemantic.REJECTED) {
+            // 编辑按钮
+            if ((isOwner || isAdmin) && context.hasPermission(config.getPermission("edit"))) {
+                actions.add(PageRenderActionItem.of(
+                        PageRenderActionConstants.ACTION_EDIT, "编辑",
+                        PageRenderColorConstants.COLOR_PRIMARY, 10));
+            }
+        }
+
+        // 审批中状态按钮（教研室/科研处）
+        if (semantic == StateSemantic.JYS_AUDIT || semantic == StateSemantic.KYC_AUDIT) {
+            addAuditActions(context, actions, semantic, config, isOwner, isAdmin);
+        }
+
+        // 通过状态按钮
+        if (semantic == StateSemantic.PASSED) {
+            // 撤回按钮（需有 kyrevoke 权限）
+            if (context.hasPermission(config.getPermission("kyrevoke"))) {
+                actions.add(PageRenderActionItem.of(
+                        PageRenderActionConstants.ACTION_RECALL, "撤回",
+                        PageRenderColorConstants.COLOR_WARNING, 40, "确定要撤回该记录吗？"));
+            }
+        }
+
+        return actions;
+    }
+
+    /**
+     * 根据模块编码或权限前缀获取模块配置
+     * 优先通过 moduleCode 查找，兜底通过 permPrefix 匹配
+     *
+     * @param moduleCode 模块编码
+     * @param permPrefix 权限前缀（兜底匹配用）
+     * @return 模块配置，未找到返回 null
+     */
+    private ModuleConfig getModuleConfig(String moduleCode, String permPrefix) {
+        if (moduleCode != null && MODULE_REGISTRY.containsKey(moduleCode)) {
+            return MODULE_REGISTRY.get(moduleCode);
+        }
+        // 兜底：通过权限前缀匹配
+        if (permPrefix != null) {
+            for (ModuleConfig config : MODULE_REGISTRY.values()) {
+                if (config.getPermPrefix().equals(permPrefix)) {
+                    return config;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 根据节点配置动态生成审批按钮
+     * 不引用业务模块常量，通过权限映射表动态获取权限标识
+     *
+     * 权限映射规则：
+     * - 教研室审批（第一级）：使用 config.getPermission("approve") 动态解析
+     * - 科研处审批（第二级）：使用 config.getPermission("kypy") 动态解析
+     * - 撤回（科研处审批中）：教研室审批人使用 config.getPermission("approve") 权限撤回
+     *
+     * @param context 页面渲染上下文
+     * @param actions 按钮列表（追加）
+     * @param semantic 状态语义
+     * @param config 模块配置（含权限映射表）
+     * @param isOwner 是否为创建人
+     * @param isAdmin 是否为管理员
+     */
+    private void addAuditActions(PageRenderContext context, List<PageRenderActionItem> actions,
+                                  StateSemantic semantic, ModuleConfig config, boolean isOwner, boolean isAdmin) {
+        String state = context.getCurrentState();
+        if (state == null || config == null) {
+            return;
+        }
+
+        // 判断是否为第一级节点（教研室审批）
+        boolean isFirstAuditNode = semantic == StateSemantic.JYS_AUDIT;
+        // 判断是否为最后一级节点（科研处审批）
+        boolean isLastAuditNode = semantic == StateSemantic.KYC_AUDIT;
+
+        // 教研室审批按钮：使用 config.getPermission("approve") 动态获取权限
+        // 各模块映射示例：
+        //   论文 -> system:paper:process
+        //   纵向 -> system:apply_vertical:JYS
+        //   成果转化 -> system:intraSch:JYPY
+        if (isFirstAuditNode && context.hasPermission(config.getPermission("approve"))) {
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_REVIEW, "批阅",
+                    PageRenderColorConstants.COLOR_PRIMARY, 30));
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_APPROVE, "通过",
+                    PageRenderColorConstants.COLOR_SUCCESS, 31, "确定要通过该记录吗？"));
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_REJECT, "驳回",
+                    PageRenderColorConstants.COLOR_DANGER, 32, "确定要驳回该记录吗？"));
+        }
+
+        // 科研处审批按钮：使用 config.getPermission("kypy") 动态获取权限
+        // 各模块映射示例：
+        //   论文 -> system:paper:kypy
+        //   纵向 -> system:apply_vertical:KYC（注意大写）
+        //   成果转化 -> system:intraSch:KYPY
+        //   奖励 -> system:reward:hecha
+        //   横向 -> system:apply:hecha
+        else if (isLastAuditNode && context.hasPermission(config.getPermission("kypy"))) {
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_KY_REVIEW, "核查",
+                    PageRenderColorConstants.COLOR_PRIMARY, 30));
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_APPROVE, "通过",
+                    PageRenderColorConstants.COLOR_SUCCESS, 31, "确定要通过该记录吗？"));
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_REJECT, "驳回",
+                    PageRenderColorConstants.COLOR_DANGER, 32, "确定要驳回该记录吗？"));
+        }
+
+        // 撤回按钮规则：
+        // 1. 教研室审批（第一级）：不显示撤回按钮
+        // 2. 科研处审批（第二级）：教研室审批人（有 approve 权限）可撤回
+        if (isLastAuditNode && context.hasPermission(config.getPermission("approve"))) {
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_RECALL, "撤回",
+                    PageRenderColorConstants.COLOR_WARNING, 40, "确定要撤回该记录吗？"));
+        }
+    }
+
+    /**
+     * 追加模块特有按钮
+     * 在通用按钮规则之后，追加模块特有的按钮
+     *
+     * @param context 页面渲染上下文
+     * @return 特有按钮列表
+     */
+    private List<PageRenderActionItem> addModuleSpecificActions(PageRenderContext context) {
+        List<PageRenderActionItem> specificActions = new ArrayList<>();
+        String moduleCode = context.getModuleCode();
+        if (moduleCode == null) {
+            return specificActions;
+        }
+
+        ModuleConfig config = MODULE_REGISTRY.get(moduleCode);
+        if (config == null) {
+            return specificActions;
+        }
+
+        // 横向课题立项通过后显示"提交结项申请"按钮
+        if ("HORIZONTAL_APPLY".equals(moduleCode) && context.getCurrentState() != null
+                && context.getCurrentState().endsWith("_PASSED")) {
+            boolean isOwner = context.isOwner();
+            boolean isAdmin = context.hasRole("admin");
+            if ((isOwner || isAdmin) && context.hasPermission(config.getPermission("add"))) {
+                specificActions.add(PageRenderActionItem.of(
+                        "submitOver", "提交结项申请",
+                        PageRenderColorConstants.COLOR_PRIMARY, 50));
+            }
+        }
+
+        return specificActions;
     }
 
     /**
      * 构建页面渲染汇总结果
-     * 统一入口方法，将状态展示信息与按钮列表组装为完整返回对象
      *
      * @param context      页面渲染上下文
      * @param businessData 业务数据
@@ -326,271 +791,6 @@ public class PageRenderServiceImpl implements IPageRenderService {
         PageRenderStatusMeta statusMeta = buildStatusMeta(context);
         List<PageRenderActionItem> actions = buildActions(context);
         return PageRenderResult.of(statusMeta, actions, businessData);
-    }
-
-    /**
-     * 构建论文模块按钮动作列表
-     * 根据论文状态、用户角色、权限生成对应的按钮列表
-     * 状态判断基于数据库加载的节点配置，避免硬编码状态值
-     *
-     * @param context 页面渲染上下文
-     * @return 按钮动作列表
-     */
-    private List<PageRenderActionItem> buildPaperActions(PageRenderContext context) {
-        List<PageRenderActionItem> actions = new ArrayList<>();
-        String state = context.getCurrentState();
-        boolean isOwner = context.isOwner();
-        boolean isAdmin = context.hasRole("admin");
-
-        // 从数据库节点配置获取当前节点信息
-        SysApprovalNode currentNode = paperNodeMapping.get(state);
-        boolean isInAudit = currentNode != null && state.endsWith("_AUDIT");
-        boolean isDraft = state.endsWith("_DRAFT");
-        boolean isPassed = state.endsWith("_PASSED");
-        boolean isRejected = state.endsWith("_REJECTED");
-
-        // 查看按钮：所有状态都显示，权限 system:paper:info
-        if (context.hasPermission("system:paper:info")) {
-            actions.add(PageRenderActionItem.of(
-                    PageRenderActionConstants.ACTION_VIEW, "查看",
-                    PageRenderColorConstants.COLOR_INFO, 100));
-        }
-
-        // 查看流程按钮：非草稿状态显示，权限 system:paper:info
-        if (!isDraft && context.hasPermission("system:paper:info")) {
-            actions.add(PageRenderActionItem.of(
-                    PageRenderActionConstants.ACTION_VIEW_PROCESS, "查看流程",
-                    PageRenderColorConstants.COLOR_INFO, 101));
-        }
-
-        // 编辑按钮：草稿或驳回状态，作者本人或管理员，权限 system:paper:edit
-        if ((isDraft || isRejected)
-                && (isOwner || isAdmin) && context.hasPermission("system:paper:edit")) {
-            actions.add(PageRenderActionItem.of(
-                    PageRenderActionConstants.ACTION_EDIT, "编辑",
-                    PageRenderColorConstants.COLOR_PRIMARY, 10));
-        }
-
-        // 删除按钮：草稿或驳回状态，作者本人或管理员，权限 system:paper:remove
-        if ((isDraft || isRejected) && (isOwner || isAdmin)
-                && context.hasPermission("system:paper:remove")) {
-            actions.add(PageRenderActionItem.of(
-                    PageRenderActionConstants.ACTION_REMOVE, "删除",
-                    PageRenderColorConstants.COLOR_DANGER, 20, "确定要删除该论文吗？"));
-        }
-
-        // 提交按钮：草稿状态，作者本人或管理员，权限 system:paper:edit
-        if (isDraft && (isOwner || isAdmin)
-                && context.hasPermission("system:paper:edit")) {
-            actions.add(PageRenderActionItem.of(
-                    PageRenderActionConstants.ACTION_SUBMIT, "提交",
-                    PageRenderColorConstants.COLOR_SUCCESS, 5, "确定要提交该论文吗？"));
-        }
-
-        // 驳回状态只显示编辑按钮，不显示重新提交按钮
-        // 用户编辑保存后，状态会自动变为草稿，然后显示提交按钮
-
-        // 审批节点按钮：处于审批中的节点，有审批权限的用户可以看到批阅/通过/驳回按钮
-        // 注意：科研处审批节点(PAPER_KYC_AUDIT)由专门的科研核查按钮处理，此处排除
-        boolean isKyAudit = SciPaperA.PAPER_KYC_AUDIT.equals(state);
-        if (isInAudit && !isKyAudit && context.hasPermission("system:paper:process")) {
-            actions.add(PageRenderActionItem.of(
-                    PageRenderActionConstants.ACTION_REVIEW, "批阅",
-                    PageRenderColorConstants.COLOR_PRIMARY, 30));
-            // 审批人进入批阅页面后需要"通过"和"驳回"按钮
-            actions.add(PageRenderActionItem.of(
-                    PageRenderActionConstants.ACTION_APPROVE, "通过",
-                    PageRenderColorConstants.COLOR_SUCCESS, 31, "确定要通过该论文吗？"));
-            actions.add(PageRenderActionItem.of(
-                    PageRenderActionConstants.ACTION_REJECT, "驳回",
-                    PageRenderColorConstants.COLOR_DANGER, 32, "确定要驳回该论文吗？"));
-        }
-
-        // 审批中状态，作者可撤回（仅科研处审批状态，教研室审批状态不允许撤回）
-        // isInAudit 包含教研室和科研处审批状态，需要排除教研室审批状态
-        boolean isJysAudit = SciPaperA.PAPER_JYS_AUDIT.equals(state);
-        if (isInAudit && !isJysAudit && isOwner
-                && context.hasPermission("system:paper:revoke")) {
-            actions.add(PageRenderActionItem.of(
-                    PageRenderActionConstants.ACTION_RECALL, "撤回",
-                    PageRenderColorConstants.COLOR_WARNING, 40, "确定要撤回该论文吗？"));
-        }
-
-        // 科研核查按钮：科研处审批状态，有科研核查权限 system:paper:kypy
-        if (SciPaperA.PAPER_KYC_AUDIT.equals(state) && context.hasPermission("system:paper:kypy")) {
-            actions.add(PageRenderActionItem.of(
-                    PageRenderActionConstants.ACTION_KY_REVIEW, "科研核查",
-                    PageRenderColorConstants.COLOR_PRIMARY, 35));
-            // 科研处审批人需要"通过"和"驳回"按钮
-            actions.add(PageRenderActionItem.of(
-                    PageRenderActionConstants.ACTION_APPROVE, "通过",
-                    PageRenderColorConstants.COLOR_SUCCESS, 36, "确定要通过该论文吗？"));
-            actions.add(PageRenderActionItem.of(
-                    PageRenderActionConstants.ACTION_REJECT, "驳回",
-                    PageRenderColorConstants.COLOR_DANGER, 37, "确定要驳回该论文吗？"));
-        }
-
-        // 科研处审批状态，教研室审批人可撤回，权限 system:paper:revoke
-        if (SciPaperA.PAPER_KYC_AUDIT.equals(state)
-                && context.hasPermission("system:paper:revoke")) {
-            actions.add(PageRenderActionItem.of(
-                    PageRenderActionConstants.ACTION_RECALL, "撤回",
-                    PageRenderColorConstants.COLOR_WARNING, 40, "确定要撤回该论文吗？"));
-        }
-
-        // 通过状态，科研处可撤回，权限 system:paper:kyrevoke
-        if (isPassed
-                && context.hasPermission("system:paper:kyrevoke")) {
-            actions.add(PageRenderActionItem.of(
-                    PageRenderActionConstants.ACTION_RECALL, "撤回",
-                    PageRenderColorConstants.COLOR_WARNING, 40, "确定要撤回该论文吗？"));
-        }
-
-        // 按排序号排序
-        Collections.sort(actions);
-
-        return actions;
-    }
-
-    /**
-     * 构建奖励模块按钮动作列表
-     * 根据奖励状态、用户角色、权限生成对应的按钮列表
-     * 规则参考：八大模块按钮规则表.md
-     *
-     * @param context 页面渲染上下文
-     * @return 按钮动作列表
-     */
-    private List<PageRenderActionItem> buildRewardActions(PageRenderContext context) {
-        List<PageRenderActionItem> actions = new ArrayList<>();
-        String state = context.getCurrentState();
-        boolean isOwner = context.isOwner();
-        boolean isAdmin = context.hasRole("admin");
-        
-        boolean isDraft = state != null && state.endsWith("_DRAFT");
-        boolean isPassed = state != null && state.endsWith("_PASSED");
-        boolean isRejected = state != null && state.endsWith("_REJECTED");
-        boolean isInAudit = state != null && state.endsWith("_AUDIT");
-        boolean isJysAudit = state != null && state.equals("REWARD_JYS_AUDIT");
-        boolean isKycAudit = state != null && state.equals("REWARD_KYC_AUDIT");
-
-        // 查看按钮：所有状态都显示，权限 system:reward:info，颜色 default
-        if (context.hasPermission("system:reward:info")) {
-            actions.add(PageRenderActionItem.of(
-                    PageRenderActionConstants.ACTION_VIEW, "查看",
-                    PageRenderColorConstants.COLOR_DEFAULT, 1));
-        }
-
-        // 查看流程按钮：审批中或已通过状态显示，权限 system:reward:info
-        if ((isInAudit || isPassed) && context.hasPermission("system:reward:info")) {
-            actions.add(PageRenderActionItem.of(
-                    PageRenderActionConstants.ACTION_VIEW_PROCESS, "查看流程",
-                    PageRenderColorConstants.COLOR_INFO, 2));
-        }
-
-        // 编辑按钮：草稿或驳回状态，记录创建者或管理员，权限 system:reward:edit
-        if ((isDraft || isRejected)
-                && (isOwner || isAdmin) && context.hasPermission("system:reward:edit")) {
-            actions.add(PageRenderActionItem.of(
-                    PageRenderActionConstants.ACTION_EDIT, "编辑",
-                    PageRenderColorConstants.COLOR_PRIMARY, 3));
-        }
-
-        // 删除按钮：草稿状态，记录创建者或管理员，权限 system:reward:remove，展示方式 link
-        if (isDraft && (isOwner || isAdmin)
-                && context.hasPermission("system:reward:remove")) {
-            PageRenderActionItem removeAction = PageRenderActionItem.of(
-                    PageRenderActionConstants.ACTION_REMOVE, "删除",
-                    PageRenderColorConstants.COLOR_DANGER, 4, "确定要删除该奖励吗？");
-            removeAction.setDisplayType("link");
-            actions.add(removeAction);
-        }
-
-        // 提交按钮：草稿状态，记录创建者或管理员，权限 system:reward:edit
-        if (isDraft && (isOwner || isAdmin)
-                && context.hasPermission("system:reward:edit")) {
-            actions.add(PageRenderActionItem.of(
-                    PageRenderActionConstants.ACTION_SUBMIT, "提交",
-                    PageRenderColorConstants.COLOR_PRIMARY, 5, "确定要提交该奖励吗？"));
-        }
-
-        // 重新提交按钮：驳回状态，记录创建者或管理员，权限 system:reward:edit
-        if (isRejected && (isOwner || isAdmin)
-                && context.hasPermission("system:reward:edit")) {
-            actions.add(PageRenderActionItem.of(
-                    PageRenderActionConstants.ACTION_SUBMIT, "重新提交",
-                    PageRenderColorConstants.COLOR_PRIMARY, 5, "确定要重新提交该奖励吗？"));
-        }
-
-        // 审批中状态 - 当前审批节点处理人：通过、驳回按钮
-        if (isInAudit && context.hasPermission("system:reward:process")) {
-            // 教研室审批人：审批按钮
-            if (isJysAudit) {
-                actions.add(PageRenderActionItem.of(
-                        PageRenderActionConstants.ACTION_REVIEW, "教研室审批",
-                        PageRenderColorConstants.COLOR_PRIMARY, 6));
-            }
-            // 科研处审批人：科研处审批按钮
-            if (isKycAudit && context.hasPermission("system:reward:kypy")) {
-                actions.add(PageRenderActionItem.of(
-                        PageRenderActionConstants.ACTION_KY_REVIEW, "科研处审批",
-                        PageRenderColorConstants.COLOR_PRIMARY, 6));
-            }
-            // 通过按钮
-            actions.add(PageRenderActionItem.of(
-                    PageRenderActionConstants.ACTION_APPROVE, "通过",
-                    PageRenderColorConstants.COLOR_SUCCESS, 6));
-            // 驳回按钮
-            actions.add(PageRenderActionItem.of(
-                    PageRenderActionConstants.ACTION_REJECT, "驳回",
-                    PageRenderColorConstants.COLOR_DANGER, 7, "确定要驳回该奖励吗？"));
-        }
-
-        // 教研室审批中状态 - 记录创建者可撤回
-        if (isJysAudit && isOwner
-                && context.hasPermission("system:reward:revoke")) {
-            actions.add(PageRenderActionItem.of(
-                    PageRenderActionConstants.ACTION_RECALL, "撤回",
-                    PageRenderColorConstants.COLOR_WARNING, 8, "确定要撤回该奖励吗？"));
-        }
-
-        // 科研处审批中状态 - 教研室审批人可撤回
-        if (isKycAudit && context.hasRole("jys")
-                && context.hasPermission("system:reward:revoke")) {
-            actions.add(PageRenderActionItem.of(
-                    PageRenderActionConstants.ACTION_RECALL, "撤回",
-                    PageRenderColorConstants.COLOR_WARNING, 8, "确定要撤回该奖励吗？"));
-        }
-
-        // 通过状态 - 科研处审批人可撤回
-        if (isPassed && context.hasRole("ky")
-                && context.hasPermission("system:reward:kyrevoke")) {
-            actions.add(PageRenderActionItem.of(
-                    PageRenderActionConstants.ACTION_RECALL, "撤回",
-                    PageRenderColorConstants.COLOR_WARNING, 8, "确定要撤回该奖励吗？"));
-        }
-
-        // 按排序号排序
-        Collections.sort(actions);
-
-        return actions;
-    }
-
-    /**
-     * 获取模块状态映射配置
-     * 从数据库加载的缓存中获取状态映射，避免硬编码
-     *
-     * @param moduleCode 模块编码
-     * @return 状态映射配置
-     */
-    private Map<String, StatusMapping> getStatusMapping(String moduleCode) {
-        if ("PAPER".equals(moduleCode)) {
-            return paperStatusMapping;
-        }
-        if ("REWARD".equals(moduleCode)) {
-            return rewardStatusMapping;
-        }
-        // 其它模块暂返回空映射，后续按需扩展
-        return Collections.emptyMap();
     }
 
     /**

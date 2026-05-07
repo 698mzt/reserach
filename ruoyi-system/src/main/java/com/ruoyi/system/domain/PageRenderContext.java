@@ -39,6 +39,12 @@ public class PageRenderContext implements Serializable {
     /** 扩展业务信息 */
     private Map<String, Object> extInfo;
 
+    /** 权限前缀（如 system:paper、system:apply），由调用方设置，用于动态拼接权限标识 */
+    private String permPrefix;
+
+    /** 流程编码（如 PAPER_APPROVAL、HORIZONTAL_APPLY），由调用方设置，用于查询审批流程配置 */
+    private String processCode;
+
     public PageRenderContext() {
     }
 
@@ -182,6 +188,22 @@ public class PageRenderContext implements Serializable {
         this.extInfo = extInfo;
     }
 
+    public String getPermPrefix() {
+        return permPrefix;
+    }
+
+    public void setPermPrefix(String permPrefix) {
+        this.permPrefix = permPrefix;
+    }
+
+    public String getProcessCode() {
+        return processCode;
+    }
+
+    public void setProcessCode(String processCode) {
+        this.processCode = processCode;
+    }
+
     @Override
     public String toString() {
         return "PageRenderContext{" +
@@ -192,6 +214,8 @@ public class PageRenderContext implements Serializable {
                 ", currentUser=" + (currentUser != null ? currentUser.getUserId() : null) +
                 ", permissions=" + permissions +
                 ", roleKeys=" + roleKeys +
+                ", permPrefix='" + permPrefix + '\'' +
+                ", processCode='" + processCode + '\'' +
                 ", extInfo=" + extInfo +
                 '}';
     }

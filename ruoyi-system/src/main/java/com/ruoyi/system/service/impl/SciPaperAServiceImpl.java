@@ -937,6 +937,8 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
             context.setCurrentUser(currentUser);
             context.setPermissions(permissions);
             context.setRoleKeys(roleKeys);
+            context.setPermPrefix("system:paper");
+            context.setProcessCode("PAPER_APPROVAL");
 
             // 构建状态和动作信息
             PageRenderStatusMeta statusMeta = pageRenderService.buildStatusMeta(context);
