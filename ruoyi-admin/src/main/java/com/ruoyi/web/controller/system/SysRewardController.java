@@ -263,7 +263,9 @@ public class SysRewardController extends BaseController
     }
 
     /**
-     * 奖励审核通过
+     * 奖励审核通过（兼容旧接口）
+     * 
+     * @deprecated 建议使用 {@link #approve(String, String, String)} 方法
      */
     @RequiresPermissions(value = {"system:reward:hecha", "system:reward:process", "system:reward:chayue"}, logical = Logical.OR)
     @Log(title = "奖励审核通过", businessType = BusinessType.UPDATE)
@@ -275,7 +277,9 @@ public class SysRewardController extends BaseController
     }
 
     /**
-     * 奖励被驳回
+     * 奖励被驳回（兼容旧接口）
+     * 
+     * @deprecated 建议使用 {@link #approve(String, String, String)} 方法
      */
     @RequiresPermissions(value = {"system:reward:hecha", "system:reward:process", "system:reward:chayue"}, logical = Logical.OR)
     @Log(title = "奖励被驳回", businessType = BusinessType.UPDATE)
@@ -284,6 +288,30 @@ public class SysRewardController extends BaseController
     public AjaxResult hxBh(String id, String remark, String urlFlag)
     {
         return toAjax(sysRewardService.hxBh(id, getUserId(), remark, urlFlag));
+    }
+
+    /**
+     * 奖励统一审批操作
+     * 
+     * <p>支持三种操作类型：
+     * <ul>
+     *   <li>approve: 审批通过</li>
+     *   <li>reject: 审批驳回</li>
+     *   <li>recall: 撤回审批</li>
+     * </ul>
+     * 
+     * @param id 奖励ID
+     * @param comment 审批意见
+     * @param operationType 操作类型
+     * @return 审批结果
+     */
+    @RequiresPermissions(value = {"system:reward:hecha", "system:reward:process", "system:reward:chayue", "system:reward:recall"}, logical = Logical.OR)
+    @Log(title = "奖励审批操作", businessType = BusinessType.UPDATE)
+    @PostMapping("/approve/{id}")
+    @ResponseBody
+    public AjaxResult approve(@PathVariable("id") String id, String comment, String operationType)
+    {
+        return toAjax(sysRewardService.approve(id, getUserId(), comment, operationType));
     }
 
     /**

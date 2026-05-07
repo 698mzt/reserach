@@ -34,34 +34,34 @@ public class PageRenderServiceImpl implements IPageRenderService {
     private static final Logger log = LoggerFactory.getLogger(PageRenderServiceImpl.class);
 
     /** 横向课题立项审批 */
-    private static final String HORIZONTAL_APPLY_PROCESS_CODE = "horizontal_apply";
+    private static final String HORIZONTAL_APPLY_PROCESS_CODE = "HORIZONTAL_APPLY";
 
     /** 横向课题结项审批 */
-    private static final String HORIZONTAL_OVER_PROCESS_CODE = "horizontal_over";
+    private static final String HORIZONTAL_OVER_PROCESS_CODE = "HORIZONTAL_OVER";
 
     /** 纵向课题立项审批 */
-    private static final String VERTICAL_APPLY_PROCESS_CODE = "vertical_apply";
+    private static final String VERTICAL_APPLY_PROCESS_CODE = "VERTICAL_APPLY";
 
     /** 纵向课题结项审批 */
-    private static final String VERTICAL_OVER_PROCESS_CODE = "vertical_over";
+    private static final String VERTICAL_OVER_PROCESS_CODE = "VERTICAL_OVER";
 
     /** 论文审批流程 */
-    private static final String PAPER_PROCESS_CODE = "paper_approval";
+    private static final String PAPER_PROCESS_CODE = "PAPER_APPROVAL";
 
     /** 教材专著审批 */
-    private static final String TEXTBOOK_APPROVAL_PROCESS_CODE = "textbook_approval";
+    private static final String TEXTBOOK_APPROVAL_PROCESS_CODE = "TEXTBOOK_APPROVAL";
 
     /** 成果转化审批 */
-    private static final String INTRASCHPRO_APPLY_PROCESS_CODE = "intraschpro_apply";
+    private static final String INTRASCHPRO_APPLY_PROCESS_CODE = "INTRASCHPRO_APPLY";
 
     /** 奖励审批 */
-    private static final String REWARD_APPLY_PROCESS_CODE = "reward_apply";
+    private static final String REWARD_APPLY_PROCESS_CODE = "REWARD_APPLY";
 
     /** 讲座报告审批 */
-    private static final String LECTURE_APPROVAL_PROCESS_CODE = "lecture_approval";
+    private static final String LECTURE_APPROVAL_PROCESS_CODE = "LECTURE_APPROVAL";
 
     /** 专利软著审批 */
-    private static final String PATENT_APPLY_PROCESS_CODE = "patent_apply";
+    private static final String PATENT_APPLY_PROCESS_CODE = "PATENT_APPLY";
 
     /**
      * 模块配置内部类，封装单个模块的渲染配置信息

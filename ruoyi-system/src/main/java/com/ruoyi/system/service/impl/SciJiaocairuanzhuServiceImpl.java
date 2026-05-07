@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Date;
+import java.util.ArrayList;
+import java.util.Collections;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -19,6 +21,11 @@ import com.ruoyi.system.domain.SciJiaocairuanzhuPiyue;
 import com.ruoyi.system.domain.SciJiaocairuanzhuScoreCfg;
 import com.ruoyi.system.domain.SysApprovalHistory;
 import com.ruoyi.system.domain.SysApprovalNode;
+import com.ruoyi.system.domain.PageRenderStatusMeta;
+import com.ruoyi.system.domain.PageRenderActionItem;
+import com.ruoyi.system.domain.PageRenderContext;
+import com.ruoyi.system.constant.PageRenderActionConstants;
+import com.ruoyi.system.constant.PageRenderColorConstants;
 import com.ruoyi.system.mapper.SciHorizontalPiyueMapper;
 import com.ruoyi.system.mapper.SciJiaocairuanzhuMemberMapper;
 import com.ruoyi.system.mapper.SciJiaocairuanzhuPiyueMapper;
@@ -664,6 +671,250 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
     @Override
     @DataScope(deptAlias = "d",userAlias = "u")
     public List<SciJiaocairuanzhu> selectSciJiaocairuanzhuListAll(SciJiaocairuanzhu sciJiaocairuanzhu) {
-        return sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuListAll(sciJiaocairuanzhu);
+        List<SciJiaocairuanzhu> list = sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuListAll(sciJiaocairuanzhu);
+        fillPageRenderData(list, getCurrentUser());
+        return list;
+    }
+
+    /**
+     * 教材软著旧状态码（0-7）映射为统一状态编码
+     */
+    private String mapStateToStatusCode(String state) {
+        if (state == null) {
+            return "TEXTBOOK_DRAFT";
+        }
+
+        if (state.contains("_")) {
+            return state;
+        }
+
+        switch (state) {
+            case "0":
+                return "TEXTBOOK_DRAFT";
+            case "1":
+                return "TEXTBOOK_JYS_AUDIT";
+            case "2":
+            case "4":
+                return "TEXTBOOK_KYC_AUDIT";
+            case "3":
+            case "5":
+            case "7":
+                return "TEXTBOOK_REJECTED";
+            case "6":
+                return "TEXTBOOK_PASSED";
+            default:
+                return "TEXTBOOK_DRAFT";
+        }
+    }
+
+    /**
+     * 根据状态编码获取颜色类型
+     */
+    private String getColorTypeByStateCode(String stateCode) {
+        if (stateCode == null) {
+            return PageRenderColorConstants.COLOR_DEFAULT;
+        }
+        if (stateCode.endsWith("_DRAFT")) {
+            return PageRenderColorConstants.COLOR_DEFAULT;
+        }
+        if (stateCode.endsWith("_JYS_AUDIT")) {
+            return PageRenderColorConstants.COLOR_WARNING;
+        }
+        if (stateCode.endsWith("_KYC_AUDIT")) {
+            return PageRenderColorConstants.COLOR_INFO;
+        }
+        if (stateCode.endsWith("_PASSED")) {
+            return PageRenderColorConstants.COLOR_SUCCESS;
+        }
+        if (stateCode.endsWith("_REJECTED")) {
+            return PageRenderColorConstants.COLOR_DANGER;
+        }
+        return PageRenderColorConstants.COLOR_DEFAULT;
+    }
+
+    /**
+     * 根据状态编码获取状态文案
+     */
+    private String getStateTextByStateCode(String stateCode) {
+        if (stateCode == null) {
+            return "未知";
+        }
+        switch (stateCode) {
+            case "TEXTBOOK_DRAFT":
+                return "草稿";
+            case "TEXTBOOK_JYS_AUDIT":
+                return "教研室审批中";
+            case "TEXTBOOK_KYC_AUDIT":
+                return "科研处审批中";
+            case "TEXTBOOK_PASSED":
+                return "已通过";
+            case "TEXTBOOK_REJECTED":
+                return "已驳回";
+            default:
+                return stateCode;
+        }
+    }
+
+    /**
+     * 构建教材软著状态元数据
+     */
+    private PageRenderStatusMeta buildStatusMeta(String state) {
+        String normalizedState = mapStateToStatusCode(state);
+        return PageRenderStatusMeta.of(normalizedState, getStateTextByStateCode(normalizedState), getColorTypeByStateCode(normalizedState));
+    }
+
+    /**
+     * 构建教材软著按钮动作列表
+     */
+    private List<PageRenderActionItem> buildTextbookActions(SciJiaocairuanzhu entity, SysUser currentUser) {
+        List<PageRenderActionItem> actions = new ArrayList<>();
+        String state = mapStateToStatusCode(entity.getState());
+        boolean isOwner = currentUser != null && entity.getUserId() != null 
+                && currentUser.getUserId().equals(Long.valueOf(entity.getUserId()));
+        boolean isAdmin = currentUser != null && hasRole(currentUser, "admin");
+
+        boolean isDraft = state.endsWith("_DRAFT");
+        boolean isJysAudit = "TEXTBOOK_JYS_AUDIT".equals(state);
+        boolean isKycAudit = "TEXTBOOK_KYC_AUDIT".equals(state);
+        boolean isPassed = state.endsWith("_PASSED");
+        boolean isRejected = state.endsWith("_REJECTED");
+        boolean isInAudit = isJysAudit || isKycAudit;
+
+        if (hasPermission("system:jiaocairuanzhu:info")) {
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_VIEW, "查看",
+                    PageRenderColorConstants.COLOR_INFO, 1));
+        }
+
+        if (!isDraft && hasPermission("system:jiaocairuanzhu:info")) {
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_VIEW_PROCESS, "查看流程",
+                    PageRenderColorConstants.COLOR_INFO, 2));
+        }
+
+        if ((isDraft || isRejected) && (isOwner || isAdmin) && hasPermission("system:jiaocairuanzhu:edit")) {
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_EDIT, "编辑",
+                    PageRenderColorConstants.COLOR_PRIMARY, 3));
+        }
+
+        if (isDraft && (isOwner || isAdmin) && hasPermission("system:jiaocairuanzhu:remove")) {
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_REMOVE, "删除",
+                    PageRenderColorConstants.COLOR_DANGER, 4, "确定要删除该教材软著吗？"));
+        }
+
+        if (isDraft && (isOwner || isAdmin) && hasPermission("system:jiaocairuanzhu:edit")) {
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_SUBMIT, "提交",
+                    PageRenderColorConstants.COLOR_SUCCESS, 5, "确定要提交该教材软著吗？"));
+        }
+
+        if (isRejected && (isOwner || isAdmin) && hasPermission("system:jiaocairuanzhu:edit")) {
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_SUBMIT, "重新提交",
+                    PageRenderColorConstants.COLOR_SUCCESS, 5, "确定要重新提交该教材软著吗？"));
+        }
+
+        if (isJysAudit && hasPermission("system:jiaocairuanzhu:process")) {
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_REVIEW, "教研室审批",
+                    PageRenderColorConstants.COLOR_PRIMARY, 6));
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_APPROVE, "通过",
+                    PageRenderColorConstants.COLOR_SUCCESS, 7, "确定要通过该教材软著吗？"));
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_REJECT, "驳回",
+                    PageRenderColorConstants.COLOR_DANGER, 8, "确定要驳回该教材软著吗？"));
+        }
+
+        if (isJysAudit && isOwner && hasPermission("system:jiaocairuanzhu:remove")) {
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_RECALL, "撤回",
+                    PageRenderColorConstants.COLOR_WARNING, 9, "确定要撤回该教材软著吗？"));
+        }
+
+        if (isKycAudit && hasPermission("system:jiaocairuanzhu:chayue")) {
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_KY_REVIEW, "科研处审批",
+                    PageRenderColorConstants.COLOR_PRIMARY, 6));
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_APPROVE, "通过",
+                    PageRenderColorConstants.COLOR_SUCCESS, 7, "确定要通过该教材软著吗？"));
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_REJECT, "驳回",
+                    PageRenderColorConstants.COLOR_DANGER, 8, "确定要驳回该教材软著吗？"));
+        }
+
+        if (isKycAudit && hasPermission("system:jiaocairuanzhu:process")) {
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_RECALL, "撤回",
+                    PageRenderColorConstants.COLOR_WARNING, 9, "确定要撤回该教材软著吗？"));
+        }
+
+        if (isPassed && hasPermission("system:jiaocairuanzhu:chayue")) {
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_RECALL, "撤回",
+                    PageRenderColorConstants.COLOR_WARNING, 9, "确定要撤回该教材软著吗？"));
+        }
+
+        Collections.sort(actions);
+        return actions;
+    }
+
+    /**
+     * 填充页面渲染数据
+     */
+    private void fillPageRenderData(List<SciJiaocairuanzhu> list, SysUser currentUser) {
+        if (list == null || list.isEmpty()) {
+            return;
+        }
+        for (SciJiaocairuanzhu entity : list) {
+            entity.setStatusMeta(buildStatusMeta(entity.getState()));
+            entity.setActions(buildTextbookActions(entity, currentUser));
+        }
+    }
+
+    /**
+     * 填充单条数据的页面渲染数据
+     */
+    private void fillPageRenderData(SciJiaocairuanzhu entity, SysUser currentUser) {
+        if (entity == null) {
+            return;
+        }
+        entity.setStatusMeta(buildStatusMeta(entity.getState()));
+        entity.setActions(buildTextbookActions(entity, currentUser));
+    }
+
+    /**
+     * 判断用户是否拥有指定角色
+     */
+    private boolean hasRole(SysUser user, String roleKey) {
+        if (user == null || user.getRoles() == null) {
+            return false;
+        }
+        return user.getRoles().stream().anyMatch(r -> roleKey.equals(r.getRoleKey()));
+    }
+
+    /**
+     * 判断当前用户是否拥有指定权限
+     */
+    private boolean hasPermission(String permission) {
+        try {
+            return org.apache.shiro.SecurityUtils.getSubject().isPermitted(permission);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /**
+     * 获取当前登录用户
+     */
+    private SysUser getCurrentUser() {
+        try {
+            return (SysUser) org.apache.shiro.SecurityUtils.getSubject().getPrincipal();
+        } catch (Exception e) {
+            return null;
+        }
     }
 }
