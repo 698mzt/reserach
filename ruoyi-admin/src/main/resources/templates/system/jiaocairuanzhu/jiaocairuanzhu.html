@@ -590,6 +590,7 @@
 </div>
 
 <th:block th:include="include :: footer"/>
+<script th:src="@{/ruoyi/js/page-render.js}"></script>
 <script th:inline="javascript">
   var editFlag = [[${@permission.hasPermi('system:jiaocairuanzhu:edit')}]];
   var removeFlag = [[${@permission.hasPermi('system:jiaocairuanzhu:remove')}]];
@@ -620,22 +621,22 @@
   // 状态字典对象（从后端加载）
   var stateDict = {};
 
-  // 根据状态编码获取颜色配置
+  // 根据状态编码获取颜色配置（与论文模块保持一致）
   function getStateColors(stateCode) {
       if (!stateCode) {
           return { color: '#999', bgColor: '#f5f5f5' };
       }
       
       if (stateCode.indexOf('DRAFT') !== -1) {
-          return { color: '#999', bgColor: '#f5f5f5' };
+          return { color: '#e6a344', bgColor: '#fff8e1' };
       } else if (stateCode.indexOf('JYS') !== -1) {
-          return { color: '#ff9800', bgColor: '#fff3e0' };
+          return { color: '#2c99ff', bgColor: '#e8f4fd' };
       } else if (stateCode.indexOf('KYC') !== -1) {
-          return { color: '#2196f3', bgColor: '#e3f2fd' };
+          return { color: '#2c99ff', bgColor: '#e8f4fd' };
       } else if (stateCode.indexOf('PASSED') !== -1) {
-          return { color: '#4caf50', bgColor: '#e8f5e9' };
+          return { color: '#67c23a', bgColor: '#e8f5e9' };
       } else if (stateCode.indexOf('REJECTED') !== -1) {
-          return { color: '#f44336', bgColor: '#ffebee' };
+          return { color: '#e6a344', bgColor: '#fff8e1' };
       } else {
           return { color: '#999', bgColor: '#f5f5f5' };
       }
@@ -683,7 +684,79 @@
   loadStateDict();
 
   $(function () {
-    // 设置默认年份
+    PageRender.registerHandlers({
+        'view': function(actionKey, data) {
+            $.operate.detailTab(data.id + '/chakan');
+        },
+        'viewProcess': function(actionKey, data) {
+            showhistory(data.id, data.state);
+        },
+        'edit': function(actionKey, data) {
+            $.operate.editTab(data.id);
+        },
+        'remove': function(actionKey, data) {
+            $.operate.remove(data.id);
+        },
+        'submit': function(actionKey, data) {
+            $.modal.confirm("确定提交吗？", function () {
+                $.ajax({
+                    url: prefix + "/hxPass",
+                    type: "post",
+                    data: {id: data.id, urlFlag: "tijiao"},
+                    success: function(result) {
+                        if (result.code === 0) {
+                            $.modal.msgSuccess("提交成功");
+                            $("#bootstrap-table").bootstrapTable('refresh');
+                        } else {
+                            $.modal.alertError(result.msg);
+                        }
+                    }
+                });
+            });
+        },
+        'review': function(actionKey, data) {
+            $.operate.detailTab(data.id + '/pro');
+        },
+        'kyReview': function(actionKey, data) {
+            $.operate.detailTab(data.id + '/hecha');
+        },
+        'recall': function(actionKey, data) {
+            $.ajax({
+                url: prefix + "/approve/" + data.id,
+                type: "post",
+                data: { operationType: "recall" },
+                success: function (result) {
+                    if (result.code === 0) {
+                        $.modal.msgSuccess("撤回成功");
+                        $("#bootstrap-table").bootstrapTable('refresh');
+                    } else {
+                        $.modal.alertError(result.msg);
+                    }
+                },
+                error: function () {
+                    $.modal.alertError("撤回失败，请稍后重试");
+                }
+            });
+        }
+    });
+
+    $(document).off('click.prAction').on('click.prAction', 'button[data-action-key], a[data-action-key]', function(e) {
+        e.preventDefault();
+        var $btn = $(this);
+        var actionKey = $btn.data('action-key');
+        var confirmMsg = $btn.data('confirm');
+        var $tr = $btn.closest('tr');
+        var row = $('#bootstrap-table').bootstrapTable('getData')[$tr.data('index')];
+
+        if (confirmMsg) {
+            $.modal.confirm(confirmMsg, function() {
+                PageRender.dispatchAction(actionKey, row);
+            });
+        } else {
+            PageRender.dispatchAction(actionKey, row);
+        }
+    });
+
     if (!localStorage.getItem("year")) {
       var currentYear = new Date().getFullYear();
       localStorage.setItem("year", currentYear);
@@ -814,88 +887,37 @@
           }
         },
         {
-          field: 'state',
+          field: 'approvalStage',
           title: '当前状态',
           align: 'center',
-          formatter: formatState
+          formatter: function (value, row, index) {
+              if (row.statusMeta) {
+                  return PageRender.renderStatusToString(row.statusMeta);
+              }
+              return '<span class="label label-default">未知</span>';
+          }
         },
         {
           title: '操作',
           align: 'center',
-          class: 'fixed-column',
-          formatter: function (value, row, index) {
-            var actions = [];
-            var huanhang = false;
-            //console.log(row);
-
-            if (row.state == 'TEXTBOOK_DRAFT') {
-              if (row.userId == row.uid) {
-                actions.push('<a class="" href="javascript:void(0)" onclick="submitDirectly(\'' + row.id + '\')"></i>提交&nbsp;&nbsp;&nbsp;&nbsp;</a>');
-                actions.push('<a class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"></i>编辑&nbsp;&nbsp;&nbsp;&nbsp;</a>');
-                actions.push('<a class="del-link-button ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"><i ></i>删除</a>');
-
+          width: '200px',
+          formatter: function(value, row, index) {
+              if (row.actions && row.actions.length > 0) {
+                  var listActions = row.actions.filter(function(a) {
+                      return a.actionKey !== 'approve' && a.actionKey !== 'reject';
+                  });
+                  if (listActions.length > 0) {
+                      return PageRender.renderActionsToString(listActions, {style: 'table'});
+                  }
               }
-              huanhang = true;
-            } else if (row.state == 'TEXTBOOK_JYS_AUDIT') {
-              actions.push('<a class="' + proFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro' + '\')"></i>批阅</a>&nbsp;&nbsp;&nbsp;&nbsp;');
-              huanhang = true;
-            } else if (row.state == 'TEXTBOOK_REJECTED' && row.userId == row.uid) {
-              actions.push('<a class="" href="javascript:void(0)" onclick="submitDirectly(\'' + row.id + '\')"></i>提交&nbsp;&nbsp;&nbsp;&nbsp;</a>');
-              actions.push('<a class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"></i>编辑&nbsp;&nbsp;&nbsp;&nbsp;</a>');
-              huanhang = true;
-            } else if (row.state == 'TEXTBOOK_KYC_AUDIT') {
-              actions.push('<a class="' + hechaFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000"></i>撤回</a>');
-              if (chayueFlag != 'hidden') {
-                actions.push('<a class="' + chayueFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chayue' + '\')"></i>批阅</a>');
+              var fallbackActions = [];
+              if (editInfo !== 'hidden') {
+                  fallbackActions.push('<a href="javascript:void(0)" class="btn btn-xs btn-info" onclick="$.operate.detailTab(\'' + row.id + '/chakan\')">查看</a>');
               }
-              huanhang = true;
-            } else if (row.state == 'TEXTBOOK_PASSED') {
-              if (chayueFlag != 'hidden') {
-                actions.push('<a class="' + chayueFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000"></i>撤回</a>');
-                huanhang = true;
+              if (editInfo !== 'hidden') {
+                  fallbackActions.push('<a href="javascript:void(0)" class="btn btn-xs btn-info" onclick="showhistory(\'' + row.id + ',' + row.state + '\')">流程记录</a>');
               }
-            } else if (row.state == 0) {
-              if (row.userId == row.uid) {
-                actions.push('<a class="" href="javascript:void(0)" onclick="submitDirectly(\'' + row.id + '\')"></i>提交&nbsp;&nbsp;&nbsp;&nbsp;</a>');
-                actions.push('<a class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"></i>编辑&nbsp;&nbsp;&nbsp;&nbsp;</a>');
-                actions.push('<a class="del-link-button ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"><i ></i>删除</a>');
-
-              }
-              huanhang = true;
-            } else if (row.state == 1) {
-              actions.push('<a class="' + proFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro' + '\')"></i>批阅</a>&nbsp;&nbsp;&nbsp;&nbsp;');
-              huanhang = true;
-            } else if ((row.state == 3 || row.state == 5 || row.state == 7) && row.userId == row.uid) {
-              actions.push('<a class="" href="javascript:void(0)" onclick="submitDirectly(\'' + row.id + '\')"></i>提交&nbsp;&nbsp;&nbsp;&nbsp;</a>');
-              actions.push('<a class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"></i>编辑</a>');
-              huanhang = true;
-            } else if (row.state == 2) {
-              actions.push('<a class="' + proFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000"></i>撤回</a>');
-              if (hechaFlag != 'hidden') {
-                actions.push('<a class="' + hechaFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/hecha' + '\')"></i>批阅</a>');
-              }
-              huanhang = true;
-            } else if (row.state == 4) {
-              actions.push('<a class="' + hechaFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000"></i>撤回</a>');
-              if (chayueFlag != 'hidden') {
-                actions.push('<a class="' + chayueFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chayue' + '\')"></i>批阅</a>');
-              }
-              huanhang = true;
-            } else if (row.state == 6) {
-              if (chayueFlag != 'hidden') {
-                actions.push('<a class="' + chayueFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000"></i>撤回</a>');
-                huanhang = true;
-              }
-            }
-
-            if (huanhang === true) {
-              actions.push('<br>'); // 只有前面有按钮时才换行
-
-            }
-            actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan' + '\')"></i>查看&nbsp;&nbsp;&nbsp;&nbsp;</a>');
-            actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')">流程记录&nbsp;</a> ');
-
-            return actions.join('');
+              return fallbackActions.join(' ');
           }
         }
       ]
@@ -1048,23 +1070,6 @@
     // 初始化显示当前时间
     document.getElementById('current-time').textContent = getCurrentTime();
   });
-
-  function submitDirectly(id) {
-      $.modal.confirm("确定提交吗？", function () {
-          submitHandler(id, "tijiao");
-      });
-  }
-
-  function submitHandler(id, urlFlag) {
-    $.operate.saveTab(
-      ctx + "system/jiaocairuanzhu/hxPass",
-      {id: id, urlFlag: urlFlag},)
-    // 手动刷新当前页的表格
-    // $('#bootstrap-table').bootstrapTable('refresh');
-    location.reload();
-
-
-  }
 
   // 批量下载功能相关变量和函数
   var batchDownloadInProgress = false;
