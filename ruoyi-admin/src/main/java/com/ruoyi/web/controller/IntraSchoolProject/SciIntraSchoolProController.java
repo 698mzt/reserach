@@ -26,6 +26,7 @@ import com.ruoyi.common.core.page.TableSupport;
 @RequestMapping("/IntraSchPro")
 public class SciIntraSchoolProController extends BaseController {
   private String prefix = "system/IntraSchPro";
+  private static final String TEC_TRA_PROCESS_CODE = "INTRASCHPRO_APPLY";
   private static final String TEC_TRA_DRAFT = "TEC_TRA_DRAFT";
   private static final String TEC_TRA_JYS_AUDIT = "TEC_TRA_JYS_AUDIT";
   private static final String TEC_TRA_KYC_AUDIT = "TEC_TRA_KYC_AUDIT";
@@ -47,6 +48,9 @@ public class SciIntraSchoolProController extends BaseController {
 
   @Autowired
   private SciTecTraScoreCalculator sciTecTraScoreCalculator;
+
+  @Autowired
+  private ISysApprovalStateService sysApprovalStateService;
 
 
   //private String role_str="";
@@ -89,6 +93,7 @@ public class SciIntraSchoolProController extends BaseController {
     System.out.println("role_str = " + role_str);
     List<SciIntraSchoolPro> list = selectListByRole(role_str, tableId, sciIntraSchoolPro);
     populateScores(list);
+    populateApprovalStages(list);
     TableDataInfo data = getDataTable(list);
 
     //System.out.println("data = " + data);
@@ -134,6 +139,7 @@ public class SciIntraSchoolProController extends BaseController {
     TableDataInfo data = getDataTable(distinctList);
     data.setTotal(total);
     populateScores(distinctList);
+    populateApprovalStages(distinctList);
     return data;
   }
 
@@ -176,6 +182,46 @@ public class SciIntraSchoolProController extends BaseController {
       } catch (Exception e) {
         System.out.println("populateScores error: " + e.getMessage());
       }
+    }
+  }
+
+  private void populateApprovalStages(List<SciIntraSchoolPro> list) {
+    if (list == null || list.isEmpty()) {
+      return;
+    }
+
+    Map<String, String> stateNameMap = sysApprovalStateService.selectSysApprovalStateByProcessCode(TEC_TRA_PROCESS_CODE)
+            .stream()
+            .filter(state -> state.getStateCode() != null && state.getStateName() != null)
+            .collect(Collectors.toMap(SysApprovalState::getStateCode, SysApprovalState::getStateName, (oldValue, newValue) -> oldValue));
+
+    for (SciIntraSchoolPro item : list) {
+      String stateCode = mapTecTraStateToStatusCode(item.getState());
+      item.setApprovalStage(stateNameMap.getOrDefault(stateCode, item.getStateDes()));
+    }
+  }
+
+  private String mapTecTraStateToStatusCode(String state) {
+    if (state == null || state.trim().isEmpty()) {
+      return TEC_TRA_DRAFT;
+    }
+    switch (state) {
+      case "15":
+        return TEC_TRA_DRAFT;
+      case "1":
+      case "11":
+        return TEC_TRA_JYS_AUDIT;
+      case "2":
+        return TEC_TRA_KYC_AUDIT;
+      case "4":
+      case "6":
+        return TEC_TRA_PASSED;
+      case "3":
+      case "5":
+      case "12":
+        return TEC_TRA_REJECTED;
+      default:
+        return state;
     }
   }
 

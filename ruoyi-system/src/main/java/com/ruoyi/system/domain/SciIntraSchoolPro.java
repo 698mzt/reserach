@@ -274,6 +274,9 @@ public class SciIntraSchoolPro extends BaseEntity {
     @Excel(name = "状态")
     private String state;
 
+    /** 审批阶段展示名称 */
+    private String approvalStage;
+
 
     private String year;
 
@@ -522,6 +525,14 @@ public class SciIntraSchoolPro extends BaseEntity {
         return state;
     }
 
+    public String getApprovalStage() {
+        return approvalStage;
+    }
+
+    public void setApprovalStage(String approvalStage) {
+        this.approvalStage = approvalStage;
+    }
+
     public Long getUid() {
         return uid;
     }
@@ -605,6 +616,7 @@ public class SciIntraSchoolPro extends BaseEntity {
                 ", contract='" + contract + '\'' +
                 ", filing='" + filing + '\'' +
                 ", state='" + state + '\'' +
+                ", approvalStage='" + approvalStage + '\'' +
                 ", year='" + year + '\'' +
                 ", urlFlag='" + urlFlag + '\'' +
                 '}';
