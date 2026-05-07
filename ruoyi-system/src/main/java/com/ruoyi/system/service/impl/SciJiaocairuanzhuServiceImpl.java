@@ -31,6 +31,7 @@ import com.ruoyi.system.service.IApprovalProcessService;
 import com.ruoyi.system.service.ISysApprovalHistoryService;
 import com.ruoyi.system.service.ISysUserService;
 import com.ruoyi.system.service.IPageRenderService;
+import com.ruoyi.system.constant.PageRenderColorConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.ruoyi.system.mapper.SciJiaocairuanzhuMapper;
@@ -757,7 +758,7 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
                 boolean hasRemove = actions.stream().anyMatch(a -> "remove".equals(a.getActionKey()));
                 if (!hasRemove) {
                     actions.add(PageRenderActionItem.of(
-                            "remove", "删除", "#dc3545", 20, "确定要删除该记录吗？"));
+                            "remove", "删除", PageRenderColorConstants.COLOR_DANGER, 20, "确定要删除该记录吗？"));
                 }
             }
             
@@ -766,7 +767,7 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
                 boolean hasSubmit = actions.stream().anyMatch(a -> "submit".equals(a.getActionKey()));
                 if (!hasSubmit) {
                     actions.add(PageRenderActionItem.of(
-                            "submit", "提交", "#28a745", 5, "确定要提交该记录吗？"));
+                            "submit", "提交", PageRenderColorConstants.COLOR_SUCCESS, 5, "确定要提交该记录吗？"));
                 }
             }
         }

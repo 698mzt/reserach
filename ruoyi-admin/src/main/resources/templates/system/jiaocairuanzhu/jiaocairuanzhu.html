@@ -798,8 +798,8 @@
       queryParams: function(params) {
         var formData = $('#formId').serializeArray();
         var queryParams = {
-          pageNum: params.pageNumber,
-          pageSize: params.pageSize,
+          pageNum: params.offset / params.limit + 1,
+          pageSize: params.limit,
           orderByColumn: params.sortName,
           isAsc: params.sortOrder,
           year: localStorage.getItem("year")
