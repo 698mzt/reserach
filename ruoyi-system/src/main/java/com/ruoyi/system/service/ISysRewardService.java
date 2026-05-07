@@ -85,6 +85,17 @@ public interface ISysRewardService
 
     int recall(Integer id, String state, Long userId, String remark, String urlFlag);
 
+    /**
+     * 统一审批操作（通过/驳回/撤回）
+     * 
+     * @param id 奖励ID
+     * @param userId 用户ID
+     * @param comment 审批意见
+     * @param operationType 操作类型：approve(通过)、reject(驳回)、recall(撤回)
+     * @return 操作结果，成功返回1，失败返回-1
+     */
+    int approve(String id, Long userId, String comment, String operationType);
+
 
     /**
      * 统计查询奖励数据

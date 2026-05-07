@@ -188,6 +188,8 @@
 
             <!-- 【添加】隐藏域，用于收集所有额外成员ID，以逗号分隔 -->
             <input type="hidden" name="extraMemberIds" id="extraMemberIds">
+            <!-- 预计积分字段 -->
+            <input type="hidden" name="expectedJifen" id="expectedJifen">
             <!-- 第5位及以后：可动态添加 -->
             <div class="col-xs-12">
                 <div class="form-group">
@@ -493,8 +495,11 @@
         // 1. 主持人（第1名）
         if (scoreConfigs.length > 0) {
             $('#expectedScore1').val(scoreConfigs[0].totalScore);
+            // 设置预计积分隐藏字段（取主持人的积分作为预计积分）
+            $('#expectedJifen').val(scoreConfigs[0].totalScore);
         } else {
             $('#expectedScore1').val('');
+            $('#expectedJifen').val('');
         }
 
         // 2. 成员1（第2名）

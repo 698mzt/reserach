@@ -1,6 +1,7 @@
 package com.ruoyi.system.domain;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -119,6 +120,14 @@ public class SysReward extends BaseEntity
 
     /** 用户角色字段 */
     private String role;
+
+    /** 页面渲染：状态展示信息 */
+    @JsonInclude(JsonInclude.Include.ALWAYS)
+    private PageRenderStatusMeta statusMeta;
+
+    /** 页面渲染：按钮动作列表 */
+    @JsonInclude(JsonInclude.Include.ALWAYS)
+    private List<PageRenderActionItem> actions;
 
     public Long getUid() {
         return uid;
@@ -397,5 +406,21 @@ public class SysReward extends BaseEntity
             case "REWARD_REJECTED": return "奖励-驳回";
             default: return this.state;
         }
+    }
+
+    public PageRenderStatusMeta getStatusMeta() {
+        return statusMeta;
+    }
+
+    public void setStatusMeta(PageRenderStatusMeta statusMeta) {
+        this.statusMeta = statusMeta;
+    }
+
+    public List<PageRenderActionItem> getActions() {
+        return actions;
+    }
+
+    public void setActions(List<PageRenderActionItem> actions) {
+        this.actions = actions;
     }
 }
