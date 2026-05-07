@@ -14,6 +14,7 @@ import com.ruoyi.system.service.ISciJiaocairuanzhuPiyueService;
 import com.ruoyi.system.service.ISysUserService;
 import com.ruoyi.system.service.ISciJiaocairuanzhuScoreCfgService;
 import com.ruoyi.system.service.ISysApprovalHistoryService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -396,16 +397,21 @@ public class SciJiaocairuanzhuController extends BaseController
     @RequiresPermissions(value={"system:jiaocairuanzhu:process","system:jiaocairuanzhu:info"},logical= Logical.OR)
     @Log(title = "教材软著详情页面", businessType = BusinessType.OTHER)
     @GetMapping("/detail/{id}/{urlFlag}")
-    public String detail(@PathVariable("id") Integer id,@PathVariable("urlFlag") String urlFlag, ModelMap mmap)
-    {
+    public String detail(@PathVariable("id") Integer id, @PathVariable("urlFlag") String urlFlag, ModelMap mmap) throws com.fasterxml.jackson.core.JsonProcessingException {
         SciJiaocairuanzhu sciJiaocairuanzhu = sciJiaocairuanzhuService.selectSciJiaocairuanzhuById(id);
-        // 创建一个初始化了params的SysUser对象，避免MyBatis参数解析错误
         SysUser user = new SysUser();
         user.setParams(new HashMap<String, Object>());
         List<SysUser> userList1 = userService.selectUserList(user);
         sciJiaocairuanzhu.setUrlFlag(urlFlag);
-        mmap.put("sysUsers1",userList1);
+        mmap.put("sysUsers1", userList1);
         mmap.put("sciJiaocairuanzhu", sciJiaocairuanzhu);
+        
+        ObjectMapper mapper = new ObjectMapper();
+        String actionsJson = (sciJiaocairuanzhu.getActions() != null && !sciJiaocairuanzhu.getActions().isEmpty())
+                ? mapper.writeValueAsString(sciJiaocairuanzhu.getActions())
+                : "[]";
+        mmap.put("actionsJson", actionsJson);
+        
         return prefix + "/detail";
     }
 
