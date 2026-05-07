@@ -252,16 +252,14 @@
 </div>
 </div>
 <div class="row">
-    <div class="col-sm-offset-5 col-sm-10">
-        <button type="button" id="btn1" class="btn btn-sm btn-primary" onclick="submitHandler()">  通 过</button>&nbsp;
-        <button type="button" id="btn2" class="btn btn-sm btn-danger" onclick="submitHandlerBH()"> 驳 回</button>
-        <button type="button" id="btn4" class="btn btn-sm btn-danger" onclick="submitHandlerRecall()"> 撤 回</button>
-        <button type="button" id="btn3" class="btn btn-sm btn-warning" onclick="closeItem()"> 关 闭 </button>
+    <div class="col-sm-offset-5 col-sm-10" id="detail-actions">
+        <!-- 按钮由 page-render.js 自动渲染 -->
     </div>
 </div>
 <th:block th:include="include :: footer" />
 <th:block th:include="include :: datetimepicker-js" />
 <th:block th:include="include :: bootstrap-fileinput-js"/>
+<script th:src="@{/ruoyi/js/page-render.js}"></script>
 <script type="text/javascript">
     $(function(){
         var kid = $("#ktid").val();
@@ -305,40 +303,57 @@
             const state = $("#state").val();
             const urlFlag = $("#urlFlag").val();
 
-            $("#btn3").show();
             if (urlFlag === 'chakan') {
-                $("#btn1").hide();
-                $("#btn2").hide();
                 $(".tdiv2").show();
-                $("#btn4").hide();
             } else {
                 if (state === 'REWARD_JYS_AUDIT' || state === 'REWARD_KYC_AUDIT') {
                     if (rows.length > 0) {
                         $(".tdiv2").show();
                     }
                     $(".tdiv1").show();
-                    $("#btn1").show();
-                    $("#btn2").show();
-                    $("#btn4").hide();
                 }
-            }
-
-            if (state === 'REWARD_PASSED' || state === 'REWARD_REJECTED') {
-                $("#btn1").hide();
-                $("#btn2").hide();
-                $("#btn4").hide();
             }
 
             if (['chayue'].includes(urlFlag) && state === 'REWARD_PASSED') {
                 $(".tdiv1").show();
                 $(".tdiv2").show();
-                $("#btn1").hide();
-                $("#btn2").hide();
-                $("#btn4").show();
             }
         });
 
-        // 加载积分配置，显示预计科研分
+        PageRender.registerHandlers({
+            view: function(row) {
+                $.modal.open("详情", prefix + "/detail/" + row.id);
+            },
+            edit: function(row) {
+                $.modal.open("编辑", prefix + "/edit/" + row.id);
+            },
+            submit: function(row) {
+                $.modal.confirm("确定要提交该记录吗？", function() {
+                    $.operate.post(prefix + "/push", { id: row.id });
+                });
+            },
+            approve: function(row) {
+                submitHandler();
+            },
+            reject: function(row) {
+                submitHandlerBH();
+            },
+            recall: function(row) {
+                submitHandlerRecall();
+            },
+            delete: function(row) {
+                $.modal.confirm("确定要删除该记录吗？", function() {
+                    $.operate.post(prefix + "/remove", { ids: row.id });
+                });
+            },
+            close: function() {
+                closeItem();
+            }
+        });
+
+        var actions = [[${sysReward.actions}]];
+        PageRender.renderActions(actions, '#detail-actions');
+
         loadScoreConfigs();
     });
 </script>

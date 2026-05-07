@@ -29,13 +29,6 @@ import java.util.stream.Collectors;
 /**
  * 奖励Service业务层处理
  * 
- * <p>审批流程说明：
- * <ul>
- *   <li>使用统一的 ApprovalProcessServiceImpl 进行审批状态管理</li>
- *   <li>流程编码：REWARD_APPROVAL（需在数据库 sys_approval_process 表配置）</li>
- *   <li>状态流转：REWARD_DRAFT -> REWARD_JYS_AUDIT -> REWARD_KYC_AUDIT -> REWARD_PASSED</li>
- *   <li>驳回/撤回时回退到对应状态，并重置积分（如有）</li>
- * </ul>
  * 
  * @author ruoyi
  * @date 2024-12-23
@@ -437,6 +430,8 @@ public class SysRewardServiceImpl implements ISysRewardService
             context.setCurrentUser(currentUser);
             context.setPermissions(permissions);
             context.setRoleKeys(roleKeys);
+            context.setPermPrefix("system:reward");
+            context.setProcessCode(REWARD_PROCESS_CODE);
 
             PageRenderStatusMeta statusMeta = pageRenderService.buildStatusMeta(context);
             List<PageRenderActionItem> actions = pageRenderService.buildActions(context);
