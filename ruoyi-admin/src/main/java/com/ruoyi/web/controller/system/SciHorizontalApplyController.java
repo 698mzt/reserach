@@ -1228,6 +1228,7 @@ public class SciHorizontalApplyController extends BaseController
         SciHorizontalPiyue ob = new SciHorizontalPiyue();
         ob.setHxktId(kid);
         List<SciHorizontalPiyue> list = piyueService.selectSciHorizontalPiyueList(ob);
+        list.forEach(item -> item.setStateText(sciHorizontalApplyService.getHorizontalStateText(item.getState())));
         return getDataTable(list);
     }
     @RequiresPermissions("system:apply:edit")
@@ -1237,6 +1238,7 @@ public class SciHorizontalApplyController extends BaseController
         SciHorizontalPiyue ob = new SciHorizontalPiyue();
         ob.setHxktId(kid);
         List<SciHorizontalPiyue> list = piyueService.selectSciHorizontalAmountPiyueList(ob);
+        list.forEach(item -> item.setStateText(sciHorizontalApplyService.getHorizontalStateText(item.getState())));
         return getDataTable(list);
     }
 
@@ -1667,5 +1669,34 @@ public class SciHorizontalApplyController extends BaseController
         map.put("code", code);
         map.put("label", label);
         return map;
+    }
+
+    private String mapHorizontalStateText(String state)
+    {
+        if (state == null) {
+            return "未知";
+        }
+        switch (state) {
+            case "APPLY_DRAFT":
+            case "OVER_DRAFT":
+                return "草稿";
+            case "APPLY_JYS_AUDIT":
+            case "OVER_JYS_AUDIT":
+                return "教研室审批中";
+            case "APPLY_XY_AUDIT":
+            case "OVER_XY_AUDIT":
+                return "学院审批中";
+            case "APPLY_KYC_AUDIT":
+            case "OVER_KYC_AUDIT":
+                return "科研处审批中";
+            case "APPLY_PASSED":
+            case "OVER_PASSED":
+                return "已通过";
+            case "APPLY_REJECTED":
+            case "OVER_REJECTED":
+                return "已驳回";
+            default:
+                return state;
+        }
     }
 }

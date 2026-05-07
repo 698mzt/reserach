@@ -1317,7 +1317,13 @@
                 $.operate.detailTab(id + '/chakan');
             },
             'viewProcess': function(actionKey, data) {
-                showhistory(data.id, data.state);
+                var state = data.state || '';
+                if (state.indexOf('OVER') !== -1) {
+                    showhistory1(data.id, state);
+                } else {
+                    showhistory(data.id, state);
+                }
+                $('#lcjl_Moda').modal('show');
             },
             'edit': function(actionKey, data) {
                 var id = data.reid || data.id;

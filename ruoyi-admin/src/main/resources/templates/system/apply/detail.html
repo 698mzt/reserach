@@ -296,7 +296,7 @@
                     width: 500
                 },
                 {
-                    field : 'state',
+                    field : 'stateText',
                     title : '审核状态',
                     width: 100
                 } ]
@@ -344,48 +344,14 @@
         var $container = $('#action-buttons-container');
 
         if (applyActions && applyActions.length > 0) {
-            var isApprovePage = urlFlag === 'pro' || urlFlag === 'Dept' || urlFlag === 'KYC';
-            if (isApprovePage) {
-                var reviewAction = null;
-                var hasApproveAction = false;
-                var hasRejectAction = false;
-                applyActions.forEach(function(action) {
-                    if (action.actionKey === 'approve') {
-                        hasApproveAction = true;
-                    }
-                    if (action.actionKey === 'reject') {
-                        hasRejectAction = true;
-                    }
-                    if (!reviewAction && (action.actionKey === 'review' || action.actionKey === 'kyReview')) {
-                        reviewAction = action;
-                    }
-                });
-                if (reviewAction) {
-                    if (!hasApproveAction) {
-                        applyActions.push($.extend({}, reviewAction, {
-                            actionKey: 'approve',
-                            actionText: '通过'
-                        }));
-                    }
-                    if (!hasRejectAction) {
-                        applyActions.push($.extend({}, reviewAction, {
-                            actionKey: 'reject',
-                            actionText: '驳回',
-                            sortOrder: (reviewAction.sortOrder || 30) + 1,
-                            confirmMessage: '确定要驳回该立项申请吗？'
-                        }));
-                    }
-                }
-            }
-
             var filteredActions = applyActions.filter(function(action) {
                 if (urlFlag === 'chakan') {
-                    return action.actionKey === 'view' || action.actionKey === 'viewProcess';
+                    return false;
                 }
                 if (urlFlag === 'pro' || urlFlag === 'Dept' || urlFlag === 'KYC') {
                     return action.actionKey === 'approve' || action.actionKey === 'reject' || action.actionKey === 'recall';
                 }
-                return action.actionKey === 'view' || action.actionKey === 'viewProcess' || action.actionKey === 'recall';
+                return action.actionKey === 'recall';
             });
 
             if (filteredActions.length > 0) {

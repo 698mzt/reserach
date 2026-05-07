@@ -136,6 +136,8 @@ public interface ISciHorizontalApplyService
      * */
     List<creditedAmount> selectCreditedAmount();
 
+    String getHorizontalStateText(String state);
+
     Map<String, Integer> getTodoCount(SysUser user);
 
     /**
