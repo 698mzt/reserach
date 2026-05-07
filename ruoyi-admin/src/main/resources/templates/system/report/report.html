@@ -443,7 +443,65 @@
 </div>
 
 <th:block th:include="include :: footer"/>
+<!-- 引入 page-render.js -->
+<script th:src="@{/ruoyi/js/page-render.js}"></script>
 <script th:inline="javascript">
+    var prefix = ctx + "system/report";
+    
+    // 注册动作处理器
+    $(function() {
+        PageRender.registerHandlers({
+            view: function(actionKey, row) {
+                $.operate.detailTab(row.id + '/info');
+            },
+            viewProcess: function(actionKey, row) {
+                var state = row.state;
+                if (row.statusMeta && row.statusMeta.statusCode) {
+                    state = row.statusMeta.statusCode;
+                }
+                controlProgressBar(row.id, state);
+                $('#lcjl_Moda').modal('show');
+            },
+            edit: function(actionKey, row) {
+                if (row.state == 'LECTURE_DRAFT') {
+                    $.operate.editTab(row.id + '/xiugai');
+                } else if (row.state == 'LECTURE_REJECTED') {
+                    $.operate.editTab(row.id + '/gengxin');
+                } else {
+                    $.operate.editTab(row.id + '/xiugai');
+                }
+            },
+            remove: function(actionKey, row) {
+                $.operate.remove(row.id);
+            },
+            submit: function(actionKey, row) {
+                $.operate.tijiao(row.id);
+            },
+            approve: function(actionKey, row) {
+                $.operate.detailTab(row.id + '/pro');
+            },
+            reject: function(actionKey, row) {
+                $.operate.detailTab(row.id + '/pro');
+            },
+            recall: function(actionKey, row) {
+                if (row.state == 'LECTURE_KYC_AUDIT') {
+                    $.operate.detailTab(row.id + '/xytuihui');
+                } else if (row.state == 'LECTURE_PASSED') {
+                    $.operate.detailTab(row.id + '/zgqxtuihui');
+                } else {
+                    $.operate.detailTab(row.id + '/xytuihui');
+                }
+            },
+            review: function(actionKey, row) {
+                $.operate.detailTab(row.id + '/pro');
+            },
+            // kyReview: function(actionKey, row) {
+            //     $.operate.detailTab(row.id + '/pro');
+            // }
+
+        });
+    });
+
     var editFlag = [[${@permission.hasPermi('system:report:edit')}]];
     var removeFlag = [[${@permission.hasPermi('system:report:remove')}]];
     var socialTitleDatas = [[${@dict.getType('social_title')}]];
@@ -458,80 +516,7 @@
     var chexiaoFlag = [[${@permission.hasPermi('system:report:chexiao')}]];  // 撤销 == 》 学院负责人的特权
     var zgqxtuihuiFlag = [[${@permission.hasPermi('system:report:zgqxtuihui')}]];  // 驳回  == 》 科研室负责人的特权
     var submitFlag = [[${@permission.hasPermi('system:report:submit')}]];  // 提交
-
-    // 本地状态映射（兜底方案）
-    var stateNameMap = {
-        'LECTURE_DRAFT': '草稿箱',
-        'LECTURE_JYS_AUDIT': '待教研室审核',
-        'LECTURE_KYC_AUDIT': '待科研处审核',
-        'LECTURE_PASSED': '已通过',
-        'LECTURE_REJECTED': '已驳回'
-    };
-
-    // 状态字典对象（从后端加载）
-    var stateDict = {};
-
-    // 根据状态编码获取颜色配置
-    function getStateColors(stateCode) {
-        if (!stateCode) {
-            return { color: '#999', bgColor: '#f5f5f5' };
-        }
-        if (stateCode.indexOf('DRAFT') !== -1) {
-            return { color: '#999', bgColor: '#f5f5f5' };
-        } else if (stateCode.indexOf('JYS') !== -1) {
-            return { color: '#ff9800', bgColor: '#fff3e0' };
-        } else if (stateCode.indexOf('XY') !== -1) {
-            return { color: '#2196f3', bgColor: '#e3f2fd' };
-        } else if (stateCode.indexOf('KYC') !== -1) {
-            return { color: '#2196f3', bgColor: '#e3f2fd' };
-        } else if (stateCode.indexOf('PASSED') !== -1) {
-            return { color: '#4caf50', bgColor: '#e8f5e9' };
-        } else if (stateCode.indexOf('REJECTED') !== -1) {
-            return { color: '#f44336', bgColor: '#ffebee' };
-        } else {
-            return { color: '#999', bgColor: '#f5f5f5' };
-        }
-    }
-
-    // 状态格式化函数
-    function formatState(value, row, index) {
-        var state = String(value);
-        var stateInfo = stateDict[state];
-        if (!stateInfo && stateNameMap[state]) {
-            stateInfo = { label: stateNameMap[state] };
-        }
-        if (stateInfo) {
-            var colors = getStateColors(state);
-            return '<span style="color:' + colors.color + '; background-color:' + colors.bgColor +
-                   '; padding:4px 8px; border-radius:4px; font-weight:500;">' + stateInfo.label + '</span>';
-        }
-        return '<span style="color:#999; background-color:#f5f5f5; padding:4px 8px; border-radius:4px;">' + state + '</span>';
-    }
-
-    // 加载状态字典
-    function loadStateDict() {
-        $.ajax({
-            url: prefix + "/getStateDict",
-            type: "GET",
-            async: false,
-            success: function(result) {
-                if (result.code === 0 && result.data) {
-                    result.data.forEach(function(item) {
-                        stateDict[item.code] = {
-                            label: item.label
-                        };
-                    });
-                }
-            },
-            error: function() {
-                console.error("加载状态字典失败");
-            }
-        });
-    }
-
-    // 页面加载前执行，确保状态字典可用
-    loadStateDict();
-
+    
     // 获取当前用户角色信息
     var userRole = '';
     var userRoles = [[${user.roles}]];  // 从后端获取的角色列表
@@ -618,6 +603,29 @@
                 $('.college-field').hide();
             }
         }
+
+        // 定义状态与颜色的映射关系
+        function rowStyle0(row, index) {
+            var stateColorMap = {
+                'LECTURE_PASSED': '#67c23a',
+                'LECTURE_REJECTED': '#e6a23c',
+                'LECTURE_DRAFT': '#e6a23c',
+                'LECTURE_JYS_AUDIT': '#2c99ff',
+                'LECTURE_KYC_AUDIT': '#2c99ff'
+            };
+            
+            var state = String(row.state);
+            
+            if (state in stateColorMap) {
+                return {
+                    css: { color: stateColorMap[state] }
+                };
+            }
+            
+            return {
+                css: { color: '#000000' }
+            };
+        }
         
         function initTable(options) {
             // 获取当前表格的ID
@@ -634,33 +642,16 @@
         var options1 = {
             id: "bootstrap-table1",
             url: getUrl($('table').attr('id')),
-            // url:getUrl($('table').attr('id')),
             createUrl: prefix + "/add",
             updateUrl: prefix + "/edit/{id}",
             detailUrl: prefix + "/detail/{id}",
             removeUrl: prefix + "/remove",
             tijiaoUrl: prefix + "/tijiao",
             exportUrl: prefix + "/export",
-            overUrl: prefix + "/over/{id}", // 结项申请后端路径
+            overUrl: prefix + "/over/{id}",
             modalName: "讲座报告",
-            maintainSelected: true, // 保持跨页选中状态
-            rowStyle: function(row, index) {
-                // 根据状态返回样式对象
-                switch(row.state) {
-                    case 'LECTURE_DRAFT': // 草稿
-                        return { css: { "color": "#e6a344" } }; // 黄色
-                    case 'LECTURE_JYS_AUDIT': // 待教研室审核
-                        return { css: { "color": "#2c99ff" } }; // 蓝色
-                    case 'LECTURE_KYC_AUDIT': // 待科研处审核
-                        return { css: { "color": "#2c99ff" } }; // 蓝色
-                    case 'LECTURE_REJECTED': // 已驳回
-                        return { css: { "color": "#e6a344" } }; // 黄色
-                    case 'LECTURE_PASSED': // 已通过
-                        return { css: { "color": "#67c23a" } }; // 绿色
-                    default:
-                        return {css: { "color": "#000000" }};
-                }
-            },
+            maintainSelected: true,
+            rowStyle: rowStyle0,
             columns: [
                 {
                     checkbox: true
@@ -738,49 +729,24 @@
                     field: 'state',
                     title: '状态',
                     align: 'center',
-                    formatter: formatState
+                    formatter: function(value, row, index) {
+                        return PageRender.renderStatusToString(row.statusMeta);
+                    }
                 },
                 {
                     title: '操作',
                     align: 'center',
-                    formatter: function (value, row, index) {                        var actions = [];                        var hasPreviousButtons = false; // 标记前面是否有按钮
-
-                        if (row.state == 'LECTURE_DRAFT') {
-                            if (row.userId == row.uid) {
-                                actions.push('<a  class="btn  btn-xs ' + submitFlag + '" href="javascript:void(0)" onclick="$.operate.tijiao(\'' + row.id + '\')">提交</a> ');
-                                actions.push('<a   class="btn  btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '/xiugai' + '\')">编辑</a> ');
-                                actions.push('<a style="color: red" class="btn  btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')">删除</a>');
-                                hasPreviousButtons = true; // 设置前面有按钮的标志为true
-                            }
-                        }else if (row.state == 'LECTURE_JYS_AUDIT' && userRole === 'research') { // 待教研室审核 - 仅教研室角色
-                            actions.push('<a  class="btn btn-xs ' + proFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro' + '\')">批阅</a> ');
-                            if (proFlag != 'hidden')
-                                hasPreviousButtons = true; // 设置前面有按钮的标志为true
-                        } else if (row.state == 'LECTURE_REJECTED' && row.userId == row.uid) {
-                            actions.push('<a class="btn btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '/gengxin' +'\')">编辑</a> ');
-                            hasPreviousButtons = true; // 设置前面有按钮的标志为true
-                        }
-                        else if (row.state == 'LECTURE_KYC_AUDIT') {
-                            if (userRole === 'sci_tesearch') { // 待科研处审核 - 仅科研处角色
-                              actions.push('<a  class="btn btn-xs ' + checkFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/check' + '\')">批阅</a> ');
-                            actions.push('<a style="color: red" class="btn btn-xs ' + chexiaoFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/xytuihui' + '\')">撤销</a> ');
-                            if (checkFlag != 'hidden' || chexiaoFlag != 'hidden')
-                                hasPreviousButtons = true; // 设置前面有按钮的标志为true
-                              }
-                        }
-                        else if (row.state == 'LECTURE_PASSED') {
-                            if (userRole === 'sci_tesearch') { // 已完成 - 仅科研处角色
-                            actions.push('<a style="color: red" class="btn btn-xs ' + zgqxtuihuiFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/zgqxtuihui' + '\')">撤销</a> ');
-                            if (zgqxtuihuiFlag != 'hidden')
-                                hasPreviousButtons = true;
+                    formatter: function(value, row, index) {
+                        if (row.actions && row.actions.length > 0) {
+                            // 列表页过滤掉"通过"和"驳回"按钮，这些只在详情页显示
+                            var listActions = row.actions.filter(function(a) {
+                                return a.actionKey !== 'approve' && a.actionKey !== 'reject';
+                            });
+                            if (listActions.length > 0) {
+                                return PageRender.renderActionsToString(listActions);
                             }
                         }
-                        if (hasPreviousButtons) {
-                            actions.push('<br>'); // 只有前面有按钮时才换行
-                        }
-                        actions.push('<a  class="btn btn-xs ' + infoFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/info' + '\')">查看</a> ');
-                        actions.push('<a class="btn btn-xs" data-toggle="modal" data-target="#lcjl_Moda" onclick="controlProgressBar(\'' + row.id + '\', \'' + row.state + '\')">流程记录</a>');
-                         return actions.join('');
+                        return '';
                     }
                 }
             ]
@@ -795,17 +761,40 @@
         window.addEventListener("storage", function (event) {
             if (event.key === "year") {
                 // 销毁表格，再初始化
-                // $('#bootstrap-table0').bootstrapTable('destroy');
-                // initTable(options0)
                 $('#bootstrap-table1').bootstrapTable('destroy');
                 initTable(options1)
                 // 重新初始化搜索区域
                 initSearchFields();
-                // $('#bootstrap-table2').bootstrapTable('destroy');
-                // initTable(options2)
             }
         })
+        
+        // 表格加载完成后绑定按钮事件
+        $('#bootstrap-table1').on('load-success.bs.table', function() {
+            bindActionEvents();
+        });
     });
+    
+    /**
+     * 绑定操作按钮事件
+     */
+    function bindActionEvents() {
+        $('#bootstrap-table1').off('click.action').on('click.action', 'a[data-action-key]', function(e) {
+            e.preventDefault();
+            var $btn = $(this);
+            var actionKey = $btn.data('action-key');
+            var confirmMsg = $btn.data('confirm');
+            var rowIndex = $btn.closest('tr').data('index');
+            var row = $('#bootstrap-table1').bootstrapTable('getData')[rowIndex];
+            
+            if (confirmMsg) {
+                $.modal.confirm(confirmMsg, function() {
+                    PageRender.dispatchAction(actionKey, row);
+                });
+            } else {
+                PageRender.dispatchAction(actionKey, row);
+            }
+        });
+    }
 
 //     ===================================================================================
     function controlProgressBar(dataId, status) {

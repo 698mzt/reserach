@@ -7,6 +7,7 @@ import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.common.utils.ShiroUtils;
 import com.ruoyi.system.domain.SciLectureReportIntegral;
 import com.ruoyi.system.domain.SciLectureReportOpinion;
+import com.ruoyi.system.domain.SysApprovalNode;
 import com.ruoyi.system.service.ISciLectureReportIntegralService;
 import com.ruoyi.system.service.ISciLectureReportOpinionService;
 import com.ruoyi.system.service.ISysUserService;
@@ -170,6 +171,40 @@ public class SciLectureReportController extends BaseController
         mmap.put("user", getSysUser());
         mmap.put("role", getRoleKey());
         return prefix + "/report";
+    }
+
+    /**
+     * 获取状态字典列表
+     * GET /system/report/getStateDict
+     * 
+     * @return AjaxResult 状态字典列表
+     */
+    @GetMapping("/getStateDict")
+    @ResponseBody
+    public AjaxResult getStateDict() {
+        List<Map<String, String>> stateList = new ArrayList<>();
+        
+        // 讲座报告审批状态
+        stateList.add(createStateDict("LECTURE_DRAFT", "草稿"));
+        stateList.add(createStateDict("LECTURE_JYS_AUDIT", "教研室审批中"));
+        stateList.add(createStateDict("LECTURE_KYC_AUDIT", "科研处审批中"));
+        stateList.add(createStateDict("LECTURE_PASSED", "通过"));
+        stateList.add(createStateDict("LECTURE_REJECTED", "驳回"));
+        
+        return AjaxResult.success(stateList);
+    }
+
+    /**
+     * 创建状态字典对象
+     * @param code 状态编码
+     * @param label 状态标签
+     * @return Map 状态字典
+     */
+    private Map<String, String> createStateDict(String code, String label) {
+        Map<String, String> map = new HashMap<>();
+        map.put("code", code);
+        map.put("label", label);
+        return map;
     }
 
     /**
@@ -493,35 +528,6 @@ public class SciLectureReportController extends BaseController
         op.setBaogaoId(rid);
         List<SciLectureReportOpinion> list = opinion.opinionlist(op);
         return getDataTable(list);
-    }
-
-    /**
-     * 获取状态字典列表
-     * GET /system/report/getStateDict
-     */
-    @GetMapping("/getStateDict")
-    @ResponseBody
-    public AjaxResult getStateDict() {
-        List<Map<String, String>> stateList = new ArrayList<>();
-        stateList.add(createStateDict("LECTURE_DRAFT", "草稿箱"));
-        stateList.add(createStateDict("LECTURE_JYS_AUDIT", "待教研室审核"));
-        stateList.add(createStateDict("LECTURE_KYC_AUDIT", "待科研处审核"));
-        stateList.add(createStateDict("LECTURE_PASSED", "已通过"));
-        stateList.add(createStateDict("LECTURE_REJECTED", "已驳回"));
-        return AjaxResult.success(stateList);
-    }
-
-    /**
-     * 创建状态字典对象
-     * @param code 状态编码
-     * @param label 状态标签
-     * @return Map 状态字典
-     */
-    private Map<String, String> createStateDict(String code, String label) {
-        Map<String, String> map = new HashMap<>();
-        map.put("code", code);
-        map.put("label", label);
-        return map;
     }
 
     /**
