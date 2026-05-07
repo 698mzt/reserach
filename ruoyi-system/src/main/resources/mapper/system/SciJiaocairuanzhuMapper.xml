@@ -59,8 +59,14 @@
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(createtime,INTERVAL 1 MONTH)) = #{year}</if>
         <if test="userId != null  and userId != ''">and s.user_id = #{uid}</if>
 
-
-
+        order by 
+            case 
+                when s.state = '0' or s.state = '3' or s.state = '5' or s.state = '7' or s.state = 'TEXTBOOK_DRAFT' or s.state = 'TEXTBOOK_REJECTED' then 1
+                when s.state = '1' or s.state = '2' or s.state = '4' or s.state = 'TEXTBOOK_JYS_AUDIT' or s.state = 'TEXTBOOK_KYC_AUDIT' then 2
+                when s.state = '6' or s.state = 'TEXTBOOK_PASSED' then 3
+                else 4
+            end,
+            s.createtime desc
     </select>
 
 
@@ -68,15 +74,20 @@
         <include refid="selectSciJiaocairuanzhuVo"/>
         where state in (1,2,3,4,5,6,7) and d.parent_id = #{parentId}
 
-
         <if test="mingcheng != null  and mingcheng != ''"> and mingcheng like concat('%', #{mingcheng}, '%')</if>
         <if test="chubanshijian != null "> and chubanshijian = #{chubanshijian}</if>
         <if test="fenlei != null  and fenlei != ''"> and fenlei = #{fenlei}</if>
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(createtime,INTERVAL 1 MONTH)) = #{year}</if>
         <if test="userId != null  and userId != ''">and s.user_id = #{uid}</if>
 
-
-
+        order by 
+            case 
+                when s.state = '0' or s.state = '3' or s.state = '5' or s.state = '7' or s.state = 'TEXTBOOK_DRAFT' or s.state = 'TEXTBOOK_REJECTED' then 1
+                when s.state = '1' or s.state = '2' or s.state = '4' or s.state = 'TEXTBOOK_JYS_AUDIT' or s.state = 'TEXTBOOK_KYC_AUDIT' then 2
+                when s.state = '6' or s.state = 'TEXTBOOK_PASSED' then 3
+                else 4
+            end,
+            s.createtime desc
     </select>
 
 
@@ -84,15 +95,20 @@
         <include refid="selectSciJiaocairuanzhuVo"/>
         where state in (1,2,3,4,5,6,7) and d.dept_id = #{deptId}
 
-
         <if test="mingcheng != null  and mingcheng != ''"> and mingcheng like concat('%', #{mingcheng}, '%')</if>
         <if test="chubanshijian != null "> and chubanshijian = #{chubanshijian}</if>
         <if test="fenlei != null  and fenlei != ''"> and fenlei = #{fenlei}</if>
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(createtime,INTERVAL 1 MONTH)) = #{year}</if>
         <if test="userId != null  and userId != ''">and s.user_id = #{uid}</if>
 
-
-
+        order by 
+            case 
+                when s.state = '0' or s.state = '3' or s.state = '5' or s.state = '7' or s.state = 'TEXTBOOK_DRAFT' or s.state = 'TEXTBOOK_REJECTED' then 1
+                when s.state = '1' or s.state = '2' or s.state = '4' or s.state = 'TEXTBOOK_JYS_AUDIT' or s.state = 'TEXTBOOK_KYC_AUDIT' then 2
+                when s.state = '6' or s.state = 'TEXTBOOK_PASSED' then 3
+                else 4
+            end,
+            s.createtime desc
     </select>
 
     <select id="selectSciJiaocairuanzhuList1" parameterType="SciJiaocairuanzhu" resultMap="SciJiaocairuanzhuResult">
@@ -100,19 +116,19 @@
         where (state in (0,1,2,3,4,5,6,7) and s.user_id = #{uid})
         <if test="userId != null  and userId != ''">and s.user_id = #{uid}</if>
 
-
-
-
-
-
-
         <if test="mingcheng != null  and mingcheng != ''"> and mingcheng like concat('%', #{mingcheng}, '%')</if>
         <if test="chubanshijian != null "> and chubanshijian = #{chubanshijian}</if>
         <if test="fenlei != null  and fenlei != ''"> and fenlei = #{fenlei}</if>
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(createtime,INTERVAL 1 MONTH)) = #{year}</if>
 
-
-        order by state, createtime desc
+        order by 
+            case 
+                when s.state = '0' or s.state = '3' or s.state = '5' or s.state = '7' or s.state = 'TEXTBOOK_DRAFT' or s.state = 'TEXTBOOK_REJECTED' then 1
+                when s.state = '1' or s.state = '2' or s.state = '4' or s.state = 'TEXTBOOK_JYS_AUDIT' or s.state = 'TEXTBOOK_KYC_AUDIT' then 2
+                when s.state = '6' or s.state = 'TEXTBOOK_PASSED' then 3
+                else 4
+            end,
+            s.createtime desc
     </select>
 
 
@@ -123,13 +139,19 @@
 
         <if test="xueyuan != null  and xueyuan != ''"> and p.dept_name = #{xueyuan}</if>
 
-
         <if test="mingcheng != null  and mingcheng != ''"> and mingcheng like concat('%', #{mingcheng}, '%')</if>
         <if test="chubanshijian != null "> and chubanshijian = #{chubanshijian}</if>
         <if test="fenlei != null  and fenlei != ''"> and fenlei = #{fenlei}</if>
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(createtime,INTERVAL 1 MONTH)) = #{year}</if>
 
-        order by state, createtime desc
+        order by 
+            case 
+                when s.state = '0' or s.state = '3' or s.state = '5' or s.state = '7' or s.state = 'TEXTBOOK_DRAFT' or s.state = 'TEXTBOOK_REJECTED' then 1
+                when s.state = '1' or s.state = '2' or s.state = '4' or s.state = 'TEXTBOOK_JYS_AUDIT' or s.state = 'TEXTBOOK_KYC_AUDIT' then 2
+                when s.state = '6' or s.state = 'TEXTBOOK_PASSED' then 3
+                else 4
+            end,
+            s.createtime desc
     </select>
 
 
@@ -140,14 +162,19 @@
         <if test="jiaoyanshi != null  and jiaoyanshi != ''">and  d.dept_name like concat('%', #{jiaoyanshi}, '%')</if>
         <if test="xingming != null  and xingming != ''">and  u.user_name like concat('%', #{xingming}, '%')</if>
 
-
-
         <if test="mingcheng != null  and mingcheng != ''"> and mingcheng like concat('%', #{mingcheng}, '%')</if>
         <if test="chubanshijian != null "> and chubanshijian = #{chubanshijian}</if>
         <if test="fenlei != null  and fenlei != ''"> and fenlei = #{fenlei}</if>
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(createtime,INTERVAL 1 MONTH)) = #{year}</if>
 
-        order by state, createtime desc
+        order by 
+            case 
+                when s.state = '0' or s.state = '3' or s.state = '5' or s.state = '7' or s.state = 'TEXTBOOK_DRAFT' or s.state = 'TEXTBOOK_REJECTED' then 1
+                when s.state = '1' or s.state = '2' or s.state = '4' or s.state = 'TEXTBOOK_JYS_AUDIT' or s.state = 'TEXTBOOK_KYC_AUDIT' then 2
+                when s.state = '6' or s.state = 'TEXTBOOK_PASSED' then 3
+                else 4
+            end,
+            s.createtime desc
     </select>
 
 
@@ -159,7 +186,6 @@
         <if test="xingming != null  and xingming != ''">and  u.user_name like concat('%', #{xingming}, '%')</if>
         <if test="xueyuan != null  and xueyuan != ''"> and p.dept_name = #{xueyuan}</if>
 
-
         <if test="mingcheng != null  and mingcheng != ''"> and mingcheng like concat('%', #{mingcheng}, '%')</if>
         <if test="chubanshijian != null "> and chubanshijian = #{chubanshijian}</if>
         <if test="fenlei != null  and fenlei != ''"> and fenlei = #{fenlei}</if>
@@ -167,7 +193,14 @@
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
 
         ${params.dataScope}
-        order by state, createtime desc
+        order by 
+            case 
+                when s.state = '0' or s.state = '3' or s.state = '5' or s.state = '7' or s.state = 'TEXTBOOK_DRAFT' or s.state = 'TEXTBOOK_REJECTED' then 1
+                when s.state = '1' or s.state = '2' or s.state = '4' or s.state = 'TEXTBOOK_JYS_AUDIT' or s.state = 'TEXTBOOK_KYC_AUDIT' then 2
+                when s.state = '6' or s.state = 'TEXTBOOK_PASSED' then 3
+                else 4
+            end,
+            s.createtime desc
     </select>
 
     <!-- 新方法：教师查询 -->
@@ -179,7 +212,14 @@
         <if test="chubanshijian != null "> and chubanshijian = #{chubanshijian}</if>
         <if test="fenlei != null  and fenlei != ''"> and fenlei = #{fenlei}</if>
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(createtime,INTERVAL 1 MONTH)) = #{year}</if>
-        order by state, createtime desc
+        order by 
+            case 
+                when s.state = '0' or s.state = '3' or s.state = '5' or s.state = '7' or s.state = 'TEXTBOOK_DRAFT' or s.state = 'TEXTBOOK_REJECTED' then 1
+                when s.state = '1' or s.state = '2' or s.state = '4' or s.state = 'TEXTBOOK_JYS_AUDIT' or s.state = 'TEXTBOOK_KYC_AUDIT' then 2
+                when s.state = '6' or s.state = 'TEXTBOOK_PASSED' then 3
+                else 4
+            end,
+            s.createtime desc
     </select>
 
     <!-- 新方法：教研室查询 -->
@@ -191,7 +231,14 @@
         <if test="chubanshijian != null "> and chubanshijian = #{chubanshijian}</if>
         <if test="fenlei != null  and fenlei != ''"> and fenlei = #{fenlei}</if>
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(createtime,INTERVAL 1 MONTH)) = #{year}</if>
-        order by state, createtime desc
+        order by 
+            case 
+                when s.state = '0' or s.state = '3' or s.state = '5' or s.state = '7' or s.state = 'TEXTBOOK_DRAFT' or s.state = 'TEXTBOOK_REJECTED' then 1
+                when s.state = '1' or s.state = '2' or s.state = '4' or s.state = 'TEXTBOOK_JYS_AUDIT' or s.state = 'TEXTBOOK_KYC_AUDIT' then 2
+                when s.state = '6' or s.state = 'TEXTBOOK_PASSED' then 3
+                else 4
+            end,
+            s.createtime desc
     </select>
 
     <!-- 新方法：学院查询 -->
@@ -204,7 +251,14 @@
         <if test="chubanshijian != null "> and chubanshijian = #{chubanshijian}</if>
         <if test="fenlei != null  and fenlei != ''"> and fenlei = #{fenlei}</if>
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(createtime,INTERVAL 1 MONTH)) = #{year}</if>
-        order by state, createtime desc
+        order by 
+            case 
+                when s.state = '0' or s.state = '3' or s.state = '5' or s.state = '7' or s.state = 'TEXTBOOK_DRAFT' or s.state = 'TEXTBOOK_REJECTED' then 1
+                when s.state = '1' or s.state = '2' or s.state = '4' or s.state = 'TEXTBOOK_JYS_AUDIT' or s.state = 'TEXTBOOK_KYC_AUDIT' then 2
+                when s.state = '6' or s.state = 'TEXTBOOK_PASSED' then 3
+                else 4
+            end,
+            s.createtime desc
     </select>
 
     <!-- 新方法：科研处查询 -->
@@ -220,7 +274,14 @@
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(createtime,INTERVAL 1 MONTH)) = #{year}</if>
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         ${params.dataScope}
-        order by state, createtime desc
+        order by 
+            case 
+                when s.state = '0' or s.state = '3' or s.state = '5' or s.state = '7' or s.state = 'TEXTBOOK_DRAFT' or s.state = 'TEXTBOOK_REJECTED' then 1
+                when s.state = '1' or s.state = '2' or s.state = '4' or s.state = 'TEXTBOOK_JYS_AUDIT' or s.state = 'TEXTBOOK_KYC_AUDIT' then 2
+                when s.state = '6' or s.state = 'TEXTBOOK_PASSED' then 3
+                else 4
+            end,
+            s.createtime desc
     </select>
 
     <!-- 新方法：管理员查询 -->
@@ -234,6 +295,14 @@
         <if test="fenlei != null  and fenlei != ''"> and fenlei = #{fenlei}</if>
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(createtime,INTERVAL 1 MONTH)) = #{year}</if>
         <if test="userId != null  and userId != ''">and s.user_id = #{uid}</if>
+        order by 
+            case 
+                when s.state = '0' or s.state = '3' or s.state = '5' or s.state = '7' or s.state = 'TEXTBOOK_DRAFT' or s.state = 'TEXTBOOK_REJECTED' then 1
+                when s.state = '1' or s.state = '2' or s.state = '4' or s.state = 'TEXTBOOK_JYS_AUDIT' or s.state = 'TEXTBOOK_KYC_AUDIT' then 2
+                when s.state = '6' or s.state = 'TEXTBOOK_PASSED' then 3
+                else 4
+            end,
+            s.createtime desc
     </select>
 
     <!-- 统一查询教材软著列表（所有角色均可查看所有状态） -->
@@ -252,7 +321,14 @@
             order by ${params.orderByColumn} ${params.isAsc}
         </if>
         <if test="params.orderByColumn == null or params.orderByColumn == ''">
-            order by chubanshijian desc
+            order by 
+                case 
+                    when s.state = '0' or s.state = '3' or s.state = '5' or s.state = '7' or s.state = 'TEXTBOOK_DRAFT' or s.state = 'TEXTBOOK_REJECTED' then 1
+                    when s.state = '1' or s.state = '2' or s.state = '4' or s.state = 'TEXTBOOK_JYS_AUDIT' or s.state = 'TEXTBOOK_KYC_AUDIT' then 2
+                    when s.state = '6' or s.state = 'TEXTBOOK_PASSED' then 3
+                    else 4
+                end,
+                s.createtime desc
         </if>
     </select>
 
