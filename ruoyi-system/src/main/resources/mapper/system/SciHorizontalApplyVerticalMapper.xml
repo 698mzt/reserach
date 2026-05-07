@@ -50,7 +50,7 @@
                                               left join sys_dept d on u.dept_id = d.dept_id
                                               left join sys_dept p on d.parent_id =p.dept_id
                                               left join sys_approval_state st on s.state = st.state_code
-        where s.state != 'V_APPLY_DRAFT'
+        where s.state != 'VERTICAL_APPLY_DRAFT'
         <if test="dnameId != null and dnameId != ''"> and d.dept_id = #{dnameId}</if>
         <if test="ynameId != null and ynameId != ''"> and p.dept_id = #{ynameId}</if>
         order  by createtime desc
@@ -69,7 +69,7 @@
                                               left join sys_dept d on u.dept_id = d.dept_id
                                               left join sys_dept p on d.parent_id =p.dept_id
                                               left join sys_approval_state st on s.state = st.state_code
-        where  s.state in ('V_APPLY_DRAFT','V_APPLY_JYS','V_APPLY_XY','V_APPLY_KYC','V_APPLY_REJ','V_APPLY_PASS')
+        where  s.state in ('VERTICAL_APPLY_DRAFT','VERTICAL_APPLY_JYS_AUDIT','VERTICAL_APPLY_XY_AUDIT','VERTICAL_APPLY_KYC_AUDIT','VERTICAL_APPLY_REJECTED','VERTICAL_APPLY_PASSED')
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
         <if test="topNumber != null  and topNumber != ''"> and top_number =  #{topNumber}</if>
@@ -81,13 +81,13 @@
         order by
         case
 --         草稿箱
-        when state = 'V_APPLY_DRAFT' then 1
+        when state = 'VERTICAL_APPLY_DRAFT' then 1
 --         被驳回
-        when state = 'V_APPLY_REJ' then 2
+        when state = 'VERTICAL_APPLY_REJECTED' then 2
 --         审核中
-        when state in ('V_APPLY_JYS','V_APPLY_XY','V_APPLY_KYC') then 3
+        when state in ('VERTICAL_APPLY_JYS_AUDIT','VERTICAL_APPLY_XY_AUDIT','VERTICAL_APPLY_KYC_AUDIT') then 3
 --         申请结项
-        when state = 'V_APPLY_PASS' then 4
+        when state = 'VERTICAL_APPLY_PASSED' then 4
         end,
         s.createtime desc
     </select>
@@ -129,15 +129,15 @@
         order by
         case
 --         草稿箱
-        when state = 'V_APPLY_DRAFT' or state = 'V_OVER_DRAFT' then 1
+        when state = 'VERTICAL_APPLY_DRAFT' or state = 'VERTICAL_OVER_DRAFT' then 1
 --         被驳回
-        when state = 'V_APPLY_REJ' or state = 'V_OVER_REJ' then 2
+        when state = 'VERTICAL_APPLY_REJECTED' or state = 'VERTICAL_OVER_REJECTED' then 2
 --         申请结项
-        when state = 'V_APPLY_PASS' then 3
+        when state = 'VERTICAL_APPLY_PASSED' then 3
 --         审核中
-        when state in ('V_APPLY_JYS','V_APPLY_XY','V_APPLY_KYC','V_OVER_JYS','V_OVER_XY','V_OVER_KYC') then 4
+        when state in ('VERTICAL_APPLY_JYS_AUDIT','VERTICAL_APPLY_XY_AUDIT','VERTICAL_APPLY_KYC_AUDIT','VERTICAL_OVER_JYS_AUDIT','VERTICAL_OVER_XY_AUDIT','VERTICAL_OVER_KYC_AUDIT') then 4
 --         已完成
-        when state = 'V_OVER_PASS' then 5
+        when state = 'VERTICAL_OVER_PASSED' then 5
         end,
         s.createtime desc
     </select>
@@ -155,7 +155,7 @@
                                               left join sys_dept d on u.dept_id = d.dept_id
                                               left join sys_dept p on d.parent_id =p.dept_id
                                               left join sys_approval_state st on s.state = st.state_code
-        where  s.state in ('V_APPLY_JYS','V_APPLY_XY')
+        where  s.state in ('VERTICAL_APPLY_JYS_AUDIT','VERTICAL_APPLY_XY_AUDIT')
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
         <if test="userName != null  and userName != ''"> and u.user_name like concat('%', #{userName}, '%')</if>
@@ -164,9 +164,9 @@
         order by
         case
 --         待教研室审核
-        when state = 'V_APPLY_JYS' then 1
+        when state = 'VERTICAL_APPLY_JYS_AUDIT' then 1
 --         教研室通过
-        when state = 'V_APPLY_XY' then 2
+        when state = 'VERTICAL_APPLY_XY_AUDIT' then 2
         end,
         s.createtime desc
     </select>
@@ -177,7 +177,7 @@
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
         left join sys_approval_state st on s.state = st.state_code
-        where  s.state in ('V_APPLY_XY','V_APPLY_KYC')
+        where  s.state in ('VERTICAL_APPLY_XY_AUDIT','VERTICAL_APPLY_KYC_AUDIT')
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
         <if test="dname != null  and dname != ''"> and d.dept_name like concat('%', #{dname}, '%')</if>
@@ -187,9 +187,9 @@
         order by
         case
 --         待学院审核
-        when state = 'V_APPLY_XY' then 1
+        when state = 'VERTICAL_APPLY_XY_AUDIT' then 1
 --         学院通过
-        when state = 'V_APPLY_KYC' then 2
+        when state = 'VERTICAL_APPLY_KYC_AUDIT' then 2
         end,
         s.createtime desc
     </select>
@@ -200,7 +200,7 @@
                                               left join sys_dept d on u.dept_id = d.dept_id
                                               left join sys_dept p on d.parent_id =p.dept_id
                                               left join sys_approval_state st on s.state = st.state_code
-        where  s.state in ('V_APPLY_KYC','V_APPLY_PASS')
+        where  s.state in ('VERTICAL_APPLY_KYC_AUDIT','VERTICAL_APPLY_PASSED')
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
         <if test="yname != null  and yname != ''"> and p.dept_name like concat('%', #{yname}, '%')</if>
@@ -211,9 +211,9 @@
         order by
         case
 --         待科研处审核
-        when state = 'V_APPLY_KYC' then 1
+        when state = 'VERTICAL_APPLY_KYC_AUDIT' then 1
 --         科研处通过
-        when state = 'V_APPLY_PASS' then 2
+        when state = 'VERTICAL_APPLY_PASSED' then 2
         end,
         s.createtime desc
     </select>
@@ -225,7 +225,7 @@
                                               left join sys_dept d on u.dept_id = d.dept_id
                                               left join sys_dept p on d.parent_id =p.dept_id
                                               left join sys_approval_state st on s.state = st.state_code
-        where  s.state in ('V_OVER_DRAFT','V_OVER_JYS','V_OVER_XY','V_OVER_KYC','V_OVER_REJ')
+        where  s.state in ('VERTICAL_OVER_DRAFT','VERTICAL_OVER_JYS_AUDIT','VERTICAL_OVER_XY_AUDIT','VERTICAL_OVER_KYC_AUDIT','VERTICAL_OVER_REJECTED')
         <if test="year != null and year != ''">
             AND YEAR(DATE_ADD(COALESCE(validity_data, signing_data), INTERVAL 1 MONTH)) = #{year}
         </if>
@@ -235,9 +235,9 @@
         order by
         case
 --         被驳回
-        when state = 'V_OVER_REJ' then 2
+        when state = 'VERTICAL_OVER_REJECTED' then 2
 --         审核中
-        when state in ('V_OVER_JYS','V_OVER_XY','V_OVER_KYC') then 4
+        when state in ('VERTICAL_OVER_JYS_AUDIT','VERTICAL_OVER_XY_AUDIT','VERTICAL_OVER_KYC_AUDIT') then 4
         end,
         s.createtime desc
     </select>
@@ -248,7 +248,7 @@
                                               left join sys_dept d on u.dept_id = d.dept_id
                                               left join sys_dept p on d.parent_id =p.dept_id
                                               left join sys_approval_state st on s.state = st.state_code
-        where  s.state  in ('V_OVER_JYS','V_OVER_XY')
+        where  s.state  in ('VERTICAL_OVER_JYS_AUDIT','VERTICAL_OVER_XY_AUDIT')
         <if test="year != null and year != ''">
             AND YEAR(DATE_ADD(COALESCE(validity_data, signing_data), INTERVAL 1 MONTH)) = #{year}
         </if>
@@ -259,9 +259,9 @@
         order by
         case
 --         待教研室审核
-        when state = 'V_OVER_JYS' then 1
+        when state = 'VERTICAL_OVER_JYS_AUDIT' then 1
 --         教研室通过
-        when state = 'V_OVER_XY' then 2
+        when state = 'VERTICAL_OVER_XY_AUDIT' then 2
         end,
         s.createtime desc
     </select>
@@ -272,7 +272,7 @@
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
         left join sys_approval_state st on s.state = st.state_code
-        where  s.state  in ('V_OVER_XY','V_OVER_KYC')
+        where  s.state  in ('VERTICAL_OVER_XY_AUDIT','VERTICAL_OVER_KYC_AUDIT')
         <if test="year != null and year != ''">
             AND YEAR(DATE_ADD(COALESCE(validity_data, signing_data), INTERVAL 1 MONTH)) = #{year}
         </if>
@@ -284,9 +284,9 @@
         order by
         case
 --         待学院审核
-        when state = 'V_OVER_XY' then 1
+        when state = 'VERTICAL_OVER_XY_AUDIT' then 1
 --         学院通过
-        when state = 'V_OVER_KYC' then 2
+        when state = 'VERTICAL_OVER_KYC_AUDIT' then 2
         end,
         s.createtime desc
     </select>
@@ -297,7 +297,7 @@
                                               left join sys_dept d on u.dept_id = d.dept_id
                                               left join sys_dept p on d.parent_id =p.dept_id
                                               left join sys_approval_state st on s.state = st.state_code
-        where s.state in ('V_OVER_KYC')
+        where s.state in ('VERTICAL_OVER_KYC_AUDIT')
         <if test="year != null and year != ''">
             AND YEAR(DATE_ADD(COALESCE(validity_data, signing_data), INTERVAL 1 MONTH)) = #{year}
         </if>
@@ -316,7 +316,7 @@
                                               left join sys_dept d on u.dept_id = d.dept_id
                                               left join sys_dept p on d.parent_id =p.dept_id
                                               left join sys_approval_state st on s.state = st.state_code
-        where  s.state = 'V_OVER_PASS'
+        where  s.state = 'VERTICAL_OVER_PASSED'
         <if test="year != null and year != ''">
             AND YEAR(DATE_ADD(COALESCE(validity_data, signing_data), INTERVAL 1 MONTH)) = #{year}
         </if>
@@ -487,17 +487,17 @@
         where pe.persion_id = #{uid}
         <if test="newsql != null  and newsql != '' ">
             <choose>
-                <when test="newsql == '00' ">
-                    and s.state = 'V_OVER_PASS'
-                </when>
-                <when test="newsql == '01'">
-                    and s.state in ('V_APPLY_DRAFT','V_APPLY_JYS','V_APPLY_XY','V_APPLY_KYC','V_APPLY_REJ','V_APPLY_PASS')
-                    and s.state != 'V_OVER_PASS'
-                </when>
-                <when test="newsql == '02'">
-                    and s.state in ('V_OVER_DRAFT','V_OVER_JYS','V_OVER_XY','V_OVER_KYC','V_OVER_REJ')
-                </when>
-            </choose>
+            <when test="newsql == '00' ">
+                and s.state = 'VERTICAL_OVER_PASSED'
+            </when>
+            <when test="newsql == '01'">
+                and s.state in ('VERTICAL_APPLY_DRAFT','VERTICAL_APPLY_JYS_AUDIT','VERTICAL_APPLY_XY_AUDIT','VERTICAL_APPLY_KYC_AUDIT','VERTICAL_APPLY_REJECTED','VERTICAL_APPLY_PASSED')
+                and s.state != 'VERTICAL_OVER_PASSED'
+            </when>
+            <when test="newsql == '02'">
+                and s.state in ('VERTICAL_OVER_DRAFT','VERTICAL_OVER_JYS_AUDIT','VERTICAL_OVER_XY_AUDIT','VERTICAL_OVER_KYC_AUDIT','VERTICAL_OVER_REJECTED')
+            </when>
+        </choose>
         </if>
         <if test="year != null and year != ''">
             AND YEAR(DATE_ADD(COALESCE(validity_data, signing_data), INTERVAL 1 MONTH)) = #{year}
@@ -508,13 +508,13 @@
         order by
         case
 --         草稿箱
-        when state = 'V_APPLY_DRAFT' then 1
+        when state = 'VERTICAL_APPLY_DRAFT' then 1
 --         被驳回
-        when state = 'V_APPLY_REJ' then 2
+        when state = 'VERTICAL_APPLY_REJECTED' then 2
 --         审核中
-        when state in ('V_APPLY_JYS','V_APPLY_XY','V_APPLY_KYC') then 3
+        when state in ('VERTICAL_APPLY_JYS_AUDIT','VERTICAL_APPLY_XY_AUDIT','VERTICAL_APPLY_KYC_AUDIT') then 3
 --         申请结项
-        when state = 'V_APPLY_PASS' then 4
+        when state = 'VERTICAL_APPLY_PASSED' then 4
         end,
         s.createtime desc
     </select>

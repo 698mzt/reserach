@@ -430,7 +430,8 @@ public class SciHorizontalApplyVerticalController extends BaseController {
     @Transactional
     public AjaxResult addSave(SciHorizontalApplyVertical sciHorizontalApplyVertical, javax.servlet.http.HttpServletRequest request)
     {
-        sciHorizontalApplyVertical.setState("V_APPLY_DRAFT");
+        // 设置初始状态为草稿
+        sciHorizontalApplyVertical.setState("VERTICAL_APPLY_DRAFT");
         int result = sciHorizontalApplyVerticalService.insertSciHorizontalApplyVertical(sciHorizontalApplyVertical);
         if (result == -1) {
             return AjaxResult.error("课题名称或课题编号已存在");
@@ -475,10 +476,11 @@ public class SciHorizontalApplyVerticalController extends BaseController {
         SciHorizontalApplyVertical sciHorizontalApplyVertical1 = sciHorizontalApplyVerticalService.selectSciHorizontalApplyVerticalById(sciHorizontalApplyVertical.getId());
         sciHorizontalApplyVertical.setUserId(Integer.valueOf(getSysUser().getUserId().toString()));
         sciHorizontalApplyVertical.setNewsql("999");
+        // 根据是否有结项日期判断是结项提交还是立项提交
         if (sciHorizontalApplyVertical1.getValidityData() !=  null && !sciHorizontalApplyVertical1.getValidityData().isEmpty())
-            sciHorizontalApplyVertical.setState("V_OVER_JYS");
+            sciHorizontalApplyVertical.setState("VERTICAL_OVER_JYS_AUDIT");
         else
-            sciHorizontalApplyVertical.setState("V_APPLY_JYS");
+            sciHorizontalApplyVertical.setState("VERTICAL_APPLY_JYS_AUDIT");
         return toAjax(sciHorizontalApplyVerticalService.updateSciHorizontalApplyVertical(sciHorizontalApplyVertical));
     }
 
@@ -524,7 +526,7 @@ public class SciHorizontalApplyVerticalController extends BaseController {
     {
 
         sciHorizontalApplyVertical.setUserId(Integer.valueOf(getSysUser().getUserId().toString()));
-        sciHorizontalApplyVertical.setState("V_OVER_JYS");
+        sciHorizontalApplyVertical.setState("VERTICAL_OVER_JYS_AUDIT");
         sciHorizontalApplyVertical.setNewsql("11");
         return toAjax(sciHorizontalApplyVerticalService.updateSciHorizontalApplyVertical(sciHorizontalApplyVertical));
     }
