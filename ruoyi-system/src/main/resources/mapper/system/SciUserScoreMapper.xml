@@ -77,6 +77,13 @@
         </foreach>
     </select>
 
+    <!-- 根据用户ID和课题ID查询该成员上一次插入的预期科研分 -->
+    <select id="selectLastExpectedValueByUserIdAndVerticalId" resultType="String" parameterType="map">
+        select expected_value from sci_user_score_vertical 
+        where user_id = #{userId} and vertical_id = #{verticalId}
+        order by his_id desc limit 1
+    </select>
+
     <delete id="deleteScoreById">
         delete from sci_user_score_history where apply_id = #{id} and change_status = #{status}
     </delete>
