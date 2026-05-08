@@ -980,7 +980,6 @@
 
   function showhistory(id, state) {
     updateProgressStepColor(state)
-    //查询配乐记录
     $.ajax({
       url: prefix + '/bhyy/' + id,
       type: 'POST',
@@ -990,13 +989,9 @@
       success: function (response) {
         const eventList = document.getElementById('event-list');
         eventList.innerHTML = '';
-        console.log(response.rows);
         response.rows.forEach(function (row) {
-          console.log(response.rows);
-
           const li = document.createElement('li');
           li.innerHTML = `
-
                         <div class="event-item">
                             <div class="event-content">
                                 <i class="node-icon"></i>
@@ -1012,44 +1007,125 @@
         alert('Failed to fetch event history.');
       }
     });
+    $('#lcjl_Moda').modal('show');
   }
 
   function updateProgressStepColor(state) {
-    // 获取所有步骤元素
     const steps = document.querySelectorAll('.progress_inner__step');
     const progressBar = document.querySelector('.progress_inner__bar--progress');
 
-    // 遍历所有步骤，重置样式
     steps.forEach(step => {
       step.classList.remove('active', 'completed', 'pending');
-      step.querySelector('.status-text').classList.remove('active', 'completed');
+      const statusText = step.querySelector('.status-text');
+      if (statusText) {
+        statusText.classList.remove('active', 'completed');
+      }
     });
 
-    // 根据 state 设置相应的步骤颜色
-    if ([0, 3, 5, 7].includes(state)) {
-      document.getElementById('step-1').classList.add('active');
-      document.getElementById('step-1').querySelector('.status-text').classList.add('active');
-      progressBar.style.width = '0';
-    } else if (state === 6) {
-      document.getElementById('step-1').classList.add('completed');
-      document.getElementById('step-1').querySelector('.status-text').classList.add('completed');
-      document.getElementById('step-2').classList.add('completed');
-      document.getElementById('step-2').querySelector('.status-text').classList.add('completed');
-      document.getElementById('step-3').classList.add('completed');
-      document.getElementById('step-3').querySelector('.status-text').classList.add('completed');
-      progressBar.style.width = '100%';
-    } else if ([1, 2, 4].includes(state)) {
-      document.getElementById('step-1').classList.add('completed');
-      document.getElementById('step-1').querySelector('.status-text').classList.add('completed');
-      document.getElementById('step-2').classList.add('completed');
-      document.getElementById('step-2').querySelector('.status-text').classList.add('completed');
-      progressBar.style.width = '50%';
+    if (typeof state === 'string') {
+      if (state.endsWith('_DRAFT') || state.endsWith('_REJECTED')) {
+        document.getElementById('step-1').classList.add('active');
+        const statusText1 = document.getElementById('step-1').querySelector('.status-text');
+        if (statusText1) {
+          statusText1.classList.add('active');
+        }
+        if (progressBar) {
+          progressBar.style.width = '0';
+        }
+      } else if (state.endsWith('_PASSED')) {
+        document.getElementById('step-1').classList.add('completed');
+        const statusText1 = document.getElementById('step-1').querySelector('.status-text');
+        if (statusText1) {
+          statusText1.classList.add('completed');
+        }
+        document.getElementById('step-2').classList.add('completed');
+        const statusText2 = document.getElementById('step-2').querySelector('.status-text');
+        if (statusText2) {
+          statusText2.classList.add('completed');
+        }
+        document.getElementById('step-3').classList.add('completed');
+        const statusText3 = document.getElementById('step-3').querySelector('.status-text');
+        if (statusText3) {
+          statusText3.classList.add('completed');
+        }
+        if (progressBar) {
+          progressBar.style.width = '100%';
+        }
+      } else if (state.endsWith('_JYS_AUDIT') || state.endsWith('_KYC_AUDIT')) {
+        document.getElementById('step-1').classList.add('completed');
+        const statusText1 = document.getElementById('step-1').querySelector('.status-text');
+        if (statusText1) {
+          statusText1.classList.add('completed');
+        }
+        document.getElementById('step-2').classList.add('completed');
+        const statusText2 = document.getElementById('step-2').querySelector('.status-text');
+        if (statusText2) {
+          statusText2.classList.add('completed');
+        }
+        if (progressBar) {
+          progressBar.style.width = '50%';
+        }
+      } else {
+        steps.forEach(step => {
+          step.classList.add('pending');
+          const statusText = step.querySelector('.status-text');
+          if (statusText) {
+            statusText.classList.add('pending');
+          }
+        });
+      }
     } else {
-      // 默认情况下，所有步骤为灰色
-      steps.forEach(step => {
-        step.classList.add('pending');
-        step.querySelector('.status-text').classList.add('pending');
-      });
+      if ([0, 3, 5, 7].includes(state)) {
+        document.getElementById('step-1').classList.add('active');
+        const statusText1 = document.getElementById('step-1').querySelector('.status-text');
+        if (statusText1) {
+          statusText1.classList.add('active');
+        }
+        if (progressBar) {
+          progressBar.style.width = '0';
+        }
+      } else if (state === 6) {
+        document.getElementById('step-1').classList.add('completed');
+        const statusText1 = document.getElementById('step-1').querySelector('.status-text');
+        if (statusText1) {
+          statusText1.classList.add('completed');
+        }
+        document.getElementById('step-2').classList.add('completed');
+        const statusText2 = document.getElementById('step-2').querySelector('.status-text');
+        if (statusText2) {
+          statusText2.classList.add('completed');
+        }
+        document.getElementById('step-3').classList.add('completed');
+        const statusText3 = document.getElementById('step-3').querySelector('.status-text');
+        if (statusText3) {
+          statusText3.classList.add('completed');
+        }
+        if (progressBar) {
+          progressBar.style.width = '100%';
+        }
+      } else if ([1, 2, 4].includes(state)) {
+        document.getElementById('step-1').classList.add('completed');
+        const statusText1 = document.getElementById('step-1').querySelector('.status-text');
+        if (statusText1) {
+          statusText1.classList.add('completed');
+        }
+        document.getElementById('step-2').classList.add('completed');
+        const statusText2 = document.getElementById('step-2').querySelector('.status-text');
+        if (statusText2) {
+          statusText2.classList.add('completed');
+        }
+        if (progressBar) {
+          progressBar.style.width = '50%';
+        }
+      } else {
+        steps.forEach(step => {
+          step.classList.add('pending');
+          const statusText = step.querySelector('.status-text');
+          if (statusText) {
+            statusText.classList.add('pending');
+          }
+        });
+      }
     }
   }
 

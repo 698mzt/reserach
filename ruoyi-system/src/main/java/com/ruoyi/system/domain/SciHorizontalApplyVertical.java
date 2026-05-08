@@ -1,7 +1,10 @@
 package com.ruoyi.system.domain;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
+
+import java.util.List;
 
 public class SciHorizontalApplyVertical extends BaseEntity {
     private static final long serialVersionUID = 1L;
@@ -145,6 +148,14 @@ public class SciHorizontalApplyVertical extends BaseEntity {
 
     /** 状态名称 */
     private String stateName;
+
+    /** 页面渲染：状态展示信息 */
+    @JsonInclude(JsonInclude.Include.ALWAYS)
+    private PageRenderStatusMeta statusMeta;
+
+    /** 页面渲染：按钮动作列表 */
+    @JsonInclude(JsonInclude.Include.ALWAYS)
+    private List<PageRenderActionItem> actions;
 
     /** 课题来源 */
     @Excel(name = "课题来源", sort = 4)
@@ -394,6 +405,22 @@ public class SciHorizontalApplyVertical extends BaseEntity {
 
     public void setStateName(String stateName) {
         this.stateName = stateName;
+    }
+
+    public PageRenderStatusMeta getStatusMeta() {
+        return statusMeta;
+    }
+
+    public void setStatusMeta(PageRenderStatusMeta statusMeta) {
+        this.statusMeta = statusMeta;
+    }
+
+    public List<PageRenderActionItem> getActions() {
+        return actions;
+    }
+
+    public void setActions(List<PageRenderActionItem> actions) {
+        this.actions = actions;
     }
 
     public String getTopNumber() {

@@ -72,8 +72,8 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
     private ISysMenuService sysMenuService;
 
     /**
-     * 填充页面渲染数据（状态展示信息和按钮动作列表）
-     * 优先直接调用 PageRender 公共服务构建状态与动作，横向课题特有规则仍在本模块兜底补齐。
+     * 填充页面渲染数据（状态展示信息和按钮动作列表）。
+     * 优先调用 PageRender 公共服务构建状态与动作；当状态映射缺失时，使用与文档一致的本地状态文案兜底。
      *
      * @param apply 横向课题对象
      */
@@ -87,9 +87,13 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
             List<String> roleKeys = buildCurrentRoleKeys(currentUser);
             String currentState = apply.getState();
             String moduleCode = determineModuleCode(currentState);
+            String processCode = determineProcessCode(currentState);
+            String permPrefix = "system:apply";
 
             PageRenderContext context = new PageRenderContext();
             context.setModuleCode(moduleCode);
+            context.setProcessCode(processCode);
+            context.setPermPrefix(permPrefix);
             context.setBusinessId(apply.getId() != null ? apply.getId().longValue() : null);
             context.setCurrentState(currentState);
             context.setCreatorId(apply.getUserId() != null ? apply.getUserId().longValue() : null);
@@ -99,9 +103,6 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
 
             PageRenderStatusMeta statusMeta = buildHorizontalStatusMeta(context);
             List<PageRenderActionItem> actions = pageRenderService.buildActions(context);
-            if (actions == null || actions.isEmpty()) {
-                actions = buildHorizontalActions(context);
-            }
 
             apply.setStatusMeta(statusMeta);
             apply.setActions(actions);
@@ -157,10 +158,7 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
         }
 
         PageRenderStatusMeta pageRenderStatusMeta = pageRenderService.buildStatusMeta(context);
-        if (pageRenderStatusMeta != null
-                && StringUtils.isNotEmpty(pageRenderStatusMeta.getStatusText())
-                && !StringUtils.equals(pageRenderStatusMeta.getStatusText(), pageRenderStatusMeta.getStatusCode())
-                && !StringUtils.equals(pageRenderStatusMeta.getStatusText(), context.getCurrentState())) {
+        if (pageRenderStatusMeta != null && isValidStatusText(pageRenderStatusMeta.getStatusText())) {
             pageRenderStatusMeta.setStatusCode(context.getCurrentState());
             return pageRenderStatusMeta;
         }
@@ -168,268 +166,92 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
     }
 
     /**
-     * 构建横向课题按钮动作列表。
-     * 先直接调用 PageRender 公共服务；若公共服务未返回横向课题动作，再按横向课题规则补齐。
-     * 规则说明：
-     * 1. 草稿：view / edit / remove / submit
-     * 2. 驳回：view / edit / submit
-     * 3. 教研室审批：view / viewProcess / 作者recall / review
-     * 4. 科研处审批：view / viewProcess / 教研室recall / kyReview
-     * 5. 通过：view / viewProcess / 科研处recall
-     * 6. 若存在学院审批，则按现有横向流程插入为：view / viewProcess / 教研室recall / review（学院审批入口）
-     *
-     * @param context 页面渲染上下文
-     * @return 按钮动作列表
+     * 判断是否为有效的中文状态文本。
+     * 有效状态文本：不等于状态码本身，不包含下划线（说明已是中文）。
      */
-    private List<PageRenderActionItem> buildHorizontalActions(PageRenderContext context) {
-        if (context == null || StringUtils.isEmpty(context.getCurrentState())) {
-            return new ArrayList<>();
+    private boolean isValidStatusText(String statusText) {
+        if (StringUtils.isEmpty(statusText)) {
+            return false;
         }
-
-        List<PageRenderActionItem> actions = new ArrayList<>();
-        String state = context.getCurrentState();
-        boolean isOwner = context.isOwner();
-        boolean isAdmin = context.hasRole("admin");
-        boolean isResearchRole = context.hasRole("research");
-        boolean canView = context.hasPermission("system:apply:info");
-        boolean canEdit = context.hasPermission("system:apply:edit");
-        boolean canRemove = context.hasPermission("system:apply:remove");
-        boolean canAdd = context.hasPermission("system:apply:add");
-        boolean canJysReview = context.hasPermission("system:apply:process") && isResearchRole;
-        boolean canCollegeReview = false;
-        boolean canKycReview = context.hasPermission("system:apply:hecha") && context.hasRole("sci_tesearch");
-
-        if (canView) {
-            actions.add(PageRenderActionItem.of(
-                    PageRenderActionConstants.ACTION_VIEW,
-                    "查看",
-                    PageRenderColorConstants.COLOR_INFO,
-                    100));
-        }
-
-        if (isHorizontalDraftState(state)) {
-            if ((isOwner || isAdmin) && canEdit) {
-                actions.add(PageRenderActionItem.of(
-                        PageRenderActionConstants.ACTION_EDIT,
-                        "编辑",
-                        PageRenderColorConstants.COLOR_PRIMARY,
-                        10));
-            }
-            if ((isOwner || isAdmin) && canRemove) {
-                actions.add(PageRenderActionItem.of(
-                        PageRenderActionConstants.ACTION_REMOVE,
-                        "删除",
-                        PageRenderColorConstants.COLOR_DANGER,
-                        20,
-                        isApplyState(state) ? "确定要删除该立项申请吗？" : "确定要删除该结项申请吗？"));
-            }
-            if ((isOwner || isAdmin) && canEdit) {
-                actions.add(PageRenderActionItem.of(
-                        PageRenderActionConstants.ACTION_SUBMIT,
-                        "提交",
-                        PageRenderColorConstants.COLOR_SUCCESS,
-                        30,
-                        isApplyState(state) ? "确定要提交该立项申请吗？" : "确定要提交该结项申请吗？"));
-            }
-        } else if (isHorizontalRejectedState(state)) {
-            if ((isOwner || isAdmin) && canEdit) {
-                actions.add(PageRenderActionItem.of(
-                        PageRenderActionConstants.ACTION_EDIT,
-                        "编辑",
-                        PageRenderColorConstants.COLOR_PRIMARY,
-                        10));
-                actions.add(PageRenderActionItem.of(
-                        PageRenderActionConstants.ACTION_SUBMIT,
-                        "提交",
-                        PageRenderColorConstants.COLOR_SUCCESS,
-                        30,
-                        isApplyState(state) ? "确定要重新提交该立项申请吗？" : "确定要重新提交该结项申请吗？"));
-            }
-        } else if (isJysAuditState(state)) {
-            addViewProcessAction(actions, canView);
-            if (canJysReview) {
-                actions.add(PageRenderActionItem.of(
-                        PageRenderActionConstants.ACTION_RECALL,
-                        "撤回",
-                        PageRenderColorConstants.COLOR_WARNING,
-                        20,
-                        isApplyState(state) ? "确定要撤回该立项申请吗？" : "确定要撤回该结项申请吗？"));
-            }
-            if (canJysReview) {
-                actions.add(PageRenderActionItem.of(
-                        PageRenderActionConstants.ACTION_REVIEW,
-                        "审批",
-                        PageRenderColorConstants.COLOR_PRIMARY,
-                        30));
-            }
-        } else if (isXyAuditState(state)) {
-            addViewProcessAction(actions, canView);
-            if (canJysReview) {
-                actions.add(PageRenderActionItem.of(
-                        PageRenderActionConstants.ACTION_RECALL,
-                        "撤回",
-                        PageRenderColorConstants.COLOR_WARNING,
-                        20,
-                        isApplyState(state) ? "确定要撤回该立项申请吗？" : "确定要撤回该结项申请吗？"));
-            }
-            if (canCollegeReview) {
-                actions.add(PageRenderActionItem.of(
-                        PageRenderActionConstants.ACTION_REVIEW,
-                        "审批",
-                        PageRenderColorConstants.COLOR_PRIMARY,
-                        30));
-            }
-        } else if (isKycAuditState(state)) {
-            addViewProcessAction(actions, canView);
-            boolean canRecallFromPreviousNode = hasXyNode(state) ? canCollegeReview : canJysReview;
-            if (canRecallFromPreviousNode) {
-                actions.add(PageRenderActionItem.of(
-                        PageRenderActionConstants.ACTION_RECALL,
-                        "撤回",
-                        PageRenderColorConstants.COLOR_WARNING,
-                        20,
-                        isApplyState(state) ? "确定要撤回该立项申请吗？" : "确定要撤回该结项申请吗？"));
-            }
-            if (canKycReview) {
-                actions.add(PageRenderActionItem.of(
-                        PageRenderActionConstants.ACTION_KY_REVIEW,
-                        "审批",
-                        PageRenderColorConstants.COLOR_PRIMARY,
-                        30));
-            }
-        } else if (isHorizontalPassedState(state)) {
-            addViewProcessAction(actions, canView);
-            if (isApplyState(state) && (isOwner || isAdmin) && canAdd) {
-                actions.add(PageRenderActionItem.of(
-                        PageRenderActionConstants.ACTION_OVER_APPLY,
-                        "提交结项申请",
-                        PageRenderColorConstants.COLOR_SUCCESS,
-                        15));
-            }
-            if (isApplyState(state) && (isOwner || isAdmin) && canAdd) {
-                actions.add(PageRenderActionItem.of(
-                        PageRenderActionConstants.ACTION_REAMOUNT,
-                        "追加金额",
-                        PageRenderColorConstants.COLOR_PRIMARY,
-                        16));
-            }
-            if (canKycReview) {
-                actions.add(PageRenderActionItem.of(
-                        PageRenderActionConstants.ACTION_RECALL,
-                        "撤回",
-                        PageRenderColorConstants.COLOR_WARNING,
-                        20,
-                        isApplyState(state) ? "确定要撤回该立项申请吗？" : "确定要撤回该结项申请吗？"));
-            }
-        }
-
-        Collections.sort(actions);
-        return actions;
-    }
-
-    /**
-     * 添加“查看流程”按钮。
-     *
-     * @param actions 按钮列表
-     * @param canView 是否具备查看权限
-     */
-    private void addViewProcessAction(List<PageRenderActionItem> actions, boolean canView) {
-        if (!canView) {
-            return;
-        }
-        actions.add(PageRenderActionItem.of(
-                PageRenderActionConstants.ACTION_VIEW_PROCESS,
-                "查看流程",
-                PageRenderColorConstants.COLOR_INFO,
-                110));
+        return !statusText.contains("_");
     }
 
     /**
      * 判断是否为立项流程状态。
-     *
      * @param state 状态编码
      * @return 是否为立项流程
      */
     private boolean isApplyState(String state) {
-        return StringUtils.startsWith(state, "APPLY_");
+        return StringUtils.startsWith(state, "HORIZONTAL_APPLY_");
+    }
+
+    /**
+     * 判断是否为结项流程状态。
+     * @param state 状态编码
+     * @return 是否为结项流程
+     */
+    private boolean isOverState(String state) {
+        return StringUtils.startsWith(state, "HORIZONTAL_OVER_");
     }
 
     /**
      * 判断是否为横向草稿状态。
-     *
      * @param state 状态编码
      * @return 是否为草稿
      */
     private boolean isHorizontalDraftState(String state) {
-        return StringUtils.equalsAny(state, "APPLY_DRAFT", "OVER_DRAFT");
+        return StringUtils.equalsAny(state,
+                "HORIZONTAL_APPLY_DRAFT",
+                "HORIZONTAL_OVER_DRAFT");
     }
 
     /**
      * 判断是否为横向驳回状态。
-     *
      * @param state 状态编码
      * @return 是否为驳回
      */
     private boolean isHorizontalRejectedState(String state) {
-        return StringUtils.equalsAny(state, "APPLY_REJECTED", "OVER_REJECTED");
+        return StringUtils.equalsAny(state,
+                "HORIZONTAL_APPLY_REJECTED",
+                "HORIZONTAL_OVER_REJECTED");
     }
 
     /**
      * 判断是否为教研室审批状态。
-     *
      * @param state 状态编码
      * @return 是否为教研室审批
      */
     private boolean isJysAuditState(String state) {
-        return StringUtils.equalsAny(state, "APPLY_JYS_AUDIT", "OVER_JYS_AUDIT");
-    }
-
-    /**
-     * 判断是否为学院审批状态。
-     *
-     * @param state 状态编码
-     * @return 是否为学院审批
-     */
-    private boolean isXyAuditState(String state) {
-        return StringUtils.equalsAny(state, "APPLY_XY_AUDIT", "OVER_XY_AUDIT");
+        return StringUtils.equalsAny(state,
+                "HORIZONTAL_APPLY_JYS_AUDIT",
+                "HORIZONTAL_OVER_JYS_AUDIT");
     }
 
     /**
      * 判断是否为科研处审批状态。
-     *
      * @param state 状态编码
      * @return 是否为科研处审批
      */
     private boolean isKycAuditState(String state) {
-        return StringUtils.equalsAny(state, "APPLY_KYC_AUDIT", "OVER_KYC_AUDIT");
+        return StringUtils.equalsAny(state,
+                "HORIZONTAL_APPLY_KYC_AUDIT",
+                "HORIZONTAL_OVER_KYC_AUDIT");
     }
 
     /**
      * 判断是否为横向通过状态。
-     *
      * @param state 状态编码
      * @return 是否为通过
      */
     private boolean isHorizontalPassedState(String state) {
-        return StringUtils.equalsAny(state, "APPLY_PASSED", "OVER_PASSED");
-    }
-
-    /**
-     * 判断当前流程是否存在学院审批节点。
-     * 科研处审批前一节点可能是教研室，也可能是学院；当前模块已存在 XY 审批状态，
-     * 因此按现有横向流程默认识别为存在学院审批节点，不修改公共流程实现。
-     *
-     * @param state 状态编码
-     * @return 是否存在学院审批节点
-     */
-    private boolean hasXyNode(String state) {
-        return StringUtils.equalsAny(state, "APPLY_KYC_AUDIT", "OVER_KYC_AUDIT");
+        return StringUtils.equalsAny(state,
+                "HORIZONTAL_APPLY_PASSED",
+                "HORIZONTAL_OVER_PASSED");
     }
 
 
     /**
      * 构建横向课题状态兜底展示信息。
-     *
      * @param state 状态编码
      * @return 状态展示对象
      */
@@ -437,40 +259,34 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
         if (StringUtils.isEmpty(state)) {
             return PageRenderStatusMeta.of("", "未知", PageRenderColorConstants.COLOR_DEFAULT);
         }
-        if ("APPLY_DRAFT".equals(state)) {
+        if (StringUtils.equals(state, "HORIZONTAL_APPLY_DRAFT")) {
             return PageRenderStatusMeta.of(state, "立项草稿", PageRenderColorConstants.COLOR_DEFAULT);
         }
-        if ("APPLY_JYS_AUDIT".equals(state)) {
-            return PageRenderStatusMeta.of(state, "立项教研室审批中", PageRenderColorConstants.COLOR_WARNING);
+        if (StringUtils.equals(state, "HORIZONTAL_APPLY_JYS_AUDIT")) {
+            return PageRenderStatusMeta.of(state, "教研室审批中", PageRenderColorConstants.COLOR_WARNING);
         }
-        if ("APPLY_XY_AUDIT".equals(state)) {
-            return PageRenderStatusMeta.of(state, "立项学院审批中", PageRenderColorConstants.COLOR_WARNING);
+        if (StringUtils.equals(state, "HORIZONTAL_APPLY_KYC_AUDIT")) {
+            return PageRenderStatusMeta.of(state, "科研处审批中", PageRenderColorConstants.COLOR_INFO);
         }
-        if ("APPLY_KYC_AUDIT".equals(state)) {
-            return PageRenderStatusMeta.of(state, "立项科研处审批中", PageRenderColorConstants.COLOR_INFO);
-        }
-        if ("APPLY_PASSED".equals(state)) {
+        if (StringUtils.equals(state, "HORIZONTAL_APPLY_PASSED")) {
             return PageRenderStatusMeta.of(state, "立项已通过", PageRenderColorConstants.COLOR_SUCCESS);
         }
-        if ("APPLY_REJECTED".equals(state)) {
+        if (StringUtils.equals(state, "HORIZONTAL_APPLY_REJECTED")) {
             return PageRenderStatusMeta.of(state, "立项已驳回", PageRenderColorConstants.COLOR_DANGER);
         }
-        if ("OVER_DRAFT".equals(state)) {
+        if (StringUtils.equals(state, "HORIZONTAL_OVER_DRAFT")) {
             return PageRenderStatusMeta.of(state, "结项草稿", PageRenderColorConstants.COLOR_DEFAULT);
         }
-        if ("OVER_JYS_AUDIT".equals(state)) {
-            return PageRenderStatusMeta.of(state, "结项教研室审批中", PageRenderColorConstants.COLOR_WARNING);
+        if (StringUtils.equals(state, "HORIZONTAL_OVER_JYS_AUDIT")) {
+            return PageRenderStatusMeta.of(state, "教研室审批中", PageRenderColorConstants.COLOR_WARNING);
         }
-        if ("OVER_XY_AUDIT".equals(state)) {
-            return PageRenderStatusMeta.of(state, "结项学院审批中", PageRenderColorConstants.COLOR_WARNING);
+        if (StringUtils.equals(state, "HORIZONTAL_OVER_KYC_AUDIT")) {
+            return PageRenderStatusMeta.of(state, "科研处审批中", PageRenderColorConstants.COLOR_INFO);
         }
-        if ("OVER_KYC_AUDIT".equals(state)) {
-            return PageRenderStatusMeta.of(state, "结项科研处审批中", PageRenderColorConstants.COLOR_INFO);
-        }
-        if ("OVER_PASSED".equals(state)) {
+        if (StringUtils.equals(state, "HORIZONTAL_OVER_PASSED")) {
             return PageRenderStatusMeta.of(state, "结项已通过", PageRenderColorConstants.COLOR_SUCCESS);
         }
-        if ("OVER_REJECTED".equals(state)) {
+        if (StringUtils.equals(state, "HORIZONTAL_OVER_REJECTED")) {
             return PageRenderStatusMeta.of(state, "结项已驳回", PageRenderColorConstants.COLOR_DANGER);
         }
         return PageRenderStatusMeta.of(state, state, PageRenderColorConstants.COLOR_DEFAULT);
@@ -478,25 +294,35 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
 
 
     /**
-     * 根据状态编码确定模块编码
-     * 立项流程状态以 APPLY_ 开头，使用 HORIZONTAL_APPLY
-     * 结项流程状态以 OVER_ 开头，使用 HORIZONTAL_OVER
-     *
+     * 根据状态编码确定模块编码。
      * @param state 状态编码
      * @return 模块编码
      */
     private String determineModuleCode(String state) {
-        if (state != null && state.startsWith("OVER_")) {
+        if (isOverState(state)) {
             return "HORIZONTAL_OVER";
         }
         return "HORIZONTAL_APPLY";
     }
 
     /**
-     * 将业务状态编码转换为审批节点编码
-     * 业务状态编码格式: {阶段}_{节点}_{状态} (如 APPLY_JYS_AUDIT)
-     * 审批节点编码格式: {阶段}_{节点} (如 APPLY_JYS)
-     * 两者概念不同：状态编码表示业务数据当前所处状态，节点编码标识审批流程中的节点
+     * 根据状态编码确定流程编码。
+     * 横向课题在当前规则引擎与审批流实现中使用大写流程编码，需与模块注册及审批节点查询保持一致。
+     * @param state 状态编码
+     * @return 流程编码
+     */
+    private String determineProcessCode(String state) {
+        if (isOverState(state)) {
+            return "HORIZONTAL_OVER";
+        }
+        return "HORIZONTAL_APPLY";
+    }
+
+    /**
+     * 将业务状态编码转换为审批节点编码。
+     * 业务状态编码格式: {HORIZONTAL_阶段}_{节点}_{状态} (如 HORIZONTAL_APPLY_JYS_AUDIT)
+     * 审批节点编码格式: {HORIZONTAL_阶段}_{节点} (如 HORIZONTAL_APPLY_JYS)
+     * 两者概念不同：状态编码表示业务数据当前所处状态，节点编码标识审批流程中的节点。
      *
      * @param stateCode 业务状态编码
      * @return 审批节点编码
@@ -1140,7 +966,7 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
             }
             String currentState = apply.getState();
             ApprovalResult result;
-            if (StringUtils.startsWith(currentState, "APPLY_")) {
+            if (isApplyState(currentState)) {
                 result = recallApply(
                         id,
                         currentState,
@@ -1149,7 +975,7 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
                         user.getDept() != null ? user.getDept().getDeptName() : "",
                         remark
                 );
-            } else if (StringUtils.startsWith(currentState, "OVER_")) {
+            } else if (isOverState(currentState)) {
                 result = recallOver(
                         id,
                         currentState,
@@ -2199,7 +2025,7 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
             return ApprovalResult.fail("立项申请不存在");
         }
 
-        if (!"APPLY_DRAFT".equals(apply.getState())) {
+        if (!StringUtils.equals(apply.getState(), "HORIZONTAL_APPLY_DRAFT")) {
             return ApprovalResult.fail("只有草稿状态的申请才能提交");
         }
 
@@ -2453,7 +2279,7 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
             return ApprovalResult.fail("结项申请不存在");
         }
 
-        if (!"OVER_DRAFT".equals(apply.getState())) {
+        if (!StringUtils.equals(apply.getState(), "HORIZONTAL_OVER_DRAFT")) {
             return ApprovalResult.fail("只有草稿状态的申请才能提交");
         }
 

@@ -309,6 +309,74 @@
         var urlFlag = $("#urlFlag").val();
         var state = /*[[${sciHorizontalApply.state}]]*/ '';
 
+        function isAuditState(state) {
+            return state && state.indexOf('_AUDIT') !== -1;
+        }
+
+        function isPassedState(state) {
+            return state && state.indexOf('_PASSED') !== -1;
+        }
+
+        function isRejectedState(state) {
+            return state && state.indexOf('_REJECTED') !== -1;
+        }
+
+        function isDraftState(state) {
+            return state && state.indexOf('_DRAFT') !== -1;
+        }
+
+        function isOwnerDetail() {
+            return String(currentUserId || '') !== '' && String(currentUserId) === String(applyUserId || '');
+        }
+
+        function filterDetailActions(actions) {
+            if (!actions || !actions.length) {
+                return [];
+            }
+            var owner = isOwnerDetail();
+            var isApprovePage = urlFlag === 'pro' || urlFlag === 'Dept' || urlFlag === 'KYC';
+            return actions.filter(function(action) {
+                if (!action || !action.actionKey) {
+                    return false;
+                }
+                var key = action.actionKey;
+                if (key === 'view') {
+                    return false;
+                }
+                if (key === 'viewProcess') {
+                    return !isApprovePage && (isAuditState(state) || isPassedState(state));
+                }
+                if (key === 'review' || key === 'kyReview' || key === 'deptReview') {
+                    return false;
+                }
+                if (key === 'edit' || key === 'submit') {
+                    return owner && (isDraftState(state) || isRejectedState(state));
+                }
+                if (key === 'remove') {
+                    return owner && isDraftState(state);
+                }
+                if (key === 'recall') {
+                    if (state.indexOf('_JYS_AUDIT') !== -1) {
+                        return owner;
+                    }
+                    if (state.indexOf('_KYC_AUDIT') !== -1) {
+                        return urlFlag === 'pro' || urlFlag === 'Dept';
+                    }
+                    if (isPassedState(state)) {
+                        return urlFlag === 'KYC';
+                    }
+                    return false;
+                }
+                if (key === 'approve' || key === 'reject') {
+                    return urlFlag === 'pro' || urlFlag === 'Dept' || urlFlag === 'KYC';
+                }
+                if (key === 'submitOver') {
+                    return owner && isPassedState(state);
+                }
+                return key === 'overApply' || key === 'reamount' ? owner && isPassedState(state) : true;
+            });
+        }
+
         // 注册PageRender动作处理器
         PageRender.registerHandlers({
             'view': function(actionKey, data) {
@@ -316,6 +384,9 @@
             },
             'viewProcess': function(actionKey, data) {
                 showhistory(data.id, data.state);
+            },
+            'submitOver': function(actionKey, data) {
+                $.operate.overTab(data.id);
             },
             'approve': function(actionKey, data) {
                 submitHandler();
@@ -344,27 +415,20 @@
         var $container = $('#action-buttons-container');
 
         if (applyActions && applyActions.length > 0) {
-            var filteredActions = applyActions.filter(function(action) {
-                if (urlFlag === 'chakan') {
-                    return false;
+                var filteredActions = filterDetailActions(applyActions);
+                if (filteredActions.length > 0) {
+                    PageRender.renderActions($container, filteredActions, {style: 'page'}, {
+                        id: $("#id").val(),
+                        state: state,
+                        urlFlag: urlFlag
+                    });
+                    $container.append('<button type="button" class="btn btn-sm btn-default" onclick="closeItem()"> 关 闭 </button>');
+                } else {
+                    $container.html('<button type="button" class="btn btn-sm btn-default" onclick="closeItem()"> 关 闭 </button>');
                 }
-                if (urlFlag === 'pro' || urlFlag === 'Dept' || urlFlag === 'KYC') {
-                    return action.actionKey === 'approve' || action.actionKey === 'reject' || action.actionKey === 'recall';
-                }
-                return action.actionKey === 'recall';
-            });
-
-            if (filteredActions.length > 0) {
-                PageRender.renderActions($container, filteredActions, {style: 'page'}, {
-                    id: $("#id").val(),
-                    state: state,
-                    urlFlag: urlFlag
-                });
+            } else {
+                $container.html('<button type="button" class="btn btn-sm btn-default" onclick="closeItem()"> 关 闭 </button>');
             }
-            $container.append('<button type="button" class="btn btn-sm btn-default" onclick="closeItem()"> 关 闭 </button>');
-        } else {
-            $container.html('<button type="button" class="btn btn-sm btn-default" onclick="closeItem()"> 关 闭 </button>');
-        }
 
         // 根据urlFlag显示审批区域
         if (urlFlag === 'chakan') {

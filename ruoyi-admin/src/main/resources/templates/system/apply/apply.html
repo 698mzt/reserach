@@ -633,6 +633,7 @@
     var removeFlag = /*[[${@permission.hasPermi('system:apply:remove')}]]*/ 'hidden';
     var editInfo = /*[[${@permission.hasPermi('system:apply:info')}]]*/ 'hidden';
     var hechaFlag = /*[[${@permission.hasPermi('system:apply:hecha')}]]*/ 'hidden';
+    var kyrevokeFlag = /*[[${@permission.hasPermi('system:apply:kyrevoke')}]]*/ 'hidden';
     var createFlag = /*[[${@permission.hasPermi('system:apply:add')}]]*/ 'hidden';
     var downloadFlag = /*[[${@permission.hasPermi('system:apply:download')}]]*/ 'hidden';
 
@@ -663,6 +664,87 @@
     // 默认为教师角色
     if (!userRole) {
         userRole = 'teacher';
+    }
+
+    function hasPagePermission(flag) {
+        return flag !== 'hidden';
+    }
+
+    function isAuditState(state) {
+        return state && state.indexOf('_AUDIT') !== -1;
+    }
+
+    function isPassedState(state) {
+        return state && state.indexOf('_PASSED') !== -1;
+    }
+
+    function isRejectedState(state) {
+        return state && state.indexOf('_REJECTED') !== -1;
+    }
+
+    function isDraftState(state) {
+        return state && state.indexOf('_DRAFT') !== -1;
+    }
+
+    function isOwnerRow(row) {
+        if (!row) {
+            return false;
+        }
+        return String(row.userId || '') !== '' && String(row.userId) === String(row.uid || '');
+    }
+
+    function filterListActions(actions, row) {
+        if (!actions || !actions.length) {
+            return [];
+        }
+        var state = row ? (row.state || '') : '';
+        var owner = isOwnerRow(row);
+        return actions.filter(function(action) {
+            if (!action || !action.actionKey) {
+                return false;
+            }
+            var key = action.actionKey;
+            if (key === 'view') {
+                return hasPagePermission(editInfo);
+            }
+            if (key === 'viewProcess') {
+                return hasPagePermission(editInfo) && (isAuditState(state) || isPassedState(state));
+            }
+            if (key === 'edit') {
+                return owner && hasPagePermission(editFlag) && (isDraftState(state) || isRejectedState(state));
+            }
+            if (key === 'remove') {
+                return owner && hasPagePermission(removeFlag) && isDraftState(state);
+            }
+            if (key === 'submit') {
+                return owner && hasPagePermission(editFlag) && (isDraftState(state) || isRejectedState(state));
+            }
+            if (key === 'recall') {
+                if (state.indexOf('_JYS_AUDIT') !== -1) {
+                    return owner;
+                }
+                if (state.indexOf('_KYC_AUDIT') !== -1) {
+                    return hasPagePermission(proFlag);
+                }
+                if (isPassedState(state)) {
+                    return hasPagePermission(kyrevokeFlag);
+                }
+                return false;
+            }
+            if (key === 'review') {
+                return state.indexOf('_JYS_AUDIT') !== -1 && hasPagePermission(proFlag) && !owner;
+            }
+            if (key === 'kyReview') {
+                return state.indexOf('_KYC_AUDIT') !== -1 && hasPagePermission(hechaFlag);
+            }
+            if (key === 'approve' || key === 'reject' || key === 'deptReview') {
+                return false;
+            }
+            if (key === 'overApply' || key === 'reamount') {
+                return owner && hasPagePermission(createFlag) && isPassedState(state);
+            }
+            return true;
+        });
     }
 
     // 动态生成 URL
@@ -840,7 +922,7 @@
                         if (row.statusMeta) {
                             return PageRender.renderStatusToString(row.statusMeta);
                         }
-                        return formatState(value, row, index);
+                        return value || '';
                     }
                 },
                 // {
@@ -853,9 +935,7 @@
                     align: 'center',
                     formatter: function(value, row, index) {
                         if (row.actions && row.actions.length > 0) {
-                            var listActions = row.actions.filter(function(a) {
-                                return a.actionKey !== 'approve' && a.actionKey !== 'reject';
-                            });
+                            var listActions = filterListActions(row.actions, row);
                             if (listActions.length > 0) {
                                 return PageRender.renderActionsToString(listActions, {style: 'table'});
                             }
@@ -993,7 +1073,7 @@
                         if (row.statusMeta) {
                             return PageRender.renderStatusToString(row.statusMeta);
                         }
-                        return formatState(value, row, index);
+                        return value || '';
                     }
                 },
                 {
@@ -1001,9 +1081,7 @@
                     align: 'center',
                     formatter: function(value, row, index) {
                         if (row.actions && row.actions.length > 0) {
-                            var listActions = row.actions.filter(function(a) {
-                                return a.actionKey !== 'approve' && a.actionKey !== 'reject';
-                            });
+                            var listActions = filterListActions(row.actions, row);
                             if (listActions.length > 0) {
                                 return PageRender.renderActionsToString(listActions, {style: 'table'});
                             }
@@ -1154,7 +1232,7 @@
                         if (row.statusMeta) {
                             return PageRender.renderStatusToString(row.statusMeta);
                         }
-                        return formatState(value, row, index);
+                        return value || '';
                     }
                 },
                 {
@@ -1162,9 +1240,7 @@
                     align: 'center',
                     formatter: function(value, row, index) {
                         if (row.actions && row.actions.length > 0) {
-                            var listActions = row.actions.filter(function(a) {
-                                return a.actionKey !== 'approve' && a.actionKey !== 'reject';
-                            });
+                            var listActions = filterListActions(row.actions, row);
                             if (listActions.length > 0) {
                                 return PageRender.renderActionsToString(listActions, {style: 'table'});
                             }
@@ -1273,7 +1349,7 @@
                         if (row.statusMeta) {
                             return PageRender.renderStatusToString(row.statusMeta);
                         }
-                        return formatState(value, row, index);
+                        return value || '';
                     }
                 },
                 {
@@ -1281,13 +1357,7 @@
                     align: 'center',
                     formatter: function(value, row, index) {
                         if (row.actions && row.actions.length > 0) {
-                            var listActions = row.actions.filter(function(a) {
-                                return a.actionKey !== 'approve' && a.actionKey !== 'reject'
-                                    && a.actionKey !== 'overApply';
-                            });
-                            if (listActions.length > 0) {
-                                return PageRender.renderActionsToString(listActions, {style: 'table'});
-                            }
+                            return PageRender.renderActionsToString(row.actions, {style: 'table'});
                         }
                         return '';
                     }
@@ -1318,7 +1388,7 @@
             },
             'viewProcess': function(actionKey, data) {
                 var state = data.state || '';
-                if (state.indexOf('OVER') !== -1) {
+                if (state.indexOf('HORIZONTAL_OVER_') !== -1) {
                     showhistory1(data.id, state);
                 } else {
                     showhistory(data.id, state);
@@ -1338,31 +1408,30 @@
             },
             'review': function(actionKey, data) {
                 var state = data.state || '';
-                if (state.indexOf('OVER_XY_AUDIT') !== -1) {
-                    $.operate.overdetailTab(data.id + '/DeptOVER');
-                } else if (state.indexOf('OVER') !== -1) {
+                if (state.indexOf('HORIZONTAL_OVER_') !== -1) {
                     $.operate.overdetailTab(data.id + '/JYSOVER');
-                } else if (state.indexOf('APPLY_XY_AUDIT') !== -1) {
-                    $.operate.detailTab(data.id + '/Dept');
                 } else {
                     $.operate.detailTab(data.id + '/pro');
                 }
             },
             'deptReview': function(actionKey, data) {
-                if (data.state && data.state.indexOf('OVER') !== -1) {
+                if (data.state && data.state.indexOf('HORIZONTAL_OVER_') !== -1) {
                     $.operate.overdetailTab(data.id + '/DeptOVER');
                 } else {
                     $.operate.detailTab(data.id + '/Dept');
                 }
             },
             'kyReview': function(actionKey, data) {
-                if (data.state && data.state.indexOf('OVER') !== -1) {
+                if (data.state && data.state.indexOf('HORIZONTAL_OVER_') !== -1) {
                     $.operate.overdetailTab(data.id + '/KYCOVER');
                 } else {
                     $.operate.detailTab(data.id + '/KYC');
                 }
             },
             'overApply': function(actionKey, data) {
+                $.operate.overTab(data.id);
+            },
+            'submitOver': function(actionKey, data) {
                 $.operate.overTab(data.id);
             },
             'reamount': function(actionKey, data) {
@@ -1403,24 +1472,28 @@
     function rowStyle0(row, index) {
         // 定义状态值与颜色的映射关系
         const stateColorMap = {
-            6: '#67c23a', 4: '#67c23a', // 完结 绿色
-            3: '#e6a344',  5: '#e6a344', 9: '#e6a344', 10: '#e6a344', 22: '#e6a344', 44: '#e6a344',99: '#e6a344',999: '#e6a344', // 被驳回，草稿 黄色
-            1: '#2c99ff', 2: '#2c99ff',  7: '#2c99ff', 8: '#2c99ff', 11: '#2c99ff', 33: '#2c99ff' // 审核中 蓝色
+            'HORIZONTAL_APPLY_PASSED': '#67c23a',
+            'HORIZONTAL_OVER_PASSED': '#67c23a',
+            'HORIZONTAL_APPLY_REJECTED': '#e6a344',
+            'HORIZONTAL_APPLY_DRAFT': '#e6a344',
+            'HORIZONTAL_OVER_REJECTED': '#e6a344',
+            'HORIZONTAL_OVER_DRAFT': '#e6a344',
+            'HORIZONTAL_APPLY_JYS_AUDIT': '#2c99ff',
+            'HORIZONTAL_APPLY_KYC_AUDIT': '#2c99ff',
+            'HORIZONTAL_OVER_JYS_AUDIT': '#2c99ff',
+            'HORIZONTAL_OVER_KYC_AUDIT': '#2c99ff'
         };
 
-        // 统一将 row.state 转换为字符串进行查找
-        const state = String(row.state);
+        const state = String(row.state || '');
 
-        // 根据状态值查找对应的颜色
         if (state in stateColorMap) {
             return {
                 css: { color: stateColorMap[state] }
             };
         }
 
-        // 默认样式（可自定义）
         return {
-            css: { color: '#000000' } // 默认黑色
+            css: { color: '#000000' }
         };
     }
 

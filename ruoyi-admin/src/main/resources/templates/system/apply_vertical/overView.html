@@ -346,9 +346,11 @@
 
       var a =$("#state").val();
       //console.log('$("#urlFlag").val():', $("#urlFlag").val());
-      if ($("#urlFlag").val() == 'chakan' || $("#urlFlag").val() == 'ZX'  ){
+      if ($("#urlFlag").val() == 'chakan' || $("#urlFlag").val() == 'ZX' ){
+        // 查看/完结模式：显示关闭按钮和审批记录，不显示批注
         $("#btn3").show();
-        $(".tdiv2").show()
+        $(".tdiv2").show();
+        $(".tdiv1").hide();
       }else {
         if(a == 66){
           if(name.rows.length > 0){
@@ -361,6 +363,12 @@
         }
       }
 
+      // 对于 VERTICAL_OVER_PASSED 等已完结状态，始终显示关闭按钮
+      if (a === 'VERTICAL_OVER_PASSED' || a === 'VERTICAL_APPLY_PASSED') {
+        $("#btn3").show();
+        $(".tdiv2").show();
+        $(".tdiv1").hide();
+      }
 
     });
 

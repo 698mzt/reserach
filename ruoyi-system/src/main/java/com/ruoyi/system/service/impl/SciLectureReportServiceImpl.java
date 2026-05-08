@@ -4,16 +4,20 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import com.ruoyi.common.annotation.DataScope;
 import com.ruoyi.common.utils.DataScopeUtils;
+import com.ruoyi.common.core.domain.entity.SysRole;
 import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.common.utils.ShiroUtils;
 import com.ruoyi.system.domain.*;
 import com.ruoyi.system.mapper.SciLectureReportIntegralMapper;
 import com.ruoyi.system.mapper.SciLectureReportOpinionMapper;
 import com.ruoyi.system.service.IApprovalProcessService;
+import com.ruoyi.system.service.IPageRenderService;
 import com.ruoyi.system.service.ISysApprovalHistoryService;
+import com.ruoyi.system.service.ISysMenuService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +53,12 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService {
     @Autowired
     private ISysApprovalHistoryService sysApprovalHistoryService;
 
+    @Autowired
+    private IPageRenderService pageRenderService;
+
+    @Autowired
+    private ISysMenuService sysMenuService;
+
     /**
      * 查询讲座报告
      * 
@@ -57,7 +67,9 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService {
      */
     @Override
     public SciLectureReport selectSciLectureReportById(Integer id) {
-        return sciLectureReportMapper.selectSciLectureReportById(id);
+        SciLectureReport report = sciLectureReportMapper.selectSciLectureReportById(id);
+        fillPageRenderData(report);
+        return report;
     }
 
     /**
@@ -69,7 +81,11 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService {
     @Override
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciLectureReport> selectSciLectureReportList(SciLectureReport sciLectureReport) {
-        return sciLectureReportMapper.selectSciLectureReportList(sciLectureReport);
+        List<SciLectureReport> list = sciLectureReportMapper.selectSciLectureReportList(sciLectureReport);
+        for (SciLectureReport report : list) {
+            fillPageRenderData(report);
+        }
+        return list;
     }
 
     /**
@@ -561,7 +577,107 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService {
     @Override
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciLectureReport> selectSciLectureReportListAll(SciLectureReport sciLectureReport) {
-        return sciLectureReportMapper.selectSciLectureReportListAll(sciLectureReport);
+        List<SciLectureReport> list = sciLectureReportMapper.selectSciLectureReportListAll(sciLectureReport);
+        for (SciLectureReport report : list) {
+            fillPageRenderData(report);
+        }
+        return list;
     }
 
+    /**
+     * 填充页面渲染数据（状态展示和按钮动作列表）
+     */
+    private void fillPageRenderData(SciLectureReport report) {
+        try {
+            if (report == null) return;
+
+            SysUser currentUser = ShiroUtils.getSysUser();
+            if (currentUser == null) {
+                return;
+            }
+
+            // 通过菜单服务获取当前用户权限列表
+            List<String> permissions = new ArrayList<>();
+            Set<String> permsSet = sysMenuService.selectPermsByUserId(currentUser.getUserId());
+            if (permsSet != null) {
+                permissions.addAll(permsSet);
+            }
+
+            // 获取当前用户角色key列表
+            List<String> roleKeys = new ArrayList<>();
+            if (currentUser.getRoles() != null) {
+                roleKeys = currentUser.getRoles().stream()
+                        .map(SysRole::getRoleKey)
+                        .collect(Collectors.toList());
+            }
+
+            String originalState = mapStateToStatusCode(report.getState());
+            
+            // parseStateSemantic 方法要求状态码格式
+            // 将状态码格式转换为符合要求的格式，以便能正确识别状态语义
+            String stateForSemantic = originalState.replace("_JYS_AUDIT", "_JYS_X_AUDIT");
+            stateForSemantic = stateForSemantic.replace("_KYC_AUDIT", "_KYC_X_AUDIT");
+
+            // 构造页面渲染上下文
+            PageRenderContext context = new PageRenderContext();
+            context.setModuleCode("LECTURE");
+            context.setBusinessId(report.getId() != null ? report.getId().longValue() : null);
+            context.setCreatorId(report.getUserId() != null ? report.getUserId().longValue() : null);
+            context.setCurrentUser(currentUser);
+            context.setPermissions(permissions);
+            context.setRoleKeys(roleKeys);
+            context.setPermPrefix("system:rep    ort");
+            context.setProcessCode("LECTURE_APPROVAL");
+
+            // 先用原状态码从数据库查找状态配置
+            context.setCurrentState(originalState);
+            PageRenderStatusMeta statusMeta = pageRenderService.buildStatusMeta(context);
+            
+            // 如果状态文本还是没找到配置，用转换后的状态码重新构建
+            if (statusMeta != null && (statusMeta.getStatusText() == null || statusMeta.getStatusText().equals(originalState))) {
+                context.setCurrentState(stateForSemantic);
+                statusMeta = pageRenderService.buildStatusMeta(context);
+                statusMeta.setStatusCode(originalState); // 保持原状态码用于前端显示
+            }
+            
+            // 构建按钮时，使用转换后的状态码，以便能正确识别语义
+            context.setCurrentState(stateForSemantic);
+            List<PageRenderActionItem> actions = pageRenderService.buildActions(context);
+            
+
+            report.setStatusMeta(statusMeta);
+            report.setActions(actions);
+        } catch (Exception e) {
+            // 页面渲染数据填充失败不影响主流程
+        }
+    }
+
+
+    /**
+     * 将状态码映射为统一状态编码（遵循八大模块接入清单规范）
+     */
+    private String mapStateToStatusCode(String state) {
+        if (state == null) {
+            return "LECTURE_DRAFT";
+        }
+        // 如果已经是状态编码格式（包含下划线），直接返回
+        if (state.contains("_")) {
+            return state;
+        }
+        // 旧数字状态码映射
+        switch (state) {
+            case "0":
+                return "LECTURE_DRAFT";
+            case "1":
+                return "LECTURE_JYS_AUDIT";
+            case "2":
+                return "LECTURE_KYC_AUDIT";
+            case "3":
+                return "LECTURE_PASSED";
+            case "4":
+                return "LECTURE_REJECTED";
+            default:
+                return state;
+        }
+    }
 }

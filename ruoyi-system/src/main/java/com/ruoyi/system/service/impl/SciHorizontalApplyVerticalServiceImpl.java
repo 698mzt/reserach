@@ -1,22 +1,30 @@
 package com.ruoyi.system.service.impl;
 
 import com.ruoyi.common.annotation.DataScope;
+import com.ruoyi.common.core.domain.entity.SysRole;
+import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.common.core.text.Convert;
 import com.ruoyi.common.utils.DataScopeUtils;
 import com.ruoyi.common.utils.StringUtils;
+import com.ruoyi.common.utils.ShiroUtils;
 import com.ruoyi.system.domain.*;
+import com.ruoyi.system.constant.PageRenderColorConstants;
 import com.ruoyi.system.mapper.SciHorizontalApplyVerticalMapper;
 import com.ruoyi.system.mapper.SciHorizontalPiyueMapper;
 import com.ruoyi.system.mapper.SciUserScoreMapper;
 import com.ruoyi.system.service.IApprovalProcessService;
 import com.ruoyi.system.service.ISciHorizontalApplyVerticalService;
+import com.ruoyi.system.service.IPageRenderService;
+import com.ruoyi.system.service.ISysMenuService;
 import com.ruoyi.system.service.SciHorizontalReamountService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-import java.util.Collections;
+import java.util.stream.Collectors;
 
 import static com.ruoyi.common.utils.ShiroUtils.getSysUser;
 
@@ -26,6 +34,13 @@ import static com.ruoyi.common.utils.ShiroUtils.getSysUser;
  */
 @Service
 public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalApplyVerticalService {
+
+    private static final Logger log = LoggerFactory.getLogger(SciHorizontalApplyVerticalServiceImpl.class);
+
+    // ThreadLocal 用于缓存当前请求的用户权限和角色，避免重复查询数据库
+    private static final ThreadLocal<List<String>> PERMISSIONS_CACHE = new ThreadLocal<>();
+    private static final ThreadLocal<List<String>> ROLE_KEYS_CACHE = new ThreadLocal<>();
+    private static final ThreadLocal<SysUser> CURRENT_USER_CACHE = new ThreadLocal<>();
 
     @Autowired
     private SciHorizontalApplyVerticalMapper sciHorizontalApplyVerticalMapper;
@@ -42,6 +57,12 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
     @Autowired
     private IApprovalProcessService approvalProcessService;
 
+    @Autowired
+    private IPageRenderService pageRenderService;
+
+    @Autowired
+    private ISysMenuService sysMenuService;
+
     /**
      * 查询纵向课题列表
      *
@@ -51,7 +72,18 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
     @Override
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciHorizontalApplyVertical> selectSciHorizontalApplyVerticalList(SciHorizontalApplyVertical sciHorizontalApplyVertical) {
-        return sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalList(sciHorizontalApplyVertical);
+        try {
+            // 初始化 ThreadLocal 缓存（只查询一次权限和角色）
+            initPageRenderCache();
+            
+            List<SciHorizontalApplyVertical> list = sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalList(sciHorizontalApplyVertical);
+            // 为每条记录填充页面渲染数据
+            list.forEach(this::fillPageRenderData);
+            return list;
+        } finally {
+            // 清理 ThreadLocal，避免内存泄漏
+            clearPageRenderCache();
+        }
     }
 
     /**
@@ -62,7 +94,18 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
     @Override
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciHorizontalApplyVertical> selectSciHorizontalApplyVerticalListAll(SciHorizontalApplyVertical sciHorizontalApplyVertical) {
-        return sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalListAll(sciHorizontalApplyVertical);
+        try {
+            // 初始化 ThreadLocal 缓存（只查询一次权限和角色）
+            initPageRenderCache();
+            
+            List<SciHorizontalApplyVertical> list = sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalListAll(sciHorizontalApplyVertical);
+            // 为每条记录填充页面渲染数据
+            list.forEach(this::fillPageRenderData);
+            return list;
+        } finally {
+            // 清理 ThreadLocal，避免内存泄漏
+            clearPageRenderCache();
+        }
     }
 
     /**
@@ -207,7 +250,10 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
      */
     @Override
     public SciHorizontalApplyVertical selectSciHorizontalApplyVerticalById(Integer id) {
-        return sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalById(id);
+        SciHorizontalApplyVertical apply = sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalById(id);
+        // 填充页面渲染数据
+        fillPageRenderData(apply);
+        return apply;
     }
 
 
@@ -362,8 +408,8 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
         // 获取新状态
         String newState = result.getNewState();
         
-        // 如果是科研处审批通过，计算并分配科研分
-        if (urlFlag.equals("KYC")) {
+        // 如果是科研处审批通过（立项用KYC，结项用KYCOVER），计算并分配科研分
+        if ("KYC".equals(urlFlag) || "KYCOVER".equals(urlFlag)) {
             SciUserScore sciUserScore = new SciUserScore();
             sciUserScore.setVerticalId(verticalId);
             String status = "立项";
@@ -371,41 +417,9 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
             for (int i = 0; i < persion.size(); i++) {
                 sciUserScore.setUserId(persion.get(i).toString());
                 sciUserScore.setChangeValue(score.get(i).toString());
-                // 使用前端传递的预期科研分，如果前端没有传递，则使用从数据库中查询的值
-                String expectedScore = "0";
-                if (sciHorizontalApplyVertical1 != null) {
-                    switch (i) {
-                        case 0:
-                            expectedScore = sciHorizontalApplyVertical1.getExpectedScore1();
-                            break;
-                        case 1:
-                            expectedScore = sciHorizontalApplyVertical1.getExpectedScore2();
-                            break;
-                        case 2:
-                            expectedScore = sciHorizontalApplyVertical1.getExpectedScore3();
-                            break;
-                        case 3:
-                            expectedScore = sciHorizontalApplyVertical1.getExpectedScore4();
-                            break;
-                    }
-                }
-                // 如果前端没有传递预期科研分，则从数据库中查询
-                if (StringUtils.isEmpty(expectedScore) && sciHorizontalApplyVertical != null) {
-                    switch (i) {
-                        case 0:
-                            expectedScore = sciHorizontalApplyVertical.getExpectedScore1();
-                            break;
-                        case 1:
-                            expectedScore = sciHorizontalApplyVertical.getExpectedScore2();
-                            break;
-                        case 2:
-                            expectedScore = sciHorizontalApplyVertical.getExpectedScore3();
-                            break;
-                        case 3:
-                            expectedScore = sciHorizontalApplyVertical.getExpectedScore4();
-                            break;
-                    }
-                }
+                // 从 sci_user_score_vertical 表中查询该成员上一次插入的预期科研分
+                String expectedScore = sciUserScoreMapper.selectLastExpectedValueByUserIdAndVerticalId(
+                        persion.get(i).toString(), verticalId);
                 if (StringUtils.isEmpty(expectedScore)) {
                     expectedScore = "0";
                 }
@@ -512,8 +526,8 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
         // 获取新状态
         String newState = result.getNewState();
         
-        // 如果是科研处审批通过，计算并分配科研分
-        if (urlFlag.equals("KYC")) {
+        // 如果是科研处审批通过（立项用KYC，结项用KYCOVER），计算并分配科研分
+        if ("KYC".equals(urlFlag) || "KYCOVER".equals(urlFlag)) {
             SciUserScore sciUserScore = new SciUserScore();
             sciUserScore.setVerticalId(verticalId);
             String status = "结项";
@@ -613,17 +627,27 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
     @Override
     @DataScope(deptAlias = "d",userAlias = "u")
     public List<SciHorizontalApplyVertical> selectSciHorizontalApplyVerticalListJX(SciHorizontalApplyVertical sciHorizontalApplyVertical) {
-        List<SciHorizontalApplyVertical> list = new ArrayList<>();
-        if (sciHorizontalApplyVertical.getRole().equals("research"))
-            list = sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalListJYSJX(sciHorizontalApplyVertical);
-        else if (sciHorizontalApplyVertical.getRole().equals("sci_tesearch"))
-            list = sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalListKYCJX(sciHorizontalApplyVertical);
-        else if (sciHorizontalApplyVertical.getRole().equals("dept_teacher")){
-            list = sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalListDeptJX(sciHorizontalApplyVertical);
+        try {
+            // 初始化 ThreadLocal 缓存（只查询一次权限和角色）
+            initPageRenderCache();
+            
+            List<SciHorizontalApplyVertical> list = new ArrayList<>();
+            if (sciHorizontalApplyVertical.getRole().equals("research"))
+                list = sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalListJYSJX(sciHorizontalApplyVertical);
+            else if (sciHorizontalApplyVertical.getRole().equals("sci_tesearch"))
+                list = sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalListKYCJX(sciHorizontalApplyVertical);
+            else if (sciHorizontalApplyVertical.getRole().equals("dept_teacher")){
+                list = sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalListDeptJX(sciHorizontalApplyVertical);
+            }
+            else
+                list = sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalListJX(sciHorizontalApplyVertical);
+            // 为每条记录填充页面渲染数据
+            list.forEach(this::fillPageRenderData);
+            return list;
+        } finally {
+            // 清理 ThreadLocal，避免内存泄漏
+            clearPageRenderCache();
         }
-        else
-            list = sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalListJX(sciHorizontalApplyVertical);
-        return list;
     }
 
     /**
@@ -634,8 +658,18 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
     @Override
     @DataScope(deptAlias = "d",userAlias = "u")
     public List<SciHorizontalApplyVertical> selectSciHorizontalApplyVerticalListOVER(SciHorizontalApplyVertical sciHorizontalApplyVertical) {
-        return sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalListOVER(sciHorizontalApplyVertical);
-
+        try {
+            // 初始化 ThreadLocal 缓存（只查询一次权限和角色）
+            initPageRenderCache();
+            
+            List<SciHorizontalApplyVertical> list = sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalListOVER(sciHorizontalApplyVertical);
+            // 为每条记录填充页面渲染数据
+            list.forEach(this::fillPageRenderData);
+            return list;
+        } finally {
+            // 清理 ThreadLocal，避免内存泄漏
+            clearPageRenderCache();
+        }
     }
 
     /**
@@ -661,36 +695,42 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
     public int recall(Integer id, String state, Long userId, String remark, String urlFlag) {
         String newState = state;
         switch (state){
-//            立项申请 - 待教研室
+//            立项申请 - 待教研室 / 被驳回 → 回退到草稿
             case "V_APPLY_JYS": case "V_APPLY_REJ":
-                newState = "V_APPLY_DRAFT";
+            case "VERTICAL_APPLY_JYS_AUDIT": case "VERTICAL_APPLY_REJECTED":
+                newState = "VERTICAL_APPLY_DRAFT";
                 break;
-//            立项申请 - 待科研处
+//            立项申请 - 待科研处 → 回退到待教研室
             case "V_APPLY_KYC":
-                newState = "V_APPLY_JYS";
+            case "VERTICAL_APPLY_KYC_AUDIT":
+                newState = "VERTICAL_APPLY_JYS_AUDIT";
                 break;
-//            立项申请 - 已完结
+//            立项申请 - 已完结 → 回退到待科研处
             case "V_APPLY_PASS":
-                newState = "V_APPLY_KYC";
+            case "VERTICAL_APPLY_PASSED":
+                newState = "VERTICAL_APPLY_KYC_AUDIT";
                 break;
-//            结项申请 - 待教研室
+//            结项申请 - 待教研室 / 被驳回 → 回退到草稿
             case "V_OVER_JYS": case "V_OVER_REJ":
-                newState = "V_OVER_DRAFT";
+            case "VERTICAL_OVER_JYS_AUDIT": case "VERTICAL_OVER_REJECTED":
+                newState = "VERTICAL_OVER_DRAFT";
                 break;
-//            结项申请 - 待科研处
+//            结项申请 - 待科研处 → 回退到待教研室
             case "V_OVER_KYC":
-                newState = "V_OVER_JYS";
+            case "VERTICAL_OVER_KYC_AUDIT":
+                newState = "VERTICAL_OVER_JYS_AUDIT";
                 break;
-//            结项申请 - 已完结
+//            结项申请 - 已完结 → 回退到待科研处
             case "V_OVER_PASS":
-                newState = "V_OVER_KYC";
+            case "VERTICAL_OVER_PASSED":
+                newState = "VERTICAL_OVER_KYC_AUDIT";
                 break;
         }
-        if(state.equals("V_APPLY_PASS")){
+        if(state.equals("V_APPLY_PASS") || state.equals("VERTICAL_APPLY_PASSED")){
             String status = "立项";
 //            sciUserScoreMapper.deleteVerticalScoreById(id.toString(),status);
         }else
-        if(state.equals("V_OVER_PASS")){
+        if(state.equals("V_OVER_PASS") || state.equals("VERTICAL_OVER_PASSED")){
             String status = "结项";
 //            sciUserScoreMapper.deleteVerticalScoreById(id.toString(),status);
         }
@@ -817,6 +857,216 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
         // 手动处理数据权限，因为 @DataScope 只支持 BaseEntity 类型，而这里使用的是 Map
         DataScopeUtils.applyDataScopeToMap(params, "d", "u", "");
         return sciHorizontalApplyVerticalMapper.getStatsQueryToCheck(params);
+    }
+
+    /**
+     * 填充页面渲染数据（状态展示信息和按钮动作列表）
+     * 优先调用PageRender公共服务构建状态与动作
+     * 使用 ThreadLocal 缓存权限和角色，避免重复查询数据库
+     *
+     * @param apply 纵向课题对象
+     */
+    private void fillPageRenderData(SciHorizontalApplyVertical apply) {
+        if (apply == null) {
+            return;
+        }
+        try {
+            // 从 ThreadLocal 缓存获取当前用户、权限和角色
+            SysUser currentUser = CURRENT_USER_CACHE.get();
+            if (currentUser == null) {
+                return;
+            }
+
+            List<String> permissions = PERMISSIONS_CACHE.get();
+            List<String> roleKeys = ROLE_KEYS_CACHE.get();
+            // 根据状态确定模块编码（立项/结项）
+            String moduleCode = determineModuleCode(apply.getState());
+
+            // 构建页面渲染上下文
+            PageRenderContext context = new PageRenderContext();
+            context.setModuleCode(moduleCode);
+            context.setBusinessId(apply.getId() != null ? apply.getId().longValue() : null);
+            context.setCurrentState(apply.getState());
+            context.setCreatorId(apply.getUserId() != null ? apply.getUserId().longValue() : null);
+            context.setCurrentUser(currentUser);
+            context.setPermissions(permissions);
+            context.setRoleKeys(roleKeys);
+            context.setPermPrefix("system:apply_vertical");
+            context.setProcessCode(moduleCode);
+
+            // 构建状态和动作信息
+            PageRenderStatusMeta statusMeta = pageRenderService.buildStatusMeta(context);
+            List<PageRenderActionItem> actions = pageRenderService.buildActions(context);
+
+            // 添加自定义业务按钮："申请结项"按钮
+            addCustomActions(apply, actions, currentUser, permissions);
+
+            apply.setStatusMeta(statusMeta);
+            apply.setActions(actions);
+        } catch (Exception e) {
+            // 页面渲染数据填充失败不影响主流程
+            log.error("填充纵向课题页面渲染数据失败, applyId={}", apply.getId(), e);
+        }
+    }
+
+    /**
+     * 初始化页面渲染缓存（只查询一次权限和角色）
+     */
+    private void initPageRenderCache() {
+        try {
+            SysUser currentUser = ShiroUtils.getSysUser();
+            if (currentUser == null) {
+                return;
+            }
+            CURRENT_USER_CACHE.set(currentUser);
+            PERMISSIONS_CACHE.set(buildCurrentPermissions(currentUser));
+            ROLE_KEYS_CACHE.set(buildCurrentRoleKeys(currentUser));
+        } catch (Exception e) {
+            log.error("初始化页面渲染缓存失败", e);
+        }
+    }
+
+    /**
+     * 清理页面渲染 ThreadLocal 缓存，避免内存泄漏
+     */
+    private void clearPageRenderCache() {
+        try {
+            PERMISSIONS_CACHE.remove();
+            ROLE_KEYS_CACHE.remove();
+            CURRENT_USER_CACHE.remove();
+        } catch (Exception e) {
+            log.error("清理页面渲染缓存失败", e);
+        }
+    }
+
+    /**
+     * 构建当前登录用户权限列表
+     *
+     * @param currentUser 当前登录用户
+     * @return 权限列表
+     */
+    private List<String> buildCurrentPermissions(SysUser currentUser) {
+        if (currentUser == null) {
+            return new ArrayList<>();
+        }
+        Set<String> permsSet = sysMenuService.selectPermsByUserId(currentUser.getUserId());
+        if (permsSet == null || permsSet.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return new ArrayList<>(permsSet);
+    }
+
+    /**
+     * 构建当前登录用户角色列表
+     *
+     * @param currentUser 当前登录用户
+     * @return 角色Key列表
+     */
+    private List<String> buildCurrentRoleKeys(SysUser currentUser) {
+        if (currentUser == null || currentUser.getRoles() == null) {
+            return new ArrayList<>();
+        }
+        return currentUser.getRoles().stream()
+                .filter(Objects::nonNull)
+                .map(SysRole::getRoleKey)
+                .filter(StringUtils::isNotEmpty)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 根据状态确定模块编码（立项/结项）
+     * 优先匹配新状态编码前缀，兼容旧状态编码前缀
+     *
+     * @param state 当前状态
+     * @return 模块编码
+     */
+    private String determineModuleCode(String state) {
+        if (StringUtils.isEmpty(state)) {
+            return "VERTICAL_APPLY";
+        }
+        // 结项状态：新编码以 VERTICAL_OVER 开头，旧编码以 V_OVER 或 V_1~V_7 开头
+        if (state.startsWith("VERTICAL_OVER")
+                || state.startsWith("V_OVER")
+                || state.startsWith("V_1") || state.startsWith("V_2")
+                || state.startsWith("V_3") || state.startsWith("V_4")
+                || state.startsWith("V_5") || state.startsWith("V_6")
+                || state.startsWith("V_7")) {
+            return "VERTICAL_OVER";
+        }
+        return "VERTICAL_APPLY";
+    }
+
+    /**
+     * 添加自定义业务按钮（通用规则引擎不涵盖的按钮）
+     * 功能：为已通过状态添加"申请结项"按钮
+     *
+     * @param apply 纵向课题对象
+     * @param actions 动作列表
+     * @param currentUser 当前用户
+     * @param permissions 权限列表
+     */
+    private void addCustomActions(SciHorizontalApplyVertical apply, List<PageRenderActionItem> actions,
+                                   SysUser currentUser, List<String> permissions) {
+        if (apply == null || actions == null || currentUser == null) {
+            return;
+        }
+        String state = apply.getState();
+        if (StringUtils.isEmpty(state)) {
+            return;
+        }
+        // 判断是否为创建者或管理员
+        // 注意：apply.getUserId() 是 Integer，currentUser.getUserId() 是 Long，需要统一类型比较
+        boolean isOwner = apply.getUserId() != null && currentUser.getUserId() != null
+                && apply.getUserId().longValue() == currentUser.getUserId();
+        boolean isAdmin = isAdminUser(currentUser);
+        // 管理员或有 add 权限的用户可以"申请结项"
+        boolean canAdd = isAdmin || permissions.contains("system:apply_vertical:add");
+
+        // 立项已通过：创建者或管理员可以"申请结项"
+        if ("VERTICAL_APPLY_PASSED".equals(state) && (isOwner || isAdmin) && canAdd) {
+            PageRenderActionItem action = PageRenderActionItem.of(
+                    "overApply",
+                    "申请结项",
+                    PageRenderColorConstants.COLOR_SUCCESS,
+                    15);
+            actions.add(action);
+        }
+
+        // 结项草稿：创建者或管理员可以"提交结项申请"
+        if ("VERTICAL_OVER_DRAFT".equals(state) && (isOwner || isAdmin) && canAdd) {
+            PageRenderActionItem action = PageRenderActionItem.of(
+                    "submit",
+                    "提交结项申请",
+                    PageRenderColorConstants.COLOR_SUCCESS,
+                    5,
+                    "确定要提交该结项申请吗？");
+            actions.add(action);
+        }
+    }
+
+    /**
+     * 判断当前用户是否为管理员
+     *
+     * @param currentUser 当前用户
+     * @return 是否为管理员
+     */
+    private boolean isAdminUser(SysUser currentUser) {
+        if (currentUser == null) {
+            return false;
+        }
+        // 超级管理员（user_id = 1）
+        if (currentUser.getUserId() != null && currentUser.getUserId().equals(1L)) {
+            return true;
+        }
+        // 检查是否有 admin 角色
+        if (currentUser.getRoles() != null) {
+            for (SysRole role : currentUser.getRoles()) {
+                if (role != null && "admin".equals(role.getRoleKey())) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
 

@@ -4,8 +4,12 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.util.List;
+
+import com.ruoyi.system.domain.PageRenderActionItem;
+import com.ruoyi.system.domain.PageRenderStatusMeta;
 
 /**
  * 讲座报告对象 sci_lecture_report
@@ -36,6 +40,12 @@ public class SciLectureReport extends BaseEntity
 
     /** 状态集合 */
     private List<Integer> statelist;
+    /** 状态展示元数据 */
+    @JsonInclude(JsonInclude.Include.ALWAYS)
+    private PageRenderStatusMeta statusMeta;
+    /** 按钮动作列表 */
+    @JsonInclude(JsonInclude.Include.ALWAYS)
+    private List<PageRenderActionItem> actions;
     // ====================================================================== 后加属性
     /** 序号 */
     private Integer id;
@@ -408,5 +418,21 @@ public class SciLectureReport extends BaseEntity
 
         }
         return this.state;
+    }
+
+    public PageRenderStatusMeta getStatusMeta() {
+        return statusMeta;
+    }
+
+    public void setStatusMeta(PageRenderStatusMeta statusMeta) {
+        this.statusMeta = statusMeta;
+    }
+
+    public List<PageRenderActionItem> getActions() {
+        return actions;
+    }
+
+    public void setActions(List<PageRenderActionItem> actions) {
+        this.actions = actions;
     }
 }
