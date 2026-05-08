@@ -433,10 +433,10 @@ public class PageRenderServiceImpl implements IPageRenderService {
         if (stateCode.endsWith("_DRAFT")) {
             return StateSemantic.DRAFT;
         }
-        if ((stateCode.contains("_JYS_") || stateCode.contains("_JYS_AUDIT")) && stateCode.endsWith("_AUDIT")) {
+        if (stateCode.contains("_JYS_") && stateCode.endsWith("_AUDIT")) {
             return StateSemantic.JYS_AUDIT;
         }
-        if ((stateCode.contains("_KYC_") || stateCode.contains("_KYC_AUDIT")) && stateCode.endsWith("_AUDIT")) {
+        if (stateCode.contains("_KYC_") && stateCode.endsWith("_AUDIT")) {
             return StateSemantic.KYC_AUDIT;
         }
         if (stateCode.endsWith("_PASSED")) {
@@ -687,7 +687,7 @@ public class PageRenderServiceImpl implements IPageRenderService {
      * @param isAdmin 是否为管理员
      */
     private void addAuditActions(PageRenderContext context, List<PageRenderActionItem> actions,
-                                  StateSemantic semantic, ModuleConfig config, boolean isOwner, boolean isAdmin) {
+                                 StateSemantic semantic, ModuleConfig config, boolean isOwner, boolean isAdmin) {
         String state = context.getCurrentState();
         if (state == null || config == null) {
             return;
