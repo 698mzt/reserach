@@ -1,5 +1,8 @@
 package com.ruoyi.system.service.impl;
 
+import com.ruoyi.common.core.domain.entity.SysRole;
+import com.ruoyi.common.core.domain.entity.SysUser;
+import com.ruoyi.common.utils.ShiroUtils;
 import com.ruoyi.system.constant.PageRenderActionConstants;
 import com.ruoyi.system.constant.PageRenderColorConstants;
 import com.ruoyi.system.domain.*;
@@ -794,6 +797,59 @@ public class PageRenderServiceImpl implements IPageRenderService {
         PageRenderStatusMeta statusMeta = buildStatusMeta(context);
         List<PageRenderActionItem> actions = buildActions(context);
         return PageRenderResult.of(statusMeta, actions, businessData);
+    }
+
+    @Override
+    public PageRenderResult<?> fillPageRenderData(String moduleCode, String permPrefix,
+                                                    String processCode, String currentState,
+                                                    Long businessId, Long creatorId) {
+        PageRenderStatusMeta fallbackMeta = PageRenderStatusMeta.of("", "未知", PageRenderColorConstants.COLOR_DEFAULT);
+        List<PageRenderActionItem> emptyActions = Collections.emptyList();
+
+        if (currentState == null) {
+            return PageRenderResult.of(fallbackMeta, emptyActions, null);
+        }
+
+        try {
+            SysUser currentUser = ShiroUtils.getSysUser();
+            if (currentUser == null) {
+                return PageRenderResult.of(fallbackMeta, emptyActions, null);
+            }
+
+            List<String> roleKeys = buildRoleKeys(currentUser);
+
+            PageRenderContext context = new PageRenderContext();
+            context.setModuleCode(moduleCode);
+            context.setBusinessId(businessId);
+            context.setCurrentState(currentState);
+            context.setCreatorId(creatorId);
+            context.setCurrentUser(currentUser);
+            context.setPermissions(null);
+            context.setRoleKeys(roleKeys);
+            context.setPermPrefix(permPrefix);
+            context.setProcessCode(processCode);
+
+            PageRenderStatusMeta statusMeta = buildStatusMeta(context);
+            List<PageRenderActionItem> actions = buildActions(context);
+
+            return PageRenderResult.of(statusMeta, actions, null);
+        } catch (Exception e) {
+            log.error("填充页面渲染数据失败, moduleCode={}, currentState={}", moduleCode, currentState, e);
+            return PageRenderResult.of(fallbackMeta, emptyActions, null);
+        }
+    }
+
+    private List<String> buildRoleKeys(SysUser currentUser) {
+        if (currentUser == null || currentUser.getRoles() == null) {
+            return Collections.emptyList();
+        }
+        List<String> roleKeys = new ArrayList<>();
+        for (SysRole role : currentUser.getRoles()) {
+            if (role != null && role.getRoleKey() != null && !role.getRoleKey().isEmpty()) {
+                roleKeys.add(role.getRoleKey());
+            }
+        }
+        return roleKeys;
     }
 
     /**

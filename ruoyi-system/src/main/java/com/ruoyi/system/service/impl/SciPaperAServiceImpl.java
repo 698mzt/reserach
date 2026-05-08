@@ -19,7 +19,6 @@ import com.ruoyi.system.mapper.PaperUserScoreServiceMapper;
 import com.ruoyi.system.mapper.SciPaperACfgMapper;
 import com.ruoyi.system.service.IApprovalProcessService;
 import com.ruoyi.system.service.IPageRenderService;
-import com.ruoyi.system.service.ISysMenuService;
 import com.ruoyi.system.service.ISysUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -50,8 +49,6 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
     private IApprovalProcessService approvalProcessService;
     @Autowired
     private IPageRenderService pageRenderService;
-    @Autowired
-    private ISysMenuService sysMenuService;
 
     /**
      * 查询论文
@@ -64,7 +61,11 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
     public SciPaperA selectSciPaperAById(Long id) {
         SciPaperA paper = sciPaperAMapper.selectSciPaperAById(id);
         if (paper != null) {
-            fillPageRenderData(paper);
+            PageRenderResult<?> result = pageRenderService.fillPageRenderData(
+                    "PAPER", "system:paper", "PAPER_APPROVAL",
+                    paper.getState(), paper.getId(), paper.getUserId());
+            paper.setStatusMeta(result.getStatusMeta());
+            paper.setActions(result.getActions());
         }
         return paper;
     }
@@ -82,7 +83,11 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
         // 为每条论文记录计算并填充分数，并填充页面渲染数据
         for (SciPaperA paper : list) {
             calculateAndFillScores(paper);
-            fillPageRenderData(paper);
+            PageRenderResult<?> result = pageRenderService.fillPageRenderData(
+                    "PAPER", "system:paper", "PAPER_APPROVAL",
+                    paper.getState(), paper.getId(), paper.getUserId());
+            paper.setStatusMeta(result.getStatusMeta());
+            paper.setActions(result.getActions());
         }
         return list;
     }
@@ -93,7 +98,11 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
         List<SciPaperA> list = sciPaperAMapper.selectSciPaperAListAll(sciPaperA);
         for (SciPaperA paper : list) {
             calculateAndFillScores(paper);
-            fillPageRenderData(paper);
+            PageRenderResult<?> result = pageRenderService.fillPageRenderData(
+                    "PAPER", "system:paper", "PAPER_APPROVAL",
+                    paper.getState(), paper.getId(), paper.getUserId());
+            paper.setStatusMeta(result.getStatusMeta());
+            paper.setActions(result.getActions());
         }
         return list;
     }
@@ -110,7 +119,11 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
         List<SciPaperA> list = sciPaperAMapper.selectSciPaperAListKY(sciPaperA);
         for (SciPaperA paper : list) {
             calculateAndFillScores(paper);
-            fillPageRenderData(paper);
+            PageRenderResult<?> result = pageRenderService.fillPageRenderData(
+                    "PAPER", "system:paper", "PAPER_APPROVAL",
+                    paper.getState(), paper.getId(), paper.getUserId());
+            paper.setStatusMeta(result.getStatusMeta());
+            paper.setActions(result.getActions());
         }
         return list;
     }
@@ -121,7 +134,11 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
         List<SciPaperA> list = sciPaperAMapper.selectSciPaperAListXY(sciPaperA);
         for (SciPaperA paper : list) {
             calculateAndFillScores(paper);
-            fillPageRenderData(paper);
+            PageRenderResult<?> result = pageRenderService.fillPageRenderData(
+                    "PAPER", "system:paper", "PAPER_APPROVAL",
+                    paper.getState(), paper.getId(), paper.getUserId());
+            paper.setStatusMeta(result.getStatusMeta());
+            paper.setActions(result.getActions());
         }
         return list;
     }
@@ -196,7 +213,11 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
         List<SciPaperA> list = sciPaperAMapper.selectSciPaperAListCxList(sciPaperA);
         for (SciPaperA paper : list) {
             calculateAndFillScores(paper);
-            fillPageRenderData(paper);
+            PageRenderResult<?> result = pageRenderService.fillPageRenderData(
+                    "PAPER", "system:paper", "PAPER_APPROVAL",
+                    paper.getState(), paper.getId(), paper.getUserId());
+            paper.setStatusMeta(result.getStatusMeta());
+            paper.setActions(result.getActions());
         }
         return list;
     }
@@ -223,7 +244,11 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
         List<SciPaperA> list = sciPaperAMapper.selectSciPaperAListCx(sciPaperA);
         for (SciPaperA paper : list) {
             calculateAndFillScores(paper);
-            fillPageRenderData(paper);
+            PageRenderResult<?> result = pageRenderService.fillPageRenderData(
+                    "PAPER", "system:paper", "PAPER_APPROVAL",
+                    paper.getState(), paper.getId(), paper.getUserId());
+            paper.setStatusMeta(result.getStatusMeta());
+            paper.setActions(result.getActions());
         }
         return list;
     }
@@ -897,57 +922,6 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
         } else {
             // 一作是本校老师，通讯作者按二作分数算
             return pointList.size() > 1 ? pointList.get(1) : pointList.get(0);
-        }
-    }
-
-    /**
-     * 填充页面渲染数据（statusMeta和actions）
-     * 通过sysMenuService获取用户权限，构造PageRenderContext并调用PageRenderService生成渲染数据
-     *
-     * @param paper 论文对象
-     */
-    private void fillPageRenderData(SciPaperA paper) {
-        try {
-            SysUser currentUser = ShiroUtils.getSysUser();
-            if (currentUser == null) {
-                return;
-            }
-
-            // 通过菜单服务获取当前用户权限列表
-            List<String> permissions = new ArrayList<>();
-            Set<String> permsSet = sysMenuService.selectPermsByUserId(currentUser.getUserId());
-            if (permsSet != null) {
-                permissions.addAll(permsSet);
-            }
-
-            // 获取当前用户角色key列表
-            List<String> roleKeys = new ArrayList<>();
-            if (currentUser.getRoles() != null) {
-                roleKeys = currentUser.getRoles().stream()
-                        .map(SysRole::getRoleKey)
-                        .collect(Collectors.toList());
-            }
-
-            // 构造页面渲染上下文
-            PageRenderContext context = new PageRenderContext();
-            context.setModuleCode("PAPER");
-            context.setBusinessId(paper.getId());
-            context.setCurrentState(paper.getState());
-            context.setCreatorId(paper.getUserId());
-            context.setCurrentUser(currentUser);
-            context.setPermissions(permissions);
-            context.setRoleKeys(roleKeys);
-            context.setPermPrefix("system:paper");
-            context.setProcessCode("PAPER_APPROVAL");
-
-            // 构建状态和动作信息
-            PageRenderStatusMeta statusMeta = pageRenderService.buildStatusMeta(context);
-            List<PageRenderActionItem> actions = pageRenderService.buildActions(context);
-
-            paper.setStatusMeta(statusMeta);
-            paper.setActions(actions);
-        } catch (Exception e) {
-            // 页面渲染数据填充失败不影响主流程
         }
     }
 

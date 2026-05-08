@@ -11,7 +11,6 @@ import com.ruoyi.system.mapper.SciRewardScoreCfgMapper;
 import com.ruoyi.system.mapper.SysRewardMapper;
 import com.ruoyi.system.mapper.SysRewardPiyueMapper;
 import com.ruoyi.system.service.ISciRewardScoreCfgService;
-import com.ruoyi.system.service.ISysMenuService;
 import com.ruoyi.system.service.ISysRewardService;
 import com.ruoyi.system.service.ISysUserService;
 import com.ruoyi.system.service.IApprovalProcessService;
@@ -41,8 +40,7 @@ import java.util.stream.Collectors;
  * @date 2024-12-23
  */
 @Service
-public class SysRewardServiceImpl implements ISysRewardService
-{
+public class SysRewardServiceImpl implements ISysRewardService {
     /**
      * 奖励审批流程编码
      * 对应数据库 sys_approval_process 表的 process_code 字段
@@ -52,11 +50,11 @@ public class SysRewardServiceImpl implements ISysRewardService
     /**
      * 奖励状态常量定义
      */
-    public static final String REWARD_DRAFT = "REWARD_DRAFT";           // 草稿状态
-    public static final String REWARD_JYS_AUDIT = "REWARD_JYS_AUDIT";   // 教研室审批状态
-    public static final String REWARD_KYC_AUDIT = "REWARD_KYC_AUDIT";   // 科研处审批状态
-    public static final String REWARD_PASSED = "REWARD_PASSED";         // 审批通过状态
-    public static final String REWARD_REJECTED = "REWARD_REJECTED";     // 审批驳回状态
+    public static final String REWARD_DRAFT = "REWARD_DRAFT"; // 草稿状态
+    public static final String REWARD_JYS_AUDIT = "REWARD_JYS_AUDIT"; // 教研室审批状态
+    public static final String REWARD_KYC_AUDIT = "REWARD_KYC_AUDIT"; // 科研处审批状态
+    public static final String REWARD_PASSED = "REWARD_PASSED"; // 审批通过状态
+    public static final String REWARD_REJECTED = "REWARD_REJECTED"; // 审批驳回状态
 
     @Autowired
     private SysRewardMapper sysRewardMapper;
@@ -73,9 +71,6 @@ public class SysRewardServiceImpl implements ISysRewardService
 
     @Autowired
     private IPageRenderService pageRenderService;
-
-    @Autowired
-    private ISysMenuService sysMenuService;
 
     /**
      * 注入审批流程服务（核心）
@@ -98,11 +93,14 @@ public class SysRewardServiceImpl implements ISysRewardService
      * @return 奖励
      */
     @Override
-    public SysReward selectSysRewardById(Long id)
-    {
+    public SysReward selectSysRewardById(Long id) {
         SysReward reward = sysRewardMapper.selectSysRewardById(id);
         if (reward != null) {
-            fillPageRenderData(reward);
+            PageRenderResult<?> result = pageRenderService.fillPageRenderData(
+                    "REWARD", "system:reward", REWARD_PROCESS_CODE,
+                    reward.getState(), reward.getId(), reward.getUserId());
+            reward.setStatusMeta(result.getStatusMeta());
+            reward.setActions(result.getActions());
         }
         return reward;
     }
@@ -115,18 +113,21 @@ public class SysRewardServiceImpl implements ISysRewardService
      */
     @Override
     @DataScope(deptAlias = "d", userAlias = "u")
-    public List<SysReward> selectSysRewardList(SysReward sysReward)
-    {
+    public List<SysReward> selectSysRewardList(SysReward sysReward) {
         List<SysReward> list = sysRewardMapper.selectSysRewardList(sysReward);
         for (SysReward reward : list) {
-            fillPageRenderData(reward);
+            PageRenderResult<?> result = pageRenderService.fillPageRenderData(
+                    "REWARD", "system:reward", REWARD_PROCESS_CODE,
+                    reward.getState(), reward.getId(), reward.getUserId());
+            reward.setStatusMeta(result.getStatusMeta());
+            reward.setActions(result.getActions());
         }
         return list;
     }
 
     @Override
     public int overReward(String id, String state) {
-        return sysRewardMapper.overReward(id,state);
+        return sysRewardMapper.overReward(id, state);
     }
 
     /**
@@ -136,15 +137,14 @@ public class SysRewardServiceImpl implements ISysRewardService
      * @return 结果
      */
     @Override
-    public int insertSysReward(SysReward sysReward)
-    {
+    public int insertSysReward(SysReward sysReward) {
         // 预计积分由前端传入，直接保存
         // 实际积分在审核通过后才计算，初始化为空或0
-        
+
         // 原有保存逻辑
         int a = sysRewardMapper.insertSysReward(sysReward);
         int id = Integer.parseInt(sysReward.getId().toString());
-        
+
         SysRewardPiyue sysRewardPiyue = new SysRewardPiyue();
         sysRewardPiyue.setUid(sysReward.getUserId());
         sysRewardPiyue.setRewardId(id);
@@ -161,14 +161,13 @@ public class SysRewardServiceImpl implements ISysRewardService
      * @return 结果
      */
     @Override
-    public int updateSysReward(SysReward sysReward)
-    {
+    public int updateSysReward(SysReward sysReward) {
         // 预计积分由前端传入，直接保存
         // 实际积分在审核通过后才计算，不在这里更新
-        
+
         // 原有更新逻辑
         sysRewardMapper.updateSysReward(sysReward);
-        
+
         SysRewardPiyue sysRewardPiyue = new SysRewardPiyue();
         sysRewardPiyue.setUid(sysReward.getUserId());
         sysRewardPiyue.setRewardId(Integer.valueOf(sysReward.getId().toString()));
@@ -189,8 +188,7 @@ public class SysRewardServiceImpl implements ISysRewardService
      * @return 结果
      */
     @Override
-    public int deleteSysRewardByIds(String ids)
-    {
+    public int deleteSysRewardByIds(String ids) {
         return sysRewardMapper.deleteSysRewardByIds(Convert.toStrArray(ids));
     }
 
@@ -201,8 +199,7 @@ public class SysRewardServiceImpl implements ISysRewardService
      * @return 结果
      */
     @Override
-    public int deleteSysRewardById(Long id)
-    {
+    public int deleteSysRewardById(Long id) {
         return sysRewardMapper.deleteSysRewardById(id);
     }
 
@@ -211,19 +208,19 @@ public class SysRewardServiceImpl implements ISysRewardService
      * 
      * 使用统一的审批流程服务进行状态管理：
      *
-     *   approve: 审批通过，状态流转到下一节点或终态
-     *   reject: 审批驳回，状态回退到指定节点（通常为草稿）
-     *   recall: 撤回审批，状态回退到上一审批节点
+     * approve: 审批通过，状态流转到下一节点或终态
+     * reject: 审批驳回，状态回退到指定节点（通常为草稿）
+     * recall: 撤回审批，状态回退到上一审批节点
      *
      * 
-     *积分计算规则：
-     *   最后一个审批节点通过时，根据奖励分类、等级、排名计算积分
-     *   撤回操作如果回退到科研处审批前状态，重置积分
+     * 积分计算规则：
+     * 最后一个审批节点通过时，根据奖励分类、等级、排名计算积分
+     * 撤回操作如果回退到科研处审批前状态，重置积分
      *
      * 
-     * @param id 奖励ID
-     * @param userId 用户ID
-     * @param comment 审批意见
+     * @param id            奖励ID
+     * @param userId        用户ID
+     * @param comment       审批意见
      * @param operationType 操作类型：approve(通过)、reject(驳回)、recall(撤回)
      * @return 操作结果，成功返回影响行数，失败返回-1
      */
@@ -322,16 +319,16 @@ public class SysRewardServiceImpl implements ISysRewardService
     /**
      * 保存审批意见记录
      * 
-     * @param id 奖励ID
-     * @param userId 用户ID
-     * @param comment 审批意见
+     * @param id            奖励ID
+     * @param userId        用户ID
+     * @param comment       审批意见
      * @param operationType 操作类型
      */
     private void saveApprovalOpinion(String id, Long userId, String comment, String operationType) {
         SysRewardPiyue sysRewardPiyue = new SysRewardPiyue();
         sysRewardPiyue.setUid(userId);
         sysRewardPiyue.setRewardId(Integer.valueOf(id));
-        
+
         if ("approve".equals(operationType)) {
             sysRewardPiyue.setConcate(comment != null ? comment : "审批通过");
             sysRewardPiyue.setState("通过");
@@ -342,7 +339,7 @@ public class SysRewardServiceImpl implements ISysRewardService
             sysRewardPiyue.setConcate(comment != null ? comment : "审批撤回");
             sysRewardPiyue.setState("撤回");
         }
-        
+
         sysRewardPiyueMapper.insertSysRewardPiyue(sysRewardPiyue);
     }
 
@@ -403,50 +400,4 @@ public class SysRewardServiceImpl implements ISysRewardService
         return sysRewardMapper.getStatsQueryToCheck(params);
     }
 
-    /**
-     * 填充页面渲染数据（statusMeta和actions）
-     * 通过sysMenuService获取用户权限，构造PageRenderContext并调用PageRenderService生成渲染数据
-     *
-     * @param reward 奖励对象
-     */
-    private void fillPageRenderData(SysReward reward) {
-        try {
-            SysUser currentUser = ShiroUtils.getSysUser();
-            if (currentUser == null) {
-                return;
-            }
-
-            List<String> permissions = new ArrayList<>();
-            Set<String> permsSet = sysMenuService.selectPermsByUserId(currentUser.getUserId());
-            if (permsSet != null) {
-                permissions.addAll(permsSet);
-            }
-
-            List<String> roleKeys = new ArrayList<>();
-            if (currentUser.getRoles() != null) {
-                roleKeys = currentUser.getRoles().stream()
-                        .map(SysRole::getRoleKey)
-                        .collect(Collectors.toList());
-            }
-
-            PageRenderContext context = new PageRenderContext();
-            context.setModuleCode("REWARD");
-            context.setBusinessId(reward.getId());
-            context.setCurrentState(reward.getState());
-            context.setCreatorId(reward.getUserId());
-            context.setCurrentUser(currentUser);
-            context.setPermissions(permissions);
-            context.setRoleKeys(roleKeys);
-            context.setPermPrefix("system:reward");
-            context.setProcessCode(REWARD_PROCESS_CODE);
-
-            PageRenderStatusMeta statusMeta = pageRenderService.buildStatusMeta(context);
-            List<PageRenderActionItem> actions = pageRenderService.buildActions(context);
-
-            reward.setStatusMeta(statusMeta);
-            reward.setActions(actions);
-        } catch (Exception e) {
-            // 页面渲染数据填充失败不影响主流程
-        }
-    }
 }

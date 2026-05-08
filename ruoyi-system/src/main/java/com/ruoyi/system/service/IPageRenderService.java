@@ -43,4 +43,20 @@ public interface IPageRenderService {
      * @return 页面渲染汇总结果
      */
     <T> PageRenderResult<T> buildRenderResult(PageRenderContext context, T businessData);
+
+    /**
+     * 统一填充页面渲染数据（公有方法）
+     * 自动从 Shiro 缓存获取当前用户权限和角色，构建 PageRenderContext 并调用 buildStatusMeta + buildActions
+     *
+     * @param moduleCode   模块编码（如 PAPER、REWARD、TEXTBOOK 等）
+     * @param permPrefix   权限前缀（如 system:paper、system:reward）
+     * @param processCode  流程编码（如 PAPER_APPROVAL、REWARD_APPLY）
+     * @param currentState 当前状态编码（如 PAPER_DRAFT、REWARD_JYS_AUDIT）
+     * @param businessId   业务ID
+     * @param creatorId    创建者ID
+     * @return 页面渲染汇总结果（包含 statusMeta 和 actions）
+     */
+    PageRenderResult<?> fillPageRenderData(String moduleCode, String permPrefix,
+                                            String processCode, String currentState,
+                                            Long businessId, Long creatorId);
 }

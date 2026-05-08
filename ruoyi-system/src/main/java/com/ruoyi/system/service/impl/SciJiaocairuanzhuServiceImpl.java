@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Date;
-import java.util.ArrayList;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -20,9 +19,7 @@ import com.ruoyi.system.domain.SciJiaocairuanzhuPiyue;
 import com.ruoyi.system.domain.SciJiaocairuanzhuScoreCfg;
 import com.ruoyi.system.domain.SysApprovalHistory;
 import com.ruoyi.system.domain.SysApprovalNode;
-import com.ruoyi.system.domain.PageRenderStatusMeta;
-import com.ruoyi.system.domain.PageRenderActionItem;
-import com.ruoyi.system.domain.PageRenderContext;
+import com.ruoyi.system.domain.PageRenderResult;
 import com.ruoyi.system.mapper.SciHorizontalPiyueMapper;
 import com.ruoyi.system.mapper.SciJiaocairuanzhuMemberMapper;
 import com.ruoyi.system.mapper.SciJiaocairuanzhuPiyueMapper;
@@ -31,7 +28,6 @@ import com.ruoyi.system.service.IApprovalProcessService;
 import com.ruoyi.system.service.ISysApprovalHistoryService;
 import com.ruoyi.system.service.ISysUserService;
 import com.ruoyi.system.service.IPageRenderService;
-import com.ruoyi.system.constant.PageRenderColorConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.ruoyi.system.mapper.SciJiaocairuanzhuMapper;
@@ -39,7 +35,6 @@ import com.ruoyi.system.domain.SciJiaocairuanzhu;
 import com.ruoyi.system.service.ISciJiaocairuanzhuService;
 import com.ruoyi.common.core.text.Convert;
 import org.springframework.transaction.annotation.Transactional;
-
 
 /**
  * 教材软著Service业务层处理
@@ -61,8 +56,8 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
     @Autowired
     private SciJiaocairuanzhuMemberMapper sciJiaocairuanzhuMemberMapper;
 
-//    @Autowired
-//    private SciJiaocairuanzhuMapper sciJiaocairuanzhuMapper;
+    // @Autowired
+    // private SciJiaocairuanzhuMapper sciJiaocairuanzhuMapper;
 
     @Autowired
     private ISysUserService userService;
@@ -80,7 +75,6 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
     private static final String PERM_PREFIX = "system:jiaocairuanzhu";
     private static final String PROCESS_CODE = "TEXTBOOK_APPROVAL";
 
-
     /**
      * 查询教材软著
      *
@@ -90,7 +84,13 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
     @Override
     public SciJiaocairuanzhu selectSciJiaocairuanzhuById(Integer id) {
         SciJiaocairuanzhu entity = sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuById(id);
-        fillPageRenderData(entity);
+        PageRenderResult<?> result = pageRenderService.fillPageRenderData(
+                MODULE_CODE, PERM_PREFIX, PROCESS_CODE,
+                entity.getState(),
+                entity.getId() != null ? entity.getId().longValue() : null,
+                entity.getUserId() != null ? entity.getUserId().longValue() : null);
+        entity.setStatusMeta(result.getStatusMeta());
+        entity.setActions(result.getActions());
         return entity;
     }
 
@@ -104,7 +104,13 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
     public List<SciJiaocairuanzhu> selectSciJiaocairuanzhuList(SciJiaocairuanzhu sciJiaocairuanzhu) {
         List<SciJiaocairuanzhu> list = sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuList(sciJiaocairuanzhu);
         for (SciJiaocairuanzhu entity : list) {
-            fillPageRenderData(entity);
+            PageRenderResult<?> result = pageRenderService.fillPageRenderData(
+                    MODULE_CODE, PERM_PREFIX, PROCESS_CODE,
+                    entity.getState(),
+                    entity.getId() != null ? entity.getId().longValue() : null,
+                    entity.getUserId() != null ? entity.getUserId().longValue() : null);
+            entity.setStatusMeta(result.getStatusMeta());
+            entity.setActions(result.getActions());
         }
         return list;
     }
@@ -117,53 +123,56 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
      */
     @Override
     public int insertSciJiaocairuanzhu(SciJiaocairuanzhu sciJiaocairuanzhu) {
-//        try {
-//            // 获取当前用户信息
-//            SysUser currentUser = userService.selectUserById(getUserId());
-//
-//            // 获取学院、专业、教师信息
-//            String collegeName = currentUser.getCollegeName();  // 假设用户实体中有学院名称
-//            String majorName = currentUser.getMajorName();    // 假设用户实体中有专业名称
-//            String teacherName = currentUser.getUserName();     // 教师名称
-//
-//            // 获取模块名称
-//            String moduleName = sciJiaocairuanzhu.getModuleName();  // 假设 SciJiaocairuanzhu 实体中有模块名称
-//
-//            // 获取文件名
-//            String originalFilename = file.getOriginalFilename();
-//            String fileExtension = FilenameUtils.getExtension(originalFilename);
-//            String fileName = FilenameUtils.getBaseName(originalFilename);
-//
-//            // 获取当前年份
-//            String year = new SimpleDateFormat("yyyy").format(new Date());
-//
-//            // 构建文件路径
-//            String filePath = collegeName + "/" + majorName + "/" + teacherName + "/" + moduleName + "/" + year + "-" + fileName + "-" + teacherName + "." + fileExtension;
-//
-//            // 构建文件保存路径
-//            String savePath = "path/to/upload/directory/" + filePath;  // 替换为实际的上传目录
-//
-//            // 创建目录（如果不存在）
-//            File directory = new File(savePath.substring(0, savePath.lastIndexOf("/")));
-//            if (!directory.exists()) {
-//                directory.mkdirs();
-//            }
-//
-//            // 保存文件
-//            File dest = new File(savePath);
-//            file.transferTo(dest);
-//
-//            // 设置文件路径到 SciJiaocairuanzhu 对象
-//            sciJiaocairuanzhu.setFilePath(filePath);
-//
-//            // 保存到数据库
-//            sciJiaocairuanzhuMapper.insertSciJiaocairuanzhu(sciJiaocairuanzhu);
-//
-//            return AjaxResult.success("保存成功");
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            return AjaxResult.error("保存失败");
-//        }
+        // try {
+        // // 获取当前用户信息
+        // SysUser currentUser = userService.selectUserById(getUserId());
+        //
+        // // 获取学院、专业、教师信息
+        // String collegeName = currentUser.getCollegeName(); // 假设用户实体中有学院名称
+        // String majorName = currentUser.getMajorName(); // 假设用户实体中有专业名称
+        // String teacherName = currentUser.getUserName(); // 教师名称
+        //
+        // // 获取模块名称
+        // String moduleName = sciJiaocairuanzhu.getModuleName(); // 假设
+        // SciJiaocairuanzhu 实体中有模块名称
+        //
+        // // 获取文件名
+        // String originalFilename = file.getOriginalFilename();
+        // String fileExtension = FilenameUtils.getExtension(originalFilename);
+        // String fileName = FilenameUtils.getBaseName(originalFilename);
+        //
+        // // 获取当前年份
+        // String year = new SimpleDateFormat("yyyy").format(new Date());
+        //
+        // // 构建文件路径
+        // String filePath = collegeName + "/" + majorName + "/" + teacherName + "/" +
+        // moduleName + "/" + year + "-" + fileName + "-" + teacherName + "." +
+        // fileExtension;
+        //
+        // // 构建文件保存路径
+        // String savePath = "path/to/upload/directory/" + filePath; // 替换为实际的上传目录
+        //
+        // // 创建目录（如果不存在）
+        // File directory = new File(savePath.substring(0, savePath.lastIndexOf("/")));
+        // if (!directory.exists()) {
+        // directory.mkdirs();
+        // }
+        //
+        // // 保存文件
+        // File dest = new File(savePath);
+        // file.transferTo(dest);
+        //
+        // // 设置文件路径到 SciJiaocairuanzhu 对象
+        // sciJiaocairuanzhu.setFilePath(filePath);
+        //
+        // // 保存到数据库
+        // sciJiaocairuanzhuMapper.insertSciJiaocairuanzhu(sciJiaocairuanzhu);
+        //
+        // return AjaxResult.success("保存成功");
+        // } catch (Exception e) {
+        // e.printStackTrace();
+        // return AjaxResult.error("保存失败");
+        // }
         return sciJiaocairuanzhuMapper.insertSciJiaocairuanzhu(sciJiaocairuanzhu);
     }
 
@@ -200,26 +209,25 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
         return sciJiaocairuanzhuMapper.deleteSciJiaocairuanzhuById(id);
     }
 
-
     @Override
     public int updateJifen(Long id, int jifen) {
         return sciJiaocairuanzhuMapper.updateJifen(id, jifen);
     }
 
-
     @Override
     @Transactional
     public int hxPass(String id, Long uid, String urlFlag) {
         // 获取原始状态
-        SciJiaocairuanzhu originalJiaocairuanzhu = sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuById(Integer.valueOf(id));
+        SciJiaocairuanzhu originalJiaocairuanzhu = sciJiaocairuanzhuMapper
+                .selectSciJiaocairuanzhuById(Integer.valueOf(id));
         String oldState = originalJiaocairuanzhu.getState();
-        
+
         // 获取操作人信息
         SysUser operator = userService.selectUserById(uid);
         if (operator == null) {
             return 0;
         }
-        
+
         // 构建审批请求
         String comment = "";
         if (urlFlag.equals("tijiao")) {
@@ -231,7 +239,7 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
         } else if (urlFlag.equals("chayue")) {
             comment = "科研处同意";
         }
-        
+
         ApprovalRequest request = ApprovalRequest.of(
                 "textbook_approval",
                 Long.valueOf(id),
@@ -239,9 +247,8 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
                 comment,
                 uid,
                 operator.getUserName(),
-                operator.getDept().getDeptName()
-        );
-        
+                operator.getDept().getDeptName());
+
         // 调用审批通过方法
         ApprovalResult result;
         if (urlFlag.equals("tijiao")) {
@@ -251,20 +258,20 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
             // 审批通过
             result = approvalProcessService.approve(request);
         }
-        
+
         if (!result.isSuccess()) {
             return 0;
         }
-        
+
         // 更改状态
         int a = sciJiaocairuanzhuMapper.hxPass(id, result.getNewState());
-        
+
         // 插入批阅记录
         SciJiaocairuanzhuPiyue sciJiaocairuanzhuPiyue = new SciJiaocairuanzhuPiyue();
         sciJiaocairuanzhuPiyue.setUid(uid);
         sciJiaocairuanzhuPiyue.setJiaocai_id(Integer.valueOf(id));
         sciJiaocairuanzhuPiyue.setConcate(comment);
-        
+
         if (urlFlag.equals("tijiao")) {
             sciJiaocairuanzhuPiyue.setState("提交");
         } else if (urlFlag.equals("pro")) {
@@ -274,13 +281,15 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
         } else if (urlFlag.equals("chayue")) {
             sciJiaocairuanzhuPiyue.setState("科研处通过");
             // 计算积分
-            SciJiaocairuanzhu sciJiaocairuanzhu = sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuById(Integer.valueOf(id));
+            SciJiaocairuanzhu sciJiaocairuanzhu = sciJiaocairuanzhuMapper
+                    .selectSciJiaocairuanzhuById(Integer.valueOf(id));
             String a1 = sciJiaocairuanzhu.getFenlei();
             String b1 = sciJiaocairuanzhu.getPaiming();
             SciJiaocairuanzhuScoreCfg sciJiaocairuanzhuScoreCfg = new SciJiaocairuanzhuScoreCfg();
             sciJiaocairuanzhuScoreCfg.setFenLei(a1);
             sciJiaocairuanzhuScoreCfg.setPaiMing(b1);
-            List<SciJiaocairuanzhuScoreCfg> c = sciJiaocairuanzhuScoreCfgMapper.selectSciJiaocairuanzhuScoreCfgList(sciJiaocairuanzhuScoreCfg);
+            List<SciJiaocairuanzhuScoreCfg> c = sciJiaocairuanzhuScoreCfgMapper
+                    .selectSciJiaocairuanzhuScoreCfgList(sciJiaocairuanzhuScoreCfg);
             int jifen = 0;
             for (SciJiaocairuanzhuScoreCfg cfg : c) {
                 jifen = Integer.parseInt(cfg.getTotalScore());
@@ -290,30 +299,32 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
             sciJiaocairuanzhuMapper.updateJifen(Long.valueOf(id), jifen);
         }
         sciJiaocairuanzhuPiyueMapper.insertSciJiaocairuanzhuPiyue(sciJiaocairuanzhuPiyue);
-        
+
         return a;
     }
-    
+
     /**
      * 保存审批历史记录
+     * 
      * @param businessId 业务ID
-     * @param oldState 原状态
-     * @param newState 新状态
+     * @param oldState   原状态
+     * @param newState   新状态
      * @param operatorId 操作人ID
-     * @param action 操作类型
-     * @param comment 审批意见
+     * @param action     操作类型
+     * @param comment    审批意见
      */
-    private void saveApprovalHistory(Integer businessId, String oldState, String newState, Long operatorId, String action, String comment) {
+    private void saveApprovalHistory(Integer businessId, String oldState, String newState, Long operatorId,
+            String action, String comment) {
         try {
             SysUser operator = userService.selectUserById(operatorId);
             if (operator == null) {
                 return;
             }
-            
+
             SysApprovalHistory history = new SysApprovalHistory();
             history.setProcessCode("textbook_approval");
             history.setBusinessId(businessId.longValue());
-            
+
             // 根据状态设置审批节点信息
             if (oldState.equals("TEXTBOOK_DRAFT") && newState.equals("TEXTBOOK_JYS_AUDIT")) {
                 // 提交申请
@@ -352,7 +363,7 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
                 history.setNodeId(1L);
                 history.setNodeName("提交申请");
             }
-            
+
             history.setAction(action);
             history.setOperatorId(operatorId);
             history.setOperatorName(operator.getUserName());
@@ -360,7 +371,7 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
             history.setOldState(oldState);
             history.setNewState(newState);
             history.setComment(comment);
-            
+
             sysApprovalHistoryService.insertSysApprovalHistory(history);
         } catch (Exception e) {
             // 记录错误日志，但不影响主流程
@@ -368,20 +379,20 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
         }
     }
 
-
     @Override
     @Transactional
     public int hxBh(String id, Long uid, String remark, String urlFlag) {
         // 获取原始状态
-        SciJiaocairuanzhu originalJiaocairuanzhu = sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuById(Integer.valueOf(id));
+        SciJiaocairuanzhu originalJiaocairuanzhu = sciJiaocairuanzhuMapper
+                .selectSciJiaocairuanzhuById(Integer.valueOf(id));
         String oldState = originalJiaocairuanzhu.getState();
-        
+
         // 获取操作人信息
         SysUser operator = userService.selectUserById(uid);
         if (operator == null) {
             return 0;
         }
-        
+
         // 构建审批请求
         String comment = remark;
         if (urlFlag.equals("hecha")) {
@@ -391,10 +402,10 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
         } else if (urlFlag.equals("chayue")) {
             comment = "科研处驳回: " + remark;
         }
-        
+
         // 设置状态为驳回
         String newState = "TEXTBOOK_REJECTED";
-        
+
         // 更改状态
         int a = sciJiaocairuanzhuMapper.hxPass(id, newState);
 
@@ -403,7 +414,7 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
         sciJiaocairuanzhuPiyue.setUid(uid);
         sciJiaocairuanzhuPiyue.setJiaocai_id(Integer.valueOf(id));
         sciJiaocairuanzhuPiyue.setConcate(remark);
-        
+
         if (urlFlag.equals("hecha")) {
             sciJiaocairuanzhuPiyue.setState("被学院驳回");
         } else if (urlFlag.equals("pro")) {
@@ -411,18 +422,17 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
         } else if (urlFlag.equals("chayue")) {
             sciJiaocairuanzhuPiyue.setState("被科研处驳回");
         }
-        
+
         sciJiaocairuanzhuPiyueMapper.insertSciJiaocairuanzhuPiyue(sciJiaocairuanzhuPiyue);
-        
+
         // 保存审批历史记录
         saveApprovalHistory(Integer.valueOf(id), oldState, newState, uid, "驳回", comment);
-        
+
         return a;
     }
 
-
     @Override
-    @DataScope(deptAlias = "d",userAlias = "u")
+    @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciJiaocairuanzhu> selectSciJiaocairuanzhuList4(SciJiaocairuanzhu sciJiaocairuanzhu) {
         return sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuList4(sciJiaocairuanzhu);
     }
@@ -462,7 +472,7 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
 
     // 新方法：科研处查询
     @Override
-    @DataScope(deptAlias = "d",userAlias = "u")
+    @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciJiaocairuanzhu> selectSciPaperAListKY(SciJiaocairuanzhu sciJiaocairuanzhu) {
         return sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuList4(sciJiaocairuanzhu);
     }
@@ -473,7 +483,6 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
         return sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuList(sciJiaocairuanzhu);
     }
 
-
     @Override
     public List<SciJiaocairuanzhu> selectSciJiaocairuanzhuList31(SciJiaocairuanzhu sciJiaocairuanzhu) {
         return sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuList31(sciJiaocairuanzhu);
@@ -482,6 +491,7 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
     /**
      * 查询下一级状态方法
      * 获取当前审批节点信息及下一步节点信息
+     * 
      * @param currentState 当前业务数据的状态
      * @return 包含当前节点、下一节点等信息的ApprovalResult
      */
@@ -493,17 +503,19 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
     /**
      * 操作记录方法
      * 记录审批操作的历史信息
+     * 
      * @param businessId 业务ID
-     * @param oldState 原状态
-     * @param newState 新状态
+     * @param oldState   原状态
+     * @param newState   新状态
      * @param operatorId 操作人ID
-     * @param action 操作类型
-     * @param comment 审批意见
+     * @param action     操作类型
+     * @param comment    审批意见
      * @return 操作结果
      */
     @Override
     @Transactional
-    public Map<String, Object> recordApprovalAction(Integer businessId, String oldState, String newState, Long operatorId, String action, String comment) {
+    public Map<String, Object> recordApprovalAction(Integer businessId, String oldState, String newState,
+            Long operatorId, String action, String comment) {
         Map<String, Object> result = new HashMap<>();
         result.put("success", false);
 
@@ -565,13 +577,13 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
         // 获取原始状态
         SciJiaocairuanzhu originalJiaocairuanzhu = sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuById(id);
         String oldState = originalJiaocairuanzhu.getState();
-        
+
         // 获取操作人信息
         SysUser operator = userService.selectUserById(uid);
         if (operator == null) {
             return 0;
         }
-        
+
         // 构建审批请求
         ApprovalRequest request = ApprovalRequest.of(
                 "textbook_approval",
@@ -580,36 +592,34 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
                 remark,
                 uid,
                 operator.getUserName(),
-                operator.getDept().getDeptName()
-        );
-        
+                operator.getDept().getDeptName());
+
         // 调用审批撤回方法
         ApprovalResult result = approvalProcessService.recall(request);
-        
+
         if (!result.isSuccess()) {
             return 0;
         }
-        
+
         // 更改状态
         int a = sciJiaocairuanzhuMapper.hxPass(id.toString(), result.getNewState());
-        
+
         // 插入日志
         SciJiaocairuanzhuPiyue sciJiaocairuanzhuPiyue = new SciJiaocairuanzhuPiyue();
         sciJiaocairuanzhuPiyue.setUid(uid);
         sciJiaocairuanzhuPiyue.setJiaocai_id(id);
         sciJiaocairuanzhuPiyue.setConcate(remark);
         sciJiaocairuanzhuPiyue.setState("科研处撤回");
-        
+
         // 如果是已通过撤回，清空积分
         if (oldState.equals("TEXTBOOK_PASSED")) {
             sciJiaocairuanzhuMapper.updateJifen(Long.valueOf(id), 0);
         }
-        
+
         sciJiaocairuanzhuPiyueMapper.insertSciJiaocairuanzhuPiyue(sciJiaocairuanzhuPiyue);
-        
+
         return a;
     }
-
 
     @Override
     public boolean checkExist(String mingcheng, String paiming, Long userId) {
@@ -622,22 +632,22 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
     }
 
     @Override
-    @DataScope(deptAlias = "d",userAlias = "u")
+    @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciJiaocairuanzhu> getStatsQueryToCheck(Map<String, String> params) {
         // 手动处理数据权限，因为 @DataScope 只支持 BaseEntity 类型，而这里使用的是 Map
         DataScopeUtils.applyDataScopeToMap(params, "d", "u", "");
         return sciJiaocairuanzhuMapper.getStatsQueryToCheck(params);
     }
-    
+
     @Override
     @Transactional
     public int saveJiaocairuanzhuMembers(Integer jiaocaiId, String membersJson) {
         // 先删除该教材著作已有的成员信息
         sciJiaocairuanzhuMemberMapper.deleteSciJiaocairuanzhuMemberByJiaocaiId(jiaocaiId);
-        
+
         // 解析JSON字符串，获取成员列表
         JSONArray membersArray = JSON.parseArray(membersJson);
-        
+
         // 遍历成员列表，插入新的成员信息
         for (int i = 0; i < membersArray.size(); i++) {
             JSONObject memberObj = membersArray.getJSONObject(i);
@@ -647,7 +657,7 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
             member.setMemberName(memberObj.getString("memberName"));
             member.setRanking(memberObj.getString("ranking"));
             member.setResearchScore(memberObj.getString("researchScore"));
-            
+
             // 根据角色设置对应的字段
             String role = memberObj.getString("role");
             if ("主编".equals(role)) {
@@ -668,10 +678,10 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
                 member.setIsAssociateEditor(0);
                 member.setIsMember(1);
             }
-            
+
             sciJiaocairuanzhuMemberMapper.insertSciJiaocairuanzhuMember(member);
         }
-        
+
         return membersArray.size();
     }
 
@@ -681,137 +691,19 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
     }
 
     @Override
-    @DataScope(deptAlias = "d",userAlias = "u")
+    @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciJiaocairuanzhu> selectSciJiaocairuanzhuListAll(SciJiaocairuanzhu sciJiaocairuanzhu) {
         List<SciJiaocairuanzhu> list = sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuListAll(sciJiaocairuanzhu);
         for (SciJiaocairuanzhu entity : list) {
-            fillPageRenderData(entity);
+            PageRenderResult<?> result = pageRenderService.fillPageRenderData(
+                    MODULE_CODE, PERM_PREFIX, PROCESS_CODE,
+                    entity.getState(),
+                    entity.getId() != null ? entity.getId().longValue() : null,
+                    entity.getUserId() != null ? entity.getUserId().longValue() : null);
+            entity.setStatusMeta(result.getStatusMeta());
+            entity.setActions(result.getActions());
         }
         return list;
     }
 
-    /**
-     * 教材软著旧状态码（0-7）映射为统一状态编码
-     */
-    private String mapStateToStatusCode(String state) {
-        if (state == null) {
-            return "TEXTBOOK_DRAFT";
-        }
-        if (state.contains("_")) {
-            return state;
-        }
-        switch (state) {
-            case "0":
-                return "TEXTBOOK_DRAFT";
-            case "1":
-                return "TEXTBOOK_JYS_AUDIT";
-            case "2":
-            case "4":
-                return "TEXTBOOK_KYC_AUDIT";
-            case "3":
-            case "5":
-            case "7":
-                return "TEXTBOOK_REJECTED";
-            case "6":
-                return "TEXTBOOK_PASSED";
-            default:
-                return "TEXTBOOK_DRAFT";
-        }
-    }
-
-    /**
-     * 填充页面渲染数据（状态展示和按钮动作列表）
-     */
-    private void fillPageRenderData(SciJiaocairuanzhu jiaocairuanzhu) {
-        if (jiaocairuanzhu == null) {
-            return;
-        }
-
-        SysUser currentUser = getCurrentUser();
-        List<String> permissions = buildCurrentPermissions(currentUser);
-        List<String> roleKeys = buildCurrentRoleKeys(currentUser);
-        String normalizedState = mapStateToStatusCode(jiaocairuanzhu.getState());
-
-        PageRenderContext context = new PageRenderContext();
-        context.setModuleCode(MODULE_CODE);
-        context.setBusinessId(jiaocairuanzhu.getId().longValue());
-        context.setCurrentState(normalizedState);
-        context.setCreatorId(jiaocairuanzhu.getUserId() != null ? jiaocairuanzhu.getUserId().longValue() : null);
-        context.setCurrentUser(currentUser);
-        context.setPermissions(permissions);
-        context.setRoleKeys(roleKeys);
-        context.setPermPrefix(PERM_PREFIX);
-        context.setProcessCode(PROCESS_CODE);
-
-        PageRenderStatusMeta statusMeta = pageRenderService.buildStatusMeta(context);
-        List<PageRenderActionItem> actions = pageRenderService.buildActions(context);
-
-        jiaocairuanzhu.setStatusMeta(statusMeta);
-        jiaocairuanzhu.setActions(actions);
-    }
-
-    /**
-     * 构建当前用户权限列表
-     */
-    private List<String> buildCurrentPermissions(SysUser user) {
-        List<String> permissions = new ArrayList<>();
-        if (user == null) {
-            return permissions;
-        }
-        try {
-            org.apache.shiro.subject.Subject subject = org.apache.shiro.SecurityUtils.getSubject();
-            if (subject != null && subject.isAuthenticated()) {
-                permissions.add(PERM_PREFIX + ":info");
-                if (subject.isPermitted(PERM_PREFIX + ":edit")) {
-                    permissions.add(PERM_PREFIX + ":edit");
-                }
-                if (subject.isPermitted(PERM_PREFIX + ":remove")) {
-                    permissions.add(PERM_PREFIX + ":remove");
-                }
-                if (subject.isPermitted(PERM_PREFIX + ":process")) {
-                    permissions.add(PERM_PREFIX + ":process");
-                }
-                if (subject.isPermitted(PERM_PREFIX + ":hecha")) {
-                    permissions.add(PERM_PREFIX + ":hecha");
-                }
-                if (subject.isPermitted(PERM_PREFIX + ":chayue")) {
-                    permissions.add(PERM_PREFIX + ":chayue");
-                }
-                if (subject.isPermitted(PERM_PREFIX + ":chexiao")) {
-                    permissions.add(PERM_PREFIX + ":chexiao");
-                }
-                if (subject.isPermitted(PERM_PREFIX + ":kyrevoke")) {
-                    permissions.add(PERM_PREFIX + ":kyrevoke");
-                }
-            }
-        } catch (Exception e) {
-            // ignore
-        }
-        return permissions;
-    }
-
-    /**
-     * 构建当前用户角色列表
-     */
-    private List<String> buildCurrentRoleKeys(SysUser user) {
-        List<String> roleKeys = new ArrayList<>();
-        if (user == null || user.getRoles() == null) {
-            return roleKeys;
-        }
-        for (com.ruoyi.common.core.domain.entity.SysRole role : user.getRoles()) {
-            roleKeys.add(role.getRoleKey());
-        }
-        return roleKeys;
-    }
-
-    /**
-     * 获取当前登录用户
-     */
-    private SysUser getCurrentUser() {
-        try {
-            return (SysUser) org.apache.shiro.SecurityUtils.getSubject().getPrincipal();
-        } catch (Exception e) {
-            return null;
-        }
-    }
 }
