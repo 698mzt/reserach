@@ -544,7 +544,44 @@
                     title: '操作',
                     align: 'center',
                     formatter: function(value, row, index) {
-                        return PageRender.renderActionsToString(row.actions);
+                        var actions = [];
+                        var huanhang = false;
+                        if (row.state == 'REWARD_DRAFT') {
+                            if (row.userId == row.uid) {
+                                actions.push('<a class="' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.push(\'' + row.id + '\')">提交&nbsp;&nbsp;&nbsp;&nbsp;</a>');
+                                actions.push('<a class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')">编辑&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
+                                actions.push('<a class="' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')" style="color : #c90000">删除</a>');
+                            }
+                            huanhang = true;
+                        } else if (row.state == 'REWARD_JYS_AUDIT') {
+                            if (proFlag != 'hidden') {
+                                actions.push('<a class="' + proFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro' + '\')">批阅&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
+                                huanhang = true;
+                            }
+                        } else if (row.state == 'REWARD_REJECTED') {
+                            if (row.userId == row.uid) {
+                                actions.push('<a class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')">编辑&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
+                                huanhang = true;
+                            }
+                        } else if (row.state == 'REWARD_KYC_AUDIT') {
+                            if (chayueFlag != 'hidden') {
+                                actions.push('<a class="' + chayueFlag + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chayue' + '\')">批阅&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
+                                huanhang = true;
+                            }
+                        } else if (row.state == 'REWARD_PASSED') {
+                            if (chayueFlag != 'hidden') {
+                                actions.push('<a class="' + chayueFlag + '" href="javascript:void(0)" onclick="$.operate.recallTab(\'' + row.id + '\')" style="color : #c90000">撤回&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
+                                huanhang = true;
+                            }
+                        }
+
+                        if (huanhang) {
+                            actions.push('<br>');
+                        }
+                        actions.push('<a class="' + editInfo + '" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan' + '\')">查看&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
+                        actions.push('<a class="' + editInfo + '" href="javascript:void(0)" onclick="viewProcess(\'' + row.id +','+ row.state + '\')">流程记录&nbsp;</a> ');
+
+                        return actions.join('');
                     }
                 }
             ]
@@ -552,34 +589,6 @@
 
         // 【关键修复】直接使用包含 queryParams 的 options 初始化表格
         $.table.init(options);
-
-        // 注册动作处理器
-        PageRender.registerHandlers({
-            view: function(row) {
-                $.operate.detailTab(row.id + '/chakan');
-            },
-            edit: function(row) {
-                $.operate.editTab(row.id);
-            },
-            submit: function(row) {
-                $.operate.push(row.id);
-            },
-            delete: function(row) {
-                $.operate.remove(row.id);
-            },
-            approve: function(row) {
-                $.operate.detailTab(row.id + '/pro');
-            },
-            reject: function(row) {
-                $.operate.detailTab(row.id + '/pro');
-            },
-            recall: function(row) {
-                $.operate.recallTab(row.id);
-            },
-            viewProcess: function(row) {
-                viewProcess(row.id + ',' + row.state);
-            }
-        });
 
         // 监听年份变化事件
         window.addEventListener("storage", function(event) {

@@ -422,7 +422,7 @@ public class PageRenderServiceImpl implements IPageRenderService {
 
     /**
      * 根据状态编码后缀推导状态语义
-     *
+     *合理
      * @param stateCode 状态编码
      * @return 状态语义
      */
@@ -687,7 +687,7 @@ public class PageRenderServiceImpl implements IPageRenderService {
      * @param isAdmin 是否为管理员
      */
     private void addAuditActions(PageRenderContext context, List<PageRenderActionItem> actions,
-                                  StateSemantic semantic, ModuleConfig config, boolean isOwner, boolean isAdmin) {
+                                 StateSemantic semantic, ModuleConfig config, boolean isOwner, boolean isAdmin) {
         String state = context.getCurrentState();
         if (state == null || config == null) {
             return;
