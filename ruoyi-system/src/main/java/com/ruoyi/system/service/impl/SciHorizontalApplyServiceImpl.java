@@ -73,7 +73,7 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
 
     /**
      * 填充页面渲染数据（状态展示信息和按钮动作列表）。
-     * 优先调用 PageRender 公共服务构建状态与动作；当状态映射缺失时，使用与文档一致的本地状态文案兜底。
+     * 统一调用 pageRenderService.fillPageRenderData 公共服务构建状态与按钮动作
      *
      * @param apply 横向课题对象
      */
@@ -83,32 +83,29 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
         }
         try {
             SysUser currentUser = ShiroUtils.getSysUser();
-            Set<String> permissions = buildCurrentPermissions(currentUser);
-            List<String> roleKeys = buildCurrentRoleKeys(currentUser);
+            if (currentUser == null) {
+                return;
+            }
+
             String currentState = apply.getState();
             String moduleCode = determineModuleCode(currentState);
             String processCode = determineProcessCode(currentState);
-            String permPrefix = "system:apply";
 
-            PageRenderContext context = new PageRenderContext();
-            context.setModuleCode(moduleCode);
-            context.setProcessCode(processCode);
-            context.setPermPrefix(permPrefix);
-            context.setBusinessId(apply.getId() != null ? apply.getId().longValue() : null);
-            context.setCurrentState(currentState);
-            context.setCreatorId(apply.getUserId() != null ? apply.getUserId().longValue() : null);
-            context.setCurrentUser(currentUser);
-            context.setPermissions(permissions);
-            context.setRoleKeys(roleKeys);
+            PageRenderResult<?> result = pageRenderService.fillPageRenderData(
+                    moduleCode,
+                    "system:apply",
+                    processCode,
+                    currentState,
+                    apply.getId() != null ? apply.getId().longValue() : null,
+                    apply.getUserId() != null ? apply.getUserId().longValue() : null,
+                    null
+            );
 
-            PageRenderStatusMeta statusMeta = buildHorizontalStatusMeta(context);
-            List<PageRenderActionItem> actions = pageRenderService.buildActions(context);
-
-            apply.setStatusMeta(statusMeta);
-            apply.setActions(actions);
+            apply.setStatusMeta(result.getStatusMeta());
+            apply.setActions(result.getActions());
         } catch (Exception e) {
             log.error("填充横向课题页面渲染数据失败, applyId={}", apply.getId(), e);
-            apply.setStatusMeta(buildFallbackStatusMeta(apply.getState()));
+            apply.setStatusMeta(PageRenderStatusMeta.of(apply.getState(), "未知", PageRenderColorConstants.COLOR_DEFAULT));
             apply.setActions(new ArrayList<>());
         }
     }
