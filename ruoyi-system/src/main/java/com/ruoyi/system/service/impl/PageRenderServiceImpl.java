@@ -422,7 +422,7 @@ public class PageRenderServiceImpl implements IPageRenderService {
 
     /**
      * 根据状态编码后缀推导状态语义
-     *
+     *合理
      * @param stateCode 状态编码
      * @return 状态语义
      */
