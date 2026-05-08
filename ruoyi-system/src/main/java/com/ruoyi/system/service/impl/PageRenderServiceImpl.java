@@ -10,18 +10,29 @@ import com.ruoyi.system.mapper.SysApprovalNodeMapper;
 import com.ruoyi.system.mapper.SysApprovalProcessMapper;
 import com.ruoyi.system.mapper.SysApprovalStateMapper;
 import com.ruoyi.system.service.IPageRenderService;
+import com.ruoyi.system.service.ISysMenuService;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authz.AuthorizationInfo;
+import org.apache.shiro.cache.Cache;
+import org.apache.shiro.mgt.RealmSecurityManager;
+import org.apache.shiro.realm.AuthorizingRealm;
+import org.apache.shiro.subject.PrincipalCollection;
+import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * 页面渲染公共服务实现类
@@ -81,7 +92,7 @@ public class PageRenderServiceImpl implements IPageRenderService {
         private final Map<String, String> permissionMap;
 
         ModuleConfig(String moduleCode, String permPrefix, String processCode,
-                     String moduleName, Map<String, String> permissionMap) {
+                String moduleName, Map<String, String> permissionMap) {
             this.moduleCode = moduleCode;
             this.permPrefix = permPrefix;
             this.processCode = processCode;
@@ -127,6 +138,9 @@ public class PageRenderServiceImpl implements IPageRenderService {
     @Autowired
     private SysApprovalProcessMapper approvalProcessMapper;
 
+    @Autowired
+    private ISysMenuService sysMenuService;
+
     /** 八大模块配置注册表（moduleCode -> ModuleConfig） */
     private final Map<String, ModuleConfig> MODULE_REGISTRY = new HashMap<>();
 
@@ -162,138 +176,166 @@ public class PageRenderServiceImpl implements IPageRenderService {
     private void registerModuleConfigs() {
         // 论文模块：教研室批阅=process, 学院批阅=xypy, 科研批阅=kypy, 撤回=revoke, 科研退回=kyrevoke
         MODULE_REGISTRY.put("PAPER", new ModuleConfig("PAPER", "system:paper", PAPER_PROCESS_CODE, "论文",
-                new HashMap<String, String>() {{
-                    put("info", "info");
-                    put("edit", "edit");
-                    put("add", "add");
-                    put("remove", "remove");
-                    put("approve", "process");       // 教研室批阅
-                    put("kypy", "kypy");             // 科研处批阅
-                    put("revoke", "revoke");         // 作者撤回
-                    put("kyrevoke", "kyrevoke");     // 科研处退回
-                    put("xyrevoke", "xyrevoke");     // 学院退回
-                }}));
+                new HashMap<String, String>() {
+                    {
+                        put("info", "info");
+                        put("edit", "edit");
+                        put("add", "add");
+                        put("remove", "remove");
+                        put("approve", "process"); // 教研室批阅
+                        put("kypy", "kypy"); // 科研处批阅
+                        put("revoke", "revoke"); // 作者撤回
+                        put("kyrevoke", "kyrevoke"); // 科研处退回
+                        put("xyrevoke", "xyrevoke"); // 学院退回
+                    }
+                }));
 
         // 奖励模块：批阅=process, 核查=hecha, 查阅=chayue
         MODULE_REGISTRY.put("REWARD", new ModuleConfig("REWARD", "system:reward", REWARD_APPLY_PROCESS_CODE, "奖励",
-                new HashMap<String, String>() {{
-                    put("info", "info");
-                    put("edit", "edit");
-                    put("add", "add");
-                    put("remove", "remove");
-                    put("approve", "process");
-                    put("kypy", "hecha");
-                    put("revoke", "revoke");
-                    put("kyrevoke", "kyrevoke");
-                }}));
+                new HashMap<String, String>() {
+                    {
+                        put("info", "info");
+                        put("edit", "edit");
+                        put("add", "add");
+                        put("remove", "remove");
+                        put("approve", "process");
+                        put("kypy", "hecha");
+                        put("revoke", "revoke");
+                        put("kyrevoke", "kyrevoke");
+                    }
+                }));
 
         // 教材软著模块：批阅=process, 核查=hecha, 查阅=chayue, 撤销=chexiao, 提交=tijiao
-        MODULE_REGISTRY.put("TEXTBOOK", new ModuleConfig("TEXTBOOK", "system:jiaocairuanzhu", TEXTBOOK_APPROVAL_PROCESS_CODE, "教材软著",
-                new HashMap<String, String>() {{
-                    put("info", "info");
-                    put("edit", "edit");
-                    put("add", "add");
-                    put("remove", "remove");
-                    put("approve", "process");
-                    put("kypy", "hecha");
-                    put("revoke", "chexiao");
-                    put("kyrevoke", "kyrevoke");
-                    put("submit", "tijiao");
-                }}));
+        MODULE_REGISTRY.put("TEXTBOOK",
+                new ModuleConfig("TEXTBOOK", "system:jiaocairuanzhu", TEXTBOOK_APPROVAL_PROCESS_CODE, "教材软著",
+                        new HashMap<String, String>() {
+                            {
+                                put("info", "info");
+                                put("edit", "edit");
+                                put("add", "add");
+                                put("remove", "remove");
+                                put("approve", "process");
+                                put("kypy", "hecha");
+                                put("revoke", "chexiao");
+                                put("kyrevoke", "kyrevoke");
+                                put("submit", "tijiao");
+                            }
+                        }));
 
         // 专利软著模块：批阅=process, 核查=hecha, 查阅=chayue, 撤销=chexiao
-        MODULE_REGISTRY.put("PATENT", new ModuleConfig("PATENT", "system:zhuanliruanzhu", PATENT_APPLY_PROCESS_CODE, "专利软著",
-                new HashMap<String, String>() {{
-                    put("info", "info");
-                    put("edit", "edit");
-                    put("add", "add");
-                    put("remove", "remove");
-                    put("approve", "process");
-                    put("kypy", "hecha");
-                    put("revoke", "chexiao");
-                    put("kyrevoke", "kyrevoke");
-                }}));
+        MODULE_REGISTRY.put("PATENT",
+                new ModuleConfig("PATENT", "system:zhuanliruanzhu", PATENT_APPLY_PROCESS_CODE, "专利软著",
+                        new HashMap<String, String>() {
+                            {
+                                put("info", "info");
+                                put("edit", "edit");
+                                put("add", "add");
+                                put("remove", "remove");
+                                put("approve", "process");
+                                put("kypy", "hecha");
+                                put("revoke", "chexiao");
+                                put("kyrevoke", "kyrevoke");
+                            }
+                        }));
 
         // 讲座报告模块：批阅=process, 核查=check, 学院批阅=xyprocess
-        MODULE_REGISTRY.put("LECTURE", new ModuleConfig("LECTURE", "system:report", LECTURE_APPROVAL_PROCESS_CODE, "讲座报告",
-                new HashMap<String, String>() {{
-                    put("info", "info");
-                    put("edit", "edit");
-                    put("add", "add");
-                    put("remove", "remove");
-                    put("approve", "process");
-                    put("kypy", "check");
-                    put("revoke", "revoke");
-                    put("kyrevoke", "kyrevoke");
-                    put("xyprocess", "xyprocess");
-                }}));
+        MODULE_REGISTRY.put("LECTURE",
+                new ModuleConfig("LECTURE", "system:report", LECTURE_APPROVAL_PROCESS_CODE, "讲座报告",
+                        new HashMap<String, String>() {
+                            {
+                                put("info", "info");
+                                put("edit", "edit");
+                                put("add", "add");
+                                put("remove", "remove");
+                                put("approve", "process");
+                                put("kypy", "check");
+                                put("revoke", "revoke");
+                                put("kyrevoke", "kyrevoke");
+                                put("xyprocess", "xyprocess");
+                            }
+                        }));
 
         // 横向项目申报模块：批阅=process, 科研室批阅=reprocess, 核查=hecha, 学院审批=Dept, 结项=apply_over
-        MODULE_REGISTRY.put("HORIZONTAL_APPLY", new ModuleConfig("HORIZONTAL_APPLY", "system:apply", HORIZONTAL_APPLY_PROCESS_CODE, "横向项目申报",
-                new HashMap<String, String>() {{
-                    put("info", "info");
-                    put("edit", "edit");
-                    put("add", "add");
-                    put("remove", "remove");
-                    put("approve", "process");
-                    put("kypy", "hecha");
-                    put("revoke", "revoke");
-                    put("kyrevoke", "kyrevoke");
-                    put("reprocess", "reprocess");
-                }}));
+        MODULE_REGISTRY.put("HORIZONTAL_APPLY",
+                new ModuleConfig("HORIZONTAL_APPLY", "system:apply", HORIZONTAL_APPLY_PROCESS_CODE, "横向项目申报",
+                        new HashMap<String, String>() {
+                            {
+                                put("info", "info");
+                                put("edit", "edit");
+                                put("add", "add");
+                                put("remove", "remove");
+                                put("approve", "process");
+                                put("kypy", "hecha");
+                                put("revoke", "revoke");
+                                put("kyrevoke", "kyrevoke");
+                                put("reprocess", "reprocess");
+                            }
+                        }));
 
         // 横向项目结题模块：权限同立项
-        MODULE_REGISTRY.put("HORIZONTAL_OVER", new ModuleConfig("HORIZONTAL_OVER", "system:apply", HORIZONTAL_OVER_PROCESS_CODE, "横向项目结题",
-                new HashMap<String, String>() {{
-                    put("info", "info");
-                    put("edit", "edit");
-                    put("add", "add");
-                    put("remove", "remove");
-                    put("approve", "process");
-                    put("kypy", "hecha");
-                    put("revoke", "revoke");
-                    put("kyrevoke", "kyrevoke");
-                    put("reprocess", "reprocess");
-                }}));
+        MODULE_REGISTRY.put("HORIZONTAL_OVER",
+                new ModuleConfig("HORIZONTAL_OVER", "system:apply", HORIZONTAL_OVER_PROCESS_CODE, "横向项目结题",
+                        new HashMap<String, String>() {
+                            {
+                                put("info", "info");
+                                put("edit", "edit");
+                                put("add", "add");
+                                put("remove", "remove");
+                                put("approve", "process");
+                                put("kypy", "hecha");
+                                put("revoke", "revoke");
+                                put("kyrevoke", "kyrevoke");
+                                put("reprocess", "reprocess");
+                            }
+                        }));
 
         // 纵向项目申报模块：JYS批阅=JYS, 学院审批=Dept, KYC批阅=KYC (大写！)
-        MODULE_REGISTRY.put("VERTICAL_APPLY", new ModuleConfig("VERTICAL_APPLY", "system:apply_vertical", VERTICAL_APPLY_PROCESS_CODE, "纵向项目申报",
-                new HashMap<String, String>() {{
-                    put("info", "info");
-                    put("edit", "edit");
-                    put("add", "add");
-                    put("remove", "remove");
-                    put("approve", "JYS");            // 纵向教研室批阅
-                    put("kypy", "KYC");              // 纵向科研处批阅（注意大写）
-                    put("revoke", "revoke");
-                    put("kyrevoke", "kyrevoke");
-                }}));
+        MODULE_REGISTRY.put("VERTICAL_APPLY",
+                new ModuleConfig("VERTICAL_APPLY", "system:apply_vertical", VERTICAL_APPLY_PROCESS_CODE, "纵向项目申报",
+                        new HashMap<String, String>() {
+                            {
+                                put("info", "info");
+                                put("edit", "edit");
+                                put("add", "add");
+                                put("remove", "remove");
+                                put("approve", "JYS"); // 纵向教研室批阅
+                                put("kypy", "KYC"); // 纵向科研处批阅（注意大写）
+                                put("revoke", "revoke");
+                                put("kyrevoke", "kyrevoke");
+                            }
+                        }));
 
         // 纵向项目结题模块：权限同立项
-        MODULE_REGISTRY.put("VERTICAL_OVER", new ModuleConfig("VERTICAL_OVER", "system:apply_vertical", VERTICAL_OVER_PROCESS_CODE, "纵向项目结题",
-                new HashMap<String, String>() {{
-                    put("info", "info");
-                    put("edit", "edit");
-                    put("add", "add");
-                    put("remove", "remove");
-                    put("approve", "JYS");
-                    put("kypy", "KYC");
-                    put("revoke", "revoke");
-                    put("kyrevoke", "kyrevoke");
-                }}));
+        MODULE_REGISTRY.put("VERTICAL_OVER",
+                new ModuleConfig("VERTICAL_OVER", "system:apply_vertical", VERTICAL_OVER_PROCESS_CODE, "纵向项目结题",
+                        new HashMap<String, String>() {
+                            {
+                                put("info", "info");
+                                put("edit", "edit");
+                                put("add", "add");
+                                put("remove", "remove");
+                                put("approve", "JYS");
+                                put("kypy", "KYC");
+                                put("revoke", "revoke");
+                                put("kyrevoke", "kyrevoke");
+                            }
+                        }));
 
         // 成果转化模块：教研室批阅=JYPY, 学院批阅=XYPY, 科研室批阅=KYPY, 教研室撤回=JYCH, 学院撤回=XYCH, 科研室撤回=KYCH
-        MODULE_REGISTRY.put("TEC_TRA", new ModuleConfig("TEC_TRA", "system:intraSch", INTRASCHPRO_APPLY_PROCESS_CODE, "成果转化",
-                new HashMap<String, String>() {{
-                    put("info", "info");
-                    put("edit", "edit");
-                    put("add", "add");
-                    put("remove", "remove");
-                    put("approve", "JYPY");           // 教研室批阅
-                    put("kypy", "KYPY");             // 科研室批阅
-                    put("revoke", "JYCH");           // 教研室撤回
-                    put("kyrevoke", "KYCH");         // 科研室撤回
-                }}));
+        MODULE_REGISTRY.put("TEC_TRA",
+                new ModuleConfig("TEC_TRA", "system:intraSch", INTRASCHPRO_APPLY_PROCESS_CODE, "成果转化",
+                        new HashMap<String, String>() {
+                            {
+                                put("info", "info");
+                                put("edit", "edit");
+                                put("add", "add");
+                                put("remove", "remove");
+                                put("approve", "JYPY"); // 教研室批阅
+                                put("kypy", "KYPY"); // 科研室批阅
+                                put("revoke", "JYCH"); // 教研室撤回
+                                put("kyrevoke", "KYCH"); // 科研室撤回
+                            }
+                        }));
 
         log.info("已注册 {} 个模块配置，权限映射已就绪", MODULE_REGISTRY.size());
     }
@@ -328,7 +370,8 @@ public class PageRenderServiceImpl implements IPageRenderService {
             allStatusMappings.put(processCode, statusMapping);
 
             // 加载节点映射
-            Map<String, SysApprovalNode> nodeMapping = loadNodeMappingForProcess(process.getId(), processCode, moduleName);
+            Map<String, SysApprovalNode> nodeMapping = loadNodeMappingForProcess(process.getId(), processCode,
+                    moduleName);
             allNodeMappings.put(processCode, nodeMapping);
         }
     }
@@ -337,7 +380,7 @@ public class PageRenderServiceImpl implements IPageRenderService {
      * 从数据库加载指定流程的状态映射配置
      *
      * @param processCode 流程编码
-     * @param moduleName 模块名称（用于日志输出）
+     * @param moduleName  模块名称（用于日志输出）
      * @return 状态编码到状态映射的映射表
      */
     private Map<String, StatusMapping> loadStatusMappingForProcess(String processCode, String moduleName) {
@@ -351,7 +394,8 @@ public class PageRenderServiceImpl implements IPageRenderService {
             if ("0".equals(state.getStatus())) {
                 String colorType = getColorTypeByStateCode(state.getStateCode());
                 mapping.put(state.getStateCode(),
-                        new StatusMapping(state.getStateName(), colorType, getSemanticByStateCode(state.getStateCode())));
+                        new StatusMapping(state.getStateName(), colorType,
+                                getSemanticByStateCode(state.getStateCode())));
             }
         }
         log.debug("流程 {} ({}) 加载了 {} 个状态", processCode, moduleName, mapping.size());
@@ -361,12 +405,13 @@ public class PageRenderServiceImpl implements IPageRenderService {
     /**
      * 从数据库加载指定流程的审批节点配置
      *
-     * @param processId 流程ID
+     * @param processId   流程ID
      * @param processCode 流程编码
-     * @param moduleName 模块名称（用于日志输出）
+     * @param moduleName  模块名称（用于日志输出）
      * @return 节点编码到节点信息的映射表
      */
-    private Map<String, SysApprovalNode> loadNodeMappingForProcess(Long processId, String processCode, String moduleName) {
+    private Map<String, SysApprovalNode> loadNodeMappingForProcess(Long processId, String processCode,
+            String moduleName) {
         Map<String, SysApprovalNode> mapping = new HashMap<>();
         List<SysApprovalNode> nodes = approvalNodeMapper.selectSysApprovalNodeByProcessId(processId);
         if (nodes == null || nodes.isEmpty()) {
@@ -425,7 +470,8 @@ public class PageRenderServiceImpl implements IPageRenderService {
 
     /**
      * 根据状态编码后缀推导状态语义
-     *合理
+     * 合理
+     * 
      * @param stateCode 状态编码
      * @return 状态语义
      */
@@ -682,15 +728,15 @@ public class PageRenderServiceImpl implements IPageRenderService {
      * - 科研处审批（第二级）：使用 config.getPermission("kypy") 动态解析
      * - 撤回（科研处审批中）：教研室审批人使用 config.getPermission("approve") 权限撤回
      *
-     * @param context 页面渲染上下文
-     * @param actions 按钮列表（追加）
+     * @param context  页面渲染上下文
+     * @param actions  按钮列表（追加）
      * @param semantic 状态语义
-     * @param config 模块配置（含权限映射表）
-     * @param isOwner 是否为创建人
-     * @param isAdmin 是否为管理员
+     * @param config   模块配置（含权限映射表）
+     * @param isOwner  是否为创建人
+     * @param isAdmin  是否为管理员
      */
     private void addAuditActions(PageRenderContext context, List<PageRenderActionItem> actions,
-                                 StateSemantic semantic, ModuleConfig config, boolean isOwner, boolean isAdmin) {
+            StateSemantic semantic, ModuleConfig config, boolean isOwner, boolean isAdmin) {
         String state = context.getCurrentState();
         if (state == null || config == null) {
             return;
@@ -703,9 +749,9 @@ public class PageRenderServiceImpl implements IPageRenderService {
 
         // 教研室审批按钮：使用 config.getPermission("approve") 动态获取权限
         // 各模块映射示例：
-        //   论文 -> system:paper:process
-        //   纵向 -> system:apply_vertical:JYS
-        //   成果转化 -> system:intraSch:JYPY
+        // 论文 -> system:paper:process
+        // 纵向 -> system:apply_vertical:JYS
+        // 成果转化 -> system:intraSch:JYPY
         if (isFirstAuditNode && context.hasPermission(config.getPermission("approve"))) {
             actions.add(PageRenderActionItem.of(
                     PageRenderActionConstants.ACTION_REVIEW, "批阅",
@@ -720,11 +766,11 @@ public class PageRenderServiceImpl implements IPageRenderService {
 
         // 科研处审批按钮：使用 config.getPermission("kypy") 动态获取权限
         // 各模块映射示例：
-        //   论文 -> system:paper:kypy
-        //   纵向 -> system:apply_vertical:KYC（注意大写）
-        //   成果转化 -> system:intraSch:KYPY
-        //   奖励 -> system:reward:hecha
-        //   横向 -> system:apply:hecha
+        // 论文 -> system:paper:kypy
+        // 纵向 -> system:apply_vertical:KYC（注意大写）
+        // 成果转化 -> system:intraSch:KYPY
+        // 奖励 -> system:reward:hecha
+        // 横向 -> system:apply:hecha
         else if (isLastAuditNode && context.hasPermission(config.getPermission("kypy"))) {
             actions.add(PageRenderActionItem.of(
                     PageRenderActionConstants.ACTION_KY_REVIEW, "核查",
@@ -799,10 +845,11 @@ public class PageRenderServiceImpl implements IPageRenderService {
         return PageRenderResult.of(statusMeta, actions, businessData);
     }
 
+
     @Override
     public PageRenderResult<?> fillPageRenderData(String moduleCode, String permPrefix,
-                                                    String processCode, String currentState,
-                                                    Long businessId, Long creatorId) {
+            String processCode, String currentState,
+            Long businessId, Long creatorId, Set<String> permissions) {
         PageRenderStatusMeta fallbackMeta = PageRenderStatusMeta.of("", "未知", PageRenderColorConstants.COLOR_DEFAULT);
         List<PageRenderActionItem> emptyActions = Collections.emptyList();
 
@@ -816,6 +863,7 @@ public class PageRenderServiceImpl implements IPageRenderService {
                 return PageRenderResult.of(fallbackMeta, emptyActions, null);
             }
 
+            Set<String> currentPermissions = permissions != null ? permissions : buildCurrentPermissions(currentUser);
             List<String> roleKeys = buildRoleKeys(currentUser);
 
             PageRenderContext context = new PageRenderContext();
@@ -824,7 +872,7 @@ public class PageRenderServiceImpl implements IPageRenderService {
             context.setCurrentState(currentState);
             context.setCreatorId(creatorId);
             context.setCurrentUser(currentUser);
-            context.setPermissions(null);
+            context.setPermissions(currentPermissions);
             context.setRoleKeys(roleKeys);
             context.setPermPrefix(permPrefix);
             context.setProcessCode(processCode);
@@ -837,6 +885,152 @@ public class PageRenderServiceImpl implements IPageRenderService {
             log.error("填充页面渲染数据失败, moduleCode={}, currentState={}", moduleCode, currentState, e);
             return PageRenderResult.of(fallbackMeta, emptyActions, null);
         }
+    }
+
+    /**
+     * 构建当前用户的权限列表
+     * <p>
+     * 采用两级策略获取用户权限：
+     * 1. 优先从 Shiro 授权缓存中读取（性能最优，避免数据库查询）
+     * 2. 缓存未命中时，直接查询数据库获取最新权限数据
+     * </p>
+     * <p>
+     * 该方法的优先级设计保证了在大多数场景下能够快速响应，
+     * 同时在权限变更后也能通过数据库查询获取最新数据。
+     * </p>
+     *
+     * @param currentUser 当前登录用户对象，不能为 null
+     * @return 用户权限标识列表，如果用户为空或无权限则返回空列表
+     */
+    @Override
+    public Set<String> buildCurrentPermissions(SysUser currentUser) {
+        // 参数校验：用户为空时返回空列表
+        if (currentUser == null) {
+            return Collections.emptySet();
+        }
+
+        // 第一优先级：尝试从 Shiro 授权缓存获取权限（性能最优）
+        Set<String> cachedPermissions = getCachedPermissions(currentUser);
+        if (!cachedPermissions.isEmpty()) {
+            return cachedPermissions;
+        }
+
+        // 第二优先级：缓存未命中时，直接查询数据库获取权限
+        Set<String> permsSet;
+        try {
+            // 调用菜单服务查询用户权限（会执行 SQL 联表查询）
+            permsSet = sysMenuService.selectPermsByUserId(currentUser.getUserId());
+        } catch (Exception e) {
+            log.error("获取当前用户权限失败, userId={}", currentUser.getUserId(), e);
+            return Collections.emptySet();
+        }
+
+        // 空值处理：权限集合为空时返回空列表
+        if (permsSet == null || permsSet.isEmpty()) {
+            return Collections.emptySet();
+        }
+
+        return permsSet;
+    }
+
+    /**
+     * 从 Shiro 授权缓存中读取用户权限
+     * <p>
+     * 通过反射机制访问 Shiro 内部的授权缓存，避免重复数据库查询。
+     * 缓存通常在用户登录时由 UserRealm 的 doGetAuthorizationInfo 方法填充，
+     * 并在用户登出或权限变更时失效。
+     * </p>
+     * <p>
+     * 该方法使用反射是为了避免直接依赖 ruoyi-framework 模块的具体实现类，
+     * 保持代码的灵活性和可测试性。
+     * </p>
+     *
+     * @param currentUser 当前登录用户对象，用于获取 PrincipalCollection
+     * @return 缓存中的权限列表，如果缓存未命中或异常则返回空列表
+     */
+    private Set<String> getCachedPermissions(SysUser currentUser) {
+        try {
+            // 获取当前 Shiro Subject（代表当前用户的安全上下文）
+            Subject subject = SecurityUtils.getSubject();
+            if (subject == null) {
+                return Collections.emptySet();
+            }
+
+            // 获取主体的身份集合（包含用户信息等）
+            PrincipalCollection principals = subject.getPrincipals();
+            if (principals == null) {
+                return Collections.emptySet();
+            }
+
+            // 获取授权域（负责权限验证的核心组件）
+            AuthorizingRealm realm = getAuthorizingRealm();
+
+            // 通过反射获取授权缓存对象
+            Cache<Object, AuthorizationInfo> authorizationCache = getAuthorizationCache(realm);
+            if (authorizationCache == null) {
+                return Collections.emptySet();
+            }
+
+            // 从缓存中查询用户的授权信息
+            AuthorizationInfo authorizationInfo = authorizationCache.get(principals);
+            if (authorizationInfo == null || authorizationInfo.getStringPermissions() == null
+                    || authorizationInfo.getStringPermissions().isEmpty()) {
+                return Collections.emptySet();
+            }
+
+            return new LinkedHashSet<>(authorizationInfo.getStringPermissions());
+        } catch (Exception e) {
+            // 缓存读取失败不影响业务流程，降级为数据库查询
+            log.debug("从 Shiro 授权缓存读取当前用户权限失败, userId={}", currentUser.getUserId(), e);
+            return Collections.emptySet();
+        }
+    }
+
+    /**
+     * 通过反射获取 Shiro 授权缓存对象
+     * <p>
+     * 使用反射访问 AuthorizingRealm 的受保护方法 getAuthorizationCache()，
+     * 这样可以避免直接依赖具体的 Realm 实现类，提高代码的可移植性。
+     * </p>
+     *
+     * @param realm 授权域对象，用于获取其内部的授权缓存
+     * @return 授权缓存对象，类型为 Cache&lt;Object, AuthorizationInfo&gt;
+     * @throws Exception 反射调用失败时抛出异常
+     */
+    @SuppressWarnings("unchecked")
+    private Cache<Object, AuthorizationInfo> getAuthorizationCache(AuthorizingRealm realm) throws Exception {
+        // 获取 AuthorizingRealm 类的 getAuthorizationCache 方法（受保护方法）
+        Method method = AuthorizingRealm.class.getDeclaredMethod("getAuthorizationCache");
+        // 设置方法可访问（突破 protected 访问限制）
+        method.setAccessible(true);
+        // 调用方法并强制类型转换返回缓存对象
+        return (Cache<Object, AuthorizationInfo>) method.invoke(realm);
+    }
+
+    /**
+     * 获取 Shiro 授权域（AuthorizingRealm）
+     * <p>
+     * 从 SecurityManager 中遍历所有 Realm，找到第一个 AuthorizingRealm 类型的域。
+     * AuthorizingRealm 是 Shiro 中负责授权（权限验证）的核心组件，
+     * 通常对应项目中的 UserRealm 实现类。
+     * </p>
+     *
+     * @return AuthorizingRealm 授权域对象
+     * @throws IllegalStateException 当未找到可用的 AuthorizingRealm 时抛出异常
+     */
+    private AuthorizingRealm getAuthorizingRealm() {
+        // 获取安全管理器并转换为 RealmSecurityManager 类型
+        RealmSecurityManager securityManager = (RealmSecurityManager) SecurityUtils.getSecurityManager();
+
+        // 遍历所有注册的 Realm，查找 AuthorizingRealm 类型的域
+        for (org.apache.shiro.realm.Realm realm : securityManager.getRealms()) {
+            if (realm instanceof AuthorizingRealm) {
+                return (AuthorizingRealm) realm;
+            }
+        }
+
+        // 未找到授权域时抛出异常（正常情况下不应该发生）
+        throw new IllegalStateException("未找到可用的 Shiro AuthorizingRealm");
     }
 
     private List<String> buildRoleKeys(SysUser currentUser) {

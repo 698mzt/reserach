@@ -38,7 +38,7 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
     private static final Logger log = LoggerFactory.getLogger(SciHorizontalApplyVerticalServiceImpl.class);
 
     // ThreadLocal 用于缓存当前请求的用户权限和角色，避免重复查询数据库
-    private static final ThreadLocal<List<String>> PERMISSIONS_CACHE = new ThreadLocal<>();
+    private static final ThreadLocal<Set<String>> PERMISSIONS_CACHE = new ThreadLocal<>();
     private static final ThreadLocal<List<String>> ROLE_KEYS_CACHE = new ThreadLocal<>();
     private static final ThreadLocal<SysUser> CURRENT_USER_CACHE = new ThreadLocal<>();
 
@@ -877,7 +877,7 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
                 return;
             }
 
-            List<String> permissions = PERMISSIONS_CACHE.get();
+            Set<String> permissions = PERMISSIONS_CACHE.get();
             List<String> roleKeys = ROLE_KEYS_CACHE.get();
             // 根据状态确定模块编码（立项/结项）
             String moduleCode = determineModuleCode(apply.getState());
@@ -945,15 +945,15 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
      * @param currentUser 当前登录用户
      * @return 权限列表
      */
-    private List<String> buildCurrentPermissions(SysUser currentUser) {
+    private Set<String> buildCurrentPermissions(SysUser currentUser) {
         if (currentUser == null) {
-            return new ArrayList<>();
+            return new HashSet<>();
         }
         Set<String> permsSet = sysMenuService.selectPermsByUserId(currentUser.getUserId());
         if (permsSet == null || permsSet.isEmpty()) {
-            return new ArrayList<>();
+            return new HashSet<>();
         }
-        return new ArrayList<>(permsSet);
+        return permsSet;
     }
 
     /**
@@ -1006,7 +1006,7 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
      * @param permissions 权限列表
      */
     private void addCustomActions(SciHorizontalApplyVertical apply, List<PageRenderActionItem> actions,
-                                   SysUser currentUser, List<String> permissions) {
+                                   SysUser currentUser, Set<String> permissions) {
         if (apply == null || actions == null || currentUser == null) {
             return;
         }

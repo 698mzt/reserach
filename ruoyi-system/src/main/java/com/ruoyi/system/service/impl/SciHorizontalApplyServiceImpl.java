@@ -83,7 +83,7 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
         }
         try {
             SysUser currentUser = ShiroUtils.getSysUser();
-            List<String> permissions = buildCurrentPermissions(currentUser);
+            Set<String> permissions = buildCurrentPermissions(currentUser);
             List<String> roleKeys = buildCurrentRoleKeys(currentUser);
             String currentState = apply.getState();
             String moduleCode = determineModuleCode(currentState);
@@ -118,15 +118,15 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
         return buildFallbackStatusMeta(state).getStatusText();
     }
 
-    private List<String> buildCurrentPermissions(SysUser currentUser) {
+    private Set<String> buildCurrentPermissions(SysUser currentUser) {
         if (currentUser == null) {
-            return new ArrayList<>();
+            return new HashSet<>();
         }
         Set<String> permsSet = sysMenuService.selectPermsByUserId(currentUser.getUserId());
         if (permsSet == null || permsSet.isEmpty()) {
-            return new ArrayList<>();
+            return new HashSet<>();
         }
-        return new ArrayList<>(permsSet);
+        return permsSet;
     }
 
     /**

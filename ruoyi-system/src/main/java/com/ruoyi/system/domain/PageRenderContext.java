@@ -5,6 +5,7 @@ import com.ruoyi.common.core.domain.entity.SysUser;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * 审批页面渲染上下文对象，封装统一渲染方法所需的全部上下文信息
@@ -31,7 +32,7 @@ public class PageRenderContext implements Serializable {
     private SysUser currentUser;
 
     /** 当前用户权限列表 */
-    private List<String> permissions;
+    private Set<String> permissions;
 
     /** 当前用户角色key列表 */
     private List<String> roleKeys;
@@ -164,11 +165,11 @@ public class PageRenderContext implements Serializable {
         this.currentUser = currentUser;
     }
 
-    public List<String> getPermissions() {
+    public Set<String> getPermissions() {
         return permissions;
     }
 
-    public void setPermissions(List<String> permissions) {
+    public void setPermissions(Set<String> permissions) {
         this.permissions = permissions;
     }
 

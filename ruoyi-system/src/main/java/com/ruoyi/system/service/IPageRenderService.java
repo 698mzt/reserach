@@ -1,11 +1,13 @@
 package com.ruoyi.system.service;
 
+import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.system.domain.PageRenderActionItem;
 import com.ruoyi.system.domain.PageRenderContext;
 import com.ruoyi.system.domain.PageRenderResult;
 import com.ruoyi.system.domain.PageRenderStatusMeta;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * 页面渲染公共服务接口
@@ -45,8 +47,18 @@ public interface IPageRenderService {
     <T> PageRenderResult<T> buildRenderResult(PageRenderContext context, T businessData);
 
     /**
+     * 获取当前用户完整权限列表
+     * 优先复用若依/Shiro 现有授权链路，返回当前用户的全量权限集合
+     *
+     * @param currentUser 当前登录用户
+     * @return 当前用户完整权限列表
+     */
+    Set<String> buildCurrentPermissions(SysUser currentUser);
+
+    /**
      * 统一填充页面渲染数据（公有方法）
-     * 自动从 Shiro 缓存获取当前用户权限和角色，构建 PageRenderContext 并调用 buildStatusMeta + buildActions
+     * 自动从 Shiro 缓存获取当前用户权限和角色，构建 PageRenderContext 并调用 buildStatusMeta +
+     * buildActions
      *
      * @param moduleCode   模块编码（如 PAPER、REWARD、TEXTBOOK 等）
      * @param permPrefix   权限前缀（如 system:paper、system:reward）
@@ -54,9 +66,10 @@ public interface IPageRenderService {
      * @param currentState 当前状态编码（如 PAPER_DRAFT、REWARD_JYS_AUDIT）
      * @param businessId   业务ID
      * @param creatorId    创建者ID
+     * @param permissions  当前用户权限集合，若为空则自动从 Shiro 缓存获取当前用户权限
      * @return 页面渲染汇总结果（包含 statusMeta 和 actions）
      */
     PageRenderResult<?> fillPageRenderData(String moduleCode, String permPrefix,
-                                            String processCode, String currentState,
-                                            Long businessId, Long creatorId);
+            String processCode, String currentState,
+            Long businessId, Long creatorId, Set<String> permissions);
 }

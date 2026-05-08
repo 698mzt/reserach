@@ -1,9 +1,6 @@
 package com.ruoyi.system.service.impl;
 
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Date;
+import java.util.*;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -11,6 +8,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.ruoyi.common.annotation.DataScope;
 import com.ruoyi.common.utils.DataScopeUtils;
 import com.ruoyi.common.core.domain.entity.SysUser;
+import com.ruoyi.common.utils.ShiroUtils;
 import com.ruoyi.system.domain.ApprovalRequest;
 import com.ruoyi.system.domain.ApprovalResult;
 import com.ruoyi.system.domain.SciHorizontalPiyue;
@@ -84,11 +82,13 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
     @Override
     public SciJiaocairuanzhu selectSciJiaocairuanzhuById(Integer id) {
         SciJiaocairuanzhu entity = sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuById(id);
+        SysUser currentUser = ShiroUtils.getSysUser();
         PageRenderResult<?> result = pageRenderService.fillPageRenderData(
                 MODULE_CODE, PERM_PREFIX, PROCESS_CODE,
                 entity.getState(),
                 entity.getId() != null ? entity.getId().longValue() : null,
-                entity.getUserId() != null ? entity.getUserId().longValue() : null);
+                entity.getUserId() != null ? entity.getUserId().longValue() : null,
+                pageRenderService.buildCurrentPermissions(currentUser));
         entity.setStatusMeta(result.getStatusMeta());
         entity.setActions(result.getActions());
         return entity;
@@ -103,12 +103,15 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
     @Override
     public List<SciJiaocairuanzhu> selectSciJiaocairuanzhuList(SciJiaocairuanzhu sciJiaocairuanzhu) {
         List<SciJiaocairuanzhu> list = sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuList(sciJiaocairuanzhu);
+        SysUser currentUser = ShiroUtils.getSysUser();
+        Set<String> permissions = pageRenderService.buildCurrentPermissions(currentUser);
         for (SciJiaocairuanzhu entity : list) {
             PageRenderResult<?> result = pageRenderService.fillPageRenderData(
                     MODULE_CODE, PERM_PREFIX, PROCESS_CODE,
                     entity.getState(),
                     entity.getId() != null ? entity.getId().longValue() : null,
-                    entity.getUserId() != null ? entity.getUserId().longValue() : null);
+                    entity.getUserId() != null ? entity.getUserId().longValue() : null,
+                    permissions);
             entity.setStatusMeta(result.getStatusMeta());
             entity.setActions(result.getActions());
         }
@@ -694,12 +697,15 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciJiaocairuanzhu> selectSciJiaocairuanzhuListAll(SciJiaocairuanzhu sciJiaocairuanzhu) {
         List<SciJiaocairuanzhu> list = sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuListAll(sciJiaocairuanzhu);
+        SysUser currentUser = ShiroUtils.getSysUser();
+        Set<String> permissions = pageRenderService.buildCurrentPermissions(currentUser);
         for (SciJiaocairuanzhu entity : list) {
             PageRenderResult<?> result = pageRenderService.fillPageRenderData(
                     MODULE_CODE, PERM_PREFIX, PROCESS_CODE,
                     entity.getState(),
                     entity.getId() != null ? entity.getId().longValue() : null,
-                    entity.getUserId() != null ? entity.getUserId().longValue() : null);
+                    entity.getUserId() != null ? entity.getUserId().longValue() : null,
+                    permissions);
             entity.setStatusMeta(result.getStatusMeta());
             entity.setActions(result.getActions());
         }

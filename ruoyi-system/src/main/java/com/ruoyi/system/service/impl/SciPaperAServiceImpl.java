@@ -61,9 +61,11 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
     public SciPaperA selectSciPaperAById(Long id) {
         SciPaperA paper = sciPaperAMapper.selectSciPaperAById(id);
         if (paper != null) {
+            SysUser currentUser = ShiroUtils.getSysUser();
             PageRenderResult<?> result = pageRenderService.fillPageRenderData(
                     "PAPER", "system:paper", "PAPER_APPROVAL",
-                    paper.getState(), paper.getId(), paper.getUserId());
+                    paper.getState(), paper.getId(), paper.getUserId(),
+                    pageRenderService.buildCurrentPermissions(currentUser));
             paper.setStatusMeta(result.getStatusMeta());
             paper.setActions(result.getActions());
         }
@@ -80,12 +82,14 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciPaperA> selectSciPaperAList(SciPaperA sciPaperA) {
         List<SciPaperA> list = sciPaperAMapper.selectSciPaperAList(sciPaperA);
+        SysUser currentUser = ShiroUtils.getSysUser();
+        Set<String> permissions = pageRenderService.buildCurrentPermissions(currentUser);
         // 为每条论文记录计算并填充分数，并填充页面渲染数据
         for (SciPaperA paper : list) {
             calculateAndFillScores(paper);
             PageRenderResult<?> result = pageRenderService.fillPageRenderData(
                     "PAPER", "system:paper", "PAPER_APPROVAL",
-                    paper.getState(), paper.getId(), paper.getUserId());
+                    paper.getState(), paper.getId(), paper.getUserId(), permissions);
             paper.setStatusMeta(result.getStatusMeta());
             paper.setActions(result.getActions());
         }
@@ -96,11 +100,13 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciPaperA> selectSciPaperAListAll(SciPaperA sciPaperA) {
         List<SciPaperA> list = sciPaperAMapper.selectSciPaperAListAll(sciPaperA);
+        SysUser currentUser = ShiroUtils.getSysUser();
+        Set<String> permissions = pageRenderService.buildCurrentPermissions(currentUser);
         for (SciPaperA paper : list) {
             calculateAndFillScores(paper);
             PageRenderResult<?> result = pageRenderService.fillPageRenderData(
                     "PAPER", "system:paper", "PAPER_APPROVAL",
-                    paper.getState(), paper.getId(), paper.getUserId());
+                    paper.getState(), paper.getId(), paper.getUserId(), permissions);
             paper.setStatusMeta(result.getStatusMeta());
             paper.setActions(result.getActions());
         }
@@ -117,11 +123,13 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciPaperA> selectSciPaperAListKY(SciPaperA sciPaperA) {
         List<SciPaperA> list = sciPaperAMapper.selectSciPaperAListKY(sciPaperA);
+        SysUser currentUser = ShiroUtils.getSysUser();
+        Set<String> permissions = pageRenderService.buildCurrentPermissions(currentUser);
         for (SciPaperA paper : list) {
             calculateAndFillScores(paper);
             PageRenderResult<?> result = pageRenderService.fillPageRenderData(
                     "PAPER", "system:paper", "PAPER_APPROVAL",
-                    paper.getState(), paper.getId(), paper.getUserId());
+                    paper.getState(), paper.getId(), paper.getUserId(), permissions);
             paper.setStatusMeta(result.getStatusMeta());
             paper.setActions(result.getActions());
         }
@@ -132,11 +140,13 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciPaperA> selectSciPaperAListXY(SciPaperA sciPaperA) {
         List<SciPaperA> list = sciPaperAMapper.selectSciPaperAListXY(sciPaperA);
+        SysUser currentUser = ShiroUtils.getSysUser();
+        Set<String> permissions = pageRenderService.buildCurrentPermissions(currentUser);
         for (SciPaperA paper : list) {
             calculateAndFillScores(paper);
             PageRenderResult<?> result = pageRenderService.fillPageRenderData(
                     "PAPER", "system:paper", "PAPER_APPROVAL",
-                    paper.getState(), paper.getId(), paper.getUserId());
+                    paper.getState(), paper.getId(), paper.getUserId(), permissions);
             paper.setStatusMeta(result.getStatusMeta());
             paper.setActions(result.getActions());
         }
@@ -211,11 +221,13 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
     @DataScope(deptAlias = "pt", userAlias = "u")
     public List<SciPaperA> selectSciPaperAListCxList(SciPaperA sciPaperA) {
         List<SciPaperA> list = sciPaperAMapper.selectSciPaperAListCxList(sciPaperA);
+        SysUser currentUser = ShiroUtils.getSysUser();
+        Set<String> permissions = pageRenderService.buildCurrentPermissions(currentUser);
         for (SciPaperA paper : list) {
             calculateAndFillScores(paper);
             PageRenderResult<?> result = pageRenderService.fillPageRenderData(
                     "PAPER", "system:paper", "PAPER_APPROVAL",
-                    paper.getState(), paper.getId(), paper.getUserId());
+                    paper.getState(), paper.getId(), paper.getUserId(), permissions);
             paper.setStatusMeta(result.getStatusMeta());
             paper.setActions(result.getActions());
         }
@@ -242,11 +254,13 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
     @Override
     public List<SciPaperA> selectSciPaperAListCx(SciPaperA sciPaperA) {
         List<SciPaperA> list = sciPaperAMapper.selectSciPaperAListCx(sciPaperA);
+        SysUser currentUser = ShiroUtils.getSysUser();
+        Set<String> permissions = pageRenderService.buildCurrentPermissions(currentUser);
         for (SciPaperA paper : list) {
             calculateAndFillScores(paper);
             PageRenderResult<?> result = pageRenderService.fillPageRenderData(
                     "PAPER", "system:paper", "PAPER_APPROVAL",
-                    paper.getState(), paper.getId(), paper.getUserId());
+                    paper.getState(), paper.getId(), paper.getUserId(), permissions);
             paper.setStatusMeta(result.getStatusMeta());
             paper.setActions(result.getActions());
         }

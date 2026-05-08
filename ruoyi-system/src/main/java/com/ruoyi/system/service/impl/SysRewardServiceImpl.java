@@ -96,9 +96,11 @@ public class SysRewardServiceImpl implements ISysRewardService {
     public SysReward selectSysRewardById(Long id) {
         SysReward reward = sysRewardMapper.selectSysRewardById(id);
         if (reward != null) {
+            SysUser currentUser = ShiroUtils.getSysUser();
             PageRenderResult<?> result = pageRenderService.fillPageRenderData(
                     "REWARD", "system:reward", REWARD_PROCESS_CODE,
-                    reward.getState(), reward.getId(), reward.getUserId());
+                    reward.getState(), reward.getId(), reward.getUserId(),
+                    pageRenderService.buildCurrentPermissions(currentUser));
             reward.setStatusMeta(result.getStatusMeta());
             reward.setActions(result.getActions());
         }
@@ -115,10 +117,12 @@ public class SysRewardServiceImpl implements ISysRewardService {
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SysReward> selectSysRewardList(SysReward sysReward) {
         List<SysReward> list = sysRewardMapper.selectSysRewardList(sysReward);
+        SysUser currentUser = ShiroUtils.getSysUser();
+        Set<String> permissions = pageRenderService.buildCurrentPermissions(currentUser);
         for (SysReward reward : list) {
             PageRenderResult<?> result = pageRenderService.fillPageRenderData(
                     "REWARD", "system:reward", REWARD_PROCESS_CODE,
-                    reward.getState(), reward.getId(), reward.getUserId());
+                    reward.getState(), reward.getId(), reward.getUserId(), permissions);
             reward.setStatusMeta(result.getStatusMeta());
             reward.setActions(result.getActions());
         }

@@ -61,11 +61,13 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService {
     @Override
     public SciLectureReport selectSciLectureReportById(Integer id) {
         SciLectureReport report = sciLectureReportMapper.selectSciLectureReportById(id);
+        SysUser currentUser = ShiroUtils.getSysUser();
         PageRenderResult<?> result = pageRenderService.fillPageRenderData(
                 "LECTURE", "system:report", "LECTURE_APPROVAL",
                 report.getState(),
                 report.getId() != null ? report.getId().longValue() : null,
-                report.getUserId() != null ? report.getUserId().longValue() : null);
+                report.getUserId() != null ? report.getUserId().longValue() : null,
+                pageRenderService.buildCurrentPermissions(currentUser));
         report.setStatusMeta(result.getStatusMeta());
         report.setActions(result.getActions());
         return report;
@@ -81,12 +83,15 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService {
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciLectureReport> selectSciLectureReportList(SciLectureReport sciLectureReport) {
         List<SciLectureReport> list = sciLectureReportMapper.selectSciLectureReportList(sciLectureReport);
+        SysUser currentUser = ShiroUtils.getSysUser();
+        Set<String> permissions = pageRenderService.buildCurrentPermissions(currentUser);
         for (SciLectureReport report : list) {
             PageRenderResult<?> result = pageRenderService.fillPageRenderData(
                     "LECTURE", "system:report", "LECTURE_APPROVAL",
                     report.getState(),
                     report.getId() != null ? report.getId().longValue() : null,
-                    report.getUserId() != null ? report.getUserId().longValue() : null);
+                    report.getUserId() != null ? report.getUserId().longValue() : null,
+                    permissions);
             report.setStatusMeta(result.getStatusMeta());
             report.setActions(result.getActions());
         }
@@ -579,12 +584,15 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService {
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciLectureReport> selectSciLectureReportListAll(SciLectureReport sciLectureReport) {
         List<SciLectureReport> list = sciLectureReportMapper.selectSciLectureReportListAll(sciLectureReport);
+        SysUser currentUser = ShiroUtils.getSysUser();
+        Set<String> permissions = pageRenderService.buildCurrentPermissions(currentUser);
         for (SciLectureReport report : list) {
             PageRenderResult<?> result = pageRenderService.fillPageRenderData(
                     "LECTURE", "system:report", "LECTURE_APPROVAL",
                     report.getState(),
                     report.getId() != null ? report.getId().longValue() : null,
-                    report.getUserId() != null ? report.getUserId().longValue() : null);
+                    report.getUserId() != null ? report.getUserId().longValue() : null,
+                    permissions);
             report.setStatusMeta(result.getStatusMeta());
             report.setActions(result.getActions());
         }
