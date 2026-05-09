@@ -2,6 +2,18 @@
 <html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
 <head>
     <th:block th:include="include :: header('专利软著列表')" />
+    <script type="text/javascript">
+        function getCurrentTime() {
+            var now = new Date();
+            var year = now.getFullYear();
+            var month = String(now.getMonth() + 1).padStart(2, '0');
+            var day = String(now.getDate()).padStart(2, '0');
+            var hours = String(now.getHours()).padStart(2, '0');
+            var minutes = String(now.getMinutes()).padStart(2, '0');
+            var seconds = String(now.getSeconds()).padStart(2, '0');
+            return year + '-' + month + '-' + day + ' ' + hours + ':' + minutes + ':' + seconds;
+        }
+    </script>
 <!--    <style>-->
 
 
@@ -207,6 +219,28 @@
             background: #4CAF50;
             width: 0;
             transition: width 0.6s ease;
+        }
+
+        /* 分段高亮连接线 */
+        .progress_inner__bar .segment {
+            position: absolute;
+            height: 100%;
+            width: 50%;
+            background: transparent;
+            transition: background 0.4s ease;
+        }
+
+        .progress_inner__bar .segment.first {
+            left: 0;
+        }
+
+        .progress_inner__bar .segment.second {
+            right: 0;
+        }
+
+        .progress_inner__bar .segment.highlight {
+            background: #4CAF50;
+            box-shadow: 0 0 8px rgba(10, 225, 19, 0.7);
         }
 
         .status-text {
@@ -540,6 +574,7 @@
 </div>
 
 <th:block th:include="include :: footer" />
+<script th:src="@{/ruoyi/js/page-render.js}"></script>
 <script th:inline="javascript">
     var editFlag = [[${@permission.hasPermi('system:zhuanliruanzhu:edit')}]];
     var removeFlag = [[${@permission.hasPermi('system:zhuanliruanzhu:remove')}]];
@@ -565,6 +600,74 @@
     var prefix = ctx + "system/zhuanliruanzhu";
 
     $(function() {
+        // 注册PageRender动作处理器
+        PageRender.registerHandlers({
+            'info': function(actionKey, data) {
+                $.operate.detailTab(data.id + '/chakan');
+            },
+            'viewProcess': function(actionKey, data) {
+                showhistory(data.id, data.state);
+            },
+            'edit': function(actionKey, data) {
+                $.operate.editTab(data.id);
+            },
+            'remove': function(actionKey, data) {
+                $.operate.remove(data.id);
+            },
+            'submit': function(actionKey, data) {
+                submitDirectly(data.id);
+            },
+            'review': function(actionKey, data) {
+                $.operate.detailTab(data.id + '/review');
+            },
+            'approve': function(actionKey, data) {
+                var urlFlag = data.state === 'PATENT_JYS_AUDIT' ? 'pro' : 'chayue';
+                $.operate.detailTab(data.id + '/' + urlFlag);
+            },
+            'reject': function(actionKey, data) {
+                var urlFlag = data.state === 'PATENT_JYS_AUDIT' ? 'pro' : 'chayue';
+                $.operate.detailTab(data.id + '/' + urlFlag);
+            },
+            'kyReview': function(actionKey, data) {
+                $.operate.detailTab(data.id + '/chayue');
+            },
+            'recall': function(actionKey, data) {
+                recallDirectly(data.id);
+            }
+        });
+
+        // 绑定PageRender按钮点击事件
+        $(document).off('click.prAction').on('click.prAction', 'button[data-action-key], a[data-action-key]', function(e) {
+            e.preventDefault();
+            var $btn = $(this);
+            var actionKey = $btn.data('action-key');
+            var confirmMsg = $btn.data('confirm');
+            // 从最近的tr中获取行数据
+            var $tr = $btn.closest('tr');
+            var rowIndex = $tr.data('index');
+            var row = null;
+            if (rowIndex !== undefined) {
+                row = $('#bootstrap-table').bootstrapTable('getData')[rowIndex];
+            }
+            // 如果从表格获取失败，尝试从缓存获取
+            if (!row && $tr.data('rowData')) {
+                row = $tr.data('rowData');
+            }
+
+            if (!row) {
+                $.modal.alertError('无法获取行数据');
+                return;
+            }
+
+            if (confirmMsg) {
+                $.modal.confirm(confirmMsg, function() {
+                    PageRender.dispatchAction(actionKey, row);
+                });
+            } else {
+                PageRender.dispatchAction(actionKey, row);
+            }
+        });
+
         function initTable(options) {
             var tableId = options.id;
             options.url = getUrl(tableId);
@@ -671,88 +774,45 @@
                     }
                 },
                 {
-                    field: 'state',
+                    field: 'statusMeta',
                     title: '审核状态',
                     align: 'center',
                     formatter: function(value, row, index) {
-                        var stateMap = {
-                            '0': '<span class="badge badge-warning" style="background:#e6a23c">草稿</span>',
-                            '1': '<span class="badge badge-info" style="background:#409eff">待教研室审核</span>',
-                            '2': '<span class="badge badge-info" style="background:#409eff">待学院审核</span>',
-                            '3': '<span class="badge badge-danger" style="background:#f56c6c">教研室退回</span>',
-                            '4': '<span class="badge badge-info" style="background:#409eff">待科研处审核</span>',
-                            '5': '<span class="badge badge-danger" style="background:#f56c6c">学院退回</span>',
-                            '6': '<span class="badge badge-success" style="background:#67c23a">已完结</span>',
-                            '7': '<span class="badge badge-danger" style="background:#f56c6c">科研处退回</span>'
-                        };
-                        return stateMap[value] || '<span class="badge badge-secondary">' + (value || '') + '</span>';
+                        if (row.statusMeta) {
+                            return PageRender.renderStatusToString(row.statusMeta);
+                        }
+                        return '<span class="badge badge-secondary">未知</span>';
                     }
                 },
                 {
                     title: '操作',
                     align: 'center',
-                    class: 'fixed-column',
-                    formatter: function (value, row, index) {
-                        var actions = [];
-                        var huanhang = false;
-                        console.log(row);
-
-                        if (row.state == 0) {
-                            if (row.userId == row.uid) {
-                                actions.push('<a class="" href="javascript:void(0)" onclick="submitDirectly(\'' + row.id + '\')">提交&nbsp;&nbsp;&nbsp;&nbsp;</a>');
-                                actions.push('<a class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')">编辑&nbsp;&nbsp;&nbsp;&nbsp;</a>');
-                                actions.push('<a class="' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')" style="color : #c90000">删除</a>');
+                    width: '200px',
+                    formatter: function(value, row, index) {
+                        if (row.actions && row.actions.length > 0) {
+                            // 列表页过滤掉"通过"和"驳回"按钮，这些只在详情页显示
+                            var listActions = row.actions.filter(function(a) {
+                                return a.actionKey !== 'approve' && a.actionKey !== 'reject';
+                            });
+                            if (listActions.length > 0) {
+                                return PageRender.renderActionsToString(listActions, {style: 'table'});
                             }
-                            if (isResearch) {
-                                actions.push('<a class="" href="javascript:void(0)" onclick="recallDirectly(\'' + row.id + '\')" style="color : #c90000"></i>撤回&nbsp;&nbsp;&nbsp;&nbsp;</a>');
-                            }
-                            huanhang = true;
-                        } else if (row.state == 1) {
-                            if (isResearch) {
-                                actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/pro' + '\')"></i>批阅&nbsp;&nbsp;&nbsp;&nbsp;</a>');
-                            }
-                            if (isSciTesearch) {
-                                actions.push('<a class="" href="javascript:void(0)" onclick="recallDirectly(\'' + row.id + '\')" style="color : #c90000"></i>撤回&nbsp;&nbsp;&nbsp;&nbsp;</a>');
-                            }
-                            if (row.userId == row.uid) {
-                                actions.push('<a class="" href="javascript:void(0)" onclick="recallDirectly(\'' + row.id + '\')" style="color : #c90000"></i>撤回&nbsp;&nbsp;&nbsp;&nbsp;</a>');
-                            }
-                            huanhang = true;
-                        } else if ((row.state == 3 || row.state == 5 || row.state == 7) && row.userId == row.uid) {
-                            actions.push('<a class="' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editTab(\'' + row.id + '\')"></i>编辑&nbsp;&nbsp;&nbsp;&nbsp;</a>');
-                            huanhang = true;
-                        } else if (row.state == 2) {
-                            if (isDeptTeacher) {
-                                actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan' + '\')"></i>查看&nbsp;&nbsp;&nbsp;&nbsp;</a>');
-                            }
-                            huanhang = true;
-                        } else if (row.state == 4) {
-                            if (isSciTesearch) {
-                                actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chayue' + '\')"></i>批阅&nbsp;&nbsp;&nbsp;&nbsp;</a>');
-                            }
-                            if (isResearch) {
-                                actions.push('<a class="" href="javascript:void(0)" onclick="recallDirectly(\'' + row.id + '\')" style="color : #c90000"></i>撤回&nbsp;&nbsp;&nbsp;&nbsp;</a>');
-                            }
-                            huanhang = true;
-                        } else if (row.state == 6) {
-                            if (isSciTesearch) {
-                                actions.push('<a class="" href="javascript:void(0)" onclick="recallDirectly(\'' + row.id + '\')" style="color : #c90000"></i>撤回&nbsp;&nbsp;&nbsp;&nbsp;</a>');
-                            }
-                            huanhang = true;
                         }
-                        if (huanhang) {
-                            actions.push('<br>'); // 只有前面有按钮时才换行
+                        // 兜底：后端未返回actions时显示基本操作
+                        var fallbackActions = [];
+                        if (editInfo !== 'hidden') {
+                            fallbackActions.push('<a href="javascript:void(0)" class="btn btn-xs btn-info" onclick="$.operate.detailTab(\'' + row.id + '/chakan\')">查看</a>');
                         }
-                        actions.push('<a class="" href="javascript:void(0)" onclick="$.operate.detailTab(\'' + row.id + '/chakan' + '\')"></i>查看&nbsp;&nbsp;&nbsp;&nbsp;</a>');
-                        actions.push('<a  data-toggle="modal" data-target="#lcjl_Moda" onclick="showhistory(' + row.id + ',' + row.state + ')" >流程记录&nbsp;&nbsp;&nbsp;&nbsp;</a> ');
-
-                        return actions.join('');
+                        if (editInfo !== 'hidden') {
+                            fallbackActions.push('<a href="javascript:void(0)" class="btn btn-xs btn-info" onclick="showhistory(' + row.id + ',' + row.state + ')">查看流程</a>');
+                        }
+                        return fallbackActions.join(' ');
                     }
                 }
             ]
         };
 
-        $.table.init(options);
+        initTable(options);
 
         window.addEventListener("storage", function(event) {
             if (event.key === "year") {
@@ -934,31 +994,21 @@
 
 
 
-    function showhistory(id,state) {
-        updateProgressStepColor(state)
-        //查询配乐记录
+    function showhistory(id, state) {
+        $('#lcjl_Moda').modal('show');
+        
+        // 查询审批记录
         $.ajax({
-            url: prefix + '/bhyy/'+id,
+            url: prefix + '/bhyy/' + id,
             type: 'POST',
             data: {
                 kid: id
             },
             success: function (response) {
-                const eventList = document.getElementById('event-list');
-                eventList.innerHTML = '';
-                response.rows.forEach(function (row) {
-                    const li = document.createElement('li');
-                    li.innerHTML = `
-                        <div class="event-item">
-                            <div class="event-content">
-                                <i class="node-icon"></i>
-                                <span class="time" id="current-time">${row.createTime}</span>
-                                <span class="txt">[${row.state}] - ${row.uname}</span>
-                            </div>
-                        </div>
-                    `;
-                    eventList.appendChild(li);
-                });
+                // 更新事件列表
+                updateEventData(response.rows);
+                // 更新进度条状态
+                updateProgressState(state);
             },
             error: function () {
                 alert('Failed to fetch event history.');
@@ -966,51 +1016,137 @@
         });
     }
 
-    function updateProgressStepColor(state) {
-        // 获取所有步骤元素
+    function updateEventData(rows) {
+        const eventList = document.getElementById('event-list');
+        eventList.innerHTML = '';
+        
+        if (rows && rows.length > 0) {
+            rows.forEach(function (row, index) {
+                const li = document.createElement('li');
+                if (index === 0) {
+                    li.classList.add('first');
+                }
+                li.innerHTML = `
+                    <i class="node-icon"></i>
+                    <span class="time" id="current-time">${row.createTime}</span>
+                    <span class="txt">[${row.state}] - ${row.uname}</span>
+                `;
+                eventList.appendChild(li);
+            });
+        } else {
+            const li = document.createElement('li');
+            li.classList.add('first');
+            li.innerHTML = `
+                <i class="node-icon"></i>
+                <span class="time" id="current-time">等待操作...</span>
+                <span class="txt">[新增] - 哈尔滨信息工程学院</span>
+            `;
+            eventList.appendChild(li);
+        }
+    }
+
+    function updateProgressState(state) {
         const steps = document.querySelectorAll('.progress_inner__step');
-        const progressBar = document.querySelector('.progress_inner__bar--progress');
-
-
-        // 遍历所有步骤，重置样式
-        steps.forEach(step => {
-            step.classList.remove('active', 'completed', 'pending');
-            step.querySelector('.status-text').classList.remove('active', 'completed');
+        const progressBar = document.querySelector('.progress_inner__bar');
+        
+        // 重置所有步骤
+        steps.forEach((step, index) => {
+            step.classList.remove('active', 'completed');
+            step.classList.add('pending');
+            const statusText = step.querySelector('.status-text');
+            if (statusText) {
+                statusText.classList.remove('active', 'completed');
+            }
+        });
+        
+        // 创建分段元素（如果尚未创建）
+        if (progressBar && !progressBar.querySelector('.segment')) {
+            const firstSegment = document.createElement('div');
+            firstSegment.className = 'segment first';
+            const secondSegment = document.createElement('div');
+            secondSegment.className = 'segment second';
+            progressBar.appendChild(firstSegment);
+            progressBar.appendChild(secondSegment);
+        }
+        
+        // 移除所有分段高亮
+        const segments = progressBar ? progressBar.querySelectorAll('.segment') : [];
+        segments.forEach(segment => {
+            segment.classList.remove('highlight');
         });
 
-        // 根据 state 设置相应的步骤颜色
-        if ([0, 3, 5, 7].includes(state)) {
-            document.getElementById('step-1').classList.add('active');
-            document.getElementById('step-1').querySelector('.status-text').classList.add('active');
-            progressBar.style.width = '0';
-        } else if (state === 6) {
-            document.getElementById('step-1').classList.add('completed');
-            document.getElementById('step-1').querySelector('.status-text').classList.add('completed');
-            document.getElementById('step-2').classList.add('completed');
-            document.getElementById('step-2').querySelector('.status-text').classList.add('completed');
-            document.getElementById('step-3').classList.add('completed');
-            document.getElementById('step-3').querySelector('.status-text').classList.add('completed');
-            progressBar.style.width = '100%';
-        } else if ([1, 2, 4].includes(state)) {
-            document.getElementById('step-1').classList.add('completed');
-            document.getElementById('step-1').querySelector('.status-text').classList.add('completed');
-            document.getElementById('step-2').classList.add('active');
-            document.getElementById('step-2').querySelector('.status-text').classList.add('active');
-            progressBar.style.width = '50%';
+        // 根据状态更新进度条
+        if (typeof state === 'string' && state.startsWith('PATENT_')) {
+            // 使用新的状态码格式
+            if (state === 'PATENT_DRAFT' || state === 'PATENT_REJECTED') {
+                highlightStep(0);
+            } else if (state === 'PATENT_JYS_AUDIT' || state === 'PATENT_KYC_AUDIT') {
+                markCompleted(0);
+                highlightStep(1);
+                if (segments[0]) {
+                    segments[0].classList.add('highlight');
+                }
+            } else if (state === 'PATENT_PASSED') {
+                markCompleted(0);
+                markCompleted(1);
+                highlightStep(2);
+                markCompleted(2);
+                segments.forEach(segment => {
+                    segment.classList.add('highlight');
+                });
+            }
         } else {
-            // 默认情况下，所有步骤为灰色
-            steps.forEach(step => {
-                step.classList.add('pending');
-                step.querySelector('.status-text').classList.add('pending');
-            });
+            // 兼容旧的数字状态码
+            if ([0, 3, 5, 7].includes(state)) {
+                highlightStep(0);
+            } else if (state === 6) {
+                markCompleted(0);
+                markCompleted(1);
+                highlightStep(2);
+                markCompleted(2);
+                segments.forEach(segment => {
+                    segment.classList.add('highlight');
+                });
+            } else if ([1, 2, 4].includes(state)) {
+                markCompleted(0);
+                highlightStep(1);
+                if (segments[0]) {
+                    segments[0].classList.add('highlight');
+                }
+            } else {
+                steps.forEach(step => {
+                    step.classList.add('pending');
+                });
+            }
+        }
+    }
+
+    function highlightStep(index) {
+        const step = document.querySelectorAll('.progress_inner__step')[index];
+        if (step) {
+            step.classList.add('active');
+            step.classList.remove('pending');
+            const statusText = step.querySelector('.status-text');
+            if (statusText) {
+                statusText.classList.add('active');
+            }
+        }
+    }
+
+    function markCompleted(index) {
+        const step = document.querySelectorAll('.progress_inner__step')[index];
+        if (step) {
+            step.classList.add('completed');
+            step.classList.remove('pending', 'active');
+            const statusText = step.querySelector('.status-text');
+            if (statusText) {
+                statusText.classList.add('completed');
+            }
         }
     }
 
 
-    document.addEventListener('DOMContentLoaded', function () {
-        // 初始化显示当前时间
-        document.getElementById('current-time').textContent = getCurrentTime();
-    });
+
 
 
     function submitDirectly(id) {

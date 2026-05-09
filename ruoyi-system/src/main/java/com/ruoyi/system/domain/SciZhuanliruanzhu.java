@@ -1,6 +1,7 @@
 package com.ruoyi.system.domain;
 
 import java.util.Date;
+import java.util.List;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -362,6 +363,26 @@ public class SciZhuanliruanzhu extends BaseEntity
 
     @Excel(name = "状态")
     private String state;
+
+    private PageRenderStatusMeta statusMeta;
+
+    private List<PageRenderActionItem> actions;
+
+    public PageRenderStatusMeta getStatusMeta() {
+        return statusMeta;
+    }
+
+    public void setStatusMeta(PageRenderStatusMeta statusMeta) {
+        this.statusMeta = statusMeta;
+    }
+
+    public List<PageRenderActionItem> getActions() {
+        return actions;
+    }
+
+    public void setActions(List<PageRenderActionItem> actions) {
+        this.actions = actions;
+    }
 
     public void setId(Integer id) 
     {

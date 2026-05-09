@@ -69,7 +69,7 @@ public class SciZhuanliruanzhuController extends BaseController
      */
     @RequiresPermissions("system:zhuanliruanzhu:list")
     @Log(title = "查询专利软著列表", businessType = BusinessType.OTHER)
-    @PostMapping("/list")
+    @RequestMapping(value = "/list", method = {RequestMethod.GET, RequestMethod.POST})
     @ResponseBody
     public TableDataInfo list(SciZhuanliruanzhu sciZhuanliruanzhu, String year)
     {
