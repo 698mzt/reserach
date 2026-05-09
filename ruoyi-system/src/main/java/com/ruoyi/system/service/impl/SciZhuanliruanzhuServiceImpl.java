@@ -731,11 +731,7 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
             }
 
             // 通过菜单服务获取当前用户权限列表
-            List<String> permissions = new ArrayList<>();
-            Set<String> permsSet = sysMenuService.selectPermsByUserId(currentUser.getUserId());
-            if (permsSet != null) {
-                permissions.addAll(permsSet);
-            }
+            Set<String> permissions = sysMenuService.selectPermsByUserId(currentUser.getUserId());
 
             // 获取当前用户角色key列表
             List<String> roleKeys = new ArrayList<>();
