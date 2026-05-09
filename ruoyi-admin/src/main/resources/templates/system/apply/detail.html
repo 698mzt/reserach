@@ -344,7 +344,7 @@
                     return false;
                 }
                 if (key === 'viewProcess') {
-                    return !isApprovePage && (isAuditState(state) || isPassedState(state));
+                    return false;
                 }
                 if (key === 'review' || key === 'kyReview' || key === 'deptReview') {
                     return false;
