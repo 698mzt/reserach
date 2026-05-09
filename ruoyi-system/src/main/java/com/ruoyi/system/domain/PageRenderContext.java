@@ -64,6 +64,7 @@ public class PageRenderContext implements Serializable {
     /**
      * 判断当前用户是否拥有指定权限
      * 优先使用权限列表判断，若权限列表为空则使用Shiro实时判断
+     * 支持通配符*:*:*匹配所有权限
      *
      * @param permission 权限标识
      * @return 是否拥有权限
@@ -71,6 +72,10 @@ public class PageRenderContext implements Serializable {
     public boolean hasPermission(String permission) {
         // 如果有权限列表，优先使用列表判断
         if (permissions != null && !permissions.isEmpty()) {
+            // 支持通配符*:*:*匹配所有权限
+            if (permissions.contains("*:*:*")) {
+                return true;
+            }
             return permissions.contains(permission);
         }
         // 权限列表为空时，使用Shiro实时判断
