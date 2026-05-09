@@ -61,15 +61,7 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService {
     @Override
     public SciLectureReport selectSciLectureReportById(Integer id) {
         SciLectureReport report = sciLectureReportMapper.selectSciLectureReportById(id);
-        SysUser currentUser = ShiroUtils.getSysUser();
-        PageRenderResult<?> result = pageRenderService.fillPageRenderData(
-                "LECTURE", "system:report", "LECTURE_APPROVAL",
-                report.getState(),
-                report.getId() != null ? report.getId().longValue() : null,
-                report.getUserId() != null ? report.getUserId().longValue() : null,
-                pageRenderService.buildCurrentPermissions(currentUser));
-        report.setStatusMeta(result.getStatusMeta());
-        report.setActions(result.getActions());
+        fillPageRenderData(report);
         return report;
     }
 
@@ -83,18 +75,7 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService {
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciLectureReport> selectSciLectureReportList(SciLectureReport sciLectureReport) {
         List<SciLectureReport> list = sciLectureReportMapper.selectSciLectureReportList(sciLectureReport);
-        SysUser currentUser = ShiroUtils.getSysUser();
-        Set<String> permissions = pageRenderService.buildCurrentPermissions(currentUser);
-        for (SciLectureReport report : list) {
-            PageRenderResult<?> result = pageRenderService.fillPageRenderData(
-                    "LECTURE", "system:report", "LECTURE_APPROVAL",
-                    report.getState(),
-                    report.getId() != null ? report.getId().longValue() : null,
-                    report.getUserId() != null ? report.getUserId().longValue() : null,
-                    permissions);
-            report.setStatusMeta(result.getStatusMeta());
-            report.setActions(result.getActions());
-        }
+        fillPageRenderData(list);
         return list;
     }
 
@@ -584,8 +565,40 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService {
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciLectureReport> selectSciLectureReportListAll(SciLectureReport sciLectureReport) {
         List<SciLectureReport> list = sciLectureReportMapper.selectSciLectureReportListAll(sciLectureReport);
+        fillPageRenderData(list);
+        return list;
+    }
+    
+    /**
+     * 统一填充页面渲染数据
+     * 调用pageRenderService.fillPageRenderData方法实现操作列渲染
+     * 
+     * @param report 单个讲座报告对象
+     */
+    private void fillPageRenderData(SciLectureReport report) {
         SysUser currentUser = ShiroUtils.getSysUser();
-        Set<String> permissions = pageRenderService.buildCurrentPermissions(currentUser);
+        Set<String> permissions = buildPermissions(currentUser);
+        
+        PageRenderResult<?> result = pageRenderService.fillPageRenderData(
+                "LECTURE", "system:report", "LECTURE_APPROVAL",
+                report.getState(),
+                report.getId() != null ? report.getId().longValue() : null,
+                report.getUserId() != null ? report.getUserId().longValue() : null,
+                permissions);
+        report.setStatusMeta(result.getStatusMeta());
+        report.setActions(result.getActions());
+    }
+    
+    /**
+     * 统一填充页面渲染数据（批量）
+     * 调用pageRenderService.fillPageRenderData方法实现操作列渲染
+     * 
+     * @param list 讲座报告列表
+     */
+    private void fillPageRenderData(List<SciLectureReport> list) {
+        SysUser currentUser = ShiroUtils.getSysUser();
+        Set<String> permissions = buildPermissions(currentUser);
+        
         for (SciLectureReport report : list) {
             PageRenderResult<?> result = pageRenderService.fillPageRenderData(
                     "LECTURE", "system:report", "LECTURE_APPROVAL",
@@ -596,6 +609,32 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService {
             report.setStatusMeta(result.getStatusMeta());
             report.setActions(result.getActions());
         }
-        return list;
+    }
+    
+    /**
+     * 构建当前用户的权限集合
+     * 超级管理员权限处理：由于PageRenderServiceImpl的按钮渲染依赖权限检查，
+     * 而selectPermsByUserId方法没有特殊处理超级管理员，导致管理员权限列表可能为空，
+     * 因此需要手动添加讲座报告模块的所有权限，确保超级管理员能看到所有操作按钮
+     * 
+     * @param currentUser 当前用户
+     * @return 权限集合
+     */
+    private Set<String> buildPermissions(SysUser currentUser) {
+        Set<String> permissions = pageRenderService.buildCurrentPermissions(currentUser);
+        
+        if (currentUser != null && currentUser.isAdmin()) {
+            permissions.add("system:report:info");
+            permissions.add("system:report:edit");
+            permissions.add("system:report:add");
+            permissions.add("system:report:remove");
+            permissions.add("system:report:process");
+            permissions.add("system:report:check");
+            permissions.add("system:report:revoke");
+            permissions.add("system:report:kyrevoke");
+            permissions.add("system:report:xyprocess");
+        }
+        
+        return permissions;
     }
 }
