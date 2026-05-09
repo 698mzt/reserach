@@ -15,7 +15,6 @@ import com.ruoyi.system.mapper.SciUserScoreMapper;
 import com.ruoyi.system.service.IApprovalProcessService;
 import com.ruoyi.system.service.ISciHorizontalApplyVerticalService;
 import com.ruoyi.system.service.IPageRenderService;
-import com.ruoyi.system.service.ISysMenuService;
 import com.ruoyi.system.service.SciHorizontalReamountService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,11 +36,6 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
 
     private static final Logger log = LoggerFactory.getLogger(SciHorizontalApplyVerticalServiceImpl.class);
 
-    // ThreadLocal 用于缓存当前请求的用户权限和角色，避免重复查询数据库
-    private static final ThreadLocal<Set<String>> PERMISSIONS_CACHE = new ThreadLocal<>();
-    private static final ThreadLocal<List<String>> ROLE_KEYS_CACHE = new ThreadLocal<>();
-    private static final ThreadLocal<SysUser> CURRENT_USER_CACHE = new ThreadLocal<>();
-
     @Autowired
     private SciHorizontalApplyVerticalMapper sciHorizontalApplyVerticalMapper;
 
@@ -60,9 +54,6 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
     @Autowired
     private IPageRenderService pageRenderService;
 
-    @Autowired
-    private ISysMenuService sysMenuService;
-
     /**
      * 查询纵向课题列表
      *
@@ -72,18 +63,10 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
     @Override
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciHorizontalApplyVertical> selectSciHorizontalApplyVerticalList(SciHorizontalApplyVertical sciHorizontalApplyVertical) {
-        try {
-            // 初始化 ThreadLocal 缓存（只查询一次权限和角色）
-            initPageRenderCache();
-            
-            List<SciHorizontalApplyVertical> list = sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalList(sciHorizontalApplyVertical);
-            // 为每条记录填充页面渲染数据
-            list.forEach(this::fillPageRenderData);
-            return list;
-        } finally {
-            // 清理 ThreadLocal，避免内存泄漏
-            clearPageRenderCache();
-        }
+        List<SciHorizontalApplyVertical> list = sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalList(sciHorizontalApplyVertical);
+        // 为每条记录填充页面渲染数据
+        list.forEach(this::fillPageRenderData);
+        return list;
     }
 
     /**
@@ -94,18 +77,10 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
     @Override
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciHorizontalApplyVertical> selectSciHorizontalApplyVerticalListAll(SciHorizontalApplyVertical sciHorizontalApplyVertical) {
-        try {
-            // 初始化 ThreadLocal 缓存（只查询一次权限和角色）
-            initPageRenderCache();
-            
-            List<SciHorizontalApplyVertical> list = sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalListAll(sciHorizontalApplyVertical);
-            // 为每条记录填充页面渲染数据
-            list.forEach(this::fillPageRenderData);
-            return list;
-        } finally {
-            // 清理 ThreadLocal，避免内存泄漏
-            clearPageRenderCache();
-        }
+        List<SciHorizontalApplyVertical> list = sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalListAll(sciHorizontalApplyVertical);
+        // 为每条记录填充页面渲染数据
+        list.forEach(this::fillPageRenderData);
+        return list;
     }
 
     /**
@@ -627,27 +602,19 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
     @Override
     @DataScope(deptAlias = "d",userAlias = "u")
     public List<SciHorizontalApplyVertical> selectSciHorizontalApplyVerticalListJX(SciHorizontalApplyVertical sciHorizontalApplyVertical) {
-        try {
-            // 初始化 ThreadLocal 缓存（只查询一次权限和角色）
-            initPageRenderCache();
-            
-            List<SciHorizontalApplyVertical> list = new ArrayList<>();
-            if (sciHorizontalApplyVertical.getRole().equals("research"))
-                list = sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalListJYSJX(sciHorizontalApplyVertical);
-            else if (sciHorizontalApplyVertical.getRole().equals("sci_tesearch"))
-                list = sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalListKYCJX(sciHorizontalApplyVertical);
-            else if (sciHorizontalApplyVertical.getRole().equals("dept_teacher")){
-                list = sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalListDeptJX(sciHorizontalApplyVertical);
-            }
-            else
-                list = sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalListJX(sciHorizontalApplyVertical);
-            // 为每条记录填充页面渲染数据
-            list.forEach(this::fillPageRenderData);
-            return list;
-        } finally {
-            // 清理 ThreadLocal，避免内存泄漏
-            clearPageRenderCache();
+        List<SciHorizontalApplyVertical> list = new ArrayList<>();
+        if (sciHorizontalApplyVertical.getRole().equals("research"))
+            list = sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalListJYSJX(sciHorizontalApplyVertical);
+        else if (sciHorizontalApplyVertical.getRole().equals("sci_tesearch"))
+            list = sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalListKYCJX(sciHorizontalApplyVertical);
+        else if (sciHorizontalApplyVertical.getRole().equals("dept_teacher")){
+            list = sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalListDeptJX(sciHorizontalApplyVertical);
         }
+        else
+            list = sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalListJX(sciHorizontalApplyVertical);
+        // 为每条记录填充页面渲染数据
+        list.forEach(this::fillPageRenderData);
+        return list;
     }
 
     /**
@@ -658,18 +625,10 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
     @Override
     @DataScope(deptAlias = "d",userAlias = "u")
     public List<SciHorizontalApplyVertical> selectSciHorizontalApplyVerticalListOVER(SciHorizontalApplyVertical sciHorizontalApplyVertical) {
-        try {
-            // 初始化 ThreadLocal 缓存（只查询一次权限和角色）
-            initPageRenderCache();
-            
-            List<SciHorizontalApplyVertical> list = sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalListOVER(sciHorizontalApplyVertical);
-            // 为每条记录填充页面渲染数据
-            list.forEach(this::fillPageRenderData);
-            return list;
-        } finally {
-            // 清理 ThreadLocal，避免内存泄漏
-            clearPageRenderCache();
-        }
+        List<SciHorizontalApplyVertical> list = sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalListOVER(sciHorizontalApplyVertical);
+        // 为每条记录填充页面渲染数据
+        list.forEach(this::fillPageRenderData);
+        return list;
     }
 
     /**
@@ -861,8 +820,8 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
 
     /**
      * 填充页面渲染数据（状态展示信息和按钮动作列表）
-     * 优先调用PageRender公共服务构建状态与动作
-     * 使用 ThreadLocal 缓存权限和角色，避免重复查询数据库
+     * 统一调用 pageRenderService.fillPageRenderData 公共服务构建状态与按钮动作
+     * 传 null 给公共服务，由公共服务内部处理缓存
      *
      * @param apply 纵向课题对象
      */
@@ -871,106 +830,40 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
             return;
         }
         try {
-            // 从 ThreadLocal 缓存获取当前用户、权限和角色
-            SysUser currentUser = CURRENT_USER_CACHE.get();
-            if (currentUser == null) {
-                return;
-            }
-
-            Set<String> permissions = PERMISSIONS_CACHE.get();
-            List<String> roleKeys = ROLE_KEYS_CACHE.get();
-            // 根据状态确定模块编码（立项/结项）
-            String moduleCode = determineModuleCode(apply.getState());
-
-            // 构建页面渲染上下文
-            PageRenderContext context = new PageRenderContext();
-            context.setModuleCode(moduleCode);
-            context.setBusinessId(apply.getId() != null ? apply.getId().longValue() : null);
-            context.setCurrentState(apply.getState());
-            context.setCreatorId(apply.getUserId() != null ? apply.getUserId().longValue() : null);
-            context.setCurrentUser(currentUser);
-            context.setPermissions(permissions);
-            context.setRoleKeys(roleKeys);
-            context.setPermPrefix("system:apply_vertical");
-            context.setProcessCode(moduleCode);
-
-            // 构建状态和动作信息
-            PageRenderStatusMeta statusMeta = pageRenderService.buildStatusMeta(context);
-            List<PageRenderActionItem> actions = pageRenderService.buildActions(context);
-
-            // 添加自定义业务按钮："申请结项"按钮
-            addCustomActions(apply, actions, currentUser, permissions);
-
-            apply.setStatusMeta(statusMeta);
-            apply.setActions(actions);
-        } catch (Exception e) {
-            // 页面渲染数据填充失败不影响主流程
-            log.error("填充纵向课题页面渲染数据失败, applyId={}", apply.getId(), e);
-        }
-    }
-
-    /**
-     * 初始化页面渲染缓存（只查询一次权限和角色）
-     */
-    private void initPageRenderCache() {
-        try {
             SysUser currentUser = ShiroUtils.getSysUser();
             if (currentUser == null) {
                 return;
             }
-            CURRENT_USER_CACHE.set(currentUser);
-            PERMISSIONS_CACHE.set(buildCurrentPermissions(currentUser));
-            ROLE_KEYS_CACHE.set(buildCurrentRoleKeys(currentUser));
+
+            String currentState = apply.getState();
+            // 根据状态确定模块编码（立项/结项）
+            String moduleCode = determineModuleCode(currentState);
+            // 流程编码与模块编码一致
+            String processCode = moduleCode;
+
+            // 统一调用公共服务填充页面渲染数据（权限传 null，由公共服务内部处理缓存）
+            PageRenderResult<?> result = pageRenderService.fillPageRenderData(
+                    moduleCode,
+                    "system:apply_vertical",
+                    processCode,
+                    currentState,
+                    apply.getId() != null ? apply.getId().longValue() : null,
+                    apply.getUserId() != null ? apply.getUserId().longValue() : null,
+                    null
+            );
+
+            apply.setStatusMeta(result.getStatusMeta());
+            apply.setActions(result.getActions());
+
+            // 添加自定义业务按钮："申请结项"按钮
+            Set<String> permissions = pageRenderService.buildCurrentPermissions(currentUser);
+            addCustomActions(apply, apply.getActions(), currentUser, permissions);
         } catch (Exception e) {
-            log.error("初始化页面渲染缓存失败", e);
+            // 页面渲染数据填充失败不影响主流程，提供兜底数据
+            log.error("填充纵向课题页面渲染数据失败, applyId={}", apply.getId(), e);
+            apply.setStatusMeta(PageRenderStatusMeta.of(apply.getState(), "未知", PageRenderColorConstants.COLOR_DEFAULT));
+            apply.setActions(new ArrayList<>());
         }
-    }
-
-    /**
-     * 清理页面渲染 ThreadLocal 缓存，避免内存泄漏
-     */
-    private void clearPageRenderCache() {
-        try {
-            PERMISSIONS_CACHE.remove();
-            ROLE_KEYS_CACHE.remove();
-            CURRENT_USER_CACHE.remove();
-        } catch (Exception e) {
-            log.error("清理页面渲染缓存失败", e);
-        }
-    }
-
-    /**
-     * 构建当前登录用户权限列表
-     *
-     * @param currentUser 当前登录用户
-     * @return 权限列表
-     */
-    private Set<String> buildCurrentPermissions(SysUser currentUser) {
-        if (currentUser == null) {
-            return new HashSet<>();
-        }
-        Set<String> permsSet = sysMenuService.selectPermsByUserId(currentUser.getUserId());
-        if (permsSet == null || permsSet.isEmpty()) {
-            return new HashSet<>();
-        }
-        return permsSet;
-    }
-
-    /**
-     * 构建当前登录用户角色列表
-     *
-     * @param currentUser 当前登录用户
-     * @return 角色Key列表
-     */
-    private List<String> buildCurrentRoleKeys(SysUser currentUser) {
-        if (currentUser == null || currentUser.getRoles() == null) {
-            return new ArrayList<>();
-        }
-        return currentUser.getRoles().stream()
-                .filter(Objects::nonNull)
-                .map(SysRole::getRoleKey)
-                .filter(StringUtils::isNotEmpty)
-                .collect(Collectors.toList());
     }
 
     /**
