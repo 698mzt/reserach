@@ -1,28 +1,39 @@
 package com.ruoyi.system.service.impl;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-import com.ruoyi.system.domain.SciZhuanliruanzhuScoreCfg;
 import com.ruoyi.common.annotation.DataScope;
 import com.ruoyi.common.utils.DataScopeUtils;
+import com.ruoyi.common.utils.StringUtils;
+import com.ruoyi.common.utils.ShiroUtils;
+import com.ruoyi.common.core.domain.entity.SysRole;
 import com.ruoyi.common.core.domain.entity.SysUser;
+import com.ruoyi.system.domain.ApprovalRequest;
+import com.ruoyi.system.domain.ApprovalResult;
+import com.ruoyi.system.domain.PageRenderActionItem;
+import com.ruoyi.system.domain.PageRenderContext;
+import com.ruoyi.system.domain.PageRenderStatusMeta;
 import com.ruoyi.system.domain.SciHorizontalPiyue;
+import com.ruoyi.system.domain.SciZhuanliruanzhu;
 import com.ruoyi.system.domain.SciZhuanliruanzhuPiyue;
 import com.ruoyi.system.domain.SciZhuanliruanzhuScoreCfg;
 import com.ruoyi.system.mapper.SciHorizontalPiyueMapper;
+import com.ruoyi.system.mapper.SciZhuanliruanzhuMapper;
 import com.ruoyi.system.mapper.SciZhuanliruanzhuPiyueMapper;
 import com.ruoyi.system.mapper.SciZhuanliruanzhuScoreCfgMapper;
-import com.ruoyi.system.service.ISysUserService;
 import com.ruoyi.system.service.IApprovalProcessService;
-import com.ruoyi.system.domain.ApprovalRequest;
-import com.ruoyi.system.domain.ApprovalResult;
+import com.ruoyi.system.service.IPageRenderService;
+import com.ruoyi.system.service.ISysMenuService;
+import com.ruoyi.system.service.ISysUserService;
+import com.ruoyi.system.service.ISciZhuanliruanzhuService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.ruoyi.system.mapper.SciZhuanliruanzhuMapper;
-import com.ruoyi.system.domain.SciZhuanliruanzhu;
-import com.ruoyi.system.service.ISciZhuanliruanzhuService;
 import com.ruoyi.common.core.text.Convert;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -56,6 +67,16 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
     @Autowired
     private IApprovalProcessService approvalProcessService;
 
+    @Autowired
+    private IPageRenderService pageRenderService;
+
+    @Autowired
+    private ISysMenuService sysMenuService;
+
+    private static final String MODULE_CODE = "PATENT";
+    private static final String PERM_PREFIX = "system:zhuanliruanzhu";
+    private static final String PROCESS_CODE = "PATENT_APPLY";
+
 
     /**
      * 查询专利软著
@@ -76,6 +97,7 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
                 // 处理异常
             }
         }
+        fillPageRenderData(sciZhuanliruanzhu);
         return sciZhuanliruanzhu;
     }
 
@@ -89,7 +111,11 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciZhuanliruanzhu> selectSciZhuanliruanzhuList(SciZhuanliruanzhu sciZhuanliruanzhu)
     {
-        return sciZhuanliruanzhuMapper.selectSciZhuanliruanzhuList(sciZhuanliruanzhu);
+        List<SciZhuanliruanzhu> list = sciZhuanliruanzhuMapper.selectSciZhuanliruanzhuList(sciZhuanliruanzhu);
+        for (SciZhuanliruanzhu entity : list) {
+            fillPageRenderData(entity);
+        }
+        return list;
     }
 
     /**
@@ -283,26 +309,25 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
             return 0;
         }
 
-        // 构建审批请求
-        ApprovalRequest request = new ApprovalRequest();
-        request.setProcessCode("PATENT_APPLY"); // 专利软著审批流程编码
-        request.setBusinessId(Long.valueOf(id));
-        request.setCurrentState(sci.getState());
-        request.setOperatorId(uid);
+        // 获取当前状态（已转换为新的状态编码）
+        String currentState = mapStateToStatusCode(sci.getState());
 
         // 获取操作人信息
         SysUser user = userService.selectUserById(uid);
-        if (user != null) {
-            request.setOperatorName(user.getUserName());
-            if (user.getDept() != null) {
-                request.setOperatorDept(user.getDept().getDeptName());
-            }
+        if (user == null) {
+            return 0;
         }
+
+        // 构建审批请求（参考论文模块的实现方式）
+        ApprovalRequest request = ApprovalRequest.of(PROCESS_CODE,
+                Long.valueOf(id), currentState, null,
+                uid, user.getUserName(),
+                user.getDept() != null ? user.getDept().getDeptName() : "");
 
         ApprovalResult result;
 
         // 根据操作类型执行不同的审批操作
-        if (urlFlag.equals("tijiao")) {
+        if ("tijiao".equals(urlFlag)) {
             // 提交审批
             result = approvalProcessService.submitApproval(request);
         } else {
@@ -410,22 +435,20 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
             return 0;
         }
 
-        // 构建审批请求
-        ApprovalRequest request = new ApprovalRequest();
-        request.setProcessCode("PATENT_APPLY"); // 专利软著审批流程编码
-        request.setBusinessId(Long.valueOf(id));
-        request.setCurrentState(sci.getState());
-        request.setOperatorId(uid);
-        request.setComment(remark);
+        // 获取当前状态（已转换为新的状态编码）
+        String currentState = mapStateToStatusCode(sci.getState());
 
         // 获取操作人信息
         SysUser user = userService.selectUserById(uid);
-        if (user != null) {
-            request.setOperatorName(user.getUserName());
-            if (user.getDept() != null) {
-                request.setOperatorDept(user.getDept().getDeptName());
-            }
+        if (user == null) {
+            return 0;
         }
+
+        // 构建审批请求（参考论文模块的实现方式）
+        ApprovalRequest request = ApprovalRequest.of(PROCESS_CODE,
+                Long.valueOf(id), currentState, remark,
+                uid, user.getUserName(),
+                user.getDept() != null ? user.getDept().getDeptName() : "");
 
         // 执行驳回操作
         ApprovalResult result = approvalProcessService.reject(request);
@@ -480,7 +503,11 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
     @DataScope(deptAlias = "d",userAlias = "u")
     public List<SciZhuanliruanzhu> selectSciZhuanliruanzhuList4(SciZhuanliruanzhu sciZhuanliruanzhu)
     {
-        return sciZhuanliruanzhuMapper.selectSciZhuanliruanzhuList4(sciZhuanliruanzhu);
+        List<SciZhuanliruanzhu> list = sciZhuanliruanzhuMapper.selectSciZhuanliruanzhuList4(sciZhuanliruanzhu);
+        for (SciZhuanliruanzhu entity : list) {
+            fillPageRenderData(entity);
+        }
+        return list;
     }
     /**
      * 查询专利软著列表（学院）
@@ -492,7 +519,11 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciZhuanliruanzhu> selectSciZhuanliruanzhuList3(SciZhuanliruanzhu sciZhuanliruanzhu)
     {
-        return sciZhuanliruanzhuMapper.selectSciZhuanliruanzhuList3(sciZhuanliruanzhu);
+        List<SciZhuanliruanzhu> list = sciZhuanliruanzhuMapper.selectSciZhuanliruanzhuList3(sciZhuanliruanzhu);
+        for (SciZhuanliruanzhu entity : list) {
+            fillPageRenderData(entity);
+        }
+        return list;
     }
     /**
      * 查询专利软著列表（教研室）
@@ -504,7 +535,11 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciZhuanliruanzhu> selectSciZhuanliruanzhuList2(SciZhuanliruanzhu sciZhuanliruanzhu)
     {
-        return sciZhuanliruanzhuMapper.selectSciZhuanliruanzhuList2(sciZhuanliruanzhu);
+        List<SciZhuanliruanzhu> list = sciZhuanliruanzhuMapper.selectSciZhuanliruanzhuList2(sciZhuanliruanzhu);
+        for (SciZhuanliruanzhu entity : list) {
+            fillPageRenderData(entity);
+        }
+        return list;
     }
     /**
      * 查询专利软著列表（教师）
@@ -516,7 +551,11 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciZhuanliruanzhu> selectSciZhuanliruanzhuList1(SciZhuanliruanzhu sciZhuanliruanzhu)
     {
-        return sciZhuanliruanzhuMapper.selectSciZhuanliruanzhuList1(sciZhuanliruanzhu);
+        List<SciZhuanliruanzhu> list = sciZhuanliruanzhuMapper.selectSciZhuanliruanzhuList1(sciZhuanliruanzhu);
+        for (SciZhuanliruanzhu entity : list) {
+            fillPageRenderData(entity);
+        }
+        return list;
     }
 
     /**
@@ -556,22 +595,26 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int recall(Integer id, String state, Long uid, String remark, String urlFlag) {
-        // 构建审批请求
-        ApprovalRequest request = new ApprovalRequest();
-        request.setProcessCode("PATENT_APPLY"); // 专利软著审批流程编码
-        request.setBusinessId(Long.valueOf(id));
-        request.setCurrentState(state);
-        request.setOperatorId(uid);
-        request.setComment(remark);
+        // 获取专利软著信息
+        SciZhuanliruanzhu sci = sciZhuanliruanzhuMapper.selectSciZhuanliruanzhuById(id);
+        if (sci == null) {
+            return 0;
+        }
+
+        // 获取当前状态（已转换为新的状态编码）
+        String currentState = mapStateToStatusCode(state);
 
         // 获取操作人信息
         SysUser user = userService.selectUserById(uid);
-        if (user != null) {
-            request.setOperatorName(user.getUserName());
-            if (user.getDept() != null) {
-                request.setOperatorDept(user.getDept().getDeptName());
-            }
+        if (user == null) {
+            return 0;
         }
+
+        // 构建审批请求（参考论文模块的实现方式）
+        ApprovalRequest request = ApprovalRequest.of(PROCESS_CODE,
+                Long.valueOf(id), currentState, remark,
+                uid, user.getUserName(),
+                user.getDept() != null ? user.getDept().getDeptName() : "");
 
         // 执行撤回操作
         ApprovalResult result = approvalProcessService.recall(request);
@@ -642,7 +685,89 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
         return sciZhuanliruanzhuMapper.getStatsQueryToCheck(params);
     }
 
+    /**
+     * 专利软著旧状态码（0-7）映射为统一状态编码
+     */
+    private String mapStateToStatusCode(String state) {
+        if (state == null) {
+            return "PATENT_DRAFT";
+        }
+        if (state.contains("_")) {
+            return state;
+        }
+        switch (state) {
+            case "0":
+                return "PATENT_DRAFT";
+            case "1":
+                return "PATENT_JYS_AUDIT";
+            case "2":
+            case "4":
+                return "PATENT_KYC_AUDIT";
+            case "3":
+            case "5":
+            case "7":
+                return "PATENT_REJECTED";
+            case "6":
+                return "PATENT_PASSED";
+            default:
+                return "PATENT_DRAFT";
+        }
+    }
 
+    /**
+     * 填充页面渲染数据（statusMeta和actions）
+     * 通过sysMenuService获取用户权限，构造PageRenderContext并调用PageRenderService生成渲染数据
+     *
+     * @param zhuanliruanzhu 专利软著对象
+     */
+    private void fillPageRenderData(SciZhuanliruanzhu zhuanliruanzhu) {
+        if (zhuanliruanzhu == null) {
+            return;
+        }
+        try {
+            SysUser currentUser = ShiroUtils.getSysUser();
+            if (currentUser == null) {
+                return;
+            }
 
+            // 通过菜单服务获取当前用户权限列表
+            List<String> permissions = new ArrayList<>();
+            Set<String> permsSet = sysMenuService.selectPermsByUserId(currentUser.getUserId());
+            if (permsSet != null) {
+                permissions.addAll(permsSet);
+            }
 
+            // 获取当前用户角色key列表
+            List<String> roleKeys = new ArrayList<>();
+            if (currentUser.getRoles() != null) {
+                roleKeys = currentUser.getRoles().stream()
+                        .map(SysRole::getRoleKey)
+                        .collect(Collectors.toList());
+            }
+
+            // 转换旧状态码为新状态编码
+            String normalizedState = mapStateToStatusCode(zhuanliruanzhu.getState());
+
+            // 构造页面渲染上下文
+            PageRenderContext context = new PageRenderContext();
+            context.setModuleCode(MODULE_CODE);
+            context.setBusinessId(zhuanliruanzhu.getId() != null ? zhuanliruanzhu.getId().longValue() : 0L);
+            context.setCurrentState(normalizedState);
+            context.setCreatorId(zhuanliruanzhu.getUserId() != null ? zhuanliruanzhu.getUserId().longValue() : null);
+            context.setCurrentUser(currentUser);
+            context.setPermissions(permissions);
+            context.setRoleKeys(roleKeys);
+            context.setPermPrefix(PERM_PREFIX);
+            context.setProcessCode(PROCESS_CODE);
+
+            // 构建状态和动作信息
+            PageRenderStatusMeta statusMeta = pageRenderService.buildStatusMeta(context);
+            List<PageRenderActionItem> actions = pageRenderService.buildActions(context);
+
+            zhuanliruanzhu.setStatusMeta(statusMeta);
+            zhuanliruanzhu.setActions(actions);
+        } catch (Exception e) {
+            // 页面渲染数据填充失败不影响主流程
+        }
+    }
 }

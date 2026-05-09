@@ -200,19 +200,39 @@
         </div>
 
 </div>
-<div class="row">
-    <div class="col-sm-offset-5 col-sm-10">
-        <button type="button" id="btn1"  class="btn btn-sm btn-primary" style="display:none;" onclick="submitHandler()">  通 过</button>&nbsp;
-        <button type="button" id="btn2"  class="btn btn-sm btn-danger" style="display:none;" onclick="submitHandlerBH()"> 驳 回</button>
-        <button type="button" id="btn3"  class="btn btn-sm btn-warning" style="display:none;" onclick="closeItem()"> 关 闭 </button>
-    </div>
-</div>
+
+        <h4 class="form-header h4 tdiv1" style="display:none; margin-top: 20px;">批阅记录</h4>
+        <div class="row tdiv1" style="display:none; margin-top: 10px;">
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <label class="col-xs-2 control-label">批注：</label>
+                    <div class="col-xs-10">
+                        <textarea name="remark" id="remark" maxlength="500" class="form-control" rows="3"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <h4 class="form-header h4 tdiv2" style="display:none; margin-top: 20px;">批阅记录</h4>
+        <div class="row tdiv2" style="display:none; margin-top: 10px;">
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <table id='bootstrap-table'></table>
+                </div>
+            </div>
+        </div>
     </form>
 </div>
+
+<div class="row">
+    <div class="col-sm-offset-5 col-sm-10" id="action-buttons-container">
+    </div>
+</div>
+
 <th:block th:include="include :: footer" />
 <th:block th:include="include :: datetimepicker-js" />
 <th:block th:include="include :: bootstrap-fileinput-js"/>
 <th:block th:include="include :: select2-js" />
+<script th:src="@{/ruoyi/js/page-render.js}"></script>
 <script th:inline="javascript"  type="text/javascript">
     var prefix = ctx + "system/zhuanliruanzhu";
     $("#form-zhuanliruanzhu-edit").validate({
@@ -297,106 +317,158 @@
 
 
 
-    $(document).ready(function(){
+    $(function() {
+        // 注册PageRender动作处理器
+        PageRender.registerHandlers({
+            'view': function(actionKey, data) {
+                closeItem();
+            },
+            'viewProcess': function(actionKey, data) {
+                viewProcess(data.id);
+            },
+            'approve': function(actionKey, data) {
+                submitHandler();
+            },
+            'reject': function(actionKey, data) {
+                submitHandlerBH();
+            },
+            'recall': function(actionKey, data) {
+                submitHandlerBH();
+            }
+        });
+
+        // 使用PageRender渲染底部按钮
+        var zhuanliruanzhuActions = /*[[${actionsJson}]]*/ null;
+        if (typeof zhuanliruanzhuActions === 'string') {
+            try {
+                zhuanliruanzhuActions = JSON.parse(zhuanliruanzhuActions);
+            } catch (e) {
+                zhuanliruanzhuActions = [];
+            }
+        }
+        if (!zhuanliruanzhuActions) {
+            zhuanliruanzhuActions = [];
+        }
+        var urlFlag = $("#urlFlag").val();
+        var state = $("#state").val();
+
+        if (zhuanliruanzhuActions && zhuanliruanzhuActions.length > 0) {
+            var filteredActions = zhuanliruanzhuActions.filter(function(action) {
+                if (urlFlag === 'chakan' || urlFlag === 'ZLRZ') {
+                    return false;
+                }
+                if (urlFlag === 'review' || urlFlag === 'pro' || urlFlag === 'chayue') {
+                    return action.actionKey === 'approve' || action.actionKey === 'reject';
+                }
+                if (urlFlag === 'recall') {
+                    return action.actionKey === 'recall';
+                }
+                return true;
+            });
+
+            var $container = $('#action-buttons-container');
+            if (filteredActions.length > 0) {
+                PageRender.renderActions($container, filteredActions, {style: 'page'}, {
+                    id: $("#ktid").val(),
+                    state: state,
+                    urlFlag: urlFlag
+                });
+            }
+            $container.append('<button type="button" class="btn btn-sm btn-default" onclick="closeItem()"> 关 闭 </button>');
+        } else {
+            var $container = $('#action-buttons-container');
+            if (urlFlag === 'chakan' || urlFlag === 'ZLRZ') {
+                $container.html('<button type="button" class="btn btn-sm btn-default" onclick="closeItem()"> 关 闭 </button>');
+            } else if (['PATENT_JYS_AUDIT', 'PATENT_KYC_AUDIT'].includes(state)) {
+                $container.html(
+                    '<button type="button" class="btn btn-sm btn-success" onclick="submitHandler()"> 通 过</button> ' +
+                    '<button type="button" class="btn btn-sm btn-danger" onclick="submitHandlerBH()"> 驳 回</button> ' +
+                    '<button type="button" class="btn btn-sm btn-default" onclick="closeItem()"> 关 闭 </button>'
+                );
+            } else {
+                $container.html('<button type="button" class="btn btn-sm btn-default" onclick="closeItem()"> 关 闭 </button>');
+            }
+        }
+
         var kid = $("#ktid").val();
         var options = {
-            url: prefix + "/bhyy/"+kid,
+            url: prefix + "/bhyy/" + kid,
             showSearch: false,
             showRefresh: false,
             showToggle: false,
             showColumns: false,
-            pagination:false,
+            pagination: false,
             columns: [
-
                 {
-                    field : 'createTime',
-                    title : '批阅时间',
+                    field: 'createTime',
+                    title: '批阅时间',
                     width: 200
-
-                } ,
+                },
                 {
-                    field : 'uname',
-                    title : '批阅人',
+                    field: 'uname',
+                    title: '批阅人',
                     width: 100
                 },
                 {
-                    field : 'concate',
-                    title : '内容',
+                    field: 'concate',
+                    title: '批阅内容',
                     width: 500
                 },
                 {
-                    field : 'state',
-                    title : '审核状态',
+                    field: 'state',
+                    title: '审核状态',
                     width: 100
-                } ]
+                }]
         };
-
         $.table.init(options);
 
+        $('#bootstrap-table').on('load-success.bs.table', function (e, data) {
+            var rows = data && data.rows ? data.rows : [];
+            var urlFlagVal = $("#urlFlag").val();
+            var stateVal = $("#state").val();
 
-
-
-        // $(document).ready(function(){
-        //     console.log('Event Name:', name.rows);
-        $('#bootstrap-table').on('load-success.bs.table', function (e, name, args) {
-            console.log('Event Name:', name.rows);
-
-            var a =$("#state").val();
-            console.log('Value of a:', a);
-            if ($("#urlFlag").val() == 'chakan' || $("#urlFlag").val() == 'ZLRZ'){
-                $("#btn3").show();
-                $(".tdiv2").show()
-            }else {
-                if(a == 2 ||a == 1 || a == 4){
-                    if(name.rows.length > 0){
-                        $(".tdiv2").show();
-                    }
-                    $(".tdiv1").show();
-                    $("#btn1").show();
-                    $("#btn2").show();
-                    $("#btn3").show();
-                }else if(a == 0){
-                    $("#btn1").show();
-                    $("#btn3").show();
-
+            if (urlFlagVal === 'chakan' || urlFlagVal === 'ZLRZ') {
+                $(".tdiv2").show();
+            } else if (['PATENT_JYS_AUDIT', 'PATENT_KYC_AUDIT', 'PATENT_PASSED'].includes(stateVal)) {
+                if (rows.length > 0) {
+                    $(".tdiv2").show();
                 }
-
+                if (['review', 'pro', 'chayue'].includes(urlFlagVal)) {
+                    $(".tdiv1").show();
+                }
             }
         });
-        });
-</script>
-<script th:inline="javascript">
-    var prefix = ctx + "system/zhuanliruanzhu";
-    $("#form-zhuanliruanzhu-edit").validate({
-        focusCleanup: true
     });
 
     function submitHandler() {
-        //获取 URLflag
-        var a = $("#urlFlag").val();
-        $.operate.saveTab(prefix + "/hxPass", {"id":$("#ktid").val(),"urlFlag":a,"amount":$("#amount").val()});
+        var urlFlag = $("#urlFlag").val();
+        var remark = $('#remark').val();
+        $.operate.saveTab(prefix + "/hxPass", {"id": $("#ktid").val(), "urlFlag": urlFlag, "remark": remark});
     }
+
     function submitHandlerBH() {
-        var a = $("#urlFlag").val();
-        if ($.validate.form()) {
-            $.operate.saveTab(prefix + "/hxBh",   $('#form-zhuanliruanzhu-edit').serialize());
+        var urlFlag = $("#urlFlag").val();
+        var remark = $('#remark').val();
+        
+        if (['review', 'pro', 'chayue'].includes(urlFlag)) {
+            if (!remark.trim()) {
+                $.modal.msgWarning("批注不能为空");
+                return;
+            }
+            $.modal.confirm("确定驳回吗", function() {
+                $.operate.saveTab(prefix + "/hxBh", {'id': $("#ktid").val(), 'urlFlag': urlFlag, 'remark': remark});
+            });
+        } else if (urlFlag === 'recall') {
+            $.modal.confirm("确定撤回吗", function() {
+                $.operate.saveTab(prefix + "/recallsave", {'id': $("#ktid").val(), 'remark': remark});
+            });
         }
     }
 
-
-    // 页面加载时显示文件名
-    // window.onload = function() {
-    //     displayFileName('wenjian', 'wenjianFileName');
-    // };
-    
     // 检查是否存在错误信息，如果有则禁用所有表单元素
     $(document).ready(function() {
         if ($('.alert-danger').length > 0) {
-            // 禁用所有输入元素
-            $('input, select, textarea, button:not(#btn3)').prop('disabled', true);
-            // 隐藏操作按钮，只保留关闭按钮
-            $('#btn1, #btn2').hide();
-            $('#btn3').show();
+            $('input, select, textarea, button').not('#action-buttons-container button').prop('disabled', true);
         }
         // 解析并显示更多成员
         var membersJson = /*[[${sciZhuanliruanzhu.members}]]*/ '';
