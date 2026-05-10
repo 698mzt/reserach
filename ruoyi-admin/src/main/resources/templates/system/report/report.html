@@ -495,9 +495,12 @@
             review: function(actionKey, row) {
                 $.operate.detailTab(row.id + '/pro');
             },
-            // kyReview: function(actionKey, row) {
-            //     $.operate.detailTab(row.id + '/pro');
-            // }
+            kyReview: function(actionKey, row) {
+                $.operate.detailTab(row.id + '/check');
+            },
+            deptReview: function(actionKey, row) {
+                $.operate.detailTab(row.id + '/xyprocess');
+            }
 
         });
     });
@@ -520,7 +523,20 @@
     // 获取当前用户角色信息
     var userRole = '';
     var userRoles = [[${user.roles}]];  // 从后端获取的角色列表
+    
+    // 优先检查管理员角色，确保超级管理员显示所有字段
     if (userRoles) {
+        for (var i = 0; i < userRoles.length; i++) {
+            var roleKey = userRoles[i].roleKey;
+            if (roleKey === 'admin') {
+                userRole = 'admin';  // 超级管理员
+                break;
+            }
+        }
+    }
+    
+    // 如果不是管理员，继续判断其他角色
+    if (!userRole && userRoles) {
         for (var i = 0; i < userRoles.length; i++) {
             var roleKey = userRoles[i].roleKey;
             if (roleKey === 'sci_tesearch') {
@@ -536,23 +552,10 @@
             }
         }
     }
-    // 默认为教师角色，但管理员角色显示所有字段
+    
+    // 默认角色为教师
     if (!userRole) {
-        // 检查是否为管理员角色
-        var isAdmin = false;
-        if (userRoles) {
-            for (var i = 0; i < userRoles.length; i++) {
-                if (userRoles[i].roleKey === 'admin') {
-                    isAdmin = true;
-                    break;
-                }
-            }
-        }
-        if (isAdmin) {
-            userRole = 'admin'; // 管理员角色
-        } else {
-            userRole = 'teacher'; // 默认为教师角色
-        }
+        userRole = 'teacher'; // 默认为教师角色
     }
 
     function getUrl(tableId) {
