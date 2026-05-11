@@ -2,22 +2,19 @@ package com.ruoyi.system.service.impl;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import com.ruoyi.common.annotation.DataScope;
 import com.ruoyi.common.utils.DataScopeUtils;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.ShiroUtils;
-import com.ruoyi.common.core.domain.entity.SysRole;
 import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.system.domain.ApprovalRequest;
 import com.ruoyi.system.domain.ApprovalResult;
-import com.ruoyi.system.domain.PageRenderActionItem;
-import com.ruoyi.system.domain.PageRenderContext;
-import com.ruoyi.system.domain.PageRenderStatusMeta;
+import com.ruoyi.system.domain.PageRenderResult;
 import com.ruoyi.system.domain.SciHorizontalPiyue;
 import com.ruoyi.system.domain.SciZhuanliruanzhu;
 import com.ruoyi.system.domain.SciZhuanliruanzhuPiyue;
@@ -28,7 +25,6 @@ import com.ruoyi.system.mapper.SciZhuanliruanzhuPiyueMapper;
 import com.ruoyi.system.mapper.SciZhuanliruanzhuScoreCfgMapper;
 import com.ruoyi.system.service.IApprovalProcessService;
 import com.ruoyi.system.service.IPageRenderService;
-import com.ruoyi.system.service.ISysMenuService;
 import com.ruoyi.system.service.ISysUserService;
 import com.ruoyi.system.service.ISciZhuanliruanzhuService;
 
@@ -70,9 +66,6 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
     @Autowired
     private IPageRenderService pageRenderService;
 
-    @Autowired
-    private ISysMenuService sysMenuService;
-
     private static final String MODULE_CODE = "PATENT";
     private static final String PERM_PREFIX = "system:zhuanliruanzhu";
     private static final String PROCESS_CODE = "PATENT_APPLY";
@@ -97,7 +90,21 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
                 // 处理异常
             }
         }
-        fillPageRenderData(sciZhuanliruanzhu);
+        
+        // 使用标准方式调用 fillPageRenderData
+        SysUser currentUser = ShiroUtils.getSysUser();
+        if (currentUser != null && sciZhuanliruanzhu != null) {
+            String normalizedState = mapStateToStatusCode(sciZhuanliruanzhu.getState());
+            PageRenderResult<?> result = pageRenderService.fillPageRenderData(
+                    MODULE_CODE, PERM_PREFIX, PROCESS_CODE,
+                    normalizedState,
+                    sciZhuanliruanzhu.getId() != null ? sciZhuanliruanzhu.getId().longValue() : null,
+                    sciZhuanliruanzhu.getUserId() != null ? sciZhuanliruanzhu.getUserId().longValue() : null,
+                    pageRenderService.buildCurrentPermissions(currentUser));
+            sciZhuanliruanzhu.setStatusMeta(result.getStatusMeta());
+            sciZhuanliruanzhu.setActions(result.getActions());
+        }
+        
         return sciZhuanliruanzhu;
     }
 
@@ -112,9 +119,24 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
     public List<SciZhuanliruanzhu> selectSciZhuanliruanzhuList(SciZhuanliruanzhu sciZhuanliruanzhu)
     {
         List<SciZhuanliruanzhu> list = sciZhuanliruanzhuMapper.selectSciZhuanliruanzhuList(sciZhuanliruanzhu);
-        for (SciZhuanliruanzhu entity : list) {
-            fillPageRenderData(entity);
+        
+        // 使用标准方式调用 fillPageRenderData
+        SysUser currentUser = ShiroUtils.getSysUser();
+        if (currentUser != null) {
+            Set<String> permissions = pageRenderService.buildCurrentPermissions(currentUser);
+            for (SciZhuanliruanzhu entity : list) {
+                String normalizedState = mapStateToStatusCode(entity.getState());
+                PageRenderResult<?> result = pageRenderService.fillPageRenderData(
+                        MODULE_CODE, PERM_PREFIX, PROCESS_CODE,
+                        normalizedState,
+                        entity.getId() != null ? entity.getId().longValue() : null,
+                        entity.getUserId() != null ? entity.getUserId().longValue() : null,
+                        permissions);
+                entity.setStatusMeta(result.getStatusMeta());
+                entity.setActions(result.getActions());
+            }
         }
+        
         return list;
     }
 
@@ -504,9 +526,7 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
     public List<SciZhuanliruanzhu> selectSciZhuanliruanzhuList4(SciZhuanliruanzhu sciZhuanliruanzhu)
     {
         List<SciZhuanliruanzhu> list = sciZhuanliruanzhuMapper.selectSciZhuanliruanzhuList4(sciZhuanliruanzhu);
-        for (SciZhuanliruanzhu entity : list) {
-            fillPageRenderData(entity);
-        }
+        renderPageDataForList(list);
         return list;
     }
     /**
@@ -520,9 +540,7 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
     public List<SciZhuanliruanzhu> selectSciZhuanliruanzhuList3(SciZhuanliruanzhu sciZhuanliruanzhu)
     {
         List<SciZhuanliruanzhu> list = sciZhuanliruanzhuMapper.selectSciZhuanliruanzhuList3(sciZhuanliruanzhu);
-        for (SciZhuanliruanzhu entity : list) {
-            fillPageRenderData(entity);
-        }
+        renderPageDataForList(list);
         return list;
     }
     /**
@@ -536,9 +554,7 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
     public List<SciZhuanliruanzhu> selectSciZhuanliruanzhuList2(SciZhuanliruanzhu sciZhuanliruanzhu)
     {
         List<SciZhuanliruanzhu> list = sciZhuanliruanzhuMapper.selectSciZhuanliruanzhuList2(sciZhuanliruanzhu);
-        for (SciZhuanliruanzhu entity : list) {
-            fillPageRenderData(entity);
-        }
+        renderPageDataForList(list);
         return list;
     }
     /**
@@ -552,9 +568,7 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
     public List<SciZhuanliruanzhu> selectSciZhuanliruanzhuList1(SciZhuanliruanzhu sciZhuanliruanzhu)
     {
         List<SciZhuanliruanzhu> list = sciZhuanliruanzhuMapper.selectSciZhuanliruanzhuList1(sciZhuanliruanzhu);
-        for (SciZhuanliruanzhu entity : list) {
-            fillPageRenderData(entity);
-        }
+        renderPageDataForList(list);
         return list;
     }
 
@@ -715,55 +729,25 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
     }
 
     /**
-     * 填充页面渲染数据（statusMeta和actions）
-     * 通过sysMenuService获取用户权限，构造PageRenderContext并调用PageRenderService生成渲染数据
-     *
-     * @param zhuanliruanzhu 专利软著对象
+     * 使用标准方式渲染列表页面数据
+     * @param list 专利软著列表
      */
-    private void fillPageRenderData(SciZhuanliruanzhu zhuanliruanzhu) {
-        if (zhuanliruanzhu == null) {
-            return;
-        }
-        try {
-            SysUser currentUser = ShiroUtils.getSysUser();
-            if (currentUser == null) {
-                return;
+    private void renderPageDataForList(List<SciZhuanliruanzhu> list) {
+        SysUser currentUser = ShiroUtils.getSysUser();
+        if (currentUser != null) {
+            Set<String> permissions = pageRenderService.buildCurrentPermissions(currentUser);
+            for (SciZhuanliruanzhu entity : list) {
+                String normalizedState = mapStateToStatusCode(entity.getState());
+                PageRenderResult<?> result = pageRenderService.fillPageRenderData(
+                        MODULE_CODE, PERM_PREFIX, PROCESS_CODE,
+                        normalizedState,
+                        entity.getId() != null ? entity.getId().longValue() : null,
+                        entity.getUserId() != null ? entity.getUserId().longValue() : null,
+                        permissions);
+                entity.setStatusMeta(result.getStatusMeta());
+                entity.setActions(result.getActions());
             }
-
-            // 通过菜单服务获取当前用户权限列表
-            Set<String> permissions = sysMenuService.selectPermsByUserId(currentUser.getUserId());
-
-            // 获取当前用户角色key列表
-            List<String> roleKeys = new ArrayList<>();
-            if (currentUser.getRoles() != null) {
-                roleKeys = currentUser.getRoles().stream()
-                        .map(SysRole::getRoleKey)
-                        .collect(Collectors.toList());
-            }
-
-            // 转换旧状态码为新状态编码
-            String normalizedState = mapStateToStatusCode(zhuanliruanzhu.getState());
-
-            // 构造页面渲染上下文
-            PageRenderContext context = new PageRenderContext();
-            context.setModuleCode(MODULE_CODE);
-            context.setBusinessId(zhuanliruanzhu.getId() != null ? zhuanliruanzhu.getId().longValue() : 0L);
-            context.setCurrentState(normalizedState);
-            context.setCreatorId(zhuanliruanzhu.getUserId() != null ? zhuanliruanzhu.getUserId().longValue() : null);
-            context.setCurrentUser(currentUser);
-            context.setPermissions(permissions);
-            context.setRoleKeys(roleKeys);
-            context.setPermPrefix(PERM_PREFIX);
-            context.setProcessCode(PROCESS_CODE);
-
-            // 构建状态和动作信息
-            PageRenderStatusMeta statusMeta = pageRenderService.buildStatusMeta(context);
-            List<PageRenderActionItem> actions = pageRenderService.buildActions(context);
-
-            zhuanliruanzhu.setStatusMeta(statusMeta);
-            zhuanliruanzhu.setActions(actions);
-        } catch (Exception e) {
-            // 页面渲染数据填充失败不影响主流程
         }
     }
+
 }
