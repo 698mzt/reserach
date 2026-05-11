@@ -27,15 +27,13 @@ import java.util.stream.Collectors;
 
 /**
  * 奖励Service业务层处理
- * 
- * <p>审批流程说明：
- * <ul>
- *   <li>使用统一的 ApprovalProcessServiceImpl 进行审批状态管理</li>
- *   <li>流程编码：REWARD_APPROVAL（需在数据库 sys_approval_process 表配置）</li>
- *   <li>状态流转：REWARD_DRAFT -> REWARD_JYS_AUDIT -> REWARD_KYC_AUDIT -> REWARD_PASSED</li>
- *   <li>驳回/撤回时回退到对应状态，并重置积分（如有）</li>
- * </ul>
- * 
+ *
+ * 审批流程说明：
+ *   使用统一的 ApprovalProcessServiceImpl 进行审批状态管理
+ *   流程编码：REWARD_APPROVAL（需在数据库 sys_approval_process 表配置）
+ *   状态流转：REWARD_DRAFT -> REWARD_JYS_AUDIT -> REWARD_KYC_AUDIT -> REWARD_PASSED
+ *   驳回/撤回时回退到对应状态，并重置积分（如有
+ *
  * @author ruoyi
  * @date 2024-12-23
  */
@@ -102,7 +100,8 @@ public class SysRewardServiceImpl implements ISysRewardService {
                     reward.getState(), reward.getId(), reward.getUserId(),
                     pageRenderService.buildCurrentPermissions(currentUser));
             reward.setStatusMeta(result.getStatusMeta());
-            reward.setActions(result.getActions());
+            // 过滤奖励模块不需要的按钮（通过、驳回）
+            reward.setActions(filterRewardActions(result.getActions()));
         }
         return reward;
     }
@@ -124,9 +123,37 @@ public class SysRewardServiceImpl implements ISysRewardService {
                     "REWARD", "system:reward", REWARD_PROCESS_CODE,
                     reward.getState(), reward.getId(), reward.getUserId(), permissions);
             reward.setStatusMeta(result.getStatusMeta());
-            reward.setActions(result.getActions());
+            // 过滤奖励模块不需要的按钮（通过、驳回）
+            reward.setActions(filterRewardActions(result.getActions()));
         }
         return list;
+    }
+
+    /**
+     * 过滤奖励模块不需要的按钮
+     * 公共 PageRender 服务会为审批中状态生成"通过"和"驳回"按钮
+     * 但奖励模块的审批操作统一在详情页完成，列表页只需要"批阅/核查"按钮
+     *
+     * @param actions 原始按钮列表
+     * @return 过滤后的按钮列表
+     */
+    @SuppressWarnings("unchecked")
+    private List<PageRenderActionItem> filterRewardActions(List<?> actions) {
+        if (actions == null || actions.isEmpty()) {
+            return new ArrayList<>();
+        }
+        List<PageRenderActionItem> filtered = new ArrayList<>();
+        for (Object item : actions) {
+            if (item instanceof PageRenderActionItem) {
+                PageRenderActionItem action = (PageRenderActionItem) item;
+                // 保留除"通过"和"驳回"外的所有按钮
+                String actionKey = action.getActionKey();
+                if (!"approve".equals(actionKey) && !"reject".equals(actionKey)) {
+                    filtered.add(action);
+                }
+            }
+        }
+        return filtered;
     }
 
     @Override
@@ -209,19 +236,19 @@ public class SysRewardServiceImpl implements ISysRewardService {
 
     /**
      * 统一审批操作（通过/驳回/撤回）
-     * 
+     *
      * 使用统一的审批流程服务进行状态管理：
      *
      * approve: 审批通过，状态流转到下一节点或终态
      * reject: 审批驳回，状态回退到指定节点（通常为草稿）
      * recall: 撤回审批，状态回退到上一审批节点
      *
-     * 
+     *
      * 积分计算规则：
      * 最后一个审批节点通过时，根据奖励分类、等级、排名计算积分
      * 撤回操作如果回退到科研处审批前状态，重置积分
      *
-     * 
+     *
      * @param id            奖励ID
      * @param userId        用户ID
      * @param comment       审批意见
@@ -295,7 +322,7 @@ public class SysRewardServiceImpl implements ISysRewardService {
 
     /**
      * 根据奖励信息计算并更新积分
-     * 
+     *
      * @param id 奖励ID
      */
     private void calculateAndUpdateScore(String id) {
@@ -322,7 +349,7 @@ public class SysRewardServiceImpl implements ISysRewardService {
 
     /**
      * 保存审批意见记录
-     * 
+     *
      * @param id            奖励ID
      * @param userId        用户ID
      * @param comment       审批意见
@@ -349,7 +376,7 @@ public class SysRewardServiceImpl implements ISysRewardService {
 
     /**
      * 兼容旧接口：审批通过
-     * 
+     *
      * @deprecated 建议使用 {@link #approve(String, Long, String, String)} 方法
      */
     @Override
@@ -359,7 +386,7 @@ public class SysRewardServiceImpl implements ISysRewardService {
 
     /**
      * 兼容旧接口：审批驳回
-     * 
+     *
      * @deprecated 建议使用 {@link #approve(String, Long, String, String)} 方法
      */
     @Override
@@ -369,7 +396,7 @@ public class SysRewardServiceImpl implements ISysRewardService {
 
     /**
      * 兼容旧接口：撤回奖励
-     * 
+     *
      * @deprecated 建议使用 {@link #approve(String, Long, String, String)} 方法
      */
     @Override
