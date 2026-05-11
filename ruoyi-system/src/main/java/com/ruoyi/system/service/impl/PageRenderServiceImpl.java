@@ -68,7 +68,7 @@ public class PageRenderServiceImpl implements IPageRenderService {
     private static final String TEXTBOOK_APPROVAL_PROCESS_CODE = "TEXTBOOK_APPROVAL";
 
     /** 成果转化审批 */
-    private static final String TEC_TRA_APPLY_PROCESS_CODE = "TEC_TRA_APPLY";
+    private static final String INTRASCHPRO_APPLY_PROCESS_CODE = "INTRASCHPRO_APPLY";
 
     /** 奖励审批 */
     private static final String REWARD_APPLY_PROCESS_CODE = "REWARD_APPLY";
@@ -323,7 +323,7 @@ public class PageRenderServiceImpl implements IPageRenderService {
 
         // 成果转化模块：教研室批阅=JYPY, 学院批阅=XYPY, 科研室批阅=KYPY, 教研室撤回=JYCH, 学院撤回=XYCH, 科研室撤回=KYCH
         MODULE_REGISTRY.put("TEC_TRA",
-                new ModuleConfig("TEC_TRA", "system:intraSch", TEC_TRA_APPLY_PROCESS_CODE, "成果转化",
+                new ModuleConfig("TEC_TRA", "system:intraSch", INTRASCHPRO_APPLY_PROCESS_CODE, "成果转化",
                         new HashMap<String, String>() {
                             {
                                 put("info", "info");
@@ -548,7 +548,6 @@ public class PageRenderServiceImpl implements IPageRenderService {
      * 构建状态展示信息
      * 优先从统一缓存按当前流程的 processCode 查找，兜底使用状态编码后缀自动推导
      *
-     * @param context 页面渲染上下文
      * @param context 页面渲染上下文
      * @return 状态展示对象
      */
@@ -825,6 +824,18 @@ public class PageRenderServiceImpl implements IPageRenderService {
                 specificActions.add(PageRenderActionItem.of(
                         "reamount", "追加金额",
                         PageRenderColorConstants.COLOR_PRIMARY, 51));
+            }
+        }
+
+        // 纵向课题立项通过后显示"申请结项"按钮
+        if ("VERTICAL_APPLY".equals(moduleCode) && context.getCurrentState() != null
+                && (context.getCurrentState().endsWith("_PASS") || context.getCurrentState().endsWith("_PASSED"))) {
+            boolean isOwner = context.isOwner();
+            boolean isAdmin = context.hasRole("admin");
+            if ((isOwner || isAdmin) && context.hasPermission(config.getPermission("add"))) {
+                specificActions.add(PageRenderActionItem.of(
+                        "overApply", "申请结项",
+                        PageRenderColorConstants.COLOR_PRIMARY, 52));
             }
         }
 
