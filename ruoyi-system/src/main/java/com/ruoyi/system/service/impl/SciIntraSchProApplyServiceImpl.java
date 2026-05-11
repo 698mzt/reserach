@@ -17,20 +17,23 @@ import com.ruoyi.system.service.ISysUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import com.ruoyi.common.utils.ShiroUtils;
+import com.ruoyi.system.service.IPageRenderService;
+import com.ruoyi.system.domain.PageRenderResult;
 import java.util.List;
 import java.util.Map;
 
 @Service
 public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyService {
 
-    private static final String TEC_TRA_PROCESS_CODE = "INTRASCHPRO_APPLY";
+    private static final String TEC_TRA_PROCESS_CODE = "TEC_TRA_APPLY";
     private static final String TEC_TRA_DRAFT = "TEC_TRA_DRAFT";
     private static final String TEC_TRA_JYS_AUDIT = "TEC_TRA_JYS_AUDIT";
     private static final String TEC_TRA_KYC_AUDIT = "TEC_TRA_KYC_AUDIT";
     private static final String TEC_TRA_PASSED = "TEC_TRA_PASSED";
     private static final String TEC_TRA_REJECTED = "TEC_TRA_REJECTED";
-
+    private static final String MODULE_CODE = "TEC_TRA";
+    private static final String PERM_PREFIX = "system:intraSch";
     @Autowired
     private SciIntraSchProApplyMapper sciIntraSchProApplyMapper;
     @Autowired
@@ -43,49 +46,85 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
     private IApprovalProcessService approvalProcessService;
     @Autowired
     private ISysUserService sysUserService;
+    @Autowired
+    private IPageRenderService pageRenderService;
+
     @Override
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciIntraSchoolPro> sel_IntraSchPro_isOVER(SciIntraSchoolPro sciIntraSchoolPro) {
-        return sciIntraSchProApplyMapper.sel_IntraSchPro_isOVER(sciIntraSchoolPro);
+        List<SciIntraSchoolPro> list = sciIntraSchProApplyMapper.sel_IntraSchPro_isOVER(sciIntraSchoolPro);
+        for (SciIntraSchoolPro pro : list) {
+            fillPageRenderData(pro);
+        }
+        return list;
     }
 
     @Override
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciIntraSchoolPro> sel_my_IntraSchPro_isOVER(SciIntraSchoolPro sciIntraSchoolPro) {
-        return sciIntraSchProApplyMapper.sel_my_IntraSchPro_isOVER(sciIntraSchoolPro);
+        List<SciIntraSchoolPro> list = sciIntraSchProApplyMapper.sel_my_IntraSchPro_isOVER(sciIntraSchoolPro);
+        for (SciIntraSchoolPro pro : list) {
+            fillPageRenderData(pro);
+        }
+        return list;
     }
 
     @Override
     public List<SciIntraSchoolPro> sel_IntraSchPro_approval_ky(SciIntraSchoolPro sciIntraSchoolPro) {
-        return sciIntraSchProApplyMapper.sel_IntraSchPro_approval_ky(sciIntraSchoolPro);
+        List<SciIntraSchoolPro> list = sciIntraSchProApplyMapper.sel_IntraSchPro_approval_ky(sciIntraSchoolPro);
+        for (SciIntraSchoolPro pro : list) {
+            fillPageRenderData(pro);
+        }
+        return list;
     }
 
     @Override
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciIntraSchoolPro> sel_IntraSchPro_approval_jy(SciIntraSchoolPro sciIntraSchoolPro) {
-        return sciIntraSchProApplyMapper.sel_IntraSchPro_approval_jy(sciIntraSchoolPro);
+        List<SciIntraSchoolPro> list = sciIntraSchProApplyMapper.sel_IntraSchPro_approval_jy(sciIntraSchoolPro);
+        for (SciIntraSchoolPro pro : list) {
+            fillPageRenderData(pro);
+        }
+        return list;
     }
-
     @Override
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciIntraSchoolPro> sel_IntraSchPro_approval_my(SciIntraSchoolPro sciIntraSchoolPro) {
-        return sciIntraSchProApplyMapper.sel_IntraSchPro_approval_my(sciIntraSchoolPro);
+        List<SciIntraSchoolPro> list = sciIntraSchProApplyMapper.sel_IntraSchPro_approval_my(sciIntraSchoolPro);
+        for (SciIntraSchoolPro pro : list) {
+            fillPageRenderData(pro);
+        }
+        return list;
     }
+
 
     @Override
     public List<SciIntraSchoolPro> sel_IntraSchPro_closure_ky(SciIntraSchoolPro sciIntraSchoolPro) {
-        return sciIntraSchProApplyMapper.sel_IntraSchPro_closure_ky(sciIntraSchoolPro);
+        List<SciIntraSchoolPro> list = sciIntraSchProApplyMapper.sel_IntraSchPro_closure_ky(sciIntraSchoolPro);
+        for (SciIntraSchoolPro pro : list) {
+            fillPageRenderData(pro);
+        }
+        return list;
     }
 
     @Override
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciIntraSchoolPro> sel_IntraSchPro_closure_jy(SciIntraSchoolPro sciIntraSchoolPro) {
-        return sciIntraSchProApplyMapper.sel_IntraSchPro_closure_jy(sciIntraSchoolPro);
+        List<SciIntraSchoolPro> list = sciIntraSchProApplyMapper.sel_IntraSchPro_closure_jy(sciIntraSchoolPro);
+        for (SciIntraSchoolPro pro : list) {
+            fillPageRenderData(pro);
+        }
+        return list;
     }
+
 
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciIntraSchoolPro> sel_IntraSchPro_closure_my(SciIntraSchoolPro sciIntraSchoolPro) {
-        return sciIntraSchProApplyMapper.sel_IntraSchPro_closure_my(sciIntraSchoolPro);
+        List<SciIntraSchoolPro> list = sciIntraSchProApplyMapper.sel_IntraSchPro_closure_my(sciIntraSchoolPro);
+        for (SciIntraSchoolPro pro : list) {
+            fillPageRenderData(pro);
+        }
+        return list;
     }
 
     @Override
@@ -101,7 +140,9 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
 
     @Override
     public SciIntraSchoolPro sel_IntraSchPro_by_id(Integer id) {
-        return sciIntraSchProApplyMapper.sel_IntraSchPro_by_id(id);
+        SciIntraSchoolPro pro = sciIntraSchProApplyMapper.sel_IntraSchPro_by_id(id);
+        fillPageRenderData(pro);
+        return pro;
     }
 
 
@@ -515,36 +556,34 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
         return sciIntraSchProApplyMapper.getStatsQueryToCheck(params);
     }
 
+    /**
+     * 判断是否为旧状态码（数字格式）
+     */
     private boolean isTecTraState(String state) {
-        if (state == null) {
-            return false;
-        }
-        return state.startsWith("TEC_TRA_") || "15".equals(state) || "1".equals(state) || "2".equals(state)
-                || "3".equals(state) || "4".equals(state) || "5".equals(state) || "11".equals(state)
-                || "12".equals(state);
+        return "TEC_TRA_DRAFT".equals(state)
+                || "TEC_TRA_JYS_AUDIT".equals(state)
+                || "TEC_TRA_KYC_AUDIT".equals(state)
+                || "TEC_TRA_PASSED".equals(state)
+                || "TEC_TRA_REJECTED".equals(state);
     }
 
+    /**
+     * 将旧状态码映射为新状态编码
+     */
     private String normalizeTecTraState(String state) {
-        if (state == null || state.trim().isEmpty()) {
-            return TEC_TRA_DRAFT;
+        if (isTecTraState(state)) {
+            return state; // 已经是新状态码
         }
+        // 旧状态码映射（根据实际业务调整）
         switch (state) {
-            case "15":
-                return TEC_TRA_DRAFT;
-            case "1":
-            case "11":
-                return TEC_TRA_JYS_AUDIT;
-            case "2":
-                return TEC_TRA_KYC_AUDIT;
-            case "4":
-            case "6":
-                return TEC_TRA_PASSED;
-            case "3":
-            case "5":
-            case "12":
-                return TEC_TRA_REJECTED;
-            default:
-                return state;
+            case "15": return "TEC_TRA_DRAFT";
+            case "1": return "TEC_TRA_JYS_AUDIT";
+            case "2": return "TEC_TRA_KYC_AUDIT";
+            case "3": return "TEC_TRA_REJECTED";
+            case "4": return "TEC_TRA_PASSED";
+            case "5": return "TEC_TRA_REJECTED";
+            case "12": return "TEC_TRA_REJECTED";
+            default: return state;
         }
     }
 
@@ -578,6 +617,30 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
                 user != null ? user.getUserName() : "",
                 user != null && user.getDept() != null ? user.getDept().getDeptName() : ""
         );
+    }
+    /**
+     * 填充页面渲染数据（statusMeta和actions）
+     * 调用标准公有方法 fillPageRenderData() 实现页面渲染数据填充
+     *
+     * @param pro 成果转化对象
+     */
+    private void fillPageRenderData(SciIntraSchoolPro pro) {
+        if (pro == null) {
+            return;
+        }
+        SysUser currentUser = ShiroUtils.getSysUser();
+        String normalizedState = normalizeTecTraState(pro.getState());
+        PageRenderResult<?> result = pageRenderService.fillPageRenderData(
+                MODULE_CODE,
+                PERM_PREFIX,
+                TEC_TRA_PROCESS_CODE,
+                normalizedState,
+                pro.getId() != null ? pro.getId().longValue() : null,
+                pro.getUid() != null ? pro.getUid() : null,
+                null  // 传 null，由公共服务内部处理缓存
+        );
+        pro.setStatusMeta(result.getStatusMeta());
+        pro.setActions(result.getActions());
     }
 }
 

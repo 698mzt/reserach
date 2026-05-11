@@ -26,7 +26,7 @@ import com.ruoyi.common.core.page.TableSupport;
 @RequestMapping("/IntraSchPro")
 public class SciIntraSchoolProController extends BaseController {
   private String prefix = "system/IntraSchPro";
-  private static final String TEC_TRA_PROCESS_CODE = "INTRASCHPRO_APPLY";
+  private static final String TEC_TRA_PROCESS_CODE = "TEC_TRA_APPLY";
   private static final String TEC_TRA_DRAFT = "TEC_TRA_DRAFT";
   private static final String TEC_TRA_JYS_AUDIT = "TEC_TRA_JYS_AUDIT";
   private static final String TEC_TRA_KYC_AUDIT = "TEC_TRA_KYC_AUDIT";

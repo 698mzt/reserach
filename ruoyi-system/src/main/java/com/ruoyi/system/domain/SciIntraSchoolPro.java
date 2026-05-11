@@ -2,6 +2,9 @@ package com.ruoyi.system.domain;
 
 import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
+import com.ruoyi.system.domain.PageRenderStatusMeta;
+import com.ruoyi.system.domain.PageRenderActionItem;
+import java.util.List;
 
 public class SciIntraSchoolPro extends BaseEntity {
     private static final long serialVersionUID = 1L;
@@ -23,7 +26,8 @@ public class SciIntraSchoolPro extends BaseEntity {
     public static final String ACH_OVER_REJECTED_JYS = "9";
     public static final String ACH_OVER_REJECTED_XY = "14";
     public static final String ACH_OVER_REJECTED_KYC = "10";
-
+    private PageRenderStatusMeta statusMeta;
+    private List<PageRenderActionItem> actions;
     public static boolean isApplyDraft(String state) {
         return ACH_APPLY_DRAFT.equals(state);
     }
@@ -62,6 +66,16 @@ public class SciIntraSchoolPro extends BaseEntity {
 
     public static boolean isOverPassed(String state) {
         return ACH_OVER_PASSED.equals(state);
+    }
+
+    public PageRenderStatusMeta getStatusMeta() {
+        return statusMeta;
+    }
+    public void setStatusMeta(PageRenderStatusMeta statusMeta) {
+        this.statusMeta = statusMeta;
+    }
+    public List<PageRenderActionItem> getActions() {
+        return actions;
     }
 
     private Long uid;
@@ -203,6 +217,7 @@ public class SciIntraSchoolPro extends BaseEntity {
         this.totalTeacherScore = totalTeacherScore;
     }
 
+    public void setActions(List<PageRenderActionItem> actions) { this.actions = actions;}
     /** 申请人 */
     @Excel(name = "姓名", sort = 7)
     private String  userName;
