@@ -854,10 +854,6 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
 
             apply.setStatusMeta(result.getStatusMeta());
             apply.setActions(result.getActions());
-
-            // 添加自定义业务按钮："申请结项"按钮
-            Set<String> permissions = pageRenderService.buildCurrentPermissions(currentUser);
-            addCustomActions(apply, apply.getActions(), currentUser, permissions);
         } catch (Exception e) {
             // 页面渲染数据填充失败不影响主流程，提供兜底数据
             log.error("填充纵向课题页面渲染数据失败, applyId={}", apply.getId(), e);
@@ -887,79 +883,6 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
             return "VERTICAL_OVER";
         }
         return "VERTICAL_APPLY";
-    }
-
-    /**
-     * 添加自定义业务按钮（通用规则引擎不涵盖的按钮）
-     * 功能：为已通过状态添加"申请结项"按钮
-     *
-     * @param apply 纵向课题对象
-     * @param actions 动作列表
-     * @param currentUser 当前用户
-     * @param permissions 权限列表
-     */
-    private void addCustomActions(SciHorizontalApplyVertical apply, List<PageRenderActionItem> actions,
-                                   SysUser currentUser, Set<String> permissions) {
-        if (apply == null || actions == null || currentUser == null) {
-            return;
-        }
-        String state = apply.getState();
-        if (StringUtils.isEmpty(state)) {
-            return;
-        }
-        // 判断是否为创建者或管理员
-        // 注意：apply.getUserId() 是 Integer，currentUser.getUserId() 是 Long，需要统一类型比较
-        boolean isOwner = apply.getUserId() != null && currentUser.getUserId() != null
-                && apply.getUserId().longValue() == currentUser.getUserId();
-        boolean isAdmin = isAdminUser(currentUser);
-        // 管理员或有 add 权限的用户可以"申请结项"
-        boolean canAdd = isAdmin || permissions.contains("system:apply_vertical:add");
-
-        // 立项已通过：创建者或管理员可以"申请结项"
-        if ("VERTICAL_APPLY_PASSED".equals(state) && (isOwner || isAdmin) && canAdd) {
-            PageRenderActionItem action = PageRenderActionItem.of(
-                    "overApply",
-                    "申请结项",
-                    PageRenderColorConstants.COLOR_SUCCESS,
-                    15);
-            actions.add(action);
-        }
-
-        // 结项草稿：创建者或管理员可以"提交结项申请"
-        if ("VERTICAL_OVER_DRAFT".equals(state) && (isOwner || isAdmin) && canAdd) {
-            PageRenderActionItem action = PageRenderActionItem.of(
-                    "submit",
-                    "提交结项申请",
-                    PageRenderColorConstants.COLOR_SUCCESS,
-                    5,
-                    "确定要提交该结项申请吗？");
-            actions.add(action);
-        }
-    }
-
-    /**
-     * 判断当前用户是否为管理员
-     *
-     * @param currentUser 当前用户
-     * @return 是否为管理员
-     */
-    private boolean isAdminUser(SysUser currentUser) {
-        if (currentUser == null) {
-            return false;
-        }
-        // 超级管理员（user_id = 1）
-        if (currentUser.getUserId() != null && currentUser.getUserId().equals(1L)) {
-            return true;
-        }
-        // 检查是否有 admin 角色
-        if (currentUser.getRoles() != null) {
-            for (SysRole role : currentUser.getRoles()) {
-                if (role != null && "admin".equals(role.getRoleKey())) {
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 
 

@@ -549,7 +549,6 @@ public class PageRenderServiceImpl implements IPageRenderService {
      * 优先从统一缓存按当前流程的 processCode 查找，兜底使用状态编码后缀自动推导
      *
      * @param context 页面渲染上下文
-     * @param context 页面渲染上下文
      * @return 状态展示对象
      */
     @Override
@@ -825,6 +824,18 @@ public class PageRenderServiceImpl implements IPageRenderService {
                 specificActions.add(PageRenderActionItem.of(
                         "reamount", "追加金额",
                         PageRenderColorConstants.COLOR_PRIMARY, 51));
+            }
+        }
+
+        // 纵向课题立项通过后显示"申请结项"按钮
+        if ("VERTICAL_APPLY".equals(moduleCode) && context.getCurrentState() != null
+                && (context.getCurrentState().endsWith("_PASS") || context.getCurrentState().endsWith("_PASSED"))) {
+            boolean isOwner = context.isOwner();
+            boolean isAdmin = context.hasRole("admin");
+            if ((isOwner || isAdmin) && context.hasPermission(config.getPermission("add"))) {
+                specificActions.add(PageRenderActionItem.of(
+                        "overApply", "申请结项",
+                        PageRenderColorConstants.COLOR_PRIMARY, 52));
             }
         }
 
