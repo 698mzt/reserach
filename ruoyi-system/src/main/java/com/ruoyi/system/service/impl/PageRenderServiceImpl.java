@@ -68,7 +68,7 @@ public class PageRenderServiceImpl implements IPageRenderService {
     private static final String TEXTBOOK_APPROVAL_PROCESS_CODE = "TEXTBOOK_APPROVAL";
 
     /** 成果转化审批 */
-    private static final String INTRASCHPRO_APPLY_PROCESS_CODE = "INTRASCHPRO_APPLY";
+    private static final String TEC_TRA_APPLY_PROCESS_CODE = "TEC_TRA_APPLY";
 
     /** 奖励审批 */
     private static final String REWARD_APPLY_PROCESS_CODE = "REWARD_APPLY";
@@ -323,7 +323,7 @@ public class PageRenderServiceImpl implements IPageRenderService {
 
         // 成果转化模块：教研室批阅=JYPY, 学院批阅=XYPY, 科研室批阅=KYPY, 教研室撤回=JYCH, 学院撤回=XYCH, 科研室撤回=KYCH
         MODULE_REGISTRY.put("TEC_TRA",
-                new ModuleConfig("TEC_TRA", "system:intraSch", INTRASCHPRO_APPLY_PROCESS_CODE, "成果转化",
+                new ModuleConfig("TEC_TRA", "system:intraSch", TEC_TRA_APPLY_PROCESS_CODE, "成果转化",
                         new HashMap<String, String>() {
                             {
                                 put("info", "info");
