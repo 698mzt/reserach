@@ -602,7 +602,7 @@
     $(function() {
         // 注册PageRender动作处理器
         PageRender.registerHandlers({
-            'info': function(actionKey, data) {
+            'view': function(actionKey, data) {
                 $.operate.detailTab(data.id + '/chakan');
             },
             'viewProcess': function(actionKey, data) {
