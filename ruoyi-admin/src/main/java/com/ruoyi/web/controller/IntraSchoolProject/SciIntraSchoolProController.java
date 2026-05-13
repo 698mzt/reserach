@@ -195,30 +195,12 @@ public class SciIntraSchoolProController extends BaseController {
 
     for (SciIntraSchoolPro item : list) {
       String stateCode = mapTecTraStateToStatusCode(item.getState());
-      item.setApprovalStage(resolveTecTraStateName(stateCode, stateNameMap, item.getStateDes()));
+      item.setApprovalStage(stateNameMap.getOrDefault(stateCode, item.getStateDes()));
     }
   }
 
-  private String resolveTecTraStateName(String stateCode, Map<String, String> stateNameMap, String fallback) {
-    String stateName = stateNameMap.get(stateCode);
-    if (stateName != null && !stateName.trim().isEmpty() && !stateName.equals(stateCode)) {
-      return stateName;
-    }
-    switch (stateCode) {
-      case TEC_TRA_DRAFT:
-        return "草稿箱";
-      case TEC_TRA_JYS_AUDIT:
-        return "教研室审批";
-      case TEC_TRA_KYC_AUDIT:
-        return "科研处审批";
-      case TEC_TRA_PASSED:
-        return "终审通过";
-      case TEC_TRA_REJECTED:
-        return "已驳回";
-      default:
-        return fallback;
-    }
-  }
+
+
 
   private String mapTecTraStateToStatusCode(String state) {
     if (state == null || state.trim().isEmpty()) {
