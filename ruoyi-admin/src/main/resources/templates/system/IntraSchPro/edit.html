@@ -226,8 +226,8 @@
             </div>
         </div>
 
-        <h4 class="form-header h4">批阅记录</h4>
-        <div class="row">
+        <h4 class="form-header h4" style="display:none;">批阅记录</h4>
+        <div class="row" style="display:none;">
             <div class="col-sm-12">
                 <div class="form-group">
                     <table id="bootstrap-table"></table>
@@ -303,6 +303,8 @@
             showToggle: false,
             showColumns: false,
             pagination: false,
+            sortName: 'createTime',
+            sortOrder: 'desc',
 
             columns: [
 

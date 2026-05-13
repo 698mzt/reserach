@@ -26,7 +26,7 @@ import com.ruoyi.common.core.page.TableSupport;
 @RequestMapping("/IntraSchPro")
 public class SciIntraSchoolProController extends BaseController {
   private String prefix = "system/IntraSchPro";
-  private static final String TEC_TRA_PROCESS_CODE = "TEC_TRA_APPLY";
+  private static final String TEC_TRA_PROCESS_CODE = "INTRASCHPRO_APPLY";
   private static final String TEC_TRA_DRAFT = "TEC_TRA_DRAFT";
   private static final String TEC_TRA_JYS_AUDIT = "TEC_TRA_JYS_AUDIT";
   private static final String TEC_TRA_KYC_AUDIT = "TEC_TRA_KYC_AUDIT";
@@ -51,8 +51,6 @@ public class SciIntraSchoolProController extends BaseController {
 
   @Autowired
   private ISysApprovalStateService sysApprovalStateService;
-
-
   //private String role_str="";
   @GetMapping("")
   String view() {
@@ -197,7 +195,28 @@ public class SciIntraSchoolProController extends BaseController {
 
     for (SciIntraSchoolPro item : list) {
       String stateCode = mapTecTraStateToStatusCode(item.getState());
-      item.setApprovalStage(stateNameMap.getOrDefault(stateCode, item.getStateDes()));
+      item.setApprovalStage(resolveTecTraStateName(stateCode, stateNameMap, item.getStateDes()));
+    }
+  }
+
+  private String resolveTecTraStateName(String stateCode, Map<String, String> stateNameMap, String fallback) {
+    String stateName = stateNameMap.get(stateCode);
+    if (stateName != null && !stateName.trim().isEmpty() && !stateName.equals(stateCode)) {
+      return stateName;
+    }
+    switch (stateCode) {
+      case TEC_TRA_DRAFT:
+        return "草稿箱";
+      case TEC_TRA_JYS_AUDIT:
+        return "教研室审批";
+      case TEC_TRA_KYC_AUDIT:
+        return "科研处审批";
+      case TEC_TRA_PASSED:
+        return "终审通过";
+      case TEC_TRA_REJECTED:
+        return "已驳回";
+      default:
+        return fallback;
     }
   }
 
@@ -521,7 +540,21 @@ public class SciIntraSchoolProController extends BaseController {
   public TableDataInfo bhyy(@PathVariable("kid") Integer kid) {
     SciIntraSchProPiyue ob = new SciIntraSchProPiyue();
     ob.setSchxktId(kid);
-    List<SciIntraSchProPiyue> list = piyueService.selectIntraSchProPiyueList(ob);
+    List<SciIntraSchProPiyue> list = new ArrayList<>(piyueService.selectIntraSchProPiyueList(ob));
+    list.sort((left, right) -> {
+      Date leftTime = left.getCreateTime();
+      Date rightTime = right.getCreateTime();
+      if (leftTime == null && rightTime == null) {
+        return 0;
+      }
+      if (leftTime == null) {
+        return 1;
+      }
+      if (rightTime == null) {
+        return -1;
+      }
+      return rightTime.compareTo(leftTime);
+    });
     return getDataTable(list);
   }
 
@@ -615,7 +648,10 @@ public class SciIntraSchoolProController extends BaseController {
   @PostMapping("/sc_edit")
   @ResponseBody
   public AjaxResult sc_editSave(SciIntraSchoolPro sciIntraSchoolPro) {
-
+    SciIntraSchoolPro current = sciIntraSchProApplyService.sel_IntraSchPro_by_id(sciIntraSchoolPro.getId());
+    if (current != null && isRejectedTecTraState(current.getState())) {
+      sciIntraSchoolPro.setState(TEC_TRA_DRAFT);
+    }
     return toAjax(sciIntraSchProApplyService.updateIntraSchoolApply(sciIntraSchoolPro));
   }
 
@@ -666,8 +702,10 @@ public class SciIntraSchoolProController extends BaseController {
     if (!canRecallTecTra(sciIntraSchoolPro1)) {
       return AjaxResult.error("当前账号无此撤回权限");
     }
-    int i = sciIntraSchProScoreService.update_SchPro_score(sciIntraSchoolPro1);
-    System.out.println("i = " + i);
+    if (isPassedTecTraState(sciIntraSchoolPro1.getState())) {
+      int i = sciIntraSchProScoreService.update_SchPro_score(sciIntraSchoolPro1);
+      System.out.println("i = " + i);
+    }
     //撤回
     return toAjax(sciIntraSchProApplyService.sch_hxCH(id, getUserId(), remark, urlFlag));
   }
@@ -687,7 +725,9 @@ public class SciIntraSchoolProController extends BaseController {
     if (!canRecallTecTra(sciIntraSchoolPro1)) {
       return AjaxResult.error("当前账号无此撤回权限");
     }
-    sciIntraSchProScoreService.update_SchPro_score(sciIntraSchoolPro1);
+    if (isPassedTecTraState(sciIntraSchoolPro1.getState())) {
+      sciIntraSchProScoreService.update_SchPro_score(sciIntraSchoolPro1);
+    }
     return toAjax(sciIntraSchProApplyService.sch_hxCH(id, getUserId(), remark, urlFlag));
   }
 
@@ -696,8 +736,18 @@ public class SciIntraSchoolProController extends BaseController {
       return false;
     }
     String roleStr = panRole_str();
-    return ("sci_tesearch".equals(roleStr) || "admin".equals(roleStr))
-            && ("4".equals(apply.getState()) || "6".equals(apply.getState()) || TEC_TRA_PASSED.equals(apply.getState()));
+    if ("research".equals(roleStr) && ("2".equals(apply.getState()) || TEC_TRA_KYC_AUDIT.equals(apply.getState()))) {
+      return true;
+    }
+    return ("sci_tesearch".equals(roleStr) || "admin".equals(roleStr)) && isPassedTecTraState(apply.getState());
+  }
+
+  private boolean isPassedTecTraState(String state) {
+    return "4".equals(state) || "6".equals(state) || TEC_TRA_PASSED.equals(state);
+  }
+
+  private boolean isRejectedTecTraState(String state) {
+    return "3".equals(state) || "5".equals(state) || "12".equals(state) || TEC_TRA_REJECTED.equals(state);
   }
 
   /**
@@ -839,4 +889,3 @@ public class SciIntraSchoolProController extends BaseController {
 
 
 }
-

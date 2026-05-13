@@ -26,7 +26,7 @@ import java.util.Map;
 @Service
 public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyService {
 
-    private static final String TEC_TRA_PROCESS_CODE = "TEC_TRA_APPLY";
+    private static final String TEC_TRA_PROCESS_CODE = "INTRASCHPRO_APPLY";
     private static final String TEC_TRA_DRAFT = "TEC_TRA_DRAFT";
     private static final String TEC_TRA_JYS_AUDIT = "TEC_TRA_JYS_AUDIT";
     private static final String TEC_TRA_KYC_AUDIT = "TEC_TRA_KYC_AUDIT";
@@ -162,13 +162,21 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
         }
 
         String currentState = normalizeTecTraState(apply.getState());
-        if (isTecTraState(apply.getState())) {
-            ApprovalResult result = approvalProcessService.approve(buildTecTraApprovalRequest(id, uid, currentState, "通过"));
-            if (!result.isSuccess()) {
+        if (isTecTraState(currentState)) {
+            String newState = null;
+            if (TEC_TRA_JYS_AUDIT.equals(currentState)) {
+                newState = TEC_TRA_KYC_AUDIT;
+            } else if (TEC_TRA_KYC_AUDIT.equals(currentState)) {
+                newState = TEC_TRA_PASSED;
+            }
+            if (newState == null) {
                 return 0;
             }
-            insertTecTraPiyue(id, uid, getApproveText(result.getNewState()), "通过");
-            return 1;
+            int rows = sciIntraSchProApplyMapper.sch_hxPass(id, newState);
+            if (rows > 0) {
+                insertTecTraPiyue(id, uid, getApproveText(newState), "通过");
+            }
+            return rows;
         }
 
         String state = "0";
@@ -258,13 +266,13 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
         }
 
         String currentState = normalizeTecTraState(apply.getState());
-        if (isTecTraState(apply.getState())) {
-            ApprovalResult result = approvalProcessService.reject(buildTecTraApprovalRequest(id, uid, currentState, remark));
-            if (!result.isSuccess()) {
+        if (isTecTraState(currentState)) {
+            int rows = sciIntraSchProApplyMapper.sch_hxPass(id, TEC_TRA_REJECTED);
+            if (rows <= 0) {
                 return 0;
             }
             insertTecTraPiyue(id, uid, "成果转化-驳回", remark);
-            return 1;
+            return rows;
         }
 
         String state = "0";
@@ -340,13 +348,17 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
             return 0;
         }
         String currentState = normalizeTecTraState(apply.getState());
-        if (isTecTraState(apply.getState())) {
-            ApprovalResult result = approvalProcessService.recall(buildTecTraApprovalRequest(id, userId, currentState, remark));
-            if (!result.isSuccess()) {
+        if (isTecTraState(currentState)) {
+            String recallState = getRecallState(currentState);
+            if (recallState == null) {
+                return 0;
+            }
+            int rows = sciIntraSchProApplyMapper.sch_hxPass(id, recallState);
+            if (rows <= 0) {
                 return 0;
             }
             insertTecTraPiyue(id, userId, "成果转化-撤回", remark);
-            return 1;
+            return rows;
         }
 
         String state = "0";
@@ -424,9 +436,9 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
         String NowState = sciIntraSchProApplyMapper.geStaticById(sciIntraSchoolPro.getId());
 
         String id = String.valueOf(sciIntraSchoolPro.getId());
-        if (NowState.equals("3") || NowState.equals("5") || NowState.equals("12") || TEC_TRA_REJECTED.equals(NowState)){
+        if ("3".equals(NowState) || "5".equals(NowState) || "12".equals(NowState) || TEC_TRA_REJECTED.equals(NowState)){
             sciIntraSchoolPro.setState(TEC_TRA_DRAFT);
-        }else if (NowState.equals("9") || NowState.equals("10") ||NowState.equals("14")){
+        }else if ("9".equals(NowState) || "10".equals(NowState) || "14".equals(NowState)){
             sciIntraSchoolPro.setState("16");
         }
         int rows = sciIntraSchProApplyMapper.updateIntraSchoolApply(sciIntraSchoolPro);
@@ -517,14 +529,13 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
     @Transactional(rollbackFor = Exception.class)
     public int subDraft(String id, Long userid,String state) {
         SciIntraSchoolPro apply = sciIntraSchProApplyMapper.sel_IntraSchPro_by_id(Integer.valueOf(id));
-        if (apply != null && isTecTraState(apply.getState())) {
-            String currentState = normalizeTecTraState(apply.getState());
-            ApprovalResult result = approvalProcessService.submitApproval(buildTecTraApprovalRequest(id, userid, currentState, "提交审批"));
-            if (!result.isSuccess()) {
+        if (apply != null && (isTecTraState(apply.getState()) || TEC_TRA_JYS_AUDIT.equals(state))) {
+            int rows = sciIntraSchProApplyMapper.sch_hxPass(id, TEC_TRA_JYS_AUDIT);
+            if (rows <= 0) {
                 return 0;
             }
             insertTecTraPiyue(id, userid, "成果转化-提交", "提交审批");
-            return 1;
+            return rows;
         }
 
         //1.更改草稿状态
@@ -567,6 +578,16 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
                 || "TEC_TRA_REJECTED".equals(state);
     }
 
+    private String getRecallState(String currentState) {
+        if (TEC_TRA_PASSED.equals(currentState)) {
+            return TEC_TRA_KYC_AUDIT;
+        }
+        if (TEC_TRA_KYC_AUDIT.equals(currentState)) {
+            return TEC_TRA_JYS_AUDIT;
+        }
+        return null;
+    }
+
     /**
      * 将旧状态码映射为新状态编码
      */
@@ -582,6 +603,7 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
             case "3": return "TEC_TRA_REJECTED";
             case "4": return "TEC_TRA_PASSED";
             case "5": return "TEC_TRA_REJECTED";
+            case "6": return "TEC_TRA_PASSED";
             case "12": return "TEC_TRA_REJECTED";
             default: return state;
         }
@@ -643,6 +665,3 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
         pro.setActions(result.getActions());
     }
 }
-
-
-
