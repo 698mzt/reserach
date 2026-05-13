@@ -333,6 +333,10 @@
             if (!actions || !actions.length) {
                 return [];
             }
+            // 查看模式只显示关闭按钮
+            if (urlFlag === 'chakan') {
+                return [];
+            }
             var owner = isOwnerDetail();
             var isApprovePage = urlFlag === 'pro' || urlFlag === 'Dept' || urlFlag === 'KYC';
             return actions.filter(function(action) {
@@ -422,12 +426,12 @@
                         state: state,
                         urlFlag: urlFlag
                     });
-                    $container.append('<button type="button" class="btn btn-sm btn-default" onclick="closeItem()"> 关 闭 </button>');
+                    $container.append('<button type="button" class="btn btn-sm btn-warning" onclick="closeItem()"> 关 闭 </button>');
                 } else {
-                    $container.html('<button type="button" class="btn btn-sm btn-default" onclick="closeItem()"> 关 闭 </button>');
+                    $container.html('<button type="button" class="btn btn-sm btn-warning" onclick="closeItem()"> 关 闭 </button>');
                 }
             } else {
-                $container.html('<button type="button" class="btn btn-sm btn-default" onclick="closeItem()"> 关 闭 </button>');
+                $container.html('<button type="button" class="btn btn-sm btn-warning" onclick="closeItem()"> 关 闭 </button>');
             }
 
         // 根据urlFlag显示审批区域

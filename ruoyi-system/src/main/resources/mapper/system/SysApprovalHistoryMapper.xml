@@ -46,7 +46,7 @@
     <select id="selectSysApprovalHistoryByBusinessId" resultMap="SysApprovalHistoryResult">
         <include refid="selectSysApprovalHistoryVo"/>
         where process_code = #{processCode} and business_id = #{businessId}
-        order by create_time asc
+        order by create_time desc
     </select>
 
     <insert id="insertSysApprovalHistory" parameterType="SysApprovalHistory" useGeneratedKeys="true" keyProperty="id">

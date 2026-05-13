@@ -773,7 +773,7 @@ public class PageRenderServiceImpl implements IPageRenderService {
         // 横向 -> system:apply:hecha
         else if (isLastAuditNode && context.hasPermission(config.getPermission("kypy"))) {
             actions.add(PageRenderActionItem.of(
-                    PageRenderActionConstants.ACTION_KY_REVIEW, "核查",
+                    PageRenderActionConstants.ACTION_KY_REVIEW, "批阅",
                     PageRenderColorConstants.COLOR_PRIMARY, 30));
             actions.add(PageRenderActionItem.of(
                     PageRenderActionConstants.ACTION_APPROVE, "通过",
@@ -819,7 +819,7 @@ public class PageRenderServiceImpl implements IPageRenderService {
             boolean isAdmin = context.hasRole("admin");
             if ((isOwner || isAdmin) && context.hasPermission(config.getPermission("add"))) {
                 specificActions.add(PageRenderActionItem.of(
-                        "submitOver", "提交结项申请",
+                        "submitOver", "申请结项",
                         PageRenderColorConstants.COLOR_PRIMARY, 50));
                 specificActions.add(PageRenderActionItem.of(
                         "reamount", "追加金额",
