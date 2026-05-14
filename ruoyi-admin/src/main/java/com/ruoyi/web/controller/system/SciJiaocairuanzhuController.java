@@ -178,12 +178,37 @@ public class SciJiaocairuanzhuController extends BaseController
 
         }
 
-        // 处理状态显示：状态为APPLY_PASSED显示"已完结"，其他显示"审批中"
+        // 处理状态显示
         for (SciJiaocairuanzhu item : list) {
-            if (item.getState() != null && "APPLY_PASSED".equals(item.getState())){
-                item.setState("已完结");
-            } else {
-                item.setState("审批中");
+            if (item.getState() != null) {
+                String state = item.getState();
+                switch (state) {
+                    case "TEXTBOOK_PASSED":
+                    case "6":
+                        item.setState("已通过");
+                        break;
+                    case "TEXTBOOK_REJECTED":
+                    case "3":
+                    case "5":
+                    case "7":
+                        item.setState("已驳回");
+                        break;
+                    case "TEXTBOOK_DRAFT":
+                    case "0":
+                        item.setState("草稿");
+                        break;
+                    case "TEXTBOOK_JYS_AUDIT":
+                    case "1":
+                    case "4":
+                        item.setState("教研室审批中");
+                        break;
+                    case "TEXTBOOK_KYC_AUDIT":
+                    case "2":
+                        item.setState("科研处审批中");
+                        break;
+                    default:
+                        item.setState(state);
+                }
             }
         }
 
@@ -513,6 +538,17 @@ public class SciJiaocairuanzhuController extends BaseController
         // 查询审批历史记录（会填充关联数据）
         List<SysApprovalHistory> list = sysApprovalHistoryService.selectSysApprovalHistoryByBusinessId("textbook_approval", kid.longValue());
         return getDataTable(list);
+    }
+
+    /**
+     * 跳转到教材软著科研处审批页面
+     * GET /system/jiaocairuanzhu/hecha/{id}
+     */
+    @RequiresPermissions("system:jiaocairuanzhu:hecha")
+    @Log(title = "教材软著科研处审批", businessType = BusinessType.OTHER)
+    @GetMapping("/hecha/{id}")
+    public String hecha(@PathVariable("id") Integer id, ModelMap mmap) throws com.fasterxml.jackson.core.JsonProcessingException {
+        return detail(id, "hecha", mmap);
     }
 
     /**

@@ -100,6 +100,87 @@
             </div>
         </div>
 
+        <!-- 主持人 -->
+        <div class="form-group">
+            <div class="col-sm-6">
+                <label class="col-sm-4 control-label is-required">主持人：</label>
+                <div class="col-sm-8">
+                    <input id="hostPerson" class="form-control" type="text" readonly>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <label class="col-sm-4 control-label">预期科研分：</label>
+                <div class="col-sm-8">
+                    <input id="hostScore" class="form-control" type="text" readonly>
+                </div>
+            </div>
+        </div>
+
+        <!-- 成员1 -->
+        <div class="form-group">
+            <div class="col-sm-6">
+                <label class="col-sm-4 control-label">成员1：</label>
+                <div class="col-sm-8">
+                    <input id="member1" class="form-control" type="text" readonly>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <label class="col-sm-4 control-label">预期科研分：</label>
+                <div class="col-sm-8">
+                    <input id="member1Score" class="form-control" type="text" readonly>
+                </div>
+            </div>
+        </div>
+
+        <!-- 成员2 -->
+        <div class="form-group">
+            <div class="col-sm-6">
+                <label class="col-sm-4 control-label">成员2：</label>
+                <div class="col-sm-8">
+                    <input id="member2" class="form-control" type="text" readonly>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <label class="col-sm-4 control-label">预期科研分：</label>
+                <div class="col-sm-8">
+                    <input id="member2Score" class="form-control" type="text" readonly>
+                </div>
+            </div>
+        </div>
+
+        <!-- 成员3 -->
+        <div class="form-group">
+            <div class="col-sm-6">
+                <label class="col-sm-4 control-label">成员3：</label>
+                <div class="col-sm-8">
+                    <input id="member3" class="form-control" type="text" readonly>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <label class="col-sm-4 control-label">预期科研分：</label>
+                <div class="col-sm-8">
+                    <input id="member3Score" class="form-control" type="text" readonly>
+                </div>
+            </div>
+        </div>
+
+        <!-- 主编和副主编 -->
+        <div class="form-group">
+            <div class="col-sm-6">
+                <label class="col-sm-4 control-label is-required">主编：</label>
+                <div class="col-sm-8">
+                    <input id="editorNames" class="form-control" type="text" readonly>
+                    <input name="zhubian" th:field="*{zhubian}" type="hidden">
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <label class="col-sm-4 control-label">副主编：</label>
+                <div class="col-sm-8">
+                    <input id="viceEditorNames" class="form-control" type="text" readonly>
+                    <input name="fuzhubian" th:field="*{fuzhubian}" type="hidden">
+                </div>
+            </div>
+        </div>
 
         <div class="form-group row">
             <div class="col-sm-6">
@@ -250,6 +331,73 @@
             }
         });
 
+        var kid = $("#ktid").val();
+        if (kid) {
+            $.ajax({
+                url: prefix + "/getMembers/" + kid,
+                type: "GET",
+                success: function(data) {
+                    if (data && data.code === 0 && data.data) {
+                        var members = data.data;
+                        for (var i = 0; i < members.length; i++) {
+                            var member = members[i];
+                            var memberName = member.memberName || member.userName || '';
+                            var researchScore = member.researchScore || member.expectedScore || '';
+                            
+                            if (member.ranking === '1') {
+                                $("#hostPerson").val(memberName);
+                                $("#hostScore").val(researchScore);
+                            } else if (member.ranking === '2') {
+                                $("#member1").val(memberName);
+                                $("#member1Score").val(researchScore);
+                            } else if (member.ranking === '3') {
+                                $("#member2").val(memberName);
+                                $("#member2Score").val(researchScore);
+                            } else if (member.ranking === '4') {
+                                $("#member3").val(memberName);
+                                $("#member3Score").val(researchScore);
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        var userIdToName = {};
+        var sysUsers1 = /*[[${sysUsers1}]]*/ [];
+        if (sysUsers1) {
+            for (var i = 0; i < sysUsers1.length; i++) {
+                userIdToName[sysUsers1[i].userId] = sysUsers1[i].userName;
+            }
+        }
+        
+        var savedEditor = $('input[name="zhubian"]').val();
+        var savedViceEditor = $('input[name="fuzhubian"]').val();
+        
+        if (savedEditor) {
+            var editorIds = savedEditor.split(',');
+            var editorNames = [];
+            for (var i = 0; i < editorIds.length; i++) {
+                var editorName = userIdToName[editorIds[i]] || editorIds[i];
+                if (editorName) {
+                    editorNames.push(editorName);
+                }
+            }
+            $("#editorNames").val(editorNames.join(', '));
+        }
+        
+        if (savedViceEditor) {
+            var viceEditorIds = savedViceEditor.split(',');
+            var viceEditorNames = [];
+            for (var i = 0; i < viceEditorIds.length; i++) {
+                var viceEditorName = userIdToName[viceEditorIds[i]] || viceEditorIds[i];
+                if (viceEditorName) {
+                    viceEditorNames.push(viceEditorName);
+                }
+            }
+            $("#viceEditorNames").val(viceEditorNames.join(', '));
+        }
+
         var jcActions = /*[[${actionsJson}]]*/ null;
         if (typeof jcActions === 'string') {
             try {
@@ -269,7 +417,7 @@
                 if (urlFlag === 'chakan' || urlFlag === 'JCZZ') {
                     return false;
                 }
-                if (urlFlag === 'pro' || urlFlag === 'kyc_approve') {
+                if (urlFlag === 'pro' || urlFlag === 'kyc_approve' || urlFlag === 'hecha') {
                     return action.actionKey === 'approve' || action.actionKey === 'reject';
                 }
                 if (urlFlag === 'jys_recall' || urlFlag === 'kyc_recall' || urlFlag === 'proth') {
@@ -286,28 +434,27 @@
                     urlFlag: urlFlag
                 });
             }
-            $container.append('<button type="button" class="btn btn-sm btn-default" onclick="closeItem()"> 关 闭 </button>');
+            $container.append('<button type="button" class="btn btn-sm btn-warning" onclick="closeItem()"> 关 闭 </button>');
         } else {
             var $container = $('#action-buttons-container');
             if (urlFlag === 'chakan' || urlFlag === 'JCZZ') {
-                $container.html('<button type="button" class="btn btn-sm btn-default" onclick="closeItem()"> 关 闭 </button>');
+                $container.html('<button type="button" class="btn btn-sm btn-warning" onclick="closeItem()"> 关 闭 </button>');
             } else if (['TEXTBOOK_JYS_AUDIT', 'TEXTBOOK_KYC_AUDIT'].includes(state)) {
                 $container.html(
                     '<button type="button" class="btn btn-sm btn-success" onclick="submitHandler()"> 通 过</button> ' +
                     '<button type="button" class="btn btn-sm btn-danger" onclick="submitHandlerBH()"> 驳 回</button> ' +
-                    '<button type="button" class="btn btn-sm btn-default" onclick="closeItem()"> 关 闭 </button>'
+                    '<button type="button" class="btn btn-sm btn-warning" onclick="closeItem()"> 关 闭 </button>'
                 );
             } else if (['kyc_recall', 'jys_recall', 'proth'].includes(urlFlag)) {
                 $container.html(
                     '<button type="button" class="btn btn-sm btn-warning" onclick="submitHandlerBH()"> 撤 回</button> ' +
-                    '<button type="button" class="btn btn-sm btn-default" onclick="closeItem()"> 关 闭 </button>'
+                    '<button type="button" class="btn btn-sm btn-warning" onclick="closeItem()"> 关 闭 </button>'
                 );
             } else {
-                $container.html('<button type="button" class="btn btn-sm btn-default" onclick="closeItem()"> 关 闭 </button>');
+                $container.html('<button type="button" class="btn btn-sm btn-warning" onclick="closeItem()"> 关 闭 </button>');
             }
         }
 
-        var kid = $("#ktid").val();
         var options = {
             url: prefix + "/bhyy/"+kid,
             showSearch: false,
@@ -384,7 +531,7 @@
         var urlFlag = $("#urlFlag").val();
         var operationType = '';
 
-        if (['pro', 'kyc_approve'].includes(urlFlag)) {
+        if (['pro', 'kyc_approve', 'hecha'].includes(urlFlag)) {
             operationType = 'reject';
             if (!$('#remark').val().trim()) {
                 $.modal.msgWarning("批注不能为空");
@@ -396,15 +543,14 @@
 
         if ($.validate.form() && operationType) {
             var remark = $('#remark').val();
-            var url = prefix + "/hxBh";
 
             if (operationType === 'reject') {
                 $.modal.confirm("确定 驳回 吗", function() {
-                    $.operate.saveTab(url, $('#form-jiaocairuanzhu-edit').serialize());
+                    $.operate.saveTab(prefix + "/hxBh", $('#form-jiaocairuanzhu-edit').serialize());
                 });
             } else if (operationType === 'recall') {
                 $.modal.confirm("确定 撤回 吗", function() {
-                    $.operate.saveTab(url, $('#form-jiaocairuanzhu-edit').serialize());
+                    $.operate.saveTab(prefix + "/recallsave", $('#form-jiaocairuanzhu-edit').serialize());
                 });
             }
         }

@@ -205,7 +205,7 @@
       background: #E0E0E0;
       position: absolute;
       top: 12px;
-      z-index: -1;
+      z-index: 10;
       border-radius: 3px;
       overflow: hidden;
     }
@@ -215,6 +215,27 @@
       background: #4CAF50;
       width: 0;
       transition: width 0.6s ease;
+    }
+
+    .progress_inner__bar .segment {
+      position: absolute;
+      height: 100%;
+      width: 50%;
+      background: transparent;
+      transition: background 0.4s ease;
+    }
+
+    .progress_inner__bar .segment.first {
+      left: 0;
+    }
+
+    .progress_inner__bar .segment.second {
+      right: 0;
+    }
+
+    .progress_inner__bar .segment.highlight {
+      background: #4CAF50;
+      box-shadow: 0 0 8px rgba(10, 225, 19, 0.7);
     }
 
     .status-text {
@@ -539,9 +560,13 @@
             <div class="modal-dialog modal-right">
               <div class="modal-content animated bounceInRight">
                 <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">关闭</span></button>
+                </div>
+                <div class="modal-body">
+                  <!-- 流程记录标题 -->
                   <div class="timeline-title">流程记录</div>
 
-                  <!-- 原有的流程进度条部分 -->
+                  <!-- 流程进度条 -->
                   <div>
                     <div class='progress_inner'>
                       <div class='progress_inner__step active' id='step-1'>
@@ -558,12 +583,8 @@
                       </div>
                     </div>
                   </div>
-                </div>
-                <div class="modal-body">
-                  <!-- 流程记录标题 - 放在左上角 -->
 
-
-                  <!-- 流程记录内容 - 放在流程图下方 -->
+                  <!-- 流程记录内容 -->
                   <div class="track-rcol">
                     <div class="track-list">
                       <ul id="event-list">
@@ -621,7 +642,7 @@
   // 状态字典对象（从后端加载）
   var stateDict = {};
 
-  // 根据状态编码获取颜色配置（与论文模块保持一致）
+  // 根据状态编码获取颜色配置
   function getStateColors(stateCode) {
       if (!stateCode) {
           return { color: '#999', bgColor: '#f5f5f5' };
@@ -720,23 +741,30 @@
         'kyReview': function(actionKey, data) {
             $.operate.detailTab(data.id + '/hecha');
         },
+        'approve': function(actionKey, data) {
+            var urlFlag = data.state === 'TEXTBOOK_JYS_AUDIT' ? 'pro' : 'hecha';
+            $.operate.detailTab(data.id + '/' + urlFlag);
+        },
+        'reject': function(actionKey, data) {
+            var urlFlag = data.state === 'TEXTBOOK_JYS_AUDIT' ? 'pro' : 'hecha';
+            $.operate.detailTab(data.id + '/' + urlFlag);
+        },
         'recall': function(actionKey, data) {
-            $.ajax({
-                url: prefix + "/approve/" + data.id,
-                type: "post",
-                data: { operationType: "recall" },
-                success: function (result) {
-                    if (result.code === 0) {
-                        $.modal.msgSuccess("撤回成功");
-                        $("#bootstrap-table").bootstrapTable('refresh');
-                    } else {
-                        $.modal.alertError(result.msg);
+            
+                $.ajax({
+                    url: prefix + "/recallsave",
+                    type: "post",
+                    data: { id: data.id, state: data.state, remark: "撤回", urlFlag: "chexiao" },
+                    success: function(result) {
+                        if (result.code === 0) {
+                            $.modal.msgSuccess("撤回成功");
+                            $("#bootstrap-table").bootstrapTable('refresh');
+                        } else {
+                            $.modal.alertError(result.msg);
+                        }
                     }
-                },
-                error: function () {
-                    $.modal.alertError("撤回失败，请稍后重试");
-                }
-            });
+                });
+            
         }
     });
 
@@ -902,22 +930,39 @@
           align: 'center',
           width: '200px',
           formatter: function(value, row, index) {
+              var firstRowActions = [];
+              var secondRowActions = [];
+              
               if (row.actions && row.actions.length > 0) {
                   var listActions = row.actions.filter(function(a) {
                       return a.actionKey !== 'approve' && a.actionKey !== 'reject';
                   });
-                  if (listActions.length > 0) {
-                      return PageRender.renderActionsToString(listActions, {style: 'table'});
+                  
+                  listActions.forEach(function(action) {
+                      if (action.actionKey === 'view' || action.actionKey === 'viewProcess') {
+                          secondRowActions.push(action);
+                      } else {
+                          firstRowActions.push(action);
+                      }
+                  });
+              } else {
+                  if (editInfo !== 'hidden') {
+                      secondRowActions.push({actionKey: 'view', actionText: '查看', colorType: 'info'});
+                      secondRowActions.push({actionKey: 'viewProcess', actionText: '流程记录', colorType: 'info'});
                   }
               }
-              var fallbackActions = [];
-              if (editInfo !== 'hidden') {
-                  fallbackActions.push('<a href="javascript:void(0)" class="btn btn-xs btn-info" onclick="$.operate.detailTab(\'' + row.id + '/chakan\')">查看</a>');
+              
+              var html = '';
+              if (firstRowActions.length > 0) {
+                  html += PageRender.renderActionsToString(firstRowActions, {style: 'table'});
               }
-              if (editInfo !== 'hidden') {
-                  fallbackActions.push('<a href="javascript:void(0)" class="btn btn-xs btn-info" onclick="showhistory(\'' + row.id + ',' + row.state + '\')">流程记录</a>');
+              if (secondRowActions.length > 0) {
+                  if (html) {
+                      html += '<br/>';
+                  }
+                  html += PageRender.renderActionsToString(secondRowActions, {style: 'table'});
               }
-              return fallbackActions.join(' ');
+              return html;
           }
         }
       ]
@@ -978,154 +1023,149 @@
   }
 
 
+  /**
+   * 显示流程记录弹窗
+   * @param {number} id - 教材专著ID
+   * @param {string} state - 当前状态码（如 TEXTBOOK_DRAFT, TEXTBOOK_REJECTED 等）
+   */
   function showhistory(id, state) {
-    updateProgressStepColor(state)
+    // 显示流程记录模态框
+    $('#lcjl_Moda').modal('show');
+
+    /**
+     * 更新流程事件列表
+     * @param {Array} rows - 流程记录数据数组
+     */
+    function updateEventData(rows) {
+      $("#event-list").empty();
+      rows.forEach(function (item, index) {
+        const newLi = `
+          <li class="time">
+            <i class="node-icon"></i>
+            <span class="time">${item.createTime}</span>
+            <span class="txt">[${item.state}]:${item.uname}</span>
+          </li>
+        `;
+        $("#event-list").append(newLi);
+      });
+    }
+
+    // 异步请求审批历史记录
     $.ajax({
       url: prefix + '/bhyy/' + id,
       type: 'POST',
-      data: {
-        kid: id
+      dataType: 'json',
+      success: function (data) {
+        if (data && Array.isArray(data.rows)) {
+          updateEventData(data.rows);
+          updateProgressState(state);
+        } else {
+          updateEventData([]);
+        }
       },
-      success: function (response) {
-        const eventList = document.getElementById('event-list');
-        eventList.innerHTML = '';
-        response.rows.forEach(function (row) {
-          const li = document.createElement('li');
-          li.innerHTML = `
-                        <div class="event-item">
-                            <div class="event-content">
-                                <i class="node-icon"></i>
-                                <span class="time" id="current-time">${row.createTime}</span>
-                                <span class="txt">[${row.state}] - ${row.uname}</span>
-                            </div>
-                        </div>
-                    `;
-          eventList.insertBefore(li, eventList.firstChild);
-        });
-      },
-      error: function () {
-        alert('Failed to fetch event history.');
+      error: function (xhr, status, error) {
+        updateEventData([]);
       }
     });
-    $('#lcjl_Moda').modal('show');
   }
 
-  function updateProgressStepColor(state) {
+  /**
+   * 更新流程进度条状态（参考论文模块实现）
+   * 根据状态码精确匹配进度条显示位置
+   * 同时兼容新版字符串状态码和旧版数字状态码
+   * 
+   * 状态与进度步骤映射关系：
+   * - 草稿/驳回:       待提交 (step-1)
+   * - 教研室/科研处审批: 审核中 (step-2)
+   * - 通过:            已完成 (step-3)
+   * 
+   * @param {string|number} state - 当前状态码（字符串或数字格式）
+   */
+  function updateProgressState(state) {
     const steps = document.querySelectorAll('.progress_inner__step');
-    const progressBar = document.querySelector('.progress_inner__bar--progress');
+    const progressBar = document.querySelector('.progress_inner__bar');
 
-    steps.forEach(step => {
-      step.classList.remove('active', 'completed', 'pending');
+    // 重置所有步骤状态为待处理
+    steps.forEach((step, index) => {
+      step.classList.remove('active', 'completed');
+      step.classList.add('pending');
       const statusText = step.querySelector('.status-text');
       if (statusText) {
-        statusText.classList.remove('active', 'completed');
+        statusText.classList.remove('active');
       }
     });
 
-    if (typeof state === 'string') {
-      if (state.endsWith('_DRAFT') || state.endsWith('_REJECTED')) {
-        document.getElementById('step-1').classList.add('active');
-        const statusText1 = document.getElementById('step-1').querySelector('.status-text');
-        if (statusText1) {
-          statusText1.classList.add('active');
-        }
-        if (progressBar) {
-          progressBar.style.width = '0';
-        }
-      } else if (state.endsWith('_PASSED')) {
-        document.getElementById('step-1').classList.add('completed');
-        const statusText1 = document.getElementById('step-1').querySelector('.status-text');
-        if (statusText1) {
-          statusText1.classList.add('completed');
-        }
-        document.getElementById('step-2').classList.add('completed');
-        const statusText2 = document.getElementById('step-2').querySelector('.status-text');
-        if (statusText2) {
-          statusText2.classList.add('completed');
-        }
-        document.getElementById('step-3').classList.add('completed');
-        const statusText3 = document.getElementById('step-3').querySelector('.status-text');
-        if (statusText3) {
-          statusText3.classList.add('completed');
-        }
-        if (progressBar) {
-          progressBar.style.width = '100%';
-        }
-      } else if (state.endsWith('_JYS_AUDIT') || state.endsWith('_KYC_AUDIT')) {
-        document.getElementById('step-1').classList.add('completed');
-        const statusText1 = document.getElementById('step-1').querySelector('.status-text');
-        if (statusText1) {
-          statusText1.classList.add('completed');
-        }
-        document.getElementById('step-2').classList.add('completed');
-        const statusText2 = document.getElementById('step-2').querySelector('.status-text');
-        if (statusText2) {
-          statusText2.classList.add('completed');
-        }
-        if (progressBar) {
-          progressBar.style.width = '50%';
-        }
-      } else {
-        steps.forEach(step => {
-          step.classList.add('pending');
-          const statusText = step.querySelector('.status-text');
-          if (statusText) {
-            statusText.classList.add('pending');
-          }
-        });
+    // 创建进度条分段元素（如果尚未创建）
+    if (progressBar && !progressBar.querySelector('.segment')) {
+      const firstSegment = document.createElement('div');
+      firstSegment.className = 'segment first';
+      const secondSegment = document.createElement('div');
+      secondSegment.className = 'segment second';
+      progressBar.appendChild(firstSegment);
+      progressBar.appendChild(secondSegment);
+    }
+
+    // 移除所有分段高亮
+    const segments = progressBar ? progressBar.querySelectorAll('.segment') : [];
+    segments.forEach(segment => {
+      segment.classList.remove('highlight');
+    });
+
+    // 统一将状态码转为字符串进行匹配
+    var stateStr = String(state);
+
+    // 根据状态码精确匹配进度步骤（参考论文模块实现方式）
+    // 兼容新版字符串格式和旧版数字格式
+    if (stateStr === "TEXTBOOK_REJECTED" || stateStr === "3" || stateStr === "5" || stateStr === "7") {
+      // 驳回状态：显示在待提交步骤
+      highlightStep(0);
+    } else if (stateStr === "TEXTBOOK_PASSED" || stateStr === "6") {
+      // 通过状态：所有步骤完成
+      markCompleted(0);      // step-1 标记为已完成
+      markCompleted(1);      // step-2 标记为已完成
+      highlightStep(2);      // step-3 高亮显示
+      markCompleted(2);      // step-3 标记为已完成
+      segments.forEach(function(segment) {
+        segment.classList.add('highlight'); // 高亮所有连接线
+      });
+    } else if (stateStr === "TEXTBOOK_JYS_AUDIT" || stateStr === "TEXTBOOK_KYC_AUDIT" || stateStr === "1" || stateStr === "2" || stateStr === "4") {
+      // 审批中状态：教研室/科研处审批，显示在审核中步骤
+      markCompleted(0);      // step-1 标记为已完成
+      highlightStep(1);      // step-2 高亮显示
+      if (segments[0]) {
+        segments[0].classList.add('highlight'); // 高亮第一段连接线
       }
-    } else {
-      if ([0, 3, 5, 7].includes(state)) {
-        document.getElementById('step-1').classList.add('active');
-        const statusText1 = document.getElementById('step-1').querySelector('.status-text');
-        if (statusText1) {
-          statusText1.classList.add('active');
-        }
-        if (progressBar) {
-          progressBar.style.width = '0';
-        }
-      } else if (state === 6) {
-        document.getElementById('step-1').classList.add('completed');
-        const statusText1 = document.getElementById('step-1').querySelector('.status-text');
-        if (statusText1) {
-          statusText1.classList.add('completed');
-        }
-        document.getElementById('step-2').classList.add('completed');
-        const statusText2 = document.getElementById('step-2').querySelector('.status-text');
-        if (statusText2) {
-          statusText2.classList.add('completed');
-        }
-        document.getElementById('step-3').classList.add('completed');
-        const statusText3 = document.getElementById('step-3').querySelector('.status-text');
-        if (statusText3) {
-          statusText3.classList.add('completed');
-        }
-        if (progressBar) {
-          progressBar.style.width = '100%';
-        }
-      } else if ([1, 2, 4].includes(state)) {
-        document.getElementById('step-1').classList.add('completed');
-        const statusText1 = document.getElementById('step-1').querySelector('.status-text');
-        if (statusText1) {
-          statusText1.classList.add('completed');
-        }
-        document.getElementById('step-2').classList.add('completed');
-        const statusText2 = document.getElementById('step-2').querySelector('.status-text');
-        if (statusText2) {
-          statusText2.classList.add('completed');
-        }
-        if (progressBar) {
-          progressBar.style.width = '50%';
-        }
-      } else {
-        steps.forEach(step => {
-          step.classList.add('pending');
-          const statusText = step.querySelector('.status-text');
-          if (statusText) {
-            statusText.classList.add('pending');
-          }
-        });
+    } else if (stateStr === "TEXTBOOK_DRAFT" || stateStr === "0") {
+      // 草稿状态：显示在待提交步骤
+      highlightStep(0);
+    }
+  }
+
+  /**
+   * 高亮指定步骤
+   * @param {number} index - 步骤索引（0:待提交, 1:审核中, 2:已完成）
+   */
+  function highlightStep(index) {
+    const step = document.querySelectorAll('.progress_inner__step')[index];
+    if (step) {
+      step.classList.add('active');
+      step.classList.remove('pending');
+      const statusText = step.querySelector('.status-text');
+      if (statusText) {
+        statusText.classList.add('active');
       }
+    }
+  }
+
+  /**
+   * 标记指定步骤为已完成
+   * @param {number} index - 步骤索引（0:待提交, 1:审核中, 2:已完成）
+   */
+  function markCompleted(index) {
+    const step = document.querySelectorAll('.progress_inner__step')[index];
+    if (step) {
+      step.classList.add('completed');
+      step.classList.remove('pending', 'active');
     }
   }
 
