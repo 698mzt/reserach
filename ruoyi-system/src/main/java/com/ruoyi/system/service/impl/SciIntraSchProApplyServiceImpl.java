@@ -4,16 +4,11 @@ import com.ruoyi.common.annotation.DataScope;
 import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.common.utils.DataScopeUtils;
 import com.ruoyi.common.core.text.Convert;
-import com.ruoyi.system.domain.ApprovalRequest;
-import com.ruoyi.system.domain.ApprovalResult;
 import com.ruoyi.system.domain.SciIntraSchProPiyue;
 import com.ruoyi.system.domain.SciIntraSchoolPro;
 import com.ruoyi.system.mapper.SciIntraSchProApplyMapper;
 import com.ruoyi.system.mapper.SciIntraSchProPiyueMapper;
-import com.ruoyi.system.mapper.SciIntraSchProScoreMapper;
-import com.ruoyi.system.service.IApprovalProcessService;
 import com.ruoyi.system.service.ISciIntraSchProApplyService;
-import com.ruoyi.system.service.ISysUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,14 +33,6 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
     private SciIntraSchProApplyMapper sciIntraSchProApplyMapper;
     @Autowired
     private SciIntraSchProPiyueMapper sciIntraSchProPiyueMapper;
-    @Autowired
-    SciIntraSchProApplyServiceImpl sciIntraSchProApplyService;
-    @Autowired
-    SciIntraSchProScoreMapper sciIntraSchProScoreService;
-    @Autowired
-    private IApprovalProcessService approvalProcessService;
-    @Autowired
-    private ISysUserService sysUserService;
     @Autowired
     private IPageRenderService pageRenderService;
 
@@ -118,6 +105,7 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
     }
 
 
+    @Override
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciIntraSchoolPro> sel_IntraSchPro_closure_my(SciIntraSchoolPro sciIntraSchoolPro) {
         List<SciIntraSchoolPro> list = sciIntraSchProApplyMapper.sel_IntraSchPro_closure_my(sciIntraSchoolPro);
@@ -162,50 +150,23 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
         }
 
         String currentState = normalizeTecTraState(apply.getState());
-        if (isTecTraState(currentState)) {
-            String newState = null;
-            if (TEC_TRA_JYS_AUDIT.equals(currentState)) {
-                newState = TEC_TRA_KYC_AUDIT;
-            } else if (TEC_TRA_KYC_AUDIT.equals(currentState)) {
-                newState = TEC_TRA_PASSED;
-            }
-            if (newState == null) {
-                return 0;
-            }
-            int rows = sciIntraSchProApplyMapper.sch_hxPass(id, newState);
-            if (rows > 0) {
-                insertTecTraPiyue(id, uid, getApproveText(newState), "通过");
-            }
-            return rows;
-        }
-
-        String state = "0";
-        SciIntraSchProPiyue sciIntraSchProPiyue = new SciIntraSchProPiyue();
-        if(urlFlag.equals("hecha")){
-            state ="4";
-            sciIntraSchProPiyue.setConcate("科研：开题同意");
-            sciIntraSchProPiyue.setState("科研：开题同意");
-        }else if(urlFlag.equals("pro")){
-            state ="11";
-            sciIntraSchProPiyue.setConcate("教研：开题同意");
-            sciIntraSchProPiyue.setState("教研：开题同意");
-        }else if(urlFlag.equals("dept_teacher")){
-            state ="2";
-            sciIntraSchProPiyue.setConcate("学院：开题同意");
-            sciIntraSchProPiyue.setState("学院：开题同意");
-        }
-        if ("0".equals(state)) {
+        if (!isTecTraState(currentState)) {
             return 0;
         }
-        // 状态修改
-        int a =  sciIntraSchProApplyMapper.sch_hxPass(id,state);
-        // 补全批阅记录
-        sciIntraSchProPiyue.setUid(uid);
-        sciIntraSchProPiyue.setSchxktId(Integer.valueOf(id));
-
-        // 插入批阅记录
-        sciIntraSchProPiyueMapper.insertIntraSchProPiyue(sciIntraSchProPiyue);
-        return a;
+        String newState = null;
+        if (TEC_TRA_JYS_AUDIT.equals(currentState)) {
+            newState = TEC_TRA_KYC_AUDIT;
+        } else if (TEC_TRA_KYC_AUDIT.equals(currentState)) {
+            newState = TEC_TRA_PASSED;
+        }
+        if (newState == null) {
+            return 0;
+        }
+        int rows = sciIntraSchProApplyMapper.sch_hxPass(id, newState);
+        if (rows > 0) {
+            insertTecTraPiyue(id, uid, getApproveText(newState), "通过");
+        }
+        return rows;
     }
 
     /**
@@ -219,7 +180,6 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
     public int sch_hxover(String id, Long userId, String urlFlag) {
         String state = "0";
         SciIntraSchProPiyue sciIntraSchProPiyue = new SciIntraSchProPiyue();
-        System.out.println("urlFlag = " + urlFlag);
         if(urlFlag.equals("JYSOVER")){
             state ="13";
             sciIntraSchProPiyue.setConcate("教研：结题同意");
@@ -266,39 +226,15 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
         }
 
         String currentState = normalizeTecTraState(apply.getState());
-        if (isTecTraState(currentState)) {
-            int rows = sciIntraSchProApplyMapper.sch_hxPass(id, TEC_TRA_REJECTED);
-            if (rows <= 0) {
-                return 0;
-            }
-            insertTecTraPiyue(id, uid, "成果转化-驳回", remark);
-            return rows;
-        }
-
-        String state = "0";
-        SciIntraSchProPiyue sciIntraSchProPiyue = new SciIntraSchProPiyue();
-        //科研
-        if(urlFlag.equals("hecha")){
-            sciIntraSchProPiyue.setState("科研：开题驳回");
-            state ="5";
-        }else if(urlFlag.equals("pro")){
-            sciIntraSchProPiyue.setState("教研：开题驳回");
-            state ="3";
-        }else if (urlFlag.equals("dept_teacher")){
-            sciIntraSchProPiyue.setState("学院：开题驳回");
-            state ="12";
-        }
-        if ("0".equals(state)) {
+        if (!isTecTraState(currentState)) {
             return 0;
         }
-        int a = sciIntraSchProApplyMapper.sch_hxPass(id,state);
-
-        sciIntraSchProPiyue.setUid(uid);
-        sciIntraSchProPiyue.setSchxktId(Integer.valueOf(id));
-        sciIntraSchProPiyue.setConcate(remark);
-
-        sciIntraSchProPiyueMapper.insertIntraSchProPiyue(sciIntraSchProPiyue);
-        return a;
+        int rows = sciIntraSchProApplyMapper.sch_hxPass(id, TEC_TRA_REJECTED);
+        if (rows <= 0) {
+            return 0;
+        }
+        insertTecTraPiyue(id, uid, "成果转化-驳回", remark);
+        return rows;
     }
     /**
      * 结项驳回
@@ -348,58 +284,30 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
             return 0;
         }
         String currentState = normalizeTecTraState(apply.getState());
-        if (isTecTraState(currentState)) {
-            String recallState = getRecallState(currentState);
-            if (recallState == null) {
-                return 0;
-            }
-            int rows = sciIntraSchProApplyMapper.sch_hxPass(id, recallState);
-            if (rows <= 0) {
-                return 0;
-            }
-            insertTecTraPiyue(id, userId, "成果转化-撤回", remark);
-            return rows;
-        }
-
-        String state = "0";
-        SciIntraSchProPiyue sciIntraSchProPiyue = new SciIntraSchProPiyue();
-        if(urlFlag.equals("pro")){
-            sciIntraSchProPiyue.setState("开题：教研驳回（撤回）");
-            sciIntraSchProPiyue.setConcate("开题：教研驳回（撤回）");
-            state = "1";
-
-        }else if(urlFlag.equals("hecha")){
-            sciIntraSchProPiyue.setState("开题：科研驳回（撤回）");
-            sciIntraSchProPiyue.setConcate("开题：科研驳回（撤回）");
-            state = "2";
-
-        }else if(urlFlag.equals("dept_teacher")){
-            sciIntraSchProPiyue.setState("开题：学院驳回（撤回）");
-            sciIntraSchProPiyue.setConcate("开题：学院驳回（撤回）");
-            state = "11";
-
-        }
-        if ("0".equals(state)) {
+        if (!isTecTraState(currentState)) {
             return 0;
         }
-        int a =  sciIntraSchProApplyMapper.sch_hxPass(id,state);
-
-        sciIntraSchProPiyue.setUid(userId);
-        sciIntraSchProPiyue.setSchxktId(Integer.valueOf(id));
-        sciIntraSchProPiyue.setConcate(remark);
-        sciIntraSchProPiyueMapper.insertIntraSchProPiyue(sciIntraSchProPiyue);
-
-        return a;
+        String recallState = getRecallState(currentState);
+        if (recallState == null) {
+            return 0;
+        }
+        int rows = sciIntraSchProApplyMapper.sch_hxPass(id, recallState);
+        if (rows <= 0) {
+            return 0;
+        }
+        insertTecTraPiyue(id, userId, "成果转化-撤回", remark);
+        return rows;
     }
 
-    /**
-     * 结题撤回
-     * @param id
-     * @param userId
-     * @param remark
-     * @param urlFlag
-     * @return
-     */
+    /*
+    * 结项撤回
+    * @param id
+    * @param userId
+    * @param remark
+    * @param urlFlag
+    * @return
+    * 0:成功 1:失败
+    * */
     @Override
     public int sch_hxOverCH(String id, Long userId, String remark, String urlFlag) {
         String state = "0";
@@ -481,11 +389,6 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
     }
 
     @Override
-    public List<Long> getRoleid_list(Long userId) {
-        return sciIntraSchProApplyMapper.getRoleid_list(userId);
-    }
-
-    @Override
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciIntraSchoolPro> sel_IntraSchPro_approval_dept_teacher(SciIntraSchoolPro sciIntraSchoolPro) {
         return sciIntraSchProApplyMapper.sel_IntraSchPro_approval_dept_teacher(sciIntraSchoolPro);
@@ -513,11 +416,6 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
     @Override
     public String getuser_dnameById(Long userId) {
         return sciIntraSchProApplyMapper.getuser_dnameById(userId);
-    }
-
-    @Override
-    public List<Map<String, Object>> getfilekey(Long userId) {
-        return sciIntraSchProApplyMapper.getfilekey(userId);
     }
 
     /**
@@ -628,18 +526,6 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
         sciIntraSchProPiyueMapper.insertIntraSchProPiyue(piyue);
     }
 
-    private ApprovalRequest buildTecTraApprovalRequest(String id, Long uid, String currentState, String comment) {
-        SysUser user = uid != null ? sysUserService.selectUserById(uid) : null;
-        return ApprovalRequest.of(
-                TEC_TRA_PROCESS_CODE,
-                Long.valueOf(id),
-                currentState,
-                comment,
-                uid,
-                user != null ? user.getUserName() : "",
-                user != null && user.getDept() != null ? user.getDept().getDeptName() : ""
-        );
-    }
     /**
      * 填充页面渲染数据（statusMeta和actions）
      * 调用标准公有方法 fillPageRenderData() 实现页面渲染数据填充

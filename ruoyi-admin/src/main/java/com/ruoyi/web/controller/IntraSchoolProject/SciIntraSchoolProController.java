@@ -81,9 +81,6 @@ public class SciIntraSchoolProController extends BaseController {
     System.out.println("this userid is=" + getUserId());
 
     /*1：超级管理员，2：普通角色，100：普通教师，101：科研处，102：教研室管理员，103：学院负责人*/
-//        List<Long> roleid_list=sciIntraSchProApplyService.getRoleid_list(getUserId());
-//        System.out.println("roleid_list = " + roleid_list);
-//        System.out.println("roleid_list  " + roleid_list.contains(100L));
 
     startPage();
     //判断当前用户的角色
@@ -388,11 +385,7 @@ public class SciIntraSchoolProController extends BaseController {
   @PostMapping("/add")
   @ResponseBody
   public AjaxResult addSave(SciIntraSchoolPro sciIntraSchoolPro) throws IOException {
-    //sciIntraSchProScoreService.set_SchPro_score_noScore(sciIntraSchoolPro);
-//        return toAjax(sciIntraSchProApplyService.insert_SchPro_Apply(sciIntraSchoolPro));
 
-    //数据库里面这个的默认值是15 草稿
-    //System.out.println("addSave:"+sciIntraSchoolPro.getState());
     Set<String> countAuthors = new HashSet<>();
     countAuthors.add(sciIntraSchoolPro.getFirstPersonId());
     countAuthors.add(sciIntraSchoolPro.getSecondPersonId ());
@@ -418,19 +411,6 @@ public class SciIntraSchoolProController extends BaseController {
 
     mmap.put("sysUsers1", userList1);
     mmap.put("sciIntraSchoolPro", sciIntraSchoolPro);
-    System.out.println("SciIntraSchoolProController.edit");
-    //1,2,3,4,5,11,12
-    //7,8,9,10,13,14
-//        if (sciIntraSchoolPro.getState().equals("3")||sciIntraSchoolPro.getState().equals("5")){
-//            System.out.println("1");
-//            return prefix + "/edit";
-//        }else if(sciIntraSchoolPro.getState().equals("6")){
-//            System.out.println("2");
-//            return prefix + "/is_Over";
-//        } else {
-//            System.out.println("3");
-//            return prefix + "/edit_Over";
-//        }
 
     if (Arrays.asList("1", "2", "3", "4", "5", "11", "12", "15", TEC_TRA_DRAFT, TEC_TRA_JYS_AUDIT, TEC_TRA_KYC_AUDIT, TEC_TRA_REJECTED).contains(sciIntraSchoolPro.getState())) {
       System.out.println("1");
@@ -665,20 +645,6 @@ public class SciIntraSchoolProController extends BaseController {
   @PostMapping("/retract")
   @ResponseBody
   public AjaxResult retract(String id, String remark, String urlFlag) {
-//        System.out.println("data = " + data);
-//        SciIntraSchoolPro sciIntraSchoolPro = new SciIntraSchoolPro();
-//
-//        if ( data.get("state").equals("4")){
-//            sciIntraSchoolPro.setState("2");
-//        }else if (data.get("state").equals("2")){
-//            sciIntraSchoolPro.setState("11");
-//        }else if (data.get("state").equals("11")){
-//            sciIntraSchoolPro.setState("1");
-//
-//        }
-//        String idString = (String) data.get("id");
-//        Integer id = Integer.parseInt(idString);
-//        sciIntraSchoolPro.setId(id);
     //更改积分
     SciIntraSchoolPro sciIntraSchoolPro1 = sciIntraSchProApplyService.sel_IntraSchPro_by_id(Integer.valueOf(id));
     if (!canRecallTecTra(sciIntraSchoolPro1)) {
@@ -741,19 +707,6 @@ public class SciIntraSchoolProController extends BaseController {
   @PostMapping("/over_retract")
   @ResponseBody
   public AjaxResult over_retract(String id, String remark, String urlFlag) {
-//        System.out.println("data = " + data);
-//        SciIntraSchoolPro sciIntraSchoolPro = new SciIntraSchoolPro();
-//
-//        if ( data.get("state").equals("6")){
-//            sciIntraSchoolPro.setState("8");
-//        }else if (data.get("state").equals("8")){
-//            sciIntraSchoolPro.setState("13");
-//        }else if (data.get("state").equals("13")){
-//            sciIntraSchoolPro.setState("7");
-//        }
-//        String idString = (String) data.get("id");
-//        Integer id = Integer.parseInt(idString);
-//        sciIntraSchoolPro.setId(id);
     //更改积分
     SciIntraSchoolPro sciIntraSchoolPro1 = sciIntraSchProApplyService.sel_IntraSchPro_by_id(Integer.valueOf(id));
     int i = sciIntraSchProScoreService.update_SchPro_score_jt(sciIntraSchoolPro1);
