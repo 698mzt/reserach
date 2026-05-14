@@ -538,25 +538,25 @@
                 });
             }
             // 始终添加关闭按钮
-            $container.append('<button type="button" class="btn btn-sm btn-default" onclick="closeItem()"> 关 闭 </button>');
+            $container.append('<button type="button" class="btn btn-sm btn-warning" onclick="closeItem()"> 关 闭 </button>');
         } else {
             // 后端未返回actions时，使用旧逻辑兜底
             var $container = $('#action-buttons-container');
             if (urlFlag === 'chakan' || urlFlag === 'LW') {
-                $container.html('<button type="button" class="btn btn-sm btn-default" onclick="closeItem()"> 关 闭 </button>');
+                $container.html('<button type="button" class="btn btn-sm btn-warning" onclick="closeItem()"> 关 闭 </button>');
             } else if (['PAPER_JYS_AUDIT', 'PAPER_KYC_AUDIT'].includes(state)) {
                 $container.html(
                     '<button type="button" class="btn btn-sm btn-success" onclick="submitHandler()"> 通 过</button> ' +
                     '<button type="button" class="btn btn-sm btn-danger" onclick="submitHandlerBH()"> 驳 回</button> ' +
-                    '<button type="button" class="btn btn-sm btn-default" onclick="closeItem()"> 关 闭 </button>'
+                    '<button type="button" class="btn btn-sm btn-warning" onclick="closeItem()"> 关 闭 </button>'
                 );
             } else if (['kyc_recall', 'jys_recall', 'proth'].includes(urlFlag)) {
                 $container.html(
                     '<button type="button" class="btn btn-sm btn-warning" onclick="submitHandlerBH()"> 撤 回</button> ' +
-                    '<button type="button" class="btn btn-sm btn-default" onclick="closeItem()"> 关 闭 </button>'
+                    '<button type="button" class="btn btn-sm btn-warning" onclick="closeItem()"> 关 闭 </button>'
                 );
             } else {
-                $container.html('<button type="button" class="btn btn-sm btn-default" onclick="closeItem()"> 关 闭 </button>');
+                $container.html('<button type="button" class="btn btn-sm btn-warning" onclick="closeItem()"> 关 闭 </button>');
             }
         }
 

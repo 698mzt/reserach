@@ -699,23 +699,46 @@
                     width: '200px',
                     formatter: function(value, row, index) {
                         if (row.actions && row.actions.length > 0) {
-                            // 列表页过滤掉"通过"和"驳回"按钮，这些只在详情页显示
-                            var listActions = row.actions.filter(function(a) {
-                                return a.actionKey !== 'approve' && a.actionKey !== 'reject';
+                            // 将查看和查看流程放在第二行，其余按钮放在第一行
+                            var firstLineActions = [];
+                            var secondLineActions = [];
+                            
+                            row.actions.forEach(function(a) {
+                                if (a.actionKey === 'view' || a.actionKey === 'viewProcess') {
+                                    secondLineActions.push(a);
+                                } else if (a.actionKey !== 'approve' && a.actionKey !== 'reject') {
+                                    firstLineActions.push(a);
+                                }
                             });
-                            if (listActions.length > 0) {
-                                return PageRender.renderActionsToString(listActions, {style: 'table'});
+                            
+                            var firstLineHtml = firstLineActions.length > 0 ? PageRender.renderActionsToString(firstLineActions, {style: 'table'}) : '';
+                            var secondLineHtml = secondLineActions.length > 0 ? PageRender.renderActionsToString(secondLineActions, {style: 'table'}) : '';
+                            
+                            if (firstLineHtml && secondLineHtml) {
+                                return '<div style="margin-bottom: 5px;">' + firstLineHtml + '</div>' + secondLineHtml;
+                            } else if (firstLineHtml) {
+                                return firstLineHtml;
+                            } else {
+                                return secondLineHtml;
                             }
                         }
                         // 兜底：后端未返回actions时显示基本操作
-                        var fallbackActions = [];
+                        var firstLineActions = [];
+                        var secondLineActions = [];
+                        
                         if (editInfo !== 'hidden') {
-                            fallbackActions.push('<a href="javascript:void(0)" class="btn btn-xs btn-info" onclick="$.operate.detailTab(\'' + row.id + '/chakan\')">查看</a>');
+                            firstLineActions.push('<a href="javascript:void(0)" class="btn btn-xs btn-info" onclick="$.operate.detailTab(\'' + row.id + '/chakan\')">查看</a>');
+                            secondLineActions.push('<a href="javascript:void(0)" class="btn btn-xs btn-info" onclick="viewProcess(\'' + row.id + ',' + row.state + '\')">查看流程</a>');
                         }
-                        if (editInfo !== 'hidden') {
-                            fallbackActions.push('<a href="javascript:void(0)" class="btn btn-xs btn-info" onclick="viewProcess(\'' + row.id + ',' + row.state + '\')">查看流程</a>');
+                        
+                        var html = '';
+                        if (firstLineActions.length > 0) {
+                            html += '<div style="margin-bottom: 5px;">' + firstLineActions.join(' ') + '</div>';
                         }
-                        return fallbackActions.join(' ');
+                        if (secondLineActions.length > 0) {
+                            html += secondLineActions.join(' ');
+                        }
+                        return html;
                     }
                 }]
         };
