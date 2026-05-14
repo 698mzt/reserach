@@ -13,6 +13,7 @@ import com.ruoyi.system.mapper.SciHorizontalApplyMapper;
 import com.ruoyi.system.mapper.SciProjectScoreCfgMapper;
 import com.ruoyi.system.mapper.SciUserScoreMapper;
 import com.ruoyi.system.service.ISciHorizontalPiyueService;
+import com.ruoyi.system.service.ISysApprovalHistoryService;
 import com.ruoyi.system.service.ISysUserService;
 import com.ruoyi.system.service.SciHorizontalReamountService;
 import com.ruoyi.system.service.IApprovalProcessService;
@@ -72,6 +73,8 @@ public class SciHorizontalApplyController extends BaseController
     private SciHorizontalReamountService sciHorizontalReamountService;
     @Autowired
     private IApprovalProcessService approvalProcessService;
+    @Autowired
+    private ISysApprovalHistoryService sysApprovalHistoryService;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -93,7 +96,7 @@ public class SciHorizontalApplyController extends BaseController
             SciProjectScoreCfg query = new SciProjectScoreCfg();
             query.setProjectType("H"); // H-横向课题
             List<SciProjectScoreCfg> allConfigs = sciProjectScoreCfgMapper.selectSciProjectScoreCfgList(query);
-            
+
             if (allConfigs == null || allConfigs.isEmpty()) {
                 return AjaxResult.error("未找到科研分配置数据，请联系管理员");
             }
@@ -108,17 +111,17 @@ public class SciHorizontalApplyController extends BaseController
             expectedScores.add(calculateHorizontalScoreByAmount(amount, 3, allConfigs));
             // 成员3（排名第四）
             expectedScores.add(calculateHorizontalScoreByAmount(amount, 4, allConfigs));
-            
+
             return AjaxResult.success(expectedScores);
         } catch (Exception e) {
             return AjaxResult.error("积分计算失败: " + e.getMessage());
         }
     }
-    
+
     /**
      * 根据金额和排名计算横向课题积分
      * 从数据库sci_project_score_cfg表读取配置数据
-     * 
+     *
      * @param amount 项目金额（万元）
      * @param rank 排名（1-4）
      * @param allConfigs 所有配置数据
@@ -133,9 +136,9 @@ public class SciHorizontalApplyController extends BaseController
         SciProjectScoreCfg matchedConfig = null;
         for (SciProjectScoreCfg config : allConfigs) {
             Double min = Double.valueOf(config.getFundsMin());
-            Double max = config.getFundsMax() != null && !config.getFundsMax().isEmpty() 
-                         ? Double.valueOf(config.getFundsMax()) : null;
-            
+            Double max = config.getFundsMax() != null && !config.getFundsMax().isEmpty()
+                    ? Double.valueOf(config.getFundsMax()) : null;
+
             // 判断金额是否在当前区间
             if (amount >= min && (max == null || amount <= max)) {
                 matchedConfig = config;
@@ -162,25 +165,25 @@ public class SciHorizontalApplyController extends BaseController
 
         // 获取该排名对应的配置
         List<SciProjectScoreCfg> rankConfigs = allConfigs.stream()
-            .filter(c -> c.getFundsMin().equals(matchedFundsMin) && 
+                .filter(c -> c.getFundsMin().equals(matchedFundsMin) &&
                         (matchedFundsMax == null || c.getFundsMax() == null || c.getFundsMax().equals(matchedFundsMax)) &&
                         c.getUserOrder() != null && Integer.valueOf(c.getUserOrder()) == rank)
-            .collect(Collectors.toList());
+                .collect(Collectors.toList());
 
         if (rankConfigs.isEmpty()) {
             return 0;
         }
 
         SciProjectScoreCfg rankConfig = rankConfigs.get(0);
-        
+
         // 优先使用总分
         if (rankConfig.getTotalScore() != null && !rankConfig.getTotalScore().isEmpty()) {
             return Integer.valueOf(rankConfig.getTotalScore());
         }
-        
+
         // 如果没有总分，使用开题得分和结题得分的平均值
         if (rankConfig.getStartScore() != null && !rankConfig.getStartScore().isEmpty() &&
-            rankConfig.getEndScore() != null && !rankConfig.getEndScore().isEmpty()) {
+                rankConfig.getEndScore() != null && !rankConfig.getEndScore().isEmpty()) {
             int startScore = Integer.valueOf(rankConfig.getStartScore());
             int endScore = Integer.valueOf(rankConfig.getEndScore());
             return (startScore + endScore) / 2;
@@ -199,14 +202,14 @@ public class SciHorizontalApplyController extends BaseController
             "marxism_college", // 马克思主义学院管理员
             "general" //综合院部管理员
     ));
-    
+
     /**
      * 基于角色的查询字段白名单校验
      * 教师角色：仅允许通过“课题名称”检索
      * 教研室角色：允许通过“主持人（论文对应第一作者）”+“课题名称”检索
      * 学院角色：允许通过“专业”+“主持人（论文对应第一作者）”+“课题名称”检索
      * 科研处角色：允许通过“学院”+“专业”+“主持人（论文对应第一作者）”+“课题名称”全维度检索
-     * 
+     *
      * @param sciHorizontalApply 查询条件对象
      * @param role 用户角色
      */
@@ -266,13 +269,13 @@ public class SciHorizontalApplyController extends BaseController
         }
         sciHorizontalApply.setRole(role);
         sciHorizontalApply.setTableId(tableId);
-        
+
         // 基于角色的查询字段白名单校验
         validateQueryFieldsByRole(sciHorizontalApply, role);
-        
+
         List<SciHorizontalApply> list = new ArrayList<>();
         List<SciHorizontalApply> Alist = new ArrayList<>();
-        
+
         // 根据表格ID选择不同的查询方法
         switch (tableId) {
             case "bootstrap-table0":
@@ -355,26 +358,26 @@ public class SciHorizontalApplyController extends BaseController
             Set<Integer> applyIds = distinctList.stream()
                     .map(SciHorizontalApply::getId)
                     .collect(Collectors.toSet());
-            
+
             // 从数据库批量查询积分记录
             List<SciUserScore> allScores = sciUserScoreMapper.selectScoreHistoryByApplyIds(applyIds);
-            
+
             // 构建按applyId分组的积分映射，过滤掉applyId为null的记录
             Map<String, List<SciUserScore>> scoreMap = allScores.stream()
                     .filter(score -> score.getApplyId() != null) // 过滤掉applyId为null的记录
-                    .collect(Collectors.groupingBy(SciUserScore::getApplyId, 
+                    .collect(Collectors.groupingBy(SciUserScore::getApplyId,
                             Collectors.toList()));
-            
+
             String currentUserId = getUserId().toString();
-            
+
             for (SciHorizontalApply apply: distinctList){
                 apply.setUserdnameId(did);
                 apply.setUserynameId(yid);
                 apply.setUid(getUserId());
-                
+
                 List<SciUserScore> score = scoreMap.getOrDefault(apply.getId().toString(), new ArrayList<>());
                 ArrayList<Integer> allscore = new ArrayList<>();
-                
+
                 for(SciUserScore score1: score){
                     if (apply.getFirstPersonId().equals(score1.getUserId()) && apply.getFirstPersonId().equals(currentUserId)) {
                         allscore.add(Integer.parseInt(score1.getChangeValue()));
@@ -386,7 +389,7 @@ public class SciHorizontalApplyController extends BaseController
                         allscore.add(Integer.parseInt(score1.getChangeValue()));
                     }
                 }
-                
+
                 Integer count = 0;
                 for (int i : allscore){
                     count += i;
@@ -445,12 +448,12 @@ public class SciHorizontalApplyController extends BaseController
         List<SciHorizontalApply> list = sciHorizontalApplyService.exportSciHorizontalApplyList(sciHorizontalApply);
         List<SciHorizontalApply> newList = new ArrayList<>();
         for (SciHorizontalApply apply: list ) {
-                if(apply.getState().equals("6")){
-                    apply.setState("结项");
-                }else{
-                    apply.setState("在研");
-                }
-                newList.add(apply);
+            if(apply.getState().equals("6")){
+                apply.setState("结项");
+            }else{
+                apply.setState("在研");
+            }
+            newList.add(apply);
         }
         ExcelUtil<SciHorizontalApply> util = new ExcelUtil<SciHorizontalApply>(SciHorizontalApply.class);
         return util.exportExcel(newList, "横向课题数据");
@@ -616,7 +619,7 @@ public class SciHorizontalApplyController extends BaseController
         return toAjax(result);
     }
 
-//detail 审批
+    //detail 审批
     @RequiresPermissions("system:apply:info")
     @GetMapping("/detail/{id}/{urlFlag}")
     public String detail(@PathVariable("id") Integer id, @PathVariable("urlFlag") String urlFlag, ModelMap mmap) throws JsonProcessingException {
@@ -634,16 +637,16 @@ public class SciHorizontalApplyController extends BaseController
         mmap.put("sciHorizontalApply", sciHorizontalApply);
         // 传递当前登录用户ID，用于权限判断
         mmap.put("currentUserId", getUserId());
-        
+
         // 获取当前用户角色
         String roleKey = getUserRoleKey();
         mmap.put("role", roleKey);
-        
+
         // 判断是否可批阅
         String state = sciHorizontalApply.getState();
         boolean canApprove = canApprove(state, roleKey);
         mmap.put("canApprove", canApprove);
-        
+
         // 查询全部成员并注入第5位及以后
         java.util.List<String> allMemberIds = sciHorizontalApplyService.selectPersionIdsByApplyId(id);
         java.util.List<String> extraMembers = new java.util.ArrayList<>();
@@ -658,7 +661,7 @@ public class SciHorizontalApplyController extends BaseController
 
         return prefix + "/detail";
     }
-    
+
     /**
      * 获取当前用户的角色标识
      */
@@ -676,7 +679,7 @@ public class SciHorizontalApplyController extends BaseController
         }
         return "teacher";
     }
-    
+
     /**
      * 判断当前用户是否可以批阅申请课题
      * 使用审批流服务获取节点配置，根据节点配置的roleIds判断权限
@@ -896,7 +899,7 @@ public class SciHorizontalApplyController extends BaseController
         // 3. 执行审核
         return toAjax(sciHorizontalApplyService.hxPass(id, getUserId(), urlFlag));
     }
-    
+
     /**
      * 结项横向课题审核通过
      * 增加状态+权限联合校验，防止越权审核
@@ -1225,11 +1228,40 @@ public class SciHorizontalApplyController extends BaseController
     @ResponseBody
     public TableDataInfo bhyy(@PathVariable("kid")Integer kid)
     {
-        SciHorizontalPiyue ob = new SciHorizontalPiyue();
-        ob.setHxktId(kid);
-        List<SciHorizontalPiyue> list = piyueService.selectSciHorizontalPiyueList(ob);
-        list.forEach(item -> item.setStateText(sciHorizontalApplyService.getHorizontalStateText(item.getState())));
-        return getDataTable(list);
+        List<SciHorizontalPiyue> resultList = new ArrayList<>();
+
+        // 查询新审批历史表（HORIZONTAL_APPLY 流程）
+        List<SysApprovalHistory> historyList = sysApprovalHistoryService.selectSysApprovalHistoryByBusinessId(
+                "HORIZONTAL_APPLY", kid.longValue());
+        for (SysApprovalHistory history : historyList) {
+            SciHorizontalPiyue piyue = new SciHorizontalPiyue();
+            piyue.setHxktId(kid);
+            // 处理 comment 为空的情况，根据 action 类型设置默认内容
+            String comment = history.getComment();
+            if (comment == null || comment.trim().isEmpty()) {
+                String action = history.getAction();
+                if ("approve".equals(action)) {
+                    comment = "审批通过";
+                } else if ("reject".equals(action)) {
+                    comment = "驳回";
+                } else if ("submit".equals(action)) {
+                    comment = "提交申请";
+                } else if ("recall".equals(action)) {
+                    comment = "撤回";
+                } else {
+                    comment = action;
+                }
+            }
+            piyue.setConcate(comment);
+            piyue.setUid(history.getOperatorId());
+            piyue.setUname(history.getOperatorName());
+            piyue.setCreateTime(history.getCreateTime());
+            piyue.setState(history.getNewState());
+            piyue.setStateText(sciHorizontalApplyService.getHorizontalStateText(history.getNewState()));
+            resultList.add(piyue);
+        }
+
+        return getDataTable(resultList);
     }
     @RequiresPermissions("system:apply:edit")
     @PostMapping("/abhyy/{kid}")
@@ -1344,7 +1376,7 @@ public class SciHorizontalApplyController extends BaseController
         mmap.put("extraMembers", extraMembers);
         return prefix + "/amountModel";
     }
-//    @RequiresPermissions("system:apply:edit")
+    //    @RequiresPermissions("system:apply:edit")
     @Log(title = "添加到账金额", businessType = BusinessType.INSERT)
     @PostMapping("/Reamount")
     @ResponseBody
