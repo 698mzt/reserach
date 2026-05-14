@@ -737,12 +737,28 @@
                     formatter: function(value, row, index) {
                         // 使用 PageRender 渲染动作按钮
                         if (row.actions && row.actions.length > 0) {
-                            var listActions = row.actions.filter(function(a) {
-                                return a.actionKey !== 'approve' && a.actionKey !== 'reject';
+                            // 将按钮分为两组：第一行显示除"查看"和"查看流程"外的按钮，第二行显示"查看"和"查看流程"
+                            var viewActions = row.actions.filter(function(a) {
+                                return a.actionKey === 'view' || a.actionKey === 'viewProcess';
                             });
-                            if (listActions.length > 0) {
-                                return PageRender.renderActionsToString(listActions, {style: 'table'});
+                            var otherActions = row.actions.filter(function(a) {
+                                return a.actionKey !== 'view' && a.actionKey !== 'viewProcess';
+                            });
+                            
+                            var firstRow = '';
+                            var secondRow = '';
+                            
+                            // 渲染第一行按钮（操作按钮）
+                            if (otherActions.length > 0) {
+                                firstRow = PageRender.renderActionsToString(otherActions, {style: 'table'});
                             }
+                            
+                            // 渲染第二行按钮（查看和查看流程）
+                            if (viewActions.length > 0) {
+                                secondRow = '<br>' + PageRender.renderActionsToString(viewActions, {style: 'table'});
+                            }
+                            
+                            return firstRow + secondRow;
                         }
                         return '';
                     }
@@ -889,12 +905,28 @@
                     formatter: function(value, row, index) {
                         // 使用 PageRender 渲染动作按钮
                         if (row.actions && row.actions.length > 0) {
-                            var listActions = row.actions.filter(function(a) {
-                                return a.actionKey !== 'approve' && a.actionKey !== 'reject';
+                            // 将按钮分为两组：第一行显示除"查看"和"查看流程"外的按钮，第二行显示"查看"和"查看流程"
+                            var viewActions = row.actions.filter(function(a) {
+                                return a.actionKey === 'view' || a.actionKey === 'viewProcess';
                             });
-                            if (listActions.length > 0) {
-                                return PageRender.renderActionsToString(listActions, {style: 'table'});
+                            var otherActions = row.actions.filter(function(a) {
+                                return a.actionKey !== 'view' && a.actionKey !== 'viewProcess';
+                            });
+                            
+                            var firstRow = '';
+                            var secondRow = '';
+                            
+                            // 渲染第一行按钮（操作按钮）
+                            if (otherActions.length > 0) {
+                                firstRow = PageRender.renderActionsToString(otherActions, {style: 'table'});
                             }
+                            
+                            // 渲染第二行按钮（查看和查看流程）
+                            if (viewActions.length > 0) {
+                                secondRow = '<br>' + PageRender.renderActionsToString(viewActions, {style: 'table'});
+                            }
+                            
+                            return firstRow + secondRow;
                         }
                         return '';
                     }
@@ -1037,12 +1069,28 @@
                     formatter: function(value, row, index) {
                         // 使用 PageRender 渲染动作按钮
                         if (row.actions && row.actions.length > 0) {
-                            var listActions = row.actions.filter(function(a) {
-                                return a.actionKey !== 'approve' && a.actionKey !== 'reject';
+                            // 将按钮分为两组：第一行显示除"查看"和"查看流程"外的按钮，第二行显示"查看"和"查看流程"
+                            var viewActions = row.actions.filter(function(a) {
+                                return a.actionKey === 'view' || a.actionKey === 'viewProcess';
                             });
-                            if (listActions.length > 0) {
-                                return PageRender.renderActionsToString(listActions, {style: 'table'});
+                            var otherActions = row.actions.filter(function(a) {
+                                return a.actionKey !== 'view' && a.actionKey !== 'viewProcess';
+                            });
+                            
+                            var firstRow = '';
+                            var secondRow = '';
+                            
+                            // 渲染第一行按钮（操作按钮）
+                            if (otherActions.length > 0) {
+                                firstRow = PageRender.renderActionsToString(otherActions, {style: 'table'});
                             }
+                            
+                            // 渲染第二行按钮（查看和查看流程）
+                            if (viewActions.length > 0) {
+                                secondRow = '<br>' + PageRender.renderActionsToString(viewActions, {style: 'table'});
+                            }
+                            
+                            return firstRow + secondRow;
                         }
                         return '';
                     }
