@@ -591,11 +591,12 @@
     var createFlag = [[${@permission.hasPermi('system:zhuanliruanzhu:add')}]];
     var chayueFlag = [[${@permission.hasPermi('system:zhuanliruanzhu:chayue')}]];
     var chexiaoFlag = [[${@permission.hasPermi('system:zhuanliruanzhu:chexiao')}]];
+    var kyrevokeFlag = [[${@permission.hasPermi('system:zhuanliruanzhu:kyrevoke')}]];
 
     var role = [[${role}]];
     var isResearch = role === 'research' || proFlag !== 'hidden';
     var isDeptTeacher = role === 'dept_teacher' || hechaFlag !== 'hidden';
-    var isSciTesearch = role === 'sci_tesearch' || chayueFlag !== 'hidden';
+    var isSciTesearch = role === 'sci_tesearch' || chayueFlag !== 'hidden' || kyrevokeFlag !== 'hidden';
 
     var prefix = ctx + "system/zhuanliruanzhu";
 
@@ -787,26 +788,59 @@
                 {
                     title: '操作',
                     align: 'center',
-                    width: '200px',
+                    width: '220px',
                     formatter: function(value, row, index) {
+                        var firstRowActions = [];
+                        var secondRowActions = [];
+                        
                         if (row.actions && row.actions.length > 0) {
-                            // 列表页过滤掉"通过"和"驳回"按钮，这些只在详情页显示
                             var listActions = row.actions.filter(function(a) {
+                                // 教研室角色看不到撤回按钮
+                                if (isResearch && a.actionKey === 'recall') {
+                                    return false;
+                                }
                                 return a.actionKey !== 'approve' && a.actionKey !== 'reject';
                             });
-                            if (listActions.length > 0) {
-                                return PageRender.renderActionsToString(listActions, {style: 'table'});
+                            
+                            listActions.forEach(function(action) {
+                                if (action.actionKey === 'view' || action.actionKey === 'viewProcess') {
+                                    secondRowActions.push(action);
+                                } else {
+                                    firstRowActions.push(action);
+                                }
+                            });
+                        } else {
+                            var state = String(row.state);
+                            var isRejected = state === 'PATENT_REJECTED' || ['3', '5', '7'].indexOf(state) !== -1;
+                            var isDraft = state === 'PATENT_DRAFT' || state === '0';
+                            
+                            if (editFlag !== 'hidden' && (isRejected || isDraft)) {
+                                firstRowActions.push({actionKey: 'edit', actionText: '编辑', colorType: 'primary', sortOrder: 10});
+                            }
+                            if (removeFlag !== 'hidden' && isDraft) {
+                                firstRowActions.push({actionKey: 'remove', actionText: '删除', colorType: 'danger', sortOrder: 20, confirmMsg: '确定要删除该记录吗？'});
+                            }
+                            if (editFlag !== 'hidden' && isDraft) {
+                                firstRowActions.push({actionKey: 'submit', actionText: '提交', colorType: 'success', sortOrder: 5, confirmMsg: '确定要提交该记录吗？'});
+                            }
+                            
+                            if (editInfo !== 'hidden') {
+                                secondRowActions.push({actionKey: 'view', actionText: '查看', colorType: 'info', sortOrder: 100});
+                                secondRowActions.push({actionKey: 'viewProcess', actionText: '查看流程', colorType: 'info', sortOrder: 101});
                             }
                         }
-                        // 兜底：后端未返回actions时显示基本操作
-                        var fallbackActions = [];
-                        if (editInfo !== 'hidden') {
-                            fallbackActions.push('<a href="javascript:void(0)" class="btn btn-xs btn-info" onclick="$.operate.detailTab(\'' + row.id + '/chakan\')">查看</a>');
+                        
+                        var firstRowHtml = firstRowActions.length > 0 ? PageRender.renderActionsToString(firstRowActions, {style: 'table', separator: ' '}) : '';
+                        var secondRowHtml = secondRowActions.length > 0 ? PageRender.renderActionsToString(secondRowActions, {style: 'table', separator: ' '}) : '';
+                        
+                        if (firstRowHtml && secondRowHtml) {
+                            return firstRowHtml + '<br style="line-height: 1.5;"/>' + secondRowHtml;
+                        } else if (firstRowHtml) {
+                            return firstRowHtml;
+                        } else if (secondRowHtml) {
+                            return secondRowHtml;
                         }
-                        if (editInfo !== 'hidden') {
-                            fallbackActions.push('<a href="javascript:void(0)" class="btn btn-xs btn-info" onclick="showhistory(' + row.id + ',' + row.state + ')">查看流程</a>');
-                        }
-                        return fallbackActions.join(' ');
+                        return '';
                     }
                 }
             ]
@@ -967,17 +1001,19 @@
 
     function rowStyle0(row, index) {
         const stateColorMap = {
-            6: '#67c23a', // 完结 绿色
-            3: '#e6a344', 5: '#e6a344', 7: '#e6a344', // 被驳回，草稿 黄色
-            1: '#2c99ff', 2: '#2c99ff', 4: '#2c99ff', // 审核中 蓝色
-            0: '#e6a344' // 草稿 黄色
-            // 1: '#2c99ff', // 审核中 蓝色
-            // 2: '#67c23a', // 完结 绿色
-            // 3: '#e6a344', // 被驳回，草稿 黄色
-            // 4: '#67c23a', // 完结 绿色
-            // 5: '#e6a344', // 被驳回，草稿 黄色
-            // 6: '#67c23a', // 完结 绿色
-           // 7: '#67c23a', // 完结 绿色
+            'PATENT_PASSED': '#67c23a',
+            'PATENT_REJECTED': '#e6a344',
+            'PATENT_DRAFT': '#e6a344',
+            'PATENT_JYS_AUDIT': '#2c99ff',
+            'PATENT_KYC_AUDIT': '#2c99ff',
+            '0': '#e6a344',
+            '1': '#2c99ff',
+            '2': '#2c99ff',
+            '3': '#e6a344',
+            '4': '#2c99ff',
+            '5': '#e6a344',
+            '6': '#67c23a',
+            '7': '#e6a344'
         };
 
         const state = String(row.state);

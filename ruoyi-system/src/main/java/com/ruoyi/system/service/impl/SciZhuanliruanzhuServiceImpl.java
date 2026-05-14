@@ -265,13 +265,22 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
         // 编辑时清空最终积分（未最终确认则不显示）
         sciZhuanliruanzhu.setFinalJifen(null);
 
+        // 如果当前状态为"被驳回"，编辑后更新为"草稿"状态
+        String currentState = sciZhuanliruanzhu.getState();
+        if (currentState != null) {
+            String normalizedState = mapStateToStatusCode(currentState);
+            if ("PATENT_REJECTED".equals(normalizedState)) {
+                sciZhuanliruanzhu.setState("PATENT_DRAFT");
+            }
+        }
+
         int a = sciZhuanliruanzhuMapper.updateSciZhuanliruanzhu(sciZhuanliruanzhu);
         int id = sciZhuanliruanzhu.getId();
         SciZhuanliruanzhuPiyue sciZhuanliruanzhuPiyue = new SciZhuanliruanzhuPiyue();
         sciZhuanliruanzhuPiyue.setUid(Long.valueOf(sciZhuanliruanzhu.getUserId()));
         sciZhuanliruanzhuPiyue.setHxktId(id);
-        sciZhuanliruanzhuPiyue.setConcate("修改");
-        sciZhuanliruanzhuPiyue.setState("修改");
+        sciZhuanliruanzhuPiyue.setConcate("修改草稿");
+        sciZhuanliruanzhuPiyue.setState("提交草稿");
         sciZhuanliruanzhuPiyueMapper.insertSciZhuanliruanzhuPiyue(sciZhuanliruanzhuPiyue);
         return a;
     }
@@ -341,8 +350,15 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
         }
 
         // 构建审批请求（参考论文模块的实现方式）
+        String comment = "";
+        if ("tijiao".equals(urlFlag)) {
+            comment = "提交草稿";
+        } else {
+            comment = "审批通过";
+        }
+        
         ApprovalRequest request = ApprovalRequest.of(PROCESS_CODE,
-                Long.valueOf(id), currentState, null,
+                Long.valueOf(id), currentState, comment,
                 uid, user.getUserName(),
                 user.getDept() != null ? user.getDept().getDeptName() : "");
 
@@ -390,7 +406,21 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
             sciZhuanliruanzhuMapper.updateKyjcPassTime(id, new Date());
         }
 
-        // 审批流程服务已经更新了业务表状态并记录了审批历史，这里不需要再手动更新
+        // 记录批阅记录到业务模块批阅表
+        SciZhuanliruanzhuPiyue piyue = new SciZhuanliruanzhuPiyue();
+        piyue.setUid(uid);
+        piyue.setHxktId(Integer.valueOf(id));
+        piyue.setConcate(comment);
+        
+        if ("tijiao".equals(urlFlag)) {
+            piyue.setState("提交草稿");
+        } else if (result.isLast()) {
+            piyue.setState("通过");
+        } else {
+            piyue.setState("通过");
+        }
+        sciZhuanliruanzhuPiyueMapper.insertSciZhuanliruanzhuPiyue(piyue);
+
         return 1;
     }
 
@@ -426,13 +456,13 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
         piyue.setUid(uid);
         piyue.setHxktId(Integer.valueOf(id));
         if ("1".equals(newState)) {
-            piyue.setConcate("提交申请");
-            piyue.setState("提交");
+            piyue.setConcate("草稿提交");
+            piyue.setState("草稿提交");
         } else if (isLast) {
-            piyue.setConcate("同意");
+            piyue.setConcate("审批通过");
             piyue.setState("通过");
         } else {
-            piyue.setConcate("同意");
+            piyue.setConcate("审批通过");
             piyue.setState("通过");
         }
         sciZhuanliruanzhuPiyueMapper.insertSciZhuanliruanzhuPiyue(piyue);
@@ -467,8 +497,9 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
         }
 
         // 构建审批请求（参考论文模块的实现方式）
+        String comment = remark != null ? remark : "审批驳回";
         ApprovalRequest request = ApprovalRequest.of(PROCESS_CODE,
-                Long.valueOf(id), currentState, remark,
+                Long.valueOf(id), currentState, comment,
                 uid, user.getUserName(),
                 user.getDept() != null ? user.getDept().getDeptName() : "");
 
@@ -479,7 +510,14 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
             throw new RuntimeException("驳回操作失败: " + result.getMessage());
         }
 
-        // 审批流程服务已经更新了业务表状态并记录了审批历史，这里不需要再手动更新
+        // 记录批阅记录到业务模块批阅表
+        SciZhuanliruanzhuPiyue piyue = new SciZhuanliruanzhuPiyue();
+        piyue.setUid(uid);
+        piyue.setHxktId(Integer.valueOf(id));
+        piyue.setConcate(comment);
+        piyue.setState("驳回");
+        sciZhuanliruanzhuPiyueMapper.insertSciZhuanliruanzhuPiyue(piyue);
+
         return 1;
     }
 
@@ -625,8 +663,9 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
         }
 
         // 构建审批请求（参考论文模块的实现方式）
+        String comment = remark != null ? remark : "撤回申请";
         ApprovalRequest request = ApprovalRequest.of(PROCESS_CODE,
-                Long.valueOf(id), currentState, remark,
+                Long.valueOf(id), currentState, comment,
                 uid, user.getUserName(),
                 user.getDept() != null ? user.getDept().getDeptName() : "");
 
@@ -637,7 +676,20 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
             throw new RuntimeException("撤回操作失败: " + result.getMessage());
         }
 
-        // 审批流程服务已经更新了业务表状态并记录了审批历史，这里不需要再手动更新
+        // 如果是已通过撤回，清空积分
+        if ("PATENT_PASSED".equals(currentState)) {
+            sciZhuanliruanzhuMapper.updateJifen(Long.valueOf(id), 0);
+            sciZhuanliruanzhuMapper.updateFinalJifen(id.toString(), null);
+        }
+
+        // 记录批阅记录到业务模块批阅表
+        SciZhuanliruanzhuPiyue piyue = new SciZhuanliruanzhuPiyue();
+        piyue.setUid(uid);
+        piyue.setHxktId(id);
+        piyue.setConcate(comment);
+        piyue.setState("撤回");
+        sciZhuanliruanzhuPiyueMapper.insertSciZhuanliruanzhuPiyue(piyue);
+
         return 1;
     }
 
@@ -725,6 +777,64 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
                 return "PATENT_PASSED";
             default:
                 return "PATENT_DRAFT";
+        }
+    }
+
+    /**
+     * 获取专利软著状态文本
+     * @param state 状态编码或状态文本
+     * @return 状态文本
+     */
+    public String getPatentStateText(String state) {
+        if (state == null || state.isEmpty()) {
+            return "-";
+        }
+        
+        // 如果状态已经是中文文本（不包含下划线），直接返回或规范化
+        if (!state.contains("_")) {
+            // 处理常见的中文状态文本
+            switch (state) {
+                case "提交":
+                case "提交申请":
+                    return "提交";
+                case "提交草稿":
+                case "草稿提交":
+                    return "提交草稿";
+                case "通过":
+                case "同意":
+                case "审批通过":
+                    return "通过";
+                case "被驳回":
+                case "驳回":
+                case "审批驳回":
+                    return "驳回";
+                case "撤回":
+                case "撤回申请":
+                    return "撤回";
+                case "修改":
+                case "修改草稿":
+                    return "修改草稿";
+                case "审核通过":
+                    return "审核通过";
+                default:
+                    return state;
+            }
+        }
+        
+        // 如果是状态码（包含下划线），转换为中文
+        switch (state) {
+            case "PATENT_DRAFT":
+                return "草稿";
+            case "PATENT_JYS_AUDIT":
+                return "教研室审批中";
+            case "PATENT_KYC_AUDIT":
+                return "科研处审批中";
+            case "PATENT_PASSED":
+                return "已通过";
+            case "PATENT_REJECTED":
+                return "已驳回";
+            default:
+                return "-";
         }
     }
 

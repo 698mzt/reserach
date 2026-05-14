@@ -299,10 +299,14 @@
 
         function submitHandler() {
             if ($.validate.form()) {
-                // 检查文件输入框的值，而不是隐藏字段
                 if ($("input[name='wenjian']").val() == "")
                     return $.modal.alertError("请上传专利文件");
-                $.operate.saveTab(prefix + "/edit", $('#form-zhuanliruanzhu-edit').serialize());
+                $.operate.save(prefix + "/edit", $('#form-zhuanliruanzhu-edit').serialize(), function(result) {
+                    if (result.code == 0) {
+                        $.modal.msgSuccess(result.msg);
+                        window.location.href = prefix;
+                    }
+                });
             }
         }
 

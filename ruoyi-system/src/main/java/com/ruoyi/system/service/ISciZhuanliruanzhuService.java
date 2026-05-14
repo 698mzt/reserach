@@ -148,4 +148,11 @@ public interface ISciZhuanliruanzhuService
      */
     String calculateScoreByFenleiAndRank(String fenlei, String paiming);
 
+    /**
+     * 获取专利软著状态文本
+     * @param state 状态编码
+     * @return 状态文本
+     */
+    String getPatentStateText(String state);
+
 }
