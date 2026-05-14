@@ -10,10 +10,11 @@ public interface SysApprovalHistoryMapper {
 
     public List<SysApprovalHistory> selectSysApprovalHistoryList(SysApprovalHistory sysApprovalHistory);
 
-    public List<SysApprovalHistory> selectSysApprovalHistoryByBusinessId(String processCode, Long businessId);
+    public List<SysApprovalHistory> selectSysApprovalHistoryByBusinessId(@Param("processCode") String processCode,
+                                                                         @Param("businessId") Long businessId);
 
     public SysApprovalHistory selectLastRejectByBusinessId(@Param("processCode") String processCode,
-            @Param("businessId") Long businessId);
+                                                           @Param("businessId") Long businessId);
 
     public int insertSysApprovalHistory(SysApprovalHistory sysApprovalHistory);
 

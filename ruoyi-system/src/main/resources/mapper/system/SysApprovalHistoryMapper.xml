@@ -25,7 +25,7 @@
         select h.id, h.process_code, h.business_id, h.node_id, h.node_name, h.action, h.operator_id, h.operator_name, h.operator_dept, h.old_state, h.new_state, h.comment, h.create_time,
                p.process_name
         from sys_approval_history h
-        left join sys_approval_process p on h.process_code = p.process_code
+                 left join sys_approval_process p on h.process_code = p.process_code
     </sql>
 
     <select id="selectSysApprovalHistoryList" parameterType="SysApprovalHistory" resultMap="SysApprovalHistoryResult">
@@ -46,7 +46,7 @@
     <select id="selectSysApprovalHistoryByBusinessId" resultMap="SysApprovalHistoryResult">
         <include refid="selectSysApprovalHistoryVo"/>
         where process_code = #{processCode} and business_id = #{businessId}
-        order by create_time asc
+        order by create_time desc
     </select>
 
     <insert id="insertSysApprovalHistory" parameterType="SysApprovalHistory" useGeneratedKeys="true" keyProperty="id">
@@ -64,7 +64,7 @@
             <if test="newState != null and newState != ''">new_state,</if>
             <if test="comment != null">comment,</if>
             <if test="createTime != null">create_time,</if>
-         </trim>
+        </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="processCode != null and processCode != ''">#{processCode},</if>
             <if test="businessId != null">#{businessId},</if>
@@ -78,7 +78,7 @@
             <if test="newState != null and newState != ''">#{newState},</if>
             <if test="comment != null">#{comment},</if>
             <if test="createTime != null">#{createTime},</if>
-         </trim>
+        </trim>
     </insert>
 
     <delete id="deleteSysApprovalHistoryById" parameterType="Long">

@@ -232,7 +232,13 @@
 
     .track-list {
         margin: 20px;
-        padding-left: 5px;
+        max-width: 380px;
+        min-height: 150px;
+        padding: 18px 26px;
+        background: #fff;
+        border: 1px solid #e5e6e7;
+        border-radius: 4px;
+        padding-left: 26px;
         position: relative;
     }
 
@@ -527,6 +533,11 @@
         return '<a href="javascript:void(0)" class="btn btn-xs btn-' + colorType + '"' + attr + ' onclick="' + onclick + '">' + text + '</a>';
     }
 
+    function rejectedEditButton(id) {
+        return actionButton("编辑", "success", "$.operate.editTab('" + id + "')",
+            'style="background-color:#1ab394!important;border-color:#1ab394!important;color:#fff!important;"');
+    }
+
     function getStateColorType(state) {
         var normalizedState = normalizeState(state);
         if (["6", "4", "TEC_TRA_PASSED"].includes(normalizedState)) {
@@ -544,8 +555,40 @@
         return "default";
     }
 
+    function getTecTraStateLabel(state) {
+        var normalizedState = normalizeState(state);
+        switch (normalizedState) {
+            case "15":
+            case "TEC_TRA_DRAFT":
+                return "成果转化-草稿";
+            case "1":
+            case "11":
+            case "TEC_TRA_JYS_AUDIT":
+                return "成果转化-教研室审批";
+            case "2":
+            case "TEC_TRA_KYC_AUDIT":
+                return "成果转化-科研处审批";
+            case "4":
+            case "6":
+            case "TEC_TRA_PASSED":
+                return "成果转化-通过";
+            case "3":
+            case "5":
+            case "12":
+            case "TEC_TRA_REJECTED":
+                return "成果转化-驳回";
+            default:
+                return "";
+        }
+    }
+
     function renderApprovalStage(row) {
-        var stageText = row.approvalStage || row.stateDes || getStateLabel(row.state);
+        var stageText = getTecTraStateLabel(row.approvalStage)
+            || getTecTraStateLabel(row.stateDes)
+            || getTecTraStateLabel(row.state)
+            || row.approvalStage
+            || row.stateDes
+            || getStateLabel(row.state);
         return PageRender.renderStatusToString({
             statusCode: normalizeTecTraStatusCode(row.state),
             statusText: stageText,
@@ -566,7 +609,7 @@
             if (["1", "TEC_TRA_JYS_AUDIT"].includes(state)) {
                 actions.push(actionButton("批阅", "success", "openStagePage(" + row.id + ", '" + state + "', 'pro', '详细成果转化')"));
             } else if (row.userId == row.uid && ["3", "12", "5", "TEC_TRA_REJECTED"].includes(state)) {
-                actions.push(actionButton("编辑", "success", "$.operate.editTab('" + row.id + "')"));
+                actions.push(rejectedEditButton(row.id));
             }
         } else if (row.role === "dept_teacher") {
             if (["11", "TEC_TRA_KYC_AUDIT"].includes(state) && false && isDeptMatched(row)) {
@@ -578,12 +621,12 @@
             if (["2", "TEC_TRA_KYC_AUDIT"].includes(state)) {
                 actions.push(actionButton("核查", "success", "openStagePage(" + row.id + ", '" + state + "', 'hecha', '详细成果转化')"));
             } else if (row.userId == row.uid && ["3", "12", "5", "TEC_TRA_REJECTED"].includes(state)) {
-                actions.push(actionButton("编辑", "success", "$.operate.editTab('" + row.id + "')"));
+                actions.push(rejectedEditButton(row.id));
             }
         } else if (row.role === "teacher") {
             if (row.userId == row.uid) {
                 if (["3", "12", "5", "TEC_TRA_REJECTED"].includes(state)) {
-                    actions.push(actionButton("编辑", "success", "$.operate.editTab('" + row.id + "')"));
+                    actions.push(rejectedEditButton(row.id));
                 }
             }
         }
@@ -643,8 +686,20 @@
         return result;
     }
 
+    function arrangeOperationButtons(actions, viewActions) {
+        var result = arrangeButtons(actions);
+        if (viewActions.length > 0) {
+            if (result) {
+                result += '<br>';
+            }
+            result += arrangeButtons(viewActions);
+        }
+        return result;
+    }
+
     function getOperationButtons(row) {
         var actions = [];
+        var viewActions = [];
         var stage = getStageKey(row.state);
         var state = normalizeState(row.state);
 
@@ -654,13 +709,20 @@
             buildClosureActions(row, actions);
         }
 
-        if (stage === "completed" && ["sci_tesearch", "admin"].includes(row.role)) {
-            actions.push(actionButton("撤回", "warning", "$.operate.recallTab('" + row.id + "')"));
+        if (["3", "5", "12", "TEC_TRA_REJECTED"].includes(state)
+            && row.userId == row.uid
+            && actions.join("").indexOf("$.operate.editTab") === -1) {
+            actions.unshift(rejectedEditButton(row.id));
         }
-        actions.push(actionButton("查看", "info", "openStagePage(" + row.id + ", '" + state + "', 'chakan', '查看成果转化')"));
-        actions.push(actionButton("查看流程", "info", "loadReviewRecords(" + row.id + ", '" + state + "')", 'data-toggle="modal" data-target="#myModal"'));
 
-        return arrangeButtons(actions);
+        if ((stage === "completed" && ["sci_tesearch", "admin"].includes(row.role))
+            || (["2", "TEC_TRA_KYC_AUDIT"].includes(state) && row.role === "research" && isDeptMatched(row))) {
+            actions.push(actionButton("撤回", "warning", "recallTecTra('" + row.id + "', '" + state + "')"));
+        }
+        viewActions.push(actionButton("查看", "info", "openStagePage(" + row.id + ", '" + state + "', 'chakan', '查看成果转化')"));
+        viewActions.push(actionButton("查看流程", "info", "openReviewModal(" + row.id + ", '" + state + "')"));
+
+        return arrangeOperationButtons(actions, viewActions);
     }
 
     function rowStyle0(row, index) {
@@ -680,6 +742,11 @@
         return {};
     }
 
+    function openReviewModal(id, state) {
+        loadReviewRecords(id, state);
+        $("#myModal").modal("show");
+    }
+
     function loadReviewRecords(id, state) {
         updateProgress(state);
         $.ajax({
@@ -689,18 +756,60 @@
             success: function (response) {
                 var eventList = document.getElementById("event-list");
                 eventList.innerHTML = "";
-                response.rows.forEach(function (row) {
+                var rows = response && response.rows ? response.rows : [];
+                if (rows.length === 0) {
+                    var emptyLi = document.createElement("li");
+                    emptyLi.className = "first";
+                    emptyLi.innerHTML = '<i class="node-icon"></i>' +
+                        '<span class="time">暂无记录</span>' +
+                        '<span class="txt">暂无流程记录</span>';
+                    eventList.appendChild(emptyLi);
+                    return;
+                }
+                rows.forEach(function (row, index) {
                     var li = document.createElement("li");
+                    if (index === 0) {
+                        li.className = "first";
+                    }
                     li.innerHTML = '<i class="node-icon"></i>' +
-                        '<span class="time">' + row.createTime + '</span>' +
-                        '<span class="txt">' + row.state + '</span>';
-                    eventList.insertBefore(li, eventList.firstChild);
+                        '<span class="time">' + (row.createTime || "") + '</span>' +
+                        '<span class="txt">' + formatReviewText(row) + '</span>';
+                    eventList.appendChild(li);
                 });
             },
             error: function () {
-                alert("无法获取批阅记录");
+                var eventList = document.getElementById("event-list");
+                eventList.innerHTML = '<li class="first"><i class="node-icon"></i>' +
+                    '<span class="time">加载失败</span>' +
+                    '<span class="txt">无法获取流程记录</span></li>';
             }
         });
+    }
+
+    function formatReviewText(row) {
+        var action = formatReviewAction(row.state);
+        var userName = row.uname || row.userName || row.createBy || "";
+        return userName ? "[" + action + "] - " + userName : "[" + action + "]";
+    }
+
+    function formatReviewAction(state) {
+        var text = state ? String(state) : "记录";
+        if (text.indexOf("提交") > -1) {
+            return "提交";
+        }
+        if (text.indexOf("新增") > -1) {
+            return "新增";
+        }
+        if (text.indexOf("通过") > -1) {
+            return "通过";
+        }
+        if (text.indexOf("驳回") > -1) {
+            return "驳回";
+        }
+        if (text.indexOf("撤回") > -1) {
+            return "撤回";
+        }
+        return text.replace(/^成果转化-/, "");
     }
 
     function updateProgress(state) {
@@ -742,6 +851,28 @@
             var url = table.options.subDraftUrl + id;
             $.operate.submit(url, "post", "json", "");
         });
+    }
+
+    function recallTecTra(id, state) {
+        $.modal.confirm("确定撤回吗？", function () {
+            $.operate.submit(prefix + "/recallsave", "post", "json", {
+                id: id,
+                state: state,
+                urlFlag: getRecallUrlFlag(state),
+                remark: "撤回"
+            });
+        });
+    }
+
+    function getRecallUrlFlag(state) {
+        var normalizedState = normalizeTecTraStatusCode(state);
+        if (normalizedState === "TEC_TRA_KYC_AUDIT") {
+            return "pro";
+        }
+        if (normalizedState === "TEC_TRA_PASSED") {
+            return "hecha";
+        }
+        return "";
     }
 
     var batchDownloadInProgress = false;
