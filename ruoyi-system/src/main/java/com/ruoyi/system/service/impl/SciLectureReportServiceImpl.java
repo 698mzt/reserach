@@ -4,9 +4,12 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import com.ruoyi.common.annotation.DataScope;
+import com.ruoyi.system.constant.PageRenderColorConstants;
 import com.ruoyi.common.utils.DataScopeUtils;
+import org.apache.shiro.SecurityUtils;
 import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.common.utils.ShiroUtils;
 import com.ruoyi.system.domain.*;
@@ -398,105 +401,85 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int reject(Integer id, Long userId, String remark, String urlFlag) {
-        try {
-            SciLectureReport report = sciLectureReportMapper.selectSciLectureReportById(id);
-            if (report == null) {
-                return 0;
-            }
+        // 校验驳回原因不能为空
+        if (remark == null || remark.trim().isEmpty()) {
+            throw new IllegalArgumentException("驳回原因不能为空");
+        }
 
-            // 校验驳回原因不能为空
-            if (remark == null || remark.trim().isEmpty()) {
-                throw new IllegalArgumentException("驳回原因不能为空");
-            }
+        SciLectureReport report = sciLectureReportMapper.selectSciLectureReportById(id);
+        if (report == null) {
+            return 0;
+        }
 
-            SysUser currentUser = ShiroUtils.getSysUser();
+        SysUser currentUser = ShiroUtils.getSysUser();
 
-            // 调用封装好的reject方法处理审批驳回
-            ApprovalRequest rejectRequest = ApprovalRequest.of("LECTURE_APPROVAL",
-                    id.longValue(), report.getState(),
-                    remark, userId, currentUser.getUserName(),
-                    currentUser.getDept().getDeptName());
+        // 调用共有方法处理审批驳回（记录审批历史）
+        ApprovalRequest rejectRequest = ApprovalRequest.of("LECTURE_APPROVAL",
+                id.longValue(), report.getState(),
+                remark, userId, currentUser.getUserName(),
+                currentUser.getDept().getDeptName());
 
-            ApprovalResult result = approvalProcessService.reject(rejectRequest);
+        approvalProcessService.reject(rejectRequest);
 
-            if (result != null && result.isSuccess()) {
-                String newState = result.getNewState();
+        // 强制驳回状态为 LECTURE_REJECTED，作者可编辑后重新提交
+        return handleApprovalResult(id, userId, "LECTURE_REJECTED", remark, "驳回");
+    }
 
-                // 更新讲座报告状态
-                int updateResult = sciLectureReportMapper.criticism(id, newState);
-                if (updateResult > 0) {
-                    // 记录审批意见
-                    SciLectureReportOpinion sciLectureReportOpinion = new SciLectureReportOpinion();
-                    sciLectureReportOpinion.setUid(userId);
-                    sciLectureReportOpinion.setBaogaoId(id);
-                    sciLectureReportOpinion.setConcate(remark);
+    // 撤回审批业务处理方法 - 完全调用共有方法
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int recall(Integer id, Long userId, String remark) {
+        SciLectureReport report = sciLectureReportMapper.selectSciLectureReportById(id);
+        if (report == null) {
+            return 0;
+        }
 
-                    if ("tuihui".equals(urlFlag) || "zgqxtuihui".equals(urlFlag)) {
-                        sciLectureReportOpinion.setState("撤回");
-                    } else {
-                        sciLectureReportOpinion.setState("驳回");
-                    }
+        SysUser currentUser = ShiroUtils.getSysUser();
 
-                    opinionMapper.opinionadd(sciLectureReportOpinion);
+        // 调用共有方法处理审批撤回
+        ApprovalRequest recallRequest = ApprovalRequest.of("LECTURE_APPROVAL",
+                id.longValue(), report.getState(),
+                remark != null && !remark.isEmpty() ? remark : "撤回审批",
+                userId, currentUser.getUserName(),
+                currentUser.getDept().getDeptName());
 
-                    // 处理科研分（如果需要）
-                    if (newState != null && newState.equals("LECTURE_REJECTED")) {
-                        sciLectureReportMapper.reportKeyanfen(id, "0");
-                    }
+        ApprovalResult result = approvalProcessService.recall(recallRequest);
 
-                    return updateResult;
-                }
-            }
-        } catch (Exception e) {
-            log.error("讲座报告驳回异常", e);
-            throw e; // 抛出异常，触发事务回滚
+        if (result != null && result.isSuccess()) {
+            return handleApprovalResult(id, userId, result.getNewState(), 
+                    remark != null && !remark.isEmpty() ? remark : "撤回审批", "撤回");
         }
         return 0;
     }
 
-    // 撤回审批业务处理方法
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public int recall(Integer id, Long userId, String remark) {
-        try {
-            SciLectureReport report = sciLectureReportMapper.selectSciLectureReportById(id);
-            if (report == null) {
-                return 0;
+    /**
+     * 统一处理审批结果
+     * 
+     * @param id 业务ID
+     * @param userId 用户ID
+     * @param newState 新状态
+     * @param remark 审批意见
+     * @param operationType 操作类型（驳回/撤回）
+     * @return 更新结果
+     */
+    private int handleApprovalResult(Integer id, Long userId, String newState, String remark, String operationType) {
+        // 更新讲座报告状态
+        int updateResult = sciLectureReportMapper.criticism(id, newState);
+        if (updateResult > 0) {
+            // 记录审批意见
+            SciLectureReportOpinion sciLectureReportOpinion = new SciLectureReportOpinion();
+            sciLectureReportOpinion.setUid(userId);
+            sciLectureReportOpinion.setBaogaoId(id);
+            sciLectureReportOpinion.setConcate(remark);
+            sciLectureReportOpinion.setState(operationType);
+            opinionMapper.opinionadd(sciLectureReportOpinion);
+
+            // 处理科研分（驳回时清零）
+            if ("驳回".equals(operationType) && "LECTURE_REJECTED".equals(newState)) {
+                sciLectureReportMapper.reportKeyanfen(id, "0");
             }
-
-            SysUser currentUser = ShiroUtils.getSysUser();
-
-            // 调用封装好的recall方法处理审批撤回
-            ApprovalRequest recallRequest = ApprovalRequest.of("LECTURE_APPROVAL",
-                    id.longValue(), report.getState(),
-                    remark != null && !remark.isEmpty() ? remark : "撤回审批",
-                    userId, currentUser.getUserName(),
-                    currentUser.getDept().getDeptName());
-
-            ApprovalResult result = approvalProcessService.recall(recallRequest);
-
-            if (result != null && result.isSuccess()) {
-                String newState = result.getNewState();
-
-                // 更新讲座报告状态
-                int updateResult = sciLectureReportMapper.criticism(id, newState);
-                if (updateResult > 0) {
-                    // 记录审批意见
-                    SciLectureReportOpinion sciLectureReportOpinion = new SciLectureReportOpinion();
-                    sciLectureReportOpinion.setUid(userId);
-                    sciLectureReportOpinion.setBaogaoId(id);
-                    sciLectureReportOpinion.setConcate(remark != null && !remark.isEmpty() ? remark : "撤回审批");
-                    sciLectureReportOpinion.setState("撤回");
-                    opinionMapper.opinionadd(sciLectureReportOpinion);
-
-                    return updateResult;
-                }
-            }
-        } catch (Exception e) {
-            log.error("讲座报告撤回异常", e);
-            throw e; // 抛出异常，触发事务回滚
         }
-        return 0;
+        return updateResult;
     }
 
     @Override
@@ -576,17 +559,29 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService {
      * @param report 单个讲座报告对象
      */
     private void fillPageRenderData(SciLectureReport report) {
-        SysUser currentUser = ShiroUtils.getSysUser();
-        Set<String> permissions = buildPermissions(currentUser);
-        
         PageRenderResult<?> result = pageRenderService.fillPageRenderData(
                 "LECTURE", "system:report", "LECTURE_APPROVAL",
                 report.getState(),
                 report.getId() != null ? report.getId().longValue() : null,
                 report.getUserId() != null ? report.getUserId().longValue() : null,
-                permissions);
+                null);
+        
+        // 获取当前用户ID
+        Long currentUserId = null;
+        SysUser currentUser = ShiroUtils.getSysUser();
+        if (currentUser != null) {
+            currentUserId = currentUser.getUserId();
+        }
+        
+        // 调整按钮：处理驳回状态、撤回状态的按钮显示逻辑
+        List<PageRenderActionItem> actions = adjustActionsForLecture(
+                report.getState(), 
+                result.getActions(), 
+                report.getUserId() != null ? report.getUserId().longValue() : null,
+                currentUserId);
+        
         report.setStatusMeta(result.getStatusMeta());
-        report.setActions(result.getActions());
+        report.setActions(actions);
     }
     
     /**
@@ -596,18 +591,8 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService {
      * @param list 讲座报告列表
      */
     private void fillPageRenderData(List<SciLectureReport> list) {
-        SysUser currentUser = ShiroUtils.getSysUser();
-        Set<String> permissions = buildPermissions(currentUser);
-        
         for (SciLectureReport report : list) {
-            PageRenderResult<?> result = pageRenderService.fillPageRenderData(
-                    "LECTURE", "system:report", "LECTURE_APPROVAL",
-                    report.getState(),
-                    report.getId() != null ? report.getId().longValue() : null,
-                    report.getUserId() != null ? report.getUserId().longValue() : null,
-                    permissions);
-            report.setStatusMeta(result.getStatusMeta());
-            report.setActions(result.getActions());
+            fillPageRenderData(report);
         }
     }
     
@@ -636,5 +621,78 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService {
         }
         
         return permissions;
+    }
+    
+    /**
+     * 调整讲座报告按钮：确保正确显示撤回、驳回和提交按钮
+     * - 科研处阶段（LECTURE_KYC_AUDIT）：不显示撤回按钮，显示通过、驳回按钮
+     * - 通过状态（LECTURE_PASSED）：显示撤回按钮（科研处角色）
+     * - 驳回状态（LECTURE_REJECTED）：只有作者能看到编辑和提交按钮
+     * 
+     * @param state 当前状态
+     * @param actions 已有按钮列表
+     * @param creatorId 业务数据创建者ID
+     * @param currentUserId 当前登录用户ID
+     * @return 调整后的按钮列表
+     */
+    private List<PageRenderActionItem> adjustActionsForLecture(String state, List<PageRenderActionItem> actions,
+            Long creatorId, Long currentUserId) {
+        if (actions == null) {
+            actions = new ArrayList<>();
+        }
+        
+        // 判断当前用户是否为创建者
+        boolean isCreator = creatorId != null && currentUserId != null && creatorId.equals(currentUserId);
+        // 判断是否为管理员
+        boolean isAdmin = SecurityUtils.getSubject().isPermitted("*:*:*");
+        
+        // 科研处阶段：教研室审批人（有 approve 权限）可撤回，确保显示驳回按钮
+        if ("LECTURE_KYC_AUDIT".equals(state)) {
+            // 确保显示驳回按钮
+            boolean hasReject = actions.stream().anyMatch(a -> "reject".equals(a.getActionKey()));
+            if (!hasReject && SecurityUtils.getSubject().isPermitted("system:report:check")) {
+                actions.add(PageRenderActionItem.of(
+                        "reject", "驳回",
+                        PageRenderColorConstants.COLOR_DANGER, 32, "确定要驳回该记录吗？"));
+            }
+        }
+        
+        // 通过状态：科研处角色或管理员可撤回
+        if ("LECTURE_PASSED".equals(state)) {
+            boolean hasRecall = actions.stream().anyMatch(a -> "recall".equals(a.getActionKey()));
+            if (!hasRecall) {
+                // 检查撤回权限（科研处撤回、科研处审批或管理员权限）
+                boolean hasKyRevoke = SecurityUtils.getSubject().isPermitted("system:report:kyrevoke");
+                boolean hasCheck = SecurityUtils.getSubject().isPermitted("system:report:check");
+                if (hasKyRevoke || hasCheck || isAdmin) {
+                    actions.add(PageRenderActionItem.of(
+                            "recall", "撤回",
+                            PageRenderColorConstants.COLOR_WARNING, 40, "确定要撤回该记录吗？"));
+                }
+            }
+        }
+        
+        // 驳回状态：只有作者或管理员能看到编辑和提交按钮
+        if ("LECTURE_REJECTED".equals(state)) {
+            // 确保显示编辑按钮（只有作者或管理员）
+            boolean hasEdit = actions.stream().anyMatch(a -> "edit".equals(a.getActionKey()));
+            if (!hasEdit && (isCreator || isAdmin) && SecurityUtils.getSubject().isPermitted("system:report:edit")) {
+                actions.add(PageRenderActionItem.of(
+                        "edit", "编辑",
+                        PageRenderColorConstants.COLOR_PRIMARY, 10));
+            }
+            // 确保显示提交按钮（只有作者或管理员）
+            boolean hasSubmit = actions.stream().anyMatch(a -> "submit".equals(a.getActionKey()));
+            if (!hasSubmit && (isCreator || isAdmin) && SecurityUtils.getSubject().isPermitted("system:report:submit")) {
+                actions.add(PageRenderActionItem.of(
+                        "submit", "提交",
+                        PageRenderColorConstants.COLOR_SUCCESS, 5, "确定要提交该记录吗？"));
+            }
+        }
+        
+        // 按排序号排序
+        Collections.sort(actions);
+        
+        return actions;
     }
 }
