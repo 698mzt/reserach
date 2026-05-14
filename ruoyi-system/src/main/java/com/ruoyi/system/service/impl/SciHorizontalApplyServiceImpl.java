@@ -653,14 +653,6 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
                     null
             );
             if (result.isSuccess()) {
-                // 同时写入旧批阅记录表，确保审批记录在两个表中均可查到
-                SciHorizontalPiyue piyue = new SciHorizontalPiyue();
-                piyue.setHxktId(applyId);
-                piyue.setUid(uid);
-                piyue.setUname(user.getUserName());
-                piyue.setConcate("审批通过");
-                piyue.setState(result.getNewState());
-                sciHorizontalPiyueMapper.insertSciHorizontalPiyue(piyue);
                 return 1;
             }
             return 0;
@@ -732,14 +724,6 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
                     null
             );
             if (result.isSuccess()) {
-                // 同时写入旧批阅记录表，确保审批记录在两个表中均可查到
-                SciHorizontalPiyue piyue = new SciHorizontalPiyue();
-                piyue.setHxktId(applyId);
-                piyue.setUid(uid);
-                piyue.setUname(user.getUserName());
-                piyue.setConcate("审批通过");
-                piyue.setState(result.getNewState());
-                sciHorizontalPiyueMapper.insertSciHorizontalPiyue(piyue);
                 return 1;
             }
             return 0;
@@ -776,14 +760,6 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
                     remark
             );
             if (result.isSuccess()) {
-                // 同时写入旧批阅记录表
-                SciHorizontalPiyue piyue = new SciHorizontalPiyue();
-                piyue.setHxktId(applyId);
-                piyue.setUid(uid);
-                piyue.setUname(user.getUserName());
-                piyue.setConcate(remark != null ? remark : "驳回");
-                piyue.setState(result.getNewState());
-                sciHorizontalPiyueMapper.insertSciHorizontalPiyue(piyue);
                 return 1;
             }
             return 0;
@@ -820,14 +796,6 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
                     remark
             );
             if (result.isSuccess()) {
-                // 同时写入旧批阅记录表
-                SciHorizontalPiyue piyue = new SciHorizontalPiyue();
-                piyue.setHxktId(applyId);
-                piyue.setUid(uid);
-                piyue.setUname(user.getUserName());
-                piyue.setConcate(remark != null ? remark : "驳回");
-                piyue.setState(result.getNewState());
-                sciHorizontalPiyueMapper.insertSciHorizontalPiyue(piyue);
                 return 1;
             }
             return 0;
@@ -1035,13 +1003,6 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
                 return 0;
             }
             if (result.isSuccess()) {
-                SciHorizontalPiyue piyue = new SciHorizontalPiyue();
-                piyue.setHxktId(id);
-                piyue.setUid(uid);
-                piyue.setUname(user.getUserName());
-                piyue.setConcate(remark != null ? remark : "撤回");
-                piyue.setState(result.getNewState());
-                sciHorizontalPiyueMapper.insertSciHorizontalPiyue(piyue);
                 return 1;
             }
             return 0;
