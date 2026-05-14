@@ -580,9 +580,9 @@ public class SciHorizontalApplyVerticalController extends BaseController {
     public AjaxResult editSave(SciHorizontalApplyVertical sciHorizontalApplyVertical, javax.servlet.http.HttpServletRequest request)
     {
         sciHorizontalApplyVertical.setNewsql("111");
-        // 如果课题状态是被驳回，编辑后改为草稿状态，以便教师重新提交
-        if (sciHorizontalApplyVertical.getState().equals("V_APPLY_REJ")) {
-            sciHorizontalApplyVertical.setState("V_APPLY_DRAFT");
+        // 如果课题状态是被驳回（立项驳回），编辑后改为草稿状态，以便教师重新提交
+        if ("VERTICAL_APPLY_REJECTED".equals(sciHorizontalApplyVertical.getState())) {
+            sciHorizontalApplyVertical.setState("VERTICAL_APPLY_DRAFT");
         }
         // 合并编辑页成员（前四位 + 动态 members[]），保序去重并写入 sci_persion_vertical（ranking 从1开始）
         String first = String.valueOf(getUserId());
@@ -657,6 +657,10 @@ public class SciHorizontalApplyVerticalController extends BaseController {
     public AjaxResult overeditSave(SciHorizontalApplyVertical sciHorizontalApplyVertical, javax.servlet.http.HttpServletRequest request)
     {
         sciHorizontalApplyVertical.setNewsql("111");
+        // 如果课题状态是被驳回（结项驳回），编辑后改为草稿状态，以便教师重新提交
+        if ("VERTICAL_OVER_REJECTED".equals(sciHorizontalApplyVertical.getState())) {
+            sciHorizontalApplyVertical.setState("VERTICAL_OVER_DRAFT");
+        }
         // 合并编辑页成员（前四位 + 动态 members[]），保序去重并写入 sci_persion_vertical（ranking 从1开始）
         String first = String.valueOf(getUserId());
         String second = request.getParameter("secondPersonId");
