@@ -73,6 +73,32 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
     private static final String PERM_PREFIX = "system:jiaocairuanzhu";
     private static final String PROCESS_CODE = "TEXTBOOK_APPROVAL";
 
+    private String mapStateToStatusCode(String state) {
+        if (state == null) {
+            return "TEXTBOOK_DRAFT";
+        }
+        if (state.contains("_")) {
+            return state;
+        }
+        switch (state) {
+            case "0":
+                return "TEXTBOOK_DRAFT";
+            case "1":
+                return "TEXTBOOK_JYS_AUDIT";
+            case "2":
+            case "4":
+                return "TEXTBOOK_KYC_AUDIT";
+            case "3":
+            case "5":
+            case "7":
+                return "TEXTBOOK_REJECTED";
+            case "6":
+                return "TEXTBOOK_PASSED";
+            default:
+                return state;
+        }
+    }
+
     /**
      * 查询教材软著
      *
@@ -83,14 +109,16 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
     public SciJiaocairuanzhu selectSciJiaocairuanzhuById(Integer id) {
         SciJiaocairuanzhu entity = sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuById(id);
         SysUser currentUser = ShiroUtils.getSysUser();
+        String mappedState = mapStateToStatusCode(entity.getState());
         PageRenderResult<?> result = pageRenderService.fillPageRenderData(
                 MODULE_CODE, PERM_PREFIX, PROCESS_CODE,
-                entity.getState(),
+                mappedState,
                 entity.getId() != null ? entity.getId().longValue() : null,
                 entity.getUserId() != null ? entity.getUserId().longValue() : null,
                 pageRenderService.buildCurrentPermissions(currentUser));
         entity.setStatusMeta(result.getStatusMeta());
         entity.setActions(result.getActions());
+        entity.setState(mappedState);  // 更新状态字段为新编码格式
         return entity;
     }
 
@@ -106,14 +134,16 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
         SysUser currentUser = ShiroUtils.getSysUser();
         Set<String> permissions = pageRenderService.buildCurrentPermissions(currentUser);
         for (SciJiaocairuanzhu entity : list) {
+            String mappedState = mapStateToStatusCode(entity.getState());
             PageRenderResult<?> result = pageRenderService.fillPageRenderData(
                     MODULE_CODE, PERM_PREFIX, PROCESS_CODE,
-                    entity.getState(),
+                    mappedState,
                     entity.getId() != null ? entity.getId().longValue() : null,
                     entity.getUserId() != null ? entity.getUserId().longValue() : null,
                     permissions);
             entity.setStatusMeta(result.getStatusMeta());
             entity.setActions(result.getActions());
+            entity.setState(mappedState);  // 更新状态字段为新编码格式
         }
         return list;
     }
@@ -244,7 +274,7 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
         }
 
         ApprovalRequest request = ApprovalRequest.of(
-                "textbook_approval",
+                PROCESS_CODE,
                 Long.valueOf(id),
                 oldState,
                 comment,
@@ -383,34 +413,36 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public int hxBh(String id, Long uid, String remark, String urlFlag) {
-        // 获取原始状态
-        SciJiaocairuanzhu originalJiaocairuanzhu = sciJiaocairuanzhuMapper
-                .selectSciJiaocairuanzhuById(Integer.valueOf(id));
-        String oldState = originalJiaocairuanzhu.getState();
-
-        // 获取操作人信息
-        SysUser operator = userService.selectUserById(uid);
-        if (operator == null) {
+        // 获取教材软著信息，用于获取当前状态
+        SciJiaocairuanzhu sci = sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuById(Integer.valueOf(id));
+        if (sci == null) {
             return 0;
         }
 
-        // 构建审批请求
-        String comment = remark;
-        if (urlFlag.equals("hecha")) {
-            comment = "学院驳回: " + remark;
-        } else if (urlFlag.equals("pro")) {
-            comment = "教研室驳回: " + remark;
-        } else if (urlFlag.equals("chayue")) {
-            comment = "科研处驳回: " + remark;
+        // 获取当前状态（已转换为新的状态编码）
+        String currentState = mapStateToStatusCode(sci.getState());
+
+        // 获取操作人信息
+        SysUser user = userService.selectUserById(uid);
+        if (user == null) {
+            return 0;
         }
 
-        // 设置状态为驳回
-        String newState = "TEXTBOOK_REJECTED";
+        // 构建审批请求（参考论文模块的实现方式）
+        ApprovalRequest request = ApprovalRequest.of(
+                PROCESS_CODE,
+                Long.valueOf(id), currentState, remark,
+                uid, user.getUserName(),
+                user.getDept() != null ? user.getDept().getDeptName() : "");
 
-        // 更改状态
-        int a = sciJiaocairuanzhuMapper.hxPass(id, newState);
+        // 执行驳回操作
+        ApprovalResult result = approvalProcessService.reject(request);
+
+        if (!result.isSuccess()) {
+            throw new RuntimeException("驳回操作失败: " + result.getMessage());
+        }
 
         // 插入批阅记录
         SciJiaocairuanzhuPiyue sciJiaocairuanzhuPiyue = new SciJiaocairuanzhuPiyue();
@@ -422,73 +454,128 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
             sciJiaocairuanzhuPiyue.setState("被学院驳回");
         } else if (urlFlag.equals("pro")) {
             sciJiaocairuanzhuPiyue.setState("被教研室驳回");
-        } else if (urlFlag.equals("chayue")) {
+        } else if (urlFlag.equals("chayue") || urlFlag.equals("kyc_approve")) {
             sciJiaocairuanzhuPiyue.setState("被科研处驳回");
+        } else {
+            sciJiaocairuanzhuPiyue.setState("被驳回");
         }
 
         sciJiaocairuanzhuPiyueMapper.insertSciJiaocairuanzhuPiyue(sciJiaocairuanzhuPiyue);
 
-        // 保存审批历史记录
-        saveApprovalHistory(Integer.valueOf(id), oldState, newState, uid, "驳回", comment);
+        return 1;
+    }
 
+    @Transactional(rollbackFor = Exception.class)
+    public int hxBh(String id, Long uid, String remark, String newState, boolean fromApprovalProcess) {
+        int a = sciJiaocairuanzhuMapper.hxPass(id, newState);
+        SciJiaocairuanzhuPiyue sciJiaocairuanzhuPiyue = new SciJiaocairuanzhuPiyue();
+        sciJiaocairuanzhuPiyue.setUid(uid);
+        sciJiaocairuanzhuPiyue.setJiaocai_id(Integer.valueOf(id));
+        sciJiaocairuanzhuPiyue.setConcate(remark != null ? remark : "驳回");
+        sciJiaocairuanzhuPiyue.setState("被驳回");
+        sciJiaocairuanzhuPiyueMapper.insertSciJiaocairuanzhuPiyue(sciJiaocairuanzhuPiyue);
         return a;
     }
 
     @Override
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciJiaocairuanzhu> selectSciJiaocairuanzhuList4(SciJiaocairuanzhu sciJiaocairuanzhu) {
-        return sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuList4(sciJiaocairuanzhu);
+        List<SciJiaocairuanzhu> list = sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuList4(sciJiaocairuanzhu);
+        fillPageRenderDataForList(list);
+        return list;
     }
 
     @Override
     public List<SciJiaocairuanzhu> selectSciJiaocairuanzhuList3(SciJiaocairuanzhu sciJiaocairuanzhu) {
-        return sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuList3(sciJiaocairuanzhu);
+        List<SciJiaocairuanzhu> list = sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuList3(sciJiaocairuanzhu);
+        fillPageRenderDataForList(list);
+        return list;
     }
 
     @Override
     public List<SciJiaocairuanzhu> selectSciJiaocairuanzhuList2(SciJiaocairuanzhu sciJiaocairuanzhu) {
-        return sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuList2(sciJiaocairuanzhu);
+        List<SciJiaocairuanzhu> list = sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuList2(sciJiaocairuanzhu);
+        fillPageRenderDataForList(list);
+        return list;
     }
 
     @Override
     public List<SciJiaocairuanzhu> selectSciJiaocairuanzhuList1(SciJiaocairuanzhu sciJiaocairuanzhu) {
-        return sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuList1(sciJiaocairuanzhu);
+        List<SciJiaocairuanzhu> list = sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuList1(sciJiaocairuanzhu);
+        fillPageRenderDataForList(list);
+        return list;
     }
 
     // 新方法：教师查询
     @Override
     public List<SciJiaocairuanzhu> selectSciPaperAListCx(SciJiaocairuanzhu sciJiaocairuanzhu) {
-        return sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuList1(sciJiaocairuanzhu);
+        List<SciJiaocairuanzhu> list = sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuList1(sciJiaocairuanzhu);
+        fillPageRenderDataForList(list);
+        return list;
     }
 
     // 新方法：教研室查询
     @Override
     public List<SciJiaocairuanzhu> selectSciPaperAListCxList(SciJiaocairuanzhu sciJiaocairuanzhu) {
-        return sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuList2(sciJiaocairuanzhu);
+        List<SciJiaocairuanzhu> list = sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuList2(sciJiaocairuanzhu);
+        fillPageRenderDataForList(list);
+        return list;
     }
 
     // 新方法：学院查询
     @Override
     public List<SciJiaocairuanzhu> selectSciPaperAListXY(SciJiaocairuanzhu sciJiaocairuanzhu) {
-        return sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuList3(sciJiaocairuanzhu);
+        List<SciJiaocairuanzhu> list = sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuList3(sciJiaocairuanzhu);
+        fillPageRenderDataForList(list);
+        return list;
     }
 
     // 新方法：科研处查询
     @Override
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciJiaocairuanzhu> selectSciPaperAListKY(SciJiaocairuanzhu sciJiaocairuanzhu) {
-        return sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuList4(sciJiaocairuanzhu);
+        List<SciJiaocairuanzhu> list = sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuList4(sciJiaocairuanzhu);
+        fillPageRenderDataForList(list);
+        return list;
     }
 
     // 新方法：管理员查询
     @Override
     public List<SciJiaocairuanzhu> selectSciPaperAList(SciJiaocairuanzhu sciJiaocairuanzhu) {
-        return sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuList(sciJiaocairuanzhu);
+        List<SciJiaocairuanzhu> list = sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuList(sciJiaocairuanzhu);
+        fillPageRenderDataForList(list);
+        return list;
     }
 
     @Override
     public List<SciJiaocairuanzhu> selectSciJiaocairuanzhuList31(SciJiaocairuanzhu sciJiaocairuanzhu) {
-        return sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuList31(sciJiaocairuanzhu);
+        List<SciJiaocairuanzhu> list = sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuList31(sciJiaocairuanzhu);
+        fillPageRenderDataForList(list);
+        return list;
+    }
+
+    @Override
+    public List<SciJiaocairuanzhu> selectSciJiaocairuanzhuList21(SciJiaocairuanzhu sciJiaocairuanzhu) {
+        List<SciJiaocairuanzhu> list = sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuList21(sciJiaocairuanzhu);
+        fillPageRenderDataForList(list);
+        return list;
+    }
+
+    private void fillPageRenderDataForList(List<SciJiaocairuanzhu> list) {
+        SysUser currentUser = ShiroUtils.getSysUser();
+        Set<String> permissions = pageRenderService.buildCurrentPermissions(currentUser);
+        for (SciJiaocairuanzhu entity : list) {
+            String mappedState = mapStateToStatusCode(entity.getState());
+            PageRenderResult<?> result = pageRenderService.fillPageRenderData(
+                    MODULE_CODE, PERM_PREFIX, PROCESS_CODE,
+                    mappedState,
+                    entity.getId() != null ? entity.getId().longValue() : null,
+                    entity.getUserId() != null ? entity.getUserId().longValue() : null,
+                    permissions);
+            entity.setStatusMeta(result.getStatusMeta());
+            entity.setActions(result.getActions());
+            entity.setState(mappedState);  // 更新状态字段为新编码格式
+        }
     }
 
     /**
@@ -567,11 +654,6 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
         }
 
         return result;
-    }
-
-    @Override
-    public List<SciJiaocairuanzhu> selectSciJiaocairuanzhuList21(SciJiaocairuanzhu sciJiaocairuanzhu) {
-        return sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuList21(sciJiaocairuanzhu);
     }
 
     @Override
@@ -690,7 +772,55 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
 
     @Override
     public List<SciJiaocairuanzhuMember> getJiaocairuanzhuMembers(Integer jiaocaiId) {
-        return sciJiaocairuanzhuMemberMapper.selectSciJiaocairuanzhuMemberByJiaocaiId(jiaocaiId);
+        List<SciJiaocairuanzhuMember> members = sciJiaocairuanzhuMemberMapper.selectSciJiaocairuanzhuMemberByJiaocaiId(jiaocaiId);
+        
+        boolean hasHost = false;
+        for (SciJiaocairuanzhuMember member : members) {
+            if ("1".equals(member.getRanking())) {
+                hasHost = true;
+                break;
+            }
+        }
+        
+        if (!hasHost) {
+            SciJiaocairuanzhu jiaocairuanzhu = sciJiaocairuanzhuMapper.selectSciJiaocairuanzhuById(jiaocaiId);
+            if (jiaocairuanzhu != null && jiaocairuanzhu.getUserId() != null) {
+                SysUser user = userService.selectUserById(Long.valueOf(jiaocairuanzhu.getUserId()));
+                if (user != null) {
+                    SciJiaocairuanzhuMember hostMember = new SciJiaocairuanzhuMember();
+                    hostMember.setMemberId(String.valueOf(user.getUserId()));
+                    hostMember.setMemberName(user.getUserName());
+                    hostMember.setRanking("1");
+                    
+                    String researchScore = calculateHostResearchScore(jiaocairuanzhu);
+                    hostMember.setResearchScore(researchScore);
+                    
+                    members.add(0, hostMember);
+                }
+            }
+        }
+        
+        members.sort(Comparator.comparingInt(m -> Integer.parseInt(m.getRanking())));
+        
+        return members;
+    }
+    
+    private String calculateHostResearchScore(SciJiaocairuanzhu jiaocairuanzhu) {
+        if (jiaocairuanzhu == null || jiaocairuanzhu.getFenlei() == null) {
+            return "0";
+        }
+        
+        SciJiaocairuanzhuScoreCfg cfg = new SciJiaocairuanzhuScoreCfg();
+        cfg.setFenLei(jiaocairuanzhu.getFenlei());
+        List<SciJiaocairuanzhuScoreCfg> cfgList = sciJiaocairuanzhuScoreCfgMapper.selectSciJiaocairuanzhuScoreCfgList(cfg);
+        
+        for (SciJiaocairuanzhuScoreCfg scoreCfg : cfgList) {
+            if ("1".equals(scoreCfg.getPaiMing())) {
+                return scoreCfg.getTotalScore();
+            }
+        }
+        
+        return jiaocairuanzhu.getJifen() != null ? jiaocairuanzhu.getJifen() : "0";
     }
 
     @Override
@@ -700,14 +830,16 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
         SysUser currentUser = ShiroUtils.getSysUser();
         Set<String> permissions = pageRenderService.buildCurrentPermissions(currentUser);
         for (SciJiaocairuanzhu entity : list) {
+            String mappedState = mapStateToStatusCode(entity.getState());
             PageRenderResult<?> result = pageRenderService.fillPageRenderData(
                     MODULE_CODE, PERM_PREFIX, PROCESS_CODE,
-                    entity.getState(),
+                    mappedState,
                     entity.getId() != null ? entity.getId().longValue() : null,
                     entity.getUserId() != null ? entity.getUserId().longValue() : null,
                     permissions);
             entity.setStatusMeta(result.getStatusMeta());
             entity.setActions(result.getActions());
+            entity.setState(mappedState);
         }
         return list;
     }

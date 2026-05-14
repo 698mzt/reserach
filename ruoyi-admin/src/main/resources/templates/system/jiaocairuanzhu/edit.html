@@ -421,6 +421,54 @@
         }
     }
     
+    function collectFormMembers() {
+        members = [];
+        
+        var hostId = $('input[name="firstPersonId"]').val();
+        var hostName = $('input[name="firstPersonId"]').parent().find('input[readonly]').val();
+        if (hostId && hostName) {
+            members.push({
+                memberId: hostId,
+                memberName: hostName,
+                ranking: '1',
+                researchScore: $('#expectedScore1').val() || calculateResearchScore('1')
+            });
+        }
+        
+        var member1Id = $('#member1Select').val();
+        var member1Name = $('#member1Select option:selected').text();
+        if (member1Id && member1Name && member1Name !== '---请选择--') {
+            members.push({
+                memberId: member1Id,
+                memberName: member1Name,
+                ranking: '2',
+                researchScore: $('#expectedScore2').val() || calculateResearchScore('2')
+            });
+        }
+        
+        var member2Id = $('#member2Select').val();
+        var member2Name = $('#member2Select option:selected').text();
+        if (member2Id && member2Name && member2Name !== '---请选择--') {
+            members.push({
+                memberId: member2Id,
+                memberName: member2Name,
+                ranking: '3',
+                researchScore: $('#expectedScore3').val() || calculateResearchScore('3')
+            });
+        }
+        
+        var member3Id = $('#member3Select').val();
+        var member3Name = $('#member3Select option:selected').text();
+        if (member3Id && member3Name && member3Name !== '---请选择--') {
+            members.push({
+                memberId: member3Id,
+                memberName: member3Name,
+                ranking: '4',
+                researchScore: $('#expectedScore4').val() || calculateResearchScore('4')
+            });
+        }
+    }
+    
     function updateMemberLists() {
         members = [];
         
@@ -682,6 +730,8 @@
             if ($("input[name='wenjian']").val() == "")
                 return $.modal.alertError("请上传教材文件");
 
+            collectFormMembers();
+            
             if (members.length === 0) {
                 return $.modal.alertWarning("请至少添加一个成员");
             }

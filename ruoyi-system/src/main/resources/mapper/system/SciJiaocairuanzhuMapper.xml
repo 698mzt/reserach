@@ -49,7 +49,7 @@
 
     <select id="selectSciJiaocairuanzhuList" parameterType="SciJiaocairuanzhu" resultMap="SciJiaocairuanzhuResult">
         <include refid="selectSciJiaocairuanzhuVo"/>
-        where state in (1,2,3,4,5,6,7)
+        where state in (0,1,2,3,4,5,6,7)
 
         <if test="jiaoyanshi != null  and jiaoyanshi != ''">and  d.dept_name like concat('%', #{jiaoyanshi}, '%')</if>
         <if test="xingming != null  and xingming != ''">and  u.user_name like concat('%', #{xingming}, '%')</if>
@@ -72,7 +72,7 @@
 
     <select id="selectSciJiaocairuanzhuList31" parameterType="SciJiaocairuanzhu" resultMap="SciJiaocairuanzhuResult">
         <include refid="selectSciJiaocairuanzhuVo"/>
-        where state in (1,2,3,4,5,6,7) and d.parent_id = #{parentId}
+        where state in (0,1,2,3,4,5,6,7) and d.parent_id = #{parentId}
 
         <if test="mingcheng != null  and mingcheng != ''"> and mingcheng like concat('%', #{mingcheng}, '%')</if>
         <if test="chubanshijian != null "> and chubanshijian = #{chubanshijian}</if>
@@ -93,7 +93,7 @@
 
     <select id="selectSciJiaocairuanzhuList21" parameterType="SciJiaocairuanzhu" resultMap="SciJiaocairuanzhuResult">
         <include refid="selectSciJiaocairuanzhuVo"/>
-        where state in (1,2,3,4,5,6,7) and d.dept_id = #{deptId}
+        where state in (0,1,2,3,4,5,6,7) and d.dept_id = #{deptId}
 
         <if test="mingcheng != null  and mingcheng != ''"> and mingcheng like concat('%', #{mingcheng}, '%')</if>
         <if test="chubanshijian != null "> and chubanshijian = #{chubanshijian}</if>
@@ -287,7 +287,7 @@
     <!-- 新方法：管理员查询 -->
     <select id="selectSciPaperAList" parameterType="SciJiaocairuanzhu" resultMap="SciJiaocairuanzhuResult">
         <include refid="selectSciJiaocairuanzhuVo"/>
-        where state in (1,2,3,4,5,6,7)
+        where state in (0,1,2,3,4,5,6,7)
         <if test="jiaoyanshi != null  and jiaoyanshi != ''">and  d.dept_name like concat('%', #{jiaoyanshi}, '%')</if>
         <if test="xingming != null  and xingming != ''">and  u.user_name like concat('%', #{xingming}, '%')</if>
         <if test="mingcheng != null  and mingcheng != ''"> and mingcheng like concat('%', #{mingcheng}, '%')</if>
@@ -355,7 +355,7 @@
             <if test="expectedJifen != null and expectedJifen != ''">expected_jifen,</if>
             <if test="amount != null and amount != ''">amount,</if>
             <if test="wenjian != null and wenjian != ''">wenjian,</if>
-
+            <if test="state != null and state != ''">state,</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="userId != null">#{userId},</if>
@@ -373,7 +373,7 @@
             <if test="expectedJifen != null and expectedJifen != ''">#{expectedJifen},</if>
             <if test="amount != null and amount != ''">#{amount},</if>
             <if test="wenjian != null and wenjian != ''">#{wenjian},</if>
-
+            <if test="state != null and state != ''">#{state},</if>
         </trim>
     </insert>
 
@@ -395,8 +395,7 @@
             <if test="expectedJifen != null and expectedJifen != ''">expected_jifen = #{expectedJifen},</if>
             <if test="amount != null and amount != ''">amount = #{amount},</if>
             <if test="wenjian != null and wenjian != ''">wenjian = #{wenjian},</if>
-            state = "0"
-
+            <if test="state != null and state != ''">state = #{state},</if>
         </trim>
         where id = #{id}
     </update>
