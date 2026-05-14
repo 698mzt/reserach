@@ -50,8 +50,6 @@ public interface SciIntraSchProApplyMapper {
 
     List<SciIntraSchoolPro> sel_IntraSchPro_closure_admin(SciIntraSchoolPro sciIntraSchoolPro);
 
-    List<Long> getRoleid_list(Long userId);
-
     List<SciIntraSchoolPro> sel_IntraSchPro_approval_dept_teacher(SciIntraSchoolPro sciIntraSchoolPro);
 
     List<SciIntraSchoolPro> sel_IntraSchPro_closure_dept_teacher(SciIntraSchoolPro sciIntraSchoolPro);
@@ -63,8 +61,6 @@ public interface SciIntraSchProApplyMapper {
     String geStaticById(Integer id);
 
     String getuser_dnameById(Long userId);
-
-    List<Map<String, Object>> getfilekey(@Param("userId")Long userId);
 
     List<Map<String, Object>> getAllOverSchProToAlltotle();
     List<SciIntraSchoolPro> getStatsQuery(Map<String, String> params);

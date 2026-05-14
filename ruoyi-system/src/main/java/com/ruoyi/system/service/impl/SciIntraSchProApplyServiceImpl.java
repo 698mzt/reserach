@@ -4,16 +4,11 @@ import com.ruoyi.common.annotation.DataScope;
 import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.common.utils.DataScopeUtils;
 import com.ruoyi.common.core.text.Convert;
-import com.ruoyi.system.domain.ApprovalRequest;
-import com.ruoyi.system.domain.ApprovalResult;
 import com.ruoyi.system.domain.SciIntraSchProPiyue;
 import com.ruoyi.system.domain.SciIntraSchoolPro;
 import com.ruoyi.system.mapper.SciIntraSchProApplyMapper;
 import com.ruoyi.system.mapper.SciIntraSchProPiyueMapper;
-import com.ruoyi.system.mapper.SciIntraSchProScoreMapper;
-import com.ruoyi.system.service.IApprovalProcessService;
 import com.ruoyi.system.service.ISciIntraSchProApplyService;
-import com.ruoyi.system.service.ISysUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,14 +33,6 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
     private SciIntraSchProApplyMapper sciIntraSchProApplyMapper;
     @Autowired
     private SciIntraSchProPiyueMapper sciIntraSchProPiyueMapper;
-    @Autowired
-    SciIntraSchProApplyServiceImpl sciIntraSchProApplyService;
-    @Autowired
-    SciIntraSchProScoreMapper sciIntraSchProScoreService;
-    @Autowired
-    private IApprovalProcessService approvalProcessService;
-    @Autowired
-    private ISysUserService sysUserService;
     @Autowired
     private IPageRenderService pageRenderService;
 
@@ -481,11 +468,6 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
     }
 
     @Override
-    public List<Long> getRoleid_list(Long userId) {
-        return sciIntraSchProApplyMapper.getRoleid_list(userId);
-    }
-
-    @Override
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciIntraSchoolPro> sel_IntraSchPro_approval_dept_teacher(SciIntraSchoolPro sciIntraSchoolPro) {
         return sciIntraSchProApplyMapper.sel_IntraSchPro_approval_dept_teacher(sciIntraSchoolPro);
@@ -513,11 +495,6 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
     @Override
     public String getuser_dnameById(Long userId) {
         return sciIntraSchProApplyMapper.getuser_dnameById(userId);
-    }
-
-    @Override
-    public List<Map<String, Object>> getfilekey(Long userId) {
-        return sciIntraSchProApplyMapper.getfilekey(userId);
     }
 
     /**
@@ -628,18 +605,6 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
         sciIntraSchProPiyueMapper.insertIntraSchProPiyue(piyue);
     }
 
-    private ApprovalRequest buildTecTraApprovalRequest(String id, Long uid, String currentState, String comment) {
-        SysUser user = uid != null ? sysUserService.selectUserById(uid) : null;
-        return ApprovalRequest.of(
-                TEC_TRA_PROCESS_CODE,
-                Long.valueOf(id),
-                currentState,
-                comment,
-                uid,
-                user != null ? user.getUserName() : "",
-                user != null && user.getDept() != null ? user.getDept().getDeptName() : ""
-        );
-    }
     /**
      * 填充页面渲染数据（statusMeta和actions）
      * 调用标准公有方法 fillPageRenderData() 实现页面渲染数据填充

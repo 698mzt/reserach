@@ -50,8 +50,6 @@ public interface ISciIntraSchProApplyService {
 
     List<SciIntraSchoolPro> sel_IntraSchPro_closure_admin(SciIntraSchoolPro sciIntraSchoolPro);
 
-    List<Long> getRoleid_list(Long userId);
-
     List<SciIntraSchoolPro> sel_IntraSchPro_approval_dept_teacher(SciIntraSchoolPro sciIntraSchoolPro);
 
     List<SciIntraSchoolPro> sel_IntraSchPro_closure_dept_teacher(SciIntraSchoolPro sciIntraSchoolPro);
@@ -62,8 +60,6 @@ public interface ISciIntraSchProApplyService {
 
 
     String getuser_dnameById(Long userId);
-
-    List<Map<String, Object>> getfilekey(Long userId);
 
     int subDraft(String id,Long userid, String state);
 

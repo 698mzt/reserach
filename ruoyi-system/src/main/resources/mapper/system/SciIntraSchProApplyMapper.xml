@@ -719,11 +719,6 @@
     </select>
 
 
-    <select id="getRoleid_list" resultType="java.lang.Long">
-        SELECT role_id from sys_user_role WHERE user_id=#{userId}
-    </select>
-
-
     <select id="sel_IntraSchPro_approval_dept_teacher" parameterType="SciIntraSchoolPro" resultMap="SciIntraSchoolProResult">
         select
         'dept_teacher' role,#{uid} uid,
@@ -860,20 +855,6 @@
 
     </select>
 
-
-    <select id="getfilekey" parameterType="java.util.HashMap" resultType="java.util.HashMap">
-        SELECT
-            d2.dept_name 'parent',
-            d.dept_name 'BePartOf',
-            u.user_name 'name'
-        FROM
-            sys_user u,
-            sys_dept d
-                LEFT JOIN sys_dept d2 ON d.parent_id = d2.dept_id
-        WHERE
-            u.dept_id = d.dept_id AND u.user_id = #{userId}
-
-    </select>
 
     <select id="getAllOverSchProToAlltotle" parameterType="java.util.HashMap" resultType="java.util.HashMap">
         select
