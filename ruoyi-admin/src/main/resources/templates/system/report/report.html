@@ -121,6 +121,28 @@
             transition: width 0.6s ease;
         }
 
+        /* 分段高亮连接线 */
+        .progress_inner__bar .segment {
+            position: absolute;
+            height: 100%;
+            width: 50%;
+            background: transparent;
+            transition: background 0.4s ease;
+        }
+
+        .progress_inner__bar .segment.first {
+            left: 0;
+        }
+
+        .progress_inner__bar .segment.second {
+            right: 0;
+        }
+
+        .progress_inner__bar .segment.highlight {
+            background: #4CAF50;
+            box-shadow: 0 0 8px rgba(10, 225, 19, 0.7);
+        }
+
         .status-text {
             color: #9E9E9E;
             font-weight: normal;
@@ -174,12 +196,26 @@
             font-size: 14px;
             color: #333;
             text-align: left;
-            /*margin: 0 0 25px 20px;*/
+            margin: 0 0 25px 20px;
             max-width: 500px;
             margin-left: auto;
             margin-right: auto;
             position: relative;
-            /*padding-bottom: 15px;*/
+            padding-bottom: 15px;
+        }
+
+        .timeline-title::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            height: 0.5px;
+            background: linear-gradient(to right,
+            rgba(224,224,224,0.8),
+            rgba(224,224,224,0.8),
+            rgba(224,224,224,0.8));
+            box-shadow: 0 0.5px 1px rgba(0,0,0,0.07);
         }
 
 
@@ -188,7 +224,7 @@
             width: 100%;
             max-width: 500px;
             margin: 20px auto;
-            overflow-y: auto;  /* 垂直方向溢出时显示滚动条 */
+            overflow-y: auto;
             scrollbar-width: none;
         }
         .track-list {
@@ -198,6 +234,13 @@
         }
         .track-list ul {
             padding-left: 0;
+            list-style: none;
+            max-height: 50vh;
+            overflow-y: auto;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+            padding: 10px;
         }
         .track-list li {
             position: relative;
@@ -739,14 +782,39 @@
                 {
                     title: '操作',
                     align: 'center',
+                    width: '200px',
                     formatter: function(value, row, index) {
                         if (row.actions && row.actions.length > 0) {
                             // 列表页过滤掉"通过"和"驳回"按钮，这些只在详情页显示
                             var listActions = row.actions.filter(function(a) {
                                 return a.actionKey !== 'approve' && a.actionKey !== 'reject';
                             });
+                            
                             if (listActions.length > 0) {
-                                return PageRender.renderActionsToString(listActions);
+                                // 分离查看和查看流程按钮到第二行
+                                var firstRow = [];
+                                var secondRow = [];
+                                for (var i = 0; i < listActions.length; i++) {
+                                    var action = listActions[i];
+                                    if (action.actionKey === 'view' || action.actionKey === 'viewProcess') {
+                                        secondRow.push(action);
+                                    } else {
+                                        firstRow.push(action);
+                                    }
+                                }
+                                
+                                var result = '';
+                                if (firstRow.length > 0) {
+                                    result += PageRender.renderActionsToString(firstRow);
+                                }
+                                // 查看和查看流程按钮始终在第二行显示
+                                if (secondRow.length > 0) {
+                                    if (firstRow.length > 0) {
+                                        result += '<br/>';
+                                    }
+                                    result += PageRender.renderActionsToString(secondRow);
+                                }
+                                return result;
                             }
                         }
                         return '';
@@ -906,47 +974,83 @@
 //     }
 
     function autoProgressBar(state) {
-        // 获取所有步骤元素
         const steps = document.querySelectorAll('.progress_inner__step');
+        const progressBarContainer = document.querySelector('.progress_inner__bar');
         const progressBar = document.querySelector('.progress_inner__bar--progress');
 
-
-        // 遍历所有步骤，重置样式
-        steps.forEach(step => {
-            step.classList.remove('active', 'completed', 'pending');
-            step.querySelector('.status-text').classList.remove('active', 'completed');
+        // 重置所有步骤
+        steps.forEach((step, index) => {
+            step.classList.remove('active', 'completed');
+            step.classList.add('pending');
+            const statusText = step.querySelector('.status-text');
+            if (statusText) {
+                statusText.classList.remove('active', 'completed');
+            }
         });
 
-        // 重置进度条
-        progressBar.style.width = '0';
+        // 创建分段元素（如果尚未创建）
+        if (progressBarContainer && !progressBarContainer.querySelector('.segment')) {
+            const firstSegment = document.createElement('div');
+            firstSegment.className = 'segment first';
+            const secondSegment = document.createElement('div');
+            secondSegment.className = 'segment second';
+            progressBarContainer.appendChild(firstSegment);
+            progressBarContainer.appendChild(secondSegment);
+        }
 
-        // 根据 state 设置相应的步骤颜色
-        if (state === 'LECTURE_DRAFT') {
-            document.getElementById('step-1').classList.add('active');
-            document.getElementById('step-1').querySelector('.status-text').classList.add('active');
-            progressBar.style.width = '0';
-        } else if (state === 'LECTURE_PASSED') {
-            document.getElementById('step-1').classList.add('completed');
-            document.getElementById('step-1').querySelector('.status-text').classList.add('completed');
-            document.getElementById('step-2').classList.add('completed');
-            document.getElementById('step-2').querySelector('.status-text').classList.add('completed');
-            document.getElementById('step-3').classList.add('completed');
-            document.getElementById('step-3').querySelector('.status-text').classList.add('completed');
-            progressBar.style.width = '100%';
-        } else if (['LECTURE_JYS_AUDIT', 'LECTURE_KYC_AUDIT'].includes(state)) {
-            document.getElementById('step-1').classList.add('completed');
-            document.getElementById('step-1').querySelector('.status-text').classList.add('completed');
+        // 移除所有分段高亮
+        const segments = progressBarContainer ? progressBarContainer.querySelectorAll('.segment') : [];
+        segments.forEach(segment => {
+            segment.classList.remove('highlight');
+        });
 
-            // 审核中步骤高亮为 active
-            document.getElementById('step-2').classList.add('active');
-            document.getElementById('step-2').querySelector('.status-text').classList.add('active');
-            progressBar.style.width = '45%';
+        // 根据状态更新进度条
+        if (typeof state === 'string' && state.startsWith('LECTURE_')) {
+            if (state === 'LECTURE_DRAFT' || state === 'LECTURE_REJECTED') {
+                highlightStep(0);
+            } else if (state === 'LECTURE_JYS_AUDIT' || state === 'LECTURE_KYC_AUDIT') {
+                markCompleted(0);
+                highlightStep(1);
+                if (segments[0]) {
+                    segments[0].classList.add('highlight');
+                }
+            } else if (state === 'LECTURE_PASSED') {
+                markCompleted(0);
+                markCompleted(1);
+                highlightStep(2);
+                markCompleted(2);
+                segments.forEach(segment => {
+                    segment.classList.add('highlight');
+                });
+            }
         } else {
-            // 默认情况下，所有步骤为灰色
             steps.forEach(step => {
                 step.classList.add('pending');
-                step.querySelector('.status-text').classList.add('pending');
             });
+        }
+    }
+
+    function highlightStep(index) {
+        const step = document.querySelectorAll('.progress_inner__step')[index];
+        if (step) {
+            step.classList.add('active');
+            step.classList.remove('pending');
+            const statusText = step.querySelector('.status-text');
+            if (statusText) {
+                statusText.classList.add('active');
+            }
+        }
+    }
+
+    function markCompleted(index) {
+        const step = document.querySelectorAll('.progress_inner__step')[index];
+        if (step) {
+            step.classList.add('completed');
+            step.classList.remove('pending', 'active');
+            const statusText = step.querySelector('.status-text');
+            if (statusText) {
+                statusText.classList.add('completed');
+            }
         }
     }
 

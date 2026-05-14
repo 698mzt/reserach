@@ -242,7 +242,14 @@
 
         $(document).ready(function() {
             var state = $("#state").val();
-            if (state === 'LECTURE_KYC_AUDIT' || state === 'LECTURE_PASSED') {
+            var urlFlag = $("#urlFlag").val();
+            
+            // 判断是否为撤回场景：
+            // 1. urlFlag为撤回相关（tuihui, xytuihui, zgqxtuihui）
+            // 2. 状态为通过状态且urlFlag不为空
+            var isRecallScene = (urlFlag === 'tuihui' || urlFlag === 'xytuihui' || urlFlag === 'zgqxtuihui' || urlFlag === 'recall');
+            
+            if (isRecallScene || (state === 'LECTURE_PASSED' && urlFlag)) {
                 $("#rejectBtnText").text("撤 回");
             } else {
                 $("#rejectBtnText").text("驳 回");
