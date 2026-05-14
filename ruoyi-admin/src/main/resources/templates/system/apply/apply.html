@@ -705,10 +705,10 @@
             }
             var key = action.actionKey;
             if (key === 'view') {
-                return hasPagePermission(editInfo);
+                return hasPagePermission(editInfo) || hasPagePermission(hechaFlag);
             }
             if (key === 'viewProcess') {
-                return hasPagePermission(editInfo) && (isAuditState(state) || isPassedState(state));
+                return hasPagePermission(editInfo) || hasPagePermission(hechaFlag);
             }
             if (key === 'edit') {
                 return owner && hasPagePermission(editFlag) && (isDraftState(state) || isRejectedState(state));
@@ -717,7 +717,7 @@
                 return owner && hasPagePermission(removeFlag) && isDraftState(state);
             }
             if (key === 'submit') {
-                return owner && hasPagePermission(editFlag) && (isDraftState(state) || isRejectedState(state));
+                return owner && hasPagePermission(editFlag) && isDraftState(state);
             }
             if (key === 'recall') {
                 if (state.indexOf('_JYS_AUDIT') !== -1) {
@@ -740,11 +740,29 @@
             if (key === 'approve' || key === 'reject' || key === 'deptReview') {
                 return false;
             }
-            if (key === 'overApply' || key === 'reamount') {
+            if (key === 'overApply' || key === 'submitOver' || key === 'reamount') {
                 return owner && hasPagePermission(createFlag) && isPassedState(state);
             }
             return true;
         });
+    }
+
+    function renderActionsWithSplit(listActions) {
+        if (!listActions || !listActions.length) {
+            return '';
+        }
+        var mainActions = listActions.filter(function(a) {
+            return a.actionKey !== 'view' && a.actionKey !== 'viewProcess';
+        });
+        var infoActions = listActions.filter(function(a) {
+            return a.actionKey === 'view' || a.actionKey === 'viewProcess';
+        });
+        var mainHtml = mainActions.length > 0 ? PageRender.renderActionsToString(mainActions, {style: 'table'}) : '';
+        var infoHtml = infoActions.length > 0 ? PageRender.renderActionsToString(infoActions, {style: 'table'}) : '';
+        if (mainHtml && infoHtml) {
+            return '<div style="margin-bottom:4px;white-space:nowrap;">' + mainHtml + '</div><div style="white-space:nowrap;">' + infoHtml + '</div>';
+        }
+        return '<div style="white-space:nowrap;">' + (mainHtml || infoHtml || '') + '</div>';
     }
 
     // 动态生成 URL
@@ -937,14 +955,13 @@
                         if (row.actions && row.actions.length > 0) {
                             var listActions = filterListActions(row.actions, row);
                             if (listActions.length > 0) {
-                                return PageRender.renderActionsToString(listActions, {style: 'table'});
+                                return renderActionsWithSplit(listActions);
                             }
                         }
                         return '';
                     }
                 }]
         };
-
         initTable(options0);
         
         // 初始化搜索区域
@@ -1083,7 +1100,7 @@
                         if (row.actions && row.actions.length > 0) {
                             var listActions = filterListActions(row.actions, row);
                             if (listActions.length > 0) {
-                                return PageRender.renderActionsToString(listActions, {style: 'table'});
+                                return renderActionsWithSplit(listActions);
                             }
                         }
                         return '';
@@ -1242,7 +1259,7 @@
                         if (row.actions && row.actions.length > 0) {
                             var listActions = filterListActions(row.actions, row);
                             if (listActions.length > 0) {
-                                return PageRender.renderActionsToString(listActions, {style: 'table'});
+                                return renderActionsWithSplit(listActions);
                             }
                         }
                         return '';
@@ -1438,7 +1455,25 @@
                 $.operate.reamountTab(data.id);
             },
             'recall': function(actionKey, data) {
-                $.operate.recallTab(data.id);
+                var state = data.state || '';
+                $.ajax({
+                    type: 'POST',
+                    url: ctx + 'system/apply/recallsave',
+                    data: {
+                        id: data.reid || data.id,
+                        state: state,
+                        remark: '撤回',
+                        urlFlag: state.indexOf('HORIZONTAL_OVER_') !== -1 ? 'KYCOVER' : 'KYC'
+                    },
+                    success: function(result) {
+                        if (result.code === web_status.SUCCESS) {
+                            $.modal.msgSuccess("撤回成功");
+                            $.table.refresh();
+                        } else {
+                            $.modal.msgError(result.msg || "撤回失败");
+                        }
+                    }
+                });
             }
         });
 
@@ -1566,26 +1601,29 @@
     }
 
     function updateProgressStepColor(state) {
-        // 获取所有步骤元素
         const steps = document.querySelectorAll('.progress_inner__step');
         const progressBar = document.querySelector('.progress_inner__bar--progress');
 
-
-        // 遍历所有步骤，重置样式
         steps.forEach(step => {
             step.classList.remove('active', 'completed', 'pending');
             step.querySelector('.status-text').classList.remove('active', 'completed');
         });
 
-        // 重置进度条
         progressBar.style.width = '0';
 
-        // 根据 state 设置相应的步骤颜色
-        if (state === 99) {
+        if (!state) {
+            steps.forEach(step => {
+                step.classList.add('pending');
+                step.querySelector('.status-text').classList.add('pending');
+            });
+            return;
+        }
+
+        if (state.indexOf('_DRAFT') !== -1) {
             document.getElementById('step-1').classList.add('active');
             document.getElementById('step-1').querySelector('.status-text').classList.add('active');
             progressBar.style.width = '0';
-        } else if ([6, 4].includes(state)) {
+        } else if (state.indexOf('_PASSED') !== -1) {
             document.getElementById('step-1').classList.add('completed');
             document.getElementById('step-1').querySelector('.status-text').classList.add('completed');
             document.getElementById('step-2').classList.add('completed');
@@ -1593,16 +1631,19 @@
             document.getElementById('step-3').classList.add('completed');
             document.getElementById('step-3').querySelector('.status-text').classList.add('completed');
             progressBar.style.width = '100%';
-        } else if ([1, 2,  7, 8, 11, 33].includes(state)) {
+        } else if (state.indexOf('_AUDIT') !== -1) {
             document.getElementById('step-1').classList.add('completed');
             document.getElementById('step-1').querySelector('.status-text').classList.add('completed');
-
-            // 审核中步骤高亮为 active
+            document.getElementById('step-2').classList.add('active');
+            document.getElementById('step-2').querySelector('.status-text').classList.add('active');
+            progressBar.style.width = '45%';
+        } else if (state.indexOf('_REJECTED') !== -1) {
+            document.getElementById('step-1').classList.add('completed');
+            document.getElementById('step-1').querySelector('.status-text').classList.add('completed');
             document.getElementById('step-2').classList.add('active');
             document.getElementById('step-2').querySelector('.status-text').classList.add('active');
             progressBar.style.width = '45%';
         } else {
-            // 默认情况下，所有步骤为灰色
             steps.forEach(step => {
                 step.classList.add('pending');
                 step.querySelector('.status-text').classList.add('pending');

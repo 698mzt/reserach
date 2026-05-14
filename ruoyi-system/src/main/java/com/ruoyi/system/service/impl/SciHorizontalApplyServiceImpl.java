@@ -101,7 +101,12 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
                     null
             );
 
-            apply.setStatusMeta(result.getStatusMeta());
+            PageRenderStatusMeta statusMeta = result.getStatusMeta();
+            // 若状态文本为原始编码（含下划线），使用本地兜底文本
+            if (statusMeta != null && !isValidStatusText(statusMeta.getStatusText())) {
+                statusMeta = buildFallbackStatusMeta(currentState);
+            }
+            apply.setStatusMeta(statusMeta);
             apply.setActions(result.getActions());
         } catch (Exception e) {
             log.error("填充横向课题页面渲染数据失败, applyId={}", apply.getId(), e);
@@ -269,7 +274,7 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
             return PageRenderStatusMeta.of(state, "立项已通过", PageRenderColorConstants.COLOR_SUCCESS);
         }
         if (StringUtils.equals(state, "HORIZONTAL_APPLY_REJECTED")) {
-            return PageRenderStatusMeta.of(state, "立项已驳回", PageRenderColorConstants.COLOR_DANGER);
+            return PageRenderStatusMeta.of(state, "立项-驳回", PageRenderColorConstants.COLOR_DANGER);
         }
         if (StringUtils.equals(state, "HORIZONTAL_OVER_DRAFT")) {
             return PageRenderStatusMeta.of(state, "结项草稿", PageRenderColorConstants.COLOR_DEFAULT);
@@ -847,6 +852,7 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
                     break;
             }
         }
+        list.forEach(this::fillPageRenderData);
         return list;
     }
 
@@ -2171,11 +2177,17 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
         );
 
         ApprovalResult result = approvalProcessService.reject(request);
-        
+
         if (result.isSuccess()) {
             String newState = result.getNewState();
             String correctedState = nodeCodeToState(newState);
             if (!correctedState.equals(newState)) {
+                sciHorizontalApplyMapper.updateState(applyId, correctedState);
+                result = ApprovalResult.ok(result.getMessage(), correctedState);
+            }
+            // 驳回后将 DRAFT 状态修正为 REJECTED，以正确显示"立项-驳回"而非"立项-草稿"
+            if (correctedState.endsWith("_DRAFT")) {
+                correctedState = correctedState.replace("_DRAFT", "_REJECTED");
                 sciHorizontalApplyMapper.updateState(applyId, correctedState);
                 result = ApprovalResult.ok(result.getMessage(), correctedState);
             }
@@ -2428,6 +2440,12 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
             String newState = result.getNewState();
             String correctedState = nodeCodeToState(newState);
             if (!correctedState.equals(newState)) {
+                sciHorizontalApplyMapper.updateState(applyId, correctedState);
+                result = ApprovalResult.ok(result.getMessage(), correctedState);
+            }
+            // 驳回后将 DRAFT 状态修正为 REJECTED
+            if (correctedState.endsWith("_DRAFT")) {
+                correctedState = correctedState.replace("_DRAFT", "_REJECTED");
                 sciHorizontalApplyMapper.updateState(applyId, correctedState);
                 result = ApprovalResult.ok(result.getMessage(), correctedState);
             }
