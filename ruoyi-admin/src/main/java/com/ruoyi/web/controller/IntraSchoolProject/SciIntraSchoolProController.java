@@ -645,20 +645,6 @@ public class SciIntraSchoolProController extends BaseController {
   @PostMapping("/retract")
   @ResponseBody
   public AjaxResult retract(String id, String remark, String urlFlag) {
-//        System.out.println("data = " + data);
-//        SciIntraSchoolPro sciIntraSchoolPro = new SciIntraSchoolPro();
-//
-//        if ( data.get("state").equals("4")){
-//            sciIntraSchoolPro.setState("2");
-//        }else if (data.get("state").equals("2")){
-//            sciIntraSchoolPro.setState("11");
-//        }else if (data.get("state").equals("11")){
-//            sciIntraSchoolPro.setState("1");
-//
-//        }
-//        String idString = (String) data.get("id");
-//        Integer id = Integer.parseInt(idString);
-//        sciIntraSchoolPro.setId(id);
     //更改积分
     SciIntraSchoolPro sciIntraSchoolPro1 = sciIntraSchProApplyService.sel_IntraSchPro_by_id(Integer.valueOf(id));
     if (!canRecallTecTra(sciIntraSchoolPro1)) {
@@ -721,19 +707,6 @@ public class SciIntraSchoolProController extends BaseController {
   @PostMapping("/over_retract")
   @ResponseBody
   public AjaxResult over_retract(String id, String remark, String urlFlag) {
-//        System.out.println("data = " + data);
-//        SciIntraSchoolPro sciIntraSchoolPro = new SciIntraSchoolPro();
-//
-//        if ( data.get("state").equals("6")){
-//            sciIntraSchoolPro.setState("8");
-//        }else if (data.get("state").equals("8")){
-//            sciIntraSchoolPro.setState("13");
-//        }else if (data.get("state").equals("13")){
-//            sciIntraSchoolPro.setState("7");
-//        }
-//        String idString = (String) data.get("id");
-//        Integer id = Integer.parseInt(idString);
-//        sciIntraSchoolPro.setId(id);
     //更改积分
     SciIntraSchoolPro sciIntraSchoolPro1 = sciIntraSchProApplyService.sel_IntraSchPro_by_id(Integer.valueOf(id));
     int i = sciIntraSchProScoreService.update_SchPro_score_jt(sciIntraSchoolPro1);
