@@ -106,6 +106,19 @@ public class SysRoleServiceImpl implements ISysRoleService
     }
 
     /**
+     * 根据用户ID查询角色列表（排除 DataScope 数据权限过滤）
+     * 绕过 @DataScope，直接查询数据库获取用户完整角色列表
+     * 
+     * @param userId 用户ID
+     * @return 角色列表
+     */
+    @Override
+    public List<SysRole> selectRolesByUserIdExcludingDataScope(Long userId)
+    {
+        return roleMapper.selectRolesByUserId(userId);
+    }
+
+    /**
      * 查询所有角色
      * 
      * @return 角色列表

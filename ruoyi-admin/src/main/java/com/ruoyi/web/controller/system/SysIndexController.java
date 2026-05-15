@@ -2,6 +2,7 @@ package com.ruoyi.web.controller.system;
 
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,20 +12,24 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import com.alibaba.fastjson.JSON;
 import com.ruoyi.common.config.RuoYiConfig;
 import com.ruoyi.common.constant.ShiroConstants;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.domain.entity.SysMenu;
+import com.ruoyi.common.core.domain.entity.SysRole;
 import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.common.core.text.Convert;
 import com.ruoyi.common.utils.CookieUtils;
 import com.ruoyi.common.utils.DateUtils;
+import com.ruoyi.common.utils.ShiroUtils;
 import com.ruoyi.common.utils.ServletUtils;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.framework.shiro.service.SysPasswordService;
 import com.ruoyi.system.service.ISysConfigService;
 import com.ruoyi.system.service.ISysMenuService;
+import com.ruoyi.system.service.ISysRoleService;
 
 /**
  * 首页 业务处理
@@ -45,14 +50,35 @@ public class SysIndexController extends BaseController
     @Autowired
     private SysPasswordService passwordService;
 
+    @Autowired
+    private ISysRoleService roleService;
+
     // 系统首页
     @GetMapping("/index")
     public String index(ModelMap mmap)
     {
         // 取身份信息
         SysUser user = getSysUser();
-        // 根据用户id取出菜单
-        List<SysMenu> menus = menuService.selectMenusByUser(user);
+        
+        // 根据活动角色获取菜单（角色感知菜单查询）
+        List<SysMenu> menus;
+        Object activeRoleId = ShiroUtils.getSubject().getSession(false).getAttribute("activeRoleId");
+        if (activeRoleId != null) {
+            // 已切换角色 → 使用该角色的菜单
+            // 查询角色信息判断是否管理员
+            SysRole activeRole = roleService.selectRoleById(Long.valueOf(activeRoleId.toString()));
+            if (activeRole != null && activeRole.isAdmin()) {
+                // 管理员角色 → 返回全部菜单
+                menus = menuService.selectMenuNormalAll();
+            } else {
+                // 普通角色 → 查询该角色的菜单
+                menus = menuService.selectMenusByRoleId(Long.valueOf(activeRoleId.toString()));
+            }
+        } else {
+            // 未切换 → 使用原逻辑（用户ID查询）
+            menus = menuService.selectMenusByUser(user);
+        }
+        
         mmap.put("menus", menus);
         mmap.put("user", user);
         mmap.put("sideTheme", configService.selectConfigByKey("sys.index.sideTheme"));
@@ -67,6 +93,23 @@ public class SysIndexController extends BaseController
         mmap.put("isDefaultModifyPwd", initPasswordIsModify(user.getPwdUpdateDate()));
         mmap.put("isPasswordExpired", passwordIsExpiration(user.getPwdUpdateDate()));
         mmap.put("isMobile", ServletUtils.checkAgentIsMobile(ServletUtils.getRequest().getHeader("User-Agent")));
+
+        // 内嵌角色列表 JSON，避免前端异步请求竞态
+        // 单角色用户不显示切换下拉，传空数组；多角色才传角色列表
+        List<SysRole> allRoles = roleService.selectRolesByUserIdExcludingDataScope(user.getUserId());
+        List<SysRole> activeRoles = allRoles.stream()
+                .filter(r -> "0".equals(r.getStatus()))
+                .collect(Collectors.toList());
+        if (activeRoles.size() <= 1) {
+            // 单角色或无角色 → 不显示切换下拉
+            mmap.put("roleListJson", "[]");
+        } else {
+            // 多角色 → 显示切换下拉
+            mmap.put("roleListJson", JSON.toJSONString(activeRoles));
+        }
+
+        // 当前活动角色 ID
+        mmap.put("activeRoleId", activeRoleId);
 
         // 菜单导航显示风格
         String menuStyle = configService.selectConfigByKey("sys.index.menuStyle");

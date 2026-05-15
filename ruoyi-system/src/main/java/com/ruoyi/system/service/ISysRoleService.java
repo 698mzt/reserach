@@ -37,6 +37,15 @@ public interface ISysRoleService
     public List<SysRole> selectRolesByUserId(Long userId);
 
     /**
+     * 根据用户ID查询角色列表（排除 DataScope 数据权限过滤）
+     * 用于角色切换时获取用户完整角色列表，避免 runAs 导致角色列表被过滤
+     * 
+     * @param userId 用户ID
+     * @return 角色列表
+     */
+    public List<SysRole> selectRolesByUserIdExcludingDataScope(Long userId);
+
+    /**
      * 查询所有角色
      * 
      * @return 角色列表

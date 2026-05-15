@@ -182,7 +182,17 @@
                     </a>
                 </div>
                 <ul class="nav navbar-top-links navbar-right welcome-message">
-					<li >
+<!--                    <li><a data-toggle="tooltip" data-trigger="hover" data-placement="bottom" title="开发文档" href="http://doc.ruoyi.vip/ruoyi" target="_blank"><i class="fa fa-question-circle"></i> 文档</a></li>-->
+<!--                    <li><a data-toggle="tooltip" data-trigger="hover" data-placement="bottom" title="锁定屏幕" href="javascript:;" id="lockScreen"><i class="fa fa-lock"></i> 锁屏</a></li>-->
+                    <li th:if="${#strings.length(roleListJson) > 2}" id="roleSwitchLi">
+						<a href="javascript:void(0)" class="dropdown-toggle" data-hover="dropdown">
+							<span class="hidden-xs" id="currentRoleName">角色</span>
+                            <span>▼</span>
+						</a>
+						<ul class="dropdown-menu" id="roleDropdown" style="min-width: 120px !important;">
+						</ul>
+					</li>
+					<li>
 						<a href="javascript:void(0)" class="dropdown-toggle" data-hover="dropdown">
 							<span class="hidden-xs" id="n-year"></span><span class="hidden-xs">年</span>
                             <span>▼</span>
@@ -190,10 +200,7 @@
 						<ul class="dropdown-menu" id="yearDropdown" style="min-width: 100px !important;">
 <!--							生成动态下拉框-->
 						</ul>
-
 					</li>
-<!--                    <li><a data-toggle="tooltip" data-trigger="hover" data-placement="bottom" title="开发文档" href="http://doc.ruoyi.vip/ruoyi" target="_blank"><i class="fa fa-question-circle"></i> 文档</a></li>-->
-<!--                    <li><a data-toggle="tooltip" data-trigger="hover" data-placement="bottom" title="锁定屏幕" href="javascript:;" id="lockScreen"><i class="fa fa-lock"></i> 锁屏</a></li>-->
 	                <li><a data-toggle="tooltip" data-trigger="hover" data-placement="bottom" title="全屏显示" href="javascript:;" id="fullScreen"><i class="fa fa-arrows-alt"></i> 全屏</a></li>
                     <li class="dropdown user-menu">
 						<a href="javascript:void(0)" class="dropdown-toggle" data-hover="dropdown">
@@ -219,7 +226,7 @@
 							</li>
 							<li class="divider"></li>
 							<li>
-								<a th:href="@{logout}">
+								<a th:href="@{/logout}">
 								<i class="fa fa-sign-out"></i> 退出登录</a>
 							</li>
 						</ul>
@@ -420,6 +427,82 @@ $(function() {
 
 // 在页面加载完成后生成下拉菜单
 window.onload = generateYearDropdown;
+</script>
+<script th:inline="javascript">
+// 角色切换功能
+(function() {
+	var roleListJson = /*[[${roleListJson}]]*/ '[]';
+	var activeRoleId = /*[[${activeRoleId}]]*/ null;
+
+	if (!roleListJson || roleListJson === '[]') return;
+
+	var roleList = JSON.parse(roleListJson);
+	var activeRoleIdNum = activeRoleId ? parseInt(activeRoleId) : null;
+
+	// 初始化当前角色显示
+	var currentRole = null;
+	for (var i = 0; i < roleList.length; i++) {
+		if (roleList[i].roleId === activeRoleIdNum) {
+			currentRole = roleList[i];
+			break;
+		}
+	}
+	if (currentRole) {
+		$('#currentRoleName').text(currentRole.roleName);
+	} else if (roleList.length > 0) {
+		$('#currentRoleName').text(roleList[0].roleName);
+	}
+
+	// 生成角色下拉列表
+	var dropdown = $('#roleDropdown');
+	for (var i = 0; i < roleList.length; i++) {
+		(function(role) {
+			var li = $('<li></li>').css({
+				height: '21px',
+				width: '120px'
+			});
+			var a = $('<a href="#"></a>').css({
+				display: 'block',
+				height: '20px',
+				lineHeight: '20px',
+				textAlign: 'center'
+			}).text(role.roleName);
+
+			if (role.roleId === activeRoleIdNum) {
+				a.css('color', '#1ab394').css('font-weight', 'bold');
+			}
+
+			a.on('click', function(e) {
+				e.preventDefault();
+				switchRole(role.roleId, role.roleName);
+			});
+
+			li.append(a);
+			dropdown.append(li);
+		})(roleList[i]);
+	}
+
+	function switchRole(roleId, roleName) {
+		$.ajax({
+			url: ctx + 'system/role/switch',
+			type: 'POST',
+			data: { roleId: roleId },
+			success: function(res) {
+				if (res.code === 0) {
+					$.modal.msgSuccess('已切换到角色: ' + roleName);
+					setTimeout(function() {
+						window.location.reload();
+					}, 500);
+				} else {
+					$.modal.msgError(res.msg || '切换失败');
+				}
+			},
+			error: function() {
+				$.modal.msgError('网络错误，请重试');
+			}
+		});
+	}
+})();
 </script>
 </body>
 </html>

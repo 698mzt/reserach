@@ -2,6 +2,7 @@ package com.ruoyi.system.service.impl;
 
 import com.ruoyi.common.core.domain.entity.SysRole;
 import com.ruoyi.common.core.domain.entity.SysUser;
+import com.ruoyi.common.utils.ActiveRoleContextHolder;
 import com.ruoyi.common.utils.ShiroUtils;
 import com.ruoyi.system.constant.PageRenderActionConstants;
 import com.ruoyi.system.constant.PageRenderColorConstants;
@@ -11,6 +12,7 @@ import com.ruoyi.system.mapper.SysApprovalProcessMapper;
 import com.ruoyi.system.mapper.SysApprovalStateMapper;
 import com.ruoyi.system.service.IPageRenderService;
 import com.ruoyi.system.service.ISysMenuService;
+import com.ruoyi.system.service.ISysRoleService;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.cache.Cache;
@@ -140,6 +142,9 @@ public class PageRenderServiceImpl implements IPageRenderService {
 
     @Autowired
     private ISysMenuService sysMenuService;
+
+    @Autowired
+    private ISysRoleService roleService;
 
     /** 八大模块配置注册表（moduleCode -> ModuleConfig） */
     private final Map<String, ModuleConfig> MODULE_REGISTRY = new HashMap<>();
@@ -921,6 +926,27 @@ public class PageRenderServiceImpl implements IPageRenderService {
             return Collections.emptySet();
         }
 
+        // 角色切换上下文检查：如果用户切换了活动角色，只返回该角色的权限
+        Long activeRoleId = com.ruoyi.common.utils.ActiveRoleContextHolder.get();
+        if (activeRoleId != null) {
+            // 查询活动角色信息
+            com.ruoyi.common.core.domain.entity.SysRole activeRole =
+                    roleService.selectRoleById(activeRoleId);
+            if (activeRole != null) {
+                // 系统管理员角色拥有所有权限
+                if (activeRole.isAdmin()) {
+                    Set<String> adminPerms = new LinkedHashSet<>();
+                    adminPerms.add("*:*:*");
+                    return adminPerms;
+                }
+                // 普通角色：只返回该角色的权限
+                return sysMenuService.selectPermsByRoleId(activeRoleId);
+            }
+            // 角色不存在，清除上下文并回退到全部权限模式
+            com.ruoyi.common.utils.ActiveRoleContextHolder.clear();
+        }
+
+        // 未切换角色 → 走原逻辑
         // 第一优先级：尝试从 Shiro 授权缓存获取权限（性能最优）
         Set<String> cachedPermissions = getCachedPermissions(currentUser);
         if (!cachedPermissions.isEmpty()) {

@@ -38,6 +38,7 @@ import com.ruoyi.framework.shiro.web.filter.online.OnlineSessionFilter;
 import com.ruoyi.framework.shiro.web.filter.sync.SyncOnlineSessionFilter;
 import com.ruoyi.framework.shiro.web.session.OnlineWebSessionManager;
 import com.ruoyi.framework.shiro.web.session.SpringSessionValidationScheduler;
+import com.ruoyi.framework.filter.RoleContextFilter;
 import at.pollux.thymeleaf.shiro.dialect.ShiroDialect;
 
 /**
@@ -313,10 +314,12 @@ public class ShiroConfig
         filters.put("kickout", kickoutSessionFilter());
         // 注销成功，则跳转到指定页面
         filters.put("logout", logoutFilter());
+        // 注册角色上下文过滤器（用于多角色切换）
+        filters.put("roleContext", new RoleContextFilter());
         shiroFilterFactoryBean.setFilters(filters);
 
-        // 所有请求需要认证
-        filterChainDefinitionMap.put("/**", "user,kickout,onlineSession,syncOnlineSession");
+        // 所有请求需要认证，并在认证后执行角色上下文切换
+        filterChainDefinitionMap.put("/**", "user,kickout,onlineSession,syncOnlineSession,roleContext");
         shiroFilterFactoryBean.setFilterChainDefinitionMap(filterChainDefinitionMap);
 
         return shiroFilterFactoryBean;
