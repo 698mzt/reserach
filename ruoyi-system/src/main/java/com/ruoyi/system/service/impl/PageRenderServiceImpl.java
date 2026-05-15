@@ -839,7 +839,6 @@ public class PageRenderServiceImpl implements IPageRenderService {
             }
         }
 
-
         return specificActions;
     }
 
