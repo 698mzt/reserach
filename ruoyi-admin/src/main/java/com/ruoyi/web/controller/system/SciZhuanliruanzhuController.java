@@ -424,6 +424,7 @@ public class SciZhuanliruanzhuController extends BaseController
     public AjaxResult editSave(SciZhuanliruanzhu sciZhuanliruanzhu)
     {
         sciZhuanliruanzhu.setUserId(Integer.valueOf(getSysUser().getUserId().toString()));
+        sciZhuanliruanzhu.setState("PATENT_DRAFT");
         // 处理更多成员数据，转换为与添加页面一致的JSON数组格式
         String members = sciZhuanliruanzhu.getMembers();
         if (members != null && !members.isEmpty() && !members.equals("null")) {
@@ -522,7 +523,10 @@ public class SciZhuanliruanzhuController extends BaseController
     @ResponseBody
     public AjaxResult hxBh(String id,String remark,String urlFlag)
     {
-
+        String roleKey = getRoleKey();
+        if ("sci_tesearch".equals(roleKey)) {
+            return toAjax(sciZhuanliruanzhuService.hxBh(id, getUserId(), remark, "PATENT_REJECTED", true));
+        }
         return toAjax(sciZhuanliruanzhuService.hxBh(id,getUserId(),remark,urlFlag));
     }
 
@@ -568,6 +572,7 @@ public class SciZhuanliruanzhuController extends BaseController
         SciZhuanliruanzhuPiyue ob = new SciZhuanliruanzhuPiyue();
         ob.setHxktId(kid);
         List<SciZhuanliruanzhuPiyue> list = piyueService.selectSciZhuanliruanzhuPiyueList(ob);
+        list.forEach(item -> item.setStateText(sciZhuanliruanzhuService.getPatentStateText(item.getState())));
         return getDataTable(list);
     }
 
@@ -618,6 +623,7 @@ public class SciZhuanliruanzhuController extends BaseController
         SciZhuanliruanzhuPiyue sciZhuanliruanzhuPiyue = new SciZhuanliruanzhuPiyue();
         sciZhuanliruanzhuPiyue.setHxktId(Integer.valueOf(arid));
         List<SciZhuanliruanzhuPiyue> list = piyueService.selectSciZhuanliruanzhuPiyueList(sciZhuanliruanzhuPiyue);
+        list.forEach(item -> item.setStateText(sciZhuanliruanzhuService.getPatentStateText(item.getState())));
         return getDataTable(list);
     }
 

@@ -266,6 +266,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="expectedJifen != null and expectedJifen != ''">expected_jifen = #{expectedJifen},</if>
             <if test="finalJifen != null and finalJifen != ''">final_jifen = #{finalJifen},</if>
             <if test="kyjcPassTime != null">kyjc_pass_time = #{kyjcPassTime},</if>
+            <if test="state != null and state != ''">state = #{state},</if>
 
             <if test="firstPersonId != null and firstPersonId != ''">first_person_id = #{firstPersonId},</if>
             <if test="secondPersonId != null and secondPersonId != ''">second_person_id = #{secondPersonId},</if>

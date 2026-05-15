@@ -5,6 +5,7 @@
     <th:block th:include="include :: datetimepicker-css" />
     <th:block th:include="include :: bootstrap-fileinput-css"/>
     <th:block th:include="include :: select2-css" />
+
 </head>
 <body class="white-bg">
 <div class="wrapper wrapper-content animated fadeInRight ibox-content">
@@ -177,30 +178,6 @@
 
 
 
-        <h4 class="form-header h4 tdiv1" style="display:none;">批阅记录</h4>
-        <div class="row tdiv1" style="display:none;">
-            <div class="col-sm-12">
-                <div class="form-group"  >
-                    <label class="col-xs-2 control-label">批注：</label>
-                    <div class="col-xs-10">
-                        <textarea name="remark" required maxlength="500" class="form-control" rows="3"></textarea>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-        <h4 class="form-header h4 tdiv2"  style="display:none;">批阅记录</h4>
-        <div class="row tdiv2" style="display:none;">
-            <div class="col-sm-12">
-
-                <div class="form-group"  >
-                    <table id='bootstrap-table'></table>
-                </div>
-            </div>
-        </div>
-
-</div>
-
         <h4 class="form-header h4 tdiv1" style="display:none; margin-top: 20px;">批阅记录</h4>
         <div class="row tdiv1" style="display:none; margin-top: 10px;">
             <div class="col-sm-12">
@@ -224,7 +201,10 @@
 </div>
 
 <div class="row">
-    <div class="col-sm-offset-5 col-sm-10" id="action-buttons-container">
+    <div class="col-sm-offset-5 col-sm-10">
+        <button type="button" class="btn btn-sm btn-success" id="btn1" style="display:none;" onclick="submitHandler()"> 通 过</button>
+        <button type="button" class="btn btn-sm btn-danger" id="btn2" style="display:none;" onclick="submitHandlerBH()"> <span id="rejectBtnText">驳 回</span></button>
+        <button type="button" class="btn btn-sm btn-warning" id="btn3" style="display:none;" onclick="closeItem()"> 关 闭 </button>
     </div>
 </div>
 
@@ -235,6 +215,44 @@
 <script th:src="@{/ruoyi/js/page-render.js}"></script>
 <script th:inline="javascript"  type="text/javascript">
     var prefix = ctx + "system/zhuanliruanzhu";
+    
+    // 获取当前用户角色信息
+    var userRole = '';
+    var userRoles = [[${sysUser.roles}]];  // 从后端获取的角色列表
+    
+    // 优先检查管理员角色，确保超级管理员显示所有字段
+    if (userRoles) {
+        for (var i = 0; i < userRoles.length; i++) {
+            var roleKey = userRoles[i].roleKey;
+            if (roleKey === 'admin') {
+                userRole = 'admin';  // 超级管理员
+                break;
+            }
+        }
+    }
+    
+    // 如果不是管理员，继续判断其他角色
+    if (!userRole && userRoles) {
+        for (var i = 0; i < userRoles.length; i++) {
+            var roleKey = userRoles[i].roleKey;
+            if (roleKey === 'sci_tesearch') {
+                userRole = 'sci_tesearch';  // 科研处
+                break;
+            } else if (roleKey === 'research') {
+                userRole = 'research';  // 教研室
+                break;
+            } else if (['dept_teacher', 'discuss_college', 'dzgc_college', 'yssj_college', 
+                       'student_college', 'marxism_college', 'general'].indexOf(roleKey) !== -1) {
+                userRole = 'dept_teacher';  // 学院
+                break;
+            }
+        }
+    }
+    
+    // 默认角色为教师
+    if (!userRole) {
+        userRole = 'teacher'; // 默认为教师角色
+    }
     $("#form-zhuanliruanzhu-edit").validate({
         focusCleanup: true
     });
@@ -337,59 +355,6 @@
             }
         });
 
-        // 使用PageRender渲染底部按钮
-        var zhuanliruanzhuActions = /*[[${actionsJson}]]*/ null;
-        if (typeof zhuanliruanzhuActions === 'string') {
-            try {
-                zhuanliruanzhuActions = JSON.parse(zhuanliruanzhuActions);
-            } catch (e) {
-                zhuanliruanzhuActions = [];
-            }
-        }
-        if (!zhuanliruanzhuActions) {
-            zhuanliruanzhuActions = [];
-        }
-        var urlFlag = $("#urlFlag").val();
-        var state = $("#state").val();
-
-        if (zhuanliruanzhuActions && zhuanliruanzhuActions.length > 0) {
-            var filteredActions = zhuanliruanzhuActions.filter(function(action) {
-                if (urlFlag === 'chakan' || urlFlag === 'ZLRZ') {
-                    return false;
-                }
-                if (urlFlag === 'review' || urlFlag === 'pro' || urlFlag === 'chayue') {
-                    return action.actionKey === 'approve' || action.actionKey === 'reject';
-                }
-                if (urlFlag === 'recall') {
-                    return action.actionKey === 'recall';
-                }
-                return true;
-            });
-
-            var $container = $('#action-buttons-container');
-            if (filteredActions.length > 0) {
-                PageRender.renderActions($container, filteredActions, {style: 'page'}, {
-                    id: $("#ktid").val(),
-                    state: state,
-                    urlFlag: urlFlag
-                });
-            }
-            $container.append('<button type="button" class="btn btn-sm btn-default" onclick="closeItem()"> 关 闭 </button>');
-        } else {
-            var $container = $('#action-buttons-container');
-            if (urlFlag === 'chakan' || urlFlag === 'ZLRZ') {
-                $container.html('<button type="button" class="btn btn-sm btn-default" onclick="closeItem()"> 关 闭 </button>');
-            } else if (['PATENT_JYS_AUDIT', 'PATENT_KYC_AUDIT'].includes(state)) {
-                $container.html(
-                    '<button type="button" class="btn btn-sm btn-success" onclick="submitHandler()"> 通 过</button> ' +
-                    '<button type="button" class="btn btn-sm btn-danger" onclick="submitHandlerBH()"> 驳 回</button> ' +
-                    '<button type="button" class="btn btn-sm btn-default" onclick="closeItem()"> 关 闭 </button>'
-                );
-            } else {
-                $container.html('<button type="button" class="btn btn-sm btn-default" onclick="closeItem()"> 关 闭 </button>');
-            }
-        }
-
         var kid = $("#ktid").val();
         var options = {
             url: prefix + "/bhyy/" + kid,
@@ -415,27 +380,48 @@
                     width: 500
                 },
                 {
-                    field: 'state',
+                    field: 'stateText',
                     title: '审核状态',
                     width: 100
                 }]
         };
         $.table.init(options);
 
-        $('#bootstrap-table').on('load-success.bs.table', function (e, data) {
-            var rows = data && data.rows ? data.rows : [];
-            var urlFlagVal = $("#urlFlag").val();
-            var stateVal = $("#state").val();
+        $('#bootstrap-table').on('load-success.bs.table', function (e, name, args) {
+            var rows = name && name.rows ? name.rows : [];
+            var a = $("#state").val();
+            var b = $("#urlFlag").val();
 
-            if (urlFlagVal === 'chakan' || urlFlagVal === 'ZLRZ') {
+            if (b == 'ZLRZ') {
                 $(".tdiv2").show();
-            } else if (['PATENT_JYS_AUDIT', 'PATENT_KYC_AUDIT', 'PATENT_PASSED'].includes(stateVal)) {
+                $("#btn3").show();
+            } else if (b == "info") {
                 if (rows.length > 0) {
                     $(".tdiv2").show();
                 }
-                if (['review', 'pro', 'chayue'].includes(urlFlagVal)) {
+                $("#btn3").show();
+            } else {
+                if (a == 'PATENT_JYS_AUDIT' || a == 'PATENT_KYC_AUDIT' || a == 'PATENT_DRAFT') {
+                    if (rows.length > 0) {
+                        $(".tdiv2").show();
+                    }
                     $(".tdiv1").show();
+                    $("#btn2").show();
+                    if (b != "tuihui" && b != "xytuihui") {
+                        $("#btn1").show();
+                    }
                 }
+                if (a == 'PATENT_PASSED' || a == 'PATENT_REJECTED') {
+                    if (rows.length > 0) {
+                        $(".tdiv2").show();
+                    }
+                    // 只有科研处或管理员角色才能看到撤回按钮
+                    if (a == 'PATENT_PASSED' && b == "zgqxtuihui" && (userRole === 'sci_tesearch' || userRole === 'admin')) {
+                        $(".tdiv1").show();
+                        $("#btn2").show();
+                    }
+                }
+                $("#btn3").show();
             }
         });
     });
@@ -447,26 +433,45 @@
     }
 
     function submitHandlerBH() {
+        var isWithdraw = $("#rejectBtnText").text().trim() === "撤 回";
+
+        if (isWithdraw) {
+            $('textarea[name="remark"]').removeAttr('required');
+        } else {
+            $('textarea[name="remark"]').attr('required', 'required');
+        }
+
         var urlFlag = $("#urlFlag").val();
         var remark = $('#remark').val();
         
-        if (['review', 'pro', 'chayue'].includes(urlFlag)) {
-            if (!remark.trim()) {
-                $.modal.msgWarning("批注不能为空");
-                return;
-            }
-            $.modal.confirm("确定驳回吗", function() {
-                $.operate.saveTab(prefix + "/hxBh", {'id': $("#ktid").val(), 'urlFlag': urlFlag, 'remark': remark});
-            });
-        } else if (urlFlag === 'recall') {
-            $.modal.confirm("确定撤回吗", function() {
-                $.operate.saveTab(prefix + "/recallsave", {'id': $("#ktid").val(), 'remark': remark});
-            });
+        if (!isWithdraw && !remark.trim()) {
+            $.modal.msgWarning("批注不能为空");
+            return;
         }
+
+        var confirmMsg = isWithdraw ? "确定撤回吗" : "确定驳回吗";
+        var submitUrl = isWithdraw ? prefix + "/recallsave" : prefix + "/hxBh";
+        
+        $.modal.confirm(confirmMsg, function() {
+            $.operate.saveTab(submitUrl, {'id': $("#ktid").val(), 'urlFlag': urlFlag, 'remark': remark});
+        });
     }
 
-    // 检查是否存在错误信息，如果有则禁用所有表单元素
     $(document).ready(function() {
+        var state = $("#state").val();
+        var urlFlag = $("#urlFlag").val();
+        
+        var isRecallScene = (urlFlag === 'tuihui' || urlFlag === 'xytuihui' || urlFlag === 'zgqxtuihui' || urlFlag === 'recall');
+        
+        // 只有科研处或管理员角色才能显示撤回按钮
+        var canShowRecall = userRole === 'sci_tesearch' || userRole === 'admin';
+        
+        if (canShowRecall && (isRecallScene || (state === 'PATENT_PASSED' && urlFlag))) {
+            $("#rejectBtnText").text("撤 回");
+        } else {
+            $("#rejectBtnText").text("驳 回");
+        }
+
         if ($('.alert-danger').length > 0) {
             $('input, select, textarea, button').not('#action-buttons-container button').prop('disabled', true);
         }

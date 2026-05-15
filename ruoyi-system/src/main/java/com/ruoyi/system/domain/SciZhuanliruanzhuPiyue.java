@@ -41,6 +41,8 @@ public class SciZhuanliruanzhuPiyue extends BaseEntity
     }
 
     private String state;
+    
+    private String stateText;
 
     public String getState() {
         return state;
@@ -48,6 +50,14 @@ public class SciZhuanliruanzhuPiyue extends BaseEntity
 
     public void setState(String state) {
         this.state = state;
+    }
+
+    public String getStateText() {
+        return stateText;
+    }
+
+    public void setStateText(String stateText) {
+        this.stateText = stateText;
     }
 
     public void setId(Integer id)
