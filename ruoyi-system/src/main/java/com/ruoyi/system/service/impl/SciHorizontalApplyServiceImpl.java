@@ -652,7 +652,10 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
                     deptIds,
                     null
             );
-            return result.isSuccess() ? 1 : 0;
+            if (result.isSuccess()) {
+                return 1;
+            }
+            return 0;
         } catch (Exception e) {
             log.error("横向课题立项审批通过失败: id={}, operatorId={}", id, uid, e);
             return 0;
@@ -720,7 +723,10 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
                     deptIds,
                     null
             );
-            return result.isSuccess() ? 1 : 0;
+            if (result.isSuccess()) {
+                return 1;
+            }
+            return 0;
         } catch (Exception e) {
             log.error("横向课题结项审批通过失败: id={}, operatorId={}", id, uid, e);
             return 0;
@@ -753,7 +759,10 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
                     deptIds,
                     remark
             );
-            return result.isSuccess() ? 1 : 0;
+            if (result.isSuccess()) {
+                return 1;
+            }
+            return 0;
         } catch (Exception e) {
             log.error("横向课题立项审批驳回失败: id={}, operatorId={}", id, uid, e);
             return 0;
@@ -786,7 +795,10 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
                     deptIds,
                     remark
             );
-            return result.isSuccess() ? 1 : 0;
+            if (result.isSuccess()) {
+                return 1;
+            }
+            return 0;
         } catch (Exception e) {
             log.error("横向课题结项审批驳回失败: id={}, operatorId={}", id, uid, e);
             return 0;
@@ -957,7 +969,7 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
     }
 
     @Override
-    public int recall(Integer id, String state,Long uid, String remark, String urlFlag) {
+    public int recall(Integer id, String state, Long uid, String remark, String urlFlag) {
         try {
             SciHorizontalApply apply = sciHorizontalApplyMapper.selectSciHorizontalApplyById(id);
             if (apply == null) {
@@ -990,7 +1002,10 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
             } else {
                 return 0;
             }
-            return result.isSuccess() ? 1 : 0;
+            if (result.isSuccess()) {
+                return 1;
+            }
+            return 0;
         } catch (Exception e) {
             log.error("横向课题撤回失败: id={}, operatorId={}", id, uid, e);
             return 0;
@@ -1741,7 +1756,7 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
     public int recalculateScore(String ids, Long operatorId) {
         String[] idArray = ids.split(",");
         int successCount = 0;
-        
+
         for (String idStr : idArray) {
             try {
                 Integer id = Integer.valueOf(idStr.trim());
@@ -1749,7 +1764,7 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
                 if (apply == null) {
                     continue;
                 }
-                
+
                 String amountStr = apply.getCreditedAmount();
                 if (amountStr == null || amountStr.isEmpty()) {
                     amountStr = apply.getAmount();
@@ -1757,23 +1772,23 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
                 if (amountStr == null || amountStr.isEmpty()) {
                     continue;
                 }
-                
+
                 double amount;
                 try {
                     amount = Double.parseDouble(amountStr);
                 } catch (NumberFormatException e) {
                     continue;
                 }
-                
+
                 List<String> personIds = selectPersionIdsByApplyId(id);
                 if (personIds == null || personIds.isEmpty()) {
                     continue;
                 }
-                
+
                 List<Integer> scores = calculateScoresByAmount(amount, personIds.size());
-                
+
                 sciUserScoreMapper.deleteScoreById(String.valueOf(id), "立项");
-                
+
                 for (int i = 0; i < personIds.size() && i < scores.size(); i++) {
                     SciUserScore userScore = new SciUserScore();
                     userScore.setApplyId(String.valueOf(id));
@@ -1782,13 +1797,13 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
                     userScore.setChangeStatus("重新计算");
                     sciUserScoreMapper.insertScoreHistory(userScore);
                 }
-                
+
                 successCount++;
             } catch (Exception e) {
                 log.error("重新计算课题{}科研分失败: {}", idStr, e.getMessage());
             }
         }
-        
+
         return successCount;
     }
 
@@ -1801,27 +1816,27 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
     @Override
     public Map<String, Object> previewScore(Integer id) {
         Map<String, Object> result = new HashMap<>();
-        
+
         SciHorizontalApply apply = sciHorizontalApplyMapper.selectSciHorizontalApplyById(id);
         if (apply == null) {
             result.put("error", "课题不存在");
             return result;
         }
-        
+
         String amountStr = apply.getCreditedAmount();
         if (amountStr == null || amountStr.isEmpty()) {
             amountStr = apply.getAmount();
         }
-        
+
         result.put("topName", apply.getTopName());
         result.put("amount", apply.getAmount());
         result.put("creditedAmount", apply.getCreditedAmount());
-        
+
         if (amountStr == null || amountStr.isEmpty()) {
             result.put("error", "未填写项目金额");
             return result;
         }
-        
+
         double amount;
         try {
             amount = Double.parseDouble(amountStr);
@@ -1829,15 +1844,15 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
             result.put("error", "金额格式错误");
             return result;
         }
-        
+
         List<String> personIds = selectPersionIdsByApplyId(id);
         if (personIds == null || personIds.isEmpty()) {
             result.put("error", "未设置课题成员");
             return result;
         }
-        
+
         List<Integer> scores = calculateScoresByAmount(amount, personIds.size());
-        
+
         List<Map<String, Object>> memberScores = new ArrayList<>();
         for (int i = 0; i < personIds.size() && i < scores.size(); i++) {
             Map<String, Object> memberScore = new HashMap<>();
@@ -1846,29 +1861,29 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
             memberScore.put("score", scores.get(i));
             memberScores.add(memberScore);
         }
-        
+
         result.put("memberScores", memberScores);
         result.put("totalScore", scores.stream().mapToInt(Integer::intValue).sum());
-        
+
         return result;
     }
 
     /**
      * 功能描述：根据金额计算科研分
      * 从数据库sci_project_score_cfg表读取配置数据
-     * 
+     *
      * @param amount 项目金额（万元）
      * @param memberCount 成员数量
      * @return 各成员科研分列表
      */
     private List<Integer> calculateScoresByAmount(double amount, int memberCount) {
         List<Integer> scores = new ArrayList<>();
-        
+
         // 从数据库查询配置数据
         SciProjectScoreCfg query = new SciProjectScoreCfg();
         query.setProjectType("H"); // H-横向课题
         List<SciProjectScoreCfg> allConfigs = sciProjectScoreCfgMapper.selectSciProjectScoreCfgList(query);
-        
+
         if (allConfigs != null && !allConfigs.isEmpty()) {
             // 使用数据库配置计算
             for (int rank = 1; rank <= Math.min(memberCount, 4); rank++) {
@@ -1882,14 +1897,14 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
                 scores.add(defaultScores[i]);
             }
         }
-        
+
         return scores;
     }
 
     /**
      * 根据金额和排名计算横向课题积分
      * 从数据库sci_project_score_cfg表读取配置数据
-     * 
+     *
      * @param amount 项目金额（万元）
      * @param rank 排名（1-4）
      * @param allConfigs 所有配置数据
@@ -1904,9 +1919,9 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
         SciProjectScoreCfg matchedConfig = null;
         for (SciProjectScoreCfg config : allConfigs) {
             Double min = Double.valueOf(config.getFundsMin());
-            Double max = config.getFundsMax() != null && !config.getFundsMax().isEmpty() 
+            Double max = config.getFundsMax() != null && !config.getFundsMax().isEmpty()
                          ? Double.valueOf(config.getFundsMax()) : null;
-            
+
             // 判断金额是否在当前区间
             if (amount >= min && (max == null || amount <= max)) {
                 matchedConfig = config;
@@ -1933,7 +1948,7 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
 
         // 获取该排名对应的配置
         List<SciProjectScoreCfg> rankConfigs = allConfigs.stream()
-            .filter(c -> c.getFundsMin().equals(matchedFundsMin) && 
+            .filter(c -> c.getFundsMin().equals(matchedFundsMin) &&
                         (matchedFundsMax == null || c.getFundsMax() == null || c.getFundsMax().equals(matchedFundsMax)) &&
                         c.getUserOrder() != null && Integer.valueOf(c.getUserOrder()) == rank)
             .collect(Collectors.toList());
@@ -1943,12 +1958,12 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
         }
 
         SciProjectScoreCfg rankConfig = rankConfigs.get(0);
-        
+
         // 优先使用总分
         if (rankConfig.getTotalScore() != null && !rankConfig.getTotalScore().isEmpty()) {
             return Integer.valueOf(rankConfig.getTotalScore());
         }
-        
+
         // 如果没有总分，使用开题得分和结题得分的平均值
         if (rankConfig.getStartScore() != null && !rankConfig.getStartScore().isEmpty() &&
             rankConfig.getEndScore() != null && !rankConfig.getEndScore().isEmpty()) {
@@ -2043,7 +2058,7 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
         );
 
         ApprovalResult result = approvalProcessService.submitApproval(request);
-        
+
         if (result.isSuccess()) {
             String newState = result.getNewState();
             String correctedState = nodeCodeToState(newState);
@@ -2051,12 +2066,12 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
                 sciHorizontalApplyMapper.updateState(applyId, correctedState);
                 result = ApprovalResult.ok(result.getMessage(), correctedState);
             }
-            log.info("立项申请提交成功: applyId={}, newState={}, operator={}", 
+            log.info("立项申请提交成功: applyId={}, newState={}, operator={}",
                     applyId, correctedState, operatorName);
         } else {
             log.error("立项申请提交失败: applyId={}, reason={}", applyId, result.getMessage());
         }
-        
+
         return result;
     }
 
@@ -2110,7 +2125,7 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
         );
 
         ApprovalResult result = approvalProcessService.approve(request);
-        
+
         if (result.isSuccess()) {
             String newState = result.getNewState();
             String correctedState = nodeCodeToState(newState);
@@ -2118,12 +2133,12 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
                 sciHorizontalApplyMapper.updateState(applyId, correctedState);
                 result = ApprovalResult.ok(result.getMessage(), correctedState);
             }
-            log.info("立项申请审批通过: applyId={}, currentState={}, newState={}, operator={}", 
+            log.info("立项申请审批通过: applyId={}, currentState={}, newState={}, operator={}",
                     applyId, currentState, correctedState, operatorName);
         } else {
             log.error("立项申请审批通过失败: applyId={}, reason={}", applyId, result.getMessage());
         }
-        
+
         return result;
     }
 
@@ -2191,12 +2206,12 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
                 sciHorizontalApplyMapper.updateState(applyId, correctedState);
                 result = ApprovalResult.ok(result.getMessage(), correctedState);
             }
-            log.info("立项申请审批驳回: applyId={}, currentState={}, newState={}, operator={}, reason={}", 
+            log.info("立项申请审批驳回: applyId={}, currentState={}, newState={}, operator={}, reason={}",
                     applyId, currentState, correctedState, operatorName, comment);
         } else {
             log.error("立项申请审批驳回失败: applyId={}, reason={}", applyId, result.getMessage());
         }
-        
+
         return result;
     }
 
@@ -2245,7 +2260,7 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
         );
 
         ApprovalResult result = approvalProcessService.recall(request);
-        
+
         if (result.isSuccess()) {
             String newState = result.getNewState();
             String correctedState = nodeCodeToState(newState);
@@ -2253,12 +2268,12 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
                 sciHorizontalApplyMapper.updateState(applyId, correctedState);
                 result = ApprovalResult.ok(result.getMessage(), correctedState);
             }
-            log.info("立项申请撤回成功: applyId={}, currentState={}, newState={}, operator={}", 
+            log.info("立项申请撤回成功: applyId={}, currentState={}, newState={}, operator={}",
                     applyId, currentState, correctedState, operatorName);
         } else {
             log.error("立项申请撤回失败: applyId={}, reason={}", applyId, result.getMessage());
         }
-        
+
         return result;
     }
 
@@ -2303,7 +2318,7 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
         );
 
         ApprovalResult result = approvalProcessService.submitApproval(request);
-        
+
         if (result.isSuccess()) {
             String newState = result.getNewState();
             String correctedState = nodeCodeToState(newState);
@@ -2311,12 +2326,12 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
                 sciHorizontalApplyMapper.updateState(applyId, correctedState);
                 result = ApprovalResult.ok(result.getMessage(), correctedState);
             }
-            log.info("结项申请提交成功: applyId={}, newState={}, operator={}", 
+            log.info("结项申请提交成功: applyId={}, newState={}, operator={}",
                     applyId, correctedState, operatorName);
         } else {
             log.error("结项申请提交失败: applyId={}, reason={}", applyId, result.getMessage());
         }
-        
+
         return result;
     }
 
@@ -2369,7 +2384,7 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
         );
 
         ApprovalResult result = approvalProcessService.approve(request);
-        
+
         if (result.isSuccess()) {
             String newState = result.getNewState();
             String correctedState = nodeCodeToState(newState);
@@ -2377,12 +2392,12 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
                 sciHorizontalApplyMapper.updateState(applyId, correctedState);
                 result = ApprovalResult.ok(result.getMessage(), correctedState);
             }
-            log.info("结项申请审批通过: applyId={}, currentState={}, newState={}, operator={}", 
+            log.info("结项申请审批通过: applyId={}, currentState={}, newState={}, operator={}",
                     applyId, currentState, correctedState, operatorName);
         } else {
             log.error("结项申请审批通过失败: applyId={}, reason={}", applyId, result.getMessage());
         }
-        
+
         return result;
     }
 
@@ -2435,7 +2450,7 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
         );
 
         ApprovalResult result = approvalProcessService.reject(request);
-        
+
         if (result.isSuccess()) {
             String newState = result.getNewState();
             String correctedState = nodeCodeToState(newState);
@@ -2449,12 +2464,12 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
                 sciHorizontalApplyMapper.updateState(applyId, correctedState);
                 result = ApprovalResult.ok(result.getMessage(), correctedState);
             }
-            log.info("结项申请审批驳回: applyId={}, currentState={}, newState={}, operator={}, reason={}", 
+            log.info("结项申请审批驳回: applyId={}, currentState={}, newState={}, operator={}, reason={}",
                     applyId, currentState, correctedState, operatorName, comment);
         } else {
             log.error("结项申请审批驳回失败: applyId={}, reason={}", applyId, result.getMessage());
         }
-        
+
         return result;
     }
 
@@ -2502,7 +2517,7 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
         );
 
         ApprovalResult result = approvalProcessService.recall(request);
-        
+
         if (result.isSuccess()) {
             String newState = result.getNewState();
             String correctedState = nodeCodeToState(newState);
@@ -2510,12 +2525,12 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
                 sciHorizontalApplyMapper.updateState(applyId, correctedState);
                 result = ApprovalResult.ok(result.getMessage(), correctedState);
             }
-            log.info("结项申请撤回成功: applyId={}, currentState={}, newState={}, operator={}", 
+            log.info("结项申请撤回成功: applyId={}, currentState={}, newState={}, operator={}",
                     applyId, currentState, correctedState, operatorName);
         } else {
             log.error("结项申请撤回失败: applyId={}, reason={}", applyId, result.getMessage());
         }
-        
+
         return result;
     }
 
@@ -2531,7 +2546,7 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
             return new ArrayList<>();
         }
         return approvalProcessService.getApprovalHistory(
-                "HORIZONTAL_APPLY", 
+                "HORIZONTAL_APPLY",
                 applyId.longValue()
         );
     }
@@ -2548,7 +2563,7 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
             return new ArrayList<>();
         }
         return approvalProcessService.getApprovalHistory(
-                "HORIZONTAL_OVER", 
+                "HORIZONTAL_OVER",
                 applyId.longValue()
         );
     }

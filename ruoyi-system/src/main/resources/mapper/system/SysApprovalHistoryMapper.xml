@@ -45,8 +45,8 @@
 
     <select id="selectSysApprovalHistoryByBusinessId" resultMap="SysApprovalHistoryResult">
         <include refid="selectSysApprovalHistoryVo"/>
-        where process_code = #{processCode} and business_id = #{businessId}
-        order by create_time desc
+        where h.process_code = #{processCode} and h.business_id = #{businessId}
+        order by h.create_time desc
     </select>
 
     <insert id="insertSysApprovalHistory" parameterType="SysApprovalHistory" useGeneratedKeys="true" keyProperty="id">
@@ -94,8 +94,8 @@
 
     <select id="selectLastRejectByBusinessId" resultMap="SysApprovalHistoryResult">
         <include refid="selectSysApprovalHistoryVo"/>
-        where process_code = #{processCode} and business_id = #{businessId} and action = 'reject'
-        order by create_time desc
+        where h.process_code = #{processCode} and h.business_id = #{businessId} and h.action = 'reject'
+        order by h.create_time desc
         limit 1
     </select>
 </mapper>
