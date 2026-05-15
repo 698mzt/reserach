@@ -436,8 +436,92 @@
         $(this).fileinput('upload');
     })
 
+    // 缓存所有用户选项用于下拉互斥过滤
+    window._cachedUserOptions = [];
+
+    function rebuildPersonDropdowns() {
+        if (!window._cachedUserOptions.length) return;
+
+        var dropdownIds = ['secondPersonId', 'thirdPersonId', 'fourthPersonId'];
+
+        // 收集所有已选值（包括第一负责人）
+        var selectedValues = {};
+        var firstVal = $('select[name="firstPersonId"]').val();
+        if (firstVal && firstVal !== '' && firstVal !== '-1') {
+            selectedValues['firstPersonId'] = firstVal;
+        }
+        dropdownIds.forEach(function(id) {
+            var val = $('select[name="' + id + '"]').val();
+            if (val && val !== '' && val !== '-1') {
+                selectedValues[id] = val;
+            }
+        });
+
+        // 重建每个下拉框
+        dropdownIds.forEach(function(currentId) {
+            var $select = $('select[name="' + currentId + '"]');
+            var currentVal = $select.val();
+
+            // 移除所有非占位option
+            $select.find('option[value!=""]').remove();
+
+            // 从缓存重新添加：排除在其他下拉中被选中的选项（但保留自己的选中值）
+            window._cachedUserOptions.forEach(function(opt) {
+                var isSelectedElsewhere = false;
+                Object.keys(selectedValues).forEach(function(otherId) {
+                    if (otherId !== currentId && selectedValues[otherId] === String(opt.userId)) {
+                        isSelectedElsewhere = true;
+                    }
+                });
+                if (!isSelectedElsewhere || String(opt.userId) === currentVal) {
+                    $select.append($('<option>', {
+                        value: opt.userId,
+                        text: opt.text,
+                        'data-user-id': opt.userId
+                    }));
+                }
+            });
+
+            // 恢复选中值
+            if (currentVal) {
+                $select.val(currentVal);
+            }
+
+            // 刷新select2
+            if ($select.data('select2')) {
+                $select.trigger('change.select2');
+            }
+        });
+    }
+
+    // 绑定互斥逻辑
+    $(document).on('change', 'select[name="firstPersonId"],select[name="secondPersonId"],select[name="thirdPersonId"],select[name="fourthPersonId"]', function () {
+        rebuildPersonDropdowns();
+    });
+
     // 页面加载时计算积分，金额变化时刷新
     $(document).ready(function() {
+        // 缓存所有用户选项
+        $('select[name="secondPersonId"] option').each(function() {
+            var val = $(this).val();
+            if (val) {
+                window._cachedUserOptions.push({
+                    userId: $(this).data('user-id') || val,
+                    text: $(this).text(),
+                    val: val
+                });
+            }
+        });
+
+        // 初始化Select2
+        $('select[name="secondPersonId"], select[name="thirdPersonId"], select[name="fourthPersonId"]').select2({
+            placeholder: '其他',
+            allowClear: true,
+            width: '100%'
+        });
+
+        // 首次同步
+        rebuildPersonDropdowns();
         loadScores();
     });
     $('input[name="amount"]').on('change blur', function() {

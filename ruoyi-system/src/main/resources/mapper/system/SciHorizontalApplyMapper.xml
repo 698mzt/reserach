@@ -1288,6 +1288,18 @@
         </foreach>
     </select>
 
+    <select id="countIntraschproApplyAll" resultType="int">
+        SELECT COUNT(*) FROM sci_IntraSchPro_apply
+    </select>
+
+    <select id="countIntraschproApplyAllByStates" resultType="int">
+        SELECT COUNT(*) FROM sci_IntraSchPro_apply
+        WHERE state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+    </select>
+
     <select id="countPaperAByUser" resultType="int">
         SELECT COUNT(*) FROM sci_paper_a
         WHERE user_id = #{userId}
