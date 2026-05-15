@@ -839,20 +839,6 @@ public class PageRenderServiceImpl implements IPageRenderService {
             }
         }
 
-        // 成果转化立项通过后显示"申请结项"按钮和"追加金额"按钮
-        if ("TEC_TRA".equals(moduleCode) && context.getCurrentState() != null
-                && context.getCurrentState().endsWith("_PASSED")) {
-            boolean isOwner = context.isOwner();
-            boolean isAdmin = context.hasRole("admin");
-            if ((isOwner || isAdmin) && context.hasPermission(config.getPermission("add"))) {
-                specificActions.add(PageRenderActionItem.of(
-                        "submitOver", "申请结项",
-                        PageRenderColorConstants.COLOR_PRIMARY, 50));
-                specificActions.add(PageRenderActionItem.of(
-                        "reamount", "追加金额",
-                        PageRenderColorConstants.COLOR_PRIMARY, 51));
-            }
-        }
 
         return specificActions;
     }
