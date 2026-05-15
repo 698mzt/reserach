@@ -419,6 +419,31 @@
             var a =$("#state").val();
             var role_str =$("#role").val();
             var currentUrlFlag = $("#urlFlag").val();
+            //如果是admin
+            if (role_str == "admin") {
+                //批阅记录
+                if (name.rows.length > 0) {
+                    $(".tdiv2").show();
+                }
+                if ((a == 7 || a == "ACH_OVER_JYS_AUDIT") && currentUrlFlag == "JYSOVER") {
+                    $(".tdiv1").show();
+                    $("#btn1").show();
+                    $("#btn2").show();
+                    $("#btn3").show();
+                } else if ((a == 8 || a == "ACH_OVER_KYC_AUDIT") && currentUrlFlag == "KYCOVER") {
+                    $(".tdiv1").show();
+                    $("#btn1").show();
+                    $("#btn2").show();
+                    $("#btn3").show();
+                } else if ((a == 13 || a == "ACH_OVER_XY_AUDIT") && currentUrlFlag == "dept_teacher") {
+                    $(".tdiv1").show();
+                    $("#btn1").show();
+                    $("#btn2").show();
+                    $("#btn3").show();
+                } else {
+                    $("#btn3").show();
+                }
+            }
             //如果是科研
             if (role_str=="sci_tesearch"){
                 //批阅记录

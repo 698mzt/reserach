@@ -299,6 +299,8 @@ public interface SciHorizontalApplyMapper
 
     int countIntraschproApplyByUser(@Param("userId") Long userId);
     int countIntraschproApplyByUserAndStates1(@Param("userId") Long userId, @Param("states") List<String> states);
+    int countIntraschproApplyAll();
+    int countIntraschproApplyAllByStates(@Param("states") List<String> states);
 
     int countPaperAByUser(@Param("userId") Long userId);
     int countPaperAByUserAndStates1(@Param("userId") Long userId, @Param("states") List<String> states);

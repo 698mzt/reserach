@@ -442,7 +442,7 @@ public class SciIntraSchoolProController extends BaseController {
     //判断自己的部门是不是和这个项目的部门相同，如果是就设置为1，不是就设置为0
 
     String role_str = panRole_str();
-    if (user_dname.equals(sciIntraSchoolPro.getDname()) || role_str.equals("sci_tesearch")) {
+    if (user_dname.equals(sciIntraSchoolPro.getDname()) || role_str.equals("sci_tesearch") || role_str.equals("admin")) {
       sciIntraSchoolPro.setDeptNamekey("1");
     } else {
       sciIntraSchoolPro.setDeptNamekey("0");
@@ -593,10 +593,10 @@ public class SciIntraSchoolProController extends BaseController {
     String roleStr = panRole_str();
     String state = apply.getState();
     if ("pro".equals(urlFlag)) {
-      return "research".equals(roleStr) && ("1".equals(state) || TEC_TRA_JYS_AUDIT.equals(state));
+      return ("research".equals(roleStr) || "admin".equals(roleStr)) && ("1".equals(state) || TEC_TRA_JYS_AUDIT.equals(state));
     }
     if ("hecha".equals(urlFlag)) {
-      return "sci_tesearch".equals(roleStr) && ("2".equals(state) || TEC_TRA_KYC_AUDIT.equals(state));
+      return ("sci_tesearch".equals(roleStr) || "admin".equals(roleStr)) && ("2".equals(state) || TEC_TRA_KYC_AUDIT.equals(state));
     }
     return false;
   }
@@ -684,10 +684,13 @@ public class SciIntraSchoolProController extends BaseController {
       return false;
     }
     String roleStr = panRole_str();
+    if ("admin".equals(roleStr)) {
+      return true;
+    }
     if ("research".equals(roleStr) && ("2".equals(apply.getState()) || TEC_TRA_KYC_AUDIT.equals(apply.getState()))) {
       return true;
     }
-    return ("sci_tesearch".equals(roleStr) || "admin".equals(roleStr)) && isPassedTecTraState(apply.getState());
+    return "sci_tesearch".equals(roleStr) && isPassedTecTraState(apply.getState());
   }
 
   private boolean isPassedTecTraState(String state) {
@@ -707,6 +710,9 @@ public class SciIntraSchoolProController extends BaseController {
   @PostMapping("/over_retract")
   @ResponseBody
   public AjaxResult over_retract(String id, String remark, String urlFlag) {
+    if (!canApproveOverTecTra(urlFlag) && !"admin".equals(panRole_str())) {
+      return AjaxResult.error("当前账号无此撤回权限");
+    }
     //更改积分
     SciIntraSchoolPro sciIntraSchoolPro1 = sciIntraSchProApplyService.sel_IntraSchPro_by_id(Integer.valueOf(id));
     int i = sciIntraSchProScoreService.update_SchPro_score_jt(sciIntraSchoolPro1);
@@ -757,6 +763,9 @@ public class SciIntraSchoolProController extends BaseController {
   @ResponseBody
   public AjaxResult hxover(String id, String urlFlag) {
     System.out.println("SciIntraSchoolProController.hxover" + "id=" + id + " urlFlag=" + urlFlag);
+    if (!canApproveOverTecTra(urlFlag)) {
+      return AjaxResult.error("当前账号无此审批权限");
+    }
     if (urlFlag.equals("KYCOVER")) {
       SciIntraSchoolPro sciIntraSchoolPro1 = sciIntraSchProApplyService.sel_IntraSchPro_by_id(Integer.valueOf(id));
       sciIntraSchProScoreService.set_SchPro_score(sciIntraSchoolPro1, 1);
@@ -764,9 +773,29 @@ public class SciIntraSchoolProController extends BaseController {
     return toAjax(sciIntraSchProApplyService.sch_hxover(id, getUserId(), urlFlag));
   }
 
+  private boolean canApproveOverTecTra(String urlFlag) {
+    String roleStr = panRole_str();
+    if ("admin".equals(roleStr)) {
+      return true;
+    }
+    if ("JYSOVER".equals(urlFlag)) {
+      return "research".equals(roleStr);
+    }
+    if ("KYCOVER".equals(urlFlag)) {
+      return "sci_tesearch".equals(roleStr);
+    }
+    if ("dept_teacher".equals(urlFlag)) {
+      return "dept_teacher".equals(roleStr);
+    }
+    return false;
+  }
+
   @PostMapping("/sch_hxoverBh")
   @ResponseBody
   public AjaxResult hxoverBh(String id, String remark, String urlFlag) {
+    if (!canApproveOverTecTra(urlFlag)) {
+      return AjaxResult.error("当前账号无此审批权限");
+    }
     return toAjax(sciIntraSchProApplyService.sch_hxoverBh(id, getUserId(), remark, urlFlag));
   }
 

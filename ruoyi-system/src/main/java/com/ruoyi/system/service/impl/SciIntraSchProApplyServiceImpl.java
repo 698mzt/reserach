@@ -375,17 +375,29 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
 
     @Override
     public List<SciIntraSchoolPro> sel_IntraSchPro_isOVER_admin(SciIntraSchoolPro sciIntraSchoolPro) {
-        return sciIntraSchProApplyMapper.sel_IntraSchPro_isOVER_admin(sciIntraSchoolPro);
+        List<SciIntraSchoolPro> list = sciIntraSchProApplyMapper.sel_IntraSchPro_isOVER_admin(sciIntraSchoolPro);
+        for (SciIntraSchoolPro pro : list) {
+            fillPageRenderData(pro);
+        }
+        return list;
     }
 
     @Override
     public List<SciIntraSchoolPro> sel_IntraSchPro_approval_admin(SciIntraSchoolPro sciIntraSchoolPro) {
-        return sciIntraSchProApplyMapper.sel_IntraSchPro_approval_admin(sciIntraSchoolPro);
+        List<SciIntraSchoolPro> list = sciIntraSchProApplyMapper.sel_IntraSchPro_approval_admin(sciIntraSchoolPro);
+        for (SciIntraSchoolPro pro : list) {
+            fillPageRenderData(pro);
+        }
+        return list;
     }
 
     @Override
     public List<SciIntraSchoolPro> sel_IntraSchPro_closure_admin(SciIntraSchoolPro sciIntraSchoolPro) {
-        return sciIntraSchProApplyMapper.sel_IntraSchPro_closure_admin(sciIntraSchoolPro);
+        List<SciIntraSchoolPro> list = sciIntraSchProApplyMapper.sel_IntraSchPro_closure_admin(sciIntraSchoolPro);
+        for (SciIntraSchoolPro pro : list) {
+            fillPageRenderData(pro);
+        }
+        return list;
     }
 
     @Override

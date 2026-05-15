@@ -1138,6 +1138,7 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
      */
     private String determineMainRole(List<SysRole> roles) {
         // 按角色优先级顺序判断
+        if (hasRole(roles, "admin")) return "admin"; // 超级管理员
         if (hasRole(roles, "sci_tesearch")) return "sci_tesearch"; //科研处
 //        if (hasRole(roles, "dept_teacher")) return "dept_teacher"; // 学院
         if (roles.stream().anyMatch(role -> COLLEGE_ROLES.contains(role.getRoleKey()))) { return "dept_teacher";}
@@ -1370,6 +1371,9 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
     private int calculateAchievementTodoCount(SysUser user, String roleKey) {
         int count = 0;
         switch (roleKey) {
+            case "admin": // 超级管理员：查看全部待办
+                count = sciHorizontalApplyMapper.countAchievementByStates(Arrays.asList("15", "3", "12", "5", "4", "9", "14", "10", "1", "2", "7", "8", "11", "13"), getCurrentYear());
+                break;
             case "sci_tesearch": // 科研处
                 int personalCount2 = countPersonalAchievementTodos(user.getUserId(), Arrays.asList("15", "3", "12", "5", "4", "9", "14", "10"));
                 int deptCount2 = sciHorizontalApplyMapper.countAchievementByStates(Arrays.asList("2", "8"), getCurrentYear());
@@ -1613,19 +1617,35 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
     // 成果转化统计实现
     @Override
     public int countAchievementApply(SysUser user) {
+        if (isAdmin(user)) {
+            return sciIntraschproApplyMapper.countIntraschproApplyAll();
+        }
         return sciIntraschproApplyMapper.countIntraschproApplyByUser(user.getUserId());
     }
 
     @Override
     public int countAchievementAudit(SysUser user) {
         List<String> auditStates = Arrays.asList("1", "11", "2", "4", "7", "13", "8");
+        if (isAdmin(user)) {
+            return sciIntraschproApplyMapper.countIntraschproApplyAllByStates(auditStates);
+        }
         return sciIntraschproApplyMapper.countIntraschproApplyByUserAndStates1(user.getUserId(), auditStates);
     }
 
     @Override
     public int countAchievementComplete(SysUser user) {
         List<String> completeStates = Arrays.asList("6");
+        if (isAdmin(user)) {
+            return sciIntraschproApplyMapper.countIntraschproApplyAllByStates(completeStates);
+        }
         return sciIntraschproApplyMapper.countIntraschproApplyByUserAndStates1(user.getUserId(), completeStates);
+    }
+
+    private boolean isAdmin(SysUser user) {
+        if (user == null || user.getRoles() == null) {
+            return false;
+        }
+        return user.getRoles().stream().anyMatch(r -> "admin".equals(r.getRoleKey()));
     }
 
     // 论文统计实现
