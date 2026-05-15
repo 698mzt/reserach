@@ -693,7 +693,7 @@
         return String(row.userId || '') !== '' && String(row.userId) === String(row.uid || '');
     }
 
-    function filterListActions(actions, row) {
+    function filterListActions(actions, row, tableId) {
         if (!actions || !actions.length) {
             return [];
         }
@@ -732,10 +732,16 @@
                 return false;
             }
             if (key === 'review') {
-                return state.indexOf('_JYS_AUDIT') !== -1 && hasPagePermission(proFlag) && !owner;
+                if (tableId === 'bootstrap-table2') {
+                    return state === 'HORIZONTAL_OVER_JYS_AUDIT' && hasPagePermission(proFlag) && !owner;
+                }
+                return state === 'HORIZONTAL_APPLY_JYS_AUDIT' && hasPagePermission(proFlag) && !owner;
             }
             if (key === 'kyReview') {
-                return state.indexOf('_KYC_AUDIT') !== -1 && hasPagePermission(hechaFlag);
+                if (tableId === 'bootstrap-table2') {
+                    return state === 'HORIZONTAL_OVER_KYC_AUDIT' && hasPagePermission(hechaFlag);
+                }
+                return state === 'HORIZONTAL_APPLY_KYC_AUDIT' && hasPagePermission(hechaFlag);
             }
             if (key === 'approve' || key === 'reject' || key === 'deptReview') {
                 return false;
@@ -953,7 +959,7 @@
                     align: 'center',
                     formatter: function(value, row, index) {
                         if (row.actions && row.actions.length > 0) {
-                            var listActions = filterListActions(row.actions, row);
+                            var listActions = filterListActions(row.actions, row, 'bootstrap-table0');
                             if (listActions.length > 0) {
                                 return renderActionsWithSplit(listActions);
                             }
@@ -1098,7 +1104,7 @@
                     align: 'center',
                     formatter: function(value, row, index) {
                         if (row.actions && row.actions.length > 0) {
-                            var listActions = filterListActions(row.actions, row);
+                            var listActions = filterListActions(row.actions, row, 'bootstrap-table1');
                             if (listActions.length > 0) {
                                 return renderActionsWithSplit(listActions);
                             }
@@ -1257,7 +1263,7 @@
                     align: 'center',
                     formatter: function(value, row, index) {
                         if (row.actions && row.actions.length > 0) {
-                            var listActions = filterListActions(row.actions, row);
+                            var listActions = filterListActions(row.actions, row, 'bootstrap-table2');
                             if (listActions.length > 0) {
                                 return renderActionsWithSplit(listActions);
                             }
@@ -1414,7 +1420,12 @@
             },
             'edit': function(actionKey, data) {
                 var id = data.reid || data.id;
-                $.operate.editTab(id);
+                var state = data.state || '';
+                if (state.indexOf('HORIZONTAL_OVER_') !== -1) {
+                    $.operate.overTab(id);
+                } else {
+                    $.operate.editTab(id);
+                }
             },
             'remove': function(actionKey, data) {
                 var id = data.reid || data.id;
