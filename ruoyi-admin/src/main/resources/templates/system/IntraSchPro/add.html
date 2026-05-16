@@ -435,47 +435,91 @@
         $(this).fileinput('upload');
     })
 
-    function updateAuthorDropdownOptions() {
-        // 构造所有未禁用select及其已选值
-        var selects = [
-            {id: 'firstPersonId', $el: $('#firstPersonId'), selected: $('#firstPersonId').val()},
-            {id: 'secondPersonId', $el: $('#secondPersonId'), selected: $('#secondPersonId').val()},
-            {id: 'thirdPersonId', $el: $('#thirdPersonId'), selected: $('#thirdPersonId').val()},
-            {id: 'fourthPersonId', $el: $('#fourthPersonId'), selected: $('#fourthPersonId').val()}
-        ];
+    // 缓存所有用户选项（在AJAX移除登录用户之后）
+    window._cachedUserOptions = [];
 
-// 收集所有选中的ID，但跳过userId为-1的"其他"选项（因为userId是字符串，所以用'-1'）
-        var selectedIds = selects.filter(s => !s.$el.prop('disabled') && s.selected && s.selected !== '-1').map(s => s.selected);
+    function rebuildPersonDropdowns() {
+        if (!window._cachedUserOptions.length) return;
 
-        selects.forEach(currentSel => {
-            // 只刷未禁用的
-            if (currentSel.$el.prop('disabled')) return;
-            currentSel.$el.find('option').each(function () {
-                var val = $(this).val();
-                if (!val) return; // 保留请选择
-                // 如果该选项被其它未禁用下拉选中则禁用(但自身已选要保留)
-                var isByOtherSelected = selectedIds.includes(val) && currentSel.selected !== val;
-                $(this).prop('disabled', isByOtherSelected);
+        var dropdownIds = ['secondPersonId', 'thirdPersonId', 'fourthPersonId'];
+
+        // 收集所有已选值（包括第一负责人）
+        var selectedValues = {};
+        var firstVal = $('#firstPersonId').val();
+        if (firstVal && firstVal !== '' && firstVal !== '-1') {
+            selectedValues['firstPersonId'] = firstVal;
+        }
+        dropdownIds.forEach(function(id) {
+            var val = $('#' + id).val();
+            if (val && val !== '' && val !== '-1') {
+                selectedValues[id] = val;
+            }
+        });
+
+        // 重建每个下拉框
+        dropdownIds.forEach(function(currentId) {
+            var $select = $('#' + currentId);
+            var currentVal = $select.val();
+
+            // 移除所有非占位option
+            $select.find('option[value!=""]').remove();
+
+            // 从缓存重新添加：排除在其他下拉中被选中的选项（但保留自己的选中值）
+            window._cachedUserOptions.forEach(function(opt) {
+                var isSelectedElsewhere = false;
+                Object.keys(selectedValues).forEach(function(otherId) {
+                    if (otherId !== currentId && selectedValues[otherId] === String(opt.userId)) {
+                        isSelectedElsewhere = true;
+                    }
+                });
+                if (!isSelectedElsewhere || String(opt.userId) === currentVal) {
+                    $select.append($('<option>', {
+                        value: opt.userId,
+                        text: opt.text,
+                        'data-user-id': opt.userId
+                    }));
+                }
             });
-            // 让select2刷新可选项
-            if (currentSel.$el.data('select2')) currentSel.$el.trigger('change.select2');
+
+            // 恢复选中值
+            if (currentVal) {
+                $select.val(currentVal);
+            }
+
+            // 刷新select2
+            if ($select.data('select2')) {
+                $select.trigger('change.select2');
+            }
         });
     }
 
     // 绑定互斥逻辑
-    $('#firstPersonId,#secondPersonId,#thirdPersonId,#fourthPersonId').on('change', function () {
-        updateAuthorDropdownOptions();
+    $('#secondPersonId,#thirdPersonId,#fourthPersonId').on('change', function () {
+        rebuildPersonDropdowns();
     });
-    // 页面首次加载也刷新一次保证同步
+
     $(document).ready(function () {
-        // 初始化Select2下拉框
+        // AJAX已移除登录用户后，缓存剩余选项
+        $('#secondPersonId option').each(function() {
+            var val = $(this).val();
+            if (val) {
+                window._cachedUserOptions.push({
+                    userId: $(this).data('user-id') || val,
+                    text: $(this).text(),
+                    val: val
+                });
+            }
+        });
+
+        // 初始化Select2
         $('#secondPersonId, #thirdPersonId, #fourthPersonId').select2({
             placeholder: '其他',
             allowClear: true,
             width: '100%'
         });
 
-        updateAuthorDropdownOptions();
+        // 首次同步
+        rebuildPersonDropdowns();
     });
     // 绑定金额输入框变化事件，动态刷新积分
     $('input[name="amount"]').on('change blur', function() {

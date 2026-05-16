@@ -71,7 +71,7 @@
                     and s.state in ('HORIZONTAL_APPLY_DRAFT','HORIZONTAL_APPLY_JYS_AUDIT','HORIZONTAL_APPLY_KYC_AUDIT','HORIZONTAL_APPLY_PASSED')
                 </when>
                 <when test="newsql == '02'">
-                    and s.state in ('HORIZONTAL_OVER_DRAFT','HORIZONTAL_OVER_JYS_AUDIT','HORIZONTAL_OVER_KYC_AUDIT','HORIZONTAL_OVER_PASSED')
+                    and s.state in ('HORIZONTAL_OVER_DRAFT','HORIZONTAL_OVER_JYS_AUDIT','HORIZONTAL_OVER_KYC_AUDIT','HORIZONTAL_OVER_PASSED','HORIZONTAL_OVER_REJECTED')
                 </when>
             </choose>
         </if>
@@ -117,6 +117,7 @@
     <select id="selectSciHorizontalApplyListAll" parameterType="SciHorizontalApply" resultMap="SciHorizontalApplyResult" >
         <include refid="selectSciHorizontalApplyVo"/>
         where 1=1
+        and s.state not like 'HORIZONTAL_OVER_%'
         <!-- 保留状态过滤条件，但不再硬编码状态范围，允许通过参数动态过滤 -->
         <if test="state != null  and state != ''"> and s.state = #{state}</if>
         <if test="topName != null  and topName != ''"> and s.top_name like concat('%', #{topName}, '%')</if>
@@ -221,7 +222,7 @@
         left join sys_user u on  s.user_id=u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
-        where s.state in ('HORIZONTAL_OVER_DRAFT','HORIZONTAL_OVER_JYS_AUDIT','HORIZONTAL_OVER_KYC_AUDIT','HORIZONTAL_OVER_PASSED')
+        where s.state in ('HORIZONTAL_OVER_DRAFT','HORIZONTAL_OVER_JYS_AUDIT','HORIZONTAL_OVER_KYC_AUDIT','HORIZONTAL_OVER_PASSED','HORIZONTAL_OVER_REJECTED')
         <if test="state != null  and state != ''"> and s.state = #{state}</if>
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
@@ -1282,6 +1283,18 @@
         SELECT COUNT(*) FROM sci_IntraSchPro_apply
         WHERE user_id = #{userId}
         AND state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+    </select>
+
+    <select id="countIntraschproApplyAll" resultType="int">
+        SELECT COUNT(*) FROM sci_IntraSchPro_apply
+    </select>
+
+    <select id="countIntraschproApplyAllByStates" resultType="int">
+        SELECT COUNT(*) FROM sci_IntraSchPro_apply
+        WHERE state IN
         <foreach item="state" collection="states" open="(" separator="," close=")">
             #{state}
         </foreach>

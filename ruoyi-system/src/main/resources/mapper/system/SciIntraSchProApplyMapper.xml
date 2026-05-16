@@ -654,20 +654,41 @@
     <select id="sel_IntraSchPro_isOVER_admin" parameterType="SciIntraSchoolPro" resultMap="SciIntraSchoolProResult">
         select
         'admin' role, #{uid} uid, s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id,
-        concat( s.amount,'万') amount, s.contract, s.filing, s.state ,s.PA ,s.PB
+        concat( s.amount,'万') amount, s.contract, s.filing, s.state ,s.PA ,s.PB,
+        MAX(CASE WHEN s.first_person_id = sc.userid AND s.id = sc.sciIntraSch_Id THEN sc.earnedALL_Points END) AS firstPoints,
+        MAX(CASE WHEN s.second_person_id = sc.userid AND s.id = sc.sciIntraSch_Id THEN sc.earnedALL_Points END) AS secondPoints,
+        MAX(CASE WHEN s.third_person_id = sc.userid AND s.id = sc.sciIntraSch_Id THEN sc.earnedALL_Points END) AS thirdPoints,
+        MAX(CASE WHEN s.fourth_person_id = sc.userid AND s.id = sc.sciIntraSch_Id THEN sc.earnedALL_Points END) AS forthPoints
         from sci_IntraSchPro_apply s left join sys_user u on  s.user_id=u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
+        LEFT JOIN sci_IntraSchPro_score sc ON sc.sciIntraSch_Id = s.id
         where s.state in (6, 'TEC_TRA_PASSED')
-        <!--            <if test="userId != null "> and user_id = #{userId}</if>-->
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
         <if test="yname != null  and yname != ''"> and p.dept_name like concat('%', #{yname}, '%')</if>
         <if test="dname != null  and dname != ''"> and d.dept_name like concat('%', #{dname}, '%')</if>
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
-
-        <!-- 数据范围过滤 -->
+        GROUP BY
+        s.id,
+        u.user_name,
+        d.dept_name,
+        p.dept_name,
+        s.user_id,
+        s.top_name,
+        s.signing_data,
+        s.validity_Date,
+        s.first_person_id,
+        s.second_person_id,
+        s.third_person_id,
+        s.fourth_person_id,
+        CONCAT(s.amount, '万'),
+        s.contract,
+        s.filing,
+        s.state,
+        s.PA,
+        s.PB
         order  by createtime desc
 
     </select>
@@ -676,21 +697,41 @@
     <select id="sel_IntraSchPro_approval_admin" parameterType="SciIntraSchoolPro" resultMap="SciIntraSchoolProResult">
         select
         'admin' role,#{uid} uid, s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id,
-        concat( s.amount,'万') amount, s.contract, s.filing, s.state ,s.PA ,s.PB
+        concat( s.amount,'万') amount, s.contract, s.filing, s.state ,s.PA ,s.PB,
+        MAX(CASE WHEN s.first_person_id = sc.userid AND s.id = sc.sciIntraSch_Id THEN sc.earnedALL_Points END) AS firstPoints,
+        MAX(CASE WHEN s.second_person_id = sc.userid AND s.id = sc.sciIntraSch_Id THEN sc.earnedALL_Points END) AS secondPoints,
+        MAX(CASE WHEN s.third_person_id = sc.userid AND s.id = sc.sciIntraSch_Id THEN sc.earnedALL_Points END) AS thirdPoints,
+        MAX(CASE WHEN s.fourth_person_id = sc.userid AND s.id = sc.sciIntraSch_Id THEN sc.earnedALL_Points END) AS forthPoints
         from sci_IntraSchPro_apply s left join sys_user u on  s.user_id=u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
+        LEFT JOIN sci_IntraSchPro_score sc ON sc.sciIntraSch_Id = s.id
         where s.state in (1, 2, 3, 4, 5, 11, 12, 15, 'TEC_TRA_DRAFT', 'TEC_TRA_JYS_AUDIT', 'TEC_TRA_KYC_AUDIT', 'TEC_TRA_PASSED', 'TEC_TRA_REJECTED')
-        <!--            <if test="userId != null "> and user_id = #{userId}</if>-->
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
         <if test="yname != null  and yname != ''"> and p.dept_name like concat('%', #{yname}, '%')</if>
         <if test="dname != null  and dname != ''"> and d.dept_name like concat('%', #{dname}, '%')</if>
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
-
-        <!-- 数据范围过滤 -->
-        ${params.dataScope}
+        GROUP BY
+        s.id,
+        u.user_name,
+        d.dept_name,
+        p.dept_name,
+        s.user_id,
+        s.top_name,
+        s.signing_data,
+        s.validity_Date,
+        s.first_person_id,
+        s.second_person_id,
+        s.third_person_id,
+        s.fourth_person_id,
+        CONCAT(s.amount, '万'),
+        s.contract,
+        s.filing,
+        s.state,
+        s.PA,
+        s.PB
         order  by createtime desc
 
     </select>
@@ -699,21 +740,41 @@
     <select id="sel_IntraSchPro_closure_admin" parameterType="SciIntraSchoolPro" resultMap="SciIntraSchoolProResult">
         select
         'admin' role,#{uid} uid, s.id,u.user_name userName,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.signing_data, s.validity_Date, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id,
-        concat( s.amount,'万') amount, s.contract, s.filing, s.state ,s.PA ,s.PB
+        concat( s.amount,'万') amount, s.contract, s.filing, s.state ,s.PA ,s.PB,
+        MAX(CASE WHEN s.first_person_id = sc.userid AND s.id = sc.sciIntraSch_Id THEN sc.earnedALL_Points END) AS firstPoints,
+        MAX(CASE WHEN s.second_person_id = sc.userid AND s.id = sc.sciIntraSch_Id THEN sc.earnedALL_Points END) AS secondPoints,
+        MAX(CASE WHEN s.third_person_id = sc.userid AND s.id = sc.sciIntraSch_Id THEN sc.earnedALL_Points END) AS thirdPoints,
+        MAX(CASE WHEN s.fourth_person_id = sc.userid AND s.id = sc.sciIntraSch_Id THEN sc.earnedALL_Points END) AS forthPoints
         from sci_IntraSchPro_apply s left join sys_user u on  s.user_id=u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
-        where s.state in (7, 8, 9, 10)
-        <!--            <if test="userId != null "> and user_id = #{userId}</if>-->
+        LEFT JOIN sci_IntraSchPro_score sc ON sc.sciIntraSch_Id = s.id
+        where s.state in (6, 7, 8, 9, 10, 13, 14, 16, 'TEC_TRA_PASSED')
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
         <if test="yname != null  and yname != ''"> and p.dept_name like concat('%', #{yname}, '%')</if>
         <if test="dname != null  and dname != ''"> and d.dept_name like concat('%', #{dname}, '%')</if>
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
-
-        <!-- 数据范围过滤 -->
-        ${params.dataScope}
+        GROUP BY
+        s.id,
+        u.user_name,
+        d.dept_name,
+        p.dept_name,
+        s.user_id,
+        s.top_name,
+        s.signing_data,
+        s.validity_Date,
+        s.first_person_id,
+        s.second_person_id,
+        s.third_person_id,
+        s.fourth_person_id,
+        CONCAT(s.amount, '万'),
+        s.contract,
+        s.filing,
+        s.state,
+        s.PA,
+        s.PB
         order  by createtime desc
 
     </select>
