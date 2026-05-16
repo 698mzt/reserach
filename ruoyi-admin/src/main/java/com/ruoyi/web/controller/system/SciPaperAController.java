@@ -130,7 +130,6 @@ public class SciPaperAController extends BaseController {
         sciPaperA.setUid(userId);
         sciPaperA.setYear(year);
 
-        // 统一使用一个查询方法，通过@DataScope控制数据权限
         PageHelper.startPage(pageNum, pageSize);
         List<SciPaperA> list = sciPaperAService.selectSciPaperAListAll(sciPaperA);
         
