@@ -768,6 +768,7 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
                     break;
             }
         }
+        list.forEach(this::fillPageRenderData);
         return list;
     }
 
@@ -853,13 +854,39 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
             );
 
             apply.setStatusMeta(result.getStatusMeta());
-            apply.setActions(result.getActions());
+            apply.setActions(filterVerticalActions(result.getActions()));
         } catch (Exception e) {
             // 页面渲染数据填充失败不影响主流程，提供兜底数据
             log.error("填充纵向课题页面渲染数据失败, applyId={}", apply.getId(), e);
             apply.setStatusMeta(PageRenderStatusMeta.of(apply.getState(), "未知", PageRenderColorConstants.COLOR_DEFAULT));
             apply.setActions(new ArrayList<>());
         }
+    }
+
+    /**
+     * 过滤纵向课题列表中不需要的按钮
+     * 公共 PageRender 服务会为审批中状态生成"通过"按钮
+     * 但纵向课题的审批操作统一在详情页完成，列表页只需要"批阅"按钮
+     *
+     * @param actions 原始按钮列表
+     * @return 过滤后的按钮列表
+     */
+    @SuppressWarnings("unchecked")
+    private List<PageRenderActionItem> filterVerticalActions(List<?> actions) {
+        if (actions == null || actions.isEmpty()) {
+            return new ArrayList<>();
+        }
+        List<PageRenderActionItem> filtered = new ArrayList<>();
+        for (Object item : actions) {
+            if (item instanceof PageRenderActionItem) {
+                PageRenderActionItem action = (PageRenderActionItem) item;
+                String actionKey = action.getActionKey();
+                if (!"approve".equals(actionKey)) {
+                    filtered.add(action);
+                }
+            }
+        }
+        return filtered;
     }
 
     /**
