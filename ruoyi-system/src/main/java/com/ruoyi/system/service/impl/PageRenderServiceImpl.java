@@ -790,8 +790,9 @@ public class PageRenderServiceImpl implements IPageRenderService {
 
         // 撤回按钮规则：
         // 1. 教研室审批（第一级）：不显示撤回按钮
-        // 2. 科研处审批（第二级）：教研室审批人（有 approve 权限）可撤回
-        if (isLastAuditNode && context.hasPermission(config.getPermission("approve"))) {
+        // 2. 科研处审批（第二级）：教研室审批人（有 revoke 权限）可撤回
+        // 注意：使用独立的撤回权限（revoke），而非批阅权限（approve），避免按钮耦合
+        if (isLastAuditNode && context.hasPermission(config.getPermission("revoke"))) {
             actions.add(PageRenderActionItem.of(
                     PageRenderActionConstants.ACTION_RECALL, "撤回",
                     PageRenderColorConstants.COLOR_WARNING, 40, "确定要撤回该记录吗？"));
