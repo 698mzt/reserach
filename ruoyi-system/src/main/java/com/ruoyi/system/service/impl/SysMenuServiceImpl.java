@@ -60,6 +60,31 @@ public class SysMenuServiceImpl implements ISysMenuService
     }
 
     /**
+     * 根据角色ID查询菜单（用于角色切换后获取该角色的菜单树）
+     * 
+     * @param roleId 角色ID
+     * @return 菜单列表
+     */
+    @Override
+    public List<SysMenu> selectMenusByRoleId(Long roleId)
+    {
+        List<SysMenu> menus = menuMapper.selectMenusByRoleId(roleId);
+        return getChildPerms(menus, 0);
+    }
+
+    /**
+     * 查询所有正常状态的菜单（管理员角色使用）
+     * 
+     * @return 菜单列表
+     */
+    @Override
+    public List<SysMenu> selectMenuNormalAll()
+    {
+        List<SysMenu> menus = menuMapper.selectMenuNormalAll();
+        return getChildPerms(menus, 0);
+    }
+
+    /**
      * 查询菜单集合
      * 
      * @return 所有菜单信息

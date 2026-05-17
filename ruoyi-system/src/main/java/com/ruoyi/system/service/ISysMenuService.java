@@ -24,6 +24,21 @@ public interface ISysMenuService
     public List<SysMenu> selectMenusByUser(SysUser user);
 
     /**
+     * 根据角色ID查询菜单（用于角色切换后获取该角色的菜单树）
+     * 
+     * @param roleId 角色ID
+     * @return 菜单列表
+     */
+    public List<SysMenu> selectMenusByRoleId(Long roleId);
+
+    /**
+     * 查询所有正常状态的菜单（管理员角色使用）
+     * 
+     * @return 菜单列表
+     */
+    public List<SysMenu> selectMenuNormalAll();
+
+    /**
      * 查询系统菜单列表
      * 
      * @param menu 菜单信息

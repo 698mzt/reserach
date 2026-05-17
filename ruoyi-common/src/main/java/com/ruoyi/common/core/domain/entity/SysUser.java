@@ -3,6 +3,7 @@ package com.ruoyi.common.core.domain.entity;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import javax.validation.constraints.*;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -457,5 +458,23 @@ public class SysUser extends BaseEntity
             .append("dept", getDept())
 			.append("roles", getRoles())
             .toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SysUser sysUser = (SysUser) o;
+        // userId 不为 null 时用 userId 比较，否则用 loginName 兜底
+        if (userId != null && sysUser.getUserId() != null) {
+            return Objects.equals(userId, sysUser.getUserId());
+        }
+        return Objects.equals(loginName, sysUser.getLoginName());
+    }
+
+    @Override
+    public int hashCode() {
+        // userId 不为 null 时用 userId 计算 hashCode，否则用 loginName 兜底
+        return userId != null ? Objects.hash(userId) : Objects.hash(loginName);
     }
 }

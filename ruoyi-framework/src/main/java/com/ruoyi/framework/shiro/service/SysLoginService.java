@@ -1,7 +1,11 @@
 package com.ruoyi.framework.shiro.service;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
+import org.apache.shiro.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import com.ruoyi.common.constant.Constants;
@@ -26,6 +30,7 @@ import com.ruoyi.framework.manager.AsyncManager;
 import com.ruoyi.framework.manager.factory.AsyncFactory;
 import com.ruoyi.system.service.ISysConfigService;
 import com.ruoyi.system.service.ISysMenuService;
+import com.ruoyi.system.service.ISysRoleService;
 import com.ruoyi.system.service.ISysUserService;
 
 /**
@@ -47,6 +52,9 @@ public class SysLoginService
 
     @Autowired
     private ISysConfigService configService;
+
+    @Autowired
+    private ISysRoleService roleService;
 
     /**
      * 登录
@@ -126,6 +134,7 @@ public class SysLoginService
 
         AsyncManager.me().execute(AsyncFactory.recordLogininfor(username, Constants.LOGIN_SUCCESS, MessageUtils.message("user.login.success")));
         setRolePermission(user);
+        setDefaultActiveRole(user);
         recordLoginInfo(user.getUserId());
         return user;
     }
@@ -158,14 +167,52 @@ public class SysLoginService
     public void setRolePermission(SysUser user)
     {
         List<SysRole> roles = user.getRoles();
-        if (!roles.isEmpty() && roles.size() > 1)
+        if (!roles.isEmpty())
         {
             // 多角色设置permissions属性，以便数据权限匹配权限
             for (SysRole role : roles)
             {
-                Set<String> rolePerms = menuService.selectPermsByRoleId(role.getRoleId());
+                // 系统管理员角色拥有所有权限
+                Set<String> rolePerms;
+                if (role.isAdmin()) {
+                    rolePerms = new HashSet<>();
+                    rolePerms.add("*:*:*");
+                } else {
+                    rolePerms = menuService.selectPermsByRoleId(role.getRoleId());
+                }
                 role.setPermissions(rolePerms);
             }
+        }
+    }
+
+    /**
+     * 设置登录默认活动角色
+     * 多角色用户默认进入普通教师角色，单角色用户默认进入其原本的角色
+     *
+     * @param user 用户信息
+     */
+    public void setDefaultActiveRole(SysUser user)
+    {
+        List<SysRole> roles = roleService.selectRolesByUserIdExcludingDataScope(user.getUserId());
+        List<SysRole> activeRoles = roles.stream()
+                .filter(r -> "0".equals(r.getStatus()))
+                .collect(Collectors.toList());
+
+        if (activeRoles.isEmpty()) {
+            return;
+        }
+
+        if (activeRoles.size() > 1) {
+            // 多角色用户 → 默认进入普通教师角色
+            Optional<SysRole> teacherRole = activeRoles.stream()
+                    .filter(r -> "teacher".equals(r.getRoleKey()))
+                    .findFirst();
+            if (teacherRole.isPresent()) {
+                SecurityUtils.getSubject().getSession().setAttribute("activeRoleId", teacherRole.get().getRoleId());
+            }
+        } else if (activeRoles.size() == 1) {
+            // 单角色用户 → 默认进入其唯一角色
+            SecurityUtils.getSubject().getSession().setAttribute("activeRoleId", activeRoles.get(0).getRoleId());
         }
     }
 

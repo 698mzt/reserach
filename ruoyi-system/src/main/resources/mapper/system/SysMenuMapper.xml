@@ -85,6 +85,14 @@
 		order by m.parent_id, m.order_num
 	</select>
 
+	<select id="selectMenusByRoleId" parameterType="Long" resultMap="SysMenuResult">
+		select distinct m.menu_id, m.parent_id, m.menu_name, m.url, m.visible, m.is_refresh, ifnull(m.perms,'') as perms, m.target, m.menu_type, m.icon, m.order_num, m.create_time
+		from sys_menu m
+			left join sys_role_menu rm on m.menu_id = rm.menu_id
+		where rm.role_id = #{roleId} and m.menu_type in ('M', 'C') and m.visible = 0
+		order by m.parent_id, m.order_num
+	</select>
+
 	<select id="selectMenuList" parameterType="SysMenu" resultMap="SysMenuResult">
 		<include refid="selectMenuVo"/>
 		<where>
