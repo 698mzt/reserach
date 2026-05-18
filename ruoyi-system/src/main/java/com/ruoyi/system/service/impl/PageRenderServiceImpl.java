@@ -2,7 +2,6 @@ package com.ruoyi.system.service.impl;
 
 import com.ruoyi.common.core.domain.entity.SysRole;
 import com.ruoyi.common.core.domain.entity.SysUser;
-import com.ruoyi.common.utils.ActiveRoleContextHolder;
 import com.ruoyi.common.utils.ShiroUtils;
 import com.ruoyi.system.constant.PageRenderActionConstants;
 import com.ruoyi.system.constant.PageRenderColorConstants;
@@ -16,6 +15,7 @@ import com.ruoyi.system.service.ISysRoleService;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.cache.Cache;
+import org.apache.shiro.session.Session;
 import org.apache.shiro.mgt.RealmSecurityManager;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
@@ -927,8 +927,15 @@ public class PageRenderServiceImpl implements IPageRenderService {
             return Collections.emptySet();
         }
 
-        // 角色切换上下文检查：如果用户切换了活动角色，只返回该角色的权限
-        Long activeRoleId = com.ruoyi.common.utils.ActiveRoleContextHolder.get();
+        // 从 Session 读取活动角色 ID，如果用户切换了角色则只返回该角色的权限
+        Long activeRoleId = null;
+        Subject subject = SecurityUtils.getSubject();
+        if (subject != null) {
+            Session session = subject.getSession(false);
+            if (session != null) {
+                activeRoleId = (Long) session.getAttribute("activeRoleId");
+            }
+        }
         if (activeRoleId != null) {
             // 查询活动角色信息
             com.ruoyi.common.core.domain.entity.SysRole activeRole =
@@ -943,8 +950,6 @@ public class PageRenderServiceImpl implements IPageRenderService {
                 // 普通角色：只返回该角色的权限
                 return sysMenuService.selectPermsByRoleId(activeRoleId);
             }
-            // 角色不存在，清除上下文并回退到全部权限模式
-            com.ruoyi.common.utils.ActiveRoleContextHolder.clear();
         }
 
         // 未切换角色 → 走原逻辑

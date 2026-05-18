@@ -366,19 +366,19 @@
 <body class="gray-bg">
 <div class="container-div">
     <div class="row">
-        <div class="col-sm-12 search-collapse">
+        <div class="col-sm-12 search-collapse" shiro:hasPermission="system:paper:chaxun">
             <form id="formId">
                 <div class="select-list" >
                     <ul>
-                        <li>
+                        <li class="college-field" style="display:none;">
                             <label>学院：</label>
                             <input type="text" name="college" placeholder="请输入学院名称"/>
                         </li>
-                        <li>
+                        <li class="major-field" style="display:none;">
                             <label>专业：</label>
                             <input type="text" name="researchRoom" placeholder="请输入专业名称"/>
                         </li>
-                        <li>
+                        <li class="host-name-field" style="display:none;">
                             <label>第一作者：</label>
                             <input type="text" name="firstAuthorName" placeholder="请输入第一作者姓名"/>
                         </li>
@@ -455,7 +455,72 @@
         $.table.init(options);
   }
 
+    // 获取当前用户角色信息
+    var userRole = '';
+    var userRoles = [[${user.roles}]];
+
+    if (userRoles) {
+        for (var i = 0; i < userRoles.length; i++) {
+            var roleKey = userRoles[i].roleKey;
+            if (roleKey === 'admin') {
+                userRole = 'admin';
+                break;
+            }
+        }
+    }
+
+    if (!userRole && userRoles) {
+        for (var i = 0; i < userRoles.length; i++) {
+            var roleKey = userRoles[i].roleKey;
+            if (roleKey === 'sci_tesearch') {
+                userRole = 'sci_tesearch';
+                break;
+            } else if (roleKey === 'research') {
+                userRole = 'research';
+                break;
+            } else if (['dept_teacher', 'discuss_college', 'dzgc_college', 'yssj_college',
+                       'student_college', 'marxism_college', 'general'].indexOf(roleKey) !== -1) {
+                userRole = 'dept_teacher';
+                break;
+            }
+        }
+    }
+
+    if (!userRole) {
+        userRole = 'teacher';
+    }
+
     $(function() {
+        // 根据角色动态渲染搜索区域
+        function initSearchFields() {
+            if (userRole === 'teacher') {
+                $('.host-name-field').hide();
+                $('.major-field').hide();
+                $('.college-field').hide();
+            } else if (userRole === 'research') {
+                $('.host-name-field').show();
+                $('.major-field').hide();
+                $('.college-field').hide();
+            } else if (userRole === 'dept_teacher') {
+                $('.host-name-field').show();
+                $('.major-field').show();
+                $('.college-field').hide();
+            } else if (userRole === 'sci_tesearch') {
+                $('.host-name-field').show();
+                $('.major-field').show();
+                $('.college-field').show();
+            } else if (userRole === 'admin') {
+                $('.host-name-field').show();
+                $('.major-field').show();
+                $('.college-field').show();
+            } else {
+                $('.host-name-field').hide();
+                $('.major-field').hide();
+                $('.college-field').hide();
+            }
+        }
+        initSearchFields();
+
         // 注册PageRender动作处理器
         PageRender.registerHandlers({
             'view': function(actionKey, data) {

@@ -1,11 +1,14 @@
 package com.ruoyi.common.utils;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.crypto.SecureRandomNumberGenerator;
 import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.SimplePrincipalCollection;
+import com.ruoyi.common.core.domain.entity.SysRole;
 import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.common.utils.bean.BeanUtils;
 
@@ -39,6 +42,21 @@ public class ShiroUtils
         {
             user = new SysUser();
             BeanUtils.copyBeanProp(user, obj);
+            // 如果切换了活动角色，只保留活动角色的角色信息
+            Session session = getSubject().getSession(false);
+            if (session != null) {
+                Long activeRoleId = (Long) session.getAttribute("activeRoleId");
+                if (activeRoleId != null && user.getRoles() != null) {
+                    List<SysRole> filteredRoles = new ArrayList<>();
+                    for (SysRole role : user.getRoles()) {
+                        if (activeRoleId.equals(role.getRoleId())) {
+                            filteredRoles.add(role);
+                            break;
+                        }
+                    }
+                    user.setRoles(filteredRoles);
+                }
+            }
         }
         return user;
     }

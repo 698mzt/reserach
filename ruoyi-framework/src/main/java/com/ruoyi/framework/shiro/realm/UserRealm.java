@@ -1,7 +1,11 @@
 package com.ruoyi.framework.shiro.realm;
 
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
 import java.util.Set;
+import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -15,11 +19,14 @@ import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.cache.Cache;
 import org.apache.shiro.realm.AuthorizingRealm;
+import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.SimplePrincipalCollection;
+import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import com.ruoyi.common.core.domain.entity.SysRole;
 import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.common.exception.user.CaptchaException;
 import com.ruoyi.common.exception.user.RoleBlockedException;
@@ -52,17 +59,47 @@ public class UserRealm extends AuthorizingRealm
 
     /**
      * 授权
+     * 从 Session 读取活动角色 ID，校验有效性后只返回该角色的权限。
+     * 若角色已失效则自动回退（优先普通教师角色）。
      */
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection arg0)
     {
+        Long activeRoleId = getActiveRoleIdFromSession();
+        if (activeRoleId != null) {
+            Long userId = ShiroUtils.getUserId();
+            List<SysRole> userRoles = roleService.selectRolesByUserIdExcludingDataScope(userId);
+            boolean valid = false;
+            for (SysRole role : userRoles) {
+                if (activeRoleId.equals(role.getRoleId()) && "0".equals(role.getStatus())) {
+                    valid = true;
+                    break;
+                }
+            }
+            if (!valid) {
+                activeRoleId = findTeacherRole(userRoles);
+                if (activeRoleId != null) {
+                    SecurityUtils.getSubject().getSession().setAttribute("activeRoleId", activeRoleId);
+                }
+            }
+        }
+
+        if (activeRoleId != null) {
+            SysRole role = roleService.selectRoleById(activeRoleId);
+            if (role != null) {
+                SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
+                info.setRoles(new HashSet<>(Arrays.asList(role.getRoleKey())));
+                if (role.isAdmin()) {
+                    info.addStringPermission("*:*:*");
+                } else {
+                    info.setStringPermissions(menuService.selectPermsByRoleId(activeRoleId));
+                }
+                return info;
+            }
+        }
+
         SysUser user = ShiroUtils.getSysUser();
-        // 角色列表
-        Set<String> roles = new HashSet<String>();
-        // 功能列表
-        Set<String> menus = new HashSet<String>();
         SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
-        // 管理员拥有所有权限
         if (user.isAdmin())
         {
             info.addRole("admin");
@@ -70,14 +107,43 @@ public class UserRealm extends AuthorizingRealm
         }
         else
         {
-            roles = roleService.selectRoleKeys(user.getUserId());
-            menus = menuService.selectPermsByUserId(user.getUserId());
-            // 角色加入AuthorizationInfo认证对象
-            info.setRoles(roles);
-            // 权限加入AuthorizationInfo认证对象
-            info.setStringPermissions(menus);
+            info.setRoles(roleService.selectRoleKeys(user.getUserId()));
+            info.setStringPermissions(menuService.selectPermsByUserId(user.getUserId()));
         }
         return info;
+    }
+
+    /**
+     * 从当前 Session 中读取活动角色 ID
+     */
+    private Long getActiveRoleIdFromSession() {
+        Subject subject = SecurityUtils.getSubject();
+        if (subject != null) {
+            Session session = subject.getSession(false);
+            if (session != null) {
+                return (Long) session.getAttribute("activeRoleId");
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 查找普通教师角色，若无则返回第一个启用的角色
+     */
+    private Long findTeacherRole(List<SysRole> roles) {
+        Long firstAvailable = null;
+        for (SysRole role : roles) {
+            if (!"0".equals(role.getStatus())) {
+                continue;
+            }
+            if (firstAvailable == null) {
+                firstAvailable = role.getRoleId();
+            }
+            if ("teacher".equals(role.getRoleKey())) {
+                return role.getRoleId();
+            }
+        }
+        return firstAvailable;
     }
 
     /**
@@ -133,6 +199,17 @@ public class UserRealm extends AuthorizingRealm
     }
 
     /**
+     * 重写授权缓存 key 生成逻辑，将活动角色 ID 纳入 key。
+     * 不同活动角色的权限独立缓存，互不冲突。
+     */
+    @Override
+    protected Object getAuthorizationCacheKey(PrincipalCollection principals) {
+        Long activeRoleId = getActiveRoleIdFromSession();
+        SysUser user = (SysUser) principals.getPrimaryPrincipal();
+        return new CacheKey(user.getUserId(), activeRoleId);
+    }
+
+    /**
      * 清理指定用户授权信息缓存
      */
     public void clearCachedAuthorizationInfo(Object principal)
@@ -153,6 +230,34 @@ public class UserRealm extends AuthorizingRealm
             {
                 cache.remove(key);
             }
+        }
+    }
+
+    /**
+     * 授权缓存 key 包装类。
+     * 基于 userId + activeRoleId 计算 equals/hashCode，
+     * 不依赖 SysUser 或 PrincipalCollection 的 equals 实现。
+     */
+    private static class CacheKey {
+        private final Long userId;
+        private final Long activeRoleId;
+
+        CacheKey(Long userId, Long activeRoleId) {
+            this.userId = userId;
+            this.activeRoleId = activeRoleId;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof CacheKey)) return false;
+            CacheKey key = (CacheKey) o;
+            return Objects.equals(userId, key.userId) && Objects.equals(activeRoleId, key.activeRoleId);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(userId, activeRoleId);
         }
     }
 }
