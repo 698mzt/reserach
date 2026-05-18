@@ -53,7 +53,8 @@ public class SciIntraSchoolProController extends BaseController {
   private ISysApprovalStateService sysApprovalStateService;
   //private String role_str="";
   @GetMapping("")
-  String view() {
+  String view(ModelMap mmap) {
+    mmap.put("roleStr", panRole_str());
     return prefix + "/view";
   }
 
@@ -250,7 +251,9 @@ public class SciIntraSchoolProController extends BaseController {
       case "research":
         switch (tableId) {
           case "bootstrap-table0":
-            return sciIntraSchProApplyService.sel_IntraSchPro_isOVER(sciIntraSchoolPro);
+            List<SciIntraSchoolPro> overList = sciIntraSchProApplyService.sel_IntraSchPro_isOVER(sciIntraSchoolPro);
+            overList.forEach(item -> item.setRole("research"));
+            return overList;
           case "bootstrap-table1":
             return sciIntraSchProApplyService.sel_IntraSchPro_approval_jy(sciIntraSchoolPro);
           case "bootstrap-table2":
