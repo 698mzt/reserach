@@ -116,7 +116,13 @@ public class SciIntraSchoolProController extends BaseController {
     }
 
     List<SciIntraSchoolPro> distinctList = new ArrayList<>(distinctMap.values());
-    distinctList.sort(Comparator.comparing(SciIntraSchoolPro::getId, Comparator.nullsLast(Comparator.reverseOrder())));
+    distinctList.sort((a, b) -> {
+        int p = Integer.compare(getStatePriority(a.getState()), getStatePriority(b.getState()));
+        if (p != 0) return p;
+        String ta = a.getCreatetime(), tb = b.getCreatetime();
+        if (ta != null && tb != null) return tb.compareTo(ta);
+        return Integer.compare(a.getId() != null ? a.getId() : 0, b.getId() != null ? b.getId() : 0);
+    });
 
     PageDomain pageDomain = TableSupport.buildPageRequest();
     Integer pageNum = pageDomain.getPageNum();
@@ -221,6 +227,24 @@ public class SciIntraSchoolProController extends BaseController {
         return TEC_TRA_REJECTED;
       default:
         return state;
+    }
+  }
+
+  private int getStatePriority(String state) {
+    if (state == null) return 6;
+    switch (state) {
+      case "15": case "16": case "TEC_TRA_DRAFT":
+        return 1;
+      case "3": case "5": case "9": case "10": case "12": case "14": case "TEC_TRA_REJECTED":
+        return 2;
+      case "1": case "7": case "8": case "11": case "13": case "TEC_TRA_JYS_AUDIT":
+        return 3;
+      case "2": case "TEC_TRA_KYC_AUDIT":
+        return 4;
+      case "4": case "6": case "TEC_TRA_PASSED":
+        return 5;
+      default:
+        return 6;
     }
   }
 
