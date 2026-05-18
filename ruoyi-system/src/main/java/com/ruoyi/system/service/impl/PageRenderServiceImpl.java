@@ -2,7 +2,6 @@ package com.ruoyi.system.service.impl;
 
 import com.ruoyi.common.core.domain.entity.SysRole;
 import com.ruoyi.common.core.domain.entity.SysUser;
-import com.ruoyi.common.utils.ActiveRoleContextHolder;
 import com.ruoyi.common.utils.ShiroUtils;
 import com.ruoyi.system.constant.PageRenderActionConstants;
 import com.ruoyi.system.constant.PageRenderColorConstants;
@@ -16,6 +15,7 @@ import com.ruoyi.system.service.ISysRoleService;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.cache.Cache;
+import org.apache.shiro.session.Session;
 import org.apache.shiro.mgt.RealmSecurityManager;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
@@ -790,8 +790,9 @@ public class PageRenderServiceImpl implements IPageRenderService {
 
         // 撤回按钮规则：
         // 1. 教研室审批（第一级）：不显示撤回按钮
-        // 2. 科研处审批（第二级）：教研室审批人（有 approve 权限）可撤回
-        if (isLastAuditNode && context.hasPermission(config.getPermission("approve"))) {
+        // 2. 科研处审批（第二级）：教研室审批人（有 revoke 权限）可撤回
+        // 注意：使用独立的撤回权限（revoke），而非批阅权限（approve），避免按钮耦合
+        if (isLastAuditNode && context.hasPermission(config.getPermission("revoke"))) {
             actions.add(PageRenderActionItem.of(
                     PageRenderActionConstants.ACTION_RECALL, "撤回",
                     PageRenderColorConstants.COLOR_WARNING, 40, "确定要撤回该记录吗？"));
@@ -926,8 +927,15 @@ public class PageRenderServiceImpl implements IPageRenderService {
             return Collections.emptySet();
         }
 
-        // 角色切换上下文检查：如果用户切换了活动角色，只返回该角色的权限
-        Long activeRoleId = com.ruoyi.common.utils.ActiveRoleContextHolder.get();
+        // 从 Session 读取活动角色 ID，如果用户切换了角色则只返回该角色的权限
+        Long activeRoleId = null;
+        Subject subject = SecurityUtils.getSubject();
+        if (subject != null) {
+            Session session = subject.getSession(false);
+            if (session != null) {
+                activeRoleId = (Long) session.getAttribute("activeRoleId");
+            }
+        }
         if (activeRoleId != null) {
             // 查询活动角色信息
             com.ruoyi.common.core.domain.entity.SysRole activeRole =
@@ -942,8 +950,6 @@ public class PageRenderServiceImpl implements IPageRenderService {
                 // 普通角色：只返回该角色的权限
                 return sysMenuService.selectPermsByRoleId(activeRoleId);
             }
-            // 角色不存在，清除上下文并回退到全部权限模式
-            com.ruoyi.common.utils.ActiveRoleContextHolder.clear();
         }
 
         // 未切换角色 → 走原逻辑

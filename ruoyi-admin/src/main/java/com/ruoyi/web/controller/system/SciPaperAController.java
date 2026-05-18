@@ -73,7 +73,8 @@ public class SciPaperAController extends BaseController {
     @RequiresPermissions("system:paper:view")
     @Log(title = "论文页面", businessType = BusinessType.OTHER)
     @GetMapping()
-    public String paper() {
+    public String paper(ModelMap mmap) {
+        mmap.put("user", getSysUser());
         return prefix + "/paper";
     }
 
