@@ -203,7 +203,7 @@
                 <div class="form-group"  >
                     <label class="col-xs-2 control-label">批注：</label>
                     <div class="col-xs-10">
-                        <textarea name="remark" required maxlength="500" class="form-control" rows="3"></textarea>
+                        <textarea name="remark" id="remark" required maxlength="500" class="form-control" rows="3"></textarea>
                     </div>
                 </div>
 
@@ -331,7 +331,7 @@
             }
         });
 
-        var kid = $("#ktid").val();
+        var kid = $("input[name='id']").val();
         if (kid) {
             $.ajax({
                 url: prefix + "/getMembers/" + kid,
@@ -429,7 +429,7 @@
             var $container = $('#action-buttons-container');
             if (filteredActions.length > 0) {
                 PageRender.renderActions($container, filteredActions, {style: 'page'}, {
-                    id: $("#ktid").val(),
+                    id: $("input[name='id']").val(),
                     state: state,
                     urlFlag: urlFlag
                 });
@@ -524,7 +524,7 @@
     function submitHandler() {
         var urlFlag = $("#urlFlag").val();
         var remark = $('#remark').val();
-        $.operate.saveTab(prefix + "/hxPass", {"id":$("#ktid").val(),"urlFlag":urlFlag,"amount":$("#amount").val(), "comment": remark});
+        $.operate.saveTab(prefix + "/hxPass", {"id":$("input[name='id']").val(),"urlFlag":urlFlag,"amount":$("#amount").val(), "comment": remark});
     }
 
     function submitHandlerBH() {
@@ -546,11 +546,11 @@
 
             if (operationType === 'reject') {
                 $.modal.confirm("确定 驳回 吗", function() {
-                    $.operate.saveTab(prefix + "/hxBh", $('#form-jiaocairuanzhu-edit').serialize());
+                    $.operate.saveTab(prefix + "/hxBh", {"id": $("input[name='id']").val(), "urlFlag": urlFlag, "remark": remark});
                 });
             } else if (operationType === 'recall') {
                 $.modal.confirm("确定 撤回 吗", function() {
-                    $.operate.saveTab(prefix + "/recallsave", $('#form-jiaocairuanzhu-edit').serialize());
+                    $.operate.saveTab(prefix + "/recallsave", {"id": $("input[name='id']").val(), "state": $("#state").val(), "urlFlag": urlFlag, "remark": remark});
                 });
             }
         }

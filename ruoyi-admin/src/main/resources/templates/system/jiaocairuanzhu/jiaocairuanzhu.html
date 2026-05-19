@@ -627,6 +627,7 @@
   var createFlag = [[${@permission.hasPermi('system:jiaocairuanzhu:add')}]];
   var chayueFlag = [[${@permission.hasPermi('system:jiaocairuanzhu:chayue')}]];
   var chexiaoFlag = [[${@permission.hasPermi('system:jiaocairuanzhu:chexiao')}]];
+  var isDeptTeacher = [[${@permission.isAnyRoles('dept_teacher,discuss_college,dzgc_college,yssj_college,student_college,marxism_college,general')}]];
 
   var prefix = ctx + "system/jiaocairuanzhu";
 
@@ -911,6 +912,9 @@
           field: 'jifen',
           title: '积分',
           formatter: function (value, row, index) {
+            if (row.state != 'TEXTBOOK_PASSED') {
+              return 0;
+            }
             return row.jifen || 0;
           }
         },
@@ -953,14 +957,21 @@
               }
               
               var html = '';
-              if (firstRowActions.length > 0) {
+              if (!isDeptTeacher && firstRowActions.length > 0) {
                   html += PageRender.renderActionsToString(firstRowActions, {style: 'table'});
               }
               if (secondRowActions.length > 0) {
                   if (html) {
                       html += '<br/>';
                   }
-                  html += PageRender.renderActionsToString(secondRowActions, {style: 'table'});
+                  if (isDeptTeacher) {
+                      var viewActions = secondRowActions.filter(function(a) { return a.actionKey === 'view' || a.actionKey === 'viewProcess'; });
+                      if (viewActions.length > 0) {
+                          html += PageRender.renderActionsToString(viewActions, {style: 'table'});
+                      }
+                  } else {
+                      html += PageRender.renderActionsToString(secondRowActions, {style: 'table'});
+                  }
               }
               return html;
           }
