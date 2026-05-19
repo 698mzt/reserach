@@ -544,7 +544,28 @@ public class SciIntraSchoolProController extends BaseController {
       }
       return rightTime.compareTo(leftTime);
     });
+    for (SciIntraSchProPiyue item : list) {
+      item.setState(mapPiyueState(item.getState()));
+      item.setConcate(mapPiyueConcate(item.getState(), item.getConcate()));
+    }
     return getDataTable(list);
+  }
+
+  private String mapPiyueState(String raw) {
+    if (raw == null) return "";
+    if (raw.contains("草稿") || raw.contains("新建")) return "新增";
+    if (raw.contains("撤回")) return "修改";
+    if (raw.contains("驳回")) return "驳回";
+    if (raw.contains("提交") || raw.contains("申请")) return "提交";
+    if (raw.contains("通过") || raw.contains("同意")) return "通过";
+    return raw;
+  }
+
+  private String mapPiyueConcate(String mappedState, String originalConcate) {
+    if ("驳回".equals(mappedState) && originalConcate != null && !originalConcate.trim().isEmpty()) {
+      return originalConcate;
+    }
+    return mappedState;
   }
 
 
