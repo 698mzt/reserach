@@ -33,7 +33,7 @@ public class SysRoleSwitchController extends BaseController {
 
     /**
      * 获取当前用户可切换的角色列表
-     * 使用排除 DataScope 的方法，避免切换角色后 runAs 导致数据权限过滤角色列表
+     * 使用排除 DataScope 的方法获取完整角色列表
      */
     @GetMapping("/list")
     @ResponseBody
