@@ -66,15 +66,4 @@ public class SysRoleSwitchController extends BaseController {
         return success();
     }
 
-    /**
-     * 切回全部角色模式
-     * 移除 Session 中的 activeRoleId 属性
-     */
-    @Log(title = "切换回全部角色", businessType = BusinessType.OTHER)
-    @PostMapping("/switchBack")
-    @ResponseBody
-    public AjaxResult switchBack() {
-        SecurityUtils.getSubject().getSession().removeAttribute("activeRoleId");
-        return success();
-    }
 }
