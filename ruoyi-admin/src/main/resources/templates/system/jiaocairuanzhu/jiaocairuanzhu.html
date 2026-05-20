@@ -627,6 +627,7 @@
   var createFlag = [[${@permission.hasPermi('system:jiaocairuanzhu:add')}]];
   var chayueFlag = [[${@permission.hasPermi('system:jiaocairuanzhu:chayue')}]];
   var chexiaoFlag = [[${@permission.hasPermi('system:jiaocairuanzhu:chexiao')}]];
+  var kyrevokeFlag = [[${@permission.hasPermi('system:jiaocairuanzhu:kyrevoke')}]];
   var isDeptTeacher = [[${@permission.isAnyRoles('dept_teacher,discuss_college,dzgc_college,yssj_college,student_college,marxism_college,general')}]];
 
   var prefix = ctx + "system/jiaocairuanzhu";
@@ -751,7 +752,7 @@
             $.operate.detailTab(data.id + '/' + urlFlag);
         },
         'recall': function(actionKey, data) {
-            
+            $.modal.confirm("确定要撤回吗？", function() {
                 $.ajax({
                     url: prefix + "/recallsave",
                     type: "post",
@@ -765,7 +766,7 @@
                         }
                     }
                 });
-            
+            });
         }
     });
 
@@ -954,6 +955,10 @@
                       secondRowActions.push({actionKey: 'view', actionText: '查看', colorType: 'info'});
                       secondRowActions.push({actionKey: 'viewProcess', actionText: '流程记录', colorType: 'info'});
                   }
+              }
+
+              if (row.state === 'TEXTBOOK_PASSED' && kyrevokeFlag) {
+                  firstRowActions.push({actionKey: 'recall', actionText: '撤回', colorType: 'warning'});
               }
               
               var html = '';
