@@ -66,9 +66,10 @@ public class UserRealm extends AuthorizingRealm
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection arg0)
     {
         Long activeRoleId = getActiveRoleIdFromSession();
+        List<SysRole> userRoles = null;
         if (activeRoleId != null) {
             Long userId = ShiroUtils.getUserId();
-            List<SysRole> userRoles = roleService.selectRolesByUserIdExcludingDataScope(userId);
+            userRoles = roleService.selectRolesByUserIdExcludingDataScope(userId);
             boolean valid = false;
             for (SysRole role : userRoles) {
                 if (activeRoleId.equals(role.getRoleId()) && "0".equals(role.getStatus())) {
@@ -85,7 +86,14 @@ public class UserRealm extends AuthorizingRealm
         }
 
         if (activeRoleId != null) {
-            SysRole role = roleService.selectRoleById(activeRoleId);
+            SysRole role = null;
+            if (userRoles != null) {
+                final Long finalActiveRoleId = activeRoleId;
+                role = userRoles.stream()
+                        .filter(r -> finalActiveRoleId.equals(r.getRoleId()))
+                        .findFirst()
+                        .orElse(null);
+            }
             if (role != null) {
                 SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
                 info.setRoles(new HashSet<>(Arrays.asList(role.getRoleKey())));

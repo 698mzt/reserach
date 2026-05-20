@@ -922,12 +922,19 @@ public class PageRenderServiceImpl implements IPageRenderService {
      */
     @Override
     public Set<String> buildCurrentPermissions(SysUser currentUser) {
-        // 参数校验：用户为空时返回空列表
         if (currentUser == null) {
             return Collections.emptySet();
         }
 
-        // 从 Session 读取活动角色 ID，如果用户切换了角色则只返回该角色的权限
+        // 优先从 Shiro 授权缓存读取（无论是否切换角色）
+        // 缓存由 @RequiresPermissions 触发 UserRealm.doGetAuthorizationInfo() 填充
+        // 缓存 key 已包含 activeRoleId，切换角色后缓存独立，不会串数据
+        Set<String> cachedPermissions = getCachedPermissions(currentUser);
+        if (!cachedPermissions.isEmpty()) {
+            return cachedPermissions;
+        }
+
+        // 缓存未命中，从数据库查询
         Long activeRoleId = null;
         Subject subject = SecurityUtils.getSubject();
         if (subject != null) {
@@ -937,39 +944,26 @@ public class PageRenderServiceImpl implements IPageRenderService {
             }
         }
         if (activeRoleId != null) {
-            // 查询活动角色信息
             com.ruoyi.common.core.domain.entity.SysRole activeRole =
                     roleService.selectRoleById(activeRoleId);
             if (activeRole != null) {
-                // 系统管理员角色拥有所有权限
                 if (activeRole.isAdmin()) {
                     Set<String> adminPerms = new LinkedHashSet<>();
                     adminPerms.add("*:*:*");
                     return adminPerms;
                 }
-                // 普通角色：只返回该角色的权限
                 return sysMenuService.selectPermsByRoleId(activeRoleId);
             }
         }
 
-        // 未切换角色 → 走原逻辑
-        // 第一优先级：尝试从 Shiro 授权缓存获取权限（性能最优）
-        Set<String> cachedPermissions = getCachedPermissions(currentUser);
-        if (!cachedPermissions.isEmpty()) {
-            return cachedPermissions;
-        }
-
-        // 第二优先级：缓存未命中时，直接查询数据库获取权限
         Set<String> permsSet;
         try {
-            // 调用菜单服务查询用户权限（会执行 SQL 联表查询）
             permsSet = sysMenuService.selectPermsByUserId(currentUser.getUserId());
         } catch (Exception e) {
             log.error("获取当前用户权限失败, userId={}", currentUser.getUserId(), e);
             return Collections.emptySet();
         }
 
-        // 空值处理：权限集合为空时返回空列表
         if (permsSet == null || permsSet.isEmpty()) {
             return Collections.emptySet();
         }
@@ -1015,8 +1009,12 @@ public class PageRenderServiceImpl implements IPageRenderService {
                 return Collections.emptySet();
             }
 
-            // 从缓存中查询用户的授权信息
-            AuthorizationInfo authorizationInfo = authorizationCache.get(principals);
+            // 使用与 UserRealm.getAuthorizationCacheKey() 相同的 key 计算方式查询缓存
+            // 避免直接使用 principals 作为 key（缓存实际以 CacheKey(userId, activeRoleId) 存储）
+            Method getCacheKeyMethod = AuthorizingRealm.class.getDeclaredMethod("getAuthorizationCacheKey", PrincipalCollection.class);
+            getCacheKeyMethod.setAccessible(true);
+            Object cacheKey = getCacheKeyMethod.invoke(realm, principals);
+            AuthorizationInfo authorizationInfo = authorizationCache.get(cacheKey);
             if (authorizationInfo == null || authorizationInfo.getStringPermissions() == null
                     || authorizationInfo.getStringPermissions().isEmpty()) {
                 return Collections.emptySet();
