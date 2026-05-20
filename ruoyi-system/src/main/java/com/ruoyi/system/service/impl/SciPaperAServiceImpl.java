@@ -333,7 +333,7 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
         sciPaperAr.setUid(userId);
         sciPaperAr.setAr_id(Integer.valueOf(id));
         sciPaperAr.setState("通过");
-        sciPaperAr.setConcate(comment != null ? comment : "审批通过");
+        sciPaperAr.setConcate(comment != null && !comment.isEmpty() ? comment : "通过");
         sciPaperAMapper.insertSciPaperAr(sciPaperAr);
 
         return 1;
@@ -696,8 +696,13 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
         SciPaperAr sciPaperAr = new SciPaperAr();
         sciPaperAr.setUid(userId);
         sciPaperAr.setAr_id(Integer.valueOf(id));
-        sciPaperAr.setState("reject".equals(operationType) ? "驳回" : "撤回");
-        sciPaperAr.setConcate(remark != null ? remark : ("reject".equals(operationType) ? "审批驳回" : "审批撤回"));
+        if ("reject".equals(operationType)) {
+            sciPaperAr.setState("修改");
+            sciPaperAr.setConcate(remark != null && !remark.isEmpty() ? remark : "修改");
+        } else if ("recall".equals(operationType)) {
+            sciPaperAr.setState("撤回");
+            sciPaperAr.setConcate(remark != null && !remark.isEmpty() ? remark : "撤回");
+        }
         sciPaperAMapper.insertSciPaperAr(sciPaperAr);
 
         return a;
@@ -777,13 +782,13 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
         sciPaperAr.setAr_id(Integer.valueOf(id));
         if ("approve".equals(operationType)) {
             sciPaperAr.setState("通过");
-            sciPaperAr.setConcate(comment != null ? comment : "审批通过");
+            sciPaperAr.setConcate(comment != null && !comment.isEmpty() ? comment : "通过");
         } else if ("reject".equals(operationType)) {
-            sciPaperAr.setState("驳回");
-            sciPaperAr.setConcate(comment != null ? comment : "审批驳回");
+            sciPaperAr.setState("修改");
+            sciPaperAr.setConcate(comment != null && !comment.isEmpty() ? comment : "修改");
         } else if ("recall".equals(operationType)) {
             sciPaperAr.setState("撤回");
-            sciPaperAr.setConcate(comment != null ? comment : "审批撤回");
+            sciPaperAr.setConcate(comment != null && !comment.isEmpty() ? comment : "撤回");
         }
         sciPaperAMapper.insertSciPaperAr(sciPaperAr);
 
