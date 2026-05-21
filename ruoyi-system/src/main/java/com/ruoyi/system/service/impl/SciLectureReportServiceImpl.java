@@ -128,7 +128,7 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService {
                     SciLectureReportOpinion sciLectureReportOpinion = new SciLectureReportOpinion();
                     sciLectureReportOpinion.setUid(currentUser.getUserId());
                     sciLectureReportOpinion.setBaogaoId(sciLectureReport.getId());
-                    sciLectureReportOpinion.setConcate("提交结项申请");
+                    sciLectureReportOpinion.setConcate("提交");
                     sciLectureReportOpinion.setState("提交");
                     opinionMapper.opinionadd(sciLectureReportOpinion);
                     return updateResult;
@@ -192,7 +192,7 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService {
             sciLectureReportOpinion.setUid(userId != null ? userId.longValue() : null);
             // 新增报告的id
             sciLectureReportOpinion.setBaogaoId(sciLectureReport.getId());
-            sciLectureReportOpinion.setConcate("新增记录");
+            sciLectureReportOpinion.setConcate("新增");
             sciLectureReportOpinion.setState("新增");
             // 将批阅记录插入数据库
             opinionMapper.opinionadd(sciLectureReportOpinion);
@@ -251,8 +251,8 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService {
             sciLectureReportOpinion.setUid(userId != null ? userId.longValue() : null);
             // 被修改的报告的id
             sciLectureReportOpinion.setBaogaoId(sciLectureReport.getId());
-            sciLectureReportOpinion.setConcate("数据所有者更新数据");
-            sciLectureReportOpinion.setState("更新");
+            sciLectureReportOpinion.setConcate("修改");
+            sciLectureReportOpinion.setState("修改");
             opinionMapper.opinionadd(sciLectureReportOpinion);
         }
 
@@ -311,7 +311,7 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService {
                         SciLectureReportOpinion sciLectureReportOpinion = new SciLectureReportOpinion();
                         sciLectureReportOpinion.setUid(currentUser.getUserId());
                         sciLectureReportOpinion.setBaogaoId(id);
-                        sciLectureReportOpinion.setConcate("数据所有者提交");
+                        sciLectureReportOpinion.setConcate("提交");
                         sciLectureReportOpinion.setState("提交");
                         opinionMapper.opinionadd(sciLectureReportOpinion);
 
@@ -425,7 +425,7 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService {
         return handleApprovalResult(id, userId, "LECTURE_REJECTED", remark, "驳回");
     }
 
-    // 撤回审批业务处理方法 - 完全调用共有方法
+    // 撤回审批业务处理方法 - 调用共有方法，通过状态撤回回到科研处审批
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int recall(Integer id, Long userId, String remark) {
@@ -434,22 +434,34 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService {
             return 0;
         }
 
+        String currentState = report.getState();
         SysUser currentUser = ShiroUtils.getSysUser();
 
-        // 调用共有方法处理审批撤回
+        // 调用共有方法处理审批撤回（记录审批历史）
         ApprovalRequest recallRequest = ApprovalRequest.of("LECTURE_APPROVAL",
-                id.longValue(), report.getState(),
+                id.longValue(), currentState,
                 remark != null && !remark.isEmpty() ? remark : "撤回审批",
                 userId, currentUser.getUserName(),
                 currentUser.getDept().getDeptName());
 
-        ApprovalResult result = approvalProcessService.recall(recallRequest);
+        approvalProcessService.recall(recallRequest);
 
-        if (result != null && result.isSuccess()) {
-            return handleApprovalResult(id, userId, result.getNewState(), 
-                    remark != null && !remark.isEmpty() ? remark : "撤回审批", "撤回");
+        // 科研处撤回逻辑：通过状态撤回回到科研处审批状态
+        String newState = currentState;
+        if ("LECTURE_PASSED".equals(currentState)) {
+            newState = "LECTURE_KYC_AUDIT";
         }
-        return 0;
+
+        // 记录审批意见
+        SciLectureReportOpinion sciLectureReportOpinion = new SciLectureReportOpinion();
+        sciLectureReportOpinion.setUid(userId);
+        sciLectureReportOpinion.setBaogaoId(id);
+        sciLectureReportOpinion.setConcate(remark != null && !remark.isEmpty() ? remark : "驳回");
+        sciLectureReportOpinion.setState("驳回");
+        opinionMapper.opinionadd(sciLectureReportOpinion);
+
+        // 更新状态到科研处审批
+        return sciLectureReportMapper.criticism(id, newState);
     }
 
     /**
@@ -577,7 +589,7 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService {
         List<PageRenderActionItem> actions = adjustActionsForLecture(
                 report.getState(), 
                 result.getActions(), 
-                report.getUserId() != null ? report.getUserId().longValue() : null,
+                report.getUserId(),
                 currentUserId);
         
         report.setStatusMeta(result.getStatusMeta());
@@ -626,7 +638,7 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService {
     /**
      * 调整讲座报告按钮：确保正确显示撤回、驳回和提交按钮
      * - 科研处阶段（LECTURE_KYC_AUDIT）：不显示撤回按钮，显示通过、驳回按钮
-     * - 通过状态（LECTURE_PASSED）：显示撤回按钮（科研处角色）
+     * - 通过状态（LECTURE_PASSED）：显示撤回按钮（只有科研处角色有，教研室没有）
      * - 驳回状态（LECTURE_REJECTED）：只有作者能看到编辑和提交按钮
      * 
      * @param state 当前状态
@@ -636,17 +648,20 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService {
      * @return 调整后的按钮列表
      */
     private List<PageRenderActionItem> adjustActionsForLecture(String state, List<PageRenderActionItem> actions,
-            Long creatorId, Long currentUserId) {
+            Integer creatorId, Long currentUserId) {
         if (actions == null) {
             actions = new ArrayList<>();
         }
         
         // 判断当前用户是否为创建者
-        boolean isCreator = creatorId != null && currentUserId != null && creatorId.equals(currentUserId);
+        boolean isCreator = creatorId != null && currentUserId != null && creatorId.longValue() == currentUserId;
         // 判断是否为管理员
         boolean isAdmin = SecurityUtils.getSubject().isPermitted("*:*:*");
         
-        // 科研处阶段：教研室审批人（有 approve 权限）可撤回，确保显示驳回按钮
+        // 移除共有方法可能添加的教研室撤回按钮
+        actions.removeIf(a -> "recall".equals(a.getActionKey()));
+        
+        // 科研处阶段：确保显示驳回按钮
         if ("LECTURE_KYC_AUDIT".equals(state)) {
             // 确保显示驳回按钮
             boolean hasReject = actions.stream().anyMatch(a -> "reject".equals(a.getActionKey()));
@@ -657,11 +672,11 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService {
             }
         }
         
-        // 通过状态：科研处角色或管理员可撤回
+        // 通过状态：只有科研处角色或管理员可撤回（教研室没有撤回按钮）
         if ("LECTURE_PASSED".equals(state)) {
             boolean hasRecall = actions.stream().anyMatch(a -> "recall".equals(a.getActionKey()));
             if (!hasRecall) {
-                // 检查撤回权限（科研处撤回、科研处审批或管理员权限）
+                // 检查撤回权限：只有科研处审批权限（check）或科研处撤回权限（kyrevoke）或管理员
                 boolean hasKyRevoke = SecurityUtils.getSubject().isPermitted("system:report:kyrevoke");
                 boolean hasCheck = SecurityUtils.getSubject().isPermitted("system:report:check");
                 if (hasKyRevoke || hasCheck || isAdmin) {
@@ -672,7 +687,7 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService {
             }
         }
         
-        // 驳回状态：只有作者或管理员能看到编辑和提交按钮
+        // 驳回状态：只有作者或管理员能看到编辑按钮（编辑后保存即可重新提交）
         if ("LECTURE_REJECTED".equals(state)) {
             // 确保显示编辑按钮（只有作者或管理员）
             boolean hasEdit = actions.stream().anyMatch(a -> "edit".equals(a.getActionKey()));
@@ -681,13 +696,8 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService {
                         "edit", "编辑",
                         PageRenderColorConstants.COLOR_PRIMARY, 10));
             }
-            // 确保显示提交按钮（只有作者或管理员）
-            boolean hasSubmit = actions.stream().anyMatch(a -> "submit".equals(a.getActionKey()));
-            if (!hasSubmit && (isCreator || isAdmin) && SecurityUtils.getSubject().isPermitted("system:report:submit")) {
-                actions.add(PageRenderActionItem.of(
-                        "submit", "提交",
-                        PageRenderColorConstants.COLOR_SUCCESS, 5, "确定要提交该记录吗？"));
-            }
+            // 移除可能存在的提交按钮
+            actions.removeIf(a -> "submit".equals(a.getActionKey()));
         }
         
         // 按排序号排序

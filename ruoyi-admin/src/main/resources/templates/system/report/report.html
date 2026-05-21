@@ -527,13 +527,8 @@
                 $.operate.detailTab(row.id + '/pro');
             },
             recall: function(actionKey, row) {
-                if (row.state == 'LECTURE_KYC_AUDIT') {
-                    $.operate.detailTab(row.id + '/xytuihui');
-                } else if (row.state == 'LECTURE_PASSED') {
-                    $.operate.detailTab(row.id + '/zgqxtuihui');
-                } else {
-                    $.operate.detailTab(row.id + '/xytuihui');
-                }
+                // 点击撤回按钮直接执行撤回，不跳转到详情页
+                $.operate.save(prefix + "/recallsave", { id: row.id, remark: "" });
             },
             review: function(actionKey, row) {
                 $.operate.detailTab(row.id + '/pro');
