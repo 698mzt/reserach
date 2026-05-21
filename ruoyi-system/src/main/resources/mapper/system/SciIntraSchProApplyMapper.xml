@@ -86,7 +86,7 @@
         s.state,
         s.PA,
         s.PB
-        order  by createtime desc
+        order by createtime desc
     </select>
     <select id="sel_my_IntraSchPro_isOVER" parameterType="SciIntraSchoolPro" resultMap="SciIntraSchoolProResult">
         select
@@ -137,7 +137,7 @@
         s.state,
         s.PA,
         s.PB
-        order  by createtime desc
+        order by createtime desc
     </select>
 
 
@@ -207,7 +207,7 @@
         s.PA,
         s.PB
 
-        order  by createtime desc
+        order by createtime desc
     </select>
     <!--    教研室的立项申请：有所有的申请-->
     <select id="sel_IntraSchPro_approval_jy" parameterType="SciIntraSchoolPro" resultMap="SciIntraSchoolProResult">
@@ -282,7 +282,7 @@
         s.state,
         s.PA,
         s.PB
-        order  by createtime desc
+        order by createtime desc
     </select>
     <select id="sel_IntraSchPro_approval_my" parameterType="SciIntraSchoolPro" resultMap="SciIntraSchoolProResult">
         SELECT
@@ -363,7 +363,7 @@
         s.PB
         <!-- 数据范围过滤 -->
         /*${params.dataScope}*/
-        order  by createtime desc
+        order by createtime desc
     </select>
 
 
@@ -432,7 +432,7 @@
         s.state,
         s.PA,
         s.PB
-        order  by createtime desc
+        order by createtime desc
     </select>
     <select id="sel_IntraSchPro_closure_jy" parameterType="SciIntraSchoolPro" resultMap="SciIntraSchoolProResult">
         select
@@ -495,7 +495,7 @@
         s.PA,
         s.PB
 
-        order  by createtime desc
+        order by createtime desc
     </select>
     <select id="sel_IntraSchPro_closure_my" parameterType="SciIntraSchoolPro" resultMap="SciIntraSchoolProResult">
         select
@@ -547,7 +547,7 @@
         s.state,
         s.PA,
         s.PB
-        order  by createtime desc
+        order by createtime desc
     </select>
 
 
@@ -689,7 +689,7 @@
         s.state,
         s.PA,
         s.PB
-        order  by createtime desc
+        order by createtime desc
 
     </select>
 
@@ -732,7 +732,7 @@
         s.state,
         s.PA,
         s.PB
-        order  by createtime desc
+        order by createtime desc
 
     </select>
 
@@ -775,7 +775,7 @@
         s.state,
         s.PA,
         s.PB
-        order  by createtime desc
+        order by createtime desc
 
     </select>
 
@@ -819,7 +819,7 @@
 
 
 
-        order  by createtime desc
+        order by createtime desc
     </select>
 
     <select id="sel_IntraSchPro_closure_dept_teacher" parameterType="SciIntraSchoolPro" resultMap="SciIntraSchoolProResult">
@@ -881,7 +881,7 @@
         s.state,
         s.PA,
         s.PB
-        order  by createtime desc
+        order by createtime desc
     </select>
 
     <select id="sel_IntraSchPro_isOVER_dept_teacher" parameterType="SciIntraSchoolPro" resultMap="SciIntraSchoolProResult">
@@ -901,7 +901,7 @@
         <if test="state != null  and state != ''"> and state = #{state}</if>
         <!-- 数据范围过滤 -->
         ${params.dataScope}
-        order  by createtime desc
+        order by createtime desc
     </select>
 
     <delete id="deleteSciSCHHorizontalApplyByIds" parameterType="String">
