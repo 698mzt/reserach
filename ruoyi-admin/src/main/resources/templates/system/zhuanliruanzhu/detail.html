@@ -392,36 +392,46 @@
             var a = $("#state").val();
             var b = $("#urlFlag").val();
 
-            if (b == 'ZLRZ') {
-                $(".tdiv2").show();
-                $("#btn3").show();
-            } else if (b == "info") {
+            // 查看模式（chakan、info、ZLRZ）：只显示批阅记录和关闭按钮
+            if (b == 'ZLRZ' || b == 'info' || b == 'chakan') {
                 if (rows.length > 0) {
                     $(".tdiv2").show();
                 }
                 $("#btn3").show();
             } else {
-                if (a == 'PATENT_JYS_AUDIT' || a == 'PATENT_KYC_AUDIT' || a == 'PATENT_DRAFT') {
+                // 学院管理员角色：仅显示关闭按钮和批阅记录
+                if (userRole === 'dept_teacher') {
                     if (rows.length > 0) {
                         $(".tdiv2").show();
                     }
-                    $(".tdiv1").show();
-                    $("#btn2").show();
-                    if (b != "tuihui" && b != "xytuihui") {
-                        $("#btn1").show();
-                    }
-                }
-                if (a == 'PATENT_PASSED' || a == 'PATENT_REJECTED') {
-                    if (rows.length > 0) {
-                        $(".tdiv2").show();
-                    }
-                    // 只有科研处或管理员角色才能看到撤回按钮
-                    if (a == 'PATENT_PASSED' && b == "zgqxtuihui" && (userRole === 'sci_tesearch' || userRole === 'admin')) {
+                    $("#btn3").show();
+                } else if (userRole !== 'teacher') {
+                    if (a == 'PATENT_JYS_AUDIT' || a == 'PATENT_KYC_AUDIT' || a == 'PATENT_DRAFT') {
+                        if (rows.length > 0) {
+                            $(".tdiv2").show();
+                        }
                         $(".tdiv1").show();
                         $("#btn2").show();
+                        if (b != "tuihui" && b != "xytuihui") {
+                            $("#btn1").show();
+                        }
                     }
+                    if (a == 'PATENT_PASSED' || a == 'PATENT_REJECTED') {
+                        if (rows.length > 0) {
+                            $(".tdiv2").show();
+                        }
+                        if (a == 'PATENT_PASSED' && b == "zgqxtuihui" && (userRole === 'sci_tesearch' || userRole === 'admin')) {
+                            $(".tdiv1").show();
+                            $("#btn2").show();
+                        }
+                    }
+                    $("#btn3").show();
+                } else {
+                    if (rows.length > 0) {
+                        $(".tdiv2").show();
+                    }
+                    $("#btn3").show();
                 }
-                $("#btn3").show();
             }
         });
     });
