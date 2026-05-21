@@ -629,6 +629,7 @@
   var chexiaoFlag = [[${@permission.hasPermi('system:jiaocairuanzhu:chexiao')}]];
   var kyrevokeFlag = [[${@permission.hasPermi('system:jiaocairuanzhu:kyrevoke')}]];
   var isDeptTeacher = [[${@permission.isAnyRoles('dept_teacher,discuss_college,dzgc_college,yssj_college,student_college,marxism_college,general')}]];
+  var isResearch = [[${@permission.isAnyRoles('research')}]];
 
   var prefix = ctx + "system/jiaocairuanzhu";
 
@@ -957,7 +958,8 @@
                   }
               }
 
-              if (row.state === 'TEXTBOOK_PASSED' && kyrevokeFlag) {
+              // 撤回按钮：教研室用户不允许对"通过"状态的教材专著执行撤回操作（参考论文模块逻辑）
+              if (row.state === 'TEXTBOOK_PASSED' && kyrevokeFlag && !isResearch) {
                   firstRowActions.push({actionKey: 'recall', actionText: '撤回', colorType: 'warning'});
               }
               
