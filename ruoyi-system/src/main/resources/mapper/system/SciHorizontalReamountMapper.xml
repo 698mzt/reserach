@@ -129,7 +129,7 @@
                 left join sys_user u on  s.user_id=u.user_id
                 left join sys_dept d on u.dept_id = d.dept_id
                 left join sys_dept p on d.parent_id =p.dept_id
-        where re.state  in (99,1,2,11,22,5,6)
+        where re.state  in ('REAMOUNT_DRAFT','REAMOUNT_JYS_AUDIT','REAMOUNT_KYC_AUDIT','REAMOUNT_DEPT_AUDIT','REAMOUNT_CLOSED','REAMOUNT_REJECTED','REAMOUNT_PASSED')
                   and s.user_id = #{uid}
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
@@ -142,11 +142,11 @@
         order  by
         case
 --         草稿
-        when re.state = 99 then 1
+        when re.state = 'REAMOUNT_DRAFT' then 1
 --         审批中
-        when re.state in (1,2,11) then 2
+        when re.state in ('REAMOUNT_JYS_AUDIT','REAMOUNT_KYC_AUDIT','REAMOUNT_DEPT_AUDIT') then 2
 --         已完结
-        when re.state = 6 then 3
+        when re.state = 'REAMOUNT_PASSED' then 3
         end,
         re.createtime desc
     </select>
@@ -167,7 +167,7 @@
         left join sys_user u on  s.user_id=u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
-        where re.state  in (1,2)
+        where re.state  in ('REAMOUNT_JYS_AUDIT','REAMOUNT_KYC_AUDIT')
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
@@ -176,11 +176,11 @@
         order  by
         case
 --         草稿
-        when re.state = 99 then 1
+        when re.state = 'REAMOUNT_DRAFT' then 1
 --         审批中
-        when re.state in (1,2,11) then 2
+        when re.state in ('REAMOUNT_JYS_AUDIT','REAMOUNT_KYC_AUDIT','REAMOUNT_DEPT_AUDIT') then 2
 --         已完结
-        when re.state = 6 then 3
+        when re.state = 'REAMOUNT_PASSED' then 3
         end,
         re.createtime desc
     </select>
@@ -201,7 +201,7 @@
         left join sys_user u on  s.user_id=u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
-        where re.state  in (2,11)
+        where re.state  in ('REAMOUNT_KYC_AUDIT','REAMOUNT_DEPT_AUDIT')
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if  test="dname != null  and dname != ''"> and d.dept_name like concat('%', #{dname}, '%')</if>
@@ -211,11 +211,11 @@
         order  by
         case
 --         草稿
-        when re.state = 99 then 1
+        when re.state = 'REAMOUNT_DRAFT' then 1
 --         审批中
-        when re.state in (1,2,11) then 2
+        when re.state in ('REAMOUNT_JYS_AUDIT','REAMOUNT_KYC_AUDIT','REAMOUNT_DEPT_AUDIT') then 2
 --         已完结
-        when re.state = 6 then 3
+        when re.state = 'REAMOUNT_PASSED' then 3
         end,
         re.createtime desc
     </select>
@@ -236,7 +236,7 @@
         left join sys_user u on  s.user_id=u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
-        where re.state  in (11,6)
+        where re.state  in ('REAMOUNT_DEPT_AUDIT','REAMOUNT_PASSED')
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if  test="dname != null  and dname != ''"> and d.dept_name like concat('%', #{dname}, '%')</if>
@@ -246,11 +246,11 @@
         order  by
         case
 --         草稿
-        when re.state = 99 then 1
+        when re.state = 'REAMOUNT_DRAFT' then 1
 --         审批中
-        when re.state in (1,2,11) then 2
+        when re.state in ('REAMOUNT_JYS_AUDIT','REAMOUNT_KYC_AUDIT','REAMOUNT_DEPT_AUDIT') then 2
 --         已完结
-        when re.state = 6 then 3
+        when re.state = 'REAMOUNT_PASSED' then 3
         end,
         re.createtime desc
     </select>

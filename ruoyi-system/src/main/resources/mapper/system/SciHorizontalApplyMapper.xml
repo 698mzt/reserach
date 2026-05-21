@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
@@ -322,7 +322,7 @@
         left join sys_user u on  s.user_id=u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
-        where s.state = 6
+        where s.state = 'HORIZONTAL_OVER_PASSED'
         <!--            <if test="userId != null "> and user_id = #{userId}</if>-->
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
@@ -342,7 +342,7 @@
         left join sys_user u on  s.user_id=u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
-        where s.state = 6
+        where s.state = 'HORIZONTAL_OVER_PASSED'
         <!--            <if test="userId != null "> and user_id = #{userId}</if>-->
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>

@@ -377,7 +377,13 @@
                 if (key === 'submitOver') {
                     return owner && isPassedState(state);
                 }
-                return key === 'overApply' || key === 'reamount' ? owner && isPassedState(state) : true;
+                if (key === 'overApply') {
+                    return owner && isPassedState(state);
+                }
+                if (key === 'reamount') {
+                    return isPassedState(state);
+                }
+                return true;
             });
         }
 
@@ -400,6 +406,10 @@
             },
             'recall': function(actionKey, data) {
                 submitHandlerRecall();
+            },
+            'reamount': function(actionKey, data) {
+                closeItem();
+                $.operate.reamountTab(data.id);
             }
         });
 

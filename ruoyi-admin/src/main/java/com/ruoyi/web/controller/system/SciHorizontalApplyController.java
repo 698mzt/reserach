@@ -533,7 +533,7 @@ public class SciHorizontalApplyController extends BaseController
         }
 
         sciHorizontalReamount.setApplyId(id.toString());
-        sciHorizontalReamount.setState("HORIZONTAL_APPLY_DRAFT");
+        sciHorizontalReamount.setState("REAMOUNT_DRAFT");
         sciHorizontalReamount.setUid(getUserId());
         if (sciHorizontalReamount.getReAmount() != null && !sciHorizontalReamount.getReAmount().isEmpty()){
             sciHorizontalReamountService.insertAmount(sciHorizontalReamount);
@@ -562,8 +562,8 @@ public class SciHorizontalApplyController extends BaseController
             sciHorizontalApply.setState("HORIZONTAL_APPLY_JYS_AUDIT");
         }
         int a = sciHorizontalApplyService.updateSciHorizontalApply(sciHorizontalApply);
-        sciHorizontalReamount.setState("HORIZONTAL_APPLY_JYS_AUDIT");
-        sciHorizontalReamountService.push(getUserId(),sciHorizontalApply.getId(),"HORIZONTAL_APPLY_JYS_AUDIT");
+        sciHorizontalReamount.setState("REAMOUNT_JYS_AUDIT");
+        sciHorizontalReamountService.push(getUserId(),sciHorizontalApply.getId(),"REAMOUNT_JYS_AUDIT");
         return toAjax(a);
     }
 
@@ -605,7 +605,7 @@ public class SciHorizontalApplyController extends BaseController
     public AjaxResult overaddSave(SciHorizontalApply sciHorizontalApply, SciHorizontalReamount sciHorizontalReamount) {
         Integer id = sciHorizontalApply.getId();
         sciHorizontalReamount.setApplyId(id.toString());
-        sciHorizontalReamount.setState("HORIZONTAL_OVER_JYS_AUDIT");
+        sciHorizontalReamount.setState("REAMOUNT_JYS_AUDIT");
         sciHorizontalApply.setUserId(Integer.valueOf(getSysUser().getUserId().toString()));
         int result = sciHorizontalApplyService.overSaveSciHorizontalApply(sciHorizontalApply);
         if (result == -1) {
@@ -1230,15 +1230,31 @@ public class SciHorizontalApplyController extends BaseController
     {
         List<SciHorizontalPiyue> resultList = new ArrayList<>();
 
-        // 1. 查询新审批历史表（HORIZONTAL_APPLY 流程）
+        // 1. 查询新审批历史表（立项审批 HORIZONTAL_APPLY 流程）
+        addApprovalHistoryToResult(resultList, kid, "HORIZONTAL_APPLY");
+        // 1.1 查询新审批历史表（结项审批 HORIZONTAL_OVER 流程）
+        addApprovalHistoryToResult(resultList, kid, "HORIZONTAL_OVER");
+
+        // 2. 查询旧审核意见表（包含新增、提交、修改等记录）
+        SciHorizontalPiyue param = new SciHorizontalPiyue();
+        param.setHxktId(kid);
+        List<SciHorizontalPiyue> oldList = piyueService.selectSciHorizontalPiyueList(param);
+        for (SciHorizontalPiyue piyue : oldList) {
+            piyue.setStateText(piyue.getState());
+            resultList.add(piyue);
+        }
+
+        return getDataTable(resultList);
+    }
+
+    private void addApprovalHistoryToResult(List<SciHorizontalPiyue> resultList, Integer kid, String processCode) {
         List<SysApprovalHistory> historyList = sysApprovalHistoryService.selectSysApprovalHistoryByBusinessId(
-                "HORIZONTAL_APPLY", kid.longValue());
+                processCode, kid.longValue());
         for (SysApprovalHistory history : historyList) {
             SciHorizontalPiyue piyue = new SciHorizontalPiyue();
             piyue.setHxktId(kid);
             String action = history.getAction();
             String comment = history.getComment();
-            // 根据操作类型设置内容和审核状态
             if ("submit".equals(action)) {
                 piyue.setConcate("提交申请");
                 piyue.setStateText("提交");
@@ -1261,18 +1277,6 @@ public class SciHorizontalApplyController extends BaseController
             piyue.setState(history.getNewState());
             resultList.add(piyue);
         }
-
-        // 2. 查询旧审核意见表（包含新增、提交、修改等记录）
-        SciHorizontalPiyue param = new SciHorizontalPiyue();
-        param.setHxktId(kid);
-        List<SciHorizontalPiyue> oldList = piyueService.selectSciHorizontalPiyueList(param);
-        for (SciHorizontalPiyue piyue : oldList) {
-            // 统一审核状态显示：新增、提交、通过、驳回、修改
-            piyue.setStateText(piyue.getState());
-            resultList.add(piyue);
-        }
-
-        return getDataTable(resultList);
     }
     @RequiresPermissions("system:apply:edit")
     @PostMapping("/abhyy/{kid}")
