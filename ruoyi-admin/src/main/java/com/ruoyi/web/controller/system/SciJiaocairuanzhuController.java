@@ -479,7 +479,7 @@ public class SciJiaocairuanzhuController extends BaseController
      * 跳转到教材软著撤回页面
      * 用于撤回已提交的教材软著申请
      */
-    @RequiresPermissions(value={"system:jiaocairuanzhu:hecha","system:jiaocairuanzhu:process","system:jiaocairuanzhu:chayue"},logical= Logical.OR)
+    @RequiresPermissions(value={"system:jiaocairuanzhu:hecha","system:jiaocairuanzhu:process","system:jiaocairuanzhu:chayue","system:jiaocairuanzhu:chexiao","system:jiaocairuanzhu:kyrevoke"},logical= Logical.OR)
     @Log(title = "教材软著", businessType = BusinessType.OTHER)
     @GetMapping("/recall/{id}")
     public String recall(@PathVariable("id") Integer id, ModelMap mmap)
@@ -499,7 +499,7 @@ public class SciJiaocairuanzhuController extends BaseController
      * 保存教材软著撤回操作
      * 撤回已提交的教材软著申请并记录撤回原因
      */
-    @RequiresPermissions(value={"system:jiaocairuanzhu:hecha","system:jiaocairuanzhu:process","system:jiaocairuanzhu:chayue"},logical= Logical.OR)
+    @RequiresPermissions(value={"system:jiaocairuanzhu:hecha","system:jiaocairuanzhu:process","system:jiaocairuanzhu:chayue","system:jiaocairuanzhu:chexiao","system:jiaocairuanzhu:kyrevoke"},logical= Logical.OR)
     @Log(title = "撤销", businessType = BusinessType.UPDATE)
     @PostMapping( "/recallsave")
     @ResponseBody

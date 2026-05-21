@@ -15,6 +15,7 @@ import com.ruoyi.system.service.ISysRewardService;
 import com.ruoyi.system.service.ISysUserService;
 import com.ruoyi.system.service.IApprovalProcessService;
 import com.ruoyi.system.service.IPageRenderService;
+import com.ruoyi.system.constant.PageRenderColorConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -95,13 +96,13 @@ public class SysRewardServiceImpl implements ISysRewardService {
         SysReward reward = sysRewardMapper.selectSysRewardById(id);
         if (reward != null) {
             SysUser currentUser = ShiroUtils.getSysUser();
+            Set<String> permissions = pageRenderService.buildCurrentPermissions(currentUser);
             PageRenderResult<?> result = pageRenderService.fillPageRenderData(
                     "REWARD", "system:reward", REWARD_PROCESS_CODE,
-                    reward.getState(), reward.getId(), reward.getUserId(),
-                    pageRenderService.buildCurrentPermissions(currentUser));
+                    reward.getState(), reward.getId(), reward.getUserId(), permissions);
             reward.setStatusMeta(result.getStatusMeta());
-            // 过滤奖励模块不需要的按钮（通过、驳回）
-            reward.setActions(filterRewardActions(result.getActions()));
+            // 过滤奖励模块不需要的按钮（通过、驳回），学院角色还需过滤批阅按钮
+            reward.setActions(filterRewardActions(result.getActions(), permissions, reward.getState()));
         }
         return reward;
     }
@@ -123,8 +124,8 @@ public class SysRewardServiceImpl implements ISysRewardService {
                     "REWARD", "system:reward", REWARD_PROCESS_CODE,
                     reward.getState(), reward.getId(), reward.getUserId(), permissions);
             reward.setStatusMeta(result.getStatusMeta());
-            // 过滤奖励模块不需要的按钮（通过、驳回）
-            reward.setActions(filterRewardActions(result.getActions()));
+            // 过滤奖励模块不需要的按钮（通过、驳回），学院角色还需过滤批阅按钮
+            reward.setActions(filterRewardActions(result.getActions(), permissions, reward.getState()));
         }
         return list;
     }
@@ -133,26 +134,63 @@ public class SysRewardServiceImpl implements ISysRewardService {
      * 过滤奖励模块不需要的按钮
      * 公共 PageRender 服务会为审批中状态生成"通过"和"驳回"按钮
      * 但奖励模块的审批操作统一在详情页完成，列表页只需要"批阅/核查"按钮
+     * 
+     * 学院角色（有hecha权限但无process权限）只有查看和查看流程按钮，不显示批阅按钮
      *
      * @param actions 原始按钮列表
+     * @param permissions 当前用户权限集合
+     * @param state 当前状态
      * @return 过滤后的按钮列表
      */
     @SuppressWarnings("unchecked")
-    private List<PageRenderActionItem> filterRewardActions(List<?> actions) {
+    private List<PageRenderActionItem> filterRewardActions(List<?> actions, Set<String> permissions, String state) {
         if (actions == null || actions.isEmpty()) {
-            return new ArrayList<>();
+            actions = new ArrayList<>();
         }
+        
+        // 判断是否为学院角色：有hecha权限但没有process权限
+        boolean isCollegeRole = permissions != null 
+                && permissions.contains("system:reward:hecha") 
+                && !permissions.contains("system:reward:process");
+        
         List<PageRenderActionItem> filtered = new ArrayList<>();
+        boolean hasRecall = false;
+        
         for (Object item : actions) {
             if (item instanceof PageRenderActionItem) {
                 PageRenderActionItem action = (PageRenderActionItem) item;
-                // 保留除"通过"和"驳回"外的所有按钮
                 String actionKey = action.getActionKey();
-                if (!"approve".equals(actionKey) && !"reject".equals(actionKey)) {
-                    filtered.add(action);
+                
+                // 过滤"通过"和"驳回"按钮
+                if ("approve".equals(actionKey) || "reject".equals(actionKey)) {
+                    continue;
                 }
+                
+                // 学院角色：过滤"批阅"按钮，只保留查看和查看流程
+                if (isCollegeRole && ("review".equals(actionKey) || "kyReview".equals(actionKey))) {
+                    continue;
+                }
+                
+                if ("recall".equals(actionKey)) {
+                    hasRecall = true;
+                }
+                
+                filtered.add(action);
             }
         }
+        
+        // 审批通过状态：科研处审批人（有kyrevoke权限）可撤回
+        if (REWARD_PASSED.equals(state) && !hasRecall) {
+            boolean hasKyRevoke = permissions != null && permissions.contains("system:reward:kyrevoke");
+            boolean hasHecha = permissions != null && permissions.contains("system:reward:hecha");
+            boolean isAdmin = permissions != null && permissions.contains("*:*:*");
+            if (hasKyRevoke || hasHecha || isAdmin) {
+                filtered.add(PageRenderActionItem.of(
+                        "recall", "撤回",
+                        PageRenderColorConstants.COLOR_WARNING, 40, "确定要撤回该记录吗？"));
+            }
+        }
+        
         return filtered;
     }
 

@@ -694,7 +694,17 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
         sciJiaocairuanzhuPiyue.setUid(uid);
         sciJiaocairuanzhuPiyue.setJiaocai_id(id);
         sciJiaocairuanzhuPiyue.setConcate(remark);
-        sciJiaocairuanzhuPiyue.setState("科研处撤回");
+        
+        // 根据状态判断是教研室撤回还是科研处撤回
+        String recallState;
+        if (oldState.contains("JYS_AUDIT")) {
+            recallState = "教研室撤回";
+        } else if (oldState.contains("KYC_AUDIT") || oldState.equals("TEXTBOOK_PASSED")) {
+            recallState = "科研处撤回";
+        } else {
+            recallState = "撤回";
+        }
+        sciJiaocairuanzhuPiyue.setState(recallState);
 
         // 如果是已通过撤回，清空积分
         if (oldState.equals("TEXTBOOK_PASSED")) {

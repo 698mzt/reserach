@@ -53,7 +53,8 @@ public class SciIntraSchoolProController extends BaseController {
   private ISysApprovalStateService sysApprovalStateService;
   //private String role_str="";
   @GetMapping("")
-  String view() {
+  String view(ModelMap mmap) {
+    mmap.put("roleStr", panRole_str());
     return prefix + "/view";
   }
 
@@ -115,7 +116,13 @@ public class SciIntraSchoolProController extends BaseController {
     }
 
     List<SciIntraSchoolPro> distinctList = new ArrayList<>(distinctMap.values());
-    distinctList.sort(Comparator.comparing(SciIntraSchoolPro::getId, Comparator.nullsLast(Comparator.reverseOrder())));
+    distinctList.sort((a, b) -> {
+        int p = Integer.compare(getStatePriority(a.getState()), getStatePriority(b.getState()));
+        if (p != 0) return p;
+        String ta = a.getCreatetime(), tb = b.getCreatetime();
+        if (ta != null && tb != null) return tb.compareTo(ta);
+        return Integer.compare(a.getId() != null ? a.getId() : 0, b.getId() != null ? b.getId() : 0);
+    });
 
     PageDomain pageDomain = TableSupport.buildPageRequest();
     Integer pageNum = pageDomain.getPageNum();
@@ -223,6 +230,24 @@ public class SciIntraSchoolProController extends BaseController {
     }
   }
 
+  private int getStatePriority(String state) {
+    if (state == null) return 6;
+    switch (state) {
+      case "15": case "16": case "TEC_TRA_DRAFT":
+        return 1;
+      case "3": case "5": case "9": case "10": case "12": case "14": case "TEC_TRA_REJECTED":
+        return 2;
+      case "1": case "7": case "8": case "11": case "13": case "TEC_TRA_JYS_AUDIT":
+        return 3;
+      case "2": case "TEC_TRA_KYC_AUDIT":
+        return 4;
+      case "4": case "6": case "TEC_TRA_PASSED":
+        return 5;
+      default:
+        return 6;
+    }
+  }
+
   private List<SciIntraSchoolPro> selectListByRole(String roleStr, String tableId, SciIntraSchoolPro sciIntraSchoolPro) {
     switch (roleStr) {
       case "dept_teacher":
@@ -250,7 +275,9 @@ public class SciIntraSchoolProController extends BaseController {
       case "research":
         switch (tableId) {
           case "bootstrap-table0":
-            return sciIntraSchProApplyService.sel_IntraSchPro_isOVER(sciIntraSchoolPro);
+            List<SciIntraSchoolPro> overList = sciIntraSchProApplyService.sel_IntraSchPro_isOVER(sciIntraSchoolPro);
+            overList.forEach(item -> item.setRole("research"));
+            return overList;
           case "bootstrap-table1":
             return sciIntraSchProApplyService.sel_IntraSchPro_approval_jy(sciIntraSchoolPro);
           case "bootstrap-table2":
@@ -517,7 +544,28 @@ public class SciIntraSchoolProController extends BaseController {
       }
       return rightTime.compareTo(leftTime);
     });
+    for (SciIntraSchProPiyue item : list) {
+      item.setState(mapPiyueState(item.getState()));
+      item.setConcate(mapPiyueConcate(item.getState(), item.getConcate()));
+    }
     return getDataTable(list);
+  }
+
+  private String mapPiyueState(String raw) {
+    if (raw == null) return "";
+    if (raw.contains("草稿") || raw.contains("新建")) return "新增";
+    if (raw.contains("撤回")) return "修改";
+    if (raw.contains("驳回")) return "驳回";
+    if (raw.contains("提交") || raw.contains("申请")) return "提交";
+    if (raw.contains("通过") || raw.contains("同意")) return "通过";
+    return raw;
+  }
+
+  private String mapPiyueConcate(String mappedState, String originalConcate) {
+    if ("驳回".equals(mappedState) && originalConcate != null && !originalConcate.trim().isEmpty()) {
+      return originalConcate;
+    }
+    return mappedState;
   }
 
 

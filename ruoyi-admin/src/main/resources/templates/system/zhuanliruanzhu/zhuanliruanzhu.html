@@ -597,6 +597,8 @@
     var isResearch = role === 'research' || proFlag !== 'hidden';
     var isDeptTeacher = role === 'dept_teacher' || hechaFlag !== 'hidden';
     var isSciTesearch = role === 'sci_tesearch' || chayueFlag !== 'hidden' || kyrevokeFlag !== 'hidden';
+    var isAdmin = role === 'admin';
+    var isCollegeAdmin = role === 'dept_teacher';
 
     var prefix = ctx + "system/zhuanliruanzhu";
 
@@ -793,14 +795,63 @@
                         var firstRowActions = [];
                         var secondRowActions = [];
                         
+                        // 学院管理员角色：仅显示查看和查看流程按钮
+                        if (isCollegeAdmin) {
+                            if (row.actions && row.actions.length > 0) {
+                                row.actions.forEach(function(action) {
+                                    if (action.actionKey === 'view' || action.actionKey === 'viewProcess') {
+                                        secondRowActions.push(action);
+                                    }
+                                });
+                            } else {
+                                if (editInfo !== 'hidden') {
+                                    secondRowActions.push({actionKey: 'view', actionText: '查看', colorType: 'info', sortOrder: 100});
+                                    secondRowActions.push({actionKey: 'viewProcess', actionText: '查看流程', colorType: 'info', sortOrder: 101});
+                                }
+                            }
+                            
+                            var secondRowHtml = secondRowActions.length > 0 ? PageRender.renderActionsToString(secondRowActions, {style: 'table', separator: ' '}) : '';
+                            return secondRowHtml || '';
+                        }
+                        
                         if (row.actions && row.actions.length > 0) {
+                            var state = String(row.state);
+                            var isPassed = state === 'PATENT_PASSED' || state === '6';
+                            
+                            var hasReviewAction = row.actions.some(function(action) {
+                                return action.actionKey === 'review' || action.actionKey === 'kyReview';
+                            });
+                            
                             var listActions = row.actions.filter(function(a) {
-                                // 教研室角色看不到撤回按钮
                                 if (isResearch && a.actionKey === 'recall') {
                                     return false;
                                 }
+                                if (isAdmin && (a.actionKey === 'review' || a.actionKey === 'kyReview')) {
+                                    return false;
+                                }
+                                if (isSciTesearch && a.actionKey === 'recall') {
+                                    if (hasReviewAction) {
+                                        return false;
+                                    }
+                                    return isPassed;
+                                }
                                 return a.actionKey !== 'approve' && a.actionKey !== 'reject';
                             });
+                            
+                            if (isSciTesearch && isPassed && !hasReviewAction) {
+                                var hasRecallAction = listActions.some(function(a) {
+                                    return a.actionKey === 'recall';
+                                });
+                                if (!hasRecallAction) {
+                                    listActions.push({
+                                        actionKey: 'recall',
+                                        actionText: '撤回',
+                                        colorType: 'warning',
+                                        sortOrder: 50,
+                                        confirmMsg: '确定要撤回该记录吗？'
+                                    });
+                                }
+                            }
                             
                             listActions.forEach(function(action) {
                                 if (action.actionKey === 'view' || action.actionKey === 'viewProcess') {
@@ -830,11 +881,11 @@
                             }
                         }
                         
-                        var firstRowHtml = firstRowActions.length > 0 ? PageRender.renderActionsToString(firstRowActions, {style: 'table', separator: ' '}) : '';
-                        var secondRowHtml = secondRowActions.length > 0 ? PageRender.renderActionsToString(secondRowActions, {style: 'table', separator: ' '}) : '';
+                        var firstRowHtml = firstRowActions.length > 0 ? PageRender.renderActionsToString(firstRowActions, {style: 'table', separator: '&nbsp;&nbsp;&nbsp;'}) : '';
+                        var secondRowHtml = secondRowActions.length > 0 ? PageRender.renderActionsToString(secondRowActions, {style: 'table', separator: '&nbsp;&nbsp;&nbsp;'}) : '';
                         
                         if (firstRowHtml && secondRowHtml) {
-                            return firstRowHtml + '<br style="line-height: 1.5;"/>' + secondRowHtml;
+                            return '<div style="margin-bottom: 5px;">' + firstRowHtml + '</div>' + secondRowHtml;
                         } else if (firstRowHtml) {
                             return firstRowHtml;
                         } else if (secondRowHtml) {

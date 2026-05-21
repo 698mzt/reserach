@@ -203,7 +203,7 @@
                 <div class="form-group"  >
                     <label class="col-xs-2 control-label">批注：</label>
                     <div class="col-xs-10">
-                        <textarea name="remark" required maxlength="500" class="form-control" rows="3"></textarea>
+                        <textarea name="remark" id="remark" required maxlength="500" class="form-control" rows="3"></textarea>
                     </div>
                 </div>
 
@@ -331,7 +331,7 @@
             }
         });
 
-        var kid = $("#ktid").val();
+        var kid = $("input[name='id']").val();
         if (kid) {
             $.ajax({
                 url: prefix + "/getMembers/" + kid,
@@ -417,7 +417,13 @@
                 if (urlFlag === 'chakan' || urlFlag === 'JCZZ') {
                     return false;
                 }
-                if (urlFlag === 'pro' || urlFlag === 'kyc_approve' || urlFlag === 'hecha') {
+                if (urlFlag === 'pro' || urlFlag === 'kyc_approve') {
+                    return action.actionKey === 'approve' || action.actionKey === 'reject';
+                }
+                if (urlFlag === 'hecha') {
+                    if (state === 'TEXTBOOK_PASSED') {
+                        return action.actionKey === 'recall';
+                    }
                     return action.actionKey === 'approve' || action.actionKey === 'reject';
                 }
                 if (urlFlag === 'jys_recall' || urlFlag === 'kyc_recall' || urlFlag === 'proth') {
@@ -429,7 +435,7 @@
             var $container = $('#action-buttons-container');
             if (filteredActions.length > 0) {
                 PageRender.renderActions($container, filteredActions, {style: 'page'}, {
-                    id: $("#ktid").val(),
+                    id: $("input[name='id']").val(),
                     state: state,
                     urlFlag: urlFlag
                 });
@@ -443,6 +449,11 @@
                 $container.html(
                     '<button type="button" class="btn btn-sm btn-success" onclick="submitHandler()"> 通 过</button> ' +
                     '<button type="button" class="btn btn-sm btn-danger" onclick="submitHandlerBH()"> 驳 回</button> ' +
+                    '<button type="button" class="btn btn-sm btn-warning" onclick="closeItem()"> 关 闭 </button>'
+                );
+            } else if (state === 'TEXTBOOK_PASSED' && urlFlag === 'hecha') {
+                $container.html(
+                    '<button type="button" class="btn btn-sm btn-warning" onclick="submitHandlerBH()"> 撤 回</button> ' +
                     '<button type="button" class="btn btn-sm btn-warning" onclick="closeItem()"> 关 闭 </button>'
                 );
             } else if (['kyc_recall', 'jys_recall', 'proth'].includes(urlFlag)) {
@@ -524,14 +535,17 @@
     function submitHandler() {
         var urlFlag = $("#urlFlag").val();
         var remark = $('#remark').val();
-        $.operate.saveTab(prefix + "/hxPass", {"id":$("#ktid").val(),"urlFlag":urlFlag,"amount":$("#amount").val(), "comment": remark});
+        $.operate.saveTab(prefix + "/hxPass", {"id":$("input[name='id']").val(),"urlFlag":urlFlag,"amount":$("#amount").val(), "comment": remark});
     }
 
     function submitHandlerBH() {
         var urlFlag = $("#urlFlag").val();
+        var state = $("#state").val();
         var operationType = '';
 
-        if (['pro', 'kyc_approve', 'hecha'].includes(urlFlag)) {
+        if (urlFlag === 'hecha' && state === 'TEXTBOOK_PASSED') {
+            operationType = 'recall';
+        } else if (['pro', 'kyc_approve', 'hecha'].includes(urlFlag)) {
             operationType = 'reject';
             if (!$('#remark').val().trim()) {
                 $.modal.msgWarning("批注不能为空");
@@ -546,11 +560,11 @@
 
             if (operationType === 'reject') {
                 $.modal.confirm("确定 驳回 吗", function() {
-                    $.operate.saveTab(prefix + "/hxBh", $('#form-jiaocairuanzhu-edit').serialize());
+                    $.operate.saveTab(prefix + "/hxBh", {"id": $("input[name='id']").val(), "urlFlag": urlFlag, "remark": remark});
                 });
             } else if (operationType === 'recall') {
                 $.modal.confirm("确定 撤回 吗", function() {
-                    $.operate.saveTab(prefix + "/recallsave", $('#form-jiaocairuanzhu-edit').serialize());
+                    $.operate.saveTab(prefix + "/recallsave", {"id": $("input[name='id']").val(), "state": $("#state").val(), "urlFlag": urlFlag, "remark": remark});
                 });
             }
         }
