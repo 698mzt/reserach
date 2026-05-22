@@ -107,7 +107,19 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
                 statusMeta = buildFallbackStatusMeta(currentState);
             }
             apply.setStatusMeta(statusMeta);
-            apply.setActions(result.getActions());
+            // 立项通过/结项通过状态下，对所有有权限的角色补充追加金额按钮
+            List<PageRenderActionItem> actions = result.getActions();
+            if (currentState != null && currentState.endsWith("_PASSED")) {
+                boolean hasReamount = actions.stream().anyMatch(a -> "reamount".equals(a.getActionKey()));
+                if (!hasReamount) {
+                    Set<String> permissions = buildCurrentPermissions(currentUser);
+                    if (permissions.contains("system:apply:add")) {
+                        actions.add(PageRenderActionItem.of("reamount", "追加金额",
+                                PageRenderColorConstants.COLOR_PRIMARY, 51));
+                    }
+                }
+            }
+            apply.setActions(actions);
         } catch (Exception e) {
             log.error("填充横向课题页面渲染数据失败, applyId={}", apply.getId(), e);
             apply.setStatusMeta(PageRenderStatusMeta.of(apply.getState(), "未知", PageRenderColorConstants.COLOR_DEFAULT));
@@ -664,11 +676,11 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
 
     @Override
     public int amountPass(String id,String reid, Long uid, String urlFlag, List score, List persion, Integer applyId,String amountType) {
-        String state = "0";
+        String state = "REAMOUNT_DRAFT";
         SciUserScore sciUserScore = new SciUserScore();
         sciUserScore.setApplyId(applyId.toString());
         if(urlFlag.equals("hecha")){
-            state ="6";
+            state ="REAMOUNT_PASSED";
 //            以负责人列表大小为准，顺序匹配每个负责人所对应的分数，记录到sciUserScore中。
 //            科研处
             for (int i = 0; i < persion.size(); i++) {
@@ -682,10 +694,10 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
             }
 //            教研室
         }else if(urlFlag.equals("pro")){
-            state ="2";
+            state ="REAMOUNT_KYC_AUDIT";
 //            学院通过
         }else if (urlFlag.equals("Dept")){
-            state ="11";
+            state ="REAMOUNT_DEPT_AUDIT";
         }
         int a =  sciHorizontalReamountService.amountpass(reid,state);
         SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();

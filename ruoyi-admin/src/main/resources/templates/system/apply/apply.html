@@ -746,8 +746,11 @@
             if (key === 'approve' || key === 'reject' || key === 'deptReview') {
                 return false;
             }
-            if (key === 'overApply' || key === 'submitOver' || key === 'reamount') {
+            if (key === 'overApply' || key === 'submitOver') {
                 return owner && hasPagePermission(createFlag) && isPassedState(state);
+            }
+            if (key === 'reamount') {
+                return hasPagePermission(createFlag) && isPassedState(state);
             }
             return true;
         });
@@ -829,6 +832,7 @@
             createUrl: prefix + "/add",
             detailUrl: prefix + "/overView/{id}",
             updateUrl: prefix + "/edit/{id}",
+            reamountUrl: prefix + "/Reamount/{id}",
             removeUrl: prefix + "/remove",
             exportUrl: prefix + "/export",
             recallUrl: prefix + "/recall/{id}",
@@ -946,7 +950,16 @@
                         if (row.statusMeta) {
                             return PageRender.renderStatusToString(row.statusMeta);
                         }
-                        return value || '';
+                        var stateMap = {
+                            'REAMOUNT_DRAFT': '草稿',
+                            'REAMOUNT_JYS_AUDIT': '教研室审批中',
+                            'REAMOUNT_KYC_AUDIT': '科研处审批中',
+                            'REAMOUNT_DEPT_AUDIT': '学院审核中',
+                            'REAMOUNT_PASSED': '已通过',
+                            'REAMOUNT_REJECTED': '已驳回',
+                            'REAMOUNT_CLOSED': '已完结'
+                        };
+                        return stateMap[value] || value || '';
                     }
                 },
                 // {
@@ -1096,7 +1109,16 @@
                         if (row.statusMeta) {
                             return PageRender.renderStatusToString(row.statusMeta);
                         }
-                        return value || '';
+                        var stateMap = {
+                            'REAMOUNT_DRAFT': '草稿',
+                            'REAMOUNT_JYS_AUDIT': '教研室审批中',
+                            'REAMOUNT_KYC_AUDIT': '科研处审批中',
+                            'REAMOUNT_DEPT_AUDIT': '学院审核中',
+                            'REAMOUNT_PASSED': '已通过',
+                            'REAMOUNT_REJECTED': '已驳回',
+                            'REAMOUNT_CLOSED': '已完结'
+                        };
+                        return stateMap[value] || value || '';
                     }
                 },
                 {
@@ -1123,6 +1145,7 @@
             createUrl: prefix + "/overadd?id={id}",
             detailUrl: prefix + "/overdetail/{id}",
             updateUrl: prefix + "/overedit/{id}",
+            reamountUrl: prefix + "/Reamount/{id}",
             removeUrl: prefix + "/remove",
             exportUrl: prefix + "/export",
             recallUrl: prefix + "/recall/{id}",
@@ -1372,7 +1395,16 @@
                         if (row.statusMeta) {
                             return PageRender.renderStatusToString(row.statusMeta);
                         }
-                        return value || '';
+                        var stateMap = {
+                            'REAMOUNT_DRAFT': '草稿',
+                            'REAMOUNT_JYS_AUDIT': '教研室审批中',
+                            'REAMOUNT_KYC_AUDIT': '科研处审批中',
+                            'REAMOUNT_DEPT_AUDIT': '学院审核中',
+                            'REAMOUNT_PASSED': '已通过',
+                            'REAMOUNT_REJECTED': '已驳回',
+                            'REAMOUNT_CLOSED': '已完结'
+                        };
+                        return stateMap[value] || value || '';
                     }
                 },
                 {
@@ -1410,22 +1442,12 @@
                 $.operate.detailTab(id + '/chakan');
             },
             'viewProcess': function(actionKey, data) {
-                var state = data.state || '';
-                if (state.indexOf('HORIZONTAL_OVER_') !== -1) {
-                    showhistory1(data.id, state);
-                } else {
-                    showhistory(data.id, state);
-                }
+                showhistory(data.id, data.state);
                 $('#lcjl_Moda').modal('show');
             },
             'edit': function(actionKey, data) {
                 var id = data.reid || data.id;
-                var state = data.state || '';
-                if (state.indexOf('HORIZONTAL_OVER_') !== -1) {
-                    $.operate.overTab(id);
-                } else {
-                    $.operate.editTab(id);
-                }
+                $.operate.editTab(id);
             },
             'remove': function(actionKey, data) {
                 var id = data.reid || data.id;

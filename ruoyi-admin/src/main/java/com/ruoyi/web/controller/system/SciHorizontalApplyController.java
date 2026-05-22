@@ -533,7 +533,7 @@ public class SciHorizontalApplyController extends BaseController
         }
 
         sciHorizontalReamount.setApplyId(id.toString());
-        sciHorizontalReamount.setState("HORIZONTAL_APPLY_DRAFT");
+        sciHorizontalReamount.setState("REAMOUNT_DRAFT");
         sciHorizontalReamount.setUid(getUserId());
         if (sciHorizontalReamount.getReAmount() != null && !sciHorizontalReamount.getReAmount().isEmpty()){
             sciHorizontalReamountService.insertAmount(sciHorizontalReamount);
@@ -562,8 +562,8 @@ public class SciHorizontalApplyController extends BaseController
             sciHorizontalApply.setState("HORIZONTAL_APPLY_JYS_AUDIT");
         }
         int a = sciHorizontalApplyService.updateSciHorizontalApply(sciHorizontalApply);
-        sciHorizontalReamount.setState("HORIZONTAL_APPLY_JYS_AUDIT");
-        sciHorizontalReamountService.push(getUserId(),sciHorizontalApply.getId(),"HORIZONTAL_APPLY_JYS_AUDIT");
+        sciHorizontalReamount.setState("REAMOUNT_JYS_AUDIT");
+        sciHorizontalReamountService.push(getUserId(),sciHorizontalApply.getId(),"REAMOUNT_JYS_AUDIT");
         return toAjax(a);
     }
 
@@ -605,7 +605,7 @@ public class SciHorizontalApplyController extends BaseController
     public AjaxResult overaddSave(SciHorizontalApply sciHorizontalApply, SciHorizontalReamount sciHorizontalReamount) {
         Integer id = sciHorizontalApply.getId();
         sciHorizontalReamount.setApplyId(id.toString());
-        sciHorizontalReamount.setState("HORIZONTAL_OVER_JYS_AUDIT");
+        sciHorizontalReamount.setState("REAMOUNT_JYS_AUDIT");
         sciHorizontalApply.setUserId(Integer.valueOf(getSysUser().getUserId().toString()));
         int result = sciHorizontalApplyService.overSaveSciHorizontalApply(sciHorizontalApply);
         if (result == -1) {
@@ -1230,38 +1230,53 @@ public class SciHorizontalApplyController extends BaseController
     {
         List<SciHorizontalPiyue> resultList = new ArrayList<>();
 
-        // 查询新审批历史表（HORIZONTAL_APPLY 流程）
-        List<SysApprovalHistory> historyList = sysApprovalHistoryService.selectSysApprovalHistoryByBusinessId(
-                "HORIZONTAL_APPLY", kid.longValue());
-        for (SysApprovalHistory history : historyList) {
-            SciHorizontalPiyue piyue = new SciHorizontalPiyue();
-            piyue.setHxktId(kid);
-            // 处理 comment 为空的情况，根据 action 类型设置默认内容
-            String comment = history.getComment();
-            if (comment == null || comment.trim().isEmpty()) {
-                String action = history.getAction();
-                if ("approve".equals(action)) {
-                    comment = "审批通过";
-                } else if ("reject".equals(action)) {
-                    comment = "驳回";
-                } else if ("submit".equals(action)) {
-                    comment = "提交申请";
-                } else if ("recall".equals(action)) {
-                    comment = "撤回";
-                } else {
-                    comment = action;
-                }
-            }
-            piyue.setConcate(comment);
-            piyue.setUid(history.getOperatorId());
-            piyue.setUname(history.getOperatorName());
-            piyue.setCreateTime(history.getCreateTime());
-            piyue.setState(history.getNewState());
-            piyue.setStateText(sciHorizontalApplyService.getHorizontalStateText(history.getNewState()));
+        // 1. 查询新审批历史表（立项审批 HORIZONTAL_APPLY 流程）
+        addApprovalHistoryToResult(resultList, kid, "HORIZONTAL_APPLY");
+        // 1.1 查询新审批历史表（结项审批 HORIZONTAL_OVER 流程）
+        addApprovalHistoryToResult(resultList, kid, "HORIZONTAL_OVER");
+
+        // 2. 查询旧审核意见表（包含新增、提交、修改等记录）
+        SciHorizontalPiyue param = new SciHorizontalPiyue();
+        param.setHxktId(kid);
+        List<SciHorizontalPiyue> oldList = piyueService.selectSciHorizontalPiyueList(param);
+        for (SciHorizontalPiyue piyue : oldList) {
+            piyue.setStateText(piyue.getState());
             resultList.add(piyue);
         }
 
         return getDataTable(resultList);
+    }
+
+    private void addApprovalHistoryToResult(List<SciHorizontalPiyue> resultList, Integer kid, String processCode) {
+        List<SysApprovalHistory> historyList = sysApprovalHistoryService.selectSysApprovalHistoryByBusinessId(
+                processCode, kid.longValue());
+        for (SysApprovalHistory history : historyList) {
+            SciHorizontalPiyue piyue = new SciHorizontalPiyue();
+            piyue.setHxktId(kid);
+            String action = history.getAction();
+            String comment = history.getComment();
+            if ("submit".equals(action)) {
+                piyue.setConcate("提交申请");
+                piyue.setStateText("提交");
+            } else if ("approve".equals(action)) {
+                piyue.setConcate(comment != null && !comment.trim().isEmpty() ? comment : "审批通过");
+                piyue.setStateText("通过");
+            } else if ("reject".equals(action)) {
+                piyue.setConcate(comment != null && !comment.trim().isEmpty() ? comment : "驳回");
+                piyue.setStateText("驳回");
+            } else if ("recall".equals(action)) {
+                piyue.setConcate(comment != null && !comment.trim().isEmpty() ? comment : "撤回");
+                piyue.setStateText("撤回");
+            } else {
+                piyue.setConcate(comment != null && !comment.trim().isEmpty() ? comment : action);
+                piyue.setStateText(action);
+            }
+            piyue.setUid(history.getOperatorId());
+            piyue.setUname(history.getOperatorName());
+            piyue.setCreateTime(history.getCreateTime());
+            piyue.setState(history.getNewState());
+            resultList.add(piyue);
+        }
     }
     @RequiresPermissions("system:apply:edit")
     @PostMapping("/abhyy/{kid}")
@@ -1270,7 +1285,11 @@ public class SciHorizontalApplyController extends BaseController
         SciHorizontalPiyue ob = new SciHorizontalPiyue();
         ob.setHxktId(kid);
         List<SciHorizontalPiyue> list = piyueService.selectSciHorizontalAmountPiyueList(ob);
-        list.forEach(item -> item.setStateText(sciHorizontalApplyService.getHorizontalStateText(item.getState())));
+        list.forEach(item -> {
+            // 统一审核状态显示：新增、提交、通过、驳回、修改
+            String state = item.getState();
+            item.setStateText(state != null ? state : "未知");
+        });
         return getDataTable(list);
     }
 
