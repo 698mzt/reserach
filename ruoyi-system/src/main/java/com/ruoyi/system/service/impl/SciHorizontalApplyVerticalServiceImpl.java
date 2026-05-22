@@ -881,7 +881,7 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
             if (item instanceof PageRenderActionItem) {
                 PageRenderActionItem action = (PageRenderActionItem) item;
                 String actionKey = action.getActionKey();
-                if (!"approve".equals(actionKey)) {
+                if (!"approve".equals(actionKey) && !"reject".equals(actionKey)) {
                     filtered.add(action);
                 }
             }
