@@ -1,0 +1,21 @@
+<div id="exportProgressModal" class="modal fade" tabindex="-1" role="dialog" th:fragment="export-progress">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">导出进度</h4>
+            </div>
+            <div class="modal-body" style="text-align: center; padding: 30px;">
+                <div style="margin-bottom: 15px;">
+                    <span id="exportProgressText">正在导出数据，请稍候...</span>
+                </div>
+                <div class="progress" style="height: 20px; margin-bottom: 10px;">
+                    <div id="exportProgressBar" class="progress-bar progress-bar-striped active"
+                         role="progressbar" aria-valuenow="0" aria-valuemin="0"
+                         aria-valuemax="100" style="width: 0%;">
+                        0%
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

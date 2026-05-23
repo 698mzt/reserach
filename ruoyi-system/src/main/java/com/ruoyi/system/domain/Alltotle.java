@@ -19,7 +19,7 @@ public class Alltotle extends BaseEntity
 {
   private static final long serialVersionUID = 1L;
 
-  public static List<String> ge_wan_list = Arrays.asList("zcgjjjkyxm", "zcsbjjjkyxm","zcsbjjgxm","zcsbjzxkyxm","zctjjxhjkyxm","zcxjjxglxmywyys","zcxjjxglxmywyyx","ewyyx","edwwy","wdswy","sdeswy","esdsswwy","wswwydwswy","wsdqswwy","qswdybwy","eyxxx","edwxx","wdsxx","sdesxx","esdsswxx","sswdwsxx","dywsxx");
+  public static List<String> ge_wan_list = Arrays.asList("ewyyx","edwwy","wdswy","sdeswy","esdsswwy","wswwydwswy","wsdqswwy","qswdybwy","eyxxx","edwxx","wdsxx","sdesxx","esdsswxx","sswdwsxx","dywsxx");
   public static List<String> no_need_add_list = Arrays.asList("userId","userName","partenId","partenName","deptId","deptName");
   /** 用户id */
   @Excel(name = "用户id")
@@ -208,10 +208,6 @@ public class Alltotle extends BaseEntity
   @Excel(name = "省级科学技术奖")
   private String sjkxjsj;
 
-  /** 省级一流精品课评比 */
-  @Excel(name = "省级一流精品课评比")
-  private String sjyljpkpb;
-
   /** 市、厅局级自然科学类评奖 */
   @Excel(name = "市、厅局级自然科学类评奖")
   private String stjjzrkxlpj;
@@ -228,13 +224,13 @@ public class Alltotle extends BaseEntity
   @Excel(name = "应用型科研校级成果奖")
   private String yyxkyxjcgj;
 
-  /** 校级精品课评比 */
-  @Excel(name = "校级精品课评比")
-  private String xjjpkpb;
+  /** 学会级教学成果奖 */
+  @Excel(name = "学会级教学成果奖")
+  private String xhjjxcgj;
 
-  /** 教师参加省级大赛获奖 */
-  @Excel(name = "教师参加省级大赛获奖")
-  private String jscjsjdshj;
+  /** 学会级科研成果奖 */
+  @Excel(name = "学会级科研成果奖")
+  private String xhjkycgj;
 
   /** 举办国际 */
   @Excel(name = "举办国际")
@@ -765,15 +761,6 @@ public class Alltotle extends BaseEntity
   {
     return sjkxjsj;
   }
-  public void setSjyljpkpb(String sjyljpkpb)
-  {
-    this.sjyljpkpb = sjyljpkpb;
-  }
-
-  public String getSjyljpkpb()
-  {
-    return sjyljpkpb;
-  }
   public void setStjjzrkxlpj(String stjjzrkxlpj)
   {
     this.stjjzrkxlpj = stjjzrkxlpj;
@@ -810,23 +797,23 @@ public class Alltotle extends BaseEntity
   {
     return yyxkyxjcgj;
   }
-  public void setXjjpkpb(String xjjpkpb)
+  public void setXhjjxcgj(String xhjjxcgj)
   {
-    this.xjjpkpb = xjjpkpb;
+    this.xhjjxcgj = xhjjxcgj;
   }
 
-  public String getXjjpkpb()
+  public String getXhjjxcgj()
   {
-    return xjjpkpb;
+    return xhjjxcgj;
   }
-  public void setJscjsjdshj(String jscjsjdshj)
+  public void setXhjkycgj(String xhjkycgj)
   {
-    this.jscjsjdshj = jscjsjdshj;
+    this.xhjkycgj = xhjkycgj;
   }
 
-  public String getJscjsjdshj()
+  public String getXhjkycgj()
   {
-    return jscjsjdshj;
+    return xhjkycgj;
   }
   public void setJbgj(String jbgj)
   {
@@ -924,12 +911,12 @@ public class Alltotle extends BaseEntity
       .append("jsjrjzzq", getJsjrjzzq())
       .append("sjjxcgj", getSjjxcgj())
       .append("sjkxjsj", getSjkxjsj())
-      .append("sjyljpkpb", getSjyljpkpb())
       .append("stjjzrkxlpj", getStjjzrkxlpj())
       .append("stjjsklpj", getStjjsklpj())
       .append("xjjxcgj", getXjjxcgj())
       .append("yyxkyxjcgj", getYyxkyxjcgj())
-      .append("xjjpkpb", getXjjpkpb())
+      .append("xhjjxcgj", getXhjjxcgj())
+      .append("xhjkycgj", getXhjkycgj())
       .append("jbgj", getJbgj())
       .append("jbgn", getJbgn())
       .append("cjgj", getCjgj())

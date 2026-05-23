@@ -1,0 +1,282 @@
+/* ========== 搜索面板布局 ========== */
+@media (min-width: 768px) {
+    .col-sm-3 { width: 38% !important; }
+}
+.input-daterange { float: left; }
+.select-list ul {
+    display: flex; flex-wrap: wrap; gap: 15px;
+    padding: 0; margin: 0;
+}
+.select-list li {
+    list-style: none; margin: 0; display: flex;
+    align-items: center; flex: 0 0 calc(25% - 12px); min-width: 200px;
+}
+.select-list li.first-row { flex: 0 0 100%; }
+.first-row-wrapper { display: flex; gap: 15px; width: 100%; }
+.first-row-item { flex: 0 0 calc(25% - 12px); }
+.select-list li.second-row.date-range-item,
+.select-list li.second-row.college-major-item { flex: 0 0 calc(50% - 8px); }
+.select-list li.button-item {
+    flex: 0 0 100%; justify-content: flex-start;
+    margin-top: 10px; gap: 15px;
+}
+.select-list li label {
+    width: 80px; margin: 0 10px 0 0; text-align: right;
+    line-height: 30px; white-space: nowrap;
+}
+.select-list li.date-range-item label.font-noraml {
+    width: auto; margin: 0 10px 0 0; text-align: left;
+}
+.select-list li input.form-control,
+.select-list li select.form-control {
+    flex: 1; width: 200px; height: 30px;
+    border: 1px solid #ddd; border-radius: 4px; padding-left: 5px;
+}
+.college-major-item { flex: 0 0 calc(50% - 8px) !important; }
+.college-major-item #element2 { display: flex; align-items: center; width: 100%; }
+.college-major-item #element2 label { width: 80px; margin: 0 10px 0 0; text-align: right; line-height: 30px; }
+.college-major-item #element2 .row { flex: 1; display: flex; gap: 15px; margin: 0; }
+.college-major-item #element2 .col-sm-3 { flex: 1; padding: 0; max-width: 200px; }
+.college-major-item #element2 .col-sm-3 select.form-control { width: 100%; height: 30px; border: 1px solid #ddd; border-radius: 4px; }
+.select-list .input-daterange { display: flex; align-items: center; gap: 5px; }
+.select-list .input-daterange .form-control { width: 120px; flex: none; }
+.select-list .input-daterange .input-group-addon {
+    width: auto; padding: 5px 10px; background-color: #f5f5f5;
+    border: 1px solid #ddd; border-left: 0; border-right: 0; line-height: 20px;
+}
+.select-list > ul > li.date-range-item { display: flex; align-items: center; }
+.select-list > ul > li.date-range-item label.font-noraml {
+    margin: 0 10px 0 0; line-height: 30px; width: auto; text-align: left;
+}
+
+/* ========== 按钮与链接 ========== */
+.btn-group-sm > .btn, .btn-sm { padding: 9px 10px; font-size: 12px; line-height: 1.5; border-radius: 3px; }
+.link-button { background: none; border: none; color: #2c99ff; cursor: pointer; font-size: inherit; }
+.del-link-button { background: none; border: none; color: #ff0000; cursor: pointer; font-size: inherit; }
+
+/* ========== 侧边弹出面板 ========== */
+.modal-right { position: fixed; right: 0; margin: 0; height: 100%; display: flex; align-items: stretch; }
+.modal-right .modal-content { height: 100%; width: 70%; margin-left: auto; }
+.modal-right .but { position: absolute; right: 2%; bottom: 1.3%; background: red; color: white; border: none; border-radius: 4px; }
+
+/* ========== 三段式进度指示器 ========== */
+.progress_inner { height: 80px; width: 100%; position: relative; }
+.progress_inner__step {
+    width: 33.33%; font-size: 12px; padding: 0 5px;
+    transition: all 0.4s; float: left; text-align: center; position: relative;
+}
+.progress_inner__step label { padding-top: 30px; display: block; position: relative; cursor: label; }
+.progress_inner__step:before {
+    content: "1"; width: 24px; height: 24px; color: #2196F3; background: white;
+    line-height: 22px; border: 2px solid #2196F3; font-size: 12px; top: 0;
+    border-radius: 50%; transition: all 0.4s; position: absolute;
+    left: 0; right: 0; margin: auto; font-weight: bold; z-index: 11;
+}
+.progress_inner__step:nth-of-type(2):before { content: "2"; color: #9E9E9E; border-color: #9E9E9E; }
+.progress_inner__step:nth-of-type(3):before { content: "3"; color: #9E9E9E; border-color: #9E9E9E; }
+.progress_inner__step.completed:before { content: "✓"; color: #4CAF50; border-color: #4CAF50; line-height: 22px; font-size: 14px; }
+.progress_inner__step.active:before { color: #2196F3; border-color: #2196F3; background: white; }
+.progress_inner__step.pending:before { color: #9E9E9E; border-color: #9E9E9E; background: white; }
+.progress_inner__bar {
+    height: 3px; left: 16.665%; right: 16.665%; background: #E0E0E0;
+    position: absolute; top: 12px; z-index: -1; border-radius: 3px; overflow: hidden;
+}
+.progress_inner__bar--progress { height: 100%; background: #4CAF50; width: 0; transition: width 0.6s ease; }
+
+/* ========== 状态文本 ========== */
+.status-text { color: #9E9E9E; font-weight: normal; transition: all 0.4s; font-size: 12px; }
+.status-text.active { color: #2196F3; font-weight: bold; }
+.status-text.completed { color: #4CAF50; font-weight: bold; }
+.buttons { margin-top: 20px; text-align: center; }
+button {
+    background: #2196F3; color: white; border: none;
+    padding: 6px 12px; border-radius: 3px; margin: 0 8px;
+    cursor: pointer; font-weight: bold; transition: all 0.3s; font-size: 12px;
+}
+button:hover { background: #1976D2; }
+button:last-child { background: #9E9E9E; }
+button:last-child:hover { background: #757575; }
+
+/* ========== 时间线 ========== */
+.timeline-title {
+    font-weight: bold; font-size: 14px; color: #333; text-align: left;
+    margin: 0 0 25px 20px; max-width: 500px;
+    margin-left: auto; margin-right: auto; position: relative; padding-bottom: 15px;
+}
+.timeline-title::after {
+    content: ""; position: absolute; left: 0; bottom: 0; width: 100%; height: 0.5px;
+    background: linear-gradient(to right, rgba(224,224,224,0.8), rgba(224,224,224,0.8), rgba(224,224,224,0.8));
+    box-shadow: 0 0.5px 1px rgba(0,0,0,0.07);
+}
+.track-rcol { width: 100%; max-width: 500px; margin: 20px auto; max-height: 400px; overflow-y: auto; }
+.track-list { margin: 20px; padding-left: 5px; position: relative; }
+.track-list ul { padding-left: 0; }
+.track-list li {
+    position: relative; padding: 5px 0 10px 25px; line-height: 1.4;
+    border-left: 2px solid #d9d9d9; color: #666; list-style: none;
+    transition: all 0.4s ease;
+}
+.track-list li.first { color: #666; padding-top: 0; }
+.track-list li .node-icon {
+    position: absolute; left: -6px; top: 18px; width: 8px; height: 8px;
+    background: #C0C0C0; border-radius: 50%; transition: all 0.4s ease;
+    border: 2px solid #E0E0E0; box-sizing: content-box;
+}
+.track-list li.first .node-icon { background: #C0C0C0; width: 8px; height: 8px; left: -8px; }
+.track-list li .time { display: block; margin-bottom: 3px; font-size: 11px; color: #888; transition: all 0.4s ease; }
+.track-list li .txt { display: block; font-size: 12px; transition: all 0.4s ease; }
+.track-list li:hover { color: #333; }
+.track-list li:hover .node-icon { transform: scale(1.3); background: #ed8088; }
+.track-list li:hover .time { color: #666; }
+
+/* ========== 审核状态 ========== */
+.approve-status { margin-top: 10px; text-align: center; }
+.approve-status label { margin: 0 10px; cursor: pointer; }
+.approve-status input { margin-right: 5px; }
+
+/* ========== 统计行样式（学院/教研室） ========== */
+.total-row { background-color: #f8f9fa !important; font-weight: bold; }
+.total-row td { border-top: 2px solid #dee2e6 !important; }
+.total-merged-cell { position: relative; text-align: center !important; background-color: #e9ecef !important; font-weight: bold !important; }
+.total-row .bs-checkbox { visibility: hidden; }
+.statistics-row { background-color: #e7f3ff !important; font-weight: bold; }
+.statistics-row td { border-top: 2px solid #007bff !important; border-bottom: 2px solid #007bff !important; }
+.statistics-merged-cell { position: relative; text-align: center !important; background-color: #d4e6ff !important; font-weight: bold !important; }
+.statistics-row .bs-checkbox { visibility: hidden; }
+
+/* ========== 导出进度模态框 ========== */
+#exportProgressModal .modal-dialog { width: 350px; margin-top: 20%; }
+#exportProgressModal .modal-body { text-align: center; padding: 30px; }
+#exportProgressModal .progress { height: 20px; margin-bottom: 10px; }
+
+/* ========== 响应式调整 ========== */
+@media (max-width: 1200px) {
+    .first-row-item { flex: 0 0 calc(33.333% - 10px); }
+    .select-list li.second-row.date-range-item,
+    .select-list li.second-row.college-major-item { flex: 0 0 calc(50% - 8px); }
+}
+@media (max-width: 992px) {
+    .first-row-item { flex: 0 0 calc(50% - 8px); }
+    .select-list li.second-row.date-range-item,
+    .select-list li.second-row.college-major-item { flex: 0 0 calc(50% - 8px); }
+}
+@media (max-width: 768px) {
+    .select-list li, .first-row-item,
+    .select-list li.second-row.date-range-item,
+    .select-list li.second-row.college-major-item { flex: 0 0 100%; }
+    .select-list li.button-item { flex-direction: column; align-items: stretch; }
+    .select-list li.button-item .btn { margin: 5px 0; }
+    .first-row-wrapper { flex-direction: column; }
+    .chart-row > [class*="col-"] {
+        width: 100%;
+        margin-bottom: 4px;
+    }
+}
+
+/* ========== 图表容器 ========== */
+#collegeChart { width: 100%; height: 420px; }
+#collegeRose { width: 100%; height: 280px; }
+#teacherRadar { width: 100%; height: 280px; }
+#teacherBar { width: 100%; height: 240px; }
+#planRadar { width: 100%; height: 280px; min-height: 280px; }
+#planBar { width: 100%; height: 280px; min-height: 280px; }
+#planChart { width: 100%; height: 220px; min-height: 220px; }
+#achievementChart { width: 100%; height: 250px; min-height: 250px; }
+#achievementBar { width: 100%; height: 250px; min-height: 250px; }
+#planTeacherRadar { width: 100%; height: 250px; min-height: 250px; }
+#planTeacherBar { width: 100%; height: 250px; min-height: 250px; }
+
+/* ========== 紧凑布局：图表、搜索、表格紧挨着，无空白 ========== */
+.compact-layout {
+    padding: 2px 8px !important;
+}
+/* 关键修复：覆盖 RuoYi 默认的 .container-div .row { height: 100% } */
+.compact-layout .row {
+    height: auto !important;
+    margin-left: -4px;
+    margin-right: -4px;
+}
+.compact-layout .row > [class*="col-"] {
+    padding-left: 4px;
+    padding-right: 4px;
+}
+/* 图表行 - 零间距 */
+.chart-row {
+    margin-bottom: 1px !important;
+}
+.chart-row > [class*="col-"] {
+    padding-bottom: 0 !important;
+}
+/* 搜索面板行 - 零间距 */
+.search-row-compact {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+}
+.search-row-compact .search-collapse {
+    margin: 0 !important;
+    padding: 1px 5px !important;
+    background: #f5f5f5;
+    border-radius: 3px;
+}
+.search-row-compact .select-list ul {
+    gap: 6px;
+    margin: 0;
+}
+.search-row-compact .select-list li {
+    margin: 0;
+}
+.search-row-compact .select-list li.button-item {
+    margin-top: 1px !important;
+}
+.search-row-compact .select-list li label {
+    width: 55px;
+    font-size: 11px;
+    line-height: 24px;
+}
+.search-row-compact .select-list li input.form-control,
+.search-row-compact .select-list li select.form-control {
+    height: 24px;
+    font-size: 11px;
+}
+.search-row-compact .btn-sm {
+    padding: 3px 7px;
+    font-size: 11px;
+    line-height: 1.3;
+}
+/* 表格行 - 紧凑 */
+.table-row-compact {
+    margin-top: 1px !important;
+    margin-bottom: 0 !important;
+}
+.table-row-compact .select-table {
+    margin-bottom: 0 !important;
+}
+
+/* ========== 汇总面板紧凑化（统一勾选UI / 跨页汇总 / 对比卡片 / 滚动控制） ========== */
+.compact-layout .stat-selection-summary {
+    padding: 3px 8px !important;
+    margin: 0 0 1px 0 !important;
+    min-height: 26px;
+}
+.compact-layout .stat-selection-summary__text {
+    font-size: 11px !important;
+    line-height: 18px !important;
+}
+.compact-layout .stat-selection-summary__actions .stat-selection-summary__btn {
+    padding: 2px 7px !important;
+}
+
+/* ========== 表格单元格紧凑化（所有统计页面统一） ========== */
+.compact-layout .bootstrap-table .fixed-table-body .table td,
+.compact-layout .bootstrap-table .fixed-table-body .table th {
+    padding: 2px 4px !important;
+    font-size: 12px !important;
+    line-height: 1.3 !important;
+}
+.compact-layout .bootstrap-table .fixed-table-body .table td .th-inner,
+.compact-layout .bootstrap-table .fixed-table-body .table th .th-inner {
+    line-height: 1.3 !important;
+}
+.compact-layout .bootstrap-table .fixed-table-body .bs-checkbox {
+    width: 28px !important;
+}

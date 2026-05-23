@@ -5,7 +5,14 @@
 <html lang="zh" xmlns:th="http://www.thymeleaf.org">
 <head>
 	<th:block th:include="include :: header('表格虚拟滚动')" />
+	<link rel="stylesheet" th:href="@{/css/statistic/statistic-common.css}">
 	<style>
+		/* 页面紧凑布局 */
+		.gray-bg { padding: 2px !important; }
+		.container-div { padding: 2px !important; display: flex; flex-direction: column; height: calc(100vh - 100px); }
+		.row { margin-left: 0; margin-right: 0; }
+		#planTeacherRadar, #planTeacherBar { margin: 0 !important; padding: 0 !important; flex-shrink: 0; }
+		.select-table { flex: 1; overflow: auto; }
 		/* 总计行样式 */
 		.total-row {
 			background-color: #f8f9fa !important;
@@ -31,29 +38,84 @@
 	</style>
 </head>
 <body class="gray-bg">
-	<div class="container-div">
+	<div class="container-div compact-layout">
+		<!-- 图表区域：雷达图 + 条形图 -->
+		<div class="row chart-row">
+			<div class="col-sm-6">
+				<div id="planTeacherRadar" style="width:100%;"></div>
+			</div>
+			<div class="col-sm-6">
+				<div id="planTeacherBar" style="width:100%;"></div>
+			</div>
+		</div>
+		<div class="btn-group-sm" id="toolbar" role="group" style="margin-bottom:2px;">
+			<button type="button" class="btn btn-primary btn-sm" onclick="toggleDisplay(event)">切换显示模式</button>
+			<span id="modeLabel" style="margin-left:8px;font-size:13px;color:#666;">当前：按金额分组</span>
+		</div>
 		<div class="row">
-			<div class="col-sm-12 select-table table-bordered">
+			<div class="col-sm-12 select-table table-bordered" style="margin:0;padding:0;">
 				<table id="bootstrap-table"></table>
 			</div>
 		</div>
 	</div>
 	 <th:block th:include="include :: footer"/>
-	 <script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.21.3/dist/bootstrap-table.min.js"></script>
-	 <th:block th:include="include :: bootstrap-table-fixed-columns-js" />
+	 <script th:src="@{/js/statistic/statistic-common.js}"></script>
+	 <script th:src="@{https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js}"></script>
+	 <script th:src="@{/js/statistic/statistic-chart.js}"></script>
     <script th:inline="javascript">
 		const total = 0;
-		const prefix = ctx + 'statistic';
-		$(function() {
+	const prefix = ctx + 'statistic';
+	var displayMode = localStorage.getItem('displayMode') || 'detail';
+
+	function toggleDisplay(event) {
+        if (event) event.preventDefault();
+		displayMode = (displayMode === 'detail' ? 'summary' : 'detail');
+		localStorage.setItem('displayMode', displayMode);
+		$('#modeLabel').text(displayMode === 'detail' ? '当前：按金额分组' : '当前：汇总总计');
+		var $table = $('#bootstrap-table');
+		var data = $table.bootstrapTable('getData');
+		var opts = $table.bootstrapTable('getOptions');
+		$table.bootstrapTable('refreshOptions', {
+			data: data,
+			pageNumber: opts.pageNumber,
+			totalRows: opts.totalRows
+		});
+        return false;
+	}
+
+	function gewanFormatter(varcharField, cntField, sumField, row) {
+		if (displayMode === 'summary') {
+			var hasSummary = row && row[cntField] != null && row[sumField] != null;
+			if (hasSummary) {
+				var cnt = row[cntField] || 0;
+				var sum = row[sumField] || 0;
+				if (cnt === 0) return '0个 (0万)';
+				return cnt + '个（' + sum.toFixed(2) + '万）';
+			}
+		}
+		if (!varcharField || varcharField === '') return '0个 (0万)';
+		return varcharField;
+	}
+
+	function countFormatter(varcharField) {
+		if (!varcharField || varcharField === '') return '0个';
+		return varcharField;
+	}
+
+	function cntScoreFormatter(scoreField, varcharValue, row) {
+		var score = row[scoreField] || varcharValue || '0';
+		return Number(score).toFixed(2);
+	}
+
+	$(function() {
 			const options = {
 				url: prefix + "/list",
-				modalName: '教研室科研工作任务计划表',
+				modalName: '[[${modalName}]]',
 				sidePagination: "server",
 				pagination: true,
 				showSearch: false,
-				virtualScroll: true,
-				// fixedColumns: true,  // 启用固定列功能
-				// fixedNumber: 3,      // 固定前三列（多选框、专业、教师）
+				virtualScroll: false,
+				height: 280,
 				stickyHeader: true,
 				columns: [
 					[{
@@ -119,107 +181,128 @@
 					{
 						field: 'zcgjjjkyxm',
 						title: '主持国家基金科研项目',
-						align: 'center'
+						align: 'center',
+						formatter: function(v) { return countFormatter(v); }
 					},
 					{
 						field: 'zcsbjjjkyxm',
 						title: '主持省部级基金科研项目',
-						align: 'center'
+						align: 'center',
+						formatter: function(v) { return countFormatter(v); }
 					},
 					{
 						field: 'zcsbjjgxm',
 						title: '主持省部级教改项目',
-						align: 'center'
+						align: 'center',
+						formatter: function(v) { return countFormatter(v); }
 					},
 					{
 						field: 'zcsbjzxkyxm',
 						title: '主持省部级纵向科研项目',
-						align: 'center'
+						align: 'center',
+						formatter: function(v) { return countFormatter(v); }
 					},
 					{
 						field: 'zctjjxhjkyxm',
 						title: '主持厅局级、学会级科研项目',
-						align: 'center'
+						align: 'center',
+						formatter: function(v) { return countFormatter(v); }
 					},
 					{
 						field: 'zcxjjxglxmywyys',
 						title: '主持校级教学管理项目（1万元以上）',
-						align: 'center'
+						align: 'center',
+						formatter: function(v) { return countFormatter(v); }
 					},
 					{
 						field: 'zcxjjxglxmywyyx',
 						title: '主持校级教学管理项目（1万元以下）',
-						align: 'center'
+						align: 'center',
+						formatter: function(v) { return countFormatter(v); }
 					},
 					{
 						field: 'ewyyx',
 						title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2万元以下&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
-						align: 'center'
+						align: 'center',
+						formatter: function(v, r) { return gewanFormatter(v, 'ewyyx_cnt', 'ewyyx_sum', r); }
 					},
 					{
 						field: 'edwwy',
 						title: '2-5万元（含2）',
-						align: 'center'
+						align: 'center',
+						formatter: function(v, r) { return gewanFormatter(v, 'edwwy_cnt', 'edwwy_sum', r); }
 					},
 					{
 						field: 'wdswy',
 						title: '5-10万元（含5）',
-						align: 'center'
+						align: 'center',
+						formatter: function(v, r) { return gewanFormatter(v, 'wdswy_cnt', 'wdswy_sum', r); }
 					},
 					{
 						field: 'sdeswy',
 						title: '10-20万元（含10）',
-						align: 'center'
+						align: 'center',
+						formatter: function(v, r) { return gewanFormatter(v, 'sdeswy_cnt', 'sdeswy_sum', r); }
 					},
 					{
 						field: 'esdsswwy',
 						title: '20-35万元（含20）',
-						align: 'center'
+						align: 'center',
+						formatter: function(v, r) { return gewanFormatter(v, 'esdsswwy_cnt', 'esdsswwy_sum', r); }
 					},
 					{
 						field: 'wswwydwswy',
 						title: '35-50万元（含35）',
-						align: 'center'
+						align: 'center',
+						formatter: function(v, r) { return gewanFormatter(v, 'wswwydwswy_cnt', 'wswwydwswy_sum', r); }
 					},
 					{
 						field: 'wsdqswwy',
 						title: '50-75万元（含50）',
-						align: 'center'
+						align: 'center',
+						formatter: function(v, r) { return gewanFormatter(v, 'wsdqswwy_cnt', 'wsdqswwy_sum', r); }
 					},
 					{
 						field: 'qswdybwy',
 						title: '75-100万元（含75）',
-						align: 'center'
+						align: 'center',
+						formatter: function(v, r) { return gewanFormatter(v, 'qswdybwy_cnt', 'qswdybwy_sum', r); }
 					},
 					{
 						field: 'eyxxx',
 						title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2以下信息&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
-						align: 'center'
+						align: 'center',
+						formatter: function(v, r) { return gewanFormatter(v, 'eyxxx_cnt', 'eyxxx_sum', r); }
 					},
 					{
 						field: 'edwxx',
 						title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2-5信息&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
-						align: 'center'
+						align: 'center',
+						formatter: function(v, r) { return gewanFormatter(v, 'edwxx_cnt', 'edwxx_sum', r); }
 					},
 					{
 						field: 'wdsxx',
 						title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;5-10信息&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
-						align: 'center'
+						align: 'center',
+						formatter: function(v, r) { return gewanFormatter(v, 'wdsxx_cnt', 'wdsxx_sum', r); }
 					},
 					{
 						field: 'sdesxx',
 						title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;10-20信息&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
-						align: 'center'
+						align: 'center',
+						formatter: function(v, r) { return gewanFormatter(v, 'sdesxx_cnt', 'sdesxx_sum', r); }
 					},
 					{
 						field: 'esdsswxx',
 						title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;20-35信息&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
-						align: 'center'
+						align: 'center',
+						formatter: function(v, r) { return gewanFormatter(v, 'esdsswxx_cnt', 'esdsswxx_sum', r); }
 					},
 					{
 						field: 'sswdwsxx',
 						title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;35-50信息&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
-						align: 'center'
+						align: 'center',
+						formatter: function(v, r) { return gewanFormatter(v, 'sswdwsxx_cnt', 'sswdwsxx_sum', r); }
 					},
 					// {
 					// 	field: 'dywsxx',
@@ -229,12 +312,14 @@
 					{
 						field: 'SCI',
 						title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SCI&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
-						align: 'center'
+						align: 'center',
+						formatter: function(v) { return countFormatter(v); }
 					},
 					{
 						field: 'EI',
 						title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EI&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
-						align: 'center'
+						align: 'center',
+						formatter: function(v) { return countFormatter(v); }
 					},
 					{
 						field: 'hx',
@@ -322,11 +407,6 @@
 						align: 'center'
 					},
 					{
-						field: 'sjyljpkpb',
-						title: '省级一流精品课评比',
-						align: 'center'
-					},
-					{
 						field: 'stjjzrkxlpj',
 						title: '市、厅局级自然科学类评奖',
 						align: 'center'
@@ -347,8 +427,13 @@
 						align: 'center'
 					},
 					{
-						field: 'xjjpkpb',
-						title: '校级精品课评比',
+						field: 'xhjjxcgj',
+						title: '学会级教学成果奖',
+						align: 'center'
+					},
+					{
+						field: 'xhjkycgj',
+						title: '学会级科研成果奖',
 						align: 'center'
 					},
 					{
@@ -379,7 +464,9 @@
 			],
 			};
 			$.table.init(options);
-
+			enableAutoScroll('#bootstrap-table', { autoStart: true });
+			initCrossPageSelection($('#bootstrap-table'), { scope: 'kygzrw-jys' });
+			initSelectionUi($('#bootstrap-table'));
             // 添加表格加载完成后的回调函数
             $('#bootstrap-table').on('load-success.bs.table', function () {
 				const $table = $(this);
@@ -397,8 +484,18 @@
 							processTotalRow($row, $cells);
 						}
 					});
+					renderPlanTeacherRadar($table);
+					renderPlanTeacherBar($table);
 				}, 200);
             });
+
+			$('#bootstrap-table').on('check.bs.table uncheck.bs.table check-all.bs.table uncheck-all.bs.table', function () {
+				const $table = $(this);
+				setTimeout(function() {
+					renderPlanTeacherRadar($table);
+					renderPlanTeacherBar($table);
+				}, 80);
+			});
 
 			// 处理总计行的函数
 			function processTotalRow($row, $cells) {

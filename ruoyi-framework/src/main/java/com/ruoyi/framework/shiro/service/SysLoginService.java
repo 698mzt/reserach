@@ -187,7 +187,8 @@ public class SysLoginService
 
     /**
      * 设置登录默认活动角色
-     * 多角色用户默认进入普通教师角色，单角色用户默认进入其原本的角色
+     * 单角色用户默认进入其唯一角色，多角色用户按"最高权限优先"原则判定
+     * 优先级：超级管理员(1) > 科研处(101) > 学院负责人(103-120) > 教研室(102) > 普通教师(100)
      *
      * @param user 用户信息
      */
@@ -203,17 +204,57 @@ public class SysLoginService
         }
 
         if (activeRoles.size() > 1) {
-            // 多角色用户 → 默认进入普通教师角色
-            Optional<SysRole> teacherRole = activeRoles.stream()
-                    .filter(r -> "teacher".equals(r.getRoleKey()))
-                    .findFirst();
-            if (teacherRole.isPresent()) {
-                SecurityUtils.getSubject().getSession().setAttribute("activeRoleId", teacherRole.get().getRoleId());
-            }
-        } else if (activeRoles.size() == 1) {
+            // 多角色用户 → 按"最高权限优先"原则判定身份
+            setHighestRole(activeRoles);
+        } else {
             // 单角色用户 → 默认进入其唯一角色
             SecurityUtils.getSubject().getSession().setAttribute("activeRoleId", activeRoles.get(0).getRoleId());
         }
+    }
+
+    /**
+     * 多角色用户按优先级设置最高身份角色
+     * 优先级：超级管理员(1) > 科研处(101) > 学院负责人(103-120) > 教研室(102) > 普通教师(100)
+     */
+    private void setHighestRole(List<SysRole> activeRoles)
+    {
+        Set<Long> ids = activeRoles.stream()
+                .map(SysRole::getRoleId).collect(Collectors.toSet());
+
+        Long selected = null;
+
+        // 超级管理员
+        if (ids.contains(1L)) {
+            selected = 1L;
+        }
+        // 科研处
+        if (selected == null && ids.contains(101L)) {
+            selected = 101L;
+        }
+        // 学院负责人 (role_id: 103-108学院管理员, 116-120学院负责人)
+        if (selected == null) {
+            for (long id = 103L; id <= 120L && selected == null; id++) {
+                if (ids.contains(id)) {
+                    selected = id;
+                }
+            }
+        }
+        // 教研室
+        if (selected == null && ids.contains(102L)) {
+            selected = 102L;
+        }
+        // 普通教师
+        if (selected == null && ids.contains(100L)) {
+            selected = 100L;
+        }
+
+        final Long finalSelected = selected != null ? selected : activeRoles.get(0).getRoleId();
+        SysRole targetRole = activeRoles.stream()
+                .filter(r -> finalSelected.equals(r.getRoleId()))
+                .findFirst()
+                .orElse(activeRoles.get(0));
+
+        SecurityUtils.getSubject().getSession().setAttribute("activeRoleId", targetRole.getRoleId());
     }
 
     /**

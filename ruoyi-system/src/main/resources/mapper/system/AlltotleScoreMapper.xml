@@ -19,7 +19,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="jczz"    column="jczz"    />
         <result property="zlrz"    column="zlrz"    />
         <result property="zl"    column="zl"    />
-        <result property="rz"    column="zl"    />
+        <result property="rz"    column="rz"    />
         <result property="jl"    column="jl"    />
         <result property="jzbg"    column="jzbg"    />
     </resultMap>
@@ -43,8 +43,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="xslw != null  and xslw != ''"> and xslw = #{xslw}</if>
             <if test="jczz != null  and jczz != ''"> and jczz = #{jczz}</if>
             <if test="zlrz != null  and zlrz != ''"> and zlrz = #{zlrz}</if>
-            <if test="zl != null  and zl != ''"> and zlrz = #{zlrz}</if>
-            <if test="rz != null  and rz != ''"> and zlrz = #{zlrz}</if>
+            <if test="zl != null  and zl != ''"> and zl = #{zl}</if>
+            <if test="rz != null  and rz != ''"> and rz = #{rz}</if>
             <if test="jl != null  and jl != ''"> and jl = #{jl}</if>
             <if test="jzbg != null  and jzbg != ''"> and jzbg = #{jzbg}</if>
         </where>
@@ -112,8 +112,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="xslw != null">xslw = #{xslw},</if>
             <if test="jczz != null">jczz = #{jczz},</if>
             <if test="zlrz != null">zlrz = #{zlrz},</if>
-            <if test="zl != null">zlrz = #{zl},</if>
-            <if test="rz != null">zlrz = #{rz},</if>
+            <if test="zl != null">zl = #{zl},</if>
+            <if test="rz != null">rz = #{rz},</if>
             <if test="jl != null">jl = #{jl},</if>
             <if test="jzbg != null">jzbg = #{jzbg},</if>
         </trim>

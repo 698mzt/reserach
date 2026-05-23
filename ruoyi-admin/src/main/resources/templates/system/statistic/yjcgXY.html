@@ -5,6 +5,7 @@
 <html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
 <head>
 	<th:block th:include="include :: header('表格虚拟滚动')" />
+	<link rel="stylesheet" th:href="@{/css/statistic/statistic-common.css}">
 	<style>
 		/* 总计行样式 */
 		.total-row {
@@ -31,124 +32,137 @@
     </style>
 </head>
 <body class="gray-bg">
-     <div class="container-div">
-        <div class="btn-group-sm" id="toolbar" role="group">
-<!--	        <a class="btn btn-success" onclick="loadRows()">-->
-<!--	            <i class="fa fa-plus"></i> 加载10000行数据-->
-<!--	        </a>-->
-<!--	        <a class="btn btn-info" onclick="appendRows()">-->
-<!--	            <i class="fa fa-edit"></i> 追加10000行数据-->
-<!--	        </a>-->
-	        &nbsp;&nbsp;<span id="total" class="badge badge-success"></span>
+     <div class="container-div compact-layout">
+        <div class="row chart-row">
+            <div class="col-sm-6">
+                <div id="achievementChart" style="width:100%;"></div>
+            </div>
+            <div class="col-sm-6">
+                <div id="achievementBar" style="width:100%;"></div>
+            </div>
         </div>
-        <div class="row">
-			<div class="col-sm-12 select-table table-bordered">
+        <div class="row table-row-compact">
+            <div class="col-sm-12">
+                <div class="btn-group-sm" id="toolbar" role="group" style="margin:2px 0;padding:2px 0;">
+	        &nbsp;&nbsp;<span id="total" class="badge badge-success"></span>
+                </div>
+            </div>
+            <div class="col-sm-12 select-table table-bordered">
 				<table id="bootstrap-table"></table>
 			</div>
 		</div>
 	</div>
     <div th:include="include :: footer"></div>
+    <script th:src="@{/js/statistic/statistic-common.js}"></script>
+    <script th:src="@{https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js}"></script>
+    <script th:src="@{/js/statistic/statistic-chart.js}"></script>
     <script>
         var total = 0
 		var prefix = ctx + 'rewardxueyuan'
         $(function() {
 		    var options = {
 				url: prefix + "/list",
-				modalName: '学院业绩成果数',
-				height: "100%",
+				modalName: '[[${modalName}]]',
+				height: "320px",
 				sidePagination: "server",
 				pagination: true,
 				showSearch: false,
-				virtualScroll: true,
+				virtualScroll: false,
 				columns:[
-					[
-					{
-						checkbox: true
-					},
-					{
-						field: 'parentName',
-						title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;学院&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
-						align: 'center'
-					},
-					{
-						field: 'deptName',
-						title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;专业&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
-						align: 'center'
-					},
-					{
-						title: '纵向科研项目-校级以上',
-						align: 'center',
-						field: '纵向科研项目-校级以上'
-					},
-					{
-						title: '纵向科研项目-校级',
-						align: 'center',
-						field: '纵向科研项目-校级'
-					},
-					{
-						title: '横向课题科研项目',
-						align: 'center',
-						field: '横向课题科研项目'
-					},
-					{
-						title: '成果转化',
-						align: 'center',
-						field: '成果转化'
-					},
-					{
-						title: '学术论文',
-						align: 'center',
-						field: '学术论文'
-					},
-					{
-						title: '教材著作',
-						align: 'center',
-						field: '教材著作'
-					},
-					{
-						title: '专利',
-						align: 'center',
-						field: '专利'
-					},
-					{
-						title: '软著',
-						align: 'center',
-						field: '软著'
-					},
-					{
-						title: '奖励',
-						align: 'center',
-						field: '奖励'
-					},
-					{
-						title: '学术报告(讲座类)',
-						align: 'center',
-						field: '学术报告(讲座类)'
-					}
-					],
-
+				{
+					checkbox: true
+				},
+				{
+					field: 'parentName',
+					title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;学院&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
+					align: 'center'
+				},
+				{
+					field: 'deptName',
+					title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;专业&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
+					align: 'center'
+				},
+				{
+					title: '纵向科研项目-校级以上',
+					align: 'center',
+					field: '纵向科研项目-校级以上'
+				},
+				{
+					title: '纵向科研项目-校级',
+					align: 'center',
+					field: '纵向科研项目-校级'
+				},
+				{
+					title: '横向课题科研项目',
+					align: 'center',
+					field: '横向课题科研项目'
+				},
+				{
+					title: '成果转化',
+					align: 'center',
+					field: '成果转化'
+				},
+				{
+					title: '学术论文',
+					align: 'center',
+					field: '学术论文'
+				},
+				{
+					title: '教材著作',
+					align: 'center',
+					field: '教材著作'
+				},
+				{
+					title: '专利',
+					align: 'center',
+					field: '专利'
+				},
+				{
+					title: '软著',
+					align: 'center',
+					field: '软著'
+				},
+				{
+					title: '奖励',
+					align: 'center',
+					field: '奖励'
+				},
+				{
+					title: '学术报告(讲座类)',
+					align: 'center',
+					field: '学术报告(讲座类)'
+				}
 			]
 		    };
 		    $.table.init(options);
+		    initCrossPageSelection($('#bootstrap-table'), { scope: 'yjcg-xy' });
+		    initSelectionUi($('#bootstrap-table'));
 
 			// 添加表格加载完成后的回调函数
 			$('#bootstrap-table').on('load-success.bs.table', function () {
 				const $table = $(this);
 				const $tbody = $table.find('tbody');
 
-				// 使用延时确保DOM完全渲染
 				setTimeout(function() {
-					// 查找总计行（userName为"总计"的行）
 					$tbody.find('tr').each(function() {
 						const $row = $(this);
 						const $cells = $row.find('td');
 
-						// 检查第三列（教师列）是否为"总计"
 						if ($cells.length > 2 && $cells.eq(2).text().trim() === '总计') {
 							processTotalRow($row, $cells);
 						}
 					});
+					renderAchievementRose($table);
+					renderAchievementBar($table);
 				}, 200);
+			});
+
+			$('#bootstrap-table').on('check.bs.table uncheck.bs.table check-all.bs.table uncheck-all.bs.table', function () {
+				const $table = $(this);
+				setTimeout(function() {
+					renderAchievementRose($table);
+					renderAchievementBar($table);
+				}, 80);
 			});
 
 			// 处理总计行的函数

@@ -6,6 +6,8 @@ import com.ruoyi.system.domain.Alltotle;
 import com.ruoyi.system.mapper.SynchronizeDataMapper;
 import com.ruoyi.system.service.IAlltotleScoreService;
 import com.ruoyi.system.service.IAlltotleService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -18,6 +20,7 @@ import java.util.List;
  */
 @Component("dataSynchronizeTask")
 public class DataSynchronizeTask {
+  private static final Logger log = LoggerFactory.getLogger(DataSynchronizeTask.class);
 
   @Autowired
   private SynchronizeDataMapper synchronizeDataMapper;
@@ -50,7 +53,7 @@ public class DataSynchronizeTask {
     synchronizeZX();
 
     //自动同步成果转化
-//    synchronousAlltotle();
+    synchronousAlltotle();
 
     //同步专利软著
     synchronizeZLRZ();
@@ -73,7 +76,7 @@ public class DataSynchronizeTask {
    * 同步用户数据
    */
   public void SynchronizeUser() {
-    System.out.println("用户数据开始同步");
+    log.info("用户数据开始同步");
 //    个数表
     synchronizeDataMapper.SynchronizeUser();
 //    积分表
@@ -84,7 +87,7 @@ public class DataSynchronizeTask {
     synchronizeDataMapper.SynchronizeDeleteUser();
 //    积分表
     synchronizeDataMapper.SynchronizeDeleteUserForScore();
-    System.out.println("用户数据同步完成");
+    log.info("用户数据同步完成");
   }
 
 
@@ -93,12 +96,12 @@ public class DataSynchronizeTask {
    * 同步横向课题数据
    */
   public void synchronizeHX() {
-    System.out.println("横向课题数据开始同步");
+    log.info("横向课题数据开始同步");
 //    个数
     synchronizeDataMapper.SynchronizeHX();
 //    积分（12/15修改，按年份查询）
     synchronizeDataMapper.SynchronizeScoreHX();
-    System.out.println("横向课题数据同步完成");
+    log.info("横向课题数据同步完成");
   }
 
 
@@ -107,7 +110,7 @@ public class DataSynchronizeTask {
    * 同步纵向课题数据
    */
   public void synchronizeZX() {
-    System.out.println("纵向课题数据开始同步");
+    log.info("纵向课题数据开始同步");
 //    个数
     synchronizeDataMapper.SynchronizeZX();
 //    积分（12/15修改，按年份查询）
@@ -115,7 +118,7 @@ public class DataSynchronizeTask {
     synchronizeDataMapper.SynchronizeScoreZXXJYS();
 //    校级
     synchronizeDataMapper.SynchronizeScoreZXXJ();
-    System.out.println("纵向课题数据同步完成");
+    log.info("纵向课题数据同步完成");
   }
 
 
@@ -124,17 +127,17 @@ public class DataSynchronizeTask {
    * 同步成果转化数据
    */
   private void synchronousAlltotle() {
-    System.out.println("成果转化数据开始同步");
+    log.info("成果转化数据开始同步");
 //    todo：这个同步数据 是否为同步个数
-    synchronousAlltotle.synchronousAlltotle();
+    int totalSyncResult = synchronousAlltotle.synchronousAlltotle();
 //    todo：需要同步积分,按年份查询
-    alltotleScoreService.synchronousAlltotleScore();
-    System.out.println("成果转化数据同步完成");
+    int scoreSyncResult = alltotleScoreService.synchronousAlltotleScore();
+    log.info("成果转化数据同步完成，个数同步结果：{}，积分同步结果：{}", totalSyncResult, scoreSyncResult);
     //todo：缓存
 //    Alltotle alltotle = new Alltotle();
 //    List<Alltotle> lists = alltotleService.selectFourColtotleList(alltotle);
 //    CacheUtils.put(ShiroConstants.SYS_COL_PROJ_PLAN_CACHE,lists);
-//    System.out.println("缓存同步完成");
+//    log.info("缓存同步完成");
 
   }
 
@@ -144,13 +147,13 @@ public class DataSynchronizeTask {
    * 同步专利软著数据
    */
   private void synchronizeZLRZ() {
-    System.out.println("专利软著数据开始同步");
+    log.info("专利软著数据开始同步");
 //    个数
     synchronizeDataMapper.synchronizeZLRZ();
 //    积分
     synchronizeDataMapper.SynchronizeScoreZL();
     synchronizeDataMapper.SynchronizeScoreRZ();
-    System.out.println("专利软著数据同步完成");
+    log.info("专利软著数据同步完成");
 
   }
 
@@ -160,12 +163,12 @@ public class DataSynchronizeTask {
    * 同步教材软著数据
    */
   private void synchronizeJCRZ() {
-    System.out.println("教材软著数据开始同步");
+    log.info("教材软著数据开始同步");
 //    个数
     synchronizeDataMapper.synchronizeJCRZ();
 //    积分
     synchronizeDataMapper.SynchronizeScoreJCZZ();
-    System.out.println("教材软著数据同步完成");
+    log.info("教材软著数据同步完成");
   }
 
 
@@ -174,12 +177,12 @@ public class DataSynchronizeTask {
    * 同步奖励数据
    */
   private void Reward() {
-    System.out.println("奖励数据开始同步");
+    log.info("奖励数据开始同步");
 //    个数
     synchronizeDataMapper.Reward();
 //    积分
     synchronizeDataMapper.SynchronizeScoreJL();
-    System.out.println("奖励数据同步完成");
+    log.info("奖励数据同步完成");
   }
 
 
@@ -188,12 +191,12 @@ public class DataSynchronizeTask {
    * 同步论文
    */
   private void syncronzedFlow() {
-    System.out.println("论文数据开始同步");
+    log.info("论文数据开始同步");
 //    个数
     synchronizeDataMapper.syncronzedFlow();
 //    积分
     synchronizeDataMapper.SynchronizeScoreXSLW();
-    System.out.println("论文数据同步完成");
+    log.info("论文数据同步完成");
   }
 
 
@@ -202,12 +205,12 @@ public class DataSynchronizeTask {
    * 同步讲座报告
    */
   private void SynchronizeReport() {
-    System.out.println("讲座报告数据开始同步");
+    log.info("讲座报告数据开始同步");
 //    个数
     synchronizeDataMapper.SynchronizeReport();
 //    积分
     synchronizeDataMapper.SynchronizeScoreJZBG();
-    System.out.println("讲座报告数据同步完成");
+    log.info("讲座报告数据同步完成");
   }
 
 }

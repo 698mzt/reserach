@@ -61,4 +61,8 @@ public interface AlltotleMapper
   public int deleteAlltotleByUserIds(String[] userIds);
 
   List<Alltotle> selectFourColtotleList( @Param("deptIdString") String deptIdString);
+
+  List<Alltotle> selectAlltotleByUserIds(@Param("userIds") List<Long> userIds);
+
+  List<Alltotle> selectAlltotleByDeptIds(@Param("deptIds") List<Long> deptIds);
 }

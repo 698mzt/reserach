@@ -423,13 +423,6 @@
             }
           },
           {
-            field: 'sjyljpkpb',
-            title: '省级一流精品课评比',
-            formatter: function (value, row, index) {
-              return value ? value : '0'; // 如果值为空，则返回默认值 '0'
-            }
-          },
-          {
             field: 'stjjzrkxlpj',
             title: '市、厅局级自然科学类评奖',
             formatter: function (value, row, index) {
@@ -458,10 +451,17 @@
             }
           },
           {
-            field: 'xjjpkpb',
-            title: '校级精品课评比',
+            field: 'xhjjxcgj',
+            title: '学会级教学成果奖',
             formatter: function (value, row, index) {
-              return value ? value : '0'; // 如果值为空，则返回默认值 '0'
+              return value ? value : '0';
+            }
+          },
+          {
+            field: 'xhjkycgj',
+            title: '学会级科研成果奖',
+            formatter: function (value, row, index) {
+              return value ? value : '0';
             }
           },
 
