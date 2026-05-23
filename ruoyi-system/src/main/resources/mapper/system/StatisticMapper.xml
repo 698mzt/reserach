@@ -45,30 +45,14 @@
 
 
     <select id="selectAllTeacher" resultMap="ResearchWorkloadResult">
-        select su.login_name , ac.userName, ac.partenId, ac.partenName, ac.deptId, deptName, ac.hxkt, ac.zxktxj, ac.zxktxjys, ac.cgzh, ac.xslw, ac.jczz, ac.zl, ac.rz, ac.jl, ac.jzbg
-        from alltotle_score ac
+        select su.login_name , ac.userId, ac.userName, ac.partenId, ac.partenName, ac.deptId, deptName, ac.hxkt, ac.zxktxj, ac.zxktxjys, ac.cgzh, ac.xslw, ac.jczz, ac.zl, ac.rz, ac.jl, ac.jzbg
+        from Alltotle_score ac
         left join sys_user su on su.user_id  = ac.userId
         <where>
-
-            <if test="pname != null and pname != ''">
-                AND partenName LIKE CONCAT('%', #{pname}, '%')
-            </if>
-            <if test="dname != null and dname != ''">
-                AND deptName LIKE CONCAT('%', #{dname}, '%')
-            </if>
-        </where>
-        order by ac.partenName asc, ac.deptName asc, su.login_name asc
-    </select>
-
-    <select id="selectAllDept" resultMap="ResearchWorkloadByJYSResult">
-        select ac.partenId, ac.partenName, ac.deptId, deptName, sum(ac.hxkt) hxkt, sum(ac.zxktxj) zxktxj, sum(ac.zxktxjys) zxktxjys, sum(ac.cgzh) cgzh, sum(ac.xslw) xslw, sum(ac.jczz) jczz, sum(ac.zl) zl, sum(ac.rz) rz, sum(ac.jl)jl, sum(ac.jzbg) jzbg
-        from alltotle_score ac
-        left join sys_user su on su.user_id  = ac.userId
-         <where>
             <if test="dictValue != null and dictValue.size() > 0">
-                AND partenId IN
-                <foreach collection="dictValue" item="dictValue" open="(" separator="," close=")">
-                    #{dictValue}
+                AND ac.partenId IN
+                <foreach collection="dictValue" item="dictVal" open="(" separator="," close=")">
+                    #{dictVal}
                 </foreach>
             </if>
             <if test="pname != null and pname != ''">
@@ -77,8 +61,47 @@
             <if test="dname != null and dname != ''">
                 AND deptName LIKE CONCAT('%', #{dname}, '%')
             </if>
+            <if test="userName != null and userName != ''">
+                AND ac.userName LIKE CONCAT('%', #{userName}, '%')
+            </if>
+            <if test="scopeUserId != null">
+                AND ac.userId = #{scopeUserId}
+            </if>
+            <if test="scopeDeptId != null">
+                AND ac.deptId = #{scopeDeptId}
+            </if>
+            <if test="collegeParentId != null">
+                AND ac.partenId = #{collegeParentId}
+            </if>
         </where>
-        GROUP BY deptId, deptName
+        order by ac.partenName asc, ac.deptName asc, su.login_name asc
+    </select>
+
+    <select id="selectAllDept" resultMap="ResearchWorkloadByJYSResult">
+        select ac.partenId, ac.partenName, ac.deptId, deptName, sum(ac.hxkt) hxkt, sum(ac.zxktxj) zxktxj, sum(ac.zxktxjys) zxktxjys, sum(ac.cgzh) cgzh, sum(ac.xslw) xslw, sum(ac.jczz) jczz, sum(ac.zl) zl, sum(ac.rz) rz, sum(ac.jl)jl, sum(ac.jzbg) jzbg
+        from Alltotle_score ac
+        left join sys_user su on su.user_id  = ac.userId
+         <where>
+            <if test="dictValue != null and dictValue.size() > 0">
+                AND partenId IN
+                <foreach collection="dictValue" item="dictVal" open="(" separator="," close=")">
+                    #{dictVal}
+                </foreach>
+            </if>
+            <if test="pname != null and pname != ''">
+                AND partenName LIKE CONCAT('%', #{pname}, '%')
+            </if>
+            <if test="dname != null and dname != ''">
+                AND deptName LIKE CONCAT('%', #{dname}, '%')
+            </if>
+            <if test="userName != null and userName != ''">
+                AND ac.userName LIKE CONCAT('%', #{userName}, '%')
+            </if>
+            <if test="collegeParentId != null">
+                AND ac.partenId = #{collegeParentId}
+            </if>
+        </where>
+        GROUP BY ac.partenId, ac.partenName, deptId, deptName
         order by ac.partenName asc, ac.deptName asc
     </select>
 

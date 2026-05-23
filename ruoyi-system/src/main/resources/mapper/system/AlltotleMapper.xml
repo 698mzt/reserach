@@ -52,12 +52,12 @@
     <result property="jsjrjzzq"    column="jsjrjzzq"    />
     <result property="sjjxcgj"    column="sjjxcgj"    />
     <result property="sjkxjsj"    column="sjkxjsj"    />
-    <result property="sjyljpkpb"    column="sjyljpkpb"    />
+    <result property="xhjjxcgj"    column="xhjjxcgj"    />
     <result property="stjjzrkxlpj"    column="stjjzrkxlpj"    />
     <result property="stjjsklpj"    column="stjjsklpj"    />
     <result property="xjjxcgj"    column="xjjxcgj"    />
     <result property="yyxkyxjcgj"    column="yyxkyxjcgj"    />
-    <result property="xjjpkpb"    column="xjjpkpb"    />
+    <result property="xhjkycgj"    column="xhjkycgj"    />
     <result property="jbgj"    column="jbgj"    />
     <result property="jbgn"    column="jbgn"    />
     <result property="cjgj"    column="cjgj"    />
@@ -66,7 +66,7 @@
   </resultMap>
 
   <sql id="selectAlltotleVo">
-    select userId, userName, partenId, partenName, deptId, deptName, zcgjjjkyxm, zcsbjjjkyxm, zcsbjjgxm, zcsbjzxkyxm, zctjjxhjkyxm, zcxjjxglxmywyys, zcxjjxglxmywyyx, ewyyx, edwwy, wdswy, sdeswy, esdsswwy, wswwydwswy, wsdqswwy, qswdybwy, eyxxx, edwxx, wdsxx, sdesxx, esdsswxx, sswdwsxx, dywsxx, SCI, EI, hx, sw, pt, xb, cbzz1, cbzz2, cbyz1, cbyz2, cbjc1, cbjc2, zbjc, sqfmzl, syxxzl, wxsjzl, jsjrjzzq, sjjxcgj, sjkxjsj, sjyljpkpb, stjjzrkxlpj, stjjsklpj, xjjxcgj, yyxkyxjcgj, xjjpkpb, jbgj, jbgn, cjgj, cjgn, xjxs from Alltotle
+    select userId, userName, partenId, partenName, deptId, deptName, zcgjjjkyxm, zcsbjjjkyxm, zcsbjjgxm, zcsbjzxkyxm, zctjjxhjkyxm, zcxjjxglxmywyys, zcxjjxglxmywyyx, ewyyx, edwwy, wdswy, sdeswy, esdsswwy, wswwydwswy, wsdqswwy, qswdybwy, eyxxx, edwxx, wdsxx, sdesxx, esdsswxx, sswdwsxx, dywsxx, SCI, EI, hx, sw, pt, xb, cbzz1, cbzz2, cbyz1, cbyz2, cbjc1, cbjc2, zbjc, sqfmzl, syxxzl, wxsjzl, jsjrjzzq, sjjxcgj, sjkxjsj, xhjjxcgj, stjjzrkxlpj, stjjsklpj, xjjxcgj, yyxkyxjcgj, xhjkycgj, jbgj, jbgn, cjgj, cjgn, xjxs from Alltotle
   </sql>
 
   <select id="selectAlltotleList" parameterType="Alltotle" resultMap="AlltotleResult">
@@ -118,12 +118,12 @@
       <if test="jsjrjzzq != null  and jsjrjzzq != ''"> and jsjrjzzq = #{jsjrjzzq}</if>
       <if test="sjjxcgj != null  and sjjxcgj != ''"> and sjjxcgj = #{sjjxcgj}</if>
       <if test="sjkxjsj != null  and sjkxjsj != ''"> and sjkxjsj = #{sjkxjsj}</if>
-      <if test="sjyljpkpb != null  and sjyljpkpb != ''"> and sjyljpkpb = #{sjyljpkpb}</if>
+      <if test="xhjjxcgj != null  and xhjjxcgj != ''"> and xhjjxcgj = #{xhjjxcgj}</if>
       <if test="stjjzrkxlpj != null  and stjjzrkxlpj != ''"> and stjjzrkxlpj = #{stjjzrkxlpj}</if>
       <if test="stjjsklpj != null  and stjjsklpj != ''"> and stjjsklpj = #{stjjsklpj}</if>
       <if test="xjjxcgj != null  and xjjxcgj != ''"> and xjjxcgj = #{xjjxcgj}</if>
       <if test="yyxkyxjcgj != null  and yyxkyxjcgj != ''"> and yyxkyxjcgj = #{yyxkyxjcgj}</if>
-      <if test="xjjpkpb != null  and xjjpkpb != ''"> and xjjpkpb = #{xjjpkpb}</if>
+      <if test="xhjkycgj != null  and xhjkycgj != ''"> and xhjkycgj = #{xhjkycgj}</if>
       <if test="jbgj != null  and jbgj != ''"> and jbgj = #{jbgj}</if>
       <if test="jbgn != null  and jbgn != ''"> and jbgn = #{jbgn}</if>
       <if test="cjgj != null  and cjgj != ''"> and cjgj = #{cjgj}</if>
@@ -187,12 +187,12 @@
       <if test="jsjrjzzq != null">jsjrjzzq,</if>
       <if test="sjjxcgj != null">sjjxcgj,</if>
       <if test="sjkxjsj != null">sjkxjsj,</if>
-      <if test="sjyljpkpb != null">sjyljpkpb,</if>
+      <if test="xhjjxcgj != null">xhjjxcgj,</if>
       <if test="stjjzrkxlpj != null">stjjzrkxlpj,</if>
       <if test="stjjsklpj != null">stjjsklpj,</if>
       <if test="xjjxcgj != null">xjjxcgj,</if>
       <if test="yyxkyxjcgj != null">yyxkyxjcgj,</if>
-      <if test="xjjpkpb != null">xjjpkpb,</if>
+      <if test="xhjkycgj != null">xhjkycgj,</if>
       <if test="jbgj != null">jbgj,</if>
       <if test="jbgn != null">jbgn,</if>
       <if test="cjgj != null">cjgj,</if>
@@ -247,12 +247,12 @@
       <if test="jsjrjzzq != null">#{jsjrjzzq},</if>
       <if test="sjjxcgj != null">#{sjjxcgj},</if>
       <if test="sjkxjsj != null">#{sjkxjsj},</if>
-      <if test="sjyljpkpb != null">#{sjyljpkpb},</if>
+      <if test="xhjjxcgj != null">#{xhjjxcgj},</if>
       <if test="stjjzrkxlpj != null">#{stjjzrkxlpj},</if>
       <if test="stjjsklpj != null">#{stjjsklpj},</if>
       <if test="xjjxcgj != null">#{xjjxcgj},</if>
       <if test="yyxkyxjcgj != null">#{yyxkyxjcgj},</if>
-      <if test="xjjpkpb != null">#{xjjpkpb},</if>
+      <if test="xhjkycgj != null">#{xhjkycgj},</if>
       <if test="jbgj != null">#{jbgj},</if>
       <if test="jbgn != null">#{jbgn},</if>
       <if test="cjgj != null">#{cjgj},</if>
@@ -310,12 +310,12 @@
       <if test="jsjrjzzq != null">jsjrjzzq = #{jsjrjzzq},</if>
       <if test="sjjxcgj != null">sjjxcgj = #{sjjxcgj},</if>
       <if test="sjkxjsj != null">sjkxjsj = #{sjkxjsj},</if>
-      <if test="sjyljpkpb != null">sjyljpkpb = #{sjyljpkpb},</if>
+      <if test="xhjjxcgj != null">xhjjxcgj = #{xhjjxcgj},</if>
       <if test="stjjzrkxlpj != null">stjjzrkxlpj = #{stjjzrkxlpj},</if>
       <if test="stjjsklpj != null">stjjsklpj = #{stjjsklpj},</if>
       <if test="xjjxcgj != null">xjjxcgj = #{xjjxcgj},</if>
       <if test="yyxkyxjcgj != null">yyxkyxjcgj = #{yyxkyxjcgj},</if>
-      <if test="xjjpkpb != null">xjjpkpb = #{xjjpkpb},</if>
+      <if test="xhjkycgj != null">xhjkycgj = #{xhjkycgj},</if>
       <if test="jbgj != null">jbgj = #{jbgj},</if>
       <if test="jbgn != null">jbgn = #{jbgn},</if>
       <if test="cjgj != null">cjgj = #{cjgj},</if>
@@ -343,5 +343,21 @@
     order by partenid, deptid
   </select>
 
+
+  <select id="selectAlltotleByUserIds" resultMap="AlltotleResult">
+    <include refid="selectAlltotleVo"/>
+    where userId in
+    <foreach collection="userIds" item="userId" open="(" separator="," close=")">
+      #{userId}
+    </foreach>
+  </select>
+
+  <select id="selectAlltotleByDeptIds" resultMap="AlltotleResult">
+    <include refid="selectAlltotleVo"/>
+    where deptId in
+    <foreach collection="deptIds" item="deptId" open="(" separator="," close=")">
+      #{deptId}
+    </foreach>
+  </select>
 
 </mapper>

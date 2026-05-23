@@ -4,19 +4,14 @@ package com.ruoyi.web.controller.system;
 
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.page.TableDataInfo;
-import com.ruoyi.system.mapper.SysRewardXueyuanMapper;
 import com.ruoyi.system.service.IStatisticYJCGSService;
-import com.ruoyi.system.service.ISysDeptService;
-import com.ruoyi.system.service.ISysUserService;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Controller
 @RequestMapping("/rewardxueyuan")
@@ -24,24 +19,22 @@ public class SysRewardxueyuanController extends BaseController {
 
     @Autowired
     private IStatisticYJCGSService statisticYJCGSService;
-    @Autowired
-    private ISysUserService userService;
-    @Autowired
-    private ISysDeptService deptService;
 
     private String prefix = "system/statistic";
+
+    @RequiresPermissions("statistic:achievement:view")
     @GetMapping()
-    public String apply()
-    {
+    public String apply(Model model) {
+        model.addAttribute("modalName", "学院业绩成果数");
         return prefix + "/yjcgXY";
     }
 
+    @RequiresPermissions("statistic:achievement:view")
     @PostMapping("/list")
     @ResponseBody
     public TableDataInfo list() {
-        Long parentId = getSysUser().getParentId();
-        List<Map<String, Object>> list = statisticYJCGSService.selectYJCGSXY(parentId);
-        TableDataInfo data = getDataTable(list);
-        return data;
+        Long collegeId = getSysUser().getDeptId();
+        List<Map<String, Object>> list = statisticYJCGSService.selectYJCGSXYByCollege(collegeId);
+        return getDataTable(list);
     }
 }

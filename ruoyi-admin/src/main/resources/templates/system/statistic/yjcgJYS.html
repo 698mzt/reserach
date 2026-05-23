@@ -4,172 +4,214 @@
 <!--教研室业绩成果数-->
 
 
-<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
 <head>
     <th:block th:include="include :: header('表格虚拟滚动')" />
+    <link rel="stylesheet" th:href="@{/css/statistic/statistic-common.css}">
     <style>
+        /* 页面紧凑布局 */
+        .gray-bg { padding: 2px !important; }
+        .container-div { padding: 2px !important; display: flex; flex-direction: column; height: calc(100vh - 100px); }
+        .row { margin-left: 0; margin-right: 0; }
+        #achievementChart, #achievementBar { margin: 0 !important; padding: 0 !important; flex-shrink: 0; }
+        .select-table { flex: 1; overflow: auto; }
         /* 总计行样式 */
         .total-row {
             background-color: #f8f9fa !important;
             font-weight: bold;
         }
-
         .total-row td {
             border-top: 2px solid #dee2e6 !important;
         }
-
-        /* 总计行合并列的样式 */
         .total-merged-cell {
             position: relative;
             text-align: center !important;
             background-color: #e9ecef !important;
             font-weight: bold !important;
         }
-
-        /* 隐藏总计行的多选框 */
         .total-row .bs-checkbox {
             visibility: hidden;
         }
     </style>
 </head>
 <body class="gray-bg">
-<div class="container-div">
-    <div class="btn-group-sm" id="toolbar" role="group">
-        <!--	        <a class="btn btn-success" onclick="loadRows()">-->
-        <!--	            <i class="fa fa-plus"></i> 加载10000行数据-->
-        <!--	        </a>-->
-        <!--	        <a class="btn btn-info" onclick="appendRows()">-->
-        <!--	            <i class="fa fa-edit"></i> 追加10000行数据-->
-        <!--	        </a>-->
+<div class="container-div compact-layout">
+    <!-- 图表区域：玫瑰图 + 柱状图 -->
+    <div class="row" style="margin-bottom:2px;">
+        <div class="col-sm-6">
+            <div id="achievementChart" style="width:100%;"></div>
+        </div>
+        <div class="col-sm-6">
+            <div id="achievementBar" style="width:100%;"></div>
+        </div>
+    </div>
+    <div class="btn-group-sm" id="toolbar" role="group" style="margin-bottom:2px;">
         &nbsp;&nbsp;<span id="total" class="badge badge-success"></span>
+        <button type="button" class="btn btn-primary btn-sm" onclick="toggleDisplay(event)" style="margin-left:10px;">切换显示模式</button>
+        <span id="modeLabel" style="margin-left:6px;font-size:12px;color:#666;">当前：大类汇总</span>
     </div>
     <div class="row">
-        <div class="col-sm-12 select-table table-bordered">
+        <div class="col-sm-12 select-table table-bordered" style="margin:0;padding:0;">
             <table id="bootstrap-table"></table>
         </div>
     </div>
 </div>
 <div th:include="include :: footer"></div>
+<script th:src="@{/js/statistic/statistic-common.js}"></script>
+<script th:src="@{https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js}"></script>
+<script th:src="@{/js/statistic/statistic-chart.js}"></script>
 <script>
     var total = 0
     var prefix = ctx + 'statisticJZ'
+    var displayMode = localStorage.getItem('yjcgDisplayMode') || 'summary';
+    
+    function toggleDisplay(event) {
+        if (event) event.preventDefault();
+        displayMode = (displayMode === 'summary' ? 'detail' : 'summary');
+        localStorage.setItem('yjcgDisplayMode', displayMode);
+        $('#modeLabel').text(displayMode === 'summary' ? '当前：大类汇总' : '当前：小类明细');
+        // refresh 刷新表格，responseHandler 会根据 localStorage 中的模式正确映射字段
+        $('#bootstrap-table').bootstrapTable('refresh');
+        return false;
+    }
+    
     $(function() {
         var options = {
             url: prefix + "/listJZ",
-            modalName: '教研室业绩成果数',
+            modalName: '[[${modalName}]]',
             sidePagination: "server",
             pagination: true,
             showSearch: false,
-            virtualScroll: true,
-            columns:[
-                [
-                    {
-                        checkbox: true
-                    },
-                    {
-                        field: 'deptName',
-                        title: '&nbsp;&nbsp;&nbsp;&nbsp;专业&nbsp;&nbsp;&nbsp;&nbsp;',
-                        align: 'center'
-                    },
-                    {
-                        field: 'userName',
-                        title: '&nbsp;&nbsp;&nbsp;教师&nbsp;&nbsp;&nbsp;',
-                        align: 'center'
-                    },
-                    {
-                        title: '纵向科研项目-校级以上',
-                        align: 'center',
-                        field: '纵向科研项目-校级以上'
-                    },
-                    {
-                        title: '纵向科研项目-校级',
-                        align: 'center',
-                        field: '纵向科研项目-校级'
-                    },
-                    {
-                        title: '横向课题科研项目',
-                        align: 'center',
-                        field: '横向课题科研项目'
-                    },
-                    {
-                        title: '成果转化',
-                        align: 'center',
-                        field: '成果转化'
-                    },
-                    {
-                        title: '学术论文',
-                        align: 'center',
-                        field: '学术论文'
-                    },
-                    {
-                        title: '教材著作',
-                        align: 'center',
-                        field: '教材著作'
-                    },
-                    {
-                        title: '专利',
-                        align: 'center',
-                        field: '专利'
-                    },
-                    {
-                        title: '软著',
-                        align: 'center',
-                        field: '软著'
-                    },
-                    {
-                        title: '奖励类',
-                        align: 'center',
-                        field: '奖励类'
-                    },
-                    {
-                        title: '学术报告(讲座类)',
-                        align: 'center',
-                        field: '学术报告(讲座类)'
+            height: 280,
+            virtualScroll: false,
+            // 根据显示模式预处理数据：只切换横向/成果转化两列，始终从独立的汇总/明细字段回填
+            responseHandler: function(res) {
+                if (res.rows) {
+                    var currentMode = localStorage.getItem('yjcgDisplayMode') || 'summary';
+                    var isDetail = (currentMode === 'detail');
+                    for (var i = 0; i < res.rows.length; i++) {
+                        var row = res.rows[i];
+                        row['横向课题科研项目'] = isDetail
+                            ? (row['横向课题科研项目_明细'] || row['横向课题科研项目_汇总'] || row['横向课题科研项目'])
+                            : (row['横向课题科研项目_汇总'] || row['横向课题科研项目']);
+                        row['成果转化'] = isDetail
+                            ? (row['成果转化_明细'] || row['成果转化_汇总'] || row['成果转化'])
+                            : (row['成果转化_汇总'] || row['成果转化']);
                     }
-                ],
-
+                }
+                return res;
+            },
+            columns:[
+                {
+                    checkbox: true
+                },
+                {
+                    field: 'deptName',
+                    title: '&nbsp;&nbsp;&nbsp;&nbsp;专业&nbsp;&nbsp;&nbsp;&nbsp;',
+                    align: 'center'
+                },
+                {
+                    field: 'userName',
+                    title: '&nbsp;&nbsp;&nbsp;教师&nbsp;&nbsp;&nbsp;',
+                    align: 'center'
+                },
+                {
+                    title: '纵向科研项目-校级以上',
+                    align: 'center',
+                    field: '纵向科研项目-校级以上'
+                },
+                {
+                    title: '纵向科研项目-校级',
+                    align: 'center',
+                    field: '纵向科研项目-校级'
+                },
+                {
+                    title: '横向课题科研项目',
+                    align: 'center',
+                    field: '横向课题科研项目'
+                },
+                {
+                    title: '成果转化',
+                    align: 'center',
+                    field: '成果转化'
+                },
+                {
+                    title: '学术论文',
+                    align: 'center',
+                    field: '学术论文'
+                },
+                {
+                    title: '教材著作',
+                    align: 'center',
+                    field: '教材著作'
+                },
+                {
+                    title: '专利',
+                    align: 'center',
+                    field: '专利'
+                },
+                {
+                    title: '软著',
+                    align: 'center',
+                    field: '软著'
+                },
+                {
+                    title: '奖励类',
+                    align: 'center',
+                    field: '奖励'
+                },
+                {
+                    title: '学术报告(讲座类)',
+                    align: 'center',
+                    field: '学术报告(讲座类)'
+                }
             ]
         };
         $.table.init(options);
+        enableAutoScroll('#bootstrap-table', { autoStart: true });
+        initCrossPageSelection($('#bootstrap-table'), { scope: 'yjcg-jys' });
+        initSelectionUi($('#bootstrap-table'));
 
-        // 添加表格加载完成后的回调函数
+        // 表格加载完成后渲染图表 & 总计行处理
         $('#bootstrap-table').on('load-success.bs.table', function () {
-            const $table = $(this);
-            const $tbody = $table.find('tbody');
+            var $table = $(this);
+            var $tbody = $table.find('tbody');
 
-            // 使用延时确保DOM完全渲染
             setTimeout(function() {
-                // 查找总计行（userName为"总计"的行）
                 $tbody.find('tr').each(function() {
-                    const $row = $(this);
-                    const $cells = $row.find('td');
-
-                    // 检查第三列（教师列）是否为"总计"
+                    var $row = $(this);
+                    var $cells = $row.find('td');
                     if ($cells.length > 2 && $cells.eq(2).text().trim() === '总计') {
                         processTotalRow($row, $cells);
                     }
                 });
+                renderAchievementRose($table);
+                renderAchievementBar($table);
             }, 200);
+        });
+
+        // 勾选联动图表
+        $('#bootstrap-table').on('check.bs.table uncheck.bs.table check-all.bs.table uncheck-all.bs.table', function () {
+            var $table = $(this);
+            setTimeout(function() {
+                renderAchievementRose($table);
+                renderAchievementBar($table);
+            }, 80);
         });
 
         // 处理总计行的函数
         function processTotalRow($row, $cells) {
-            // 1. 为整行添加总计样式
             $row.addClass('total-row');
 
-            // 2. 处理第二、三列的合并（教研室和教师列）
-            const $deptCell = $cells.eq(1);    // 教研室列
-            const $teacherCell = $cells.eq(2); // 教师列
+            var $deptCell = $cells.eq(1);
+            var $teacherCell = $cells.eq(2);
 
-            // 3. 设置合并后的样式和内容
             $deptCell.addClass('total-merged-cell')
                 .attr('colspan', '2')
                 .text('总计');
 
-            // 4. 隐藏第三列
             $teacherCell.hide();
 
-            // 5. 确保多选框被隐藏
             $cells.eq(0).addClass('bs-checkbox');
         }
     });

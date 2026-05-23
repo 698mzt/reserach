@@ -133,7 +133,7 @@ public class SciPaperAController extends BaseController {
 
         PageHelper.startPage(pageNum, pageSize);
         List<SciPaperA> list = sciPaperAService.selectSciPaperAListAll(sciPaperA);
-        
+
         return getDataTable(list);
     }
     /**
@@ -254,13 +254,13 @@ public class SciPaperAController extends BaseController {
                     authors.put("2", sciPaperA.getSecondPersonId());
                     authors.put("3", sciPaperA.getThirdPersonId());
                     authors.put("4", sciPaperA.getFourthPersonId());
-                    
+
                     // 获取通讯作者ID
                     String communicationAuthorId = sciPaperA.getCommunicationAuthorId();
-                    
+
                     // 计算分数
                     Map<String, Integer> scores = sciPaperAService.calculatePaperScore(paperCategory, authors, communicationAuthorId);
-                    
+
                     // 取预计科研分：如果有通讯作者，使用通讯作者的分数；否则使用第一作者的分数
                     int expectedScore = 0;
                     if (communicationAuthorId != null && !communicationAuthorId.isEmpty()) {
@@ -290,7 +290,7 @@ public class SciPaperAController extends BaseController {
 
                 //插入论文数据
                 int i1 = sciPaperAService.insertSciPaperA(sciPaperA);
-                
+
 
                 // 保存1-4作信息到Paper_user_score表
                 int i = savePaperAuthorsToScoreTable(sciPaperA);
@@ -349,12 +349,12 @@ public class SciPaperAController extends BaseController {
         }
         // 这里只是限制了人数 ,没有详细限制是第几作者
         int key = (sciPaperA.getFirstPersonId()==null|| sciPaperA.getFirstPersonId().isEmpty() ?0:1 )+ (sciPaperA.getSecondPersonId()==null|| sciPaperA.getSecondPersonId().isEmpty()?0:1) + (sciPaperA.getThirdPersonId()==null|| sciPaperA.getThirdPersonId().isEmpty()?0:1) + (sciPaperA.getFourthPersonId()==null|| sciPaperA.getFourthPersonId().isEmpty()?0:1);
-        
+
         // 如果四个作者都没有添加，返回错误
         if (key == 0) {
             return -7; // 表示没有选择作者
         }
-        
+
         Set<String> countAuthors = new HashSet<>();
         if (sciPaperA.getFirstPersonId() != null && !sciPaperA.getFirstPersonId().isEmpty()) {
             countAuthors.add(sciPaperA.getFirstPersonId());
@@ -392,9 +392,9 @@ public class SciPaperAController extends BaseController {
         }
         //  判断独立作者类型论文人数
         if (sciPaperA.getIsIndependentauthor().equals("1")){
-             if (key!=1){
-                 return -2;
-             }
+            if (key!=1){
+                return -2;
+            }
         } else if (sciPaperA.getIsIndependentauthor().equals("0")) {
             if (key<1){
                 return -2;
@@ -413,7 +413,7 @@ public class SciPaperAController extends BaseController {
         // 获取当前时间
         Date now = new Date();
         String currentUser = getLoginName();
-        
+
         // 处理一作
         if (sciPaperA.getFirstPersonId() != null && !sciPaperA.getFirstPersonId().isEmpty()) {
             Paper_user_score firstAuthor = new Paper_user_score();
@@ -429,7 +429,7 @@ public class SciPaperAController extends BaseController {
             paperUserScoreList.add(firstAuthor);
             res+=1;
         }
-        
+
         // 处理二作
         if (sciPaperA.getSecondPersonId() != null && !sciPaperA.getSecondPersonId().isEmpty()) {
             Paper_user_score secondAuthor = new Paper_user_score();
@@ -445,7 +445,7 @@ public class SciPaperAController extends BaseController {
             paperUserScoreList.add(secondAuthor);
             res+=1;
         }
-        
+
         // 处理三作
         if (sciPaperA.getThirdPersonId() != null && !sciPaperA.getThirdPersonId().isEmpty()) {
             Paper_user_score thirdAuthor = new Paper_user_score();
@@ -461,7 +461,7 @@ public class SciPaperAController extends BaseController {
             paperUserScoreList.add(thirdAuthor);
             res+=1;
         }
-        
+
         // 处理四作
         if (sciPaperA.getFourthPersonId() != null && !sciPaperA.getFourthPersonId().isEmpty()) {
             Paper_user_score fourthAuthor = new Paper_user_score();
@@ -477,13 +477,13 @@ public class SciPaperAController extends BaseController {
             paperUserScoreList.add(fourthAuthor);
             res+=1;
         }
-        
+
         // 处理通讯作者
         if (sciPaperA.getCommunicationAuthorId() != null && !sciPaperA.getCommunicationAuthorId().isEmpty()) {
             // 检查通讯作者是否已经在1-4作中
             boolean isAlreadyInList = paperUserScoreList.stream()
-                .anyMatch(author -> author.getUserId().equals(Long.valueOf(sciPaperA.getCommunicationAuthorId())));
-            
+                    .anyMatch(author -> author.getUserId().equals(Long.valueOf(sciPaperA.getCommunicationAuthorId())));
+
             if (!isAlreadyInList) {
                 // 通讯作者不在1-4作中，添加新的通讯作者记录
 //                Paper_user_score correspondingAuthor = new Paper_user_score();
@@ -501,13 +501,13 @@ public class SciPaperAController extends BaseController {
             } else {
                 // 通讯作者在1-4作中，更新对应的authorLevel为"0"
                 paperUserScoreList.stream()
-                    .filter(author -> author.getUserId().equals(Long.valueOf(sciPaperA.getCommunicationAuthorId())))
-                    .findFirst()
-                    .ifPresent(author -> author.setAuthorLevel("0"));
+                        .filter(author -> author.getUserId().equals(Long.valueOf(sciPaperA.getCommunicationAuthorId())))
+                        .findFirst()
+                        .ifPresent(author -> author.setAuthorLevel("0"));
                 res+=1;
             }
         }
-        
+
         // 批量插入到Paper_user_score表
         if (!paperUserScoreList.isEmpty()) {
             paperUserScoreService.batchInsertPaperUserScore(paperUserScoreList);
@@ -538,7 +538,7 @@ public class SciPaperAController extends BaseController {
             }
         }
         SciPaperA sciPaperA = sciPaperAService.selectSciPaperAById(id);
-        
+
         // 获取作者信息
         List<Paper_user_score> authorList = paperUserScoreService.getPaperUserScoreListByPaperId(id);
         if (authorList != null && !authorList.isEmpty()) {
@@ -554,7 +554,7 @@ public class SciPaperAController extends BaseController {
                 } else if ("4".equals(authorOrder)) {
                     sciPaperA.setFourthPersonId(String.valueOf(author.getUserId()));
                 }
-                
+
                 // 根据author_level判断是否是通讯作者（author_level='0'表示通讯作者）
                 if ("0".equals(author.getAuthorLevel())) {
                     sciPaperA.setCommunicationAuthorId(String.valueOf(author.getUserId()));
@@ -594,7 +594,7 @@ public class SciPaperAController extends BaseController {
         mmap.put("actionsJson", actionsJson);
         return prefix + "/detail";
     }
-    
+
     /**
      * 论文详情查看（无URL标识）
      * @param id 论文ID
@@ -674,19 +674,19 @@ public class SciPaperAController extends BaseController {
                 authors.put("2", sciPaperA.getSecondPersonId());
                 authors.put("3", sciPaperA.getThirdPersonId());
                 authors.put("4", sciPaperA.getFourthPersonId());
-                
+
                 // 获取通讯作者ID
                 String communicationAuthorId = sciPaperA.getCommunicationAuthorId();
-                
+
                 // 计算分数
                 Map<String, Integer> scores = sciPaperAService.calculatePaperScore(paperCategory, authors, communicationAuthorId);
-                
+
                 // 取第一作者的分数作为预计科研分
                 String firstKey = "1_" + sciPaperA.getFirstPersonId();
                 int expectedScore = scores.getOrDefault(firstKey, 0);
                 sciPaperA.setExpectedResearchScore(String.valueOf(expectedScore));
             }
-            
+
             // 确保state字段不为null，即使没有修改状态
             if (sciPaperA.getState() == null) {
                 // 如果state为null，先从数据库获取当前状态
@@ -695,19 +695,19 @@ public class SciPaperAController extends BaseController {
                     sciPaperA.setState(existingPaper.getState());
                 }
             }
-            
+
             // 如果论文状态是驳回，编辑保存后改为草稿状态，需要重新提交
             if (SciPaperA.PAPER_REJECTED.equals(sciPaperA.getState())) {
                 sciPaperA.setState(SciPaperA.PAPER_DRAFT);
             }
-            
+
             // 更新论文基本信息
             int result = sciPaperAService.updateSciPaperA(sciPaperA);
-            
+
             if (result > 0) {
                 // 删除旧作者信息
                 paperUserScoreService.deletePaperUserScoreByPaperId(sciPaperA.getId());
-                
+
                 // 保存新的作者信息
                 int authorResult = savePaperAuthorsToScoreTable(sciPaperA);
                 if (authorResult == 0) {
@@ -718,7 +718,7 @@ public class SciPaperAController extends BaseController {
                     throw new RuntimeException("一作和通讯作者都是校外人员，只能录入本校论文");
                 }
             }
-            
+
             return toAjax(result);
         } catch (RuntimeException e) {
             // 直接抛出，Runtime异常会自动触发回滚
@@ -825,13 +825,13 @@ public class SciPaperAController extends BaseController {
         if (paper == null) {
             return error("论文不存在");
         }
-        
+
         Long currentUserId = getUserId();
         // 如果不是作者且不是管理员，拒绝操作
         if (!paper.getUserId().equals(currentUserId) && !SysUser.isAdmin(currentUserId)) {
             return error("无权操作该论文");
         }
-        
+
         SciPaperAr sciPaperAr = new SciPaperAr();
         sciPaperAr.setAr_id(id);
         sciPaperAr.setUid(getUserId());
@@ -869,10 +869,10 @@ public class SciPaperAController extends BaseController {
             String paperCategory = (String) params.get("paperCategory");
             Map<String, String> authors = (Map<String, String>) params.get("authors");
             String communicationAuthorId = (String) params.get("communicationAuthorId");
-            
+
             // 调用服务层计算科研分
             Map<String, Integer> scores = sciPaperAService.calculatePaperScore(paperCategory, authors, communicationAuthorId);
-            
+
             return AjaxResult.success(scores);
         } catch (Exception e) {
             return AjaxResult.error("计算科研分失败：" + e.getMessage());

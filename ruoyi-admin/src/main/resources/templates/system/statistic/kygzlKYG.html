@@ -1,32 +1,40 @@
 <!DOCTYPE html>
 
-<!--[[${modalName}]]-->
+<!--科研处科研工作量-->
 
 <html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
 <head>
     <th:block th:include="include :: header('表格虚拟滚动')" />
     <link rel="stylesheet" th:href="@{/css/statistic/statistic-common.css}">
 </head>
-<body>
+<body class="gray-bg">
 <div class="container-div compact-layout">
     <div class="row chart-row">
         <div class="col-sm-6">
-            <div id="teacherRadar"></div>
+            <div id="collegeRose"></div>
         </div>
         <div class="col-sm-6">
             <div id="teacherBar"></div>
         </div>
     </div>
     <div class="row search-row-compact">
-        <div class="col-sm-12 search-collapse" th:if="${searchMode != 'none'}">
+        <div class="col-sm-12 search-collapse">
             <form id="formId1">
                 <div class="select-list">
                     <ul>
-                        <li th:if="${searchMode == 'teacherName'}">
+                        <li>
+                            <label>学院：</label>
+                            <input type="text" name="pname" placeholder="请输入学院"/>
+                        </li>
+                        <li>
+                            <label>教研室：</label>
+                            <input type="text" name="dname" placeholder="请输入教研室"/>
+                        </li>
+                        <li>
                             <label>教师姓名：</label>
                             <input type="text" name="userName" placeholder="请输入教师姓名"/>
                         </li>
-                        <li>
+                        <li class="button-item">
                             <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search('formId1','bootstrap-table')"><i class="fa fa-search"></i>&nbsp;搜索</a>
                             <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset('formId1')"><i class="fa fa-refresh"></i>&nbsp;重置</a>
                             <a class="btn btn-success btn-rounded btn-sm" onclick="$.table.exportExcel()"><i class="fa fa-download"></i>&nbsp;导出</a>
@@ -36,7 +44,6 @@
             </form>
         </div>
     </div>
-    <!-- 教师端：搜索栏隐藏时，占位 div 已隐藏 -->
     <div class="row table-row-compact">
         <div class="col-sm-12 select-table table-bordered">
             <table id="bootstrap-table"></table>
@@ -48,7 +55,7 @@
 <script th:src="@{https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js}"></script>
 <script th:src="@{/js/statistic/statistic-chart.js}"></script>
 <script>
-    var prefix = "jysky";
+    var prefix = "researchdept";
     
     function cntScoreFormatter(scoreField, varcharValue, row) {
         var score = row[scoreField] || varcharValue || '0';
@@ -56,53 +63,15 @@
     }
 
     $(function () {
-        // 只有纯教师用户（searchMode='none'）才修改菜单文字
-        var isPureTeacher = '[[${searchMode}]]' === 'none';
-        if (isPureTeacher) {
-            var retry = 0;
-            var updateParentTitle = function() {
-                try {
-                    var pDoc = window.parent.document;
-                    var allA = pDoc.getElementsByTagName('a');
-                    for (var i = 0; i < allA.length; i++) {
-                        var h = allA[i].getAttribute('href') || '';
-                        if (h.indexOf('/jysky') >= 0) {
-                            allA[i].textContent = '我的科研工作量';
-                            break;
-                        }
-                    }
-                    var allTabs = pDoc.querySelectorAll('.menuTab');
-                    for (var j = 0; j < allTabs.length; j++) {
-                        var did = allTabs[j].getAttribute('data-id') || '';
-                        if (did.indexOf('/jysky') >= 0) {
-                            var cn = allTabs[j].childNodes;
-                            for (var k = 0; k < cn.length; k++) {
-                                if (cn[k].nodeType === 3) {
-                                    cn[k].nodeValue = '我的科研工作量 ';
-                                    break;
-                                }
-                            }
-                            break;
-                        }
-                    }
-                    retry = 10;
-                } catch(e) {
-                    retry++;
-                    if (retry < 10) setTimeout(updateParentTitle, 500);
-                }
-            };
-            setTimeout(updateParentTitle, 200);
-        }
-
         var options = {
             url: prefix + "/list",
             exportUrl: prefix + "/export",
-            modalName: '[[${modalName}]]',
+            modalName: '科研处科研工作量',
             method: "post",
             sidePagination: "server",
             pagination: true,
             showSearch: false,
-            height: 320,
+            height: 500,
             columns: [
                 {
                     checkbox: true,
@@ -125,9 +94,8 @@
         };
         $.table.init(options);
         enableAutoScroll('#bootstrap-table', { autoStart: true });
-
         // 初始化跨页勾选支持
-        initCrossPageSelection($('#bootstrap-table'), { scope: 'kygzl-jys' });
+        initCrossPageSelection($('#bootstrap-table'), { scope: 'kygzl-kyg' });
         initSelectionUi($('#bootstrap-table'));
 
         // 表格加载完成后渲染总计/小计行和图表
@@ -135,7 +103,7 @@
             var $table = $(this);
             setTimeout(function() {
                 applyStatRowStyle($table);
-                renderTeacherRadar($table);
+                renderCollegeRose($table);
                 renderTeacherBar($table);
             }, 200);
         });
@@ -144,7 +112,7 @@
         $('#bootstrap-table').on('check.bs.table uncheck.bs.table check-all.bs.table uncheck-all.bs.table', function () {
             var $table = $(this);
             setTimeout(function() {
-                renderTeacherRadar($table);
+                renderCollegeRose($table);
                 renderTeacherBar($table);
             }, 50);
         });

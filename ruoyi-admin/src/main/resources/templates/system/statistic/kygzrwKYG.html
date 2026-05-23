@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+
+<!--科研处科研任务计划-->
+
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<th:block th:include="include :: header('表格虚拟滚动')" />
+	<link rel="stylesheet" th:href="@{/css/statistic/statistic-common.css}">
+	<style>
+		.total-row { background-color: #f8f9fa !important; font-weight: bold; }
+		.total-row td { border-top: 2px solid #dee2e6 !important; }
+		.total-merged-cell { position: relative; text-align: center !important; background-color: #e9ecef !important; font-weight: bold !important; }
+		.total-row .bs-checkbox { visibility: hidden; }
+	</style>
+</head>
+<body class="gray-bg">
+	<div class="container-div compact-layout">
+		<div class="row chart-row">
+			<div class="col-sm-6">
+				<div id="planRadar" style="width:100%;"></div>
+			</div>
+			<div class="col-sm-6">
+				<div id="planBar" style="width:100%;"></div>
+			</div>
+		</div>
+		<div class="row table-row-compact">
+			<div class="col-sm-12 select-table table-bordered">
+				<table id="bootstrap-table"></table>
+			</div>
+		</div>
+	</div>
+	 <th:block th:include="include :: footer"/>
+	 <script th:src="@{/js/statistic/statistic-common.js}"></script>
+	 <script th:src="@{https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js}"></script>
+	 <script th:src="@{/js/statistic/statistic-chart.js}"></script>
+    <script th:inline="javascript">
+		const total = 0;
+	const prefix = ctx + 'researchdeptplan';
+
+	function countFormatter(varcharField) {
+		if (!varcharField || varcharField === '') return '0个';
+		return varcharField;
+	}
+
+	$(function() {
+			const options = {
+				url: prefix + "/list",
+				modalName: '[[${modalName}]]',
+				sidePagination: "server",
+				pagination: true,
+				showSearch: false,
+				virtualScroll: false,
+				height: 320,
+				stickyHeader: true,
+				columns: [
+					[{
+						title: '基本信息',
+						align: 'center',
+						colspan: 4
+					},
+					{
+						title: '纵向科研项目',
+						align: 'center',
+						colspan: 7
+					},
+					{
+						title: '横向课题科研项目-校外',
+						align: 'center',
+						colspan: 8
+					},
+					{
+						title: '成果转化',
+						align: 'center',
+						colspan: 6
+					},
+					{
+						title: '学术论文',
+						align: 'center',
+						colspan: 6
+					},
+					{
+						title: '教材著作',
+						align: 'center',
+						colspan: 7
+					},
+					{
+						title: '专利、软著',
+						align: 'center',
+						colspan: 4
+					},
+					{
+						title: '奖励',
+						align: 'center',
+						colspan: 8
+					},
+					{
+						title: '学术报告(讲座类)',
+						align: 'center',
+						colspan: 5
+					}
+				],
+				[
+					{
+						checkbox: true
+					},
+					{
+						field: 'parentName',
+						title: '学院',
+						align: 'center'
+					},
+					{
+						field: 'deptName',
+						title: '教研室',
+						align: 'center'
+					},
+					{
+						field: 'userName',
+						title: '教师',
+						align: 'center'
+					},
+					{
+						field: 'zcgjjjkyxm',
+						title: '主持国家基金科研项目',
+						align: 'center'
+					},
+					{
+						field: 'zcsbjjjkyxm',
+						title: '主持省部级基金科研项目',
+						align: 'center'
+					},
+					{
+						field: 'zcsbjjgxm',
+						title: '主持省部级教改项目',
+						align: 'center'
+					},
+					{
+						field: 'zcsbjzxkyxm',
+						title: '主持省部级纵向科研项目',
+						align: 'center'
+					},
+					{
+						field: 'zctjjxhjkyxm',
+						title: '主持厅局级、学会级科研项目',
+						align: 'center'
+					},
+					{
+						field: 'zcxjjxglxmywyys',
+						title: '主持校级教学管理项目（1万元以上）',
+						align: 'center'
+					},
+					{
+						field: 'zcxjjxglxmywyyx',
+						title: '主持校级教学管理项目（1万元以下）',
+						align: 'center'
+					},
+					{
+						field: 'ewyyx',
+						title: '2万元以下',
+						align: 'center'
+					},
+					{
+						field: 'edwwy',
+						title: '2-5万元（含2）',
+						align: 'center'
+					},
+					{
+						field: 'wdswy',
+						title: '5-10万元（含5）',
+						align: 'center'
+					},
+					{
+						field: 'sdeswy',
+						title: '10-20万元（含10）',
+						align: 'center'
+					},
+					{
+						field: 'esdsswwy',
+						title: '20-35万元（含20）',
+						align: 'center'
+					},
+					{
+						field: 'wswwydwswy',
+						title: '35-50万元（含35）',
+						align: 'center'
+					},
+					{
+						field: 'wsdqswwy',
+						title: '50-75万元（含50）',
+						align: 'center'
+					},
+					{
+						field: 'qswdybwy',
+						title: '75-100万元（含75）',
+						align: 'center'
+					},
+					{
+						field: 'eyxxx',
+						title: '2以下信息',
+						align: 'center'
+					},
+					{
+						field: 'edwxx',
+						title: '2-5信息',
+						align: 'center'
+					},
+					{
+						field: 'wdsxx',
+						title: '5-10信息',
+						align: 'center'
+					},
+					{
+						field: 'sdesxx',
+						title: '10-20信息',
+						align: 'center'
+					},
+					{
+						field: 'esdsswxx',
+						title: '20-35信息',
+						align: 'center'
+					},
+					{
+						field: 'sswdwsxx',
+						title: '35-50信息',
+						align: 'center'
+					},
+					{
+						field: 'dywsxx',
+						title: '大于50信息',
+						align: 'center'
+					},
+					{
+						field: 'SCI',
+						title: 'SCI',
+						align: 'center',
+						formatter: function(v) { return countFormatter(v); }
+					},
+					{
+						field: 'EI',
+						title: 'EI',
+						align: 'center',
+						formatter: function(v) { return countFormatter(v); }
+					},
+					{
+						field: 'hx',
+						title: '核心期刊',
+						align: 'center'
+					},
+					{
+						field: 'sw',
+						title: '三网收录',
+						align: 'center'
+					},
+					{
+						field: 'pt',
+						title: '普通期刊',
+						align: 'center'
+					},
+					{
+						field: 'xb',
+						title: '校办期刊',
+						align: 'center'
+					},
+					{
+						field: 'cbzz1',
+						title: '出版专著（一类）',
+						align: 'center'
+					},
+					{
+						field: 'cbzz2',
+						title: '出版专著（二类）',
+						align: 'center'
+					},
+					{
+						field: 'cbyz1',
+						title: '出版译著（一类）',
+						align: 'center'
+					},
+					{
+						field: 'cbyz2',
+						title: '出版译著（二类）',
+						align: 'center'
+					},
+					{
+						field: 'cbjc1',
+						title: '出版教材（国家规划）',
+						align: 'center'
+					},
+					{
+						field: 'cbjc2',
+						title: '出版教材',
+						align: 'center'
+					},
+					{
+						field: 'zbjc',
+						title: '自编教材',
+						align: 'center'
+					},
+					{
+						field: 'sqfmzl',
+						title: '授权发明专利',
+						align: 'center'
+					},
+					{
+						field: 'syxxzl',
+						title: '实用新型专利',
+						align: 'center'
+					},
+					{
+						field: 'wxsjzl',
+						title: '外型设计专利',
+						align: 'center'
+					},
+					{
+						field: 'jsjrjzzq',
+						title: '计算机软件著作权',
+						align: 'center'
+					},
+					{
+						field: 'sjjxcgj',
+						title: '省级教学成果奖',
+						align: 'center'
+					},
+					{
+						field: 'sjkxjsj',
+						title: '省级科学技术奖',
+						align: 'center'
+					},
+					{
+						field: 'stjjzrkxlpj',
+						title: '省级一流精品课评比',
+						align: 'center'
+					},
+					{
+						field: 'stjjsklpj',
+						title: '市厅局级自然科学类评奖',
+						align: 'center'
+					},
+					{
+						field: 'xjjxcgj',
+						title: '校级教学成果奖',
+						align: 'center'
+					},
+					{
+						field: 'yyxkyxjcgj',
+						title: '应用型科研校级成果奖',
+						align: 'center'
+					},
+					{
+						field: 'xhjjxcgj',
+						title: '学会级教学成果奖',
+						align: 'center'
+					},
+					{
+						field: 'xhjkycgj',
+						title: '学会级科研成果奖',
+						align: 'center',
+						formatter: function(v) { return countFormatter(v); }
+					},
+					{
+						field: 'jbgj',
+						title: '举办国际',
+						align: 'center'
+					},
+					{
+						field: 'jbgn',
+						title: '举办国内',
+						align: 'center'
+					},
+					{
+						field: 'cjgj',
+						title: '参加国际',
+						align: 'center'
+					},
+					{
+						field: 'cjgn',
+						title: '参加国内',
+						align: 'center'
+					},
+					{
+						field: 'xjxs',
+						title: '校级学术',
+						align: 'center'
+					}
+				]
+			]
+		};
+		$.table.init(options);
+		enableAutoScroll('#bootstrap-table', { autoStart: true });
+		initCrossPageSelection($('#bootstrap-table'), { scope: 'kygzrw-kyg' });
+		initSelectionUi($('#bootstrap-table'));
+		
+		$('#bootstrap-table').on('load-success.bs.table', function () {
+			var $table = $(this);
+			setTimeout(function() {
+				renderPlanCollegeRadar($table);
+				renderPlanCollegeBar($table);
+			}, 200);
+		});
+
+		$('#bootstrap-table').on('check.bs.table uncheck.bs.table check-all.bs.table uncheck-all.bs.table', function () {
+			var $table = $(this);
+			setTimeout(function() {
+				renderPlanCollegeRadar($table);
+				renderPlanCollegeBar($table);
+			}, 80);
+		});
+	});
+</script>
+</body>
+</html>

@@ -5,70 +5,55 @@
 <html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
 <head>
     <th:block th:include="include :: header('表格虚拟滚动')" />
-    <style>
-        /* 总计行样式 */
-        .total-row {
-            background-color: #f8f9fa !important;
-            font-weight: bold;
-        }
-
-        .total-row td {
-            border-top: 2px solid #dee2e6 !important;
-        }
-
-        /* 总计行合并列的样式 */
-        .total-merged-cell {
-            position: relative;
-            text-align: center !important;
-            background-color: #e9ecef !important;
-            font-weight: bold !important;
-        }
-
-        /* 隐藏总计行的多选框 */
-        .total-row .bs-checkbox {
-            visibility: hidden;
-        }
-    </style>
+    <link rel="stylesheet" th:href="@{/css/statistic/statistic-common.css}">
 </head>
 <body>
-<div class="container-div">
-    <div class="btn-group-sm" id="toolbar" role="group">
-        &nbsp;&nbsp;<span id="total" class="badge badge-success"></span>
-        <a class="btn btn-warning" onclick="$.table.exportExcel()">
-            <i class="fa fa-download"></i> 导出
-        </a>
+<div class="container-div compact-layout">
+    <!-- 图表区域 -->
+    <div class="row chart-row">
+        <div class="col-sm-12">
+            <div id="collegeChart"></div>
+        </div>
     </div>
-    <div class="row">
+    <!-- 搜索面板 -->
+    <div class="row search-row-compact">
         <div class="col-sm-12 search-collapse">
             <form id="formId1">
                 <div class="select-list">
                     <ul>
                         <li>
-                            <label>学院：</label>
-                            <input type="text" name="pname"/>
-                        </li>
-                        <li>
                             <label>教研室：</label>
-                            <input type="text" name="dname"   />
+                            <input type="text" name="dname" placeholder="请输入教研室"/>
                         </li>
                         <li>
                             <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search('formId1','bootstrap-table')"><i class="fa fa-search"></i>&nbsp;搜索</a>
                             <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset('formId1')"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                            <a class="btn btn-success btn-rounded btn-sm" onclick="$.table.exportExcel()"><i class="fa fa-download"></i>&nbsp;导出</a>
                         </li>
                     </ul>
                 </div>
             </form>
         </div>
+    </div>
+    <!-- 表格 -->
+    <div class="row table-row-compact">
         <div class="col-sm-12 select-table table-bordered">
             <table id="bootstrap-table"></table>
         </div>
     </div>
 </div>
 <div th:include="include :: footer"></div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.21.3/dist/bootstrap-table.min.js"></script>
-<th:block th:include="include :: bootstrap-table-fixed-columns-js" />
+<script th:src="@{/js/statistic/statistic-common.js}"></script>
+<script th:src="@{https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js}"></script>
+<script th:src="@{/js/statistic/statistic-chart.js}"></script>
 <script>
     var prefix = "collegeresearch";
+    
+    function cntScoreFormatter(scoreField, varcharValue, row) {
+        var score = row[scoreField] || varcharValue || '0';
+        return Number(score).toFixed(2);
+    }
+
     $(function () {
         var options = {
             url: prefix + "/list",
@@ -78,95 +63,50 @@
             sidePagination: "server",
             pagination: true,
             showSearch: false,
-            virtualScroll: true,
+            height: 500,
+            virtualScroll: false,
             columns: [
                 {
-                    checkbox: true, // 添加多选框列
+                    checkbox: true,
                     align: 'center'
                 },
                 { field: 'parentName', title: '学院', align: 'center' },
                 { field: 'deptName', title: '教研室', align: 'center' },
-                { field: 'zxktxjys', title: '纵向课题科研项目-校级以上', align: 'center' },
-                { field: 'zxktxj', title: '纵向课题科研项目-校级', align: 'center' },
-                { field: 'hxkt', title: '横向课题科研项目', align: 'center' },
-                { field: 'cgzh', title: '成果转化', align: 'center' },
-                { field: 'xslw', title: '学术论文', align: 'center' },
-                { field: 'jczz', title: '教材著作', align: 'center' },
-                { field: 'zl', title: '专利', align: 'center' },
-                { field: 'rz', title: '软著', align: 'center' },
-                { field: 'jl', title: '&nbsp;&nbsp;&nbsp;奖励&nbsp;&nbsp;&nbsp;', align: 'center' },
-                { field: 'jzbg', title: '学术报告(讲座类)', align: 'center' }
+                { field: 'zxktxjys', title: '纵向课题科研项目-校级以上', align: 'center', formatter: function(v, r) { return cntScoreFormatter('zxktxjysScore', v, r); } },
+                { field: 'zxktxj', title: '纵向课题科研项目-校级', align: 'center', formatter: function(v, r) { return cntScoreFormatter('zxktxjScore', v, r); } },
+                { field: 'hxkt', title: '横向课题科研项目', align: 'center', formatter: function(v, r) { return cntScoreFormatter('hxktScore', v, r); } },
+                { field: 'cgzh', title: '成果转化', align: 'center', formatter: function(v, r) { return cntScoreFormatter('cgzhScore', v, r); } },
+                { field: 'xslw', title: '学术论文', align: 'center', formatter: function(v, r) { return cntScoreFormatter('xslwScore', v, r); } },
+                { field: 'jczz', title: '教材著作', align: 'center', formatter: function(v, r) { return cntScoreFormatter('jczzScore', v, r); } },
+                { field: 'zl', title: '专利', align: 'center', formatter: function(v, r) { return cntScoreFormatter('zlScore', v, r); } },
+                { field: 'rz', title: '软著', align: 'center', formatter: function(v, r) { return cntScoreFormatter('rzScore', v, r); } },
+                { field: 'jl', title: '&nbsp;&nbsp;&nbsp;奖励&nbsp;&nbsp;&nbsp;', align: 'center', formatter: function(v, r) { return cntScoreFormatter('jlScore', v, r); } },
+                { field: 'jzbg', title: '学术报告(讲座类)', align: 'center', formatter: function(v, r) { return cntScoreFormatter('jzbgScore', v, r); } }
             ]
         };
         $.table.init(options);
+        // 初始化跨页勾选支持
+        initCrossPageSelection($('#bootstrap-table'), { scope: 'kygzl-xy' });
+        initSelectionUi($('#bootstrap-table'));
 
-        // 添加表格加载完成后的回调函数
+        // 表格加载完成后渲染总计/小计行和图表
         $('#bootstrap-table').on('load-success.bs.table', function () {
-            const $table = $(this);
-            const $tbody = $table.find('tbody');
-
-            // 使用延时确保DOM完全渲染
+            var $table = $(this);
             setTimeout(function() {
-                // 查找总计行和教研室统计行
-                $tbody.find('tr').each(function() {
-                    const $row = $(this);
-                    const $cells = $row.find('td');
-
-                    // 检查第三列（教师列）是否为"总计"或"小计"
-                    if ($cells.length > 2) {
-                        const userNameText = $cells.eq(2).text().trim();
-                        if (userNameText === '总计') {
-                            processTotalRow($row, $cells);
-                        } else if (userNameText === '小计') {
-                            processDepartmentStatsRow($row, $cells);
-                        }
-                    }
-                });
+                applyStatRowStyle($table);
+                renderCollegeChart($table);
             }, 200);
         });
 
-        // 处理总计行的函数
-        function processTotalRow($row, $cells) {
-            // 1. 为整行添加总计样式
-            $row.addClass('total-row');
-
-            // 2. 处理第二、三列的合并（教研室和教师列）
-            const $deptCell = $cells.eq(1);    // 教研室列
-            const $teacherCell = $cells.eq(2); // 教师列
-
-            // 3. 设置合并后的样式和内容
-            $deptCell.addClass('total-merged-cell')
-                .attr('colspan', '2')
-                .text('总计');
-
-            // 4. 隐藏第三列
-            $teacherCell.hide();
-
-            // 5. 确保多选框被隐藏
-            $cells.eq(0).addClass('bs-checkbox');
-        }
-
-        // 处理教研室统计行的函数
-        function processDepartmentStatsRow($row, $cells) {
-            // 1. 为整行添加教研室统计行样式
-            $row.addClass('statistics-row');
-
-            // 2. 处理第二、三列的合并（教研室和教师列）
-            const $deptCell = $cells.eq(1);    // 教研室列
-            const $teacherCell = $cells.eq(2); // 教师列
-
-            // 3. 设置合并后的样式和内容
-            $deptCell.addClass('statistics-merged-cell')
-                .attr('colspan', '2')
-                .text($deptCell.text() + ' 小计');
-
-            // 4. 隐藏第三列
-            $teacherCell.hide();
-
-            // 5. 确保多选框被隐藏
-            $cells.eq(0).addClass('bs-checkbox');
-        }
+        // 勾选/取消勾选时更新柱状图
+        $('#bootstrap-table').on('check.bs.table uncheck.bs.table check-all.bs.table uncheck-all.bs.table', function () {
+            var $table = $(this);
+            setTimeout(function() {
+                renderCollegeChart($table);
+            }, 50);
+        });
     });
+
 </script>
 </body>
 

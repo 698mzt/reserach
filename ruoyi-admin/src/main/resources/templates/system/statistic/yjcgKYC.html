@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+
+<!--科研处业绩成果数-->
+
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('表格虚拟滚动')" />
+    <link rel="stylesheet" th:href="@{/css/statistic/statistic-common.css}">
+</head>
+<body class="gray-bg">
+<div class="container-div compact-layout">
+    <div class="row chart-row">
+        <div class="col-sm-6">
+            <div id="achievementChart" style="width:100%;"></div>
+        </div>
+        <div class="col-sm-6">
+            <div id="achievementBar" style="width:100%;"></div>
+        </div>
+    </div>
+    <div style="padding:4px 0;margin:2px 0;">
+        <button type="button" class="btn btn-primary btn-sm" onclick="toggleDisplay(event)" style="margin-left:0;">切换显示模式</button>
+        <span id="modeLabel" style="margin-left:6px;font-size:12px;color:#666;">当前：大类汇总</span>
+    </div>
+    <div class="row table-row-compact">
+        <div class="col-sm-12">
+            <div class="btn-group-sm" id="toolbar" role="group" style="margin:2px 0;padding:2px 0;">
+                <form id="searchForm" style="display:inline-block;margin:0;padding:0;" onsubmit="return false;">
+                    教师姓名：<input name="userName" class="form-control" style="width:150px;display:inline-block;height:28px;font-size:12px;" placeholder="输入教师姓名" />
+                    <a class="btn btn-primary btn-sm" onclick="doSearch()"><i class="fa fa-search"></i> 搜索</a>
+                    <a class="btn btn-default btn-sm" onclick="doReset()"><i class="fa fa-undo"></i> 重置</a>
+                </form>
+                <a class="btn btn-default btn-sm" onclick="$.table.exportExcel()" style="margin-left:10px;">
+                    <i class="fa fa-download"></i> 导出
+                </a>
+            </div>
+        </div>
+        <div class="col-sm-12 select-table table-bordered">
+            <table id="bootstrap-table"></table>
+        </div>
+    </div>
+</div>
+<div th:include="include :: footer"></div>
+<th:block th:include="include :: bootstrap-table-export-js" />
+<script th:src="@{/js/statistic/statistic-common.js}"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+<script th:src="@{/js/statistic/statistic-chart.js}"></script>
+<script th:inline="none">
+    var total = 0;
+    var prefix = ctx + 'rewardkeyanchu';
+    var displayMode = localStorage.getItem('yjcgDisplayMode') || 'summary';
+    var searchKeyword = '';
+
+    $(function() {
+        var options = {
+            url: prefix + "/list",
+            modalName: '科研处业绩成果数',
+            height: 320,
+            sidePagination: "server",
+            queryParams: function(params) {
+                return {
+                    pageSize: params.limit,
+                    pageNum: parseInt(params.offset / params.limit) + 1,
+                    userName: searchKeyword
+                };
+            },
+            pagination: true,
+            pageSize: 20,
+            virtualScroll: false,
+            showSearch: false,
+            columns:[
+                {
+                    checkbox: true
+                },
+                {
+                    field: 'parentName',
+                    title: '&nbsp;&nbsp;&nbsp;学院&nbsp;&nbsp;&nbsp;',
+                    align: 'center'
+                },
+                {
+                    field: 'deptName',
+                    title: '&nbsp;&nbsp;专业&nbsp;&nbsp;',
+                    align: 'center'
+                },
+                {
+                    field: 'userName',
+                    title: '&nbsp;&nbsp;教师&nbsp;&nbsp;',
+                    align: 'center'
+                },
+                {
+                    title: '纵向科研项目-校级以上',
+                    align: 'center',
+                    field: '纵向科研项目-校级以上'
+                },
+                {
+                    title: '纵向科研项目-校级',
+                    align: 'center',
+                    field: '纵向科研项目-校级'
+                },
+                {
+                    title: '横向课题科研项目',
+                    align: 'center',
+                    field: '横向课题科研项目'
+                },
+                {
+                    title: '成果转化',
+                    align: 'center',
+                    field: '成果转化'
+                },
+                {
+                    title: '学术论文',
+                    align: 'center',
+                    field: '学术论文'
+                },
+                {
+                    title: '教材著作',
+                    align: 'center',
+                    field: '教材著作'
+                },
+                {
+                    title: '专利',
+                    align: 'center',
+                    field: '专利'
+                },
+                {
+                    title: '软著',
+                    align: 'center',
+                    field: '软著'
+                },
+                {
+                    title: '奖励',
+                    align: 'center',
+                    field: '奖励'
+                },
+                {
+                    title: '学术报告(讲座类)',
+                    align: 'center',
+                    field: '学术报告(讲座类)'
+                }
+            ],
+            responseHandler: function(res) {
+                if (res.rows) {
+                    var currentMode = localStorage.getItem('yjcgDisplayMode') || 'summary';
+                    var isDetail = (currentMode === 'detail');
+                    for (var i = 0; i < res.rows.length; i++) {
+                        var row = res.rows[i];
+                        row['横向课题科研项目'] = isDetail
+                            ? (row['横向课题科研项目_明细'] || row['横向课题科研项目_汇总'] || row['横向课题科研项目'])
+                            : (row['横向课题科研项目_汇总'] || row['横向课题科研项目']);
+                        row['成果转化'] = isDetail
+                            ? (row['成果转化_明细'] || row['成果转化_汇总'] || row['成果转化'])
+                            : (row['成果转化_汇总'] || row['成果转化']);
+                    }
+                }
+                return res;
+            }
+        };
+        $.table.init(options);
+        enableAutoScroll('#bootstrap-table');
+        initCrossPageSelection($('#bootstrap-table'), { scope: 'yjcg-kyc' });
+        initSelectionUi($('#bootstrap-table'));
+
+        $('#bootstrap-table').on('load-success.bs.table', function () {
+            var $table = $(this);
+            var $tbody = $table.find('tbody');
+            setTimeout(function() {
+                $tbody.find('tr').each(function() {
+                    var $row = $(this);
+                    var $cells = $row.find('td');
+                    if ($cells.length > 3 && $cells.eq(1).text().trim() === '总计') {
+                        $row.addClass('total-row');
+                        $cells.eq(0).addClass('bs-checkbox');
+                        $cells.eq(1).addClass('total-merged-cell').attr('colspan', '3').text('总计');
+                        $cells.eq(2).hide();
+                        $cells.eq(3).hide();
+                    }
+                });
+                renderAchievementRose($table);
+                renderAchievementBar($table);
+            }, 200);
+        });
+
+        $('#bootstrap-table').on('check.bs.table uncheck.bs.table check-all.bs.table uncheck-all.bs.table', function () {
+            var $table = $(this);
+            setTimeout(function() {
+                renderAchievementRose($table);
+                renderAchievementBar($table);
+            }, 80);
+        });
+    });
+
+    function doSearch() {
+        searchKeyword = $('#searchForm input[name="userName"]').val().trim();
+        $('#bootstrap-table').bootstrapTable('refresh');
+    }
+
+    function doReset() {
+        searchKeyword = '';
+        $('#searchForm input[name="userName"]').val('');
+        $('#bootstrap-table').bootstrapTable('refresh');
+    }
+
+    function toggleDisplay(event) {
+        if (event) event.preventDefault();
+        displayMode = (displayMode === 'summary' ? 'detail' : 'summary');
+        localStorage.setItem('yjcgDisplayMode', displayMode);
+        $('#modeLabel').text(displayMode === 'summary' ? '当前：大类汇总' : '当前：小类明细');
+        var toggleBtn = $('button[onclick*="toggleDisplay"]');
+        toggleBtn.html(displayMode === 'summary'
+            ? '切换显示模式'
+            : '切换显示模式');
+        $('#bootstrap-table').bootstrapTable('refresh');
+        return false;
+    }
+</script>
+
+</body>
+</html>

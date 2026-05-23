@@ -22,11 +22,15 @@ import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.util.concurrent.RateLimiter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Controller
@@ -56,6 +60,15 @@ public class StatsQueryController extends BaseController {
     private ISysUserService userService;
     @Autowired
     private ISysDeptService deptService;
+
+    /** Guava Cache：查询结果本地缓存，5分钟过期，最多200条 */
+    private static final Cache<String, Object> statsCache = CacheBuilder.newBuilder()
+            .expireAfterWrite(5, TimeUnit.MINUTES)
+            .maximumSize(200)
+            .build();
+
+    /** Guava RateLimiter：导出接口限流，每秒最多1次 */
+    private static final RateLimiter exportLimiter = RateLimiter.create(1.0);
     
     @GetMapping("")
     String view(ModelMap mmap) {
@@ -165,30 +178,7 @@ public class StatsQueryController extends BaseController {
         if ("true".equals(params.get("noData"))) {
             return getDataTable(new ArrayList<>());
         }
-        params.put("uid",getUserId().toString());
-        //判断身份
-        String role_str = panRole_str();
-        SysUser sysUser = getSysUser();
-        //学院
-        if (role_str.equals("dept_teacher")) {
-            params.put("Pcollege",sysUser.getParentId().toString());
-        }
-        //科研处
-        else if (role_str.equals("sci_tesearch")) {
-
-        }
-        //        教研室
-        else if (role_str.equals("research")) {
-            params.put("major",sysUser.getDeptId().toString());
-        }
-        //admin
-        else if (role_str.equals("admin")) {
-
-        }
-        else if (role_str.equals("teacher")) {
-            params.put("userId",getUserId().toString());
-
-        }
+        buildQueryCondition(params);
         // 获取分页参数，添加默认值避免 null
         String offsetStr = params.getOrDefault("offset", "0");
         String limitStr = params.getOrDefault("limit", "10");
@@ -259,30 +249,7 @@ public class StatsQueryController extends BaseController {
     @PostMapping("/export")
     @ResponseBody
     public AjaxResult export(@RequestParam Map<String, String> params) {
-        params.put("uid",getUserId().toString());
-        //判断身份
-        String role_str = panRole_str();
-        SysUser sysUser = getSysUser();
-        //学院
-        if (role_str.equals("dept_teacher")) {
-            params.put("Pcollege",sysUser.getParentId().toString());
-        }
-        //科研处
-        else if (role_str.equals("sci_tesearch")) {
-
-        }
-        //        教研室
-        else if (role_str.equals("research")) {
-            params.put("major",sysUser.getDeptId().toString());
-        }
-        //admin
-        else if (role_str.equals("admin")) {
-
-        }
-        else if (role_str.equals("teacher")) {
-            params.put("userId",getUserId().toString());
-
-        }
+        buildQueryCondition(params);
 
         try {
             // 获取项目类别参数
@@ -383,30 +350,7 @@ public class StatsQueryController extends BaseController {
         if ("true".equals(params.get("noData"))) {
             return getDataTable(new ArrayList<>());
         }
-        params.put("uid",getUserId().toString());
-        //判断身份
-        String role_str = panRole_str();
-        SysUser sysUser = getSysUser();
-        //学院
-        if (role_str.equals("dept_teacher")) {
-            params.put("college",sysUser.getParentId().toString());
-        }
-        //科研处
-        else if (role_str.equals("sci_tesearch")) {
-
-        }
-        //        教研室
-        else if (role_str.equals("research")) {
-            params.put("major",sysUser.getDeptId().toString());
-        }
-        //admin
-        else if (role_str.equals("admin")) {
-
-        }
-        else if (role_str.equals("teacher")) {
-            params.put("userId",getUserId().toString());
-
-        }
+        buildQueryCondition(params);
         if (year!=null){
             params.put("year",year);
         }
@@ -481,33 +425,23 @@ public class StatsQueryController extends BaseController {
     @PostMapping("/exportToCheck")
     @ResponseBody
     public AjaxResult exportToCheck(@RequestParam Map<String, String> params) {
+        if (!exportLimiter.tryAcquire()) {
+            return error("系统繁忙，请稍后再试");
+        }
         String remark = params.get("remark");
+        String cacheKey = "exportToCheck:" + remark + ":" + getUserId()
+                + ":" + params.getOrDefault("college", "")
+                + ":" + params.getOrDefault("major", "")
+                + ":" + params.getOrDefault("state", "")
+                + ":" + params.getOrDefault("startTime", "")
+                + ":" + params.getOrDefault("endTime", "")
+                + ":" + params.getOrDefault("jobTitle", "")
+                + ":" + params.getOrDefault("topicName", "");
+        AjaxResult cached = (AjaxResult) statsCache.getIfPresent(cacheKey);
+        if (cached != null) return cached;
 
         try {
-            // 使用与listToCheck相同的参数处理逻辑
-            params.put("uid", getUserId().toString());
-            //判断身份
-            String role_str = panRole_str();
-            SysUser sysUser = getSysUser();
-            //学院
-            if (role_str.equals("dept_teacher")) {
-                params.put("Pcollege", sysUser.getParentId().toString());
-            }
-            //科研处
-            else if (role_str.equals("sci_tesearch")) {
-
-            }
-            //        教研室
-            else if (role_str.equals("research")) {
-                params.put("major", sysUser.getDeptId().toString());
-            }
-            //admin
-            else if (role_str.equals("admin")) {
-
-            }
-            else if (role_str.equals("teacher")) {
-                params.put("userId", getUserId().toString());
-            }
+            buildQueryCondition(params);
             
             // 根据项目类别返回不同的数据
             if (remark != null && !remark.isEmpty()) {
@@ -581,7 +515,9 @@ public class StatsQueryController extends BaseController {
                     
                     // 使用普通导出方法（不合并单元格）
                     ExcelUtil<SciHorizontalApplyVertical> util = new ExcelUtil<SciHorizontalApplyVertical>(SciHorizontalApplyVertical.class);
-                    return util.exportExcel(finalList, "纵向课题核算数据");
+                    AjaxResult result = util.exportExcel(finalList, "纵向课题核算数据");
+                    statsCache.put(cacheKey, result);
+                    return result;
                 }
                 else if ("2".equals(remark)) {
 
@@ -653,7 +589,9 @@ public class StatsQueryController extends BaseController {
                     
                     // 使用普通导出方法（不合并单元格）
                     ExcelUtil<SciHorizontalApply> util = new ExcelUtil<SciHorizontalApply>(SciHorizontalApply.class);
-                    return util.exportExcel(finalList, "横向课题核算数据");
+                    AjaxResult result = util.exportExcel(finalList, "横向课题核算数据");
+                    statsCache.put(cacheKey, result);
+                    return result;
                 }
                 else if ("3".equals(remark)) {
                     // 查询项目类别3的数据（成果转化）导出
@@ -724,7 +662,9 @@ public class StatsQueryController extends BaseController {
                     
                     // 使用普通导出方法（不合并单元格）
                     ExcelUtil<SciIntraSchoolPro> util = new ExcelUtil<SciIntraSchoolPro>(SciIntraSchoolPro.class);
-                    return util.exportExcel(finalList, "成果转化核算数据");
+                    AjaxResult result = util.exportExcel(finalList, "成果转化核算数据");
+                    statsCache.put(cacheKey, result);
+                    return result;
                 }
                 else if ("4".equals(remark)) {
                     // 获取项目类别4的数据（论文）导出
@@ -764,7 +704,9 @@ public class StatsQueryController extends BaseController {
                     
                     // 使用普通导出方法（不合并单元格）
                     ExcelUtil<SciPaperA> util = new ExcelUtil<SciPaperA>(SciPaperA.class);
-                    return util.exportExcel(exportList, "论文核算数据");
+                    AjaxResult result = util.exportExcel(exportList, "论文核算数据");
+                    statsCache.put(cacheKey, result);
+                    return result;
                 }
                 else if ("5".equals(remark)) {
                     // 获取项目类别5的数据（教材专著）导出
@@ -804,7 +746,9 @@ public class StatsQueryController extends BaseController {
                     
                     // 使用普通导出方法（不合并单元格）
                     ExcelUtil<SciJiaocairuanzhu> util = new ExcelUtil<SciJiaocairuanzhu>(SciJiaocairuanzhu.class);
-                    return util.exportExcel(exportList, "教材专著核算数据");
+                    AjaxResult result = util.exportExcel(exportList, "教材专著核算数据");
+                    statsCache.put(cacheKey, result);
+                    return result;
                 }
                 else if ("6".equals(remark)) {
                     // 获取项目类别6的数据（专利软著）导出
@@ -844,7 +788,9 @@ public class StatsQueryController extends BaseController {
                     
                     // 使用普通导出方法（不合并单元格）
                     ExcelUtil<SciZhuanliruanzhu> util = new ExcelUtil<SciZhuanliruanzhu>(SciZhuanliruanzhu.class);
-                    return util.exportExcel(exportList, "专利软著核算数据");
+                    AjaxResult result = util.exportExcel(exportList, "专利软著核算数据");
+                    statsCache.put(cacheKey, result);
+                    return result;
                 }
                 else if ("7".equals(remark)) {
                     // 获取项目类别7的数据（奖励）导出
@@ -854,7 +800,9 @@ public class StatsQueryController extends BaseController {
                         return item;
                     }).collect(Collectors.toList());
                     ExcelUtil<SysReward> util = new ExcelUtil<SysReward>(SysReward.class);
-                    return util.exportExcel(exportList, "奖励核算数据");
+                    AjaxResult result = util.exportExcel(exportList, "奖励核算数据");
+                    statsCache.put(cacheKey, result);
+                    return result;
                 }
                 else if ("8".equals(remark)) {
                     // 获取项目类别8的数据（讲座报告）导出 SciLectureReport
@@ -864,7 +812,9 @@ public class StatsQueryController extends BaseController {
                         return item;
                     }).collect(Collectors.toList());
                     ExcelUtil<SciLectureReport> util = new ExcelUtil<SciLectureReport>(SciLectureReport.class);
-                    return util.exportExcel(exportList, "讲座报告核算数据");
+                    AjaxResult result = util.exportExcel(exportList, "讲座报告核算数据");
+                    statsCache.put(cacheKey, result);
+                    return result;
                 }
             }
             return error("未指定导出模块或模块不存在");
@@ -872,6 +822,25 @@ public class StatsQueryController extends BaseController {
             return error(e.getMessage());
         }
     }
+    /**
+     * 构建查询参数中的角色权限过滤条件
+     * 统一处理 uid、Pcollege/college、major、userId 参数
+     */
+    private void buildQueryCondition(Map<String, String> params) {
+        params.put("uid", getUserId().toString());
+        String role_str = panRole_str();
+        SysUser sysUser = getSysUser();
+        if ("dept_teacher".equals(role_str)) {
+            String parentId = sysUser.getParentId().toString();
+            params.put("Pcollege", parentId);
+            params.put("college", parentId);
+        } else if ("research".equals(role_str)) {
+            params.put("major", sysUser.getDeptId().toString());
+        } else if ("teacher".equals(role_str)) {
+            params.put("userId", getUserId().toString());
+        }
+    }
+
     /**
      * 判断当前登陆用户的身份
      * dept_teacher，sci_tesearch，research，admin，teacher

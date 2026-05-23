@@ -2,19 +2,13 @@ package com.ruoyi.system.service;
 
 import com.ruoyi.system.domain.ResearchWorkload;
 import com.ruoyi.system.domain.ResearchWorkloadByJYS;
-import com.ruoyi.system.domain.SciHorizontalApply;
 
 import java.util.List;
-import java.util.Map;
 
 public interface IStatisticService {
 
-    //    查询总计行
-    List<ResearchWorkload> selectAllTeacher(List<String> dictValues,String pname, String dname);
+    List<ResearchWorkload> selectAllTeacher(List<String> dictValues, String pname, String dname, String userName,
+                                            Long scopeUserId, Long scopeDeptId, Long collegeParentId);
 
-
-    //    查询总计行
-    List<ResearchWorkloadByJYS> selectAllDept(List<String> dictValues, String pname, String dname);
-
-
+    List<ResearchWorkloadByJYS> selectAllDept(List<String> dictValues, String pname, String dname, String userName, Long collegeParentId);
 }

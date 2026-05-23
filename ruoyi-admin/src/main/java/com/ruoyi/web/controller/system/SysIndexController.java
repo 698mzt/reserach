@@ -1,7 +1,10 @@
 package com.ruoyi.web.controller.system;
 
+import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
@@ -33,7 +36,7 @@ import com.ruoyi.system.service.ISysRoleService;
 
 /**
  * 首页 业务处理
- * 
+ *
  * @author ruoyi
  */
 @Controller
@@ -59,7 +62,7 @@ public class SysIndexController extends BaseController
     {
         // 取身份信息
         SysUser user = getSysUser();
-        
+
         // 先获取用户全角色列表，复用于活跃角色判定和角色切换下拉框
         List<SysRole> allRoles = roleService.selectRolesByUserIdExcludingDataScope(user.getUserId());
 
@@ -73,8 +76,9 @@ public class SysIndexController extends BaseController
                     .findFirst()
                     .orElse(null);
             if (activeRole != null && activeRole.isAdmin()) {
-                // 管理员角色 → 返回全部菜单
+                // 管理员角色 → 返回全部菜单，再过滤统计子页面
                 menus = menuService.selectMenuNormalAll();
+                filterAdminStatisticMenus(menus);
             } else {
                 // 普通角色 → 查询该角色的菜单
                 menus = menuService.selectMenusByRoleId(Long.valueOf(activeRoleId.toString()));
@@ -82,8 +86,11 @@ public class SysIndexController extends BaseController
         } else {
             // 未切换 → 使用原逻辑（用户ID查询）
             menus = menuService.selectMenusByUser(user);
+            if (user.isAdmin()) {
+                filterAdminStatisticMenus(menus);
+            }
         }
-        
+
         mmap.put("menus", menus);
         mmap.put("user", user);
         mmap.put("sideTheme", configService.selectConfigByKey("sys.index.sideTheme"));
@@ -228,5 +235,28 @@ public class SysIndexController extends BaseController
             return DateUtils.differentDaysByMillisecond(nowDate, pwdUpdateDate) > passwordValidateDays;
         }
         return false;
+    }
+
+    /**
+     * 管理员角色过滤：统计菜单下只保留科研处相关页面
+     */
+    private void filterAdminStatisticMenus(List<SysMenu> menus)
+    {
+        if (menus == null) return;
+        for (SysMenu menu : menus)
+        {
+            if (menu.getMenuId() == 2250L && menu.getChildren() != null)
+            {
+                // 统计父菜单下，只保留5个页面
+                Set<Long> keepIds = new HashSet<>(Arrays.asList(
+                    2315L, 2320L, 2376L, 2381L, 2392L
+                ));
+                menu.getChildren().removeIf(child -> !keepIds.contains(child.getMenuId()));
+            }
+            if (menu.getChildren() != null && !menu.getChildren().isEmpty())
+            {
+                filterAdminStatisticMenus(menu.getChildren());
+            }
+        }
     }
 }

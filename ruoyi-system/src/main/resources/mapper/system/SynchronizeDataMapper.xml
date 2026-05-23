@@ -149,7 +149,7 @@
         amount,
         COUNT(*) AS cnt  -- 相同金额的课题个数
         FROM sci_horizontal_apply
-        WHERE state = 6
+        WHERE state IN ('HORIZONTAL_APPLY_PASSED', 'HORIZONTAL_OVER_PASSED')
         GROUP BY user_id, amount
         -- 补充：确保无任何课题的user_id也能被统计（避免关联丢失）
         UNION ALL
@@ -158,6 +158,7 @@
         0 AS amount,  -- 占位金额（不影响区间判断）
         0 AS cnt       -- 占位数量
         FROM sci_horizontal_apply
+        WHERE state IN ('HORIZONTAL_APPLY_PASSED', 'HORIZONTAL_OVER_PASSED')
         ) AS amount_group
         GROUP BY user_id
         ) h ON a.userId = h.user_id
@@ -195,107 +196,32 @@
     </update>
 
 
-<!--    同步纵向课题的个数数据-->
+<!--    同步纵向课题的个数数据（纯个数格式，无金额）-->
     <update id="SynchronizeZX">
         UPDATE Alltotle a
             JOIN (
             SELECT
-            user_id,
-            -- 1. 主持国家基金科研项目（匹配字典键值对应的标签逻辑，通过子查询关联拿到 dict_label）
-            IFNULL(
-            GROUP_CONCAT(
-            CASE
-            -- 这里要先确保能关联到 dict_label，通过子查询里关联的 dd 表字段
-            WHEN type_amount_group.dict_label = '主持国家基金科研项目'
-            THEN CONCAT(cnt, '个（', ROUND(type_amount_group.amount, 2), '万）')
-            END SEPARATOR '，'
-            ),
-            '0个(0万)'
-            ) AS zcgjjjkyxm_formatted,
-            -- 2. 主持省部级基金科研项目
-            IFNULL(
-            GROUP_CONCAT(
-            CASE
-            WHEN type_amount_group.dict_label = '主持省部级基金科研项目'
-            THEN CONCAT(cnt, '个（', ROUND(type_amount_group.amount, 2), '万）')
-            END SEPARATOR '，'
-            ),
-            '0个(0万)'
-            ) AS zcsbjjjkyxm_formatted,
-            -- 3. 主持省部级教改项目
-            IFNULL(
-            GROUP_CONCAT(
-            CASE
-            WHEN type_amount_group.dict_label = '主持省部级教改项目'
-            THEN CONCAT(cnt, '个（', ROUND(type_amount_group.amount, 2), '万）')
-            END SEPARATOR '，'
-            ),
-            '0个(0万)'
-            ) AS zcsbjjgxm_formatted,
-            -- 4. 主持省部级纵向科研项目
-            IFNULL(
-            GROUP_CONCAT(
-            CASE
-            WHEN type_amount_group.dict_label = '主持省部级纵向科研项目'
-            THEN CONCAT(cnt, '个（', ROUND(type_amount_group.amount, 2), '万）')
-            END SEPARATOR '，'
-            ),
-            '0个(0万)'
-            ) AS zcsbjzxkyxm_formatted,
-            -- 5. 主持厅局级、学会级科研项目
-            IFNULL(
-            GROUP_CONCAT(
-            CASE
-            WHEN type_amount_group.dict_label = '主持厅局级、学会级科研项目'
-            THEN CONCAT(cnt, '个（', ROUND(type_amount_group.amount, 2), '万）')
-            END SEPARATOR '，'
-            ),
-            '0个(0万)'
-            ) AS zctjjxhjkyxm_formatted,
-            -- 6. 主持校级教学管理项目（1万元以上）
-            IFNULL(
-            GROUP_CONCAT(
-            CASE
-            WHEN type_amount_group.dict_label = '主持校级教学管理项目（1万元以上）'
-            THEN CONCAT(cnt, '个（', ROUND(type_amount_group.amount, 2), '万）')
-            END SEPARATOR '，'
-            ),
-            '0个(0万)'
-            ) AS zcxjjxglxmywyys_formatted,
-            -- 7. 主持校级教学管理项目（1万元以下）
-            IFNULL(
-            GROUP_CONCAT(
-            CASE
-            WHEN type_amount_group.dict_label = '主持校级教学管理项目（1万元以下）'
-            THEN CONCAT(cnt, '个（', ROUND(type_amount_group.amount, 2), '万）')
-            END SEPARATOR '，'
-            ),
-            '0个(0万)'
-            ) AS zcxjjxglxmywyyx_formatted
-            FROM (
-            SELECT
-            v.user_id,
-            v.top_type,
-            v.amount,
-            dd.dict_label, -- 新增选取出 dict_label，让外层能使用
-            COUNT(*) AS cnt
+                user_id,
+                CONCAT(SUM(CASE WHEN dd.dict_label = '主持国家基金科研项目' THEN 1 ELSE 0 END), '个') AS zcgjjjkyxm,
+                CONCAT(SUM(CASE WHEN dd.dict_label = '主持省部级基金科研项目' THEN 1 ELSE 0 END), '个') AS zcsbjjjkyxm,
+                CONCAT(SUM(CASE WHEN dd.dict_label = '主持省部级教改项目' THEN 1 ELSE 0 END), '个') AS zcsbjjgxm,
+                CONCAT(SUM(CASE WHEN dd.dict_label = '主持省部级纵向科研项目' THEN 1 ELSE 0 END), '个') AS zcsbjzxkyxm,
+                CONCAT(SUM(CASE WHEN dd.dict_label = '主持厅局级、学会级科研项目' THEN 1 ELSE 0 END), '个') AS zctjjxhjkyxm,
+                CONCAT(SUM(CASE WHEN dd.dict_label = '主持校级教学管理项目（1万元以上）' THEN 1 ELSE 0 END), '个') AS zcxjjxglxmywyys,
+                CONCAT(SUM(CASE WHEN dd.dict_label = '主持校级教学管理项目（1万元以下）' THEN 1 ELSE 0 END), '个') AS zcxjjxglxmywyyx
             FROM sci_horizontal_apply_vertical v
-            -- 关联字典数据表，筛选 dict_type 为 sci_vertical_type 的数据，这里关联条件是匹配 dict_value
-            JOIN sys_dict_data dd ON v.top_type = dd.dict_value
-            AND dd.dict_type = 'sci_vertical_type'  -- 限定纵向课题分类字典类型
-            WHERE v.state = 66
-            GROUP BY v.user_id, v.top_type, v.amount, dd.dict_label -- 分组里加上 dict_label
-            ) AS type_amount_group
+            JOIN sys_dict_data dd ON v.top_type = dd.dict_value AND dd.dict_type = 'sci_vertical_type'
+            WHERE v.state IN ('VERTICAL_APPLY_PASSED', 'VERTICAL_OVER_PASSED')
             GROUP BY user_id
             ) v ON a.userId = v.user_id
             SET
-                a.zcgjjjkyxm = TRIM(TRAILING '，' FROM v.zcgjjjkyxm_formatted),
-                a.zcsbjjjkyxm = TRIM(TRAILING '，' FROM v.zcsbjjjkyxm_formatted),
-                a.zcsbjjgxm = TRIM(TRAILING '，' FROM v.zcsbjjgxm_formatted),
-                a.zcsbjzxkyxm = TRIM(TRAILING '，' FROM v.zcsbjzxkyxm_formatted),
-                a.zctjjxhjkyxm = TRIM(TRAILING '，' FROM v.zctjjxhjkyxm_formatted),
-                a.zcxjjxglxmywyys = TRIM(TRAILING '，' FROM v.zcxjjxglxmywyys_formatted),
-                a.zcxjjxglxmywyyx = TRIM(TRAILING '，' FROM v.zcxjjxglxmywyyx_formatted)
+                a.zcgjjjkyxm = COALESCE(v.zcgjjjkyxm, '0个'),
+                a.zcsbjjjkyxm = COALESCE(v.zcsbjjjkyxm, '0个'),
+                a.zcsbjjgxm = COALESCE(v.zcsbjjgxm, '0个'),
+                a.zcsbjzxkyxm = COALESCE(v.zcsbjzxkyxm, '0个'),
+                a.zctjjxhjkyxm = COALESCE(v.zctjjxhjkyxm, '0个'),
+                a.zcxjjxglxmywyys = COALESCE(v.zcxjjxglxmywyys, '0个'),
+                a.zcxjjxglxmywyyx = COALESCE(v.zcxjjxglxmywyyx, '0个')
     </update>
 <!--    同步纵向课题校级以上的分数数据-->
     <update id="SynchronizeScoreZXXJYS">
@@ -303,37 +229,41 @@
         UPDATE Alltotle_score a
             -- 关联积分统计子查询
             left JOIN (
-            -- 计算每个用户的横向课题总积分
+            -- 计算每个用户的纵向课题-校级以上总积分
             SELECT
             ush.user_id,
             SUM(ush.change_value) AS total_score
             FROM sci_user_score_vertical ush
             JOIN sci_horizontal_apply_vertical shav ON ush.vertical_id = shav.id
-            WHERE shav.top_type not in (6,7) and
-            -- 条件1：change_status为立项 且 signing_data在2025年
-            (ush.change_status = '立项' AND YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = 2025)
-            -- 条件2：change_status为结项 且 validity_Date在2025年
-            OR (ush.change_status = '结项' AND YEAR(DATE_ADD(validity_data,INTERVAL 1 MONTH)) = 2025)
+            WHERE shav.top_type not in (6,7)
+            AND (
+                -- 条件1：change_status为立项 且 signing_data在2025年
+                (ush.change_status = '立项' AND YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = 2025)
+                -- 条件2：change_status为结项 且 validity_Date在2025年
+                OR (ush.change_status = '结项' AND YEAR(DATE_ADD(validity_data,INTERVAL 1 MONTH)) = 2025)
+            )
             GROUP BY ush.user_id
             ) h ON a.userId = h.user_id
             SET a.zxktxjys = COALESCE(h.total_score, 0)
     </update>
     <update id="SynchronizeScoreZXXJ">
-        -- 更新alltotle_score表中的纵向课题-校级以上总积分
+        -- 更新alltotle_score表中的纵向课题-校级总积分
         UPDATE Alltotle_score a
             -- 关联积分统计子查询
             left JOIN (
-            -- 计算每个用户的横向课题总积分
+            -- 计算每个用户的纵向课题-校级总积分
             SELECT
             ush.user_id,
             SUM(ush.change_value) AS total_score
             FROM sci_user_score_vertical ush
             JOIN sci_horizontal_apply_vertical shav ON ush.vertical_id = shav.id
-            WHERE shav.top_type in (6,7) and
-            -- 条件1：change_status为立项 且 signing_data在2025年
-            (ush.change_status = '立项' AND YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = 2025)
-            -- 条件2：change_status为结项 且 validity_Date在2025年
-            OR (ush.change_status = '结项' AND YEAR(DATE_ADD(validity_data,INTERVAL 1 MONTH)) = 2025)
+            WHERE shav.top_type in (6,7)
+            AND (
+                -- 条件1：change_status为立项 且 signing_data在2025年
+                (ush.change_status = '立项' AND YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = 2025)
+                -- 条件2：change_status为结项 且 validity_Date在2025年
+                OR (ush.change_status = '结项' AND YEAR(DATE_ADD(validity_data,INTERVAL 1 MONTH)) = 2025)
+            )
             GROUP BY ush.user_id
             ) h ON a.userId = h.user_id
             SET a.zxktxj = COALESCE(h.total_score, 0)
@@ -353,7 +283,7 @@
             CONCAT(SUM(CASE WHEN fenlei = 3 THEN 1 ELSE 0 END), '个') AS count_fenlei_3,
             CONCAT(SUM(CASE WHEN fenlei = 4 THEN 1 ELSE 0 END), '个') AS count_fenlei_4
             FROM sci_zhuanliruanzhu
-            WHERE state = 6
+            WHERE state = 'PATENT_PASSED'
             GROUP BY user_id
             ) b ON a.userId = b.user_id
             SET
@@ -374,6 +304,7 @@
                     sci_zhuanliruanzhu sz
                 where
                     sz.fenlei not in (4)
+                    and sz.state = 'PATENT_PASSED'
                 group by
                     user_id
             ) s
@@ -394,6 +325,7 @@
                     sci_zhuanliruanzhu sz
                 where
                     sz.fenlei in (4)
+                    and sz.state = 'PATENT_PASSED'
                 group by
                     user_id
             ) s
@@ -421,7 +353,7 @@
             CONCAT(SUM(CASE WHEN fenlei = 6 THEN 1 ELSE 0 END), '个') AS fenlei_6,
             CONCAT(SUM(CASE WHEN fenlei = 7 THEN 1 ELSE 0 END), '个') AS fenlei_7
             FROM sci_jiaocairuanzhu
-            WHERE state = 6
+            WHERE state = 'TEXTBOOK_PASSED'
             GROUP BY user_id
             ) AS stats ON a.userId = stats.user_id
             SET
@@ -443,6 +375,8 @@
                     SUM(sj.jifen) as score
                 FROM
                     sci_jiaocairuanzhu sj
+                where
+                    sj.state = 'TEXTBOOK_PASSED'
                 group by
                     user_id
             )s
@@ -470,7 +404,7 @@
             CONCAT(SUM(CASE WHEN reward_fenlei = 7 THEN 1 ELSE 0 END), '个') AS fenlei_7,
             CONCAT(SUM(CASE WHEN reward_fenlei = 8 THEN 1 ELSE 0 END), '个') AS fenlei_8
             FROM sys_reward
-            WHERE state = 6
+            WHERE state = 'REWARD_PASSED'
             GROUP BY user_id
             ) AS stats ON a.userId = stats.user_id
             SET
@@ -493,6 +427,8 @@
                     SUM(sr.jifen) as score
                 FROM
                     sys_reward sr
+                where
+                    sr.state = 'REWARD_PASSED'
                 group by
                     user_id
                 )s
@@ -522,7 +458,7 @@
             LEFT JOIN sys_dict_data d ON d.dict_type = 'sci_paper_k'
             AND p.paper_category = d.dict_value
             WHERE
-            p.state = 8
+            p.state = 'PAPER_PASSED'
             GROUP BY
             p.user_id,
             p.teacher_name
@@ -548,6 +484,8 @@
             FROM
             sci_paper_a spa join paper_author pa
             on pa.paper_id = spa.id
+            where
+                spa.state = 'PAPER_PASSED'
             group by user_id
             )sp
         on
@@ -574,7 +512,7 @@
             -- 统计校级学术
             CONCAT(SUM(CASE WHEN report_classify = 15 THEN 1 ELSE 0 END), '个') AS xjxs_count
             FROM sci_lecture_report
-            WHERE state = 6
+            WHERE state = 'LECTURE_PASSED'
             GROUP BY user_id
             ) b ON a.userId = b.user_id
             SET
@@ -594,6 +532,8 @@
                     SUM(slr.report_keyanfen) as score
                 FROM
                     sci_lecture_report slr
+                where
+                    slr.state = 'LECTURE_PASSED'
                 group by
                     user_id
             )s

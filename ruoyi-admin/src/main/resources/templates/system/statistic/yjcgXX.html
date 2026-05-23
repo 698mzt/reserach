@@ -5,168 +5,126 @@
 <html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
 <head>
     <th:block th:include="include :: header('表格虚拟滚动')" />
-    <!-- 确保CSS正确放置 -->
+    <link rel="stylesheet" th:href="@{/css/statistic/statistic-common.css}">
 </head>
 <body class="gray-bg">
-<div class="container-div">
-    <div class="btn-group-sm" id="toolbar" role="group">
-        &nbsp;&nbsp;<span id="total" class="badge badge-success"></span>
-        <a class="btn btn-warning" onclick="$.table.exportExcel()">
-            <i class="fa fa-download"></i> 导出
-        </a>
+<div class="container-div compact-layout">
+    <div class="row chart-row">
+        <div class="col-sm-12">
+            <div id="achievementChart" style="width:100%;"></div>
+        </div>
     </div>
-    <div class="row">
+    <div class="row table-row-compact">
+        <div class="col-sm-12">
+            <div class="btn-group-sm" id="toolbar" role="group" style="margin:2px 0;padding:2px 0;">
+                &nbsp;&nbsp;<span id="total" class="badge badge-success"></span>
+                <a class="btn btn-warning btn-sm" onclick="$.table.exportExcel()">
+                    <i class="fa fa-download"></i> 导出
+                </a>
+            </div>
+        </div>
         <div class="col-sm-12 select-table table-bordered">
             <table id="bootstrap-table"></table>
         </div>
     </div>
 </div>
 <div th:include="include :: footer"></div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.21.3/dist/bootstrap-table.min.js"></script>
-<th:block th:include="include :: bootstrap-table-fixed-columns-js" />
+<th:block th:include="include :: bootstrap-table-export-js" />
+<script th:src="@{/js/statistic/statistic-common.js}"></script>
+<script th:src="@{https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js}"></script>
+<script th:src="@{/js/statistic/statistic-chart.js}"></script>
 <script>
     var total = 0
     var prefix = ctx + 'rewardxuexiao'
     $(function() {
         var options = {
             url: prefix + "/list",
-            modalName: '学校业绩成果数',
-            height: "100%",
-            sidePagination: "client", // 改为客户端分页
-            pagination: false,        // 关闭分页功能
+            modalName: '[[${modalName}]]',
+            height: 320,
+            sidePagination: "client",
+            pagination: false,
             showSearch: false,
-            virtualScroll: false,     // 关闭虚拟滚动
+            virtualScroll: false,
             columns:[
-                [
-                    {
-                        checkbox: true
-                    },
-                    {
-                        field: 'parentName',
-                        title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;学院&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
-                        align: 'center'
-                    },
-                    {
-                        field: 'deptName',
-                        title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;专业&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
-                        align: 'center'
-                    },
-                    {
-                        title: '纵向科研项目-校级以上',
-                        align: 'center',
-                        field: '纵向科研项目-校级以上'
-                    },
-                    {
-                        title: '纵向科研项目-校级',
-                        align: 'center',
-                        field: '纵向科研项目-校级'
-                    },
-                    {
-                        title: '横向课题科研项目',
-                        align: 'center',
-                        field: '横向课题科研项目'
-                    },
-                    {
-                        title: '成果转化',
-                        align: 'center',
-                        field: '成果转化'
-                    },
-                    {
-                        title: '学术论文',
-                        align: 'center',
-                        field: '学术论文'
-                    },
-                    {
-                        title: '教材著作',
-                        align: 'center',
-                        field: '教材著作'
-                    },
-                    {
-                        title: '专利',
-                        align: 'center',
-                        field: '专利'
-                    },
-                    {
-                        title: '软著',
-                        align: 'center',
-                        field: '软著'
-                    },
-                    {
-                        title: '奖励',
-                        align: 'center',
-                        field: '奖励'
-                    },
-                    {
-                        title: '学术报告(讲座类)',
-                        align: 'center',
-                        field: '学术报告(讲座类)'
-                    }
-                ],
-
+                {
+                    checkbox: true
+                },
+                {
+                    field: 'parentName',
+                    title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;学院&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
+                    align: 'center'
+                },
+                {
+                    field: 'deptName',
+                    title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;专业&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
+                    align: 'center'
+                },
+                {
+                    title: '纵向科研项目-校级以上',
+                    align: 'center',
+                    field: '纵向科研项目-校级以上'
+                },
+                {
+                    title: '纵向科研项目-校级',
+                    align: 'center',
+                    field: '纵向科研项目-校级'
+                },
+                {
+                    title: '横向课题科研项目',
+                    align: 'center',
+                    field: '横向课题科研项目'
+                },
+                {
+                    title: '成果转化',
+                    align: 'center',
+                    field: '成果转化'
+                },
+                {
+                    title: '学术论文',
+                    align: 'center',
+                    field: '学术论文'
+                },
+                {
+                    title: '教材著作',
+                    align: 'center',
+                    field: '教材著作'
+                },
+                {
+                    title: '专利',
+                    align: 'center',
+                    field: '专利'
+                },
+                {
+                    title: '软著',
+                    align: 'center',
+                    field: '软著'
+                },
+                {
+                    title: '奖励',
+                    align: 'center',
+                    field: '奖励'
+                },
+                {
+                    title: '学术报告(讲座类)',
+                    align: 'center',
+                    field: '学术报告(讲座类)'
+                }
             ]
         };
         $.table.init(options);
+        enableAutoScroll('#bootstrap-table');
+        initCrossPageSelection($('#bootstrap-table'), { scope: 'yjcg-xx' });
+        initSelectionUi($('#bootstrap-table'));
 
+        $('#bootstrap-table').on('load-success.bs.table', function () {
+            var $table = $(this);
+            renderAchievementRose($table);
+        });
 
-// 事件监听调整到初始化之前
-$('#bootstrap-table').on('load-success.bs.table', function () {
-    var $table = $(this);
-    var data = $table.bootstrapTable('getData');
-    var $tbody = $table.find('tbody');
-
-    // 清空合计行
-    $tbody.find('tr.total-row').remove();
-
-    // 按学院分组计算
-    var schoolMap = new Map();
-    data.forEach((row, index) => {
-        if (!schoolMap.has(row.学院)) {
-            schoolMap.set(row.学院, []);
-        }
-        schoolMap.get(row.学院).push(index);
-    });
-
-    // 生成插入位置（每个学院的最后一行位置）
-    var validPositions = Array.from(schoolMap.values())
-        .map(indices => Math.max(...indices));
-
-    // 区间计算优化（倒序处理防止位置偏移）
-    var ranges = validPositions
-        .sort((a, b) => b - a)
-        .map(pos => ({
-            insertAt: pos,
-            start: pos - schoolMap.get(data[pos].学院).length + 1,
-            end: pos
-        }));
-
-    ranges.forEach(({ insertAt, start, end }) => {
-        // 精确切片
-        var targetRows = data.slice(start, end + 1);
-
-        // 计算学院合计
-        var sums = targetRows.reduce((acc, row) => {
-            Object.keys(row).forEach(key => {
-                if (!['学院', '专业'].includes(key) && !isNaN(row[key])) {
-                    acc[key] = (acc[key] || 0) + parseFloat(row[key]);
-                }
-            });
-            return acc;
-        }, {});
-
-        // 创建合计行
-        var $totalRow = $('<tr class="total-row">')
-            .append(`<td colspan="3" class="text-center">${data[insertAt].学院}合计</td>`)
-            .append(Object.keys(sums).map(key =>
-                `<td class="text-center">${sums[key] || 0}</td>`
-            ).join(''));
-
-        // 插入到当前学院的最后一行之后
-        var $refRow = $tbody.find(`tr[data-index="${insertAt}"]`);
-        $refRow.length > 0 ? $refRow.after($totalRow) : $tbody.append($totalRow);
-    });
-});
-
-
+        $('#bootstrap-table').on('check.bs.table uncheck.bs.table check-all.bs.table uncheck-all.bs.table', function () {
+            var $table = $(this);
+            setTimeout(function() { renderAchievementRose($table); }, 80);
+        });
     });
 
 </script>

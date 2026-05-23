@@ -5,6 +5,7 @@
 
 <head>
     <th:block th:include="include :: header('表格虚拟滚动')" />
+    <link rel="stylesheet" th:href="@{/css/statistic/statistic-common.css}">
     <!--    <style>-->
     <!--        .fixed-column-1{-->
     <!--            position: sticky; /* 固定列 */-->
@@ -21,7 +22,7 @@
     <!--    </style>-->
 </head>
 <body>
-<div class="container-div">
+<div class="container-div compact-layout">
     <div class="btn-group-sm" id="toolbar" role="group">
         &nbsp;&nbsp;<span id="total" class="badge badge-success"></span>
         <a class="btn btn-warning" onclick="$.table.exportExcel()">
@@ -35,8 +36,7 @@
     </div>
 </div>
 <div th:include="include :: footer"></div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.21.3/dist/bootstrap-table.min.js"></script>
-<th:block th:include="include :: bootstrap-table-fixed-columns-js" />
+
 <script>
 
     var total = 0;
@@ -53,13 +53,9 @@
             pagination: true,
             pageSize: 10,
             showSearch: false,
-            showExport:true,
-            clickToSelect:true,
-            virtualScroll: true,
-            undefinedText:0,//没有数据默认值
-
-            fixedColumns: true,
-            fixedNumber:3,
+            showExport: true,
+            clickToSelect: true,
+            undefinedText: 0,
             columns: [{
                 checkbox: true,
             },

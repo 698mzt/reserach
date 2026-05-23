@@ -3,6 +3,8 @@ package com.ruoyi.system.service.impl;
 import java.util.List;
 
 import com.ruoyi.system.mapper.SciIntraSchProScoreMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.ruoyi.system.mapper.AlltotleScoreMapper;
@@ -19,6 +21,8 @@ import com.ruoyi.common.core.text.Convert;
 @Service
 public class AlltotleScoreServiceImpl implements IAlltotleScoreService
 {
+  private static final Logger log = LoggerFactory.getLogger(AlltotleScoreServiceImpl.class);
+
   @Autowired
   private AlltotleScoreMapper alltotleScoreMapper;
   @Autowired
@@ -101,22 +105,28 @@ public class AlltotleScoreServiceImpl implements IAlltotleScoreService
   @Override
   public int synchronousAlltotleScore() {
     List<AlltotleScore> alltotleScores = alltotleScoreService.selectAlltotleScoreList(null);
-    int size = alltotleScores.size();
-    int row = 0;
+    int totalCount = alltotleScores.size();
+    int successCount = 0;
+    int failCount = 0;
+    int zeroValueCount = 0;
+    log.info("成果转化积分同步开始，总记录数：{}", totalCount);
     for (AlltotleScore alltotleScore : alltotleScores) {
-      Long userid = alltotleScore.getUserId() ;
-      Long scoreByUId = sciIntraSchProScoreMapper.getScoreByUId(userid);
-      if (scoreByUId == 0){
-        continue;
+      Long userId = alltotleScore.getUserId();
+      Long scoreByUId = sciIntraSchProScoreMapper.getScoreByUId(userId);
+      long currentScore = scoreByUId == null ? 0L : scoreByUId;
+      if (currentScore == 0L) {
+        zeroValueCount += 1;
       }
-      alltotleScore.setCgzh(scoreByUId.toString());
-      alltotleScoreService.updateAlltotleScore(alltotleScore);
-      row += 1;
+      alltotleScore.setCgzh(String.valueOf(currentScore));
+      int updateRows = alltotleScoreService.updateAlltotleScore(alltotleScore);
+      if (updateRows > 0) {
+        successCount += 1;
+      } else {
+        failCount += 1;
+        log.warn("成果转化积分同步失败，userId：{}，同步值：{}", userId, currentScore);
+      }
     }
-    if (row == size){
-      return 1;
-    }else{
-      return 0;
-    }
+    log.info("成果转化积分同步结束，总记录数：{}，成功：{}，失败：{}，零值：{}", totalCount, successCount, failCount, zeroValueCount);
+    return failCount == 0 ? 1 : 0;
   }
 }

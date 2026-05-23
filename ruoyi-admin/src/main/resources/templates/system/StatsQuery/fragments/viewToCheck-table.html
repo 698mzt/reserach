@@ -1,0 +1,15 @@
+<div th:fragment="table-area">
+    <div class="btn-group-sm" id="toolbar0" role="group"
+         style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+        <a class="btn btn-warning" onclick=" exportExcel('bootstrap-table0')">
+            <i class="fa fa-download"></i> 导出
+        </a>
+        <div
+                style="display: flex; align-items: center; gap: 15px; background: #f8f9fa; padding: 6px 12px; border-radius: 4px;">
+            <th:block th:replace="include :: status-circles"/>
+        </div>
+    </div>
+    <div class="col-sm-12 select-table table-striped">
+        <table id="bootstrap-table0"></table>
+    </div>
+</div>
