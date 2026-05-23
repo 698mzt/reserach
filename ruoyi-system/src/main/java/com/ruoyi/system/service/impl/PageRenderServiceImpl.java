@@ -57,6 +57,9 @@ public class PageRenderServiceImpl implements IPageRenderService {
     /** 横向课题结项审批 */
     private static final String HORIZONTAL_OVER_PROCESS_CODE = "HORIZONTAL_OVER";
 
+    /** 追加金额审批 */
+    private static final String HORIZONTAL_REAMOUNT_PROCESS_CODE = "HORIZONTAL_REAMOUNT";
+
     /** 纵向课题立项审批 */
     private static final String VERTICAL_APPLY_PROCESS_CODE = "VERTICAL_APPLY";
 
@@ -291,6 +294,22 @@ public class PageRenderServiceImpl implements IPageRenderService {
                                 put("revoke", "revoke");
                                 put("kyrevoke", "kyrevoke");
                                 put("reprocess", "reprocess");
+                            }
+                        }));
+
+        // 追加金额审批模块：权限同立项（到账金额走独立审批流）
+        MODULE_REGISTRY.put("HORIZONTAL_REAMOUNT",
+                new ModuleConfig("HORIZONTAL_REAMOUNT", "system:apply", HORIZONTAL_REAMOUNT_PROCESS_CODE, "追加金额审批",
+                        new HashMap<String, String>() {
+                            {
+                                put("info", "info");
+                                put("edit", "edit");
+                                put("add", "add");
+                                put("remove", "remove");
+                                put("approve", "process");
+                                put("kypy", "hecha");
+                                put("revoke", "revoke");
+                                put("kyrevoke", "kyrevoke");
                             }
                         }));
 
@@ -818,15 +837,23 @@ public class PageRenderServiceImpl implements IPageRenderService {
             return specificActions;
         }
 
-        // 横向课题立项通过后显示"提交结项申请"按钮和"追加金额"按钮
+        // 横向课题：非草稿状态下显示"申请结项"和"追加金额"按钮
+        // 申请结项：仅已通过状态、申请人/管理员、需add权限
+        // 追加金额：仅申请人/管理员、需edit权限
         if ("HORIZONTAL_APPLY".equals(moduleCode) && context.getCurrentState() != null
-                && context.getCurrentState().endsWith("_PASSED")) {
+                && !context.getCurrentState().endsWith("_DRAFT")) {
             boolean isOwner = context.isOwner();
             boolean isAdmin = context.hasRole("admin");
+            // 申请结项：仅所有者和管理员，需add权限
             if ((isOwner || isAdmin) && context.hasPermission(config.getPermission("add"))) {
-                specificActions.add(PageRenderActionItem.of(
-                        "submitOver", "申请结项",
-                        PageRenderColorConstants.COLOR_PRIMARY, 50));
+                if (context.getCurrentState().endsWith("_PASSED")) {
+                    specificActions.add(PageRenderActionItem.of(
+                            "submitOver", "申请结项",
+                            PageRenderColorConstants.COLOR_PRIMARY, 50));
+                }
+            }
+            // 追加金额：仅申请人/所有者可见
+            if ((isOwner || isAdmin) && context.hasPermission(config.getPermission("edit"))) {
                 specificActions.add(PageRenderActionItem.of(
                         "reamount", "追加金额",
                         PageRenderColorConstants.COLOR_PRIMARY, 51));
@@ -843,6 +870,27 @@ public class PageRenderServiceImpl implements IPageRenderService {
                         "overApply", "申请结项",
                         PageRenderColorConstants.COLOR_PRIMARY, 52));
             }
+        }
+
+        // 追加金额审批模块：驳回状态下显示"重新提交"按钮
+        if ("HORIZONTAL_REAMOUNT".equals(moduleCode) && context.getCurrentState() != null
+                && context.getCurrentState().endsWith("_REJECTED")) {
+            boolean isOwner = context.isOwner();
+            boolean isAdmin = context.hasRole("admin");
+            if ((isOwner || isAdmin) && context.hasPermission(config.getPermission("edit"))) {
+                specificActions.add(PageRenderActionItem.of(
+                        "submit", "重新提交",
+                        PageRenderColorConstants.COLOR_SUCCESS, 5, "确定要重新提交该记录吗？"));
+            }
+        }
+
+        // 追加金额审批模块：JYS_AUDIT状态显示撤回按钮（仅录入者撤回→草稿）
+        if ("HORIZONTAL_REAMOUNT".equals(moduleCode) && context.getCurrentState() != null
+                && context.getCurrentState().endsWith("_JYS_AUDIT")
+                && context.isOwner()) {
+            specificActions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_RECALL, "撤回",
+                    PageRenderColorConstants.COLOR_WARNING, 40, "确定要撤回该记录吗？"));
         }
 
         return specificActions;

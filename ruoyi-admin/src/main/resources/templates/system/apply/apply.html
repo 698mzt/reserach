@@ -732,12 +732,20 @@
                 return false;
             }
             if (key === 'review') {
+                // 到账金额审批
+                if (state.indexOf('REAMOUNT_') !== -1) {
+                    return state.indexOf('_JYS_AUDIT') !== -1 && hasPagePermission(proFlag) && !owner;
+                }
                 if (tableId === 'bootstrap-table2') {
                     return state === 'HORIZONTAL_OVER_JYS_AUDIT' && hasPagePermission(proFlag) && !owner;
                 }
                 return state === 'HORIZONTAL_APPLY_JYS_AUDIT' && hasPagePermission(proFlag) && !owner;
             }
             if (key === 'kyReview') {
+                // 到账金额审批
+                if (state.indexOf('REAMOUNT_') !== -1) {
+                    return state.indexOf('_KYC_AUDIT') !== -1 && hasPagePermission(hechaFlag);
+                }
                 if (tableId === 'bootstrap-table2') {
                     return state === 'HORIZONTAL_OVER_KYC_AUDIT' && hasPagePermission(hechaFlag);
                 }
@@ -750,7 +758,7 @@
                 return owner && hasPagePermission(createFlag) && isPassedState(state);
             }
             if (key === 'reamount') {
-                return hasPagePermission(createFlag) && isPassedState(state);
+                return owner && hasPagePermission(editFlag) && !isDraftState(state);
             }
             return true;
         });
@@ -1412,7 +1420,23 @@
                     align: 'center',
                     formatter: function(value, row, index) {
                         if (row.actions && row.actions.length > 0) {
-                            return PageRender.renderActionsToString(row.actions, {style: 'table'});
+                            var ops = row.actions.filter(function(a) {
+                                return a.actionKey === 'view' || a.actionKey === 'viewProcess';
+                            });
+                            var btns = row.actions.filter(function(a) {
+                                return a.actionKey !== 'view' && a.actionKey !== 'viewProcess';
+                            });
+                            var html = '';
+                            if (btns.length > 0) {
+                                html += PageRender.renderActionsToString(btns, {style: 'table'});
+                            }
+                            if (ops.length > 0) {
+                                if (html) {
+                                    html += '<br>';
+                                }
+                                html += PageRender.renderActionsToString(ops, {style: 'table'});
+                            }
+                            return html;
                         }
                         return '';
                     }
@@ -1438,11 +1462,22 @@
         // 注册PageRender动作处理器
         PageRender.registerHandlers({
             'view': function(actionKey, data) {
+                var state = data.state || '';
+                // 到账金额：查看跳转课题详情页，显示完整课题信息+批阅记录（同立项申请页）
+                if (state.indexOf('REAMOUNT_') !== -1) {
+                    $.modal.openTab("查看", prefix + '/detail/' + data.id + '/chakan');
+                    return;
+                }
                 var id = data.reid || data.id;
                 $.operate.detailTab(id + '/chakan');
             },
             'viewProcess': function(actionKey, data) {
-                showhistory(data.id, data.state);
+                var state = data.state || '';
+                if (state.indexOf('REAMOUNT_') !== -1) {
+                    showreamountHistory(data.reid, state);
+                } else {
+                    showhistory(data.id, state);
+                }
                 $('#lcjl_Moda').modal('show');
             },
             'edit': function(actionKey, data) {
@@ -1458,6 +1493,12 @@
             },
             'review': function(actionKey, data) {
                 var state = data.state || '';
+                // 到账金额批阅
+                if (state.indexOf('REAMOUNT_') !== -1) {
+                    var id = data.reid || data.id;
+                    $.operate.detailTab(id + '/pro');
+                    return;
+                }
                 if (state.indexOf('HORIZONTAL_OVER_') !== -1) {
                     $.operate.overdetailTab(data.id + '/JYSOVER');
                 } else {
@@ -1472,7 +1513,14 @@
                 }
             },
             'kyReview': function(actionKey, data) {
-                if (data.state && data.state.indexOf('HORIZONTAL_OVER_') !== -1) {
+                var state = data.state || '';
+                // 到账金额科研处批阅
+                if (state.indexOf('REAMOUNT_') !== -1) {
+                    var id = data.reid || data.id;
+                    $.operate.detailTab(id + '/hecha');
+                    return;
+                }
+                if (state.indexOf('HORIZONTAL_OVER_') !== -1) {
                     $.operate.overdetailTab(data.id + '/KYCOVER');
                 } else {
                     $.operate.detailTab(data.id + '/KYC');
@@ -1489,6 +1537,25 @@
             },
             'recall': function(actionKey, data) {
                 var state = data.state || '';
+                var id = data.reid || data.id;
+                // 到账金额撤回处理（确认弹窗由按钮的 data-confirm 提供）
+                if (state.indexOf('REAMOUNT_') !== -1) {
+                    $.ajax({
+                        type: 'POST',
+                        url: ctx + 'system/apply/amountRecall',
+                        data: {id: id, state: state},
+                        success: function(result) {
+                            if (result.code === web_status.SUCCESS) {
+                                $.modal.msgSuccess("撤回成功");
+                                $.table.refresh();
+                            } else {
+                                $.modal.alertError(result.msg || "撤回失败");
+                            }
+                        }
+                    });
+                    return;
+                }
+                // 原有课题撤回处理
                 $.ajax({
                     type: 'POST',
                     url: ctx + 'system/apply/recallsave',
@@ -1503,10 +1570,28 @@
                             $.modal.msgSuccess("撤回成功");
                             $.table.refresh();
                         } else {
-                            $.modal.msgError(result.msg || "撤回失败");
+                            $.modal.alertError(result.msg || "撤回失败");
                         }
                     }
                 });
+            },
+            // 到账金额审批操作 - 跳转到详情页进行处理
+            'approve': function(actionKey, data) {
+                var id = data.reid || data.id;
+                var state = data.state || '';
+                if (state.indexOf('REAMOUNT_') !== -1) {
+                    $.operate.detailTab(id + '/hecha');
+                    return;
+                }
+                // 主表审核暂不处理
+            },
+            'reject': function(actionKey, data) {
+                var id = data.reid || data.id;
+                var state = data.state || '';
+                if (state.indexOf('REAMOUNT_') !== -1) {
+                    $.operate.detailTab(id + '/chakan');
+                    return;
+                }
             }
         });
 
@@ -1590,6 +1675,35 @@
                             </div>
                         </div>
                     `;
+                    eventList.appendChild(li);
+                });
+            },
+            error: function () {
+                alert('Failed to fetch event history.');
+            }
+        });
+    }
+
+    function showreamountHistory(id,state) {
+        updateProgressStepColor(state)
+        $.ajax({
+            url: prefix + '/reamountHistory/' + id,
+            type: 'POST',
+            success: function (response) {
+                const eventList = document.getElementById('event-list');
+                eventList.innerHTML = '';
+                response.rows.sort((a, b) => new Date(b.createTime) - new Date(a.createTime));
+                response.rows.forEach(function (row) {
+                    const li = document.createElement('li');
+                    li.innerHTML = `
+                        <div class="timeline-item">
+                            <span class="time"><i class="fa fa-clock-o"></i> ` + (row.createTime || '') + `</span>
+                            <h3 class="timeline-header">` + (row.stateText || '') + `</h3>
+                            <div class="timeline-body">
+                                <p>` + (row.concate || '') + `</p>
+                                <p><strong>操作人：</strong>` + (row.uname || '') + `</p>
+                            </div>
+                        </div>`;
                     eventList.appendChild(li);
                 });
             },

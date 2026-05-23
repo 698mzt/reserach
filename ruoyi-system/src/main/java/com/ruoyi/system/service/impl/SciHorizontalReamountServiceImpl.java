@@ -5,6 +5,7 @@ import com.ruoyi.system.domain.*;
 import com.ruoyi.system.mapper.SciHorizontalApplyMapper;
 import com.ruoyi.system.mapper.SciHorizontalPiyueMapper;
 import com.ruoyi.system.mapper.SciHorizontalReamountMapper;
+import com.ruoyi.system.service.IPageRenderService;
 import com.ruoyi.system.service.SciHorizontalReamountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,8 @@ public class SciHorizontalReamountServiceImpl implements SciHorizontalReamountSe
     private SciHorizontalApplyMapper sciHorizontalApplyMapper;
     @Autowired
     private SciHorizontalPiyueMapper sciHorizontalPiyueMapper;
+    @Autowired
+    private IPageRenderService pageRenderService;
 
     @Override
     public int insertAmount(SciHorizontalReamount sciHorizontalReamount) {
@@ -97,27 +100,66 @@ public class SciHorizontalReamountServiceImpl implements SciHorizontalReamountSe
     }
 
     @Override
-//    @DataScope(deptAlias = "d",userAlias = "u")
+    @DataScope(deptAlias = "d",userAlias = "u")
     public List<SciHorizontalApply> selectAmountList(SciHorizontalApply sciHorizontalApply) {
-        return sciHorizontalReamountMapper.selectAmountList(sciHorizontalApply);
+        List<SciHorizontalApply> list = sciHorizontalReamountMapper.selectAmountList(sciHorizontalApply);
+        fillReamountPageRenderData(list);
+        return list;
     }
 
     @Override
     @DataScope(deptAlias = "d",userAlias = "u")
     public List<SciHorizontalApply> selectAmountListJYS(SciHorizontalApply sciHorizontalApply) {
-        return sciHorizontalReamountMapper.selectAmountListJYS(sciHorizontalApply);
+        List<SciHorizontalApply> list = sciHorizontalReamountMapper.selectAmountListJYS(sciHorizontalApply);
+        fillReamountPageRenderData(list);
+        return list;
     }
 
     @Override
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciHorizontalApply> selectAmountListDept(SciHorizontalApply sciHorizontalApply) {
-        return sciHorizontalReamountMapper.selectAmountListDept(sciHorizontalApply);
+        List<SciHorizontalApply> list = sciHorizontalReamountMapper.selectAmountListDept(sciHorizontalApply);
+        fillReamountPageRenderData(list);
+        return list;
     }
 
     @Override
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciHorizontalApply> selectAmountListKYC(SciHorizontalApply sciHorizontalApply) {
-        return sciHorizontalReamountMapper.selectAmountListKYC(sciHorizontalApply);
+        List<SciHorizontalApply> list = sciHorizontalReamountMapper.selectAmountListKYC(sciHorizontalApply);
+        fillReamountPageRenderData(list);
+        return list;
+    }
+
+    /**
+     * 为到账金额列表项填充页面渲染数据（状态展示和操作按钮）
+     */
+    private void fillReamountPageRenderData(List<SciHorizontalApply> list) {
+        if (list == null || list.isEmpty()) {
+            return;
+        }
+        for (SciHorizontalApply apply : list) {
+            if (apply.getState() == null) {
+                continue;
+            }
+            PageRenderResult<?> result = pageRenderService.fillPageRenderData(
+                    "HORIZONTAL_REAMOUNT",
+                    "system:apply",
+                    "HORIZONTAL_REAMOUNT",
+                    apply.getState(),
+                    apply.getReid() != null ? apply.getReid().longValue() : null,
+                    apply.getUserId() != null ? apply.getUserId().longValue() : null,
+                    null
+            );
+            // 到账金额页操作列不显示"通过"和"驳回"按钮，通过"批阅"进入详情页操作
+            if (result.getActions() != null) {
+                result.getActions().removeIf(a ->
+                        "approve".equals(a.getActionKey()) || "reject".equals(a.getActionKey())
+                );
+            }
+            apply.setStatusMeta(result.getStatusMeta());
+            apply.setActions(result.getActions());
+        }
     }
 
     @Override
@@ -138,6 +180,11 @@ public class SciHorizontalReamountServiceImpl implements SciHorizontalReamountSe
     @Override
     public int reamountremove(Integer id) {
         return sciHorizontalReamountMapper.reamountremove(id);
+    }
+
+    @Override
+    public int amountRecall(Integer id, String targetState) {
+        return sciHorizontalReamountMapper.amountpass(String.valueOf(id), targetState);
     }
 
     @Override

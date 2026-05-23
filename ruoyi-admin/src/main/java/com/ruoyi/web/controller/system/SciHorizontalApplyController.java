@@ -533,7 +533,7 @@ public class SciHorizontalApplyController extends BaseController
         }
 
         sciHorizontalReamount.setApplyId(id.toString());
-        sciHorizontalReamount.setState("REAMOUNT_DRAFT");
+        sciHorizontalReamount.setState("REAMOUNT_JYS_AUDIT");
         sciHorizontalReamount.setUid(getUserId());
         if (sciHorizontalReamount.getReAmount() != null && !sciHorizontalReamount.getReAmount().isEmpty()){
             sciHorizontalReamountService.insertAmount(sciHorizontalReamount);
@@ -692,14 +692,27 @@ public class SciHorizontalApplyController extends BaseController
             return false;
         }
 
-        String nodeCode = stateToNodeCode(state);
+        String nodeCode;
+        String processCode;
+
+        // 到账金额审批：REAMOUNT_JYS_AUDIT → HORIZONTAL_REAMOUNT + HORIZONTAL_REAMOUNT_JYS
+        if (state.startsWith("REAMOUNT_")) {
+            processCode = "HORIZONTAL_REAMOUNT";
+            String suffix = state.replace("REAMOUNT_", "").replace("_AUDIT", "");
+            nodeCode = "HORIZONTAL_REAMOUNT_" + suffix;
+        } else {
+            nodeCode = stateToNodeCode(state);
+            if (state.startsWith("HORIZONTAL_OVER_")) {
+                processCode = "HORIZONTAL_OVER";
+            } else {
+                processCode = "HORIZONTAL_APPLY";
+            }
+        }
 
         SysUser user = getSysUser();
         if (user == null) {
             return false;
         }
-
-        String processCode = "HORIZONTAL_APPLY";
 
         ApprovalResult nodeResult = approvalProcessService.getCurrentNode(processCode, nodeCode);
         if (!nodeResult.isSuccess() || nodeResult.getCurrentNode() == null) {
@@ -1035,6 +1048,14 @@ public class SciHorizontalApplyController extends BaseController
                 case "HORIZONTAL_APPLY_REJECTED":
                 case "HORIZONTAL_OVER_REJECTED":
                     return "已驳回";
+                case "REAMOUNT_JYS_AUDIT":
+                    return "待教研室审核(追加金额)";
+                case "REAMOUNT_KYC_AUDIT":
+                    return "待科研处审核(追加金额)";
+                case "REAMOUNT_PASSED":
+                    return "追加金额已通过";
+                case "REAMOUNT_REJECTED":
+                    return "追加金额已驳回";
                 default:
                     return "状态(" + state + ")";
             }
@@ -1278,6 +1299,46 @@ public class SciHorizontalApplyController extends BaseController
             resultList.add(piyue);
         }
     }
+
+    /**
+     * 追加金额审批历史查询
+     */
+    @RequiresPermissions(value = {"system:apply:edit", "system:apply:info", "system:apply:hecha"}, logical = Logical.OR)
+    @PostMapping("/reamountHistory/{id}")
+    @ResponseBody
+    public TableDataInfo reamountHistory(@PathVariable("id") Integer id) {
+        List<SciHorizontalPiyue> resultList = new ArrayList<>();
+        SciHorizontalApply reamount = sciHorizontalReamountService.selectAmountById(id);
+        Integer applyId = (reamount != null) ? reamount.getId() : null;
+        if (applyId != null) {
+            // 1. 查询立项审批历史（HORIZONTAL_APPLY）
+            addApprovalHistoryToResult(resultList, applyId, "HORIZONTAL_APPLY");
+            // 2. 查询结项审批历史（HORIZONTAL_OVER）
+            addApprovalHistoryToResult(resultList, applyId, "HORIZONTAL_OVER");
+            // 3. 查询旧审核意见表（立项的各类记录）
+            SciHorizontalPiyue param = new SciHorizontalPiyue();
+            param.setHxktId(applyId);
+            List<SciHorizontalPiyue> oldApplyPiyue = piyueService.selectSciHorizontalPiyueList(param);
+            for (SciHorizontalPiyue piyue : oldApplyPiyue) {
+                piyue.setStateText(piyue.getState());
+                resultList.add(piyue);
+            }
+        }
+        // 4. 查询追加金额审批历史（HORIZONTAL_REAMOUNT）
+        addApprovalHistoryToResult(resultList, id, "HORIZONTAL_REAMOUNT");
+        // 5. 查询旧金额审核意见表（含新增金额等记录）
+        if (applyId != null) {
+            SciHorizontalPiyue amountParam = new SciHorizontalPiyue();
+            amountParam.setHxktId(applyId);
+            List<SciHorizontalPiyue> oldAmountPiyue = piyueService.selectSciHorizontalAmountPiyueList(amountParam);
+            for (SciHorizontalPiyue piyue : oldAmountPiyue) {
+                piyue.setStateText(piyue.getState());
+                resultList.add(piyue);
+            }
+        }
+        return getDataTable(resultList);
+    }
+
     @RequiresPermissions("system:apply:edit")
     @PostMapping("/abhyy/{kid}")
     @ResponseBody
@@ -1415,7 +1476,7 @@ public class SciHorizontalApplyController extends BaseController
     /**
      * 审批到账金额
      */
-    @RequiresPermissions("system:apply:info")
+    @RequiresPermissions(value = {"system:apply:process", "system:apply:hecha"}, logical = Logical.OR)
     @GetMapping("/reamountdetail/{id}/{urlFlag}")
     public String reamountdetail(@PathVariable("id") Integer id,@PathVariable("urlFlag") String urlFlag, ModelMap mmap)
     {
@@ -1581,6 +1642,56 @@ public class SciHorizontalApplyController extends BaseController
     {
         sciHorizontalReamount.setState("HORIZONTAL_APPLY_DRAFT");
         return toAjax(sciHorizontalReamountService.amountedit(sciHorizontalReamount));
+    }
+
+    /**
+     * 到账金额撤回
+     */
+    /**
+     * 到账金额撤回
+     * 规则：
+     *   REAMOUNT_JYS_AUDIT → 录入者撤回 → REAMOUNT_DRAFT
+     *   REAMOUNT_KYC_AUDIT → 教研室撤回 → REAMOUNT_JYS_AUDIT
+     *   REAMOUNT_PASSED    → 科研处撤回 → REAMOUNT_JYS_AUDIT
+     */
+    @Log(title = "到账金额撤回", businessType = BusinessType.UPDATE)
+    @PostMapping("/amountRecall")
+    @ResponseBody
+    public AjaxResult amountRecall(Integer id, String state) {
+        SciHorizontalApply reamount = sciHorizontalReamountService.selectAmountById(id);
+        if (reamount == null) {
+            return AjaxResult.error("记录不存在");
+        }
+        String currentState = reamount.getState();
+        String targetState;
+
+        if ("REAMOUNT_JYS_AUDIT".equals(currentState)) {
+            // 课题申请人撤回 → DRAFT（同立项撤回逻辑，owner = 课题申请人）
+            boolean isOwner = reamount.getUserId() != null && getUserId().longValue() == reamount.getUserId().longValue();
+            if (!isOwner && !getSysUser().isAdmin()) {
+                return AjaxResult.error("无权操作");
+            }
+            targetState = "REAMOUNT_DRAFT";
+        } else if ("REAMOUNT_KYC_AUDIT".equals(currentState)) {
+            // 教研室撤回 → JYS_AUDIT
+            boolean canRecall = getSysUser().getRoles().stream().anyMatch(r -> "102".equals(r.getRoleId()));
+            if (!canRecall) {
+                return AjaxResult.error("无权操作");
+            }
+            targetState = "REAMOUNT_JYS_AUDIT";
+        } else if ("REAMOUNT_PASSED".equals(currentState)) {
+            // 科研处撤回 → JYS_AUDIT
+            boolean canRecall = getSysUser().getRoles().stream().anyMatch(r -> "101".equals(r.getRoleId()));
+            if (!canRecall) {
+                return AjaxResult.error("无权操作");
+            }
+            targetState = "REAMOUNT_JYS_AUDIT";
+        } else {
+            return AjaxResult.error("当前状态不允许撤回");
+        }
+
+        sciHorizontalReamountService.amountRecall(id, targetState);
+        return success("撤回成功");
     }
 
     /**

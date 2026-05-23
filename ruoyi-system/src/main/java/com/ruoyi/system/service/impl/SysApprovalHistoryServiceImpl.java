@@ -80,6 +80,8 @@ public class SysApprovalHistoryServiceImpl implements ISysApprovalHistoryService
                     return jdbcTemplate.queryForObject("SELECT report_theme FROM sci_lecture_report WHERE id = ?", String.class, businessId);
                 case "sci_zhuanliruanzhu":
                     return jdbcTemplate.queryForObject("SELECT mingcheng FROM sci_zhuanliruanzhu WHERE id = ?", String.class, businessId);
+                case "sci_horizontal_reamount":
+                    return jdbcTemplate.queryForObject("SELECT top_name FROM sci_horizontal_apply WHERE id = (SELECT apply_id FROM sci_horizontal_reamount WHERE reid = ?)", String.class, businessId);
                 default:
                     return null;
             }
