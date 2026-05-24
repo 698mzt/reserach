@@ -4,7 +4,7 @@
 
 <html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
 <head>
-    <th:block th:include="include :: header('表格虚拟滚动')" />
+    <th:block th:include="include :: header('教研室科研工作量')" />
     <link rel="stylesheet" th:href="@{/css/statistic/statistic-common.css}">
     <style>
         /* 总计行样式 */
@@ -117,7 +117,7 @@
             showColumns: false,
             showToggle: false,
             toolbar: "toolbar",
-            height: 420,
+            height: 500,
             pageSize: 10,
             columns: [
                 {
@@ -140,7 +140,6 @@
             ]
         };
         $.table.init(options);
-        enableAutoScroll('#bootstrap-table', { autoStart: true });
 
         // 初始化跨页勾选支持
         initCrossPageSelection($('#bootstrap-table'), { scope: 'kygzl-jys' });

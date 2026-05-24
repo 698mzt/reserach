@@ -4,7 +4,7 @@
 <!--学校科研工作量-->
 
 <head>
-    <th:block th:include="include :: header('表格虚拟滚动')" />
+    <th:block th:include="include :: header('学校科研工作量')" />
     <link rel="stylesheet" th:href="@{/css/statistic/statistic-common.css}">
     <!--    <style>-->
     <!--        .fixed-column-1{-->
@@ -23,11 +23,17 @@
 </head>
 <body>
 <div class="container-div compact-layout">
-    <div class="btn-group-sm" id="toolbar" role="group">
+    <div class="btn-group-sm" id="toolbar" role="group" style="display:flex;align-items:center;flex-wrap:nowrap;gap:4px;">
+        <form id="formId1" class="form-inline" style="display:inline-block;">
+            <div class="form-group">
+                <label>学院名称：</label>
+                <input type="text" class="form-control input-sm" name="dname" placeholder="请输入学院名称" style="width: 120px;"/>
+            </div>
+            <a class="btn btn-primary btn-sm" onclick="$.table.search('formId1','bootstrap-table')"><i class="fa fa-search"></i>&nbsp;搜索</a>
+            <a class="btn btn-warning btn-sm" onclick="$.form.reset('formId1')"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+            <a class="btn btn-success btn-sm" onclick="$.table.exportExcel('formId1')"><i class="fa fa-download"></i>&nbsp;导出</a>
+        </form>
         &nbsp;&nbsp;<span id="total" class="badge badge-success"></span>
-        <a class="btn btn-warning" onclick="$.table.exportExcel()">
-            <i class="fa fa-download"></i> 导出
-        </a>
     </div>
     <div class="row">
         <div class="col-sm-12 select-table table-bordered">
@@ -48,12 +54,14 @@
             exportUrl: prefix + "/export",
             modalName: '学校科研工作量',
             method: "post",
-            height: "100%",
+height: 500,
             sidePagination: "server",
             pagination: true,
             pageSize: 10,
             showSearch: false,
-            showExport: true,
+            showRefresh: false,
+            showColumns: false,
+            showToggle: false,
             clickToSelect: true,
             undefinedText: 0,
             columns: [{

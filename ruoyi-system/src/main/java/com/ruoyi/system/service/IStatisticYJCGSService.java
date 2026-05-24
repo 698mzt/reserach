@@ -32,4 +32,9 @@ public interface IStatisticYJCGSService {
      * */
     List<Map<String, Object>> selectAllYJCGSKYC(String userName);
 
+    /**
+     * 科研处业绩成果数-按教研室聚合
+     * */
+    List<Map<String, Object>> selectYJCGSKYCByDept(String userName);
+
 }

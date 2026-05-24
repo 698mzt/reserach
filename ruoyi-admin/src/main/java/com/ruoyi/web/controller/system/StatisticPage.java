@@ -15,6 +15,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import com.ruoyi.common.core.domain.AjaxResult;
+import com.ruoyi.common.utils.poi.ExcelUtil;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -134,5 +136,19 @@ public class StatisticPage extends BaseController {
         private Long getScopeUserId() { return scopeUserId; }
         private Long getScopeDeptId() { return scopeDeptId; }
         private Long getCollegeParentId() { return collegeParentId; }
+    }
+
+    @RequiresPermissions("statistic:plan:view")
+    @PostMapping("/export")
+    @ResponseBody
+    public AjaxResult export(String pname, String dname, String userName) {
+        List<String> dictValues = DictUtils.getDictCache("sys_acade_dept").stream()
+                .map(SysDictData::getDictValue)
+                .collect(Collectors.toList());
+        ScopeParam scopeParam = buildScopeParam();
+        List<ResearchWorkload> list = statisticService.selectAllTeacher(dictValues, pname, dname, userName,
+                scopeParam.getScopeUserId(), scopeParam.getScopeDeptId(), scopeParam.getCollegeParentId());
+        ExcelUtil<ResearchWorkload> util = new ExcelUtil<ResearchWorkload>(ResearchWorkload.class);
+        return util.exportExcel(list, "科研任务计划");
     }
 }

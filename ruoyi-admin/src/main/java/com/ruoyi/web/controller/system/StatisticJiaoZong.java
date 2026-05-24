@@ -16,7 +16,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import com.ruoyi.common.core.domain.AjaxResult;
 import java.util.*;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/statisticJZ")
@@ -60,13 +62,14 @@ public class StatisticJiaoZong extends BaseController {
 
         boolean isPureTeacher = hasTeacher && !hasResearchDept;
         model.addAttribute("modalName", isPureTeacher ? "我的业绩成果数" : "教研室业绩成果数");
+        model.addAttribute("searchMode", isPureTeacher ? "none" : "teacherName");
         return prefix + "/yjcgJYS";
     }
 
     @RequiresPermissions("statistic:achievement:view")
     @PostMapping("/listJZ")
     @ResponseBody
-    public TableDataInfo listJZ() {
+    public TableDataInfo listJZ(String userName) {
         SysUser user = getSysUser();
         // 重新查询用户角色
         SysUser dbUser = userService.selectUserById(user.getUserId());
@@ -91,6 +94,23 @@ public class StatisticJiaoZong extends BaseController {
         // 先查询所有数据（不分页），用于计算正确的总数和获取完整数据
         List<Map<String, Object>> allData = statisticYJCGSService.selectYJCGSJYS(deptId, userId);
         
+        // 按教师姓名过滤（不计总计行）
+        if (userName != null && !userName.trim().isEmpty()) {
+            List<Map<String, Object>> filteredData = new ArrayList<>();
+            for (Map<String, Object> row : allData) {
+                if ("总计".equals(row.get("userName"))) continue;
+                String rowName = (String) row.get("userName");
+                if (rowName != null && rowName.contains(userName.trim())) {
+                    filteredData.add(row);
+                }
+            }
+            // 保留总计行
+            if (!allData.isEmpty() && "总计".equals(allData.get(allData.size() - 1).get("userName"))) {
+                filteredData.add(allData.get(allData.size() - 1));
+            }
+            allData = filteredData;
+        }
+
         // 获取实际数据行数（不含总计行）
         int totalCount = allData.size() > 0 && "总计".equals(allData.get(allData.size() - 1).get("userName")) 
                 ? allData.size() - 1 
@@ -124,5 +144,37 @@ public class StatisticJiaoZong extends BaseController {
         rspData.setTotal(totalCount);
         
         return rspData;
+    }
+
+    @RequiresPermissions("statistic:achievement:view")
+    @PostMapping("/export")
+    @ResponseBody
+    public AjaxResult export(String userName) {
+        SysUser user = getSysUser();
+        SysUser dbUser = userService.selectUserById(user.getUserId());
+        List<SysRole> roles = (dbUser != null) ? dbUser.getRoles() : user.getRoles();
+
+        boolean isAdminOrResearch = false;
+        boolean hasTeacher = false;
+        boolean hasResearchDept = false;
+        if (roles != null) {
+            for (SysRole role : roles) {
+                if (role == null || role.getRoleId() == null) continue;
+                long rid = role.getRoleId();
+                if (rid == 1L || rid == 101L) { isAdminOrResearch = true; }
+                if (rid == 100L) { hasTeacher = true; }
+                if (rid == 102L) { hasResearchDept = true; }
+            }
+        }
+
+        String deptId = isAdminOrResearch ? null : user.getDeptId().toString();
+        Long userId = (hasTeacher && !hasResearchDept) ? user.getUserId() : null;
+
+        List<Map<String, Object>> allData = statisticYJCGSService.selectYJCGSJYS(deptId, userId);
+
+        String[] headers = {"专业", "教师", "纵向科研项目-校级以上", "纵向科研项目-校级", "横向课题科研项目", "成果转化", "学术论文", "教材著作", "专利", "软著", "奖励", "学术报告(讲座类)"};
+        String[] fieldKeys = {"deptName", "userName", "纵向科研项目-校级以上", "纵向科研项目-校级", "横向课题科研项目", "成果转化", "学术论文", "教材著作", "专利", "软著", "奖励", "学术报告(讲座类)"};
+
+        return MapDataExcelUtil.exportExcel(allData, headers, fieldKeys, "教研室业绩成果数");
     }
 }

@@ -4,7 +4,7 @@
 
 <html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
 <head>
-    <th:block th:include="include :: header('表格虚拟滚动')" />
+    <th:block th:include="include :: header('科研处科研工作量')" />
     <link rel="stylesheet" th:href="@{/css/statistic/statistic-common.css}">
     <style>
         .total-row { background-color: #f8f9fa !important; font-weight: bold; }
@@ -26,7 +26,7 @@
     <div class="row table-row-compact">
         <div class="col-sm-12 select-table table-bordered">
             <div class="btn-group-sm" id="toolbar" role="group">
-                <form id="formId1" class="form-inline">
+                <form id="formId1" class="form-inline" th:if="${searchMode != 'none'}">
                     <div class="form-group">
                         <label>学院：</label>
                         <input type="text" class="form-control input-sm" name="pname" placeholder="请输入学院" style="width: 120px;"/>
@@ -34,10 +34,6 @@
                     <div class="form-group">
                         <label>教研室：</label>
                         <input type="text" class="form-control input-sm" name="dname" placeholder="请输入教研室" style="width: 120px;"/>
-                    </div>
-                    <div class="form-group">
-                        <label>教师姓名：</label>
-                        <input type="text" class="form-control input-sm" name="userName" placeholder="请输入教师姓名" style="width: 120px;"/>
                     </div>
                     <a class="btn btn-primary btn-sm" onclick="$.table.search('formId1','bootstrap-table')"><i class="fa fa-search"></i>&nbsp;搜索</a>
                     <a class="btn btn-warning btn-sm" onclick="$.form.reset('formId1')"><i class="fa fa-refresh"></i>&nbsp;重置</a>
@@ -73,7 +69,7 @@
                 showColumns: false,
                 showToggle: false,
                 toolbar: "toolbar",
-                height: 420,
+                height: 500,
             columns: [
                 {
                     checkbox: true,
@@ -81,7 +77,6 @@
                 },
                 { field: 'parentName', title: '学院', align: 'center' },
                 { field: 'deptName', title: '教研室', align: 'center' },
-                { field: 'userName', title: '&nbsp;&nbsp;&nbsp;教师&nbsp;&nbsp;&nbsp;', align: 'center' },
                 { field: 'zxktxjys', title: '纵向课题科研项目-校级以上', align: 'center', formatter: function(v, r) { return cntScoreFormatter('zxktxjysScore', v, r); } },
                 { field: 'zxktxj', title: '纵向课题科研项目-校级', align: 'center', formatter: function(v, r) { return cntScoreFormatter('zxktxjScore', v, r); } },
                 { field: 'hxkt', title: '横向课题科研项目', align: 'center', formatter: function(v, r) { return cntScoreFormatter('hxktScore', v, r); } },
@@ -95,9 +90,8 @@
             ]
         };
         $.table.init(options);
-        enableAutoScroll('#bootstrap-table', { autoStart: true });
         // 初始化跨页勾选支持
-        initCrossPageSelection($('#bootstrap-table'), { scope: 'kygzl-kyg' });
+        initCrossPageSelection($('#bootstrap-table'), { scope: 'kygzl-kyg-v2' });
         initSelectionUi($('#bootstrap-table'));
 
         // 表格加载完成后渲染总计/小计行和图表
@@ -140,7 +134,7 @@
                 totals[9] += parseFloat(row.jzbgScore || row.jzbg || 0);
             }
 
-            var totalHtml = '<tr class="total-row"><td class="bs-checkbox"></td><td class="total-merged-cell" colspan="3">总计</td>';
+            var totalHtml = '<tr class="total-row"><td class="bs-checkbox"></td><td class="total-merged-cell" colspan="2">总计</td>';
             for (var j = 0; j < totals.length; j++) {
                 totalHtml += '<td>' + totals[j].toFixed(2) + '</td>';
             }

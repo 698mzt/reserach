@@ -4,7 +4,7 @@
 
 <html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
 <head>
-    <th:block th:include="include :: header('表格虚拟滚动')" />
+    <th:block th:include="include :: header('学校业绩成果数')" />
     <link rel="stylesheet" th:href="@{/css/statistic/statistic-common.css}">
 </head>
 <body class="gray-bg">
@@ -16,12 +16,18 @@
     </div>
     <div class="row table-row-compact">
         <div class="col-sm-12">
-            <div class="btn-group-sm" id="toolbar" role="group" style="margin:2px 0;padding:2px 0;">
-                &nbsp;&nbsp;<span id="total" class="badge badge-success"></span>
-                <a class="btn btn-warning btn-sm" onclick="$.table.exportExcel()">
-                    <i class="fa fa-download"></i> 导出
-                </a>
-            </div>
+            <div class="btn-group-sm" id="toolbar" role="group" style="display:flex;align-items:center;flex-wrap:nowrap;gap:4px;margin-bottom:2px;">
+            <form id="formId1" class="form-inline" style="display:inline-block;" th:if="${searchMode != 'none'}">
+                <div class="form-group">
+                    <label>学院名称：</label>
+                    <input type="text" class="form-control input-sm" name="userName" placeholder="请输入学院名称" style="width: 120px;"/>
+                </div>
+                <a class="btn btn-primary btn-sm" onclick="$.table.search('formId1','bootstrap-table')"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                <a class="btn btn-warning btn-sm" onclick="$.form.reset('formId1')"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                <a class="btn btn-success btn-sm" onclick="$.table.exportExcel('formId1')"><i class="fa fa-download"></i>&nbsp;导出</a>
+            </form>
+            &nbsp;&nbsp;<span id="total" class="badge badge-success"></span>
+        </div>
         </div>
         <div class="col-sm-12 select-table table-bordered">
             <table id="bootstrap-table"></table>
@@ -40,11 +46,15 @@
         var options = {
             url: prefix + "/list",
             modalName: '[[${modalName}]]',
-            height: 420,
+            height: 500,
             sidePagination: "client",
             pagination: false,
             showSearch: false,
             virtualScroll: false,
+            showRefresh: false,
+            showColumns: false,
+            showToggle: false,
+            exportUrl: prefix + "/export",
             columns:[
                 {
                     checkbox: true
@@ -112,7 +122,6 @@
             ]
         };
         $.table.init(options);
-        enableAutoScroll('#bootstrap-table');
         initCrossPageSelection($('#bootstrap-table'), { scope: 'yjcg-xx' });
         initSelectionUi($('#bootstrap-table'));
 

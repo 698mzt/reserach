@@ -269,13 +269,13 @@ button:last-child:hover { background: #757575; }
 /* ========== 表格单元格紧凑化（所有统计页面统一） ========== */
 .compact-layout .bootstrap-table .fixed-table-body .table td,
 .compact-layout .bootstrap-table .fixed-table-body .table th {
-    padding: 2px 4px !important;
-    font-size: 12px !important;
-    line-height: 1.3 !important;
+    padding: 3px 6px !important;
+    font-size: 14px !important;
+    line-height: 1.4 !important;
 }
 .compact-layout .bootstrap-table .fixed-table-body .table td .th-inner,
 .compact-layout .bootstrap-table .fixed-table-body .table th .th-inner {
-    line-height: 1.3 !important;
+    line-height: 1.4 !important;
 }
 .compact-layout .bootstrap-table .fixed-table-body .bs-checkbox {
     width: 28px !important;

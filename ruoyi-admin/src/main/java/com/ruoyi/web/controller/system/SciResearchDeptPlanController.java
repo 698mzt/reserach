@@ -1,12 +1,10 @@
 package com.ruoyi.web.controller.system;
 
+//<!--科研处科研任务计划-->
+
 import com.ruoyi.common.core.controller.BaseController;
-import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.domain.entity.SysDept;
 import com.ruoyi.common.core.page.TableDataInfo;
-import com.ruoyi.common.enums.BusinessType;
-import com.ruoyi.common.utils.poi.ExcelUtil;
-import com.ruoyi.common.annotation.Log;
 import com.ruoyi.system.domain.ResearchWorkloadByJYS;
 import com.ruoyi.system.service.IStatisticService;
 import com.ruoyi.system.service.ISysDeptService;
@@ -14,19 +12,16 @@ import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
+import com.ruoyi.common.core.domain.AjaxResult;
+import com.ruoyi.common.utils.poi.ExcelUtil;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Controller
-@RequestMapping("/researchdept")
-public class SciResearchDeptController extends BaseController {
-
-    private String prefix = "system/statistic";
+@RequestMapping("/researchdeptplan")
+public class SciResearchDeptPlanController extends BaseController {
 
     @Autowired
     private IStatisticService statisticService;
@@ -34,12 +29,14 @@ public class SciResearchDeptController extends BaseController {
     @Autowired
     private ISysDeptService sysDeptService;
 
-    @RequiresPermissions("statistic:kygzlKYG:view")
-    @GetMapping
-    public String index(Model model)
-    {
+    private String prefix = "system/statistic";
+
+    @RequiresPermissions("statistic:plan:view")
+    @GetMapping()
+    public String index(Model model) {
+        model.addAttribute("modalName", "科研处科研任务计划");
         model.addAttribute("searchMode", "teacherName");
-        return prefix + "/kygzlKYG";
+        return prefix + "/kygzrwKYG";
     }
 
     private List<String> getCollegeDictValues() {
@@ -56,7 +53,7 @@ public class SciResearchDeptController extends BaseController {
                 .collect(Collectors.toList());
     }
 
-    @RequiresPermissions("statistic:kygzlKYG:view")
+    @RequiresPermissions("statistic:plan:view")
     @PostMapping("/list")
     @ResponseBody
     public TableDataInfo list(String pname, String dname) {
@@ -66,26 +63,13 @@ public class SciResearchDeptController extends BaseController {
         return getDataTable(list);
     }
 
-    /**
-     * 获取全量科研工作量数据（不分页），供饼图默认展示
-     */
-    @RequiresPermissions("statistic:kygzlKYG:view")
-    @PostMapping("/collegeSummary")
-    @ResponseBody
-    public TableDataInfo collegeSummary() {
-        List<String> dictValues = getCollegeDictValues();
-        List<ResearchWorkloadByJYS> list = statisticService.selectAllDept(dictValues, null, null, null, null);
-        return getDataTable(list);
-    }
-
-    @RequiresPermissions("statistic:kygzlKYG:view")
-    @Log(title = "导出科研处科研工作量", businessType = BusinessType.EXPORT)
+    @RequiresPermissions("statistic:plan:view")
     @PostMapping("/export")
     @ResponseBody
     public AjaxResult export(String pname, String dname) {
         List<String> dictValues = getCollegeDictValues();
         List<ResearchWorkloadByJYS> list = statisticService.selectAllDept(dictValues, pname, dname, null, null);
         ExcelUtil<ResearchWorkloadByJYS> util = new ExcelUtil<ResearchWorkloadByJYS>(ResearchWorkloadByJYS.class);
-        return util.exportExcel(list, "科研处科研工作量");
+        return util.exportExcel(list, "科研处科研任务计划");
     }
 }

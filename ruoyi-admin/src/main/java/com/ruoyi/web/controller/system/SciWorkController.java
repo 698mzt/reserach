@@ -3,6 +3,7 @@ package com.ruoyi.web.controller.system;
 //学校科研工作量
 
 import com.ruoyi.common.core.controller.BaseController;
+import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.page.TableDataInfo;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -41,5 +42,14 @@ public class SciWorkController extends BaseController {
         System.out.println("GeneraList = " + GeneraList);
         System.out.println("list = " + data.getRows());
         return data;
+    }
+
+    @PostMapping("/export")
+    @ResponseBody
+    public AjaxResult export() {
+        List<Map<String, Object>> list = new ArrayList<>();
+        String[] headers = {"学院名称", "专业名称", "横向课题科研项目", "纵向课题科研项目-校级以上", "纵向课题科研项目-校级", "论文-积分", "讲座报告-积分", "教材软著-积分", "成果转化-积分", "专利-积分", "软著-积分", "奖励-积分"};
+        String[] fieldKeys = {"parentName", "deptName", "横向课题科研项目", "纵向课题科研项目-校级以上", "纵向课题科研项目-校级", "论文-积分", "讲座报告-积分", "教材软著-积分", "成果转化-积分", "专利-积分", "软著-积分", "奖励-积分"};
+        return MapDataExcelUtil.exportExcel(list, headers, fieldKeys, "学校科研工作量");
     }
 }
