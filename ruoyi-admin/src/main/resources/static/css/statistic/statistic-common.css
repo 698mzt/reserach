@@ -280,3 +280,8 @@ button:last-child:hover { background: #757575; }
 .compact-layout .bootstrap-table .fixed-table-body .bs-checkbox {
     width: 28px !important;
 }
+/* 确保专业、教师等信息在一行显示 */
+.compact-layout .bootstrap-table .fixed-table-body .table td,
+.compact-layout .bootstrap-table .fixed-table-body .table th {
+    white-space: nowrap !important;
+}

@@ -6,6 +6,12 @@
 <head>
     <th:block th:include="include :: header('表格虚拟滚动')" />
     <link rel="stylesheet" th:href="@{/css/statistic/statistic-common.css}">
+    <style>
+        .total-row { background-color: #f8f9fa !important; font-weight: bold; }
+        .total-row td { border-top: 2px solid #dee2e6 !important; }
+        .total-merged-cell { position: relative; text-align: center !important; background-color: #e9ecef !important; font-weight: bold !important; }
+        .total-row .bs-checkbox { visibility: hidden; }
+    </style>
 </head>
 <body class="gray-bg">
 <div class="container-div compact-layout">
@@ -17,35 +23,27 @@
             <div id="teacherBar"></div>
         </div>
     </div>
-    <div class="row search-row-compact">
-        <div class="col-sm-12 search-collapse">
-            <form id="formId1">
-                <div class="select-list">
-                    <ul>
-                        <li>
-                            <label>学院：</label>
-                            <input type="text" name="pname" placeholder="请输入学院"/>
-                        </li>
-                        <li>
-                            <label>教研室：</label>
-                            <input type="text" name="dname" placeholder="请输入教研室"/>
-                        </li>
-                        <li>
-                            <label>教师姓名：</label>
-                            <input type="text" name="userName" placeholder="请输入教师姓名"/>
-                        </li>
-                        <li class="button-item">
-                            <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search('formId1','bootstrap-table')"><i class="fa fa-search"></i>&nbsp;搜索</a>
-                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset('formId1')"><i class="fa fa-refresh"></i>&nbsp;重置</a>
-                            <a class="btn btn-success btn-rounded btn-sm" onclick="$.table.exportExcel()"><i class="fa fa-download"></i>&nbsp;导出</a>
-                        </li>
-                    </ul>
-                </div>
-            </form>
-        </div>
-    </div>
     <div class="row table-row-compact">
         <div class="col-sm-12 select-table table-bordered">
+            <div class="btn-group-sm" id="toolbar" role="group">
+                <form id="formId1" class="form-inline">
+                    <div class="form-group">
+                        <label>学院：</label>
+                        <input type="text" class="form-control input-sm" name="pname" placeholder="请输入学院" style="width: 120px;"/>
+                    </div>
+                    <div class="form-group">
+                        <label>教研室：</label>
+                        <input type="text" class="form-control input-sm" name="dname" placeholder="请输入教研室" style="width: 120px;"/>
+                    </div>
+                    <div class="form-group">
+                        <label>教师姓名：</label>
+                        <input type="text" class="form-control input-sm" name="userName" placeholder="请输入教师姓名" style="width: 120px;"/>
+                    </div>
+                    <a class="btn btn-primary btn-sm" onclick="$.table.search('formId1','bootstrap-table')"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                    <a class="btn btn-warning btn-sm" onclick="$.form.reset('formId1')"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                    <a class="btn btn-success btn-sm" onclick="$.table.exportExcel()"><i class="fa fa-download"></i>&nbsp;导出</a>
+                </form>
+            </div>
             <table id="bootstrap-table"></table>
         </div>
     </div>
@@ -64,14 +62,18 @@
 
     $(function () {
         var options = {
-            url: prefix + "/list",
-            exportUrl: prefix + "/export",
-            modalName: '科研处科研工作量',
-            method: "post",
-            sidePagination: "server",
-            pagination: true,
-            showSearch: false,
-            height: 500,
+                url: prefix + "/list",
+                exportUrl: prefix + "/export",
+                modalName: '科研处科研工作量',
+                method: "post",
+                sidePagination: "server",
+                pagination: true,
+                showSearch: false,
+                showRefresh: false,
+                showColumns: false,
+                showToggle: false,
+                toolbar: "toolbar",
+                height: 420,
             columns: [
                 {
                     checkbox: true,
@@ -102,7 +104,7 @@
         $('#bootstrap-table').on('load-success.bs.table', function () {
             var $table = $(this);
             setTimeout(function() {
-                applyStatRowStyle($table);
+                addTotalRow($table);
                 renderCollegeRose($table);
                 renderTeacherBar($table);
             }, 200);
@@ -116,6 +118,36 @@
                 renderTeacherBar($table);
             }, 50);
         });
+
+        // 添加总计行
+        function addTotalRow($table) {
+            var $tbody = $table.find('tbody');
+            var allRows = $table.bootstrapTable('getData');
+            if (!allRows || allRows.length === 0) return;
+
+            var totals = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+            for (var i = 0; i < allRows.length; i++) {
+                var row = allRows[i];
+                totals[0] += parseFloat(row.zxktxjysScore || row.zxktxjys || 0);
+                totals[1] += parseFloat(row.zxktxjScore || row.zxktxj || 0);
+                totals[2] += parseFloat(row.hxktScore || row.hxkt || 0);
+                totals[3] += parseFloat(row.cgzhScore || row.cgzh || 0);
+                totals[4] += parseFloat(row.xslwScore || row.xslw || 0);
+                totals[5] += parseFloat(row.jczzScore || row.jczz || 0);
+                totals[6] += parseFloat(row.zlScore || row.zl || 0);
+                totals[7] += parseFloat(row.rzScore || row.rz || 0);
+                totals[8] += parseFloat(row.jlScore || row.jl || 0);
+                totals[9] += parseFloat(row.jzbgScore || row.jzbg || 0);
+            }
+
+            var totalHtml = '<tr class="total-row"><td class="bs-checkbox"></td><td class="total-merged-cell" colspan="3">总计</td>';
+            for (var j = 0; j < totals.length; j++) {
+                totalHtml += '<td>' + totals[j].toFixed(2) + '</td>';
+            }
+            totalHtml += '</tr>';
+
+            $tbody.append(totalHtml);
+        }
     });
 </script>
 </body>

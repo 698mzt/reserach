@@ -5,7 +5,9 @@ package com.ruoyi.web.controller.system;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.entity.SysRole;
 import com.ruoyi.common.core.domain.entity.SysUser;
+import com.ruoyi.common.core.page.PageDomain;
 import com.ruoyi.common.core.page.TableDataInfo;
+import com.ruoyi.common.core.page.TableSupport;
 import com.ruoyi.system.service.IStatisticYJCGSService;
 import com.ruoyi.system.service.ISysUserService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -85,8 +87,42 @@ public class StatisticJiaoZong extends BaseController {
 
         String deptId = isAdminOrResearch ? null : user.getDeptId().toString();
         Long userId = (hasTeacher && !hasResearchDept) ? user.getUserId() : null;
-        startPage();
-        List<Map<String, Object>> list = statisticYJCGSService.selectYJCGSJYS(deptId, userId);
-        return getDataTable(list);
+        
+        // 先查询所有数据（不分页），用于计算正确的总数和获取完整数据
+        List<Map<String, Object>> allData = statisticYJCGSService.selectYJCGSJYS(deptId, userId);
+        
+        // 获取实际数据行数（不含总计行）
+        int totalCount = allData.size() > 0 && "总计".equals(allData.get(allData.size() - 1).get("userName")) 
+                ? allData.size() - 1 
+                : allData.size();
+        
+        // 获取分页参数
+        PageDomain pageDomain = TableSupport.buildPageRequest();
+        int pageNum = pageDomain.getPageNum() > 0 ? pageDomain.getPageNum() : 1;
+        int pageSize = pageDomain.getPageSize() > 0 ? pageDomain.getPageSize() : 10;
+        
+        // 手动计算分页
+        int startIndex = (pageNum - 1) * pageSize;
+        int endIndex = Math.min(startIndex + pageSize, totalCount);
+        
+        // 提取当前页数据（不含总计行）
+        List<Map<String, Object>> pageData = new ArrayList<>();
+        if (startIndex < totalCount) {
+            pageData = allData.subList(startIndex, endIndex);
+        }
+        
+        // 如果当前页有数据，并且存在总计行，将总计行添加到当前页末尾
+        if (!pageData.isEmpty() && allData.size() > 0 && "总计".equals(allData.get(allData.size() - 1).get("userName"))) {
+            pageData = new ArrayList<>(pageData); // 转换为新列表
+            pageData.add(allData.get(allData.size() - 1)); // 添加总计行
+        }
+        
+        // 构建分页后的结果
+        TableDataInfo rspData = new TableDataInfo();
+        rspData.setCode(0);
+        rspData.setRows(pageData);
+        rspData.setTotal(totalCount);
+        
+        return rspData;
     }
 }

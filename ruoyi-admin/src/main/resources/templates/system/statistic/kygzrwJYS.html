@@ -115,7 +115,7 @@
 				pagination: true,
 				showSearch: false,
 				virtualScroll: false,
-				height: 280,
+				height: 420,
 				stickyHeader: true,
 				columns: [
 					[{
@@ -470,20 +470,10 @@
             // 添加表格加载完成后的回调函数
             $('#bootstrap-table').on('load-success.bs.table', function () {
 				const $table = $(this);
-				const $tbody = $table.find('tbody');
 
 				// 使用延时确保DOM完全渲染
 				setTimeout(function() {
-					// 查找总计行（userName为"总计"的行）
-					$tbody.find('tr').each(function() {
-						const $row = $(this);
-						const $cells = $row.find('td');
-
-						// 检查第三列（教师列）是否为"总计"
-						if ($cells.length > 2 && $cells.eq(2).text().trim() === '总计') {
-							processTotalRow($row, $cells);
-						}
-					});
+					addTotalRow($table);
 					renderPlanTeacherRadar($table);
 					renderPlanTeacherBar($table);
 				}, 200);
@@ -497,25 +487,47 @@
 				}, 80);
 			});
 
-			// 处理总计行的函数
-			function processTotalRow($row, $cells) {
-				// 1. 为整行添加总计样式
-				$row.addClass('total-row');
+			// 添加总计行
+			function addTotalRow($table) {
+				const $tbody = $table.find('tbody');
+				const allRows = $table.bootstrapTable('getData');
+				if (!allRows || allRows.length === 0) return;
 
-				// 2. 处理第二、三列的合并
-				const $deptCell = $cells.eq(1);  // 专业列
-				const $teacherCell = $cells.eq(2); // 教师列
+				const totals = {};
+				const countFields = [
+					'zcgjjjkyxm', 'zcsbjjjkyxm', 'zcsbjjgxm', 'zcsbjzxkyxm', 'zctjjxhjkyxm', 'zcxjjxglxmywyys', 'zcxjjxglxmywyyx',
+					'ewyyx', 'edwwy', 'wdswy', 'sdeswy', 'esdsswwy', 'wswwydwswy', 'wsdqswwy', 'qswdybwy',
+					'eyxxx', 'edwxx', 'wdsxx', 'sdesxx', 'esdsswxx', 'sswdwsxx',
+					'SCI', 'EI', 'hx', 'sw', 'pt', 'xb',
+					'cbzz1', 'cbzz2', 'cbyz1', 'cbyz2', 'cbjc1', 'cbjc2', 'zbjc',
+					'sqfmzl', 'syxxzl', 'wxsjzl', 'jsjrjzzq',
+					'sjjxcgj', 'sjkxjsj', 'stjjzrkxlpj', 'stjjsklpj', 'xjjxcgj', 'yyxkyxjcgj', 'xhjjxcgj', 'xhjkycgj',
+					'jbgj', 'jbgn', 'cjgj', 'cjgn', 'xjxs'
+				];
 
-				// 3. 设置合并后的样式和内容
-				$deptCell.addClass('total-merged-cell')
-						 .attr('colspan', '2')
-						 .text('总计');
+				for (const field of countFields) {
+					totals[field] = 0;
+				}
 
-				// 4. 隐藏第三列
-				$teacherCell.hide();
+				for (const row of allRows) {
+					for (const field of countFields) {
+						const val = row[field];
+						if (val) {
+							const match = String(val).match(/(\d+)/);
+							if (match) {
+								totals[field] += parseInt(match[1], 10);
+							}
+						}
+					}
+				}
 
-				// 5. 确保多选框被隐藏
-				$cells.eq(0).addClass('bs-checkbox');
+				let totalHtml = '<tr class="total-row"><td class="bs-checkbox"></td><td class="total-merged-cell" colspan="2">总计</td>';
+				for (const field of countFields) {
+					totalHtml += '<td>' + totals[field] + '个</td>';
+				}
+				totalHtml += '</tr>';
+
+				$tbody.append(totalHtml);
 			}
 		});
 

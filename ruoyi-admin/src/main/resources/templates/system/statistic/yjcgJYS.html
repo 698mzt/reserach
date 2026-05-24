@@ -82,8 +82,11 @@
             sidePagination: "server",
             pagination: true,
             showSearch: false,
-            height: 280,
+            height: 420,
             virtualScroll: false,
+            showRefresh: false,
+            showColumns: false,
+            showToggle: false,
             // 根据显示模式预处理数据：只切换横向/成果转化两列，始终从独立的汇总/明细字段回填
             responseHandler: function(res) {
                 if (res.rows) {
