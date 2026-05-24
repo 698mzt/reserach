@@ -50,7 +50,7 @@
 				pagination: true,
 				showSearch: false,
 				virtualScroll: false,
-				height: 320,
+				height: 420,
 				stickyHeader: true,
 				columns: [
 					[{
@@ -392,6 +392,7 @@
 		$('#bootstrap-table').on('load-success.bs.table', function () {
 			var $table = $(this);
 			setTimeout(function() {
+				addTotalRow($table);
 				renderPlanCollegeRadar($table);
 				renderPlanCollegeBar($table);
 			}, 200);
@@ -404,6 +405,50 @@
 				renderPlanCollegeBar($table);
 			}, 80);
 		});
+
+		function addTotalRow($table) {
+			var $tbody = $table.find('tbody');
+			var allRows = $table.bootstrapTable('getData');
+			if (!allRows || allRows.length === 0) return;
+
+			var totals = {};
+			var countFields = [
+				'zcgjjjkyxm', 'zcsbjjjkyxm', 'zcsbjjgxm', 'zcsbjzxkyxm', 'zctjjxhjkyxm', 'zcxjjxglxmywyys', 'zcxjjxglxmywyyx',
+				'ewyyx', 'edwwy', 'wdswy', 'sdeswy', 'esdsswwy', 'wswwydwswy', 'wsdqswwy', 'qswdybwy',
+				'eyxxx', 'edwxx', 'wdsxx', 'sdesxx', 'esdsswxx', 'sswdwsxx', 'dywsxx',
+				'SCI', 'EI', 'hx', 'sw', 'pt', 'xb',
+				'cbzz1', 'cbzz2', 'cbyz1', 'cbyz2', 'cbjc1', 'cbjc2', 'zbjc',
+				'sqfmzl', 'syxxzl', 'wxsjzl', 'jsjrjzzq',
+				'sjjxcgj', 'sjkxjsj', 'stjjzrkxlpj', 'stjjsklpj', 'xjjxcgj', 'yyxkyxjcgj', 'xhjjxcgj', 'xhjkycgj',
+				'jbgj', 'jbgn', 'cjgj', 'cjgn', 'xjxs'
+			];
+
+			for (var i = 0; i < countFields.length; i++) {
+				totals[countFields[i]] = 0;
+			}
+
+			for (var i = 0; i < allRows.length; i++) {
+				var row = allRows[i];
+				for (var j = 0; j < countFields.length; j++) {
+					var field = countFields[j];
+					var val = row[field];
+					if (val) {
+						var match = String(val).match(/(\d+)/);
+						if (match) {
+							totals[field] += parseInt(match[1], 10);
+						}
+					}
+				}
+			}
+
+			var totalHtml = '<tr class="total-row"><td class="bs-checkbox"></td><td class="total-merged-cell" colspan="3">总计</td>';
+			for (var i = 0; i < countFields.length; i++) {
+				totalHtml += '<td>' + totals[countFields[i]] + '个</td>';
+			}
+			totalHtml += '</tr>';
+
+			$tbody.append(totalHtml);
+		}
 	});
 </script>
 </body>
