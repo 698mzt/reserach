@@ -107,15 +107,20 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
                 statusMeta = buildFallbackStatusMeta(currentState);
             }
             apply.setStatusMeta(statusMeta);
-            // 立项通过/结项通过状态下，对所有有权限的角色补充追加金额按钮
+            // 立项已提交状态下（非草稿），仅申请人/所有者补充追加金额按钮
             List<PageRenderActionItem> actions = result.getActions();
-            if (currentState != null && currentState.endsWith("_PASSED")) {
-                boolean hasReamount = actions.stream().anyMatch(a -> "reamount".equals(a.getActionKey()));
-                if (!hasReamount) {
-                    Set<String> permissions = buildCurrentPermissions(currentUser);
-                    if (permissions.contains("system:apply:add")) {
-                        actions.add(PageRenderActionItem.of("reamount", "追加金额",
-                                PageRenderColorConstants.COLOR_PRIMARY, 51));
+            if (currentState != null && !currentState.endsWith("_DRAFT")) {
+                boolean isOwner = apply.getUserId() != null && currentUser.getUserId() != null
+                        && apply.getUserId().longValue() == currentUser.getUserId().longValue();
+                boolean isAdmin = currentUser.isAdmin();
+                if (isOwner || isAdmin) {
+                    boolean hasReamount = actions.stream().anyMatch(a -> "reamount".equals(a.getActionKey()));
+                    if (!hasReamount) {
+                        Set<String> permissions = buildCurrentPermissions(currentUser);
+                        if (permissions.contains("system:apply:edit")) {
+                            actions.add(PageRenderActionItem.of("reamount", "追加金额",
+                                    PageRenderColorConstants.COLOR_PRIMARY, 51));
+                        }
                     }
                 }
             }
@@ -313,6 +318,9 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
      * @return 模块编码
      */
     private String determineModuleCode(String state) {
+        if (isReamountState(state)) {
+            return "HORIZONTAL_REAMOUNT";
+        }
         if (isOverState(state)) {
             return "HORIZONTAL_OVER";
         }
@@ -326,10 +334,20 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
      * @return 流程编码
      */
     private String determineProcessCode(String state) {
+        if (isReamountState(state)) {
+            return "HORIZONTAL_REAMOUNT";
+        }
         if (isOverState(state)) {
             return "HORIZONTAL_OVER";
         }
         return "HORIZONTAL_APPLY";
+    }
+
+    /**
+     * 判断是否为追加金额状态
+     */
+    private boolean isReamountState(String state) {
+        return state != null && state.startsWith("REAMOUNT_");
     }
 
     /**
@@ -1769,11 +1787,11 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
     }
 
     /**
-     * 删除被驳回的到账金额
+     * 驳回到账金额（状态设为已驳回，保留记录以便重新编辑提交）
      * */
     @Override
     public int removeAmount(String id, String reid, Long userId, String remark, String urlFlag) {
-        return sciHorizontalReamountMapper.reamountremove(Integer.valueOf(reid));
+        return sciHorizontalReamountMapper.amountpass(reid, "REAMOUNT_REJECTED");
     }
 
     /**

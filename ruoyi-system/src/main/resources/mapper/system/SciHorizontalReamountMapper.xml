@@ -17,6 +17,7 @@
 
     <resultMap type="SciHorizontalApply" id="SciHorizontalApplyResult">
         <result property="id"    column="id"    />
+        <result property="reid"    column="reid"    />
         <result property="userId"    column="user_id"    />
         <result property="topName"    column="top_name"    />
         <result property="topNumber"    column="top_number"    />
@@ -130,11 +131,7 @@
                 left join sys_dept d on u.dept_id = d.dept_id
                 left join sys_dept p on d.parent_id =p.dept_id
         where re.state  in ('REAMOUNT_DRAFT','REAMOUNT_JYS_AUDIT','REAMOUNT_KYC_AUDIT','REAMOUNT_DEPT_AUDIT','REAMOUNT_CLOSED','REAMOUNT_REJECTED','REAMOUNT_PASSED')
-                  and s.user_id = #{uid}
-        <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
-        <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
-        <if test="state != null  and state != ''"> and state = #{state}</if>
-        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}</if>
+        ${params.dataScope}
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
@@ -167,7 +164,7 @@
         left join sys_user u on  s.user_id=u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
-        where re.state  in ('REAMOUNT_JYS_AUDIT','REAMOUNT_KYC_AUDIT')
+        where re.state  in ('REAMOUNT_DRAFT','REAMOUNT_JYS_AUDIT','REAMOUNT_KYC_AUDIT','REAMOUNT_DEPT_AUDIT','REAMOUNT_CLOSED','REAMOUNT_REJECTED','REAMOUNT_PASSED')
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if test="state != null  and state != ''"> and state = #{state}</if>
@@ -186,7 +183,7 @@
     </select>
 
     <select id="selectAmountListDept" resultMap="SciHorizontalApplyResult" parameterType="SciHorizontalApply">
-        select s.id,re.reid reid,u.user_name userName,s.top_number ,d.dept_id,d.dept_name dname,p.dept_id ynameId,p.dept_name yname, s.user_id, s.top_name, s.top_type,s.party_A,s.party_B, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, s.signing_data, s.validity_Date,re.re_amount ,re.reamount_url,re.account_data,s.contract, s.filing, re.state,re.createtime,re.amount_type,
+        select s.id,re.reid reid,u.user_name userName,s.top_number ,d.dept_id,d.dept_name dname,p.dept_id ynameId,p.dept_name yname, s.user_id, s.top_name, s.top_type,s.party_A,s.party_B, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, s.signing_data, s.validity_Date,re.re_amount ,re.reamount_url,re.account_data,s.contract, s.filing, re.state,re.createtime,re.amount_type,re.uid,
         (
             SELECT ROUND(cfg.start_score * (re.re_amount / s.amount), 2)
             FROM sci_project_score_cfg cfg
@@ -201,7 +198,7 @@
         left join sys_user u on  s.user_id=u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
-        where re.state  in ('REAMOUNT_KYC_AUDIT','REAMOUNT_DEPT_AUDIT')
+        where re.state  in ('REAMOUNT_DRAFT','REAMOUNT_JYS_AUDIT','REAMOUNT_KYC_AUDIT','REAMOUNT_DEPT_AUDIT','REAMOUNT_CLOSED','REAMOUNT_REJECTED','REAMOUNT_PASSED')
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if  test="dname != null  and dname != ''"> and d.dept_name like concat('%', #{dname}, '%')</if>
@@ -221,7 +218,7 @@
     </select>
 
     <select id="selectAmountListKYC" resultMap="SciHorizontalApplyResult" parameterType="SciHorizontalApply">
-        select s.id,re.reid reid,u.user_name userName,s.top_number ,d.dept_id,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,s.party_A,s.party_B, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, s.signing_data, s.validity_Date,re.re_amount ,re.reamount_url,re.account_data,s.contract, s.filing, re.state,re.createtime,re.amount_type,
+        select s.id,re.reid reid,u.user_name userName,s.top_number ,d.dept_id,d.dept_name dname,p.dept_name yname, s.user_id, s.top_name, s.top_type,s.party_A,s.party_B, s.first_person_id,  s.second_person_id, s.third_person_id, fourth_person_id, s.signing_data, s.validity_Date,re.re_amount ,re.reamount_url,re.account_data,s.contract, s.filing, re.state,re.createtime,re.amount_type,re.uid,
         (
             SELECT ROUND(cfg.start_score * (re.re_amount / s.amount), 2)
             FROM sci_project_score_cfg cfg
@@ -236,7 +233,7 @@
         left join sys_user u on  s.user_id=u.user_id
         left join sys_dept d on u.dept_id = d.dept_id
         left join sys_dept p on d.parent_id =p.dept_id
-        where re.state  in ('REAMOUNT_DEPT_AUDIT','REAMOUNT_PASSED')
+        where re.state  in ('REAMOUNT_DRAFT','REAMOUNT_JYS_AUDIT','REAMOUNT_KYC_AUDIT','REAMOUNT_DEPT_AUDIT','REAMOUNT_CLOSED','REAMOUNT_REJECTED','REAMOUNT_PASSED')
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         <if  test="dname != null  and dname != ''"> and d.dept_name like concat('%', #{dname}, '%')</if>

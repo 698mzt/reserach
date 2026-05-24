@@ -32,4 +32,6 @@ public interface SciHorizontalReamountService {
 
 
     int push(Long uid,Integer id, String state);
+
+    int amountRecall(Integer id, String targetState);
 }

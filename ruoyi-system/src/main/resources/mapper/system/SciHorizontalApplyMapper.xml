@@ -34,6 +34,7 @@
         <result property="teaZhicheng"    column="tea_zhicheng"    />
         <result property="changeValue"    column="change_value"    />
         <result property="changeStatus"    column="change_status"    />
+        <result property="uid"    column="uid"    />
     </resultMap>
 
     <resultMap id="SciHorizontalPersionResult" type="SciHorizontalPersion">
@@ -554,7 +555,7 @@
             CONCAT(SUM(shr.re_amount),'万') as credited_amount
         from
             sci_horizontal_reamount shr
-        where shr.state = 6
+        where shr.state = 'REAMOUNT_PASSED'
         group by
             shr.apply_id
     </select>

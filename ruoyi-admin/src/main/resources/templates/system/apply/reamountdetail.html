@@ -198,7 +198,7 @@
 <div class="row">
     <div class="col-sm-offset-5 col-sm-10">
         <button type="button" id="btn1" style="display:none;" class="btn btn-sm btn-primary" onclick="submitHandler()">  通 过</button>&nbsp;
-        <button type="button" id="btn2" style="display:none;" class="btn btn-sm btn-danger" onclick="submitHandlerBH()"> 驳回/重新上传</button>
+        <button type="button" id="btn2" style="display:none;" class="btn btn-sm btn-danger" onclick="submitHandlerBH()">驳回</button>
         <button type="button" id="btn3" style="display:none;" class="btn btn-sm btn-warning" onclick="closeItem()"> 关 闭 </button>
     </div>
 </div>
@@ -271,9 +271,9 @@
 
     }
     $(function(){
-        var kid = $("#ktid").val();
+        var reid = $("#reid").val();
         var options = {
-            url: prefix + "/abhyy/"+kid,
+            url: prefix + "/reamountHistory/"+reid,
             showSearch: false,
             showRefresh: false,
             showToggle: false,
@@ -323,7 +323,9 @@
                 $("#btn3").show();
                 $(".tdiv2").show()
             }else {
-                if(a == 2 ||a == 1 || a == 11){
+                var currentState = a;
+                var showAudit = (currentState.indexOf('REAMOUNT_JYS_AUDIT') !== -1 || currentState.indexOf('REAMOUNT_KYC_AUDIT') !== -1);
+                if(showAudit){
                     if(name.rows.length > 0){
                         $(".tdiv2").show();
                     }

@@ -676,13 +676,7 @@ var researchScore = {
                 }
             }
 
-            return {
-                firstScore: 0,
-                secondScore: 0,
-                thirdScore: 0,
-                fourthScore: 0,
-                valid: false
-            };
+            return this.calculateByDefault(amount);
         } else {
             return this.calculateByDefault(amount);
         }
