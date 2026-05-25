@@ -227,6 +227,115 @@ public class IStatisticYJCGSServiceImpl implements IStatisticYJCGSService {
         return mergedData;
     }
 
+    @Override
+    public List<Map<String, Object>> selectYJCGSKYCByDept(String userName) {
+        // 1. 获取教师级别的合并数据
+        List<Map<String, Object>> teacherData = selectYJCGSKYC(userName);
+        if (teacherData == null || teacherData.isEmpty()) {
+            return new ArrayList<>();
+        }
+        // 2. 过滤掉总计行，只保留教师数据行
+        List<Map<String, Object>> teacherRows = new ArrayList<>();
+        for (Map<String, Object> row : teacherData) {
+            Object pn = row.get("parentName");
+            if (!"总计".equals(pn)) {
+                teacherRows.add(row);
+            }
+        }
+        if (teacherRows.isEmpty()) {
+            return new ArrayList<>();
+        }
+        // 3. 按教研组分组合并
+        Map<String, List<Map<String, Object>>> deptGroups = new LinkedHashMap<>();
+        for (Map<String, Object> row : teacherRows) {
+            String deptName = (String) row.get("deptName");
+            if (deptName == null || deptName.trim().isEmpty()) {
+                deptName = (String) row.get("parentName");
+            }
+            if (deptName == null || deptName.trim().isEmpty()) {
+                continue;
+            }
+            deptGroups.computeIfAbsent(deptName, k -> new ArrayList<>()).add(row);
+        }
+        // 4. 聚合每个教研室的教师数据
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (Map.Entry<String, List<Map<String, Object>>> entry : deptGroups.entrySet()) {
+            result.add(aggregateDeptAchievementRow(entry.getKey(), entry.getValue()));
+        }
+        // 5. 非零优先排序
+        sortCollegeRows(result);
+        // 6. 添加总计行
+        if (!result.isEmpty()) {
+            Map<String, Object> totalRow = calculateTotalRow(result, "xx");
+            result.add(totalRow);
+        }
+        return result;
+    }
+
+    /**
+     * 将同一教研室的多个教师业绩成果行聚合为一行
+     */
+    private Map<String, Object> aggregateDeptAchievementRow(String deptName, List<Map<String, Object>> rows) {
+        Map<String, Object> deptRow = new HashMap<>();
+        if (!rows.isEmpty()) {
+            deptRow.put("parentName", rows.get(0).get("parentName"));
+        }
+        deptRow.put("deptName", deptName);
+        // 横向和成果转化（特殊计算，X个（Y万）格式）
+        List<String> amountFields = Arrays.asList("横向课题科研项目", "成果转化");
+        for (String field : amountFields) {
+            int totalCount = 0;
+            double totalAmount = 0D;
+            StringBuilder detailBuilder = new StringBuilder();
+
+            for (Map<String, Object> row : rows) {
+                Object val = row.get(field + "_汇总");
+                if (!(val instanceof String)) val = row.get(field);
+                if (val instanceof String) {
+                    AmountSummary summary = parseAmountSummary((String) val);
+                    totalCount += summary.count;
+                    totalAmount += summary.amount;
+                }
+                Object detailValue = row.get(field + "_明细");
+                if (detailValue instanceof String && !((String) detailValue).isEmpty()) {
+                    if (detailBuilder.length() > 0) detailBuilder.append("; ");
+                    detailBuilder.append(detailValue);
+                }
+            }
+
+            String summaryText = buildSummaryString(totalCount, totalAmount);
+            String detailText = detailBuilder.toString();
+            deptRow.put(field, summaryText);
+            deptRow.put(field + "_汇总", summaryText);
+            deptRow.put(field + "_明细", detailText.length() > 0 ? detailText : summaryText);
+        }
+        // 纵向科研项目（纯个数格式）
+        List<String> verticalFields = Arrays.asList("纵向科研项目-校级以上", "纵向科研项目-校级");
+        for (String field : verticalFields) {
+            int total = 0;
+            for (Map<String, Object> row : rows) {
+                Object val = row.get(field);
+                if (val instanceof String) {
+                    total += parseNumberFromField((String) val);
+                }
+            }
+            deptRow.put(field, total > 0 ? total + "个" : "0个");
+        }
+        // 普通计算字段
+        List<String> normalFields = Arrays.asList("学术论文", "教材著作", "专利", "软著", "奖励", "学术报告(讲座类)");
+        for (String field : normalFields) {
+            int total = 0;
+            for (Map<String, Object> row : rows) {
+                Object val = row.get(field);
+                if (val instanceof String) {
+                    total += parseNumberFromField((String) val);
+                }
+            }
+            deptRow.put(field, total > 0 ? total + "个" : "0个");
+        }
+        return deptRow;
+    }
+
     /**
      * 将小类数据合并成大类
      * @param rawData 原始小类数据
@@ -388,6 +497,7 @@ public class IStatisticYJCGSServiceImpl implements IStatisticYJCGSService {
         for (String field : amountFields) {
             int totalCount = 0;
             double totalAmount = 0D;
+            StringBuilder detailBuilder = new StringBuilder();
 
             for (Map<String, Object> row : mergedData) {
                 Object summaryValue = row.get(field + "_汇总");
@@ -397,12 +507,18 @@ public class IStatisticYJCGSServiceImpl implements IStatisticYJCGSService {
                     totalCount += summary.count;
                     totalAmount += summary.amount;
                 }
+                Object detailValue = row.get(field + "_明细");
+                if (detailValue instanceof String && !((String) detailValue).isEmpty()) {
+                    if (detailBuilder.length() > 0) detailBuilder.append("; ");
+                    detailBuilder.append(detailValue);
+                }
             }
 
             String summaryText = buildSummaryString(totalCount, totalAmount);
+            String detailText = detailBuilder.toString();
             totalRow.put(field, summaryText);
             totalRow.put(field + "_汇总", summaryText);
-            totalRow.put(field + "_明细", summaryText);
+            totalRow.put(field + "_明细", detailText.length() > 0 ? detailText : summaryText);
         }
 
         // 纵向科研项目（纯个数格式）

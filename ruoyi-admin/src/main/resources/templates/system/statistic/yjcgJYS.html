@@ -6,7 +6,7 @@
 
 <html lang="zh" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <th:block th:include="include :: header('表格虚拟滚动')" />
+    <th:block th:include="include :: header('教研室业绩成果数')" />
     <link rel="stylesheet" th:href="@{/css/statistic/statistic-common.css}">
     <style>
         /* 页面紧凑布局 */
@@ -45,7 +45,16 @@
             <div id="achievementBar" style="width:100%;"></div>
         </div>
     </div>
-    <div class="btn-group-sm" id="toolbar" role="group" style="margin-bottom:2px;">
+    <div class="btn-group-sm" id="toolbar" role="group" style="display:flex;align-items:center;flex-wrap:nowrap;gap:4px;margin-bottom:2px;">
+        <form id="formId1" class="form-inline" style="display:inline-block;" th:if="${searchMode != 'none'}">
+            <div class="form-group">
+                <label>教师姓名：</label>
+                <input type="text" class="form-control input-sm" name="userName" placeholder="请输入教师姓名" style="width: 120px;"/>
+            </div>
+            <a class="btn btn-primary btn-sm" onclick="$.table.search('formId1','bootstrap-table')"><i class="fa fa-search"></i>&nbsp;搜索</a>
+            <a class="btn btn-warning btn-sm" onclick="$.form.reset('formId1')"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+            <a class="btn btn-success btn-sm" onclick="$.table.exportExcel()"><i class="fa fa-download"></i>&nbsp;导出</a>
+        </form>
         &nbsp;&nbsp;<span id="total" class="badge badge-success"></span>
         <button type="button" class="btn btn-primary btn-sm" onclick="toggleDisplay(event)" style="margin-left:10px;">切换显示模式</button>
         <span id="modeLabel" style="margin-left:6px;font-size:12px;color:#666;">当前：大类汇总</span>
@@ -82,11 +91,12 @@
             sidePagination: "server",
             pagination: true,
             showSearch: false,
-            height: 420,
+            height: 500,
             virtualScroll: false,
             showRefresh: false,
             showColumns: false,
             showToggle: false,
+            exportUrl: prefix + "/export",
             // 根据显示模式预处理数据：只切换横向/成果转化两列，始终从独立的汇总/明细字段回填
             responseHandler: function(res) {
                 if (res.rows) {
@@ -171,7 +181,6 @@
             ]
         };
         $.table.init(options);
-        enableAutoScroll('#bootstrap-table', { autoStart: true });
         initCrossPageSelection($('#bootstrap-table'), { scope: 'yjcg-jys' });
         initSelectionUi($('#bootstrap-table'));
 

@@ -4,7 +4,7 @@
 
 <html lang="zh" xmlns:th="http://www.thymeleaf.org">
 <head>
-	<th:block th:include="include :: header('表格虚拟滚动')" />
+	<th:block th:include="include :: header('学院科研任务计划')" />
 	<link rel="stylesheet" th:href="@{/css/statistic/statistic-common.css}">
 	<style>
 		.total-row { background-color: #f8f9fa !important; font-weight: bold; }
@@ -22,6 +22,18 @@
 			<div class="col-sm-6">
 				<div id="planBar" style="width:100%;"></div>
 			</div>
+		</div>
+		<div class="btn-group-sm" id="toolbar" role="group" style="display:flex;align-items:center;flex-wrap:nowrap;gap:4px;margin-bottom:2px;">
+			<form id="formId1" class="form-inline" style="display:inline-block;" th:if="${searchMode != 'none'}">
+				<div class="form-group">
+					<label>教研室名称：</label>
+					<input type="text" class="form-control input-sm" name="dname" placeholder="请输入教研室名称" style="width: 120px;"/>
+				</div>
+				<a class="btn btn-primary btn-sm" onclick="$.table.search('formId1','bootstrap-table')"><i class="fa fa-search"></i>&nbsp;搜索</a>
+				<a class="btn btn-warning btn-sm" onclick="$.form.reset('formId1')"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+				<a class="btn btn-success btn-sm" onclick="$.table.exportExcel('formId1')"><i class="fa fa-download"></i>&nbsp;导出</a>
+			</form>
+			<button type="button" class="btn btn-primary btn-sm" style="margin-left:auto;">切换模式</button>
 		</div>
 		<div class="row table-row-compact">
 			<div class="col-sm-12 select-table table-bordered">
@@ -50,14 +62,18 @@
 				sidePagination: "server",
 				pagination: true,
 				showSearch: false,
+				showRefresh: false,
+				showColumns: false,
+				showToggle: false,
 				virtualScroll: false,
-				height: 420,
+				height: 500,
 				stickyHeader: true,
+				exportUrl: prefix + "/export",
 				columns: [
 					[{
 						title: '基本信息',
 						align: 'center',
-						colspan: 2
+						colspan: 3
 					},
 					{
 						title: '纵向科研项目',
@@ -105,6 +121,11 @@
 						checkbox: true
 				},
 				{
+						field: 'parentName',
+						title: '学院',
+						align: 'center'
+					},
+					{
 					field: 'deptName',
 						title: '教研室',
 						align: 'center'
@@ -429,7 +450,7 @@
 				}
 			}
 
-			var totalHtml = '<tr class="total-row"><td class="bs-checkbox"></td><td class="total-merged-cell" colspan="1">总计</td>';
+			var totalHtml = '<tr class="total-row"><td class="bs-checkbox"></td><td class="total-merged-cell" colspan="2">总计</td>';
 			for (var i = 0; i < countFields.length; i++) {
 				totalHtml += '<td>' + totals[countFields[i]] + '个</td>';
 			}

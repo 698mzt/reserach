@@ -4,7 +4,7 @@
 
 <html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
 <head>
-    <th:block th:include="include :: header('表格虚拟滚动')" />
+    <th:block th:include="include :: header('科研处业绩成果数')" />
     <link rel="stylesheet" th:href="@{/css/statistic/statistic-common.css}">
     <style>
         .total-row { background-color: #f8f9fa !important; font-weight: bold; }
@@ -23,23 +23,24 @@
             <div id="achievementBar" style="width:100%;"></div>
         </div>
     </div>
-    <div style="padding:4px 0;margin:2px 0;">
-        <button type="button" class="btn btn-primary btn-sm" onclick="toggleDisplay(event)" style="margin-left:0;">切换显示模式</button>
+    <div class="btn-group-sm" id="toolbar" role="group" style="display:flex;align-items:center;flex-wrap:nowrap;gap:4px;margin-bottom:2px;">
+        <form id="formId1" class="form-inline" style="display:inline-block;" th:if="${searchMode != 'none'}">
+            <div class="form-group">
+                <label>学院：</label>
+                <input type="text" class="form-control input-sm" name="pname" placeholder="请输入学院" style="width: 120px;"/>
+            </div>
+            <div class="form-group">
+                <label>专业：</label>
+                <input type="text" class="form-control input-sm" name="dname" placeholder="请输入专业" style="width: 120px;"/>
+            </div>
+            <a class="btn btn-primary btn-sm" onclick="$.table.search('formId1','bootstrap-table')"><i class="fa fa-search"></i>&nbsp;搜索</a>
+            <a class="btn btn-warning btn-sm" onclick="$.form.reset('formId1')"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+            <a class="btn btn-success btn-sm" onclick="$.table.exportExcel('formId1')"><i class="fa fa-download"></i>&nbsp;导出</a>
+        </form>
+        <button type="button" class="btn btn-primary btn-sm" onclick="toggleDisplay(event)" style="margin-left:8px;">切换显示模式</button>
         <span id="modeLabel" style="margin-left:6px;font-size:12px;color:#666;">当前：大类汇总</span>
     </div>
     <div class="row table-row-compact">
-        <div class="col-sm-12">
-            <div class="btn-group-sm" id="toolbar" role="group" style="margin:2px 0;padding:2px 0;">
-                <form id="searchForm" style="display:inline-block;margin:0;padding:0;" onsubmit="return false;">
-                    教师姓名：<input name="userName" class="form-control" style="width:150px;display:inline-block;height:28px;font-size:12px;" placeholder="输入教师姓名" />
-                    <a class="btn btn-primary btn-sm" onclick="doSearch()"><i class="fa fa-search"></i> 搜索</a>
-                    <a class="btn btn-default btn-sm" onclick="doReset()"><i class="fa fa-undo"></i> 重置</a>
-                </form>
-                <a class="btn btn-default btn-sm" onclick="$.table.exportExcel()" style="margin-left:10px;">
-                    <i class="fa fa-download"></i> 导出
-                </a>
-            </div>
-        </div>
         <div class="col-sm-12 select-table table-bordered">
             <table id="bootstrap-table"></table>
         </div>
@@ -54,21 +55,18 @@
     var total = 0;
     var prefix = ctx + 'rewardkeyanchu';
     var displayMode = localStorage.getItem('yjcgDisplayMode') || 'summary';
-    var searchKeyword = '';
 
     $(function() {
         var options = {
             url: prefix + "/list",
             modalName: '科研处业绩成果数',
-            height: 420,
-            sidePagination: "server",
-            queryParams: function(params) {
-                return {
-                    pageSize: params.limit,
-                    pageNum: parseInt(params.offset / params.limit) + 1,
-                    userName: searchKeyword
-                };
-            },
+            height: 500,
+            stickyHeader: true,
+            sidePagination: "client",
+            showRefresh: false,
+            showColumns: false,
+            showToggle: false,
+            exportUrl: prefix + "/export",
             pagination: true,
             pageSize: 20,
             virtualScroll: false,
@@ -85,11 +83,6 @@
                 {
                     field: 'deptName',
                     title: '&nbsp;&nbsp;专业&nbsp;&nbsp;',
-                    align: 'center'
-                },
-                {
-                    field: 'userName',
-                    title: '&nbsp;&nbsp;教师&nbsp;&nbsp;',
                     align: 'center'
                 },
                 {
@@ -161,8 +154,7 @@
             }
         };
         $.table.init(options);
-        enableAutoScroll('#bootstrap-table');
-        initCrossPageSelection($('#bootstrap-table'), { scope: 'yjcg-kyc' });
+        initCrossPageSelection($('#bootstrap-table'), { scope: 'yjcg-kyc-v2' });
         initSelectionUi($('#bootstrap-table'));
 
         $('#bootstrap-table').on('load-success.bs.table', function () {
@@ -172,12 +164,11 @@
                 $tbody.find('tr').each(function() {
                     var $row = $(this);
                     var $cells = $row.find('td');
-                    if ($cells.length > 3 && $cells.eq(1).text().trim() === '总计') {
+                    if ($cells.length > 2 && $cells.eq(1).text().trim() === '总计') {
                         $row.addClass('total-row');
                         $cells.eq(0).addClass('bs-checkbox');
-                        $cells.eq(1).addClass('total-merged-cell').attr('colspan', '3').text('总计');
+                        $cells.eq(1).addClass('total-merged-cell').attr('colspan', '2').text('总计');
                         $cells.eq(2).hide();
-                        $cells.eq(3).hide();
                     }
                 });
                 renderAchievementRose($table);
@@ -193,17 +184,6 @@
             }, 80);
         });
     });
-
-    function doSearch() {
-        searchKeyword = $('#searchForm input[name="userName"]').val().trim();
-        $('#bootstrap-table').bootstrapTable('refresh');
-    }
-
-    function doReset() {
-        searchKeyword = '';
-        $('#searchForm input[name="userName"]').val('');
-        $('#bootstrap-table').bootstrapTable('refresh');
-    }
 
     function toggleDisplay(event) {
         if (event) event.preventDefault();

@@ -4,7 +4,7 @@
 
 <html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
 <head>
-    <th:block th:include="include :: header('表格虚拟滚动')" />
+    <th:block th:include="include :: header('学院科研工作量')" />
     <link rel="stylesheet" th:href="@{/css/statistic/statistic-common.css}">
     <style>
         .total-row { background-color: #f8f9fa !important; font-weight: bold; }
@@ -24,8 +24,8 @@
     <!-- 表格 -->
     <div class="row table-row-compact">
         <div class="col-sm-12 select-table table-bordered">
-            <div class="btn-group-sm" id="toolbar" role="group">
-                <form id="formId1" class="form-inline">
+            <div class="btn-group-sm" id="toolbar" role="group" style="display:flex;align-items:center;flex-wrap:nowrap;gap:4px;">
+                <form id="formId1" class="form-inline" th:if="${searchMode != 'none'}">
                     <div class="form-group">
                         <label>教研室：</label>
                         <input type="text" class="form-control input-sm" name="dname" placeholder="请输入教研室" style="width: 120px;"/>
@@ -64,7 +64,7 @@
             showColumns: false,
             showToggle: false,
             toolbar: "toolbar",
-            height: 420,
+            height: 500,
             virtualScroll: false,
             columns: [
                 {

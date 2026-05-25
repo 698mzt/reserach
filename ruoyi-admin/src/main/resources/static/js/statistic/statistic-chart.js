@@ -590,7 +590,7 @@ function renderTeacherBar($table) {
 
     for (var i = 0; i < selectedRows.length; i++) {
         var r = selectedRows[i];
-        names.push(r.userName || ('教师' + (i + 1)));
+        names.push(r.userName || r.deptName || ('教研室' + (i + 1)));
         var vals = extractScoreValues(r);
         hxktS.push(vals[0]); cgzhS.push(vals[1]); zxktxjysS.push(vals[2]); zxktxjS.push(vals[3]);
         xslwS.push(vals[4]); jczzS.push(vals[5]); zlS.push(vals[6]); rzS.push(vals[7]);
@@ -1310,7 +1310,7 @@ function renderCollegeRose($table) {
     var chartDom = document.getElementById('collegeRose');
     if (!chartDom) return;
     var chart = echarts.init(chartDom);
-    var result = resolveCrossPageRows($table, function(r) { return r.userId || r.userName; }, false);
+    var result = resolveCrossPageRows($table, function(r) { return r.deptName || r.parentName; }, false);
     var selectedRows = _filterStatisticRows($table.bootstrapTable('getSelections'));
 
     var rows;

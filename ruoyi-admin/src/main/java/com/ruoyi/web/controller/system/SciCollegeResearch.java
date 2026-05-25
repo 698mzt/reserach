@@ -17,6 +17,7 @@ import com.ruoyi.system.service.IStatisticService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,7 +40,11 @@ public class SciCollegeResearch extends BaseController {
 
     @RequiresPermissions("statistic:kygzlXY:view")
     @GetMapping
-    public String index() { return prefix + "/kygzlXY"; }
+    public String index(Model model)
+    {
+        model.addAttribute("searchMode", "deptName");
+        return prefix + "/kygzlXY";
+    }
 
     /**
      * 获取学院parentId用于数据过滤
