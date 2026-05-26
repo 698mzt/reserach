@@ -32,7 +32,7 @@ public interface ISciIntraSchProApplyService {
 
     int sch_hxBh(String id, Long userId, String remark, String urlFlag);
 
-    int updateIntraSchoolApply(SciIntraSchoolPro sciIntraSchoolPro);
+    int updateIntraSchoolApply(SciIntraSchoolPro sciIntraSchoolPro, Long userId);
 
     int overApply(String id, String state,Long userId);
 

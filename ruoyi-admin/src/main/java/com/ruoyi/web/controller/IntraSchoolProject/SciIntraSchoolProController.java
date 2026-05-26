@@ -554,15 +554,16 @@ public class SciIntraSchoolProController extends BaseController {
   private String mapPiyueState(String raw) {
     if (raw == null) return "";
     if (raw.contains("草稿") || raw.contains("新建")) return "新增";
-    if (raw.contains("撤回")) return "修改";
+    if (raw.contains("撤回")) return "撤回";
     if (raw.contains("驳回")) return "驳回";
     if (raw.contains("提交") || raw.contains("申请")) return "提交";
     if (raw.contains("通过") || raw.contains("同意")) return "通过";
+    if (raw.contains("修改")) return "修改";
     return raw;
   }
 
   private String mapPiyueConcate(String mappedState, String originalConcate) {
-    if ("驳回".equals(mappedState) && originalConcate != null && !originalConcate.trim().isEmpty()) {
+    if (originalConcate != null && !originalConcate.trim().isEmpty()) {
       return originalConcate;
     }
     return mappedState;
@@ -662,7 +663,7 @@ public class SciIntraSchoolProController extends BaseController {
     if (current != null && isRejectedTecTraState(current.getState())) {
       sciIntraSchoolPro.setState(TEC_TRA_DRAFT);
     }
-    return toAjax(sciIntraSchProApplyService.updateIntraSchoolApply(sciIntraSchoolPro));
+    return toAjax(sciIntraSchProApplyService.updateIntraSchoolApply(sciIntraSchoolPro, getUserId()));
   }
 
   /**
@@ -681,7 +682,7 @@ public class SciIntraSchoolProController extends BaseController {
       sciIntraSchoolPro.setState("7");
     }
 
-    return toAjax(sciIntraSchProApplyService.updateIntraSchoolApply(sciIntraSchoolPro));
+    return toAjax(sciIntraSchProApplyService.updateIntraSchoolApply(sciIntraSchoolPro, getUserId()));
   }
 
   /**
@@ -771,7 +772,7 @@ public class SciIntraSchoolProController extends BaseController {
   @ResponseBody
   //todo:这里的sciHorizontalApply里面getState()是个null
   public AjaxResult editSave_Over(SciIntraSchoolPro sciIntraSchoolPro) {
-    return toAjax(sciIntraSchProApplyService.updateIntraSchoolApply(sciIntraSchoolPro));
+    return toAjax(sciIntraSchProApplyService.updateIntraSchoolApply(sciIntraSchoolPro, getUserId()));
   }
 
   /**
