@@ -148,13 +148,21 @@ public class SysRewardServiceImpl implements ISysRewardService {
             actions = new ArrayList<>();
         }
         
-        // 判断是否为学院角色：有hecha权限但没有process权限
+        // 判断是否为教研室角色：有process权限
+        boolean isJysRole = permissions != null && permissions.contains("system:reward:process");
+        
+        // 判断是否为科研处角色：有hecha权限（科研处核查权限）
+        boolean isKycRole = permissions != null && permissions.contains("system:reward:hecha");
+        
+        // 判断是否为学院角色：有hecha权限但没有process权限，且不是科研处角色（没有kyrevoke权限）
         boolean isCollegeRole = permissions != null 
                 && permissions.contains("system:reward:hecha") 
-                && !permissions.contains("system:reward:process");
+                && !permissions.contains("system:reward:process")
+                && !permissions.contains("system:reward:kyrevoke");
         
         List<PageRenderActionItem> filtered = new ArrayList<>();
         boolean hasRecall = false;
+        boolean hasKyReview = false;
         
         for (Object item : actions) {
             if (item instanceof PageRenderActionItem) {
@@ -171,6 +179,10 @@ public class SysRewardServiceImpl implements ISysRewardService {
                     continue;
                 }
                 
+                if ("kyReview".equals(actionKey)) {
+                    hasKyReview = true;
+                }
+                
                 if ("recall".equals(actionKey)) {
                     hasRecall = true;
                 }
@@ -179,12 +191,30 @@ public class SysRewardServiceImpl implements ISysRewardService {
             }
         }
         
+        // 科研处审批状态：科研处角色（有hecha权限）如果没有kyReview按钮，则添加批阅按钮
+        // 参考论文模块：科研处审批状态时显示批阅按钮
+        if (REWARD_KYC_AUDIT.equals(state) && isKycRole && !hasKyReview) {
+            filtered.add(PageRenderActionItem.of(
+                    "kyReview", "批阅",
+                    PageRenderColorConstants.COLOR_PRIMARY, 30));
+        }
+        
         // 审批通过状态：科研处审批人（有kyrevoke权限）可撤回
         if (REWARD_PASSED.equals(state) && !hasRecall) {
             boolean hasKyRevoke = permissions != null && permissions.contains("system:reward:kyrevoke");
             boolean hasHecha = permissions != null && permissions.contains("system:reward:hecha");
             boolean isAdmin = permissions != null && permissions.contains("*:*:*");
             if (hasKyRevoke || hasHecha || isAdmin) {
+                filtered.add(PageRenderActionItem.of(
+                        "recall", "撤回",
+                        PageRenderColorConstants.COLOR_WARNING, 40, "确定要撤回该记录吗？"));
+            }
+        }
+        
+        // 科研处审批状态：教研室审批人（有process权限）可撤回，撤回后回到教研室审批状态
+        if (REWARD_KYC_AUDIT.equals(state) && !hasRecall) {
+            boolean hasProcess = permissions != null && permissions.contains("system:reward:process");
+            if (hasProcess) {
                 filtered.add(PageRenderActionItem.of(
                         "recall", "撤回",
                         PageRenderColorConstants.COLOR_WARNING, 40, "确定要撤回该记录吗？"));
