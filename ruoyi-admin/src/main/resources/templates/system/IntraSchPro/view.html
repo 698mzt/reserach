@@ -548,9 +548,6 @@
         if (role === "admin") {
             return true;
         }
-        if (role === "research") {
-            return ["2", "TEC_TRA_KYC_AUDIT"].includes(state) && isDeptMatched(row);
-        }
         if (role === "sci_tesearch") {
             return ["4", "6", "TEC_TRA_PASSED"].includes(state);
         }
@@ -833,6 +830,9 @@
         }
         if (text.indexOf("撤回") > -1) {
             return "撤回";
+        }
+        if (text.indexOf("修改") > -1) {
+            return "修改";
         }
         return text.replace(/^成果转化-/, "");
     }

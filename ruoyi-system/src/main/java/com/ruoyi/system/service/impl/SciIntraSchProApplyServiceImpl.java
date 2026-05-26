@@ -340,7 +340,7 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
         return a;
     }
     @Override
-    public int updateIntraSchoolApply(SciIntraSchoolPro sciIntraSchoolPro) {
+    public int updateIntraSchoolApply(SciIntraSchoolPro sciIntraSchoolPro, Long userId) {
         String NowState = sciIntraSchProApplyMapper.geStaticById(sciIntraSchoolPro.getId());
 
         String id = String.valueOf(sciIntraSchoolPro.getId());
@@ -350,6 +350,14 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
             sciIntraSchoolPro.setState("16");
         }
         int rows = sciIntraSchProApplyMapper.updateIntraSchoolApply(sciIntraSchoolPro);
+        if (rows > 0) {
+            SciIntraSchProPiyue piyue = new SciIntraSchProPiyue();
+            piyue.setUid(userId);
+            piyue.setSchxktId(sciIntraSchoolPro.getId());
+            piyue.setState("修改");
+            piyue.setConcate("编辑");
+            sciIntraSchProPiyueMapper.insertIntraSchProPiyue(piyue);
+        }
         return rows;
     }
 
