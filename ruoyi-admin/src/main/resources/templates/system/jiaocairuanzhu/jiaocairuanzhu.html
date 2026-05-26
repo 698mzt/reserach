@@ -907,6 +907,13 @@
           field: 'expectedJifen',
           title: '预期积分',
           formatter: function (value, row, index) {
+            var state = String(row.state);
+            var isPassed = state === 'TEXTBOOK_PASSED' || 
+                          state === '6' || 
+                          state.indexOf('通过') !== -1;
+            if (isPassed) {
+              return 0;
+            }
             return row.expectedJifen || 0;
           }
         },
@@ -914,10 +921,24 @@
           field: 'jifen',
           title: '积分',
           formatter: function (value, row, index) {
-            if (row.state != 'TEXTBOOK_PASSED') {
+            var state = String(row.state);
+            var isPassed = state === 'TEXTBOOK_PASSED' || 
+                          state === '6' || 
+                          state.indexOf('通过') !== -1;
+            if (!isPassed) {
               return 0;
             }
-            return row.jifen || 0;
+            var jifenValue = parseFloat(row.jifen);
+            var expectedValue = parseFloat(row.expectedJifen);
+            var personalValue = parseFloat(row.personalScore);
+            if (!isNaN(jifenValue) && jifenValue > 0) {
+              return jifenValue;
+            } else if (!isNaN(expectedValue) && expectedValue > 0) {
+              return expectedValue;
+            } else if (!isNaN(personalValue) && personalValue > 0) {
+              return personalValue;
+            }
+            return 0;
           }
         },
         {
@@ -941,7 +962,8 @@
               
               if (row.actions && row.actions.length > 0) {
                   var listActions = row.actions.filter(function(a) {
-                      return a.actionKey !== 'approve' && a.actionKey !== 'reject';
+                      return a.actionKey !== 'approve' && a.actionKey !== 'reject' && 
+                             !(a.actionKey === 'recall' && (row.state === 'TEXTBOOK_PASSED' || row.state === 'TEXTBOOK_KYC_AUDIT' || row.state === '2' || row.state === '4'));
                   });
                   
                   listActions.forEach(function(action) {
@@ -958,8 +980,8 @@
                   }
               }
 
-              // 撤回按钮：教研室用户不允许对"通过"状态的教材专著执行撤回操作（参考论文模块逻辑）
-              if (row.state === 'TEXTBOOK_PASSED' && kyrevokeFlag && !isResearch) {
+              // 撤回按钮：状态为"通过"或"科研处审批中"时不显示撤回按钮
+              if (row.state !== 'TEXTBOOK_PASSED' && row.state !== 'TEXTBOOK_KYC_AUDIT' && row.state !== '2' && row.state !== '4' && kyrevokeFlag) {
                   firstRowActions.push({actionKey: 'recall', actionText: '撤回', colorType: 'warning'});
               }
               
@@ -1051,17 +1073,35 @@
     $('#lcjl_Moda').modal('show');
 
     /**
+     * 将流程记录中的state值映射为操作名称
+     * @param {string} rawState - 原始状态值
+     * @returns {string} 映射后的操作名称：新增/更新/通过/提交/驳回/撤回
+     */
+    function mapStateToAction(rawState) {
+      if (!rawState) return rawState;
+      var s = String(rawState);
+      if (s.indexOf('新增') !== -1) return '新增';
+      if (s.indexOf('更新') !== -1) return '更新';
+      if (s.indexOf('提交') !== -1) return '提交';
+      if (s.indexOf('通过') !== -1) return '通过';
+      if (s.indexOf('驳回') !== -1) return '驳回';
+      if (s.indexOf('撤回') !== -1) return '撤回';
+      return s;
+    }
+
+    /**
      * 更新流程事件列表
      * @param {Array} rows - 流程记录数据数组
      */
     function updateEventData(rows) {
       $("#event-list").empty();
       rows.forEach(function (item, index) {
+        var actionName = mapStateToAction(item.state);
         const newLi = `
           <li class="time">
             <i class="node-icon"></i>
             <span class="time">${item.createTime}</span>
-            <span class="txt">[${item.state}]:${item.uname}</span>
+            <span class="txt">${actionName} - ${item.uname}</span>
           </li>
         `;
         $("#event-list").append(newLi);

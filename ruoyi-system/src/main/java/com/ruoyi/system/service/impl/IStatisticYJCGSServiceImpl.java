@@ -281,14 +281,18 @@ public class IStatisticYJCGSServiceImpl implements IStatisticYJCGSService {
             deptRow.put("parentName", rows.get(0).get("parentName"));
         }
         deptRow.put("deptName", deptName);
-        // 横向和成果转化（特殊计算，X个（Y万）格式）
+        // 横向和成果转化（特殊计算，按明细格式显示）
         List<String> amountFields = Arrays.asList("横向课题科研项目", "成果转化");
         for (String field : amountFields) {
+            Map<Double, Integer> amountCountMap = new HashMap<>();
             int totalCount = 0;
             double totalAmount = 0D;
-            StringBuilder detailBuilder = new StringBuilder();
 
             for (Map<String, Object> row : rows) {
+                Object detailValue = row.get(field + "_明细");
+                if (detailValue instanceof String) {
+                    parseAndCountAmounts((String) detailValue, amountCountMap);
+                }
                 Object val = row.get(field + "_汇总");
                 if (!(val instanceof String)) val = row.get(field);
                 if (val instanceof String) {
@@ -296,18 +300,13 @@ public class IStatisticYJCGSServiceImpl implements IStatisticYJCGSService {
                     totalCount += summary.count;
                     totalAmount += summary.amount;
                 }
-                Object detailValue = row.get(field + "_明细");
-                if (detailValue instanceof String && !((String) detailValue).isEmpty()) {
-                    if (detailBuilder.length() > 0) detailBuilder.append("; ");
-                    detailBuilder.append(detailValue);
-                }
             }
 
+            String detailText = buildResultString(amountCountMap);
             String summaryText = buildSummaryString(totalCount, totalAmount);
-            String detailText = detailBuilder.toString();
-            deptRow.put(field, summaryText);
-            deptRow.put(field + "_汇总", summaryText);
-            deptRow.put(field + "_明细", detailText.length() > 0 ? detailText : summaryText);
+            deptRow.put(field, detailText);
+            deptRow.put(field + "_汇总", detailText);
+            deptRow.put(field + "_明细", detailText);
         }
         // 纵向科研项目（纯个数格式）
         List<String> verticalFields = Arrays.asList("纵向科研项目-校级以上", "纵向科研项目-校级");
@@ -492,14 +491,18 @@ public class IStatisticYJCGSServiceImpl implements IStatisticYJCGSService {
             totalRow.put("parentName", parentName);
         }
         
-        // 横向和成果转化（特殊计算，X个（Y万）格式）
+        // 横向和成果转化（特殊计算，按明细格式显示）
         List<String> amountFields = Arrays.asList("横向课题科研项目", "成果转化");
         for (String field : amountFields) {
+            Map<Double, Integer> amountCountMap = new HashMap<>();
             int totalCount = 0;
             double totalAmount = 0D;
-            StringBuilder detailBuilder = new StringBuilder();
 
             for (Map<String, Object> row : mergedData) {
+                Object detailValue = row.get(field + "_明细");
+                if (detailValue instanceof String) {
+                    parseAndCountAmounts((String) detailValue, amountCountMap);
+                }
                 Object summaryValue = row.get(field + "_汇总");
                 Object value = summaryValue instanceof String ? summaryValue : row.get(field);
                 if (value instanceof String) {
@@ -507,18 +510,13 @@ public class IStatisticYJCGSServiceImpl implements IStatisticYJCGSService {
                     totalCount += summary.count;
                     totalAmount += summary.amount;
                 }
-                Object detailValue = row.get(field + "_明细");
-                if (detailValue instanceof String && !((String) detailValue).isEmpty()) {
-                    if (detailBuilder.length() > 0) detailBuilder.append("; ");
-                    detailBuilder.append(detailValue);
-                }
             }
 
+            String detailText = buildResultString(amountCountMap);
             String summaryText = buildSummaryString(totalCount, totalAmount);
-            String detailText = detailBuilder.toString();
-            totalRow.put(field, summaryText);
-            totalRow.put(field + "_汇总", summaryText);
-            totalRow.put(field + "_明细", detailText.length() > 0 ? detailText : summaryText);
+            totalRow.put(field, detailText);
+            totalRow.put(field + "_汇总", detailText);
+            totalRow.put(field + "_明细", detailText);
         }
 
         // 纵向科研项目（纯个数格式）
@@ -574,13 +572,18 @@ public class IStatisticYJCGSServiceImpl implements IStatisticYJCGSService {
         if (page.equals("xx"))
             totalRow.put("parentName", "总计");
         
-        // 横向和成果转化（特殊计算，X个（Y万）格式）
+        // 横向和成果转化（特殊计算，按明细格式显示）
         List<String> amountFields = Arrays.asList("横向课题科研项目", "成果转化");
         for (String field : amountFields) {
+            Map<Double, Integer> amountCountMap = new HashMap<>();
             int totalCount = 0;
             double totalAmount = 0D;
 
             for (Map<String, Object> row : mergedData) {
+                Object detailValue = row.get(field + "_明细");
+                if (detailValue instanceof String) {
+                    parseAndCountAmounts((String) detailValue, amountCountMap);
+                }
                 Object summaryValue = row.get(field + "_汇总");
                 Object value = summaryValue instanceof String ? summaryValue : row.get(field);
                 if (value instanceof String) {
@@ -590,10 +593,11 @@ public class IStatisticYJCGSServiceImpl implements IStatisticYJCGSService {
                 }
             }
 
+            String detailText = buildResultString(amountCountMap);
             String summaryText = buildSummaryString(totalCount, totalAmount);
-            totalRow.put(field, summaryText);
-            totalRow.put(field + "_汇总", summaryText);
-            totalRow.put(field + "_明细", summaryText);
+            totalRow.put(field, detailText);
+            totalRow.put(field + "_汇总", detailText);
+            totalRow.put(field + "_明细", detailText);
         }
 
         // 纵向科研项目（纯个数格式）

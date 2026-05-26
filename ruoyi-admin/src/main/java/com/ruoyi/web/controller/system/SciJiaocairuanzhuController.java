@@ -367,10 +367,8 @@ public class SciJiaocairuanzhuController extends BaseController
             sciJiaocairuanzhu.setJifen("0");
         }
         
-        // 如果状态为被驳回，重置为草稿状态
-        if ("TEXTBOOK_REJECTED".equals(sciJiaocairuanzhu.getState())) {
-            sciJiaocairuanzhu.setState("TEXTBOOK_DRAFT");
-        }
+        // 编辑保存后状态重置为草稿状态
+        sciJiaocairuanzhu.setState("TEXTBOOK_DRAFT");
         
         // 保存教材著作基本信息
         int result = sciJiaocairuanzhuService.updateSciJiaocairuanzhu(sciJiaocairuanzhu);
@@ -379,6 +377,14 @@ public class SciJiaocairuanzhuController extends BaseController
         if (members != null && !members.isEmpty()) {
             sciJiaocairuanzhuService.saveJiaocairuanzhuMembers(sciJiaocairuanzhu.getId(), members);
         }
+        
+        // 保存批阅记录
+        SciJiaocairuanzhuPiyue sciJiaocairuanzhuPiyue = new SciJiaocairuanzhuPiyue();
+        sciJiaocairuanzhuPiyue.setJiaocai_id(sciJiaocairuanzhu.getId());
+        sciJiaocairuanzhuPiyue.setConcate("编辑后重置为草稿");
+        sciJiaocairuanzhuPiyue.setState("编辑并保存");
+        sciJiaocairuanzhuPiyue.setUid(getUserId());
+        piyueService.insertSciJiaocairuanzhuPiyue(sciJiaocairuanzhuPiyue);
         
         return toAjax(result);
     }
