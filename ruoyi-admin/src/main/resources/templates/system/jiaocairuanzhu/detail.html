@@ -451,9 +451,8 @@
                     '<button type="button" class="btn btn-sm btn-danger" onclick="submitHandlerBH()"> 驳 回</button> ' +
                     '<button type="button" class="btn btn-sm btn-warning" onclick="closeItem()"> 关 闭 </button>'
                 );
-            } else if (state === 'TEXTBOOK_PASSED' && urlFlag === 'hecha') {
+            } else if (state === 'TEXTBOOK_PASSED') {
                 $container.html(
-                    '<button type="button" class="btn btn-sm btn-warning" onclick="submitHandlerBH()"> 撤 回</button> ' +
                     '<button type="button" class="btn btn-sm btn-warning" onclick="closeItem()"> 关 闭 </button>'
                 );
             } else if (['kyc_recall', 'jys_recall', 'proth'].includes(urlFlag)) {
@@ -492,7 +491,18 @@
                 {
                     field : 'state',
                     title : '审核状态',
-                    width: 100
+                    width: 100,
+                    formatter: function(value, row, index) {
+                        if (!value) return value;
+                        var s = String(value);
+                        if (s.indexOf('新增') !== -1) return '新增';
+                        if (s.indexOf('更新') !== -1) return '更新';
+                        if (s.indexOf('提交') !== -1) return '提交';
+                        if (s.indexOf('通过') !== -1) return '通过';
+                        if (s.indexOf('驳回') !== -1) return '驳回';
+                        if (s.indexOf('撤回') !== -1) return '撤回';
+                        return s;
+                    }
                 } ]
         };
 
@@ -509,9 +519,7 @@
                 if (rows.length > 0) {
                     $(".tdiv2").show();
                 }
-                if (['pro', 'kyc_approve'].includes(urlFlagVal)) {
-                    $(".tdiv1").show();
-                }
+                $(".tdiv1").show();
             } else if (['kyc_recall', 'jys_recall', 'proth'].includes(urlFlagVal)) {
                 $(".tdiv1").show();
                 $(".tdiv2").show();

@@ -18,6 +18,8 @@ import com.ruoyi.system.domain.SciJiaocairuanzhuScoreCfg;
 import com.ruoyi.system.domain.SysApprovalHistory;
 import com.ruoyi.system.domain.SysApprovalNode;
 import com.ruoyi.system.domain.PageRenderResult;
+import com.ruoyi.system.domain.PageRenderActionItem;
+import com.ruoyi.system.constant.PageRenderActionConstants;
 import com.ruoyi.system.mapper.SciHorizontalPiyueMapper;
 import com.ruoyi.system.mapper.SciJiaocairuanzhuMemberMapper;
 import com.ruoyi.system.mapper.SciJiaocairuanzhuPiyueMapper;
@@ -116,8 +118,12 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
                 entity.getId() != null ? entity.getId().longValue() : null,
                 entity.getUserId() != null ? entity.getUserId().longValue() : null,
                 pageRenderService.buildCurrentPermissions(currentUser));
+        
+        // 对按钮列表进行后处理：科研处审批状态下移除撤回按钮
+        List<PageRenderActionItem> filteredActions = filterActions(result.getActions(), mappedState);
+        
         entity.setStatusMeta(result.getStatusMeta());
-        entity.setActions(result.getActions());
+        entity.setActions(filteredActions);
         entity.setState(mappedState);  // 更新状态字段为新编码格式
         return entity;
     }
@@ -141,8 +147,12 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
                     entity.getId() != null ? entity.getId().longValue() : null,
                     entity.getUserId() != null ? entity.getUserId().longValue() : null,
                     permissions);
+            
+            // 对按钮列表进行后处理：科研处审批状态下移除撤回按钮
+            List<PageRenderActionItem> filteredActions = filterActions(result.getActions(), mappedState);
+            
             entity.setStatusMeta(result.getStatusMeta());
-            entity.setActions(result.getActions());
+            entity.setActions(filteredActions);
             entity.setState(mappedState);  // 更新状态字段为新编码格式
         }
         return list;
@@ -572,10 +582,43 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
                     entity.getId() != null ? entity.getId().longValue() : null,
                     entity.getUserId() != null ? entity.getUserId().longValue() : null,
                     permissions);
+            
+            // 对按钮列表进行后处理：科研处审批状态下移除撤回按钮
+            List<PageRenderActionItem> filteredActions = filterActions(result.getActions(), mappedState);
+            
             entity.setStatusMeta(result.getStatusMeta());
-            entity.setActions(result.getActions());
-            entity.setState(mappedState);  // 更新状态字段为新编码格式
+            entity.setActions(filteredActions);
+            entity.setState(mappedState); // 更新状态字段为新编码格式
         }
+    }
+
+    /**
+     * 后处理按钮列表：科研处审批状态下不显示撤回按钮
+     *
+     * @param actions 原始按钮列表
+     * @param state 当前状态
+     * @return 过滤后的按钮列表
+     */
+    private List<PageRenderActionItem> filterActions(List<PageRenderActionItem> actions, String state) {
+        if (actions == null || actions.isEmpty()) {
+            return actions;
+        }
+        
+        // 判断是否为科研处审批状态
+        boolean isKycAudit = state != null && state.contains("_KYC_") && state.endsWith("_AUDIT");
+        
+        if (!isKycAudit) {
+            return actions;
+        }
+        
+        // 过滤掉撤回按钮
+        List<PageRenderActionItem> filtered = new ArrayList<>();
+        for (PageRenderActionItem action : actions) {
+            if (!PageRenderActionConstants.ACTION_RECALL.equals(action.getActionKey())) {
+                filtered.add(action);
+            }
+        }
+        return filtered;
     }
 
     /**
@@ -847,8 +890,12 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
                     entity.getId() != null ? entity.getId().longValue() : null,
                     entity.getUserId() != null ? entity.getUserId().longValue() : null,
                     permissions);
+            
+            // 对按钮列表进行后处理：科研处审批状态下移除撤回按钮
+            List<PageRenderActionItem> filteredActions = filterActions(result.getActions(), mappedState);
+            
             entity.setStatusMeta(result.getStatusMeta());
-            entity.setActions(result.getActions());
+            entity.setActions(filteredActions);
             entity.setState(mappedState);
         }
         return list;
