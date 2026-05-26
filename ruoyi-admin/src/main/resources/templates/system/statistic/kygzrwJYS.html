@@ -58,8 +58,6 @@
 				<a class="btn btn-warning btn-sm" onclick="$.form.reset('formId1')"><i class="fa fa-refresh"></i>&nbsp;重置</a>
 				<a class="btn btn-success btn-sm" onclick="$.table.exportExcel()"><i class="fa fa-download"></i>&nbsp;导出</a>
 			</form>
-			<button type="button" class="btn btn-primary btn-sm" onclick="toggleDisplay(event)" style="margin-left:8px;">切换显示模式</button>
-			<span id="modeLabel" style="margin-left:6px;font-size:12px;color:#666;">当前：按金额分组</span>
 		</div>
 		<div class="row">
 			<div class="col-sm-12 select-table table-bordered" style="margin:0;padding:0;">
@@ -74,37 +72,6 @@
     <script th:inline="javascript">
 		const total = 0;
 	const prefix = ctx + 'statistic';
-	var displayMode = localStorage.getItem('displayMode') || 'detail';
-
-	function toggleDisplay(event) {
-        if (event) event.preventDefault();
-		displayMode = (displayMode === 'detail' ? 'summary' : 'detail');
-		localStorage.setItem('displayMode', displayMode);
-		$('#modeLabel').text(displayMode === 'detail' ? '当前：按金额分组' : '当前：汇总总计');
-		var $table = $('#bootstrap-table');
-		var data = $table.bootstrapTable('getData');
-		var opts = $table.bootstrapTable('getOptions');
-		$table.bootstrapTable('refreshOptions', {
-			data: data,
-			pageNumber: opts.pageNumber,
-			totalRows: opts.totalRows
-		});
-        return false;
-	}
-
-	function gewanFormatter(varcharField, cntField, sumField, row) {
-		if (displayMode === 'summary') {
-			var hasSummary = row && row[cntField] != null && row[sumField] != null;
-			if (hasSummary) {
-				var cnt = row[cntField] || 0;
-				var sum = row[sumField] || 0;
-				if (cnt === 0) return '0个 (0万)';
-				return cnt + '个（' + sum.toFixed(2) + '万）';
-			}
-		}
-		if (!varcharField || varcharField === '') return '0个 (0万)';
-		return varcharField;
-	}
 
 	function countFormatter(varcharField) {
 		if (!varcharField || varcharField === '') return '0个';
@@ -129,6 +96,7 @@
 				virtualScroll: false,
 				height: 500,
 				stickyHeader: true,
+				scrollHorizontal: true,
 				exportUrl: prefix + "/export",
 				columns: [
 					[{
@@ -237,85 +205,85 @@
 						field: 'ewyyx',
 						title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2万元以下&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
 						align: 'center',
-						formatter: function(v, r) { return gewanFormatter(v, 'ewyyx_cnt', 'ewyyx_sum', r); }
+						formatter: function(v) { return countFormatter(v); }
 					},
 					{
 						field: 'edwwy',
 						title: '2-5万元（含2）',
 						align: 'center',
-						formatter: function(v, r) { return gewanFormatter(v, 'edwwy_cnt', 'edwwy_sum', r); }
+						formatter: function(v) { return countFormatter(v); }
 					},
 					{
 						field: 'wdswy',
 						title: '5-10万元（含5）',
 						align: 'center',
-						formatter: function(v, r) { return gewanFormatter(v, 'wdswy_cnt', 'wdswy_sum', r); }
+						formatter: function(v) { return countFormatter(v); }
 					},
 					{
 						field: 'sdeswy',
 						title: '10-20万元（含10）',
 						align: 'center',
-						formatter: function(v, r) { return gewanFormatter(v, 'sdeswy_cnt', 'sdeswy_sum', r); }
+						formatter: function(v) { return countFormatter(v); }
 					},
 					{
 						field: 'esdsswwy',
 						title: '20-35万元（含20）',
 						align: 'center',
-						formatter: function(v, r) { return gewanFormatter(v, 'esdsswwy_cnt', 'esdsswwy_sum', r); }
+						formatter: function(v) { return countFormatter(v); }
 					},
 					{
 						field: 'wswwydwswy',
 						title: '35-50万元（含35）',
 						align: 'center',
-						formatter: function(v, r) { return gewanFormatter(v, 'wswwydwswy_cnt', 'wswwydwswy_sum', r); }
+						formatter: function(v) { return countFormatter(v); }
 					},
 					{
 						field: 'wsdqswwy',
 						title: '50-75万元（含50）',
 						align: 'center',
-						formatter: function(v, r) { return gewanFormatter(v, 'wsdqswwy_cnt', 'wsdqswwy_sum', r); }
+						formatter: function(v) { return countFormatter(v); }
 					},
 					{
 						field: 'qswdybwy',
 						title: '75-100万元（含75）',
 						align: 'center',
-						formatter: function(v, r) { return gewanFormatter(v, 'qswdybwy_cnt', 'qswdybwy_sum', r); }
+						formatter: function(v) { return countFormatter(v); }
 					},
 					{
 						field: 'eyxxx',
-						title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2以下信息&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
+						title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2万元以下&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
 						align: 'center',
-						formatter: function(v, r) { return gewanFormatter(v, 'eyxxx_cnt', 'eyxxx_sum', r); }
+						formatter: function(v) { return countFormatter(v); }
 					},
 					{
 						field: 'edwxx',
-						title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2-5信息&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
+						title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2-5万元&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
 						align: 'center',
-						formatter: function(v, r) { return gewanFormatter(v, 'edwxx_cnt', 'edwxx_sum', r); }
+						formatter: function(v) { return countFormatter(v); }
 					},
 					{
 						field: 'wdsxx',
-						title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;5-10信息&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
+						title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;5-10万元&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
 						align: 'center',
-						formatter: function(v, r) { return gewanFormatter(v, 'wdsxx_cnt', 'wdsxx_sum', r); }
+						formatter: function(v) { return countFormatter(v); }
 					},
 					{
 						field: 'sdesxx',
-						title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;10-20信息&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
+						title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;10-20万元&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
 						align: 'center',
-						formatter: function(v, r) { return gewanFormatter(v, 'sdesxx_cnt', 'sdesxx_sum', r); }
+						formatter: function(v) { return countFormatter(v); }
 					},
 					{
 						field: 'esdsswxx',
-						title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;20-35信息&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
+						title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;20-35万元&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
 						align: 'center',
-						formatter: function(v, r) { return gewanFormatter(v, 'esdsswxx_cnt', 'esdsswxx_sum', r); }
+						formatter: function(v) { return countFormatter(v); }
 					},
 					{
 						field: 'sswdwsxx',
-						title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;35-50信息&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
+						title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;35-50万元&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
 						align: 'center',
-						formatter: function(v, r) { return gewanFormatter(v, 'sswdwsxx_cnt', 'sswdwsxx_sum', r); }
+						formatter: function(v) { return countFormatter(v); }
 					},
 					// {
 					// 	field: 'dywsxx',
@@ -505,12 +473,14 @@
 				const allRows = $table.bootstrapTable('getData');
 				if (!allRows || allRows.length === 0) return;
 
+				$tbody.find('.total-row').remove();
+
 				const totals = {};
 				const countFields = [
 					'zcgjjjkyxm', 'zcsbjjjkyxm', 'zcsbjjgxm', 'zcsbjzxkyxm', 'zctjjxhjkyxm', 'zcxjjxglxmywyys', 'zcxjjxglxmywyyx',
 					'ewyyx', 'edwwy', 'wdswy', 'sdeswy', 'esdsswwy', 'wswwydwswy', 'wsdqswwy', 'qswdybwy',
 					'eyxxx', 'edwxx', 'wdsxx', 'sdesxx', 'esdsswxx', 'sswdwsxx',
-					'SCI', 'EI', 'hx', 'sw', 'pt', 'xb',
+				'SCI', 'EI', 'hx', 'sw', 'pt', 'xb',
 					'cbzz1', 'cbzz2', 'cbyz1', 'cbyz2', 'cbjc1', 'cbjc2', 'zbjc',
 					'sqfmzl', 'syxxzl', 'wxsjzl', 'jsjrjzzq',
 					'sjjxcgj', 'sjkxjsj', 'stjjzrkxlpj', 'stjjsklpj', 'xjjxcgj', 'yyxkyxjcgj', 'xhjjxcgj', 'xhjkycgj',

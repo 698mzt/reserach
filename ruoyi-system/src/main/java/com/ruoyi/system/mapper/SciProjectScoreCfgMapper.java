@@ -81,19 +81,16 @@ public interface SciProjectScoreCfgMapper {
             " sci_Vertical_score_cfg t  ")
     List<Map<String, Object>> getVerticalCfgFunds();
 
-    @Select(" SELECT " +
-            " t.user_order, " +
-            " t.total_score, " +
-            " t.start_score, " +
-            " t.end_score  " +
-            "FROM " +
-            " sci_project_score_cfg t  " +
-            "WHERE " +
-            " t.funds_max = #{funds_max}  " +
-            " AND t.funds_min = #{funds_min}  " +
-            " AND t.project_type = #{project_type}  " +
-            "ORDER BY " +
-            " t.total_score + 0 DESC ")
+    @Select("<script>" +
+            " SELECT t.user_order, t.total_score, t.start_score, t.end_score " +
+            " FROM sci_project_score_cfg t " +
+            " WHERE " +
+            " <if test='funds_max != null'> t.funds_max = #{funds_max} </if>" +
+            " <if test='funds_max == null'> t.funds_max IS NULL </if>" +
+            " AND t.funds_min = #{funds_min} " +
+            " AND t.project_type = #{project_type} " +
+            " ORDER BY t.total_score + 0 DESC " +
+            "</script>")
     List<Map<String, Object>> getUserScoreList(Map<String, Object> fundsMap);
     @Select(" SELECT " +
             " t.user_order, " +

@@ -210,39 +210,39 @@
 					},
 					{
 						field: 'eyxxx',
-						title: '2以下信息',
+						title: '2万元以下',
 						align: 'center'
 					},
 					{
 						field: 'edwxx',
-						title: '2-5信息',
+						title: '2-5万元',
 						align: 'center'
 					},
 					{
 						field: 'wdsxx',
-						title: '5-10信息',
+						title: '5-10万元',
 						align: 'center'
 					},
 					{
 						field: 'sdesxx',
-						title: '10-20信息',
+						title: '10-20万元',
 						align: 'center'
 					},
 					{
 						field: 'esdsswxx',
-						title: '20-35信息',
+						title: '20-35万元',
 						align: 'center'
 					},
 					{
 						field: 'sswdwsxx',
-						title: '35-50信息',
+						title: '35-50万元',
 						align: 'center'
 					},
-					{
-						field: 'dywsxx',
-						title: '大于50信息',
-						align: 'center'
-					},
+					// {
+					// 	field: 'dywsxx',
+					// 	title: '大于50信息',
+					// 	align: 'center'
+					// },
 					{
 						field: 'SCI',
 						title: 'SCI',
@@ -394,7 +394,8 @@
 					{
 						field: 'xjxs',
 						title: '校级学术',
-						align: 'center'
+						align: 'center',
+						formatter: function(v) { return countFormatter(v); }
 					}
 				]
 			]
@@ -425,11 +426,26 @@
 			var allRows = $table.bootstrapTable('getData');
 			if (!allRows || allRows.length === 0) return;
 
+			var moneyFields = {
+				ewyyx: true, edwwy: true, wdswy: true, sdeswy: true, esdsswwy: true, wswwydwswy: true, wsdqswwy: true, qswdybwy: true,
+				eyxxx: true, edwxx: true, wdsxx: true, sdesxx: true, esdsswxx: true, sswdwsxx: true, dywsxx: true
+			};
+
+			function parseMoney(val) {
+				if (!val) return { count: 0, amount: 0 };
+				var countMatch = String(val).match(/(\d+)个/);
+				var amountMatch = String(val).match(/（([\d.]+)万/);
+				return {
+					count: countMatch ? parseInt(countMatch[1], 10) : 0,
+					amount: amountMatch ? parseFloat(amountMatch[1]) : 0
+				};
+			}
+
 			var totals = {};
 			var countFields = [
 				'zcgjjjkyxm', 'zcsbjjjkyxm', 'zcsbjjgxm', 'zcsbjzxkyxm', 'zctjjxhjkyxm', 'zcxjjxglxmywyys', 'zcxjjxglxmywyyx',
 				'ewyyx', 'edwwy', 'wdswy', 'sdeswy', 'esdsswwy', 'wswwydwswy', 'wsdqswwy', 'qswdybwy',
-				'eyxxx', 'edwxx', 'wdsxx', 'sdesxx', 'esdsswxx', 'sswdwsxx', 'dywsxx',
+				'eyxxx', 'edwxx', 'wdsxx', 'sdesxx', 'esdsswxx', 'sswdwsxx',
 				'SCI', 'EI', 'hx', 'sw', 'pt', 'xb',
 				'cbzz1', 'cbzz2', 'cbyz1', 'cbyz2', 'cbjc1', 'cbjc2', 'zbjc',
 				'sqfmzl', 'syxxzl', 'wxsjzl', 'jsjrjzzq',
@@ -438,7 +454,8 @@
 			];
 
 			for (var i = 0; i < countFields.length; i++) {
-				totals[countFields[i]] = 0;
+				var f = countFields[i];
+				totals[f] = moneyFields[f] ? { count: 0, amount: 0 } : 0;
 			}
 
 			for (var i = 0; i < allRows.length; i++) {
@@ -447,9 +464,15 @@
 					var field = countFields[j];
 					var val = row[field];
 					if (val) {
-						var match = String(val).match(/(\d+)/);
-						if (match) {
-							totals[field] += parseInt(match[1], 10);
+						if (moneyFields[field]) {
+							var parsed = parseMoney(val);
+							totals[field].count += parsed.count;
+							totals[field].amount += parsed.amount;
+						} else {
+							var match = String(val).match(/(\d+)/);
+							if (match) {
+								totals[field] += parseInt(match[1], 10);
+							}
 						}
 					}
 				}
@@ -457,7 +480,12 @@
 
 			var totalHtml = '<tr class="total-row"><td class="bs-checkbox"></td><td class="total-merged-cell" colspan="2">总计</td>';
 			for (var i = 0; i < countFields.length; i++) {
-				totalHtml += '<td>' + totals[countFields[i]] + '个</td>';
+				var f = countFields[i];
+				if (moneyFields[f]) {
+					totalHtml += '<td>' + totals[f].count + '个（' + totals[f].amount.toFixed(2) + '万）</td>';
+				} else {
+					totalHtml += '<td>' + totals[f] + '个</td>';
+				}
 			}
 			totalHtml += '</tr>';
 

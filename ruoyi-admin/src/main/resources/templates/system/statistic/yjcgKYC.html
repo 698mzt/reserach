@@ -54,7 +54,7 @@
 <script th:inline="none">
     var total = 0;
     var prefix = ctx + 'rewardkeyanchu';
-    var displayMode = localStorage.getItem('yjcgDisplayMode') || 'summary';
+    var displayMode = 'summary';
 
     $(function() {
         var options = {
@@ -68,7 +68,7 @@
             showToggle: false,
             exportUrl: prefix + "/export",
             pagination: true,
-            pageSize: 20,
+            pageSize: 10,
             virtualScroll: false,
             showSearch: false,
             columns:[
@@ -138,17 +138,23 @@
             ],
             responseHandler: function(res) {
                 if (res.rows) {
-                    var currentMode = localStorage.getItem('yjcgDisplayMode') || 'summary';
+                    var currentMode = displayMode;
                     var isDetail = (currentMode === 'detail');
+                    var filteredRows = [];
                     for (var i = 0; i < res.rows.length; i++) {
                         var row = res.rows[i];
+                        if (row.parentName === '总计') {
+                            continue;
+                        }
                         row['横向课题科研项目'] = isDetail
                             ? (row['横向课题科研项目_明细'] || row['横向课题科研项目_汇总'] || row['横向课题科研项目'])
                             : (row['横向课题科研项目_汇总'] || row['横向课题科研项目']);
                         row['成果转化'] = isDetail
                             ? (row['成果转化_明细'] || row['成果转化_汇总'] || row['成果转化'])
                             : (row['成果转化_汇总'] || row['成果转化']);
+                        filteredRows.push(row);
                     }
+                    res.rows = filteredRows;
                 }
                 return res;
             }
@@ -157,23 +163,91 @@
         initCrossPageSelection($('#bootstrap-table'), { scope: 'yjcg-kyc-v2' });
         initSelectionUi($('#bootstrap-table'));
 
+        function appendTotalRowToTable($table) {
+            var $tbody = $table.find('tbody');
+            $tbody.find('tr.total-row').remove();
+
+            var $dataRows = $tbody.find('tr').not('.total-row');
+            if ($dataRows.length === 0) return;
+
+            // 列索引：0=checkbox, 1=学院, 2=专业, 3=纵向校级以上, 4=纵向校级, 5=横向, 6=成果转化, 7=学术论文, 8=教材著作, 9=专利, 10=软著, 11=奖励, 12=学术报告
+            var countCols = [3, 4, 7, 8, 9, 10, 11, 12];  // 纯个数列
+            var amountCols = [5, 6];  // 横向和成果转化：X个（Y万）
+
+            var totals = {};
+            for (var idx = 0; idx < countCols.length; idx++) {
+                totals['c' + countCols[idx]] = 0;
+            }
+            for (var idx = 0; idx < amountCols.length; idx++) {
+                totals['a' + amountCols[idx] + '_cnt'] = 0;
+                totals['a' + amountCols[idx] + '_amt'] = 0;
+            }
+
+            $dataRows.each(function() {
+                var $cells = $(this).find('td');
+                // 纯个数列
+                for (var idx = 0; idx < countCols.length; idx++) {
+                    var ci = countCols[idx];
+                    var text = $cells.eq(ci).text().trim();
+                    if (text) {
+                        var match = text.match(/(\d+)\s*个/);
+                        if (match) {
+                            totals['c' + ci] += parseInt(match[1], 10);
+                        }
+                    }
+                }
+                // 金额列：X个（Y万）
+                for (var idx = 0; idx < amountCols.length; idx++) {
+                    var ci = amountCols[idx];
+                    var text = $cells.eq(ci).text().trim();
+                    if (text) {
+                        var match = text.match(/(\d+)\s*个\s*[（(]\s*([\d.]+)\s*万\s*[)）]/);
+                        if (match) {
+                            totals['a' + ci + '_cnt'] += parseInt(match[1], 10);
+                            totals['a' + ci + '_amt'] += parseFloat(match[2]);
+                        }
+                    }
+                }
+            });
+
+            var totalHtml = '<tr class="total-row"><td class="bs-checkbox"></td><td class="total-merged-cell" colspan="2">总计</td>';
+            // 纵向校级以上 (3)
+            totalHtml += '<td>' + totals['c3'] + '个</td>';
+            // 纵向校级 (4)
+            totalHtml += '<td>' + totals['c4'] + '个</td>';
+            // 横向 (5)：X个（Y万）
+            totalHtml += '<td>' + totals['a5_cnt'] + '个（' + totals['a5_amt'].toFixed(2) + '万）</td>';
+            // 成果转化 (6)：X个（Y万）
+            totalHtml += '<td>' + totals['a6_cnt'] + '个（' + totals['a6_amt'].toFixed(2) + '万）</td>';
+            // 学术论文 (7)
+            totalHtml += '<td>' + totals['c7'] + '个</td>';
+            // 教材著作 (8)
+            totalHtml += '<td>' + totals['c8'] + '个</td>';
+            // 专利 (9)
+            totalHtml += '<td>' + totals['c9'] + '个</td>';
+            // 软著 (10)
+            totalHtml += '<td>' + totals['c10'] + '个</td>';
+            // 奖励 (11)
+            totalHtml += '<td>' + totals['c11'] + '个</td>';
+            // 学术报告 (12)
+            totalHtml += '<td>' + totals['c12'] + '个</td>';
+            totalHtml += '</tr>';
+
+            $tbody.append(totalHtml);
+        }
+
         $('#bootstrap-table').on('load-success.bs.table', function () {
             var $table = $(this);
-            var $tbody = $table.find('tbody');
             setTimeout(function() {
-                $tbody.find('tr').each(function() {
-                    var $row = $(this);
-                    var $cells = $row.find('td');
-                    if ($cells.length > 2 && $cells.eq(1).text().trim() === '总计') {
-                        $row.addClass('total-row');
-                        $cells.eq(0).addClass('bs-checkbox');
-                        $cells.eq(1).addClass('total-merged-cell').attr('colspan', '2').text('总计');
-                        $cells.eq(2).hide();
-                    }
-                });
+                appendTotalRowToTable($table);
                 renderAchievementRose($table);
                 renderAchievementBar($table);
             }, 200);
+        });
+
+        $('#bootstrap-table').on('post-body.bs.table', function () {
+            var $table = $(this);
+            appendTotalRowToTable($table);
         });
 
         $('#bootstrap-table').on('check.bs.table uncheck.bs.table check-all.bs.table uncheck-all.bs.table', function () {

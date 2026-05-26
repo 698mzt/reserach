@@ -22,6 +22,13 @@
         <result property="rz"    column="rz"    />
         <result property="jl"    column="jl"    />
         <result property="jzbg"    column="jzbg"    />
+        <result property="zcgjjjkyxm"    column="zcgjjjkyxm"    />
+        <result property="zcsbjjjkyxm"    column="zcsbjjjkyxm"    />
+        <result property="zcsbjjgxm"    column="zcsbjjgxm"    />
+        <result property="zcsbjzxkyxm"    column="zcsbjzxkyxm"    />
+        <result property="zctjjxhjkyxm"    column="zctjjxhjkyxm"    />
+        <result property="zcxjjxglxmywyys"    column="zcxjjxglxmywyys"    />
+        <result property="zcxjjxglxmywyyx"    column="zcxjjxglxmywyyx"    />
     </resultMap>
 
     <resultMap type="ResearchWorkloadByJYS" id="ResearchWorkloadByJYSResult">
@@ -41,13 +48,67 @@
         <result property="rz"    column="rz"    />
         <result property="jl"    column="jl"    />
         <result property="jzbg"    column="jzbg"    />
+        <result property="zcgjjjkyxm"    column="zcgjjjkyxm"    />
+        <result property="zcsbjjjkyxm"    column="zcsbjjjkyxm"    />
+        <result property="zcsbjjgxm"    column="zcsbjjgxm"    />
+        <result property="zcsbjzxkyxm"    column="zcsbjzxkyxm"    />
+        <result property="zctjjxhjkyxm"    column="zctjjxhjkyxm"    />
+        <result property="zcxjjxglxmywyys"    column="zcxjjxglxmywyys"    />
+        <result property="zcxjjxglxmywyyx"    column="zcxjjxglxmywyyx"    />
+        <result property="ewyyx"    column="ewyyx"    />
+        <result property="edwwy"    column="edwwy"    />
+        <result property="wdswy"    column="wdswy"    />
+        <result property="sdeswy"    column="sdeswy"    />
+        <result property="esdsswwy"    column="esdsswwy"    />
+        <result property="wswwydwswy"    column="wswwydwswy"    />
+        <result property="wsdqswwy"    column="wsdqswwy"    />
+        <result property="qswdybwy"    column="qswdybwy"    />
+        <result property="eyxxx"    column="eyxxx"    />
+        <result property="edwxx"    column="edwxx"    />
+        <result property="wdsxx"    column="wdsxx"    />
+        <result property="sdesxx"    column="sdesxx"    />
+        <result property="esdsswxx"    column="esdsswxx"    />
+        <result property="sswdwsxx"    column="sswdwsxx"    />
+        <result property="dywsxx"    column="dywsxx"    />
+        <result property="sci"    column="SCI"    />
+        <result property="ei"    column="EI"    />
+        <result property="hx"    column="hx"    />
+        <result property="sw"    column="sw"    />
+        <result property="pt"    column="pt"    />
+        <result property="xb"    column="xb"    />
+        <result property="cbzz1"    column="cbzz1"    />
+        <result property="cbzz2"    column="cbzz2"    />
+        <result property="cbyz1"    column="cbyz1"    />
+        <result property="cbyz2"    column="cbyz2"    />
+        <result property="cbjc1"    column="cbjc1"    />
+        <result property="cbjc2"    column="cbjc2"    />
+        <result property="zbjc"    column="zbjc"    />
+        <result property="sqfmzl"    column="sqfmzl"    />
+        <result property="syxxzl"    column="syxxzl"    />
+        <result property="wxsjzl"    column="wxsjzl"    />
+        <result property="jsjrjzzq"    column="jsjrjzzq"    />
+        <result property="sjjxcgj"    column="sjjxcgj"    />
+        <result property="sjkxjsj"    column="sjkxjsj"    />
+        <result property="stjjzrkxlpj"    column="stjjzrkxlpj"    />
+        <result property="stjjsklpj"    column="stjjsklpj"    />
+        <result property="xjjxcgj"    column="xjjxcgj"    />
+        <result property="yyxkyxjcgj"    column="yyxkyxjcgj"    />
+        <result property="xhjjxcgj"    column="xhjjxcgj"    />
+        <result property="xhjkycgj"    column="xhjkycgj"    />
+        <result property="jbgj"    column="jbgj"    />
+        <result property="jbgn"    column="jbgn"    />
+        <result property="cjgj"    column="cjgj"    />
+        <result property="cjgn"    column="cjgn"    />
+        <result property="xjxs"    column="xjxs"    />
     </resultMap>
 
 
     <select id="selectAllTeacher" resultMap="ResearchWorkloadResult">
-        select su.login_name , ac.userId, ac.userName, ac.partenId, ac.partenName, ac.deptId, deptName, ac.hxkt, ac.zxktxj, ac.zxktxjys, ac.cgzh, ac.xslw, ac.jczz, ac.zl, ac.rz, ac.jl, ac.jzbg
+        select su.login_name , ac.userId, ac.userName, ac.partenId, ac.partenName, ac.deptId, ac.deptName, ac.hxkt, ac.zxktxj, ac.zxktxjys, ac.cgzh, ac.xslw, ac.jczz, ac.zl, ac.rz, ac.jl, ac.jzbg,
+        alt.zcgjjjkyxm, alt.zcsbjjjkyxm, alt.zcsbjjgxm, alt.zcsbjzxkyxm, alt.zctjjxhjkyxm, alt.zcxjjxglxmywyys, alt.zcxjjxglxmywyyx
         from Alltotle_score ac
         left join sys_user su on su.user_id  = ac.userId
+        left join Alltotle alt on alt.userId = ac.userId
         <where>
             <if test="dictValue != null and dictValue.size() > 0">
                 AND ac.partenId IN
@@ -56,10 +117,10 @@
                 </foreach>
             </if>
             <if test="pname != null and pname != ''">
-                AND partenName LIKE CONCAT('%', #{pname}, '%')
+                AND ac.partenName LIKE CONCAT('%', #{pname}, '%')
             </if>
             <if test="dname != null and dname != ''">
-                AND deptName LIKE CONCAT('%', #{dname}, '%')
+                AND ac.deptName LIKE CONCAT('%', #{dname}, '%')
             </if>
             <if test="userName != null and userName != ''">
                 AND ac.userName LIKE CONCAT('%', #{userName}, '%')
@@ -78,21 +139,106 @@
     </select>
 
     <select id="selectAllDept" resultMap="ResearchWorkloadByJYSResult">
-        select ac.partenId, ac.partenName, ac.deptId, deptName, sum(ac.hxkt) hxkt, sum(ac.zxktxj) zxktxj, sum(ac.zxktxjys) zxktxjys, sum(ac.cgzh) cgzh, sum(ac.xslw) xslw, sum(ac.jczz) jczz, sum(ac.zl) zl, sum(ac.rz) rz, sum(ac.jl)jl, sum(ac.jzbg) jzbg
+        select
+            ac.partenId, ac.partenName, ac.deptId, ac.deptName,
+            sum(ac.hxkt) hxkt, sum(ac.zxktxj) zxktxj, sum(ac.zxktxjys) zxktxjys,
+            sum(ac.cgzh) cgzh, sum(ac.xslw) xslw, sum(ac.jczz) jczz,
+            sum(ac.zl) zl, sum(ac.rz) rz, sum(ac.jl) jl, sum(ac.jzbg) jzbg,
+            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.zcgjjjkyxm, '个', 1) AS UNSIGNED)), '个'), '0个') AS zcgjjjkyxm,
+            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.zcsbjjjkyxm, '个', 1) AS UNSIGNED)), '个'), '0个') AS zcsbjjjkyxm,
+            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.zcsbjjgxm, '个', 1) AS UNSIGNED)), '个'), '0个') AS zcsbjjgxm,
+            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.zcsbjzxkyxm, '个', 1) AS UNSIGNED)), '个'), '0个') AS zcsbjzxkyxm,
+            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.zctjjxhjkyxm, '个', 1) AS UNSIGNED)), '个'), '0个') AS zctjjxhjkyxm,
+            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.zcxjjxglxmywyys, '个', 1) AS UNSIGNED)), '个'), '0个') AS zcxjjxglxmywyys,
+            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.zcxjjxglxmywyyx, '个', 1) AS UNSIGNED)), '个'), '0个') AS zcxjjxglxmywyyx,
+            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.SCI, '个', 1) AS UNSIGNED)), '个'), '0个') AS SCI,
+            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.EI, '个', 1) AS UNSIGNED)), '个'), '0个') AS EI,
+            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.hx, '个', 1) AS UNSIGNED)), '个'), '0个') AS hx,
+            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.sw, '个', 1) AS UNSIGNED)), '个'), '0个') AS sw,
+            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.pt, '个', 1) AS UNSIGNED)), '个'), '0个') AS pt,
+            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.xb, '个', 1) AS UNSIGNED)), '个'), '0个') AS xb,
+            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.cbzz1, '个', 1) AS UNSIGNED)), '个'), '0个') AS cbzz1,
+            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.cbzz2, '个', 1) AS UNSIGNED)), '个'), '0个') AS cbzz2,
+            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.cbyz1, '个', 1) AS UNSIGNED)), '个'), '0个') AS cbyz1,
+            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.cbyz2, '个', 1) AS UNSIGNED)), '个'), '0个') AS cbyz2,
+            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.cbjc1, '个', 1) AS UNSIGNED)), '个'), '0个') AS cbjc1,
+            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.cbjc2, '个', 1) AS UNSIGNED)), '个'), '0个') AS cbjc2,
+            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.zbjc, '个', 1) AS UNSIGNED)), '个'), '0个') AS zbjc,
+            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.sqfmzl, '个', 1) AS UNSIGNED)), '个'), '0个') AS sqfmzl,
+            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.syxxzl, '个', 1) AS UNSIGNED)), '个'), '0个') AS syxxzl,
+            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.wxsjzl, '个', 1) AS UNSIGNED)), '个'), '0个') AS wxsjzl,
+            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.jsjrjzzq, '个', 1) AS UNSIGNED)), '个'), '0个') AS jsjrjzzq,
+            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.sjjxcgj, '个', 1) AS UNSIGNED)), '个'), '0个') AS sjjxcgj,
+            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.sjkxjsj, '个', 1) AS UNSIGNED)), '个'), '0个') AS sjkxjsj,
+            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.stjjzrkxlpj, '个', 1) AS UNSIGNED)), '个'), '0个') AS stjjzrkxlpj,
+            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.stjjsklpj, '个', 1) AS UNSIGNED)), '个'), '0个') AS stjjsklpj,
+            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.xjjxcgj, '个', 1) AS UNSIGNED)), '个'), '0个') AS xjjxcgj,
+            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.yyxkyxjcgj, '个', 1) AS UNSIGNED)), '个'), '0个') AS yyxkyxjcgj,
+            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.xhjjxcgj, '个', 1) AS UNSIGNED)), '个'), '0个') AS xhjjxcgj,
+            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.xhjkycgj, '个', 1) AS UNSIGNED)), '个'), '0个') AS xhjkycgj,
+            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.jbgj, '个', 1) AS UNSIGNED)), '个'), '0个') AS jbgj,
+            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.jbgn, '个', 1) AS UNSIGNED)), '个'), '0个') AS jbgn,
+            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.cjgj, '个', 1) AS UNSIGNED)), '个'), '0个') AS cjgj,
+            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.cjgn, '个', 1) AS UNSIGNED)), '个'), '0个') AS cjgn,
+            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.xjxs, '个', 1) AS UNSIGNED)), '个'), '0个') AS xjxs,
+            MAX(COALESCE(hx.ewyyx, '0个（0万）')) AS ewyyx,
+            MAX(COALESCE(hx.edwwy, '0个（0万）')) AS edwwy,
+            MAX(COALESCE(hx.wdswy, '0个（0万）')) AS wdswy,
+            MAX(COALESCE(hx.sdeswy, '0个（0万）')) AS sdeswy,
+            MAX(COALESCE(hx.esdsswwy, '0个（0万）')) AS esdsswwy,
+            MAX(COALESCE(hx.wswwydwswy, '0个（0万）')) AS wswwydwswy,
+            MAX(COALESCE(hx.wsdqswwy, '0个（0万）')) AS wsdqswwy,
+            MAX(COALESCE(hx.qswdybwy, '0个（0万）')) AS qswdybwy,
+            MAX(COALESCE(cg.eyxxx, '0个（0万）')) AS eyxxx,
+            MAX(COALESCE(cg.edwxx, '0个（0万）')) AS edwxx,
+            MAX(COALESCE(cg.wdsxx, '0个（0万）')) AS wdsxx,
+            MAX(COALESCE(cg.sdesxx, '0个（0万）')) AS sdesxx,
+            MAX(COALESCE(cg.esdsswxx, '0个（0万）')) AS esdsswxx,
+            MAX(COALESCE(cg.sswdwsxx, '0个（0万）')) AS sswdwsxx,
+            MAX(COALESCE(cg.dywsxx, '0个（0万）')) AS dywsxx
         from Alltotle_score ac
-        left join sys_user su on su.user_id  = ac.userId
+        left join Alltotle alt on alt.userId = ac.userId
+        left join (
+            select su1.dept_id,
+                CONCAT(SUM(CASE WHEN h.amount &lt; 2 THEN 1 ELSE 0 END), '个（', ROUND(SUM(CASE WHEN h.amount &lt; 2 THEN h.amount ELSE 0 END), 2), '万）') AS ewyyx,
+                CONCAT(SUM(CASE WHEN h.amount >= 2 AND h.amount &lt; 5 THEN 1 ELSE 0 END), '个（', ROUND(SUM(CASE WHEN h.amount >= 2 AND h.amount &lt; 5 THEN h.amount ELSE 0 END), 2), '万）') AS edwwy,
+                CONCAT(SUM(CASE WHEN h.amount >= 5 AND h.amount &lt; 10 THEN 1 ELSE 0 END), '个（', ROUND(SUM(CASE WHEN h.amount >= 5 AND h.amount &lt; 10 THEN h.amount ELSE 0 END), 2), '万）') AS wdswy,
+                CONCAT(SUM(CASE WHEN h.amount >= 10 AND h.amount &lt; 20 THEN 1 ELSE 0 END), '个（', ROUND(SUM(CASE WHEN h.amount >= 10 AND h.amount &lt; 20 THEN h.amount ELSE 0 END), 2), '万）') AS sdeswy,
+                CONCAT(SUM(CASE WHEN h.amount >= 20 AND h.amount &lt; 35 THEN 1 ELSE 0 END), '个（', ROUND(SUM(CASE WHEN h.amount >= 20 AND h.amount &lt; 35 THEN h.amount ELSE 0 END), 2), '万）') AS esdsswwy,
+                CONCAT(SUM(CASE WHEN h.amount >= 35 AND h.amount &lt; 50 THEN 1 ELSE 0 END), '个（', ROUND(SUM(CASE WHEN h.amount >= 35 AND h.amount &lt; 50 THEN h.amount ELSE 0 END), 2), '万）') AS wswwydwswy,
+                CONCAT(SUM(CASE WHEN h.amount >= 50 AND h.amount &lt; 75 THEN 1 ELSE 0 END), '个（', ROUND(SUM(CASE WHEN h.amount >= 50 AND h.amount &lt; 75 THEN h.amount ELSE 0 END), 2), '万）') AS wsdqswwy,
+                CONCAT(SUM(CASE WHEN h.amount >= 75 AND h.amount &lt; 100 THEN 1 ELSE 0 END), '个（', ROUND(SUM(CASE WHEN h.amount >= 75 AND h.amount &lt; 100 THEN h.amount ELSE 0 END), 2), '万）') AS qswdybwy
+            from sci_horizontal_apply h
+            join sys_user su1 on su1.user_id = h.user_id
+            where h.state in ('HORIZONTAL_APPLY_PASSED', 'HORIZONTAL_OVER_PASSED')
+            group by su1.dept_id
+        ) hx on hx.dept_id = ac.deptId
+        left join (
+            select su2.dept_id,
+                CONCAT(SUM(CASE WHEN c.amount &lt; 2 THEN 1 ELSE 0 END), '个（', ROUND(SUM(CASE WHEN c.amount &lt; 2 THEN c.amount ELSE 0 END), 2), '万）') AS eyxxx,
+                CONCAT(SUM(CASE WHEN c.amount >= 2 AND c.amount &lt; 5 THEN 1 ELSE 0 END), '个（', ROUND(SUM(CASE WHEN c.amount >= 2 AND c.amount &lt; 5 THEN c.amount ELSE 0 END), 2), '万）') AS edwxx,
+                CONCAT(SUM(CASE WHEN c.amount >= 5 AND c.amount &lt; 10 THEN 1 ELSE 0 END), '个（', ROUND(SUM(CASE WHEN c.amount >= 5 AND c.amount &lt; 10 THEN c.amount ELSE 0 END), 2), '万）') AS wdsxx,
+                CONCAT(SUM(CASE WHEN c.amount >= 10 AND c.amount &lt; 20 THEN 1 ELSE 0 END), '个（', ROUND(SUM(CASE WHEN c.amount >= 10 AND c.amount &lt; 20 THEN c.amount ELSE 0 END), 2), '万）') AS sdesxx,
+                CONCAT(SUM(CASE WHEN c.amount >= 20 AND c.amount &lt; 35 THEN 1 ELSE 0 END), '个（', ROUND(SUM(CASE WHEN c.amount >= 20 AND c.amount &lt; 35 THEN c.amount ELSE 0 END), 2), '万）') AS esdsswxx,
+                CONCAT(SUM(CASE WHEN c.amount >= 35 AND c.amount &lt; 50 THEN 1 ELSE 0 END), '个（', ROUND(SUM(CASE WHEN c.amount >= 35 AND c.amount &lt; 50 THEN c.amount ELSE 0 END), 2), '万）') AS sswdwsxx,
+                CONCAT(SUM(CASE WHEN c.amount >= 50 THEN 1 ELSE 0 END), '个（', ROUND(SUM(CASE WHEN c.amount >= 50 THEN c.amount ELSE 0 END), 2), '万）') AS dywsxx
+            from sci_IntraSchPro_apply c
+            join sys_user su2 on su2.user_id = c.first_person_id
+            where c.state = 6
+            group by su2.dept_id
+        ) cg on cg.dept_id = ac.deptId
          <where>
             <if test="dictValue != null and dictValue.size() > 0">
-                AND partenId IN
+                AND ac.partenId IN
                 <foreach collection="dictValue" item="dictVal" open="(" separator="," close=")">
                     #{dictVal}
                 </foreach>
             </if>
             <if test="pname != null and pname != ''">
-                AND partenName LIKE CONCAT('%', #{pname}, '%')
+                AND ac.partenName LIKE CONCAT('%', #{pname}, '%')
             </if>
             <if test="dname != null and dname != ''">
-                AND deptName LIKE CONCAT('%', #{dname}, '%')
+                AND ac.deptName LIKE CONCAT('%', #{dname}, '%')
             </if>
             <if test="userName != null and userName != ''">
                 AND ac.userName LIKE CONCAT('%', #{userName}, '%')
@@ -101,7 +247,7 @@
                 AND ac.partenId = #{collegeParentId}
             </if>
         </where>
-        GROUP BY ac.partenId, ac.partenName, deptId, deptName
+        GROUP BY ac.partenId, ac.partenName, ac.deptId, ac.deptName
         order by ac.partenName asc, ac.deptName asc
     </select>
 

@@ -62,6 +62,56 @@
     </delete>
 
 
+    <update id="InitializeAlltotleDisplayDefaults">
+        UPDATE Alltotle
+        SET
+            ewyyx = '0个（0万）',
+            edwwy = '0个（0万）',
+            wdswy = '0个（0万）',
+            sdeswy = '0个（0万）',
+            esdsswwy = '0个（0万）',
+            wswwydwswy = '0个（0万）',
+            wsdqswwy = '0个（0万）',
+            qswdybwy = '0个（0万）',
+            zcgjjjkyxm = '0个',
+            zcsbjjjkyxm = '0个',
+            zcsbjjgxm = '0个',
+            zcsbjzxkyxm = '0个',
+            zctjjxhjkyxm = '0个',
+            zcxjjxglxmywyys = '0个',
+            zcxjjxglxmywyyx = '0个',
+            sqfmzl = '0个',
+            syxxzl = '0个',
+            wxsjzl = '0个',
+            jsjrjzzq = '0个',
+            cbzz1 = '0个',
+            cbzz2 = '0个',
+            cbyz1 = '0个',
+            cbyz2 = '0个',
+            cbjc1 = '0个',
+            cbjc2 = '0个',
+            zbjc = '0个',
+            sjjxcgj = '0个',
+            sjkxjsj = '0个',
+            stjjzrkxlpj = '0个',
+            stjjsklpj = '0个',
+            xjjxcgj = '0个',
+            yyxkyxjcgj = '0个',
+            xhjjxcgj = '0个',
+            xhjkycgj = '0个',
+            SCI = '0个',
+            EI = '0个',
+            hx = '0个',
+            sw = '0个',
+            pt = '0个',
+            xb = '0个',
+            jbgj = '0个',
+            jbgn = '0个',
+            cjgj = '0个',
+            cjgn = '0个',
+            xjxs = '0个'
+    </update>
+
 <!--    更新alltotal表的横向课题数据-->
     <update id="SynchronizeHX">
         UPDATE Alltotle a
@@ -69,7 +119,7 @@
         JOIN (
         SELECT
         user_id,
-        -- 2万元以下区间：有数据拼实际结果，无数据显示"0个(0万)"
+        -- 2万元以下区间：有数据拼实际结果，无数据显示"0个（0万）"
         IFNULL(
         -- 仅拼接符合条件的结果（无符合条件时GROUP_CONCAT返回NULL）
         GROUP_CONCAT(
@@ -77,7 +127,7 @@
         THEN CONCAT(cnt, '个（', ROUND(amount, 2), '万）')
         END SEPARATOR '，'
         ),
-        '0个(0万)'  -- 兜底：GROUP_CONCAT为NULL时显示默认值
+        '0个（0万）'  -- 兜底：GROUP_CONCAT为NULL时显示默认值
         ) AS ewyyx_formatted,
         -- 2-5万元（含2万）：同上逻辑
         IFNULL(
@@ -86,7 +136,7 @@
         THEN CONCAT(cnt, '个（', ROUND(amount, 2), '万）')
         END SEPARATOR '，'
         ),
-        '0个(0万)'
+        '0个（0万）'
         ) AS edwwy_formatted,
         -- 5-10万元（含5万）
         IFNULL(
@@ -95,7 +145,7 @@
         THEN CONCAT(cnt, '个（', ROUND(amount, 2), '万）')
         END SEPARATOR '，'
         ),
-        '0个(0万)'
+        '0个（0万）'
         ) AS wdswy_formatted,
         -- 10-20万元（含10万）
         IFNULL(
@@ -104,7 +154,7 @@
         THEN CONCAT(cnt, '个（', ROUND(amount, 2), '万）')
         END SEPARATOR '，'
         ),
-        '0个(0万)'
+        '0个（0万）'
         ) AS sdeswy_formatted,
         -- 20-35万元（含20万）
         IFNULL(
@@ -113,7 +163,7 @@
         THEN CONCAT(cnt, '个（', ROUND(amount, 2), '万）')
         END SEPARATOR '，'
         ),
-        '0个(0万)'
+        '0个（0万）'
         ) AS esdsswwy_formatted,
         -- 35-50万元（含35万）
         IFNULL(
@@ -122,7 +172,7 @@
         THEN CONCAT(cnt, '个（', ROUND(amount, 2), '万）')
         END SEPARATOR '，'
         ),
-        '0个(0万)'
+        '0个（0万）'
         ) AS wswwydwswy_formatted,
         -- 50-75万元（含50万）
         IFNULL(
@@ -131,7 +181,7 @@
         THEN CONCAT(cnt, '个（', ROUND(amount, 2), '万）')
         END SEPARATOR '，'
         ),
-        '0个(0万)'
+        '0个（0万）'
         ) AS wsdqswwy_formatted,
         -- 75-100万元（含75万）
         IFNULL(
@@ -140,7 +190,7 @@
         THEN CONCAT(cnt, '个（', ROUND(amount, 2), '万）')
         END SEPARATOR '，'
         ),
-        '0个(0万)'
+        '0个（0万）'
         ) AS qswdybwy_formatted
         FROM (
         -- 内层子查询：按user_id+amount分组统计实际课题（单位：万元）
@@ -287,10 +337,10 @@
             GROUP BY user_id
             ) b ON a.userId = b.user_id
             SET
-                a.sqfmzl = COALESCE(b.count_fenlei_1, 0),
-                a.syxxzl = COALESCE(b.count_fenlei_2, 0),
-                a.wxsjzl = COALESCE(b.count_fenlei_3, 0),
-                a.jsjrjzzq = COALESCE(b.count_fenlei_4, 0)
+                a.sqfmzl = COALESCE(b.count_fenlei_1, '0个'),
+                a.syxxzl = COALESCE(b.count_fenlei_2, '0个'),
+                a.wxsjzl = COALESCE(b.count_fenlei_3, '0个'),
+                a.jsjrjzzq = COALESCE(b.count_fenlei_4, '0个')
     </update>
     <update id="SynchronizeScoreZL">
         -- 更新alltotle_score表中的专利总积分
@@ -357,13 +407,13 @@
             GROUP BY user_id
             ) AS stats ON a.userId = stats.user_id
             SET
-                a.cbzz1 = COALESCE(stats.fenlei_1, 0),
-                a.cbzz2 = COALESCE(stats.fenlei_2, 0),
-                a.cbyz1 = COALESCE(stats.fenlei_3, 0),
-                a.cbyz2 = COALESCE(stats.fenlei_4, 0),
-                a.cbjc1 = COALESCE(stats.fenlei_5, 0),
-                a.cbjc2 = COALESCE(stats.fenlei_6, 0),
-                a.zbjc = COALESCE(stats.fenlei_7, 0)
+                a.cbzz1 = COALESCE(stats.fenlei_1, '0个'),
+                a.cbzz2 = COALESCE(stats.fenlei_2, '0个'),
+                a.cbyz1 = COALESCE(stats.fenlei_3, '0个'),
+                a.cbyz2 = COALESCE(stats.fenlei_4, '0个'),
+                a.cbjc1 = COALESCE(stats.fenlei_5, '0个'),
+                a.cbjc2 = COALESCE(stats.fenlei_6, '0个'),
+                a.zbjc = COALESCE(stats.fenlei_7, '0个')
     </update>
     <update id="SynchronizeScoreJCZZ">
         -- 更新alltotle_score表中的教材专著总积分
@@ -466,12 +516,12 @@
             p.user_id
             ) sp ON a.userId = sp.user_id
             SET
-                a.SCI = COALESCE(sp.SCI, 0),
-                a.EI = COALESCE(sp.EI, 0),
-                a.hx = COALESCE(sp.hx, 0),
-                a.sw = COALESCE(sp.sw, 0),
-                a.pt = COALESCE(sp.pt, 0),
-                a.xb = COALESCE(sp.xb, 0)
+                a.SCI = COALESCE(sp.SCI, '0个'),
+                a.EI = COALESCE(sp.EI, '0个'),
+                a.hx = COALESCE(sp.hx, '0个'),
+                a.sw = COALESCE(sp.sw, '0个'),
+                a.pt = COALESCE(sp.pt, '0个'),
+                a.xb = COALESCE(sp.xb, '0个')
     </update>
     <update id="SynchronizeScoreXSLW">
         -- 更新alltotle_score表中的学术论文总积分
@@ -498,7 +548,7 @@
 <!--    同步讲座报告数据-->
     <update id="SynchronizeReport">
         UPDATE Alltotle a
-            JOIN (
+            LEFT JOIN (
             SELECT
             user_id,
             -- 统计举办国际
@@ -516,11 +566,11 @@
             GROUP BY user_id
             ) b ON a.userId = b.user_id
             SET
-                a.jbgj = COALESCE(b.jbgj_count, 0),
-                a.jbgn = COALESCE(b.jbgn_count, 0),
-                a.cjgj = COALESCE(b.cjgj_count, 0),
-                a.cjgn = COALESCE(b.cjgn_count, 0),
-                a.xjxs = COALESCE(b.xjxs_count, 0)
+                a.jbgj = COALESCE(b.jbgj_count, '0个'),
+                a.jbgn = COALESCE(b.jbgn_count, '0个'),
+                a.cjgj = COALESCE(b.cjgj_count, '0个'),
+                a.cjgn = COALESCE(b.cjgn_count, '0个'),
+                a.xjxs = COALESCE(b.xjxs_count, '0个')
     </update>
     <update id="SynchronizeScoreJZBG">
         -- 更新alltotle_score表中的讲座报告总积分

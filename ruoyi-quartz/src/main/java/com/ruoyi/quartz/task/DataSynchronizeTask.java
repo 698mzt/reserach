@@ -46,6 +46,9 @@ public class DataSynchronizeTask {
     // 删除不存在的用户数据
     SynchronizeDeleteUser();
 
+    // 初始化 Alltotle 展示字段默认值
+    initializeAlltotleDisplayDefaults();
+
     // 同步横向课题数据
     synchronizeHX();
 
@@ -88,6 +91,12 @@ public class DataSynchronizeTask {
 //    积分表
     synchronizeDataMapper.SynchronizeDeleteUserForScore();
     log.info("用户数据同步完成");
+  }
+
+  public void initializeAlltotleDisplayDefaults() {
+    log.info("Alltotle 展示默认值初始化开始");
+    synchronizeDataMapper.InitializeAlltotleDisplayDefaults();
+    log.info("Alltotle 展示默认值初始化完成");
   }
 
 

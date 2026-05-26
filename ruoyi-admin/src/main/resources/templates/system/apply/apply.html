@@ -720,13 +720,11 @@
                 return owner && hasPagePermission(editFlag) && isDraftState(state);
             }
             if (key === 'recall') {
-                if (state.indexOf('_JYS_AUDIT') !== -1) {
-                    return owner;
+                if (isRejectedState(state)) {
+                    return hasPagePermission(proFlag) || hasPagePermission(kyrevokeFlag);
                 }
-                if (state.indexOf('_KYC_AUDIT') !== -1) {
-                    return hasPagePermission(proFlag);
-                }
-                if (isPassedState(state)) {
+                // 结项通过状态：仅科研处（kyrevoke权限）可撤回
+                if (isPassedState(state) && state.indexOf('HORIZONTAL_OVER_') !== -1) {
                     return hasPagePermission(kyrevokeFlag);
                 }
                 return false;
@@ -758,7 +756,7 @@
                 return owner && hasPagePermission(createFlag) && isPassedState(state);
             }
             if (key === 'reamount') {
-                return owner && hasPagePermission(editFlag) && !isDraftState(state);
+                return owner && hasPagePermission(editFlag);
             }
             return true;
         });
@@ -1662,7 +1660,6 @@
             success: function (response) {
                 const eventList = document.getElementById('event-list');
                 eventList.innerHTML = '';
-                response.rows.sort((a, b) => new Date(b.createTime) - new Date(a.createTime));
                 response.rows.forEach(function (row) {
                     const li = document.createElement('li');
                     li.innerHTML = `
@@ -1692,7 +1689,6 @@
             success: function (response) {
                 const eventList = document.getElementById('event-list');
                 eventList.innerHTML = '';
-                response.rows.sort((a, b) => new Date(b.createTime) - new Date(a.createTime));
                 response.rows.forEach(function (row) {
                     const li = document.createElement('li');
                     li.innerHTML = `
@@ -1725,7 +1721,6 @@
             success: function (response) {
                 const eventList = document.getElementById('event-list');
                 eventList.innerHTML = '';
-                response.rows.sort((a, b) => new Date(b.createTime) - new Date(a.createTime));
                 response.rows.forEach(function (row) {
                     const li = document.createElement('li');
                     li.innerHTML = `

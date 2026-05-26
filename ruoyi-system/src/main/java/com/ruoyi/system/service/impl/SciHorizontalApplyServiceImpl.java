@@ -107,9 +107,9 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
                 statusMeta = buildFallbackStatusMeta(currentState);
             }
             apply.setStatusMeta(statusMeta);
-            // 立项已提交状态下（非草稿），仅申请人/所有者补充追加金额按钮
+            // 立项流程全部状态（含草稿），仅申请人/所有者补充追加金额按钮
             List<PageRenderActionItem> actions = result.getActions();
-            if (currentState != null && !currentState.endsWith("_DRAFT")) {
+            if (currentState != null && currentState.startsWith("HORIZONTAL_APPLY_")) {
                 boolean isOwner = apply.getUserId() != null && currentUser.getUserId() != null
                         && apply.getUserId().longValue() == currentUser.getUserId().longValue();
                 boolean isAdmin = currentUser.isAdmin();
@@ -925,8 +925,6 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
                 if (sciHorizontalApply.getReAmount() != null && StringUtils.isNotEmpty(sciHorizontalApply.getReAmount())){
                     credited = credited.add(new BigDecimal(sciHorizontalApply.getReAmount()));
                 }
-//                项目金额
-                BigDecimal applied = new BigDecimal(sciHorizontalApply.getAmount());
             } catch (NumberFormatException e) {
                 return -2; // 解析失败
             }
@@ -2250,9 +2248,11 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
                 sciHorizontalApplyMapper.updateState(applyId, correctedState);
                 result = ApprovalResult.ok(result.getMessage(), correctedState);
             }
-            // 驳回后将 DRAFT 状态修正为 REJECTED，以正确显示"立项-驳回"而非"立项-草稿"
-            if (correctedState.endsWith("_DRAFT")) {
-                correctedState = correctedState.replace("_DRAFT", "_REJECTED");
+            // 驳回后统一将状态修正为 REJECTED，无论审批流回退到哪个节点
+            if (!correctedState.endsWith("_REJECTED")) {
+                correctedState = correctedState.contains("HORIZONTAL_OVER_")
+                        ? "HORIZONTAL_OVER_REJECTED"
+                        : "HORIZONTAL_APPLY_REJECTED";
                 sciHorizontalApplyMapper.updateState(applyId, correctedState);
                 result = ApprovalResult.ok(result.getMessage(), correctedState);
             }
@@ -2508,9 +2508,11 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
                 sciHorizontalApplyMapper.updateState(applyId, correctedState);
                 result = ApprovalResult.ok(result.getMessage(), correctedState);
             }
-            // 驳回后将 DRAFT 状态修正为 REJECTED
-            if (correctedState.endsWith("_DRAFT")) {
-                correctedState = correctedState.replace("_DRAFT", "_REJECTED");
+            // 驳回后统一将状态修正为 REJECTED，无论审批流回退到哪个节点
+            if (!correctedState.endsWith("_REJECTED")) {
+                correctedState = correctedState.contains("HORIZONTAL_OVER_")
+                        ? "HORIZONTAL_OVER_REJECTED"
+                        : "HORIZONTAL_APPLY_REJECTED";
                 sciHorizontalApplyMapper.updateState(applyId, correctedState);
                 result = ApprovalResult.ok(result.getMessage(), correctedState);
             }
