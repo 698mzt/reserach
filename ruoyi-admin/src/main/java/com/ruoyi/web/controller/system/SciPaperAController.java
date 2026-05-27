@@ -28,6 +28,8 @@ import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.common.core.page.TableDataInfo;
+import com.ruoyi.system.domain.ApprovalRequest;
+import com.ruoyi.system.domain.ApprovalResult;
 import org.springframework.web.multipart.MultipartFile;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
@@ -61,6 +63,9 @@ public class SciPaperAController extends BaseController {
 
     @Resource
     private IPageRenderService pageRenderService;
+
+    @Resource
+    private IApprovalProcessService approvalProcessService;
 
     private List<Long> collage_role_ids = new ArrayList<>(Arrays.asList(103L, 104L, 105L, 106L, 107L, 108L, 116L, 117L, 118L, 119L));
 
@@ -626,6 +631,7 @@ public class SciPaperAController extends BaseController {
      * @SQL 1. 执行updateSciPaperA更新论文数据
      * 2. 执行deletePaperUserScoreByPaperId删除旧作者信息
      * 3. 执行batchInsertPaperUserScore批量插入新作者分数数据
+     * 4. 执行insertSciPaperAr插入编辑操作记录
      */
     @RequiresPermissions("system:paper:edit")
     @Log(title = "论文修改", businessType = BusinessType.UPDATE)
@@ -717,6 +723,14 @@ public class SciPaperAController extends BaseController {
                 } else if (authorResult == -6) {
                     throw new RuntimeException("一作和通讯作者都是校外人员，只能录入本校论文");
                 }
+
+                // 记录编辑操作历史到批阅记录表
+                SciPaperAr sciPaperAr = new SciPaperAr();
+                sciPaperAr.setAr_id(Math.toIntExact(sciPaperA.getId()));
+                sciPaperAr.setUid(userId);
+                sciPaperAr.setConcate("编辑");
+                sciPaperAr.setState("编辑");
+                sciPaperAMapper.insertSciPaperAr(sciPaperAr);
             }
 
             return toAjax(result);
@@ -812,8 +826,8 @@ public class SciPaperAController extends BaseController {
      * 提交论文草稿
      * @param id 论文ID
      * @return 提交结果
-     * @SQL 1. 执行insertSciPaperAr插入草稿提交记录
-     * 2. 执行updateSciPaperAState更新论文状态为待审核
+     * @SQL 1. 调用审批工作流提交申请，自动记录审批历史
+     * 2. 插入批阅记录表作为业务操作记录
      */
     @Log(title = "论文草稿提交", businessType = BusinessType.UPDATE)
     @PostMapping("/tj/{id}")
@@ -832,13 +846,36 @@ public class SciPaperAController extends BaseController {
             return error("无权操作该论文");
         }
 
+        // 获取用户信息
+        SysUser user = userService.selectUserById(currentUserId);
+        if (user == null) {
+            return error("用户信息不存在");
+        }
+
+        // 构建审批请求并调用审批工作流，自动记录审批历史
+        ApprovalRequest request = ApprovalRequest.of(
+                "PAPER_APPROVAL",
+                Long.valueOf(id),
+                paper.getState(),
+                "提交申请",
+                currentUserId,
+                user.getUserName(),
+                user.getDept() != null ? user.getDept().getDeptName() : "");
+
+        ApprovalResult result = approvalProcessService.submitApproval(request);
+        if (!result.isSuccess()) {
+            return error("提交失败：" + result.getMessage());
+        }
+
+        // 插入批阅记录（业务操作记录）
         SciPaperAr sciPaperAr = new SciPaperAr();
         sciPaperAr.setAr_id(id);
         sciPaperAr.setUid(getUserId());
         sciPaperAr.setConcate("提交");
         sciPaperAr.setState("提交");
         sciPaperAMapper.insertSciPaperAr(sciPaperAr);
-        return toAjax(sciPaperAService.updateSciPaperAState(id));
+
+        return AjaxResult.success("提交成功");
     }
 
     /**
