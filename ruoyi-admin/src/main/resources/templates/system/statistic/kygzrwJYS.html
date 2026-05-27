@@ -78,6 +78,22 @@
 		return varcharField;
 	}
 
+	function zcFormatter(val) {
+		if (!val || val === '') return '0个';
+		var countMatch = String(val).match(/(\d+)个/);
+		var count = countMatch ? parseInt(countMatch[1], 10) : 0;
+		return count + '个';
+	}
+
+	function hxFormatter(val) {
+		if (!val || val === '') return '0个（0.00万）';
+		var countMatch = String(val).match(/(\d+)个/);
+		var amountMatch = String(val).match(/（([\d.]+)万/);
+		var count = countMatch ? parseInt(countMatch[1], 10) : 0;
+		var amount = amountMatch ? parseFloat(amountMatch[1]) : 0;
+		return count + '个（' + amount.toFixed(2) + '万）';
+	}
+
 	function cntScoreFormatter(scoreField, varcharValue, row) {
 		var score = row[scoreField] || varcharValue || '0';
 		return Number(score).toFixed(2);
@@ -163,127 +179,127 @@
 						field: 'zcgjjjkyxm',
 						title: '主持国家基金科研项目',
 						align: 'center',
-						formatter: function(v) { return countFormatter(v); }
+						formatter: function(v) { return zcFormatter(v); }
 					},
 					{
 						field: 'zcsbjjjkyxm',
 						title: '主持省部级基金科研项目',
 						align: 'center',
-						formatter: function(v) { return countFormatter(v); }
+						formatter: function(v) { return zcFormatter(v); }
 					},
 					{
 						field: 'zcsbjjgxm',
 						title: '主持省部级教改项目',
 						align: 'center',
-						formatter: function(v) { return countFormatter(v); }
+						formatter: function(v) { return zcFormatter(v); }
 					},
 					{
 						field: 'zcsbjzxkyxm',
 						title: '主持省部级纵向科研项目',
 						align: 'center',
-						formatter: function(v) { return countFormatter(v); }
+						formatter: function(v) { return zcFormatter(v); }
 					},
 					{
 						field: 'zctjjxhjkyxm',
 						title: '主持厅局级、学会级科研项目',
 						align: 'center',
-						formatter: function(v) { return countFormatter(v); }
+						formatter: function(v) { return zcFormatter(v); }
 					},
 					{
 						field: 'zcxjjxglxmywyys',
 						title: '主持校级教学管理项目（1万元以上）',
 						align: 'center',
-						formatter: function(v) { return countFormatter(v); }
+						formatter: function(v) { return zcFormatter(v); }
 					},
 					{
 						field: 'zcxjjxglxmywyyx',
 						title: '主持校级教学管理项目（1万元以下）',
 						align: 'center',
-						formatter: function(v) { return countFormatter(v); }
+						formatter: function(v) { return zcFormatter(v); }
 					},
 					{
 						field: 'ewyyx',
 						title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2万元以下&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
 						align: 'center',
-						formatter: function(v) { return countFormatter(v); }
+						formatter: function(v) { return hxFormatter(v); }
 					},
 					{
 						field: 'edwwy',
 						title: '2-5万元（含2）',
 						align: 'center',
-						formatter: function(v) { return countFormatter(v); }
+						formatter: function(v) { return hxFormatter(v); }
 					},
 					{
 						field: 'wdswy',
 						title: '5-10万元（含5）',
 						align: 'center',
-						formatter: function(v) { return countFormatter(v); }
+						formatter: function(v) { return hxFormatter(v); }
 					},
 					{
 						field: 'sdeswy',
 						title: '10-20万元（含10）',
 						align: 'center',
-						formatter: function(v) { return countFormatter(v); }
+						formatter: function(v) { return hxFormatter(v); }
 					},
 					{
 						field: 'esdsswwy',
 						title: '20-35万元（含20）',
 						align: 'center',
-						formatter: function(v) { return countFormatter(v); }
+						formatter: function(v) { return hxFormatter(v); }
 					},
 					{
 						field: 'wswwydwswy',
 						title: '35-50万元（含35）',
 						align: 'center',
-						formatter: function(v) { return countFormatter(v); }
+						formatter: function(v) { return hxFormatter(v); }
 					},
 					{
 						field: 'wsdqswwy',
 						title: '50-75万元（含50）',
 						align: 'center',
-						formatter: function(v) { return countFormatter(v); }
+						formatter: function(v) { return hxFormatter(v); }
 					},
 					{
 						field: 'qswdybwy',
 						title: '75-100万元（含75）',
 						align: 'center',
-						formatter: function(v) { return countFormatter(v); }
+						formatter: function(v) { return hxFormatter(v); }
 					},
 					{
 						field: 'eyxxx',
 						title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2万元以下&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
 						align: 'center',
-						formatter: function(v) { return countFormatter(v); }
+						formatter: function(v) { return hxFormatter(v); }
 					},
 					{
 						field: 'edwxx',
 						title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2-5万元&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
 						align: 'center',
-						formatter: function(v) { return countFormatter(v); }
+						formatter: function(v) { return hxFormatter(v); }
 					},
 					{
 						field: 'wdsxx',
 						title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;5-10万元&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
 						align: 'center',
-						formatter: function(v) { return countFormatter(v); }
+						formatter: function(v) { return hxFormatter(v); }
 					},
 					{
 						field: 'sdesxx',
 						title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;10-20万元&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
 						align: 'center',
-						formatter: function(v) { return countFormatter(v); }
+						formatter: function(v) { return hxFormatter(v); }
 					},
 					{
 						field: 'esdsswxx',
 						title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;20-35万元&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
 						align: 'center',
-						formatter: function(v) { return countFormatter(v); }
+						formatter: function(v) { return hxFormatter(v); }
 					},
 					{
 						field: 'sswdwsxx',
 						title: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;35-50万元&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
 						align: 'center',
-						formatter: function(v) { return countFormatter(v); }
+						formatter: function(v) { return hxFormatter(v); }
 					},
 					// {
 					// 	field: 'dywsxx',
@@ -475,6 +491,21 @@
 
 				$tbody.find('.total-row').remove();
 
+				const moneyFields = {
+					ewyyx: true, edwwy: true, wdswy: true, sdeswy: true, esdsswwy: true, wswwydwswy: true, wsdqswwy: true, qswdybwy: true,
+					eyxxx: true, edwxx: true, wdsxx: true, sdesxx: true, esdsswxx: true, sswdwsxx: true
+				};
+
+				function parseMoney(val) {
+					if (!val) return { count: 0, amount: 0 };
+					var countMatch = String(val).match(/(\d+)个/);
+					var amountMatch = String(val).match(/（([\d.]+)万/);
+					return {
+						count: countMatch ? parseInt(countMatch[1], 10) : 0,
+						amount: amountMatch ? parseFloat(amountMatch[1]) : 0
+					};
+				}
+
 				const totals = {};
 				const countFields = [
 					'zcgjjjkyxm', 'zcsbjjjkyxm', 'zcsbjjgxm', 'zcsbjzxkyxm', 'zctjjxhjkyxm', 'zcxjjxglxmywyys', 'zcxjjxglxmywyyx',
@@ -488,16 +519,22 @@
 				];
 
 				for (const field of countFields) {
-					totals[field] = 0;
+					totals[field] = moneyFields[field] ? { count: 0, amount: 0 } : 0;
 				}
 
 				for (const row of allRows) {
 					for (const field of countFields) {
 						const val = row[field];
 						if (val) {
-							const match = String(val).match(/(\d+)/);
-							if (match) {
-								totals[field] += parseInt(match[1], 10);
+							if (moneyFields[field]) {
+								var parsed = parseMoney(val);
+								totals[field].count += parsed.count;
+								totals[field].amount += parsed.amount;
+							} else {
+								const match = String(val).match(/(\d+)/);
+								if (match) {
+									totals[field] += parseInt(match[1], 10);
+								}
 							}
 						}
 					}
@@ -505,7 +542,11 @@
 
 				let totalHtml = '<tr class="total-row"><td class="bs-checkbox"></td><td class="total-merged-cell" colspan="2">总计</td>';
 				for (const field of countFields) {
-					totalHtml += '<td>' + totals[field] + '个</td>';
+					if (moneyFields[field]) {
+						totalHtml += '<td>' + totals[field].count + '个（' + totals[field].amount.toFixed(2) + '万）</td>';
+					} else {
+						totalHtml += '<td>' + totals[field] + '个</td>';
+					}
 				}
 				totalHtml += '</tr>';
 
