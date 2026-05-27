@@ -34,6 +34,7 @@
         <result property="teaZhicheng"    column="tea_zhicheng"    />
         <result property="changeValue"    column="change_value"    />
         <result property="changeStatus"    column="change_status"    />
+        <result property="creditedAmount"    column="credited_amount"    />
         <result property="uid"    column="uid"    />
     </resultMap>
 
@@ -69,7 +70,7 @@
                     and s.state = 'HORIZONTAL_OVER_PASSED'
                 </when>
                 <when test="newsql == '01'">
-                    and s.state in ('HORIZONTAL_APPLY_DRAFT','HORIZONTAL_APPLY_JYS_AUDIT','HORIZONTAL_APPLY_KYC_AUDIT','HORIZONTAL_APPLY_PASSED')
+                    and s.state in ('HORIZONTAL_APPLY_DRAFT','HORIZONTAL_APPLY_JYS_AUDIT','HORIZONTAL_APPLY_KYC_AUDIT','HORIZONTAL_APPLY_PASSED','HORIZONTAL_APPLY_REJECTED')
                 </when>
                 <when test="newsql == '02'">
                     and s.state in ('HORIZONTAL_OVER_DRAFT','HORIZONTAL_OVER_JYS_AUDIT','HORIZONTAL_OVER_KYC_AUDIT','HORIZONTAL_OVER_PASSED','HORIZONTAL_OVER_REJECTED')
@@ -90,7 +91,7 @@
     <!--    查询申请流程-->
     <select id="selectSciHorizontalApplyList" parameterType="SciHorizontalApply" resultMap="SciHorizontalApplyResult" >
         <include refid="selectSciHorizontalApplyVo"/>
-        where state in ('HORIZONTAL_APPLY_DRAFT','HORIZONTAL_APPLY_JYS_AUDIT','HORIZONTAL_APPLY_KYC_AUDIT','HORIZONTAL_APPLY_PASSED')
+        where state in ('HORIZONTAL_APPLY_DRAFT','HORIZONTAL_APPLY_JYS_AUDIT','HORIZONTAL_APPLY_KYC_AUDIT','HORIZONTAL_APPLY_PASSED','HORIZONTAL_APPLY_REJECTED')
         <if test="topName != null  and topName != ''"> and top_name like concat('%', #{topName}, '%')</if>
         <if test="topNumber != null  and topNumber != ''"> or top_number = #{topNumber}</if>
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
@@ -567,6 +568,7 @@
             sci_horizontal_reamount shr
         where
             shr.apply_id = #{applyId}
+            and shr.state = 'REAMOUNT_PASSED'
 
     </select>
 

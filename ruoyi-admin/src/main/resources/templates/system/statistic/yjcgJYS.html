@@ -100,7 +100,7 @@
             // 根据显示模式预处理数据：只切换横向/成果转化两列，始终从独立的汇总/明细字段回填
             responseHandler: function(res) {
                 if (res.rows) {
-                    var currentMode = localStorage.getItem('yjcgDisplayMode') || 'summary';
+                    var currentMode = displayMode;
                     var isDetail = (currentMode === 'detail');
                     for (var i = 0; i < res.rows.length; i++) {
                         var row = res.rows[i];

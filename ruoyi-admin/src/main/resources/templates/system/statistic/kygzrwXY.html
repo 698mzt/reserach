@@ -134,69 +134,356 @@
 				virtualScroll: false,
 				height: 500,
 				stickyHeader: true,
+				scrollHorizontal: true,
 				exportUrl: prefix + "/export",
 				columns: [
-					[
-						{
-							field: 'parentName',
-							title: '学院',
-							align: 'center'
-						},
-						{
-							field: 'deptName',
-							title: '教研室',
-							align: 'center'
-						},
-						{
-							field: 'zxktTotal',
-							title: '纵向科研项目',
-							align: 'center',
-							formatter: function(v, row) { return calculateZxktTotal(row); }
-						},
-						{
-							field: 'hxktTotal',
-							title: '横向课题科研项目-校外',
-							align: 'center',
-							formatter: function(v, row) { return calculateHxktTotal(row); }
-						},
-						{
-							field: 'cgzhTotal',
-							title: '成果转化',
-							align: 'center',
-							formatter: function(v, row) { return calculateCgzhTotal(row); }
-						},
-						{
-							field: 'xslwTotal',
-							title: '学术论文',
-							align: 'center',
-							formatter: function(v, row) { return calculateXslwTotal(row); }
-						},
-						{
-							field: 'jczzTotal',
-							title: '教材著作',
-							align: 'center',
-							formatter: function(v, row) { return calculateJczzTotal(row); }
-						},
-						{
-							field: 'zlrzTotal',
-							title: '专利、软著',
-							align: 'center',
-							formatter: function(v, row) { return calculateZlrzTotal(row); }
-						},
-						{
-							field: 'jlTotal',
-							title: '奖励',
-							align: 'center',
-							formatter: function(v, row) { return calculateJlTotal(row); }
-						},
-						{
-							field: 'jzbgTotal',
-							title: '学术报告(讲座类)',
-							align: 'center',
-							formatter: function(v, row) { return calculateJzbgTotal(row); }
-						}
-					]
+					[{
+						title: '基本信息',
+						align: 'center',
+						colspan: 3
+					},
+					{
+						title: '纵向科研项目',
+						align: 'center',
+						colspan: 7
+					},
+					{
+						title: '横向课题科研项目-校外',
+						align: 'center',
+						colspan: 8
+					},
+					{
+						title: '成果转化',
+						align: 'center',
+						colspan: 6
+					},
+					{
+						title: '学术论文',
+						align: 'center',
+						colspan: 6
+					},
+					{
+						title: '教材著作',
+						align: 'center',
+						colspan: 7
+					},
+					{
+						title: '专利、软著',
+						align: 'center',
+						colspan: 4
+					},
+					{
+						title: '奖励',
+						align: 'center',
+						colspan: 8
+					},
+					{
+						title: '学术报告(讲座类)',
+						align: 'center',
+						colspan: 5
+					}
+				],
+				[
+					{
+						checkbox: true
+					},
+					{
+						field: 'parentName',
+						title: '学院',
+						align: 'center'
+					},
+					{
+						field: 'deptName',
+						title: '教研室',
+						align: 'center'
+					},
+					{
+						field: 'zcgjjjkyxm',
+						title: '主持国家基金科研项目',
+						align: 'center',
+						formatter: function(v) { return countFormatter(v); }
+					},
+					{
+						field: 'zcsbjjjkyxm',
+						title: '主持省部级基金科研项目',
+						align: 'center',
+						formatter: function(v) { return countFormatter(v); }
+					},
+					{
+						field: 'zcsbjjgxm',
+						title: '主持省部级教改项目',
+						align: 'center',
+						formatter: function(v) { return countFormatter(v); }
+					},
+					{
+						field: 'zcsbjzxkyxm',
+						title: '主持省部级纵向科研项目',
+						align: 'center',
+						formatter: function(v) { return countFormatter(v); }
+					},
+					{
+						field: 'zctjjxhjkyxm',
+						title: '主持厅局级、学会级科研项目',
+						align: 'center',
+						formatter: function(v) { return countFormatter(v); }
+					},
+					{
+						field: 'zcxjjxglxmywyys',
+						title: '主持校级教学管理项目（1万元以上）',
+						align: 'center',
+						formatter: function(v) { return countFormatter(v); }
+					},
+					{
+						field: 'zcxjjxglxmywyyx',
+						title: '主持校级教学管理项目（1万元以下）',
+						align: 'center',
+						formatter: function(v) { return countFormatter(v); }
+					},
+					{
+						field: 'ewyyx',
+						title: '2万元以下',
+						align: 'center',
+						formatter: function(v) { return countFormatter(v); }
+					},
+					{
+						field: 'edwwy',
+						title: '2-5万元（含2）',
+						align: 'center',
+						formatter: function(v) { return countFormatter(v); }
+					},
+					{
+						field: 'wdswy',
+						title: '5-10万元（含5）',
+						align: 'center',
+						formatter: function(v) { return countFormatter(v); }
+					},
+					{
+						field: 'sdeswy',
+						title: '10-20万元（含10）',
+						align: 'center',
+						formatter: function(v) { return countFormatter(v); }
+					},
+					{
+						field: 'esdsswwy',
+						title: '20-35万元（含20）',
+						align: 'center',
+						formatter: function(v) { return countFormatter(v); }
+					},
+					{
+						field: 'wswwydwswy',
+						title: '35-50万元（含35）',
+						align: 'center',
+						formatter: function(v) { return countFormatter(v); }
+					},
+					{
+						field: 'wsdqswwy',
+						title: '50-75万元（含50）',
+						align: 'center',
+						formatter: function(v) { return countFormatter(v); }
+					},
+					{
+						field: 'qswdybwy',
+						title: '75-100万元（含75）',
+						align: 'center',
+						formatter: function(v) { return countFormatter(v); }
+					},
+					{
+						field: 'eyxxx',
+						title: '2万元以下',
+						align: 'center',
+						formatter: function(v) { return countFormatter(v); }
+					},
+					{
+						field: 'edwxx',
+						title: '2-5万元',
+						align: 'center',
+						formatter: function(v) { return countFormatter(v); }
+					},
+					{
+						field: 'wdsxx',
+						title: '5-10万元',
+						align: 'center',
+						formatter: function(v) { return countFormatter(v); }
+					},
+					{
+						field: 'sdesxx',
+						title: '10-20万元',
+						align: 'center',
+						formatter: function(v) { return countFormatter(v); }
+					},
+					{
+						field: 'esdsswxx',
+						title: '20-35万元',
+						align: 'center',
+						formatter: function(v) { return countFormatter(v); }
+					},
+					{
+						field: 'sswdwsxx',
+						title: '35-50万元',
+						align: 'center',
+						formatter: function(v) { return countFormatter(v); }
+					},
+					// {
+					// 	field: 'dywsxx',
+					// 	title: '大于50信息',
+					// 	align: 'center'
+					// },
+					{
+						field: 'SCI',
+						title: 'SCI',
+						align: 'center',
+						formatter: function(v) { return countFormatter(v); }
+					},
+					{
+						field: 'EI',
+						title: 'EI',
+						align: 'center',
+						formatter: function(v) { return countFormatter(v); }
+					},
+					{
+						field: 'hx',
+						title: '核心期刊',
+						align: 'center'
+					},
+					{
+						field: 'sw',
+						title: '三网收录',
+						align: 'center'
+					},
+					{
+						field: 'pt',
+						title: '普通期刊',
+						align: 'center'
+					},
+					{
+						field: 'xb',
+						title: '校办期刊',
+						align: 'center'
+					},
+					{
+						field: 'cbzz1',
+						title: '出版专著（一类）',
+						align: 'center'
+					},
+					{
+						field: 'cbzz2',
+						title: '出版专著（二类）',
+						align: 'center'
+					},
+					{
+						field: 'cbyz1',
+						title: '出版译著（一类）',
+						align: 'center'
+					},
+					{
+						field: 'cbyz2',
+						title: '出版译著（二类）',
+						align: 'center'
+					},
+					{
+						field: 'cbjc1',
+						title: '出版教材（国家规划）',
+						align: 'center'
+					},
+					{
+						field: 'cbjc2',
+						title: '出版教材',
+						align: 'center'
+					},
+					{
+						field: 'zbjc',
+						title: '自编教材',
+						align: 'center'
+					},
+					{
+						field: 'sqfmzl',
+						title: '授权发明专利',
+						align: 'center'
+					},
+					{
+						field: 'syxxzl',
+						title: '实用新型专利',
+						align: 'center'
+					},
+					{
+						field: 'wxsjzl',
+						title: '外型设计专利',
+						align: 'center'
+					},
+					{
+						field: 'jsjrjzzq',
+						title: '计算机软件著作权',
+						align: 'center'
+					},
+					{
+						field: 'sjjxcgj',
+						title: '省级教学成果奖',
+						align: 'center'
+					},
+					{
+						field: 'sjkxjsj',
+						title: '省级科学技术奖',
+						align: 'center'
+					},
+					{
+						field: 'stjjzrkxlpj',
+						title: '省级一流精品课评比',
+						align: 'center'
+					},
+					{
+						field: 'stjjsklpj',
+						title: '市厅局级自然科学类评奖',
+						align: 'center'
+					},
+					{
+						field: 'xjjxcgj',
+						title: '校级教学成果奖',
+						align: 'center'
+					},
+					{
+						field: 'yyxkyxjcgj',
+						title: '应用型科研校级成果奖',
+						align: 'center'
+					},
+					{
+						field: 'xhjjxcgj',
+						title: '学会级教学成果奖',
+						align: 'center'
+					},
+					{
+						field: 'xhjkycgj',
+						title: '学会级科研成果奖',
+						align: 'center',
+						formatter: function(v) { return countFormatter(v); }
+					},
+					{
+						field: 'jbgj',
+						title: '举办国际',
+						align: 'center'
+					},
+					{
+						field: 'jbgn',
+						title: '举办国内',
+						align: 'center'
+					},
+					{
+						field: 'cjgj',
+						title: '参加国际',
+						align: 'center'
+					},
+					{
+						field: 'cjgn',
+						title: '参加国内',
+						align: 'center'
+					},
+					{
+						field: 'xjxs',
+						title: '校级学术',
+						align: 'center',
+						formatter: function(v) { return countFormatter(v); }
+					}
 				]
+			]
 		};
 		$.table.init(options);
 		initCrossPageSelection($('#bootstrap-table'), { scope: 'kygzrw-xy' });
@@ -224,83 +511,67 @@
 			var allRows = $table.bootstrapTable('getData');
 			if (!allRows || allRows.length === 0) return;
 
-			var totals = {
-				zxkt: 0, hxkt: 0, cgzh: 0, xslw: 0, jczz: 0, zlrz: 0, jl: 0, jzbg: 0
+			var moneyFields = {
+				ewyyx: true, edwwy: true, wdswy: true, sdeswy: true, esdsswwy: true, wswwydwswy: true, wsdqswwy: true, qswdybwy: true,
+				eyxxx: true, edwxx: true, wdsxx: true, sdesxx: true, esdsswxx: true, sswdwsxx: true, dywsxx: true
 			};
+
+			function parseMoney(val) {
+				if (!val) return { count: 0, amount: 0 };
+				var countMatch = String(val).match(/(\d+)个/);
+				var amountMatch = String(val).match(/（([\d.]+)万/);
+				return {
+					count: countMatch ? parseInt(countMatch[1], 10) : 0,
+					amount: amountMatch ? parseFloat(amountMatch[1]) : 0
+				};
+			}
+
+			var totals = {};
+			var countFields = [
+				'zcgjjjkyxm', 'zcsbjjjkyxm', 'zcsbjjgxm', 'zcsbjzxkyxm', 'zctjjxhjkyxm', 'zcxjjxglxmywyys', 'zcxjjxglxmywyyx',
+				'ewyyx', 'edwwy', 'wdswy', 'sdeswy', 'esdsswwy', 'wswwydwswy', 'wsdqswwy', 'qswdybwy',
+				'eyxxx', 'edwxx', 'wdsxx', 'sdesxx', 'esdsswxx', 'sswdwsxx',
+				'SCI', 'EI', 'hx', 'sw', 'pt', 'xb',
+				'cbzz1', 'cbzz2', 'cbyz1', 'cbyz2', 'cbjc1', 'cbjc2', 'zbjc',
+				'sqfmzl', 'syxxzl', 'wxsjzl', 'jsjrjzzq',
+				'sjjxcgj', 'sjkxjsj', 'stjjzrkxlpj', 'stjjsklpj', 'xjjxcgj', 'yyxkyxjcgj', 'xhjjxcgj', 'xhjkycgj',
+				'jbgj', 'jbgn', 'cjgj', 'cjgn', 'xjxs'
+			];
+
+			for (var i = 0; i < countFields.length; i++) {
+				var f = countFields[i];
+				totals[f] = moneyFields[f] ? { count: 0, amount: 0 } : 0;
+			}
 
 			for (var i = 0; i < allRows.length; i++) {
 				var row = allRows[i];
-				totals.zxkt += calculateZxktValue(row);
-				totals.hxkt += calculateHxktValue(row);
-				totals.cgzh += calculateCgzhValue(row);
-				totals.xslw += calculateXslwValue(row);
-				totals.jczz += calculateJczzValue(row);
-				totals.zlrz += calculateZlrzValue(row);
-				totals.jl += calculateJlValue(row);
-				totals.jzbg += calculateJzbgValue(row);
+				for (var j = 0; j < countFields.length; j++) {
+					var field = countFields[j];
+					var val = row[field];
+					if (val) {
+						if (moneyFields[field]) {
+							var parsed = parseMoney(val);
+							totals[field].count += parsed.count;
+							totals[field].amount += parsed.amount;
+						} else {
+							var match = String(val).match(/(\d+)/);
+							if (match) {
+								totals[field] += parseInt(match[1], 10);
+							}
+						}
+					}
+				}
 			}
 
-			function calculateZxktValue(row) {
-				return getNumberValue(row.zcgjjjkyxm) + getNumberValue(row.zcsbjjjkyxm) + 
-					   getNumberValue(row.zcsbjjgxm) + getNumberValue(row.zcsbjzxkyxm) + 
-					   getNumberValue(row.zctjjxhjkyxm) + getNumberValue(row.zcxjjxglxmywyys) + 
-					   getNumberValue(row.zcxjjxglxmywyyx);
+			var totalHtml = '<tr class="total-row"><td class="bs-checkbox"></td><td class="total-merged-cell" colspan="2">总计</td>';
+			for (var i = 0; i < countFields.length; i++) {
+				var f = countFields[i];
+				if (moneyFields[f]) {
+					totalHtml += '<td>' + totals[f].count + '个（' + totals[f].amount.toFixed(2) + '万）</td>';
+				} else {
+					totalHtml += '<td>' + totals[f] + '个</td>';
+				}
 			}
-
-			function calculateHxktValue(row) {
-				return getNumberValue(row.ewyyx) + getNumberValue(row.edwwy) + 
-					   getNumberValue(row.wdswy) + getNumberValue(row.sdeswy) + 
-					   getNumberValue(row.esdsswwy) + getNumberValue(row.wswwydwswy) + 
-					   getNumberValue(row.wsdqswwy) + getNumberValue(row.qswdybwy);
-			}
-
-			function calculateCgzhValue(row) {
-				return getNumberValue(row.eyxxx) + getNumberValue(row.edwxx) + 
-					   getNumberValue(row.wdsxx) + getNumberValue(row.sdesxx) + 
-					   getNumberValue(row.esdsswxx) + getNumberValue(row.sswdwsxx) + 
-					   getNumberValue(row.dywsxx);
-			}
-
-			function calculateXslwValue(row) {
-				return getNumberValue(row.SCI) + getNumberValue(row.EI) + 
-					   getNumberValue(row.hx) + getNumberValue(row.sw) + 
-					   getNumberValue(row.pt) + getNumberValue(row.xb);
-			}
-
-			function calculateJczzValue(row) {
-				return getNumberValue(row.cbzz1) + getNumberValue(row.cbzz2) + 
-					   getNumberValue(row.cbyz1) + getNumberValue(row.cbyz2) + 
-					   getNumberValue(row.cbjc1) + getNumberValue(row.cbjc2) + 
-					   getNumberValue(row.zbjc);
-			}
-
-			function calculateZlrzValue(row) {
-				return getNumberValue(row.sqfmzl) + getNumberValue(row.syxxzl) + 
-					   getNumberValue(row.wxsjzl) + getNumberValue(row.jsjrjzzq);
-			}
-
-			function calculateJlValue(row) {
-				return getNumberValue(row.sjjxcgj) + getNumberValue(row.sjkxjsj) + 
-					   getNumberValue(row.stjjzrkxlpj) + getNumberValue(row.stjjsklpj) + 
-					   getNumberValue(row.xjjxcgj) + getNumberValue(row.yyxkyxjcgj) + 
-					   getNumberValue(row.xhjjxcgj) + getNumberValue(row.xhjkycgj);
-			}
-
-			function calculateJzbgValue(row) {
-				return getNumberValue(row.jbgj) + getNumberValue(row.jbgn) + 
-					   getNumberValue(row.cjgj) + getNumberValue(row.cjgn) + 
-					   getNumberValue(row.xjxs);
-			}
-
-			var totalHtml = '<tr class="total-row"><td class="total-merged-cell">总计</td><td></td>';
-			totalHtml += '<td>' + totals.zxkt + '个</td>';
-			totalHtml += '<td>' + totals.hxkt + '个</td>';
-			totalHtml += '<td>' + totals.cgzh + '个</td>';
-			totalHtml += '<td>' + totals.xslw + '个</td>';
-			totalHtml += '<td>' + totals.jczz + '个</td>';
-			totalHtml += '<td>' + totals.zlrz + '个</td>';
-			totalHtml += '<td>' + totals.jl + '个</td>';
-			totalHtml += '<td>' + totals.jzbg + '个</td>';
 			totalHtml += '</tr>';
 
 			$tbody.append(totalHtml);

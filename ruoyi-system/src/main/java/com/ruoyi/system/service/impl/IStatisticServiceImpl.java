@@ -549,21 +549,24 @@ public class IStatisticServiceImpl implements IStatisticService {
 
     private String joinAmountField(List<Alltotle> details, String fieldName) {
         int totalCnt = 0;
-        int totalSum = 0;
+        long totalAmount = 0;
         for (Alltotle detail : details) {
             String raw = getFieldValue(detail, fieldName);
             if (raw == null || raw.trim().isEmpty()) {
                 continue;
             }
             int[] cs = parseCntSum(raw);
+            if (cs[0] == 0 && cs[1] == 0) {
+                continue;
+            }
             totalCnt += cs[0];
-            totalSum += cs[1];
+            totalAmount += cs[1];
         }
-        if (totalCnt == 0 && totalSum == 0) {
-            return "0个(0万)";
+        if (totalCnt == 0) {
+            return "0个（0万）";
         }
-        BigDecimal sumWan = new BigDecimal(totalSum).divide(new BigDecimal("10000"), 2, RoundingMode.HALF_UP);
-        return totalCnt + "个(" + sumWan.stripTrailingZeros().toPlainString() + "万)";
+        BigDecimal amountWan = new BigDecimal(totalAmount).divide(new BigDecimal("10000"), 2, RoundingMode.HALF_UP);
+        return totalCnt + "个（" + amountWan.toString() + "万）";
     }
 
     private String sumCountField(List<Alltotle> details, String fieldName) {

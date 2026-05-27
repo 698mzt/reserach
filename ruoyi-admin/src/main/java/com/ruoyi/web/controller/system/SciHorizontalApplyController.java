@@ -602,8 +602,12 @@ public class SciHorizontalApplyController extends BaseController
     @Log(title = "申请结项横向课题", businessType = BusinessType.INSERT)
     @PostMapping("/overadd")
     @ResponseBody
+    @Transactional
     public AjaxResult overaddSave(SciHorizontalApply sciHorizontalApply, SciHorizontalReamount sciHorizontalReamount) {
         Integer id = sciHorizontalApply.getId();
+        // 获取当前状态（用于写入审批历史记录）
+        SciHorizontalApply currentApply = sciHorizontalApplyService.selectSciHorizontalApplyById(id);
+        String oldState = currentApply != null ? currentApply.getState() : null;
         sciHorizontalReamount.setApplyId(id.toString());
         sciHorizontalReamount.setState("REAMOUNT_JYS_AUDIT");
         sciHorizontalApply.setUserId(Integer.valueOf(getSysUser().getUserId().toString()));
@@ -615,6 +619,20 @@ public class SciHorizontalApplyController extends BaseController
         }
         if (sciHorizontalReamount.getReAmount() != null && !sciHorizontalReamount.getReAmount().isEmpty()) {
             sciHorizontalReamountService.insertAmount(sciHorizontalReamount);
+        }
+        if (result > 0) {
+            SysApprovalHistory history = new SysApprovalHistory();
+            history.setProcessCode("HORIZONTAL_OVER");
+            history.setBusinessId(id.longValue());
+            history.setAction("create");
+            history.setComment("申请结项");
+            history.setOperatorId(getUserId());
+            history.setOperatorName(getSysUser().getUserName());
+            history.setOperatorDept(getSysUser().getDept() != null ? getSysUser().getDept().getDeptName() : "");
+            history.setOldState(oldState);
+            history.setNewState(sciHorizontalApply.getState());
+            history.setCreateTime(new Date());
+            sysApprovalHistoryService.insertSysApprovalHistory(history);
         }
         return toAjax(result);
     }
@@ -794,9 +812,9 @@ public class SciHorizontalApplyController extends BaseController
         // 判断是否为字符串状态码
         if (state.length() > 0 && Character.isLetter(state.charAt(0))) {
             // 字符串状态码
-            if (state.startsWith("APPLY_")) {
+            if (state.startsWith("HORIZONTAL_APPLY_")) {
                 return canApproveApply(state);
-            } else if (state.startsWith("OVER_")) {
+            } else if (state.startsWith("HORIZONTAL_OVER_") || state.startsWith("REAMOUNT_")) {
                 return canApproveOver(state);
             }
             return false;
@@ -1208,7 +1226,8 @@ public class SciHorizontalApplyController extends BaseController
         sciHorizontalApply.setUserId(Integer.valueOf(getSysUser().getUserId().toString()));
         sciHorizontalApply.setNewsql("");
         String currentOverState = sciHorizontalApply.getState();
-        if ("HORIZONTAL_OVER_REJECTED".equals(currentOverState) || "100".equals(currentOverState)){
+        boolean rejectedEdit = "HORIZONTAL_OVER_REJECTED".equals(currentOverState) || "100".equals(currentOverState);
+        if (rejectedEdit){
             sciHorizontalApply.setNewsql("999");
             sciHorizontalApply.setState("HORIZONTAL_OVER_DRAFT");
         }
@@ -1217,7 +1236,6 @@ public class SciHorizontalApplyController extends BaseController
             return AjaxResult.error("课题名称或课题编号已存在");
         }
 
-        // 合并成员（前四位 + 第5位起的动态 members[]），顺序不乱
         String first = String.valueOf(getUserId());
         String second = request.getParameter("secondPersonId");
         String third = request.getParameter("thirdPersonId");
@@ -1239,6 +1257,21 @@ public class SciHorizontalApplyController extends BaseController
             sciHorizontalApplyService.saveApplyPersons(sciHorizontalApply.getId(), all);
         } catch (Exception e) {
             return AjaxResult.error("成员信息保存失败");
+        }
+
+        if (update > 0 && rejectedEdit) {
+            SysApprovalHistory history = new SysApprovalHistory();
+            history.setProcessCode("HORIZONTAL_OVER");
+            history.setBusinessId(sciHorizontalApply.getId().longValue());
+            history.setAction("edit");
+            history.setComment("修改");
+            history.setOperatorId(getUserId());
+            history.setOperatorName(getSysUser().getUserName());
+            history.setOperatorDept(getSysUser().getDept() != null ? getSysUser().getDept().getDeptName() : "");
+            history.setOldState(currentOverState);
+            history.setNewState(sciHorizontalApply.getState());
+            history.setCreateTime(new Date());
+            sysApprovalHistoryService.insertSysApprovalHistory(history);
         }
 
         return toAjax(update);
@@ -1264,7 +1297,7 @@ public class SciHorizontalApplyController extends BaseController
             piyue.setStateText(piyue.getState());
             resultList.add(piyue);
         }
-
+        sortHistoryList(resultList);
         return getDataTable(resultList);
     }
 
@@ -1276,8 +1309,11 @@ public class SciHorizontalApplyController extends BaseController
             piyue.setHxktId(kid);
             String action = history.getAction();
             String comment = history.getComment();
-            if ("submit".equals(action)) {
-                piyue.setConcate("提交申请");
+            if ("add".equals(action) || "create".equals(action)) {
+                piyue.setConcate(comment != null && !comment.trim().isEmpty() ? comment : "新增");
+                piyue.setStateText("新增");
+            } else if ("submit".equals(action)) {
+                piyue.setConcate(comment != null && !comment.trim().isEmpty() ? comment : "提交申请");
                 piyue.setStateText("提交");
             } else if ("approve".equals(action)) {
                 piyue.setConcate(comment != null && !comment.trim().isEmpty() ? comment : "审批通过");
@@ -1288,6 +1324,9 @@ public class SciHorizontalApplyController extends BaseController
             } else if ("recall".equals(action)) {
                 piyue.setConcate(comment != null && !comment.trim().isEmpty() ? comment : "撤回");
                 piyue.setStateText("撤回");
+            } else if ("edit".equals(action) || "update".equals(action) || "modify".equals(action)) {
+                piyue.setConcate(comment != null && !comment.trim().isEmpty() ? comment : "修改");
+                piyue.setStateText("修改");
             } else {
                 piyue.setConcate(comment != null && !comment.trim().isEmpty() ? comment : action);
                 piyue.setStateText(action);
@@ -1336,6 +1375,7 @@ public class SciHorizontalApplyController extends BaseController
                 resultList.add(piyue);
             }
         }
+        sortHistoryList(resultList);
         return getDataTable(resultList);
     }
 
@@ -1347,11 +1387,41 @@ public class SciHorizontalApplyController extends BaseController
         ob.setHxktId(kid);
         List<SciHorizontalPiyue> list = piyueService.selectSciHorizontalAmountPiyueList(ob);
         list.forEach(item -> {
-            // 统一审核状态显示：新增、提交、通过、驳回、修改
             String state = item.getState();
-            item.setStateText(state != null ? state : "未知");
+            item.setStateText(normalizeHistoryStateText(state));
         });
+        sortHistoryList(list);
         return getDataTable(list);
+    }
+
+    private String normalizeHistoryStateText(String state) {
+        if (state == null || state.trim().isEmpty()) {
+            return "未知";
+        }
+        if (state.contains("新增")) {
+            return "新增";
+        }
+        if (state.contains("提交")) {
+            return "提交";
+        }
+        if (state.contains("通过")) {
+            return "通过";
+        }
+        if (state.contains("驳回")) {
+            return "驳回";
+        }
+        if (state.contains("修改") || state.contains("编辑")) {
+            return "修改";
+        }
+        if (state.contains("撤回")) {
+            return "撤回";
+        }
+        return state;
+    }
+
+    private void sortHistoryList(List<SciHorizontalPiyue> resultList) {
+        resultList.sort(Comparator.comparing(SciHorizontalPiyue::getCreateTime,
+                Comparator.nullsLast(Date::compareTo)).reversed());
     }
 
     /**
@@ -1409,10 +1479,20 @@ public class SciHorizontalApplyController extends BaseController
             return AjaxResult.error("课题不存在");
         }
 
-        // 2. 状态+权限联合校验：立项与结项分流程判断，撤回不是“批阅当前节点”，通过态/跨节点撤回也应允许既定角色操作
+        // 2. 状态+权限联合校验：驳回态使用角色权限直接判断，审批态通过审批流节点判断
         String currentState = apply.getState();
         boolean canRecall;
-        if (currentState != null && currentState.startsWith("HORIZONTAL_OVER_")) {
+
+        if (currentState != null && currentState.endsWith("_REJECTED")) {
+            // 驳回态：拥有审批权(process)或撤回权(revoke)的角色均可撤回
+            SysUser user = getSysUser();
+            if (user == null) {
+                return AjaxResult.error("无权操作");
+            }
+            canRecall = org.apache.shiro.SecurityUtils.getSubject().isPermitted("system:apply:process")
+              || org.apache.shiro.SecurityUtils.getSubject().isPermitted("system:apply:revoke")
+              || org.apache.shiro.SecurityUtils.getSubject().isPermitted("system:apply:kyrevoke");
+        } else if (currentState != null && currentState.startsWith("HORIZONTAL_OVER_")) {
             canRecall = canApproveOver(currentState);
         } else {
             canRecall = canApproveApply(currentState);
@@ -1640,7 +1720,7 @@ public class SciHorizontalApplyController extends BaseController
     @ResponseBody
     public AjaxResult reamounteditSave(SciHorizontalReamount sciHorizontalReamount)
     {
-        sciHorizontalReamount.setState("HORIZONTAL_APPLY_DRAFT");
+        sciHorizontalReamount.setState("REAMOUNT_DRAFT");
         return toAjax(sciHorizontalReamountService.amountedit(sciHorizontalReamount));
     }
 

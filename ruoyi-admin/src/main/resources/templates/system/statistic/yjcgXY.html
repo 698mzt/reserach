@@ -96,7 +96,7 @@
 				exportUrl: prefix + "/export",
 				responseHandler: function(res) {
 					if (res.rows) {
-						var currentMode = localStorage.getItem('yjcgDisplayMode') || 'summary';
+						var currentMode = displayMode;
 						var isDetail = (currentMode === 'detail');
 						for (var i = 0; i < res.rows.length; i++) {
 							var row = res.rows[i];

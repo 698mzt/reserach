@@ -837,11 +837,10 @@ public class PageRenderServiceImpl implements IPageRenderService {
             return specificActions;
         }
 
-        // 横向课题：非草稿状态下显示"申请结项"和"追加金额"按钮
+        // 横向课题：显示"申请结项"和"追加金额"按钮
         // 申请结项：仅已通过状态、申请人/管理员、需add权限
-        // 追加金额：仅申请人/管理员、需edit权限
-        if ("HORIZONTAL_APPLY".equals(moduleCode) && context.getCurrentState() != null
-                && !context.getCurrentState().endsWith("_DRAFT")) {
+        // 追加金额：仅教师本人在立项流程全部状态可见，其他角色不显示
+        if ("HORIZONTAL_APPLY".equals(moduleCode) && context.getCurrentState() != null) {
             boolean isOwner = context.isOwner();
             boolean isAdmin = context.hasRole("admin");
             // 申请结项：仅所有者和管理员，需add权限
@@ -852,12 +851,26 @@ public class PageRenderServiceImpl implements IPageRenderService {
                             PageRenderColorConstants.COLOR_PRIMARY, 50));
                 }
             }
-            // 追加金额：仅申请人/所有者可见
-            if ((isOwner || isAdmin) && context.hasPermission(config.getPermission("edit"))) {
+            // 追加金额：仅申请人本人在立项流程各状态可见
+            if (isOwner && context.hasPermission(config.getPermission("edit"))) {
                 specificActions.add(PageRenderActionItem.of(
                         "reamount", "追加金额",
                         PageRenderColorConstants.COLOR_PRIMARY, 51));
             }
+            // 驳回状态：所有可见该页面的角色均可撤回
+            if (context.getCurrentState().endsWith("_REJECTED")) {
+                specificActions.add(PageRenderActionItem.of(
+                        PageRenderActionConstants.ACTION_RECALL, "撤回",
+                        PageRenderColorConstants.COLOR_WARNING, 40, "确定要撤回该驳回记录吗？"));
+            }
+        }
+
+        // 横向课题结项：驳回状态下显示撤回按钮
+        if ("HORIZONTAL_OVER".equals(moduleCode) && context.getCurrentState() != null
+                && context.getCurrentState().endsWith("_REJECTED")) {
+            specificActions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_RECALL, "撤回",
+                    PageRenderColorConstants.COLOR_WARNING, 40, "确定要撤回该驳回记录吗？"));
         }
 
         // 纵向课题立项通过后显示"申请结项"按钮

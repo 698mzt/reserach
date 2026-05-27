@@ -24,7 +24,7 @@ public interface SynchronizeDataMapper {
     int SynchronizeDeleteUser();
     int SynchronizeDeleteUserForScore();
 
-
+    int InitializeAlltotleDisplayDefaults();
 
     /**
      * 同步横向课题个数数据
@@ -40,8 +40,6 @@ public interface SynchronizeDataMapper {
      * @return 更新记录数
      */
     int SynchronizeScoreHX();
-
-
 
     /**
      * 同步纵向课题数据
@@ -65,8 +63,6 @@ public interface SynchronizeDataMapper {
      */
     int SynchronizeScoreZXXJ();
 
-
-
     /**
      * 同步专利软著数据
      */
@@ -79,7 +75,6 @@ public interface SynchronizeDataMapper {
 //    软著（fenlei=4）
     int SynchronizeScoreRZ();
 
-
     /**
      * 同步教材软著个数
      */
@@ -88,8 +83,6 @@ public interface SynchronizeDataMapper {
      * 同步教材软著积分
      */
     int SynchronizeScoreJCZZ();
-
-
 
     /**
      * 同步奖励个数
@@ -100,7 +93,6 @@ public interface SynchronizeDataMapper {
      */
     int SynchronizeScoreJL();
 
-
     /**
      * 同步论文个数
      */
@@ -109,8 +101,6 @@ public interface SynchronizeDataMapper {
      * 同步论文积分
      */
     int SynchronizeScoreXSLW();
-
-
 
     /**
      * 同步讲座报告数据
