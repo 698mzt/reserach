@@ -585,6 +585,7 @@ public class IStatisticYJCGSServiceImpl implements IStatisticYJCGSService {
         for (String field : amountFields) {
             int totalCount = 0;
             double totalAmount = 0D;
+            Map<Double, Integer> amountCountMap = new HashMap<>();
 
             for (Map<String, Object> row : mergedData) {
                 Object summaryValue = row.get(field + "_汇总");
@@ -594,12 +595,20 @@ public class IStatisticYJCGSServiceImpl implements IStatisticYJCGSService {
                     totalCount += summary.count;
                     totalAmount += summary.amount;
                 }
+                Object detailValue = row.get(field + "_明细");
+                if (detailValue instanceof String) {
+                    String dv = (String) detailValue;
+                    if (!dv.isEmpty() && !"0个（0万）".equals(dv) && !"0个(0万)".equals(dv)) {
+                        parseAndCountAmounts(dv, amountCountMap);
+                    }
+                }
             }
 
             String summaryText = buildSummaryString(totalCount, totalAmount);
+            String detailText = buildResultString(amountCountMap);
             totalRow.put(field, summaryText);
             totalRow.put(field + "_汇总", summaryText);
-            totalRow.put(field + "_明细", summaryText);
+            totalRow.put(field + "_明细", detailText);
         }
 
         // 纵向科研项目（纯个数格式）
@@ -834,14 +843,15 @@ public class IStatisticYJCGSServiceImpl implements IStatisticYJCGSService {
     }
 
     /**
-     * 构建明细字符串，将各子字段的非零值用逗号拼接
-     * 如："2个（3.50万）, 1个（4.00万）, 1个（8.00万）"
+     * 构建明细字符串，将各子字段的非零值按金额分组后拼接
+     * 如："3个（2.00万）, 1个（6.00万）, 1个（10.00万）"
      * @param row 数据行
      * @param fields 字段列表
      * @return 明细字符串
      */
     private String buildDetailString(Map<String, Object> row, List<String> fields) {
-        List<String> parts = new ArrayList<>();
+        Map<Double, Integer> amountCountMap = new HashMap<>();
+        
         for (String field : fields) {
             Object value = row.get(field);
             if (value instanceof String) {
@@ -851,13 +861,11 @@ public class IStatisticYJCGSServiceImpl implements IStatisticYJCGSService {
                         && !s.equals("0个") && !s.equals("0个（0万）")
                         && !s.equals("0个 (0万)") && !s.equals("0个(0万)")
                         && !s.startsWith("0个")) {
-                    parts.add(s);
+                    parseAndCountAmounts(s, amountCountMap);
                 }
             }
         }
-        if (parts.isEmpty()) {
-            return "0个（0万）";
-        }
-        return String.join("，", parts);
+        
+        return buildResultString(amountCountMap);
     }
 }
