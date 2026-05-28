@@ -456,8 +456,8 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService {
         SciLectureReportOpinion sciLectureReportOpinion = new SciLectureReportOpinion();
         sciLectureReportOpinion.setUid(userId);
         sciLectureReportOpinion.setBaogaoId(id);
-        sciLectureReportOpinion.setConcate(remark != null && !remark.isEmpty() ? remark : "驳回");
-        sciLectureReportOpinion.setState("驳回");
+        sciLectureReportOpinion.setConcate(remark != null && !remark.isEmpty() ? remark : "撤回");
+        sciLectureReportOpinion.setState("撤回");
         opinionMapper.opinionadd(sciLectureReportOpinion);
 
         // 更新状态到科研处审批
