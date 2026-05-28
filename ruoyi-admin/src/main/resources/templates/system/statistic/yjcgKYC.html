@@ -8,7 +8,7 @@
     <link rel="stylesheet" th:href="@{/css/statistic/statistic-common.css}">
     <style>
         .total-row { background-color: #f8f9fa !important; font-weight: bold; }
-        .total-row td { border-top: 2px solid #dee2e6 !important; }
+        .total-row td { border-top: 2px solid #dee2e6 !important; text-align: center !important; }
         .total-merged-cell { position: relative; text-align: center !important; background-color: #e9ecef !important; font-weight: bold !important; }
         .total-row .bs-checkbox { visibility: hidden; }
     </style>
@@ -56,6 +56,14 @@
     var prefix = ctx + 'rewardkeyanchu';
     var displayMode = 'summary';
 
+    function formatDetailCell(value) {
+        if (!value) return '';
+        if (value.length > 100) {
+            return '<span title="' + value.replace(/"/g, '&quot;') + '">' + value.substring(0, 100) + '...</span>';
+        }
+        return '<span title="' + value.replace(/"/g, '&quot;') + '">' + value + '</span>';
+    }
+
     $(function() {
         var options = {
             url: prefix + "/list",
@@ -98,12 +106,14 @@
                 {
                     title: '横向课题科研项目',
                     align: 'center',
-                    field: '横向课题科研项目'
+                    field: '横向课题科研项目',
+                    formatter: function(value) { return formatDetailCell(value); }
                 },
                 {
                     title: '成果转化',
                     align: 'center',
-                    field: '成果转化'
+                    field: '成果转化',
+                    formatter: function(value) { return formatDetailCell(value); }
                 },
                 {
                     title: '学术论文',
@@ -196,13 +206,14 @@
                         }
                     }
                 }
-                // 金额列：X个（Y万）
+                // 金额列：可能含多个段，如 6个（0.50万）；1个（8.00万）
                 for (var idx = 0; idx < amountCols.length; idx++) {
                     var ci = amountCols[idx];
                     var text = $cells.eq(ci).text().trim();
                     if (text) {
-                        var match = text.match(/(\d+)\s*个\s*[（(]\s*([\d.]+)\s*万\s*[)）]/);
-                        if (match) {
+                        var regex = /(\d+)\s*个\s*[（(]\s*([\d.]+)\s*万\s*[)）]/g;
+                        var match;
+                        while ((match = regex.exec(text)) !== null) {
                             totals['a' + ci + '_cnt'] += parseInt(match[1], 10);
                             totals['a' + ci + '_amt'] += parseFloat(match[2]);
                         }
@@ -215,9 +226,9 @@
             totalHtml += '<td>' + totals['c3'] + '个</td>';
             // 纵向校级 (4)
             totalHtml += '<td>' + totals['c4'] + '个</td>';
-            // 横向 (5)：X个（Y万）
+            // 横向 (5)
             totalHtml += '<td>' + totals['a5_cnt'] + '个（' + totals['a5_amt'].toFixed(2) + '万）</td>';
-            // 成果转化 (6)：X个（Y万）
+            // 成果转化 (6)
             totalHtml += '<td>' + totals['a6_cnt'] + '个（' + totals['a6_amt'].toFixed(2) + '万）</td>';
             // 学术论文 (7)
             totalHtml += '<td>' + totals['c7'] + '个</td>';

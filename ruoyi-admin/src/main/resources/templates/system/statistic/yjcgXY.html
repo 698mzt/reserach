@@ -15,6 +15,7 @@
 
 		.total-row td {
 			border-top: 2px solid #dee2e6 !important;
+			text-align: center !important;
 		}
 
 		/* 总计行合并列的样式 */
@@ -140,10 +141,10 @@
 					field: '横向课题科研项目',
 					formatter: function(value) {
 						if (!value) return '';
-						if (value.length > 60) {
-							return '<span title="' + value.replace(/"/g, '&quot;') + '">' + value.substring(0, 60) + '...</span>';
+						if (value.length > 100) {
+							return '<span title="' + value.replace(/"/g, '&quot;') + '">' + value.substring(0, 100) + '...</span>';
 						}
-						return value;
+						return '<span title="' + value.replace(/"/g, '&quot;') + '">' + value + '</span>';
 					}
 				},
 				{
@@ -152,10 +153,10 @@
 					field: '成果转化',
 					formatter: function(value) {
 						if (!value) return '';
-						if (value.length > 60) {
-							return '<span title="' + value.replace(/"/g, '&quot;') + '">' + value.substring(0, 60) + '...</span>';
+						if (value.length > 100) {
+							return '<span title="' + value.replace(/"/g, '&quot;') + '">' + value.substring(0, 100) + '...</span>';
 						}
-						return value;
+						return '<span title="' + value.replace(/"/g, '&quot;') + '">' + value + '</span>';
 					}
 				},
 				{
