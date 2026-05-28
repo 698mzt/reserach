@@ -284,4 +284,10 @@ button:last-child:hover { background: #757575; }
 .compact-layout .bootstrap-table .fixed-table-body .table td,
 .compact-layout .bootstrap-table .fixed-table-body .table th {
     white-space: nowrap !important;
+    text-align: center !important;
+    vertical-align: middle !important;
+}
+.compact-layout .bootstrap-table .fixed-table-header .table th {
+    text-align: center !important;
+    vertical-align: middle !important;
 }
