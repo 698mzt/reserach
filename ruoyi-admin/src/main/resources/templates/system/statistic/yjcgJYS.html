@@ -107,8 +107,9 @@
             showToggle: false,
             exportUrl: prefix + "/export",
             // 根据显示模式预处理数据：只切换横向/成果转化两列，始终从独立的汇总/明细字段回填
+            // 同时处理空数据场景：当后端返回空数据集时注入全0占位行，确保表格结构完整展示
             responseHandler: function(res) {
-                if (res.rows) {
+                if (res.rows && res.rows.length > 0) {
                     var currentMode = displayMode;
                     var isDetail = (currentMode === 'detail');
                     for (var i = 0; i < res.rows.length; i++) {
@@ -120,6 +121,25 @@
                             ? (row['成果转化_明细'] || row['成果转化_汇总'] || row['成果转化'])
                             : (row['成果转化_汇总'] || row['成果转化']);
                     }
+                } else if (res.rows && res.rows.length === 0) {
+                    // 空数据时构造全0占位行，确保表格表头、工具栏按钮、图表区域正常渲染
+                    var placeholder = {
+                        // 使用 cleanThymeleafValue 统一清理 Thymeleaf 渲染产生的各类引号字符
+                        'deptName': cleanThymeleafValue('[[${user?.dept?.deptName}]]'),
+                        'userName': cleanThymeleafValue('[[${user?.userName}]]'),
+                        '纵向科研项目-校级以上': '0个',
+                        '纵向科研项目-校级': '0个',
+                        '横向课题科研项目': '0个',
+                        '成果转化': '0(0万)',
+                        '学术论文': '0个',
+                        '教材著作': '0个',
+                        '专利': '0个',
+                        '软著': '0个',
+                        '奖励': '0个',
+                        '学术报告(讲座类)': '0个'
+                    };
+                    placeholder._isPlaceholder = true;
+                    res.rows = [placeholder];
                 }
                 return res;
             },

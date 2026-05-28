@@ -119,6 +119,30 @@
             toolbar: "toolbar",
             height: 500,
             pageSize: 10,
+            // 空数据占位行：当后端返回空数据集时注入全0记录，确保表格表头、图表区域正常渲染
+            responseHandler: function(res) {
+                if (res.rows && res.rows.length === 0) {
+                    // 使用 cleanThymeleafValue 统一清理 Thymeleaf 渲染产生的各类引号字符
+                    var placeholder = {
+                        'parentName': cleanThymeleafValue('[[${user?.dept?.parentName}]]'),
+                        'deptName': cleanThymeleafValue('[[${user?.dept?.deptName}]]'),
+                        'userName': cleanThymeleafValue('[[${user?.userName}]]'),
+                        'zxktxjys': '0', 'zxktxjysScore': '0',
+                        'zxktxj': '0', 'zxktxjScore': '0',
+                        'hxkt': '0', 'hxktScore': '0',
+                        'cgzh': '0', 'cgzhScore': '0',
+                        'xslw': '0', 'xslwScore': '0',
+                        'jczz': '0', 'jczzScore': '0',
+                        'zl': '0', 'zlScore': '0',
+                        'rz': '0', 'rzScore': '0',
+                        'jl': '0', 'jlScore': '0',
+                        'jzbg': '0', 'jzbgScore': '0'
+                    };
+                    placeholder._isPlaceholder = true;
+                    res.rows = [placeholder];
+                }
+                return res;
+            },
             columns: [
                 {
                     checkbox: true,

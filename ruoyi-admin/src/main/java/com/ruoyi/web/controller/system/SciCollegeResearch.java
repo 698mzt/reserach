@@ -1,7 +1,5 @@
 package com.ruoyi.web.controller.system;
 
-//学院科研工作量
-
 import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
@@ -33,37 +31,28 @@ public class SciCollegeResearch extends BaseController {
     @Autowired
     private IStatisticService statisticService;
 
-    @Autowired
-    private com.ruoyi.system.service.ISysUserService userService;
-
     private String prefix = "system/statistic";
 
     @RequiresPermissions("statistic:kygzlXY:view")
     @GetMapping
-    public String index(Model model)
-    {
+    public String index(Model model) {
         model.addAttribute("searchMode", "deptName");
         return prefix + "/kygzlXY";
     }
 
-    /**
-     * 获取学院parentId用于数据过滤
-     * 从数据库重新查询用户角色，确保获取完整的角色信息
-     */
     private Long getCollegeParentId() {
         SysUser currentUser = getSysUser();
-        if (currentUser == null) return null;
-        
-        // 从数据库重新查询用户及其角色
-        SysUser dbUser = userService.selectUserById(currentUser.getUserId());
-        List<SysRole> roles = (dbUser != null) ? dbUser.getRoles() : currentUser.getRoles();
-        
-        if (roles != null) {
-            for (SysRole role : roles) {
-                long rid = role.getRoleId();
-                if ((rid >= 103L && rid <= 108L) || (rid >= 116L && rid <= 120L)) {
-                    return (dbUser != null) ? dbUser.getDeptId() : currentUser.getDeptId();
-                }
+        if (currentUser == null)
+            return null;
+        return getCollegeParentIdWithUser(currentUser);
+    }
+
+    Long getCollegeParentIdWithUser(SysUser user) {
+        List<SysRole> roles = user.getRoles();
+        if (roles != null && !roles.isEmpty()) {
+            Long roleId = roles.get(0).getRoleId();
+            if ((roleId >= 103L && roleId <= 108L) || (roleId >= 116L && roleId <= 120L)) {
+                return user.getDeptId();
             }
         }
         return null;
@@ -77,9 +66,9 @@ public class SciCollegeResearch extends BaseController {
         List<String> dictValues = dictList.stream().map(SysDictData::getDictValue).collect(Collectors.toList());
         startPage();
         Long collegeParentId = getCollegeParentId();
-        List<ResearchWorkloadByJYS> list = statisticService.selectAllDept(dictValues, pname, dname, null, collegeParentId);
-        TableDataInfo data = getDataTable(list);
-        return data;
+        List<ResearchWorkloadByJYS> list = statisticService.selectAllDept(dictValues, pname, dname, null,
+                collegeParentId);
+        return getDataTable(list);
     }
 
     @RequiresPermissions("statistic:kygzlXY:view")
@@ -90,7 +79,8 @@ public class SciCollegeResearch extends BaseController {
         List<SysDictData> dictList = DictUtils.getDictCache("sys_acade_dept");
         List<String> dictValues = dictList.stream().map(SysDictData::getDictValue).collect(Collectors.toList());
         Long collegeParentId = getCollegeParentId();
-        List<ResearchWorkloadByJYS> list = statisticService.selectAllDept(dictValues, pname, dname, null, collegeParentId);
+        List<ResearchWorkloadByJYS> list = statisticService.selectAllDept(dictValues, pname, dname, null,
+                collegeParentId);
         ExcelUtil<ResearchWorkloadByJYS> util = new ExcelUtil<ResearchWorkloadByJYS>(ResearchWorkloadByJYS.class);
         return util.exportExcel(list, "学院科研工作量");
     }

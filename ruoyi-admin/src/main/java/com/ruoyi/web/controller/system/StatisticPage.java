@@ -1,4 +1,5 @@
 package com.ruoyi.web.controller.system;
+
 //<!--教研室科研工作任务计划表-->
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.entity.SysDictData;
@@ -8,7 +9,6 @@ import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.utils.DictUtils;
 import com.ruoyi.system.domain.ResearchWorkload;
 import com.ruoyi.system.service.IStatisticService;
-import com.ruoyi.system.service.ISysUserService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -25,8 +25,6 @@ import java.util.stream.Collectors;
 public class StatisticPage extends BaseController {
 
     @Autowired
-    private ISysUserService userService;
-    @Autowired
     private IStatisticService statisticService;
 
     private String prefix = "system/statistic";
@@ -34,45 +32,33 @@ public class StatisticPage extends BaseController {
     @RequiresPermissions("statistic:plan:view")
     @GetMapping()
     public String apply(Model model) {
-        SysUser currentUser = getSysUser();
-        // 从数据库重新查询用户及其角色
-        SysUser dbUser = userService.selectUserById(currentUser.getUserId());
-        List<SysRole> roles = (dbUser != null) ? dbUser.getRoles() : currentUser.getRoles();
+        return applyWithUser(getSysUser(), model);
+    }
 
-        boolean hasAdmin = false;
-        boolean hasResearchDept = false;
-        boolean hasTeacher = false;
-        boolean hasSciResearch = false;
+    String applyWithUser(SysUser user, Model model) {
+        List<SysRole> roles = user.getRoles();
 
-        if (roles != null) {
-            for (SysRole role : roles) {
-                if (role == null || role.getRoleId() == null) continue;
-                long roleId = role.getRoleId();
-                if (roleId == 1L) hasAdmin = true;
-                if (roleId == 102L) hasResearchDept = true;
-                if (roleId == 101L) hasSciResearch = true;
-                if (roleId == 100L) hasTeacher = true;
+        if (roles != null && !roles.isEmpty()) {
+            Long roleId = roles.get(0).getRoleId();
+            if (roleId == 1L || roleId == 101L) {
+                return "redirect:/researchdeptplan";
+            }
+            if ((roleId >= 103L && roleId <= 108L) || (roleId >= 116L && roleId <= 120L)) {
+                return "redirect:/collegeplan";
+            }
+            if (roleId == 102L) {
+                model.addAttribute("modalName", "教研室科研任务计划");
+                model.addAttribute("searchMode", "teacherName");
+                // 传递当前用户信息到模板，用于空数据占位行显示
+                model.addAttribute("user", user);
+                return prefix + "/kygzrwJYS";
             }
         }
 
-        // admin/科研处角色重定向到科研处页面（全量数据）
-        if (hasAdmin || hasSciResearch) {
-            return "redirect:/researchdeptplan";
-        }
-        // 学院角色重定向到学院页面
-        if ((dbUser != null ? dbUser.getRoles() : currentUser.getRoles()) != null) {
-            for (SysRole role : (dbUser != null ? dbUser.getRoles() : currentUser.getRoles())) {
-                if (role == null || role.getRoleId() == null) continue;
-                long rid = role.getRoleId();
-                if ((rid >= 103L && rid <= 108L) || (rid >= 116L && rid <= 120L)) {
-                    return "redirect:/collegeplan";
-                }
-            }
-        }
-
-        boolean isPureTeacher = hasTeacher && !hasResearchDept;
-        model.addAttribute("modalName", isPureTeacher ? "我的科研任务计划" : "教研室科研任务计划");
-        model.addAttribute("searchMode", isPureTeacher ? "none" : "teacherName");
+        model.addAttribute("modalName", "我的科研任务计划");
+        model.addAttribute("searchMode", "none");
+        // 传递当前用户信息到模板，用于空数据占位行显示用户名和部门
+        model.addAttribute("user", user);
         return prefix + "/kygzrwJYS";
     }
 
@@ -92,50 +78,61 @@ public class StatisticPage extends BaseController {
 
     private ScopeParam buildScopeParam() {
         SysUser currentUser = getSysUser();
-        if (currentUser == null) return new ScopeParam(null, null, null);
+        if (currentUser == null)
+            return new ScopeParam(null, null, null);
+        return buildScopeParamWithUser(currentUser);
+    }
 
-        SysUser dbUser = userService.selectUserById(currentUser.getUserId());
-        List<SysRole> roles = (dbUser != null) ? dbUser.getRoles() : currentUser.getRoles();
+    ScopeParam buildScopeParamWithUser(SysUser user) {
+        List<SysRole> roles = user.getRoles();
 
-        boolean hasAdmin = false, hasCollege = false, hasResearchDept = false, hasTeacher = false, hasSciResearch = false;
-        if (roles != null) {
-            for (SysRole role : roles) {
-                if (role == null || role.getRoleId() == null) continue;
-                long roleId = role.getRoleId();
-                if (roleId == 1L) hasAdmin = true;
-                if (roleId == 101L) hasSciResearch = true;
-                if (roleId == 102L) hasResearchDept = true;
-                if ((roleId >= 103L && roleId <= 108L) || (roleId >= 116L && roleId <= 120L)) hasCollege = true;
-                if (roleId == 100L) hasTeacher = true;
+        if (roles != null && !roles.isEmpty()) {
+            Long roleId = roles.get(0).getRoleId();
+            if (roleId == 1L || roleId == 101L) {
+                return new ScopeParam(null, null, null);
+            }
+            if ((roleId >= 103L && roleId <= 108L) || (roleId >= 116L && roleId <= 120L)) {
+                return new ScopeParam(null, null, user.getDeptId());
+            }
+            if (roleId == 102L) {
+                Long deptId = user.getDeptId();
+                if (deptId != null)
+                    return new ScopeParam(null, deptId, null);
+                return new ScopeParam(null, null, null);
+            }
+            if (roleId == 100L) {
+                return new ScopeParam(user.getUserId(), null, null);
             }
         }
 
-        if (hasAdmin || hasSciResearch) return new ScopeParam(null, null, null);
-        if (hasCollege) return new ScopeParam(null, null, currentUser.getDeptId());
-        if (hasResearchDept) {
-            Long deptId = (dbUser != null) ? dbUser.getDeptId() : currentUser.getDeptId();
-            if (deptId != null) return new ScopeParam(null, deptId, null);
-            return new ScopeParam(null, null, null);
-        }
-        if (hasTeacher) return new ScopeParam(currentUser.getUserId(), null, null);
-
-        Long userDeptId = currentUser.getDeptId();
-        if (userDeptId != null) return new ScopeParam(null, userDeptId, null);
+        Long userDeptId = user.getDeptId();
+        if (userDeptId != null)
+            return new ScopeParam(null, userDeptId, null);
         return new ScopeParam(null, null, null);
     }
 
-    private static class ScopeParam {
+    static class ScopeParam {
         private final Long scopeUserId;
         private final Long scopeDeptId;
         private final Long collegeParentId;
-        private ScopeParam(Long scopeUserId, Long scopeDeptId, Long collegeParentId) {
+
+        ScopeParam(Long scopeUserId, Long scopeDeptId, Long collegeParentId) {
             this.scopeUserId = scopeUserId;
             this.scopeDeptId = scopeDeptId;
             this.collegeParentId = collegeParentId;
         }
-        private Long getScopeUserId() { return scopeUserId; }
-        private Long getScopeDeptId() { return scopeDeptId; }
-        private Long getCollegeParentId() { return collegeParentId; }
+
+        Long getScopeUserId() {
+            return scopeUserId;
+        }
+
+        Long getScopeDeptId() {
+            return scopeDeptId;
+        }
+
+        Long getCollegeParentId() {
+            return collegeParentId;
+        }
     }
 
     @RequiresPermissions("statistic:plan:view")

@@ -4,6 +4,24 @@
  */
 
 /**
+ * 清理 Thymeleaf 模板变量渲染后产生的多余引号字符
+ * Thymeleaf 表达式 [[${user?.deptName}]] 渲染后可能残留 HTML 实体编码引号（&quot;）
+ * 或 Unicode 引号，此函数统一清除这些多余字符
+ * @param {string} val - 需要清理的值
+ * @returns {string} 清理后的字符串，null/undefined 返回空字符串
+ */
+function cleanThymeleafValue(val) {
+    if (val === null || val === undefined) return '';
+    return String(val)
+        .replace(/&quot;/g, '')
+        .replace(/"/g, '')
+        .replace(/'/g, '')
+        .replace(/\u201c|\u201d/g, '')  // 中文双引号 ""
+        .replace(/\u2018|\u2019/g, '')  // 中文单引号 ''
+        .trim();
+}
+
+/**
  * 公共表格初始化参数封装
  * 提供 RuoYi 表格的公共默认配置，各模板传入自定义选项进行覆盖
  * @param {Object} customOptions 模板特定的表格选项

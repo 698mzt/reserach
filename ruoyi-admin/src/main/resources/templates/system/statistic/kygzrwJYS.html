@@ -114,6 +114,41 @@
 				stickyHeader: true,
 				scrollHorizontal: true,
 				exportUrl: prefix + "/export",
+				// 空数据占位行：当后端返回空数据集时注入全0记录，确保表格表头、图表区域正常渲染
+				responseHandler: function(res) {
+					if (res.rows && res.rows.length === 0) {
+						// 按字段分组设置默认值，与各 formatter 输出格式一致
+						var placeholder = {
+							// 使用 cleanThymeleafValue 统一清理 Thymeleaf 渲染产生的各类引号字符
+							'deptName': cleanThymeleafValue('[[${user?.dept?.deptName}]]'),
+							'userName': cleanThymeleafValue('[[${user?.userName}]]'),
+							// 纵向科研项目（zcFormatter → "0个"）
+							'zcgjjjkyxm': '0个', 'zcsbjjjkyxm': '0个', 'zcsbjjgxm': '0个',
+							'zcsbjzxkyxm': '0个', 'zctjjxhjkyxm': '0个', 'zcxjjxglxmywyys': '0个', 'zcxjjxglxmywyyx': '0个',
+							// 横向课题科研项目-校外（hxFormatter → "0个（0.00万）"）
+							'ewyyx': '0个（0.00万）', 'edwwy': '0个（0.00万）', 'wdswy': '0个（0.00万）',
+							'sdeswy': '0个（0.00万）', 'esdsswwy': '0个（0.00万）', 'wswwydwswy': '0个（0.00万）',
+							'wsdqswwy': '0个（0.00万）', 'qswdybwy': '0个（0.00万）',
+							// 成果转化（hxFormatter → "0个（0.00万）"）
+							'eyxxx': '0个（0.00万）', 'edwxx': '0个（0.00万）', 'wdsxx': '0个（0.00万）',
+							'sdesxx': '0个（0.00万）', 'esdsswxx': '0个（0.00万）', 'sswdwsxx': '0个（0.00万）',
+							// 学术论文（countFormatter → "0个"）
+							'SCI': '0个', 'EI': '0个', 'hx': '0个', 'sw': '0个', 'pt': '0个', 'xb': '0个',
+							// 教材著作（无formatter，文本显示）
+							'cbzz1': '', 'cbzz2': '', 'cbyz1': '', 'cbyz2': '', 'cbjc1': '', 'cbjc2': '', 'zbjc': '',
+							// 专利软著（无formatter，文本显示）
+							'sqfmzl': '', 'syxxzl': '', 'wxsjzl': '', 'jsjrjzzq': '',
+							// 奖励（无formatter，文本显示）
+							'sjjxcgj': '', 'sjkxjsj': '', 'stjjzrkxlpj': '', 'stjjsklpj': '',
+							'xjjxcgj': '', 'yyxkyxjcgj': '', 'xhjjxcgj': '', 'xhjkycgj': '',
+							// 学术报告(讲座类)（无formatter，文本显示）
+							'jbgj': '', 'jbgn': '', 'cjgj': '', 'cjgn': '', 'xjxs': ''
+						};
+						placeholder._isPlaceholder = true;
+						res.rows = [placeholder];
+					}
+					return res;
+				},
 				columns: [
 					[{
 						title: '基本信息',
