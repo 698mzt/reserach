@@ -22,6 +22,7 @@
         }
         .total-row td {
             border-top: 2px solid #dee2e6 !important;
+            text-align: center !important;
         }
         .total-merged-cell {
             position: relative;
@@ -84,6 +85,14 @@
         return false;
     }
     
+    function formatDetailCell(value) {
+        if (!value) return '';
+        if (value.length > 100) {
+            return '<span title="' + value.replace(/"/g, '&quot;') + '">' + value.substring(0, 100) + '...</span>';
+        }
+        return '<span title="' + value.replace(/"/g, '&quot;') + '">' + value + '</span>';
+    }
+    
     $(function() {
         var options = {
             url: prefix + "/listJZ",
@@ -141,12 +150,14 @@
                 {
                     title: '横向课题科研项目',
                     align: 'center',
-                    field: '横向课题科研项目'
+                    field: '横向课题科研项目',
+                    formatter: function(value) { return formatDetailCell(value); }
                 },
                 {
                     title: '成果转化',
                     align: 'center',
-                    field: '成果转化'
+                    field: '成果转化',
+                    formatter: function(value) { return formatDetailCell(value); }
                 },
                 {
                     title: '学术论文',

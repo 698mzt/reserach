@@ -31,6 +31,37 @@ public class IStatisticYJCGSServiceImpl implements IStatisticYJCGSService {
         "eyxxx", "edwxx", "wdsxx", "sdesxx", "esdsswxx", "sswdwsxx", "dywsxx"
     );
 
+    // 横向课题小类名称映射
+    private static final Map<String, String> HORIZONTAL_LABELS = new LinkedHashMap<>();
+    static {
+        HORIZONTAL_LABELS.put("ewyyx", "2万元以下");
+        HORIZONTAL_LABELS.put("edwwy", "2-5万元");
+        HORIZONTAL_LABELS.put("wdswy", "5-10万元");
+        HORIZONTAL_LABELS.put("sdeswy", "10-20万元");
+        HORIZONTAL_LABELS.put("esdsswwy", "20-35万元");
+        HORIZONTAL_LABELS.put("wswwydwswy", "35-50万元");
+        HORIZONTAL_LABELS.put("wsdqswwy", "50-75万元");
+        HORIZONTAL_LABELS.put("qswdybwy", "75-100万元");
+    }
+
+    // 成果转化小类名称映射
+    private static final Map<String, String> ACHIEVEMENT_LABELS = new LinkedHashMap<>();
+    static {
+        ACHIEVEMENT_LABELS.put("eyxxx", "2万元以下");
+        ACHIEVEMENT_LABELS.put("edwxx", "2-5万元");
+        ACHIEVEMENT_LABELS.put("wdsxx", "5-10万元");
+        ACHIEVEMENT_LABELS.put("sdesxx", "10-20万元");
+        ACHIEVEMENT_LABELS.put("esdsswxx", "20-35万元");
+        ACHIEVEMENT_LABELS.put("sswdwsxx", "35-50万元");
+        ACHIEVEMENT_LABELS.put("dywsxx", "50万元以上");
+    }
+
+    // 明细标签按金额区间升序排列
+    private static final List<String> LABEL_ORDER = Arrays.asList(
+        "2万元以下", "2-5万元", "5-10万元", "10-20万元",
+        "20-35万元", "35-50万元", "50-75万元", "75-100万元", "50万元以上"
+    );
+
     // 学术论文字段
     private static final List<String> PAPER_FIELDS = Arrays.asList(
         "SCI", "EI", "hx", "sw", "pt", "xb"
@@ -286,7 +317,7 @@ public class IStatisticYJCGSServiceImpl implements IStatisticYJCGSService {
         for (String field : amountFields) {
             int totalCount = 0;
             double totalAmount = 0D;
-            StringBuilder detailBuilder = new StringBuilder();
+            List<String> detailParts = new ArrayList<>();
 
             for (Map<String, Object> row : rows) {
                 Object val = row.get(field + "_汇总");
@@ -300,14 +331,13 @@ public class IStatisticYJCGSServiceImpl implements IStatisticYJCGSService {
                 if (detailValue instanceof String) {
                     String dv = (String) detailValue;
                     if (!dv.isEmpty() && !"0个（0万）".equals(dv) && !"0个(0万)".equals(dv)) {
-                        if (detailBuilder.length() > 0) detailBuilder.append("; ");
-                        detailBuilder.append(dv);
+                        detailParts.add(dv);
                     }
                 }
             }
 
             String summaryText = buildSummaryString(totalCount, totalAmount);
-            String detailText = detailBuilder.toString();
+            String detailText = detailParts.isEmpty() ? "" : mergeDetailLabels(detailParts);
             deptRow.put(field, summaryText);
             deptRow.put(field + "_汇总", summaryText);
             deptRow.put(field + "_明细", detailText.length() > 0 ? detailText : summaryText);
@@ -357,7 +387,7 @@ public class IStatisticYJCGSServiceImpl implements IStatisticYJCGSService {
             
             // 合并横向课题科研项目（特殊计算）
             String hxktSummary = mergeSpecialFields(row, HORIZONTAL_FIELDS);
-            String hxktDetail = buildDetailString(row, HORIZONTAL_FIELDS);
+            String hxktDetail = buildDetailString(row, HORIZONTAL_FIELDS, HORIZONTAL_LABELS);
             mergedRow.put("横向课题科研项目", hxktSummary);
             mergedRow.put("横向课题科研项目_汇总", hxktSummary);
             mergedRow.put("横向课题科研项目_明细", hxktDetail);
@@ -377,7 +407,7 @@ public class IStatisticYJCGSServiceImpl implements IStatisticYJCGSService {
 
             // 合并成果转化（特殊计算）
             String cgzhSummary = mergeSpecialFields(row, ACHIEVEMENT_FIELDS);
-            String cgzhDetail = buildDetailString(row, ACHIEVEMENT_FIELDS);
+            String cgzhDetail = buildDetailString(row, ACHIEVEMENT_FIELDS, ACHIEVEMENT_LABELS);
             mergedRow.put("成果转化", cgzhSummary);
             mergedRow.put("成果转化_汇总", cgzhSummary);
             mergedRow.put("成果转化_明细", cgzhDetail);
@@ -585,7 +615,6 @@ public class IStatisticYJCGSServiceImpl implements IStatisticYJCGSService {
         for (String field : amountFields) {
             int totalCount = 0;
             double totalAmount = 0D;
-            Map<Double, Integer> amountCountMap = new HashMap<>();
 
             for (Map<String, Object> row : mergedData) {
                 Object summaryValue = row.get(field + "_汇总");
@@ -595,20 +624,12 @@ public class IStatisticYJCGSServiceImpl implements IStatisticYJCGSService {
                     totalCount += summary.count;
                     totalAmount += summary.amount;
                 }
-                Object detailValue = row.get(field + "_明细");
-                if (detailValue instanceof String) {
-                    String dv = (String) detailValue;
-                    if (!dv.isEmpty() && !"0个（0万）".equals(dv) && !"0个(0万)".equals(dv)) {
-                        parseAndCountAmounts(dv, amountCountMap);
-                    }
-                }
             }
 
             String summaryText = buildSummaryString(totalCount, totalAmount);
-            String detailText = buildResultString(amountCountMap);
             totalRow.put(field, summaryText);
             totalRow.put(field + "_汇总", summaryText);
-            totalRow.put(field + "_明细", detailText);
+            totalRow.put(field + "_明细", summaryText);
         }
 
         // 纵向科研项目（纯个数格式）
@@ -843,15 +864,15 @@ public class IStatisticYJCGSServiceImpl implements IStatisticYJCGSService {
     }
 
     /**
-     * 构建明细字符串，将各子字段的非零值按金额分组后拼接
-     * 如："3个（2.00万）, 1个（6.00万）, 1个（10.00万）"
+     * 构建明细字符串，将各子字段的非零值按小类名称拼接
+     * 如："2万元以下：1个（0.50万）；5-10万元：1个（0.50万）"
      * @param row 数据行
      * @param fields 字段列表
+     * @param labels 字段code到显示名称的映射
      * @return 明细字符串
      */
-    private String buildDetailString(Map<String, Object> row, List<String> fields) {
-        Map<Double, Integer> amountCountMap = new HashMap<>();
-        
+    private String buildDetailString(Map<String, Object> row, List<String> fields, Map<String, String> labels) {
+        List<String> parts = new ArrayList<>();
         for (String field : fields) {
             Object value = row.get(field);
             if (value instanceof String) {
@@ -861,11 +882,50 @@ public class IStatisticYJCGSServiceImpl implements IStatisticYJCGSService {
                         && !s.equals("0个") && !s.equals("0个（0万）")
                         && !s.equals("0个 (0万)") && !s.equals("0个(0万)")
                         && !s.startsWith("0个")) {
-                    parseAndCountAmounts(s, amountCountMap);
+                    String label = labels.getOrDefault(field, field);
+                    parts.add(label + "：" + s);
                 }
             }
         }
-        
-        return buildResultString(amountCountMap);
+        if (parts.isEmpty()) {
+            return "0个（0万）";
+        }
+        return String.join("；", parts);
+    }
+
+    /**
+     * 将多个明细字符串中相同单价金额的条目归并
+     * 如输入：["2万元以下：1个（0.50万）", "2万元以下：1个（0.50万）", "5-10万元：1个（8.00万）"]
+     * 输出："2个（0.50万）；1个（8.00万）"
+     * @param detailList 明细字符串列表
+     * @return 归并后的明细字符串
+     */
+    private String mergeDetailLabels(List<String> detailList) {
+        Map<String, Integer> unitCountMap = new LinkedHashMap<>();
+        Pattern segmentPattern = Pattern.compile("(\\d+)个[（(](\\d+\\.?\\d*)万[)）]");
+
+        for (String detail : detailList) {
+            if (detail == null || detail.isEmpty()) continue;
+            Matcher matcher = segmentPattern.matcher(detail);
+            while (matcher.find()) {
+                String unitAmount = matcher.group(2);
+                int count = Integer.parseInt(matcher.group(1));
+                unitCountMap.merge(unitAmount, count, Integer::sum);
+            }
+        }
+
+        if (unitCountMap.isEmpty()) {
+            return "";
+        }
+
+        List<String> unitAmounts = new ArrayList<>(unitCountMap.keySet());
+        unitAmounts.sort(Comparator.comparingDouble(Double::parseDouble));
+
+        List<String> parts = new ArrayList<>();
+        for (String unitAmount : unitAmounts) {
+            int count = unitCountMap.get(unitAmount);
+            parts.add(count + "个（" + String.format("%.2f", Double.parseDouble(unitAmount)) + "万）");
+        }
+        return String.join("；", parts);
     }
 }
