@@ -211,15 +211,7 @@ public class SysRewardServiceImpl implements ISysRewardService {
             }
         }
         
-        // 科研处审批状态：教研室审批人（有process权限）可撤回，撤回后回到教研室审批状态
-        if (REWARD_KYC_AUDIT.equals(state) && !hasRecall) {
-            boolean hasProcess = permissions != null && permissions.contains("system:reward:process");
-            if (hasProcess) {
-                filtered.add(PageRenderActionItem.of(
-                        "recall", "撤回",
-                        PageRenderColorConstants.COLOR_WARNING, 40, "确定要撤回该记录吗？"));
-            }
-        }
+        
         
         return filtered;
     }
@@ -270,7 +262,7 @@ public class SysRewardServiceImpl implements ISysRewardService {
         SysRewardPiyue sysRewardPiyue = new SysRewardPiyue();
         sysRewardPiyue.setUid(sysReward.getUserId());
         sysRewardPiyue.setRewardId(Integer.valueOf(sysReward.getId().toString()));
-        if (sysReward.getState().equals("1")) {
+        if (REWARD_JYS_AUDIT.equals(sysReward.getState())) {
             sysRewardPiyue.setConcate("提交");
             sysRewardPiyue.setState("提交");
         } else {
