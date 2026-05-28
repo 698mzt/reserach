@@ -191,6 +191,7 @@
             for (var idx = 0; idx < amountCols.length; idx++) {
                 totals['a' + amountCols[idx] + '_cnt'] = 0;
                 totals['a' + amountCols[idx] + '_amt'] = 0;
+                totals['a' + amountCols[idx] + '_map'] = {};
             }
 
             $dataRows.each(function() {
@@ -214,12 +215,35 @@
                         var regex = /(\d+)\s*个\s*[（(]\s*([\d.]+)\s*万\s*[)）]/g;
                         var match;
                         while ((match = regex.exec(text)) !== null) {
-                            totals['a' + ci + '_cnt'] += parseInt(match[1], 10);
-                            totals['a' + ci + '_amt'] += parseFloat(match[2]);
+                            var cnt = parseInt(match[1], 10);
+                            var amt = parseFloat(match[2]);
+                            if (cnt > 0 && amt > 0) {
+                                totals['a' + ci + '_cnt'] += cnt;
+                                totals['a' + ci + '_amt'] += amt;
+                                var amtKey = amt.toFixed(2);
+                                totals['a' + ci + '_map'][amtKey] = (totals['a' + ci + '_map'][amtKey] || 0) + cnt;
+                            }
                         }
                     }
                 }
             });
+
+            function buildAmountDisplay(ci) {
+                var isDetail = (displayMode === 'detail');
+                if (!isDetail) {
+                    return totals['a' + ci + '_cnt'] + '个（' + totals['a' + ci + '_amt'].toFixed(2) + '万）';
+                }
+                var map = totals['a' + ci + '_map'];
+                var keys = Object.keys(map).sort(function(a, b) { return parseFloat(a) - parseFloat(b); });
+                if (keys.length === 0) {
+                    return '0个（0万）';
+                }
+                var parts = [];
+                for (var i = 0; i < keys.length; i++) {
+                    parts.push(map[keys[i]] + '个（' + keys[i] + '万）');
+                }
+                return parts.join('；');
+            }
 
             var totalHtml = '<tr class="total-row"><td class="bs-checkbox"></td><td class="total-merged-cell" colspan="2">总计</td>';
             // 纵向校级以上 (3)
@@ -227,9 +251,9 @@
             // 纵向校级 (4)
             totalHtml += '<td>' + totals['c4'] + '个</td>';
             // 横向 (5)
-            totalHtml += '<td>' + totals['a5_cnt'] + '个（' + totals['a5_amt'].toFixed(2) + '万）</td>';
+            totalHtml += '<td>' + buildAmountDisplay(5) + '</td>';
             // 成果转化 (6)
-            totalHtml += '<td>' + totals['a6_cnt'] + '个（' + totals['a6_amt'].toFixed(2) + '万）</td>';
+            totalHtml += '<td>' + buildAmountDisplay(6) + '</td>';
             // 学术论文 (7)
             totalHtml += '<td>' + totals['c7'] + '个</td>';
             // 教材著作 (8)
