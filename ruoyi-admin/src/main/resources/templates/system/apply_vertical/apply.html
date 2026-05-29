@@ -755,7 +755,7 @@
                             
                             // 渲染第二行按钮（查看和查看流程）
                             if (viewActions.length > 0) {
-                                secondRow = '<br>' + PageRender.renderActionsToString(viewActions, {style: 'table'});
+                                secondRow = '<br>' + PageRender.renderActionsToString(viewActions, {style: 'table', nowrap: true});
                             }
                             
                             return firstRow + secondRow;
@@ -923,7 +923,7 @@
                             
                             // 渲染第二行按钮（查看和查看流程）
                             if (viewActions.length > 0) {
-                                secondRow = '<br>' + PageRender.renderActionsToString(viewActions, {style: 'table'});
+                                secondRow = '<br>' + PageRender.renderActionsToString(viewActions, {style: 'table', nowrap: true});
                             }
                             
                             return firstRow + secondRow;
@@ -1087,7 +1087,7 @@
                             
                             // 渲染第二行按钮（查看和查看流程）
                             if (viewActions.length > 0) {
-                                secondRow = '<br>' + PageRender.renderActionsToString(viewActions, {style: 'table'});
+                                secondRow = '<br>' + PageRender.renderActionsToString(viewActions, {style: 'table', nowrap: true});
                             }
                             
                             return firstRow + secondRow;
@@ -1097,8 +1097,6 @@
                 }]
         };
         initTable(options2);
-
-
 
         window.addEventListener("storage",function (event){
             if (event.key==="year"){
