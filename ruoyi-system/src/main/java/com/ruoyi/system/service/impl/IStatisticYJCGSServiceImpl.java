@@ -615,6 +615,7 @@ public class IStatisticYJCGSServiceImpl implements IStatisticYJCGSService {
         for (String field : amountFields) {
             int totalCount = 0;
             double totalAmount = 0D;
+            List<String> detailParts = new ArrayList<>();
 
             for (Map<String, Object> row : mergedData) {
                 Object summaryValue = row.get(field + "_汇总");
@@ -624,12 +625,20 @@ public class IStatisticYJCGSServiceImpl implements IStatisticYJCGSService {
                     totalCount += summary.count;
                     totalAmount += summary.amount;
                 }
+                Object detailValue = row.get(field + "_明细");
+                if (detailValue instanceof String) {
+                    String dv = (String) detailValue;
+                    if (!dv.isEmpty() && !"0个（0万）".equals(dv) && !"0个(0万)".equals(dv)) {
+                        detailParts.add(dv);
+                    }
+                }
             }
 
             String summaryText = buildSummaryString(totalCount, totalAmount);
+            String detailText = mergeDetailLabels(detailParts);
             totalRow.put(field, summaryText);
             totalRow.put(field + "_汇总", summaryText);
-            totalRow.put(field + "_明细", summaryText);
+            totalRow.put(field + "_明细", detailText.length() > 0 ? detailText : summaryText);
         }
 
         // 纵向科研项目（纯个数格式）
@@ -910,7 +919,10 @@ public class IStatisticYJCGSServiceImpl implements IStatisticYJCGSService {
             while (matcher.find()) {
                 String unitAmount = matcher.group(2);
                 int count = Integer.parseInt(matcher.group(1));
-                unitCountMap.merge(unitAmount, count, Integer::sum);
+                double amount = Double.parseDouble(unitAmount);
+                if (count > 0 && amount > 0) {
+                    unitCountMap.merge(unitAmount, count, Integer::sum);
+                }
             }
         }
 
