@@ -138,13 +138,14 @@ var PageRender = (function () {
      * @param {Object} [options] 可选配置
      *   - style: 'table'(列表页操作列，btn-xs) | 'page'(详情页底部按钮，btn-sm)，默认'table'
      *   - separator: 按钮之间的分隔符，默认' '
+     *   - nowrap: 是否强制按钮在一行显示，默认false
      * @returns {string} HTML字符串
      */
     function renderActionsToString(actions, options) {
         if (!actions || !actions.length) {
             return '';
         }
-        var opts = $.extend({style: 'table', separator: ' '}, options || {});
+        var opts = $.extend({style: 'table', separator: ' ', nowrap: false}, options || {});
 
         var sortedActions = actions.slice().sort(function (a, b) {
             return (a.sortOrder || 0) - (b.sortOrder || 0);
@@ -172,7 +173,13 @@ var PageRender = (function () {
             htmlParts.push(html);
         }
 
-        return htmlParts.join(opts.separator);
+        var result = htmlParts.join(opts.separator);
+        
+        if (opts.nowrap) {
+            result = '<div style="display: -webkit-box; display: -webkit-flex; display: -ms-flexbox; display: flex; -webkit-flex-wrap: nowrap; -ms-flex-wrap: nowrap; flex-wrap: nowrap; -webkit-box-pack: start; -webkit-justify-content: flex-start; -ms-flex-pack: start; justify-content: flex-start; -webkit-box-align: center; -webkit-align-items: center; -ms-flex-align: center; align-items: center; white-space: nowrap; word-break: keep-all; overflow: hidden; gap: 4px;">' + result + '</div>';
+        }
+        
+        return result;
     }
 
     /**
