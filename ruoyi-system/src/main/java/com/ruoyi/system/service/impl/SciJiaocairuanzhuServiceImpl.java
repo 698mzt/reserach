@@ -604,14 +604,14 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
             return actions;
         }
         
-        // 判断是否为科研处审批状态
-        boolean isKycAudit = state != null && state.contains("_KYC_") && state.endsWith("_AUDIT");
+        // 只有通过后的状态才显示撤回按钮
+        boolean isPassedState = "TEXTBOOK_PASSED".equals(state);
         
-        if (!isKycAudit) {
+        if (isPassedState) {
             return actions;
         }
         
-        // 过滤掉撤回按钮
+        // 非通过状态下过滤掉撤回按钮
         List<PageRenderActionItem> filtered = new ArrayList<>();
         for (PageRenderActionItem action : actions) {
             if (!PageRenderActionConstants.ACTION_RECALL.equals(action.getActionKey())) {

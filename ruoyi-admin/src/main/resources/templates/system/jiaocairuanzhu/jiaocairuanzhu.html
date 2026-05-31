@@ -630,6 +630,7 @@
   var kyrevokeFlag = [[${@permission.hasPermi('system:jiaocairuanzhu:kyrevoke')}]];
   var isDeptTeacher = [[${@permission.isAnyRoles('dept_teacher,discuss_college,dzgc_college,yssj_college,student_college,marxism_college,general')}]];
   var isResearch = [[${@permission.isAnyRoles('research')}]];
+  var isSciTesearch = [[${@permission.isAnyRoles('sci_tesearch')}]];
 
   var prefix = ctx + "system/jiaocairuanzhu";
 
@@ -961,9 +962,10 @@
               var secondRowActions = [];
               
               if (row.actions && row.actions.length > 0) {
+                  console.log('row.actions:', row.actions);
+                  console.log('row.state:', row.state);
                   var listActions = row.actions.filter(function(a) {
-                      return a.actionKey !== 'approve' && a.actionKey !== 'reject' && 
-                             !(a.actionKey === 'recall' && (row.state === 'TEXTBOOK_PASSED' || row.state === 'TEXTBOOK_KYC_AUDIT' || row.state === '2' || row.state === '4'));
+                      return a.actionKey !== 'approve' && a.actionKey !== 'reject';
                   });
                   
                   listActions.forEach(function(action) {
@@ -980,20 +982,27 @@
                   }
               }
 
-              // 撤回按钮：状态为"通过"或"科研处审批中"时不显示撤回按钮
-              if (row.state !== 'TEXTBOOK_PASSED' && row.state !== 'TEXTBOOK_KYC_AUDIT' && row.state !== '2' && row.state !== '4' && kyrevokeFlag) {
-                  firstRowActions.push({actionKey: 'recall', actionText: '撤回', colorType: 'warning'});
-              }
+              
               
               var html = '';
-              if (!isDeptTeacher && firstRowActions.length > 0) {
+              
+              // 科研处角色在通过状态下显示撤回按钮（放在查看按钮上方）
+              if (isSciTesearch && kyrevokeFlag && (row.state === 'TEXTBOOK_PASSED')) {
+                  html += '<a href="javascript:void(0)" class="btn btn-xs btn-warning" data-action-key="recall" data-confirm="确定要撤回该记录吗？">撤回</a>';
+              }
+              
+              if ((!isDeptTeacher || isSciTesearch) && firstRowActions.length > 0) {
+                  if (html) {
+                      html += '&nbsp;';
+                  }
                   html += PageRender.renderActionsToString(firstRowActions, {style: 'table'});
               }
+              
               if (secondRowActions.length > 0) {
                   if (html) {
                       html += '<br/>';
                   }
-                  if (isDeptTeacher) {
+                  if (isDeptTeacher && !isSciTesearch) {
                       var viewActions = secondRowActions.filter(function(a) { return a.actionKey === 'view' || a.actionKey === 'viewProcess'; });
                       if (viewActions.length > 0) {
                           html += PageRender.renderActionsToString(viewActions, {style: 'table'});
@@ -1002,6 +1011,7 @@
                       html += PageRender.renderActionsToString(secondRowActions, {style: 'table'});
                   }
               }
+              
               return html;
           }
         }
