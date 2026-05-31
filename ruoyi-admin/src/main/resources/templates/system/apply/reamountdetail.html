@@ -312,13 +312,6 @@
             console.log('Event Name:', name.rows);
 
             var a =$("#state").val();
-            // 获取当前登录用户ID和申请人ID
-            var currentUserId = [[${currentUserId}]];
-            var applyUserId = [[${sciHorizontalApply.userId}]];
-            
-            // 判断是否为申请人本人
-            var isSelfApply = (currentUserId === applyUserId);
-            
             if ($("#urlFlag").val() == 'chakan'){
                 $("#btn3").show();
                 $(".tdiv2").show()
@@ -330,15 +323,8 @@
                         $(".tdiv2").show();
                     }
                     $(".tdiv1").show();
-                    
-                    // 只有当不是申请人本人时，才显示审批按钮
-                    if (!isSelfApply) {
-                        $("#btn1").show();
-                        $("#btn2").show();
-                    } else {
-                        // 如果是申请人本人，显示提示信息
-                        $(".tdiv1").prepend('<div class="alert alert-warning" style="margin-top: 10px;"><i class="fa fa-warning"></i> 您不能审批自己申请的项目</div>');
-                    }
+                    $("#btn1").show();
+                    $("#btn2").show();
                     $("#btn3").show();
                 }
             }

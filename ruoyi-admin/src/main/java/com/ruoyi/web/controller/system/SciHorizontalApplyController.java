@@ -1759,6 +1759,20 @@ public class SciHorizontalApplyController extends BaseController
                 return AjaxResult.error("无权操作");
             }
             targetState = "REAMOUNT_JYS_AUDIT";
+        } else if ("REAMOUNT_REJECTED".equals(currentState)) {
+            // 申请人撤回→DRAFT，教研室撤回→JYS_AUDIT，科研处撤回→KYC_AUDIT
+            boolean isOwner = reamount.getUserId() != null && getUserId().longValue() == reamount.getUserId().longValue();
+            boolean isJYS = getSysUser().getRoles().stream().anyMatch(r -> "102".equals(r.getRoleId()));
+            boolean isKYC = getSysUser().getRoles().stream().anyMatch(r -> "101".equals(r.getRoleId()));
+            if (isOwner) {
+                targetState = "REAMOUNT_DRAFT";
+            } else if (isJYS) {
+                targetState = "REAMOUNT_JYS_AUDIT";
+            } else if (isKYC) {
+                targetState = "REAMOUNT_KYC_AUDIT";
+            } else {
+                return AjaxResult.error("无权操作");
+            }
         } else if ("REAMOUNT_PASSED".equals(currentState)) {
             // 科研处撤回 → JYS_AUDIT
             boolean canRecall = getSysUser().getRoles().stream().anyMatch(r -> "101".equals(r.getRoleId()));

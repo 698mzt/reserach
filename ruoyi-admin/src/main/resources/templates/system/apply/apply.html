@@ -732,12 +732,12 @@
             if (key === 'review') {
                 // 到账金额审批
                 if (state.indexOf('REAMOUNT_') !== -1) {
-                    return state.indexOf('_JYS_AUDIT') !== -1 && hasPagePermission(proFlag) && !owner;
+                    return state.indexOf('_JYS_AUDIT') !== -1 && hasPagePermission(proFlag);
                 }
                 if (tableId === 'bootstrap-table2') {
-                    return state === 'HORIZONTAL_OVER_JYS_AUDIT' && hasPagePermission(proFlag) && !owner;
+                    return state === 'HORIZONTAL_OVER_JYS_AUDIT' && hasPagePermission(proFlag);
                 }
-                return state === 'HORIZONTAL_APPLY_JYS_AUDIT' && hasPagePermission(proFlag) && !owner;
+                return state === 'HORIZONTAL_APPLY_JYS_AUDIT' && hasPagePermission(proFlag);
             }
             if (key === 'kyReview') {
                 // 到账金额审批
@@ -1418,23 +1418,26 @@
                     align: 'center',
                     formatter: function(value, row, index) {
                         if (row.actions && row.actions.length > 0) {
-                            var ops = row.actions.filter(function(a) {
-                                return a.actionKey === 'view' || a.actionKey === 'viewProcess';
-                            });
-                            var btns = row.actions.filter(function(a) {
-                                return a.actionKey !== 'view' && a.actionKey !== 'viewProcess';
-                            });
-                            var html = '';
-                            if (btns.length > 0) {
-                                html += PageRender.renderActionsToString(btns, {style: 'table'});
-                            }
-                            if (ops.length > 0) {
-                                if (html) {
-                                    html += '<br>';
+                            var listActions = filterListActions(row.actions, row, 'bootstrap-table3');
+                            if (listActions.length > 0) {
+                                var ops = listActions.filter(function(a) {
+                                    return a.actionKey === 'view' || a.actionKey === 'viewProcess';
+                                });
+                                var btns = listActions.filter(function(a) {
+                                    return a.actionKey !== 'view' && a.actionKey !== 'viewProcess';
+                                });
+                                var html = '';
+                                if (btns.length > 0) {
+                                    html += PageRender.renderActionsToString(btns, {style: 'table'});
                                 }
-                                html += PageRender.renderActionsToString(ops, {style: 'table'});
+                                if (ops.length > 0) {
+                                    if (html) {
+                                        html += '<br>';
+                                    }
+                                    html += PageRender.renderActionsToString(ops, {style: 'table'});
+                                }
+                                return html;
                             }
-                            return html;
                         }
                         return '';
                     }
@@ -1632,7 +1635,14 @@
             'HORIZONTAL_APPLY_JYS_AUDIT': '#2c99ff',
             'HORIZONTAL_APPLY_KYC_AUDIT': '#2c99ff',
             'HORIZONTAL_OVER_JYS_AUDIT': '#2c99ff',
-            'HORIZONTAL_OVER_KYC_AUDIT': '#2c99ff'
+            'HORIZONTAL_OVER_KYC_AUDIT': '#2c99ff',
+            'REAMOUNT_DRAFT': '#e6a344',
+            'REAMOUNT_JYS_AUDIT': '#2c99ff',
+            'REAMOUNT_KYC_AUDIT': '#2c99ff',
+            'REAMOUNT_DEPT_AUDIT': '#2c99ff',
+            'REAMOUNT_PASSED': '#67c23a',
+            'REAMOUNT_REJECTED': '#e6a344',
+            'REAMOUNT_CLOSED': '#909399'
         };
 
         const state = String(row.state || '');
