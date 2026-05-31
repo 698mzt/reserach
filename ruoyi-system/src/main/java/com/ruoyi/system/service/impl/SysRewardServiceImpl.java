@@ -87,7 +87,6 @@ public class SysRewardServiceImpl implements ISysRewardService {
 
     /**
      * 查询奖励
-     *
      * @param id 奖励主键
      * @return 奖励
      */
@@ -109,7 +108,6 @@ public class SysRewardServiceImpl implements ISysRewardService {
 
     /**
      * 查询奖励列表（统一查询方法，通过@DataScope控制数据权限）
-     *
      * @param sysReward 奖励
      * @return 奖励列表
      */
@@ -136,7 +134,7 @@ public class SysRewardServiceImpl implements ISysRewardService {
      * 但奖励模块的审批操作统一在详情页完成，列表页只需要"批阅/核查"按钮
      * 
      * 学院角色（有xypy权限但无process和hecha权限）只有查看和查看流程按钮，不显示批阅和撤回按钮
-     *
+     *这里重点是学院
      * @param actions 原始按钮列表
      * @param permissions 当前用户权限集合
      * @param state 当前状态
