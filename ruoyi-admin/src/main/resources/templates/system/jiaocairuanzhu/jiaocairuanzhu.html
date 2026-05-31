@@ -960,11 +960,16 @@
           formatter: function(value, row, index) {
               var firstRowActions = [];
               var secondRowActions = [];
+              var hasRecallInActions = false;
               
               if (row.actions && row.actions.length > 0) {
                   console.log('row.actions:', row.actions);
                   console.log('row.state:', row.state);
                   var listActions = row.actions.filter(function(a) {
+                      if (a.actionKey === 'recall') {
+                          hasRecallInActions = true;
+                          return false; // 先过滤掉recall，我们后面统一处理
+                      }
                       return a.actionKey !== 'approve' && a.actionKey !== 'reject';
                   });
                   
@@ -981,13 +986,22 @@
                       secondRowActions.push({actionKey: 'viewProcess', actionText: '流程记录', colorType: 'info'});
                   }
               }
-
-              
               
               var html = '';
+              var showRecall = false;
               
-              // 科研处角色在通过状态下显示撤回按钮（放在查看按钮上方）
-              if (isSciTesearch && kyrevokeFlag && (row.state === 'TEXTBOOK_PASSED')) {
+              // 判断是否显示撤回按钮
+              // 1. 科研处角色在通过状态下
+              if (isSciTesearch && kyrevokeFlag && (row.state === 'TEXTBOOK_PASSED' || row.state === '6')) {
+                  showRecall = true;
+              }
+              // 2. 教研室管理员在科研处审批状态下
+              else if (isResearch && kyrevokeFlag && (row.state === 'TEXTBOOK_KYC_AUDIT' || row.state === '2' || row.state === '4')) {
+                  showRecall = true;
+              }
+              
+              // 显示撤回按钮
+              if (showRecall) {
                   html += '<a href="javascript:void(0)" class="btn btn-xs btn-warning" data-action-key="recall" data-confirm="确定要撤回该记录吗？">撤回</a>';
               }
               

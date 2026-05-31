@@ -440,19 +440,34 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
             return 0;
         }
 
-        // 构建审批请求（参考论文模块的实现方式）
-        ApprovalRequest request = ApprovalRequest.of(
-                PROCESS_CODE,
-                Long.valueOf(id), currentState, remark,
-                uid, user.getUserName(),
-                user.getDept() != null ? user.getDept().getDeptName() : "");
+        // 直接设置驳回状态，不使用approvalProcessService.reject()
+        String rejectState = "TEXTBOOK_REJECTED";
 
-        // 执行驳回操作
-        ApprovalResult result = approvalProcessService.reject(request);
-
-        if (!result.isSuccess()) {
-            throw new RuntimeException("驳回操作失败: " + result.getMessage());
+        // 保存审批历史记录
+        try {
+            ApprovalResult nodeResult = approvalProcessService.getCurrentNode(PROCESS_CODE, currentState);
+            if (nodeResult.isSuccess() && nodeResult.getCurrentNode() != null) {
+                SysApprovalHistory history = new SysApprovalHistory();
+                history.setProcessCode("textbook_approval");
+                history.setBusinessId(Long.valueOf(id));
+                history.setNodeId(nodeResult.getCurrentNode().getId());
+                history.setNodeName(nodeResult.getCurrentNode().getNodeNm());
+                history.setAction("reject");
+                history.setOperatorId(uid);
+                history.setOperatorName(user.getUserName());
+                history.setOperatorDept(user.getDept() != null ? user.getDept().getDeptName() : "");
+                history.setOldState(currentState);
+                history.setNewState(rejectState);
+                history.setComment(remark);
+                history.setCreateTime(new Date());
+                sysApprovalHistoryService.insertSysApprovalHistory(history);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+
+        // 更新数据库状态为驳回状态
+        int a = sciJiaocairuanzhuMapper.hxPass(id, rejectState);
 
         // 插入批阅记录
         SciJiaocairuanzhuPiyue sciJiaocairuanzhuPiyue = new SciJiaocairuanzhuPiyue();
@@ -472,7 +487,7 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
 
         sciJiaocairuanzhuPiyueMapper.insertSciJiaocairuanzhuPiyue(sciJiaocairuanzhuPiyue);
 
-        return 1;
+        return a;
     }
 
     @Transactional(rollbackFor = Exception.class)
