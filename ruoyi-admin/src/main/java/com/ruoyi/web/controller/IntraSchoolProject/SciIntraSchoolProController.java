@@ -580,11 +580,11 @@ public class SciIntraSchoolProController extends BaseController {
   @ResponseBody
 
   public AjaxResult subDraft(@PathVariable("id") Integer id) {
-//        int data=0;
-//        return AjaxResult.success("操作成功", data);
     String sid = String.valueOf(id);
-
     SciIntraSchoolPro sciIntraSchoolPro = sciIntraSchProApplyService.sel_IntraSchPro_by_id(id);
+    if (!canEditOrDeleteTecTra(sciIntraSchoolPro)) {
+      return AjaxResult.error("当前账号无此操作权限");
+    }
     String state = sciIntraSchoolPro.getState();
     if (state.equals("15") || TEC_TRA_DRAFT.equals(state) || TEC_TRA_REJECTED.equals(state)) {
       state = TEC_TRA_JYS_AUDIT;
@@ -660,6 +660,9 @@ public class SciIntraSchoolProController extends BaseController {
   @ResponseBody
   public AjaxResult sc_editSave(SciIntraSchoolPro sciIntraSchoolPro) {
     SciIntraSchoolPro current = sciIntraSchProApplyService.sel_IntraSchPro_by_id(sciIntraSchoolPro.getId());
+    if (!canEditOrDeleteTecTra(current)) {
+      return AjaxResult.error("当前账号无此操作权限");
+    }
     if (current != null && isRejectedTecTraState(current.getState())) {
       sciIntraSchoolPro.setState(TEC_TRA_DRAFT);
     }
@@ -675,6 +678,10 @@ public class SciIntraSchoolProController extends BaseController {
   @PostMapping("/change_sc_edit")
   @ResponseBody
   public AjaxResult change_sc_edit(SciIntraSchoolPro sciIntraSchoolPro) {
+    SciIntraSchoolPro current = sciIntraSchProApplyService.sel_IntraSchPro_by_id(sciIntraSchoolPro.getId());
+    if (!canEditOrDeleteTecTra(current)) {
+      return AjaxResult.error("当前账号无此操作权限");
+    }
     System.out.println("sciIntraSchoolPro.getState() = " + sciIntraSchoolPro.getState());
     if (sciIntraSchoolPro.getState().equals("3") || sciIntraSchoolPro.getState().equals("5") || sciIntraSchoolPro.getState().equals("12")) {
       sciIntraSchoolPro.setState("1");
@@ -751,6 +758,15 @@ public class SciIntraSchoolProController extends BaseController {
   }
 
   /**
+   * 判断当前用户是否有权限编辑/删除课题：admin可操作任意，其他角色只能操作自己的
+   */
+  private boolean canEditOrDeleteTecTra(SciIntraSchoolPro apply) {
+    if (apply == null) return false;
+    if ("admin".equals(panRole_str())) return true;
+    return apply.getUserId() != null && apply.getUserId().longValue() == getUserId().longValue();
+  }
+
+  /**
    * 结题撤回
    *
    * @param
@@ -772,6 +788,10 @@ public class SciIntraSchoolProController extends BaseController {
   @ResponseBody
   //todo:这里的sciHorizontalApply里面getState()是个null
   public AjaxResult editSave_Over(SciIntraSchoolPro sciIntraSchoolPro) {
+    SciIntraSchoolPro current = sciIntraSchProApplyService.sel_IntraSchPro_by_id(sciIntraSchoolPro.getId());
+    if (!canEditOrDeleteTecTra(current)) {
+      return AjaxResult.error("当前账号无此操作权限");
+    }
     return toAjax(sciIntraSchProApplyService.updateIntraSchoolApply(sciIntraSchoolPro, getUserId()));
   }
 
@@ -853,6 +873,12 @@ public class SciIntraSchoolProController extends BaseController {
   @PostMapping("/remove")
   @ResponseBody
   public AjaxResult remove(String ids) {
+    for (String id : ids.split(",")) {
+      SciIntraSchoolPro apply = sciIntraSchProApplyService.sel_IntraSchPro_by_id(Integer.valueOf(id.trim()));
+      if (!canEditOrDeleteTecTra(apply)) {
+        return AjaxResult.error("当前账号无此操作权限");
+      }
+    }
     return toAjax(sciIntraSchProApplyService.deleteSciSCHHorizontalApplyByIds(ids));
   }
 
