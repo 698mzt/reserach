@@ -842,13 +842,23 @@
             }
         });
         
+        var seen = {};
+        var uniqueMembers = [];
+        for (var i = 0; i < allMembers.length; i++) {
+            var member = allMembers[i];
+            if (!seen[member.memberId]) {
+                seen[member.memberId] = true;
+                uniqueMembers.push(member);
+            }
+        }
+        
         // 清空现有选项
         viceEditorSelect.empty();
         
         // 添加成员作为选项，但排除已选为主编的成员
         var validViceEditors = [];
-        for (var i = 0; i < allMembers.length; i++) {
-            var member = allMembers[i];
+        for (var i = 0; i < uniqueMembers.length; i++) {
+            var member = uniqueMembers[i];
             if (!editors.includes(member.memberId)) {
                 viceEditorSelect.append('<option value="' + member.memberId + '">' + member.memberName + '</option>');
                 // 检查当前副主编是否仍然有效
@@ -910,13 +920,23 @@
             }
         });
         
+        var seen = {};
+        var uniqueMembers = [];
+        for (var i = 0; i < allMembers.length; i++) {
+            var member = allMembers[i];
+            if (!seen[member.memberId]) {
+                seen[member.memberId] = true;
+                uniqueMembers.push(member);
+            }
+        }
+        
         // 清空现有选项
         editorSelect.empty();
         
         // 添加成员作为选项，但排除已选为副主编的成员
         var validEditors = [];
-        for (var i = 0; i < allMembers.length; i++) {
-            var member = allMembers[i];
+        for (var i = 0; i < uniqueMembers.length; i++) {
+            var member = uniqueMembers[i];
             if (!viceEditors.includes(member.memberId)) {
                 editorSelect.append('<option value="' + member.memberId + '">' + member.memberName + '</option>');
                 // 检查当前主编是否仍然有效

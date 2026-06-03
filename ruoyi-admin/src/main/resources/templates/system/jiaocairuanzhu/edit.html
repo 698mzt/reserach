@@ -562,6 +562,13 @@
         viceEditorSelect.empty();
         
         var allMembers = [];
+        
+        var hostId = $('input[name="firstPersonId"]').val();
+        var hostName = $('input[name="firstPersonId"]').parent().find('input[readonly]').val();
+        if (hostId && hostName) {
+            allMembers.push({ memberId: hostId, memberName: hostName });
+        }
+        
         if (members.length > 0) {
             for (var i = 0; i < members.length; i++) {
                 allMembers.push({ 
@@ -589,8 +596,18 @@
             }
         }
         
+        var seen = {};
+        var uniqueMembers = [];
         for (var i = 0; i < allMembers.length; i++) {
             var member = allMembers[i];
+            if (!seen[member.memberId]) {
+                seen[member.memberId] = true;
+                uniqueMembers.push(member);
+            }
+        }
+        
+        for (var i = 0; i < uniqueMembers.length; i++) {
+            var member = uniqueMembers[i];
             editorSelect.append('<option value="' + member.memberId + '">' + member.memberName + '</option>');
             viceEditorSelect.append('<option value="' + member.memberId + '">' + member.memberName + '</option>');
         }
