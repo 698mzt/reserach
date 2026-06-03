@@ -418,7 +418,7 @@
                                 <div id="toolbar1" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
                                 <div class="btn-group-sm"  role="group" style="display: inline-flex; gap: 4px;">
                                     <a class="btn btn-success"
-                                       th:if="${@permission.hasPermi('system:apply_vertical:add')}"
+                                       shiro:hasPermission="system:apply_vertical:add"
                                        onclick="$.operate.addTab()">
                                         <i class="fa fa-plus"></i> 添加
                                     </a>
