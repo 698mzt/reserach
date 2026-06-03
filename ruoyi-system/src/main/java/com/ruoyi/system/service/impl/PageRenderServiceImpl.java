@@ -885,11 +885,19 @@ public class PageRenderServiceImpl implements IPageRenderService {
             }
         }
 
-        // 追加金额审批模块：驳回状态下显示"重新提交"按钮
+        // 追加金额审批模块：驳回状态下显示"撤回"和"重新提交"按钮
         if ("HORIZONTAL_REAMOUNT".equals(moduleCode) && context.getCurrentState() != null
                 && context.getCurrentState().endsWith("_REJECTED")) {
             boolean isOwner = context.isOwner();
             boolean isAdmin = context.hasRole("admin");
+            boolean canApprove = context.hasPermission(config.getPermission("approve"));
+            boolean canKyrevoke = context.hasPermission("system:apply:kyrevoke");
+            // 申请人/教研室/科研处均可撤回，目标状态不同
+            if (isOwner || isAdmin || canApprove || canKyrevoke) {
+                specificActions.add(PageRenderActionItem.of(
+                        PageRenderActionConstants.ACTION_RECALL, "撤回",
+                        PageRenderColorConstants.COLOR_WARNING, 40, "确定要撤回该记录吗？"));
+            }
             if ((isOwner || isAdmin) && context.hasPermission(config.getPermission("edit"))) {
                 specificActions.add(PageRenderActionItem.of(
                         "submit", "重新提交",
