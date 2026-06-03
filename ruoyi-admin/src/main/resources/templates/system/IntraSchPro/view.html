@@ -548,6 +548,9 @@
         if (role === "admin") {
             return true;
         }
+        if (role === "research") {
+            return ["2", "TEC_TRA_KYC_AUDIT"].includes(state);
+        }
         if (role === "sci_tesearch") {
             return ["4", "6", "TEC_TRA_PASSED"].includes(state);
         }
@@ -615,7 +618,7 @@
     function buildApprovalActions(row, actions) {
         var state = normalizeState(row.state);
 
-        if (["15", "TEC_TRA_DRAFT"].includes(state)) {
+        if (["15", "TEC_TRA_DRAFT"].includes(state) && row.userId == row.uid) {
             actions.push(actionButton("提交", "primary", "subDraft('" + row.id + "')"));
             actions.push(actionButton("编辑", "success", "$.operate.editTab('" + row.id + "')"));
             actions.push(actionButton("删除", "danger", "$.operate.remove('" + row.id + "')"));

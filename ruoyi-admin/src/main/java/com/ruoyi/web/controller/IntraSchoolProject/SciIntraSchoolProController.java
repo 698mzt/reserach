@@ -52,12 +52,18 @@ public class SciIntraSchoolProController extends BaseController {
   @Autowired
   private ISysApprovalStateService sysApprovalStateService;
   //private String role_str="";
+  /**
+   * 成果转化列表页面入口，组装当前用户角色信息到前端
+   */
   @GetMapping("")
   String view(ModelMap mmap) {
     mmap.put("roleStr", panRole_str());
     return prefix + "/view";
   }
 
+  /**
+   * 获取当前登录用户的基本信息（用户名、用户ID）
+   */
   @PostMapping("/getLoginData")
   @ResponseBody
   public Map get_LoginName() {
@@ -96,6 +102,9 @@ public class SciIntraSchoolProController extends BaseController {
     return data;
   }
 
+  /**
+   * 查询全部成果转化列表（不分tableId），合并立项、审批、结题三个tab的数据并去重排序分页
+   */
   @PostMapping("/list")
   @ResponseBody
   public TableDataInfo listAll(String year, SciIntraSchoolPro sciIntraSchoolPro) {
@@ -187,6 +196,9 @@ public class SciIntraSchoolProController extends BaseController {
     }
   }
 
+  /**
+   * 为列表每条记录填充审批阶段名称（从审批流程配置表中查询状态码对应的显示名称）
+   */
   private void populateApprovalStages(List<SciIntraSchoolPro> list) {
     if (list == null || list.isEmpty()) {
       return;
@@ -206,6 +218,9 @@ public class SciIntraSchoolProController extends BaseController {
 
 
 
+  /**
+   * 将旧数字状态码映射为新的语义化状态编码（如 "15" -> "TEC_TRA_DRAFT"）
+   */
   private String mapTecTraStateToStatusCode(String state) {
     if (state == null || state.trim().isEmpty()) {
       return TEC_TRA_DRAFT;
@@ -230,6 +245,9 @@ public class SciIntraSchoolProController extends BaseController {
     }
   }
 
+  /**
+   * 获取状态的排序优先级，数值越小越靠前（草稿1 < 驳回2 < JYS审批3 < KYC审批4 < 通过5）
+   */
   private int getStatePriority(String state) {
     if (state == null) return 6;
     switch (state) {
@@ -248,6 +266,10 @@ public class SciIntraSchoolProController extends BaseController {
     }
   }
 
+  /**
+   * 根据当前用户角色和tableId路由到对应的数据查询方法
+   * 五个角色各有三张表（已完结/审批中/结题中），共15条路由分支
+   */
   private List<SciIntraSchoolPro> selectListByRole(String roleStr, String tableId, SciIntraSchoolPro sciIntraSchoolPro) {
     switch (roleStr) {
       case "dept_teacher":
@@ -383,6 +405,9 @@ public class SciIntraSchoolProController extends BaseController {
 
   }
 
+  /**
+   * 成果转化新增页面，加载用户列表供负责人下拉框选择
+   */
   @GetMapping("/add")
   public String add(ModelMap mmap) {
     // SysUser user=getSysUser();
@@ -429,6 +454,9 @@ public class SciIntraSchoolProController extends BaseController {
     return toAjax(sciIntraSchProScoreService.set_SchPro_score_noScore(sciIntraSchoolPro));
   }
 
+  /**
+   * 成果转化编辑页面入口，根据课题状态路由到不同模板（立项编辑/结题前编辑/结题编辑）
+   */
   @GetMapping("/edit/{id}")
   public String edit(@PathVariable("id") Integer id, ModelMap mmap) {
     System.out.println("id = " + id);
@@ -452,6 +480,9 @@ public class SciIntraSchoolProController extends BaseController {
     //return prefix + "/edit";
   }
 
+  /**
+   * 成果转化详情/批阅页面，设置部门匹配标志和角色信息供前端判定按钮显隐
+   */
   @GetMapping("/detail/{id}/{urlFlag}")
   public String detail(@PathVariable("id") Integer id, @PathVariable("urlFlag") String urlFlag, ModelMap mmap) {
     //批阅的数据的user_id
@@ -551,6 +582,9 @@ public class SciIntraSchoolProController extends BaseController {
     return getDataTable(list);
   }
 
+  /**
+   * 将批阅记录的原始状态文本映射为简化的操作类型（新增/撤回/驳回/提交/通过/修改）
+   */
   private String mapPiyueState(String raw) {
     if (raw == null) return "";
     if (raw.contains("草稿") || raw.contains("新建")) return "新增";
@@ -562,6 +596,9 @@ public class SciIntraSchoolProController extends BaseController {
     return raw;
   }
 
+  /**
+   * 获取批阅记录的备注内容，若原始备注为空则使用映射后的操作类型作为显示文本
+   */
   private String mapPiyueConcate(String mappedState, String originalConcate) {
     if (originalConcate != null && !originalConcate.trim().isEmpty()) {
       return originalConcate;
@@ -580,11 +617,11 @@ public class SciIntraSchoolProController extends BaseController {
   @ResponseBody
 
   public AjaxResult subDraft(@PathVariable("id") Integer id) {
-//        int data=0;
-//        return AjaxResult.success("操作成功", data);
     String sid = String.valueOf(id);
-
     SciIntraSchoolPro sciIntraSchoolPro = sciIntraSchProApplyService.sel_IntraSchPro_by_id(id);
+    if (!canEditOrDeleteTecTra(sciIntraSchoolPro)) {
+      return AjaxResult.error("当前账号无此操作权限");
+    }
     String state = sciIntraSchoolPro.getState();
     if (state.equals("15") || TEC_TRA_DRAFT.equals(state) || TEC_TRA_REJECTED.equals(state)) {
       state = TEC_TRA_JYS_AUDIT;
@@ -635,6 +672,9 @@ public class SciIntraSchoolProController extends BaseController {
     return toAjax(rows);
   }
 
+  /**
+   * 判断当前用户是否有审批权限：pro=教研室审批(状态1/JYS_AUDIT)，hecha=科研处审批(状态2/KYC_AUDIT)
+   */
   private boolean canApproveTecTra(SciIntraSchoolPro apply, String urlFlag) {
     if (apply == null) {
       return false;
@@ -660,6 +700,9 @@ public class SciIntraSchoolProController extends BaseController {
   @ResponseBody
   public AjaxResult sc_editSave(SciIntraSchoolPro sciIntraSchoolPro) {
     SciIntraSchoolPro current = sciIntraSchProApplyService.sel_IntraSchPro_by_id(sciIntraSchoolPro.getId());
+    if (!canEditOrDeleteTecTra(current)) {
+      return AjaxResult.error("当前账号无此操作权限");
+    }
     if (current != null && isRejectedTecTraState(current.getState())) {
       sciIntraSchoolPro.setState(TEC_TRA_DRAFT);
     }
@@ -675,6 +718,10 @@ public class SciIntraSchoolProController extends BaseController {
   @PostMapping("/change_sc_edit")
   @ResponseBody
   public AjaxResult change_sc_edit(SciIntraSchoolPro sciIntraSchoolPro) {
+    SciIntraSchoolPro current = sciIntraSchProApplyService.sel_IntraSchPro_by_id(sciIntraSchoolPro.getId());
+    if (!canEditOrDeleteTecTra(current)) {
+      return AjaxResult.error("当前账号无此操作权限");
+    }
     System.out.println("sciIntraSchoolPro.getState() = " + sciIntraSchoolPro.getState());
     if (sciIntraSchoolPro.getState().equals("3") || sciIntraSchoolPro.getState().equals("5") || sciIntraSchoolPro.getState().equals("12")) {
       sciIntraSchoolPro.setState("1");
@@ -707,6 +754,9 @@ public class SciIntraSchoolProController extends BaseController {
     return toAjax(sciIntraSchProApplyService.sch_hxCH(id, getUserId(), remark, urlFlag));
   }
 
+  /**
+   * 撤回页面入口，设置urlFlag为hecha供前端判定
+   */
   @GetMapping("/recall/{id}")
   public String recall(@PathVariable("id") Integer id, ModelMap mmap) {
     SciIntraSchoolPro sciIntraSchoolPro = sciIntraSchProApplyService.sel_IntraSchPro_by_id(id);
@@ -715,6 +765,9 @@ public class SciIntraSchoolProController extends BaseController {
     return prefix + "/recall";
   }
 
+  /**
+   * 执行撤回操作，先校验撤回权限，通过后扣除积分并修改状态
+   */
   @PostMapping("/recallsave")
   @ResponseBody
   public AjaxResult recallSave(String id, String state, String remark, String urlFlag) {
@@ -728,6 +781,9 @@ public class SciIntraSchoolProController extends BaseController {
     return toAjax(sciIntraSchProApplyService.sch_hxCH(id, getUserId(), remark, urlFlag));
   }
 
+  /**
+   * 判断当前用户是否有撤回权限：admin可撤回任意，教研室可撤回到科研处审批状态的，科研处可撤回已通过的
+   */
   private boolean canRecallTecTra(SciIntraSchoolPro apply) {
     if (apply == null) {
       return false;
@@ -742,12 +798,27 @@ public class SciIntraSchoolProController extends BaseController {
     return "sci_tesearch".equals(roleStr) && isPassedTecTraState(apply.getState());
   }
 
+  /**
+   * 判断是否为已通过状态（旧编码4/6 或 TEC_TRA_PASSED）
+   */
   private boolean isPassedTecTraState(String state) {
     return "4".equals(state) || "6".equals(state) || TEC_TRA_PASSED.equals(state);
   }
 
+  /**
+   * 判断是否为驳回状态（旧编码3/5/12 或 TEC_TRA_REJECTED）
+   */
   private boolean isRejectedTecTraState(String state) {
     return "3".equals(state) || "5".equals(state) || "12".equals(state) || TEC_TRA_REJECTED.equals(state);
+  }
+
+  /**
+   * 判断当前用户是否有权限编辑/删除课题：admin可操作任意，其他角色只能操作自己的
+   */
+  private boolean canEditOrDeleteTecTra(SciIntraSchoolPro apply) {
+    if (apply == null) return false;
+    if ("admin".equals(panRole_str())) return true;
+    return apply.getUserId() != null && apply.getUserId().longValue() == getUserId().longValue();
   }
 
   /**
@@ -768,10 +839,17 @@ public class SciIntraSchoolProController extends BaseController {
     return toAjax(sciIntraSchProApplyService.sch_hxOverCH(id, getUserId(), remark, urlFlag));
   }
 
+  /**
+   * 保存结题编辑，需校验操作权限
+   */
   @PostMapping("/edit_Over")
   @ResponseBody
   //todo:这里的sciHorizontalApply里面getState()是个null
   public AjaxResult editSave_Over(SciIntraSchoolPro sciIntraSchoolPro) {
+    SciIntraSchoolPro current = sciIntraSchProApplyService.sel_IntraSchPro_by_id(sciIntraSchoolPro.getId());
+    if (!canEditOrDeleteTecTra(current)) {
+      return AjaxResult.error("当前账号无此操作权限");
+    }
     return toAjax(sciIntraSchProApplyService.updateIntraSchoolApply(sciIntraSchoolPro, getUserId()));
   }
 
@@ -787,7 +865,9 @@ public class SciIntraSchoolProController extends BaseController {
     return prefix + "/overadd";
   }
 
-  // 第一次申请结项的时候调用（要上传文件）  overadd.html
+  /**
+   * 第一次申请结项（需上传文件），修改课题状态并插入流程记录
+   */
   @PostMapping("/sch_overadd")
   @ResponseBody
   public AjaxResult sch_overaddSave(SciIntraSchoolPro sciIntraSchoolPro) {
@@ -822,6 +902,9 @@ public class SciIntraSchoolProController extends BaseController {
     return toAjax(sciIntraSchProApplyService.sch_hxover(id, getUserId(), urlFlag));
   }
 
+  /**
+   * 判断当前用户是否有结题审批权限：JYSOVER=教研室结题审批，KYCOVER=科研处结题审批，dept_teacher=学院负责人审批
+   */
   private boolean canApproveOverTecTra(String urlFlag) {
     String roleStr = panRole_str();
     if ("admin".equals(roleStr)) {
@@ -839,6 +922,9 @@ public class SciIntraSchoolProController extends BaseController {
     return false;
   }
 
+  /**
+   * 结题驳回，校验结题审批权限后执行
+   */
   @PostMapping("/sch_hxoverBh")
   @ResponseBody
   public AjaxResult hxoverBh(String id, String remark, String urlFlag) {
@@ -849,10 +935,19 @@ public class SciIntraSchoolProController extends BaseController {
   }
 
 
+  /**
+   * 删除成果转化课题，逐一校验每条记录的编辑/删除权限
+   */
   @Log(title = "删除校内横向课题", businessType = BusinessType.DELETE)
   @PostMapping("/remove")
   @ResponseBody
   public AjaxResult remove(String ids) {
+    for (String id : ids.split(",")) {
+      SciIntraSchoolPro apply = sciIntraSchProApplyService.sel_IntraSchPro_by_id(Integer.valueOf(id.trim()));
+      if (!canEditOrDeleteTecTra(apply)) {
+        return AjaxResult.error("当前账号无此操作权限");
+      }
+    }
     return toAjax(sciIntraSchProApplyService.deleteSciSCHHorizontalApplyByIds(ids));
   }
 
