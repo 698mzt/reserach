@@ -406,7 +406,28 @@
                     }
                     $("#btn3").show();
                 } else if (userRole !== 'teacher') {
-                    if (a == 'PATENT_JYS_AUDIT' || a == 'PATENT_KYC_AUDIT' || a == 'PATENT_DRAFT') {
+                    // 教研室角色在科研处审批阶段：只显示撤回按钮，不显示通过按钮
+                    if (userRole === 'research' && a == 'PATENT_KYC_AUDIT') {
+                        if (rows.length > 0) {
+                            $(".tdiv2").show();
+                        }
+                        $(".tdiv1").show();
+                        $("#btn2").show();
+                        $("#rejectBtnText").text("撤 回");
+                    }
+                    // 教研室/科研处/管理员在教研室审批阶段或草稿状态
+                    else if (a == 'PATENT_JYS_AUDIT' || a == 'PATENT_DRAFT') {
+                        if (rows.length > 0) {
+                            $(".tdiv2").show();
+                        }
+                        $(".tdiv1").show();
+                        $("#btn2").show();
+                        if (b != "tuihui" && b != "xytuihui") {
+                            $("#btn1").show();
+                        }
+                    }
+                    // 科研处/管理员在科研处审批阶段
+                    else if (a == 'PATENT_KYC_AUDIT') {
                         if (rows.length > 0) {
                             $(".tdiv2").show();
                         }
@@ -420,7 +441,7 @@
                         if (rows.length > 0) {
                             $(".tdiv2").show();
                         }
-                        if (a == 'PATENT_PASSED' && b == "zgqxtuihui" && (userRole === 'sci_tesearch' || userRole === 'admin')) {
+                        if (a == 'PATENT_PASSED' && b == "zgqxtuihui") {
                             $(".tdiv1").show();
                             $("#btn2").show();
                         }
@@ -473,10 +494,10 @@
         
         var isRecallScene = (urlFlag === 'tuihui' || urlFlag === 'xytuihui' || urlFlag === 'zgqxtuihui' || urlFlag === 'recall');
         
-        // 只有科研处或管理员角色才能显示撤回按钮
-        var canShowRecall = userRole === 'sci_tesearch' || userRole === 'admin';
-        
-        if (canShowRecall && (isRecallScene || (state === 'PATENT_PASSED' && urlFlag))) {
+        // 教研室角色在科研处审批阶段，按钮文本显示"撤回"
+        if (userRole === 'research' && state === 'PATENT_KYC_AUDIT') {
+            $("#rejectBtnText").text("撤 回");
+        } else if (isRecallScene || (state === 'PATENT_PASSED' && urlFlag)) {
             $("#rejectBtnText").text("撤 回");
         } else {
             $("#rejectBtnText").text("驳 回");

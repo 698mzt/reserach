@@ -817,17 +817,18 @@
                         if (row.actions && row.actions.length > 0) {
                             var state = String(row.state);
                             var isPassed = state === 'PATENT_PASSED' || state === '6';
+                            var isKycAudit = state === 'PATENT_KYC_AUDIT' || state === '2' || state === '4';
                             
                             var hasReviewAction = row.actions.some(function(action) {
                                 return action.actionKey === 'review' || action.actionKey === 'kyReview';
                             });
                             
                             var listActions = row.actions.filter(function(a) {
-                                if (isResearch && a.actionKey === 'recall') {
-                                    return false;
-                                }
                                 if (isAdmin && (a.actionKey === 'review' || a.actionKey === 'kyReview')) {
                                     return false;
+                                }
+                                if (isResearch && a.actionKey === 'recall') {
+                                    return isKycAudit;
                                 }
                                 if (isSciTesearch && a.actionKey === 'recall') {
                                     if (hasReviewAction) {
@@ -837,6 +838,21 @@
                                 }
                                 return a.actionKey !== 'approve' && a.actionKey !== 'reject';
                             });
+                            
+                            if (isResearch && isKycAudit) {
+                                var hasRecallAction = listActions.some(function(a) {
+                                    return a.actionKey === 'recall';
+                                });
+                                if (!hasRecallAction) {
+                                    listActions.push({
+                                        actionKey: 'recall',
+                                        actionText: '撤回',
+                                        colorType: 'warning',
+                                        sortOrder: 50,
+                                        confirmMsg: '确定要撤回该记录吗？'
+                                    });
+                                }
+                            }
                             
                             if (isSciTesearch && isPassed && !hasReviewAction) {
                                 var hasRecallAction = listActions.some(function(a) {
