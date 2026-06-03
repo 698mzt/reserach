@@ -748,12 +748,12 @@
                             var firstRow = '';
                             var secondRow = '';
                             
-                            // 渲染第一行按钮（操作按钮）
+                            // 渲染第一行按钮（操作按钮），强制在一行显示
                             if (otherActions.length > 0) {
-                                firstRow = PageRender.renderActionsToString(otherActions, {style: 'table'});
+                                firstRow = PageRender.renderActionsToString(otherActions, {style: 'table', nowrap: true});
                             }
                             
-                            // 渲染第二行按钮（查看和查看流程）
+                            // 渲染第二行按钮（查看和查看流程），强制在一行显示
                             if (viewActions.length > 0) {
                                 secondRow = '<br>' + PageRender.renderActionsToString(viewActions, {style: 'table', nowrap: true});
                             }
@@ -916,12 +916,12 @@
                             var firstRow = '';
                             var secondRow = '';
                             
-                            // 渲染第一行按钮（操作按钮）
+                            // 渲染第一行按钮（操作按钮），强制在一行显示
                             if (otherActions.length > 0) {
-                                firstRow = PageRender.renderActionsToString(otherActions, {style: 'table'});
+                                firstRow = PageRender.renderActionsToString(otherActions, {style: 'table', nowrap: true});
                             }
                             
-                            // 渲染第二行按钮（查看和查看流程）
+                            // 渲染第二行按钮（查看和查看流程），强制在一行显示
                             if (viewActions.length > 0) {
                                 secondRow = '<br>' + PageRender.renderActionsToString(viewActions, {style: 'table', nowrap: true});
                             }
@@ -1080,12 +1080,12 @@
                             var firstRow = '';
                             var secondRow = '';
                             
-                            // 渲染第一行按钮（操作按钮）
+                            // 渲染第一行按钮（操作按钮），强制在一行显示
                             if (otherActions.length > 0) {
-                                firstRow = PageRender.renderActionsToString(otherActions, {style: 'table'});
+                                firstRow = PageRender.renderActionsToString(otherActions, {style: 'table', nowrap: true});
                             }
                             
-                            // 渲染第二行按钮（查看和查看流程）
+                            // 渲染第二行按钮（查看和查看流程），强制在一行显示
                             if (viewActions.length > 0) {
                                 secondRow = '<br>' + PageRender.renderActionsToString(viewActions, {style: 'table', nowrap: true});
                             }
