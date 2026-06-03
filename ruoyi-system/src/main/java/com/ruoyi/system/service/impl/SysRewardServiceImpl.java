@@ -87,7 +87,6 @@ public class SysRewardServiceImpl implements ISysRewardService {
 
     /**
      * 查询奖励
-     *
      * @param id 奖励主键
      * @return 奖励
      */
@@ -109,7 +108,6 @@ public class SysRewardServiceImpl implements ISysRewardService {
 
     /**
      * 查询奖励列表（统一查询方法，通过@DataScope控制数据权限）
-     *
      * @param sysReward 奖励
      * @return 奖励列表
      */
@@ -135,8 +133,8 @@ public class SysRewardServiceImpl implements ISysRewardService {
      * 公共 PageRender 服务会为审批中状态生成"通过"和"驳回"按钮
      * 但奖励模块的审批操作统一在详情页完成，列表页只需要"批阅/核查"按钮
      * 
-     * 学院角色（有hecha权限但无process权限）只有查看和查看流程按钮，不显示批阅按钮
-     *
+     * 学院角色（有xypy权限但无process和hecha权限）只有查看和查看流程按钮，不显示批阅和撤回按钮
+     *这里重点是学院
      * @param actions 原始按钮列表
      * @param permissions 当前用户权限集合
      * @param state 当前状态
@@ -148,17 +146,32 @@ public class SysRewardServiceImpl implements ISysRewardService {
             actions = new ArrayList<>();
         }
         
+        // 获取当前用户角色信息
+        SysUser currentUser = ShiroUtils.getSysUser();
+        boolean hasCollegeRole = false;
+        boolean hasKycRole = false;
+        if (currentUser != null && currentUser.getRoles() != null) {
+            for (SysRole role : currentUser.getRoles()) {
+                String roleName = role.getRoleName();
+                if (roleName != null) {
+                    if (roleName.contains("学院")) {
+                        hasCollegeRole = true;
+                    }
+                    if (roleName.contains("科研处")) {
+                        hasKycRole = true;
+                    }
+                }
+            }
+        }
+        
         // 判断是否为教研室角色：有process权限
         boolean isJysRole = permissions != null && permissions.contains("system:reward:process");
         
-        // 判断是否为科研处角色：有hecha权限（科研处核查权限）
-        boolean isKycRole = permissions != null && permissions.contains("system:reward:hecha");
+        // 判断是否为学院角色：有学院角色
+        boolean isCollegeRole = hasCollegeRole;
         
-        // 判断是否为学院角色：有hecha权限但没有process权限，且不是科研处角色（没有kyrevoke权限）
-        boolean isCollegeRole = permissions != null 
-                && permissions.contains("system:reward:hecha") 
-                && !permissions.contains("system:reward:process")
-                && !permissions.contains("system:reward:kyrevoke");
+        // 判断是否为科研处角色：有科研处角色或有hecha权限但不是学院角色
+        boolean isKycRole = hasKycRole || (permissions != null && permissions.contains("system:reward:hecha") && !isCollegeRole);
         
         List<PageRenderActionItem> filtered = new ArrayList<>();
         boolean hasRecall = false;
@@ -174,8 +187,8 @@ public class SysRewardServiceImpl implements ISysRewardService {
                     continue;
                 }
                 
-                // 学院角色：过滤"批阅"按钮，只保留查看和查看流程
-                if (isCollegeRole && ("review".equals(actionKey) || "kyReview".equals(actionKey))) {
+                // 学院角色：过滤"批阅"和"撤回"按钮，只保留查看和查看流程
+                if (isCollegeRole && ("review".equals(actionKey) || "kyReview".equals(actionKey) || "recall".equals(actionKey))) {
                     continue;
                 }
                 
@@ -191,6 +204,22 @@ public class SysRewardServiceImpl implements ISysRewardService {
             }
         }
         
+        // 教研室审批状态：教研室角色（有process权限）如果没有review按钮，则添加批阅按钮
+        if (REWARD_JYS_AUDIT.equals(state) && isJysRole) {
+            boolean hasReview = false;
+            for (PageRenderActionItem action : filtered) {
+                if ("review".equals(action.getActionKey())) {
+                    hasReview = true;
+                    break;
+                }
+            }
+            if (!hasReview) {
+                filtered.add(PageRenderActionItem.of(
+                        "review", "批阅",
+                        PageRenderColorConstants.COLOR_PRIMARY, 30));
+            }
+        }
+        
         // 科研处审批状态：科研处角色（有hecha权限）如果没有kyReview按钮，则添加批阅按钮
         // 参考论文模块：科研处审批状态时显示批阅按钮
         if (REWARD_KYC_AUDIT.equals(state) && isKycRole && !hasKyReview) {
@@ -199,8 +228,8 @@ public class SysRewardServiceImpl implements ISysRewardService {
                     PageRenderColorConstants.COLOR_PRIMARY, 30));
         }
         
-        // 审批通过状态：科研处审批人（有kyrevoke权限）可撤回
-        if (REWARD_PASSED.equals(state) && !hasRecall) {
+        // 审批通过状态：科研处审批人（有kyrevoke权限）可撤回，学院角色不可撤回
+        if (REWARD_PASSED.equals(state) && !hasRecall && !isCollegeRole) {
             boolean hasKyRevoke = permissions != null && permissions.contains("system:reward:kyrevoke");
             boolean hasHecha = permissions != null && permissions.contains("system:reward:hecha");
             boolean isAdmin = permissions != null && permissions.contains("*:*:*");
@@ -211,7 +240,12 @@ public class SysRewardServiceImpl implements ISysRewardService {
             }
         }
         
-        
+        // 科研处审批状态：教研室审批人（有process权限）可撤回，撤回后回到教研室审批状态
+        if (REWARD_KYC_AUDIT.equals(state) && !hasRecall && isJysRole) {
+            filtered.add(PageRenderActionItem.of(
+                    "recall", "撤回",
+                    PageRenderColorConstants.COLOR_WARNING, 40, "确定要撤回该记录吗？"));
+        }
         
         return filtered;
     }
@@ -262,7 +296,7 @@ public class SysRewardServiceImpl implements ISysRewardService {
         SysRewardPiyue sysRewardPiyue = new SysRewardPiyue();
         sysRewardPiyue.setUid(sysReward.getUserId());
         sysRewardPiyue.setRewardId(Integer.valueOf(sysReward.getId().toString()));
-        if (REWARD_JYS_AUDIT.equals(sysReward.getState())) {
+        if (sysReward.getState().equals("1")) {
             sysRewardPiyue.setConcate("提交");
             sysRewardPiyue.setState("提交");
         } else {
