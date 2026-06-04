@@ -113,7 +113,7 @@
 
     <select id="selectSciJiaocairuanzhuList1" parameterType="SciJiaocairuanzhu" resultMap="SciJiaocairuanzhuResult">
         <include refid="selectSciJiaocairuanzhuVo"/>
-        where (state in (0,1,2,3,4,5,6,7) and s.user_id = #{uid})
+        where (state in (0,1,2,3,4,5,6,7) and (s.user_id = #{uid} OR EXISTS (SELECT 1 FROM sci_jiaocairuanzhu_member m WHERE m.jiaocai_id = s.id AND m.member_id = CAST(#{uid} AS CHAR))))
         <if test="userId != null  and userId != ''">and s.user_id = #{uid}</if>
 
         <if test="mingcheng != null  and mingcheng != ''"> and mingcheng like concat('%', #{mingcheng}, '%')</if>
@@ -203,10 +203,10 @@
             s.createtime desc
     </select>
 
-    <!-- 新方法：教师查询 -->
+    <!-- 新方法：教师查询（包含成员参与记录） -->
     <select id="selectSciPaperAListCx" parameterType="SciJiaocairuanzhu" resultMap="SciJiaocairuanzhuResult">
         <include refid="selectSciJiaocairuanzhuVo"/>
-        where (state in (0,1,2,3,4,5,6,7) and s.user_id = #{uid})
+        where (state in (0,1,2,3,4,5,6,7) and (s.user_id = #{uid} OR EXISTS (SELECT 1 FROM sci_jiaocairuanzhu_member m WHERE m.jiaocai_id = s.id AND m.member_id = CAST(#{uid} AS CHAR))))
         <if test="userId != null  and userId != ''">and s.user_id = #{uid}</if>
         <if test="mingcheng != null  and mingcheng != ''"> and mingcheng like concat('%', #{mingcheng}, '%')</if>
         <if test="chubanshijian != null "> and chubanshijian = #{chubanshijian}</if>
@@ -305,7 +305,7 @@
             s.createtime desc
     </select>
 
-    <!-- 统一查询教材软著列表（所有角色均可查看所有状态） -->
+    <!-- 统一查询教材软著列表（所有角色均可查看所有状态，成员可查看自己参与的记录） -->
     <select id="selectSciJiaocairuanzhuListAll" parameterType="SciJiaocairuanzhu" resultMap="SciJiaocairuanzhuResult">
         <include refid="selectSciJiaocairuanzhuVo"/>
         where state in (0,1,2,3,4,5,6,7)
@@ -315,8 +315,7 @@
         <if test="chubanshijian != null "> and chubanshijian = #{chubanshijian}</if>
         <if test="fenlei != null  and fenlei != ''"> and fenlei = #{fenlei}</if>
         <if test="year != null  and year != ''"> and YEAR(DATE_ADD(createtime,INTERVAL 1 MONTH)) = #{year}</if>
-        <if test="userId != null  and userId != ''">and s.user_id = #{uid}</if>
-        ${params.dataScope}
+        and (s.user_id = #{uid} OR EXISTS (SELECT 1 FROM sci_jiaocairuanzhu_member m WHERE m.jiaocai_id = s.id AND m.member_id = CAST(#{uid} AS CHAR)) OR (1=1 ${params.dataScope}))
         <if test="params.orderByColumn != null and params.orderByColumn != ''">
             order by ${params.orderByColumn} ${params.isAsc}
         </if>
