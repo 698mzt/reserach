@@ -789,6 +789,7 @@
 
 
     $(function() {
+        var isTeacher = [[${role == 'teacher'}]];
         // 根据权限动态渲染搜索区域
         function initSearchFields() {
             // 权限 - 查询字段映射规则
@@ -827,6 +828,12 @@
             var tableId = options.id;
             // 根据表格ID生成URL
             options.url = getUrl(tableId);
+            // 非教师角色不显示积分相关字段
+            if (!isTeacher) {
+                options.columns = options.columns.filter(function(col) {
+                    return col.title !== '预计得分' && col.title !== '科研分' && col.title !== '个人排名';
+                });
+            }
             // 使用生成的选项初始化表格
             $.table.init(options);
         }
