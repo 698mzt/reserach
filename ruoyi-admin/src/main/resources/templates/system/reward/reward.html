@@ -520,6 +520,7 @@
                     field: 'personalRanking',
                     align: 'center',
                     title: '个人排名',
+                    visible: [[${@permission.isAnyRoles('teacher')}]],
                     formatter: function(value, row, index) {
                         // 优先显示关联表中的个人排名，否则显示主表的奖励排名
                         return value || row.rewardPaiming || '';
@@ -529,6 +530,7 @@
                     field: 'personalActualScore',
                     align: 'center',
                     title: '积分',
+                    visible: [[${@permission.isAnyRoles('teacher')}]],
                     formatter: function(value, row, index) {
                         // 优先显示关联表中的个人实际积分，否则显示主表的积分
                         return value || row.jifen || '';
@@ -538,6 +540,7 @@
                     field: 'personalExpectedScore',
                     align: 'center',
                     title: '预计积分',
+                    visible: [[${@permission.isAnyRoles('teacher')}]],
                     formatter: function(value, row, index) {
                         // 优先显示关联表中的个人预计积分，否则显示主表的预计积分
                         return value || row.expectedJifen || '';

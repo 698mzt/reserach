@@ -321,8 +321,13 @@ public class SysRewardServiceImpl implements ISysRewardService {
      * @return 结果
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int deleteSysRewardByIds(String ids) {
-        return sysRewardMapper.deleteSysRewardByIds(Convert.toStrArray(ids));
+        String[] idArray = Convert.toStrArray(ids);
+        for (String id : idArray) {
+            sciRewardPersionMapper.deletePersionByRewardId(Integer.parseInt(id));
+        }
+        return sysRewardMapper.deleteSysRewardByIds(idArray);
     }
 
     /**
@@ -332,7 +337,9 @@ public class SysRewardServiceImpl implements ISysRewardService {
      * @return 结果
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int deleteSysRewardById(Long id) {
+        sciRewardPersionMapper.deletePersionByRewardId(id.intValue());
         return sysRewardMapper.deleteSysRewardById(id);
     }
 

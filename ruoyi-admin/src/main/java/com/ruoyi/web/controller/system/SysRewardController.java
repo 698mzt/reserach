@@ -193,8 +193,8 @@ public class SysRewardController extends BaseController
     /**
      * 提交申请进行审批
      */
-    @RequiresPermissions("system:apply:add")
-    @Log(title = "申请横向课题", businessType = BusinessType.INSERT)
+    @RequiresPermissions("system:reward:edit")
+    @Log(title = "提交奖励申请", businessType = BusinessType.UPDATE)
     @PostMapping("/push/{id}")
     @ResponseBody
     @Transactional(rollbackFor = Exception.class)
