@@ -130,4 +130,17 @@ public interface SysRewardMapper
      * @return 奖励集合
      */
     List<SysReward> getStatsQueryToCheck(Map<String, String> params);
+
+    List<SysReward> selectRewardsByIds(@Param("rewardIds") List<Integer> rewardIds);
+
+    /**
+     * 根据成员ID查询参与的奖励列表（包含个人积分信息）
+     * 
+     * 核心方法：用于成员账号登录后查询自己参与的所有奖励项目
+     * 通过关联表 sci_reward_persion 获取成员在每个奖励中的排名、预计积分和实际积分
+     * 
+     * @param persionId 成员用户ID
+     * @return 奖励列表（包含个人积分信息）
+     */
+    List<SysReward> selectRewardsByPersionId(@Param("persionId") String persionId);
 }

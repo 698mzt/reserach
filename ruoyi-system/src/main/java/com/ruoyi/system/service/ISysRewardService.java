@@ -112,6 +112,35 @@ public interface ISysRewardService
      * @return 奖励集合
      */
     List<SysReward> getStatsQueryToCheck(Map<String, String> params);
+
+    /**
+     * 保存奖励成员关联信息
+     * 
+     * 先删除原有成员记录，再批量插入新成员，实现奖励成员的更新
+     * 
+     * @param rewardId 奖励ID
+     * @param personIds 成员ID列表
+     */
+    void saveRewardPersons(Integer rewardId, List<String> personIds);
+
+    /**
+     * 根据奖励ID查询成员ID列表
+     * 
+     * @param rewardId 奖励ID
+     * @return 成员ID列表
+     */
+    List<String> selectPersionIdsByRewardId(Integer rewardId);
+
+    /**
+     * 根据成员ID查询参与的奖励列表
+     * 
+     * 核心方法：用于成员账号登录后查看自己参与的所有奖励项目
+     * 通过关联表 sci_reward_persion 查询成员参与的奖励
+     * 
+     * @param persionId 成员用户ID
+     * @return 奖励列表
+     */
+    List<SysReward> selectRewardsByPersionId(String persionId);
     //
     //    @Override
     //    public int hxover(String id, Long uid, String urlFlag) {

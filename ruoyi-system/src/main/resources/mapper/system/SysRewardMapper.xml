@@ -22,17 +22,24 @@
         <result  property="parentId" column="parent_id" />
         <result  property="dname" column="dname" />
         <result  property="yname" column="yname" />
-        <!-- 新增四个负责人字段 -->
+        <!-- 负责人字段 -->
         <result property="firstPersonId" column="first_person_id" />
         <result property="secondPersonId" column="second_person_id" />
         <result property="thirdPersonId" column="third_person_id" />
         <result property="fourthPersonId" column="fourth_person_id" />
         <result property="extraMemberIds" column="extra_member_ids" />
+        <!-- 预计积分字段 -->
+        <result property="expectedScore1" column="expected_score1" />
+        <result property="expectedScore2" column="expected_score2" />
+        <result property="expectedScore3" column="expected_score3" />
+        <result property="expectedScore4" column="expected_score4" />
+        <result property="extraMemberScores" column="extra_member_scores" />
     </resultMap>
 
     <sql id="selectSysRewardVo">
         select #{uid} uid,s.id, u.user_name username, d.dept_name dname,p.dept_name yname,s.jifen, s.expected_jifen, s.user_id,s.reward_name, s.reward_danwei, s.reward_leixing, s.reward_wenjian, s.reward_time, s.reward_fenlei, s.reward_dengji, s.reward_paiming, s.reward_jibie,s.state,
-               s.first_person_id, s.second_person_id, s.third_person_id, s.fourth_person_id,s.extra_member_ids
+               s.first_person_id, s.second_person_id, s.third_person_id, s.fourth_person_id,s.extra_member_ids,
+               s.expected_score1, s.expected_score2, s.expected_score3, s.expected_score4, s.extra_member_scores
         from sys_reward s left join sys_user u on  s.user_id= u.user_id
                           left join sys_dept d on u.dept_id = d.dept_id
                           left join sys_dept p on d.parent_id =p.dept_id
@@ -138,7 +145,7 @@
         where s.id = #{id}
     </select>
 
-    <!-- 原有新增方法，保留不变（含积分jifen字段） -->
+    <!-- 新增奖励（含成员预计积分字段） -->
     <insert id="insertSysReward" parameterType="SysReward" useGeneratedKeys="true" keyProperty="id">
         insert into sys_reward
         <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -160,6 +167,11 @@
             <if test="thirdPersonId != null and thirdPersonId != ''">third_person_id,</if>
             <if test="fourthPersonId != null and fourthPersonId != ''">fourth_person_id,</if>
             <if test="extraMemberIds != null and extraMemberIds != ''">extra_member_ids,</if>
+            <if test="expectedScore1 != null">expected_score1,</if>
+            <if test="expectedScore2 != null">expected_score2,</if>
+            <if test="expectedScore3 != null">expected_score3,</if>
+            <if test="expectedScore4 != null">expected_score4,</if>
+            <if test="extraMemberScores != null">extra_member_scores,</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="userId != null">#{userId},</if>
@@ -180,10 +192,15 @@
             <if test="thirdPersonId != null and thirdPersonId != ''">#{thirdPersonId},</if>
             <if test="fourthPersonId != null and fourthPersonId != ''">#{fourthPersonId},</if>
             <if test="extraMemberIds != null and extraMemberIds != ''">#{extraMemberIds},</if>
+            <if test="expectedScore1 != null">#{expectedScore1},</if>
+            <if test="expectedScore2 != null">#{expectedScore2},</if>
+            <if test="expectedScore3 != null">#{expectedScore3},</if>
+            <if test="expectedScore4 != null">#{expectedScore4},</if>
+            <if test="extraMemberScores != null">#{extraMemberScores},</if>
         </trim>
     </insert>
 
-    <!-- 原有修改方法，保留不变（含积分jifen字段） -->
+    <!-- 修改奖励（含成员预计积分字段） -->
     <update id="updateSysReward" parameterType="SysReward">
         update sys_reward
         <trim prefix="SET" suffixOverrides=",">
@@ -205,6 +222,11 @@
             <if test="thirdPersonId != null and thirdPersonId != ''">third_person_id = #{thirdPersonId},</if>
             <if test="fourthPersonId != null and fourthPersonId != ''">fourth_person_id = #{fourthPersonId},</if>
             <if test="extraMemberIds != null">extra_member_ids = #{extraMemberIds},</if>
+            <if test="expectedScore1 != null">expected_score1 = #{expectedScore1},</if>
+            <if test="expectedScore2 != null">expected_score2 = #{expectedScore2},</if>
+            <if test="expectedScore3 != null">expected_score3 = #{expectedScore3},</if>
+            <if test="expectedScore4 != null">expected_score4 = #{expectedScore4},</if>
+            <if test="extraMemberScores != null">extra_member_scores = #{extraMemberScores},</if>
         </trim>
         where id = #{id}
     </update>
@@ -420,4 +442,102 @@
         </if>
         order by yname asc,dname asc,u.login_name asc
     </select>
+
+    <select id="selectRewardsByIds" parameterType="java.util.List" resultMap="SysRewardResult">
+        select s.id, u.user_name username, d.dept_name dname,p.dept_name yname,s.jifen, s.expected_jifen, s.user_id,s.reward_name, s.reward_danwei, s.reward_leixing, s.reward_wenjian, s.reward_time, s.reward_fenlei, s.reward_dengji, s.reward_paiming, s.reward_jibie,s.state,
+               s.first_person_id, s.second_person_id, s.third_person_id, s.fourth_person_id,s.extra_member_ids
+        from sys_reward s left join sys_user u on  s.user_id= u.user_id
+                          left join sys_dept d on u.dept_id = d.dept_id
+                          left join sys_dept p on d.parent_id =p.dept_id
+        where s.id in
+        <foreach collection="rewardIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <!-- 
+     * 根据成员ID查询参与的奖励列表（包含个人积分信息）
+     * 
+     * 核心SQL：用于成员账号登录后查询自己参与的所有奖励项目
+     * 通过关联表 sci_reward_persion 获取成员在每个奖励中的排名、预计积分和实际积分
+     * 
+     * @param persionId 成员用户ID
+     * @return 奖励列表（包含个人积分信息）
+     -->
+    <select id="selectRewardsByPersionId" parameterType="String" resultMap="SysRewardWithPersonalScoreResult">
+        SELECT 
+            s.id, 
+            s.user_id,
+            s.reward_name, 
+            s.reward_danwei, 
+            s.reward_leixing, 
+            s.reward_wenjian, 
+            s.reward_time, 
+            s.reward_fenlei, 
+            s.reward_dengji, 
+            s.reward_paiming, 
+            s.reward_jibie,
+            s.jifen, 
+            s.expected_jifen,
+            s.state,
+            s.first_person_id, 
+            s.second_person_id, 
+            s.third_person_id, 
+            s.fourth_person_id,
+            s.extra_member_ids,
+            s.expected_score1, 
+            s.expected_score2, 
+            s.expected_score3, 
+            s.expected_score4, 
+            s.extra_member_scores,
+            u.user_name username, 
+            d.dept_name dname,
+            p.dept_name yname,
+            rp.ranking as personal_ranking,
+            rp.expected_score as personal_expected_score,
+            rp.actual_score as personal_actual_score
+        FROM sci_reward_persion rp
+        LEFT JOIN sys_reward s ON rp.reward_id = s.id
+        LEFT JOIN sys_user u ON s.user_id = u.user_id
+        LEFT JOIN sys_dept d ON u.dept_id = d.dept_id
+        LEFT JOIN sys_dept p ON d.parent_id = p.dept_id
+        WHERE rp.persion_id = #{persionId}
+        ORDER BY s.reward_time DESC
+    </select>
+
+    <!-- 结果映射：包含个人积分信息的奖励 -->
+    <resultMap type="SysReward" id="SysRewardWithPersonalScoreResult">
+        <result property="id"    column="id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="rewardName"    column="reward_name"    />
+        <result property="rewardDanwei"    column="reward_danwei"    />
+        <result property="rewardLeixing"    column="reward_leixing"    />
+        <result property="rewardWenjian"    column="reward_wenjian"    />
+        <result property="rewardTime"    column="reward_time"    />
+        <result property="rewardFenlei"    column="reward_fenlei"    />
+        <result property="rewardDengji"    column="reward_dengji"    />
+        <result property="rewardPaiming"    column="reward_paiming"    />
+        <result property="rewardJibie"    column="reward_jibie"    />
+        <result property="userName"    column="username"    />
+        <result property="jifen"    column="jifen"    />
+        <result property="expectedJifen"    column="expected_jifen"    />
+        <result property="state"    column="state"    />
+        <result property="parentId" column="parent_id" />
+        <result property="dname" column="dname" />
+        <result property="yname" column="yname" />
+        <result property="firstPersonId" column="first_person_id" />
+        <result property="secondPersonId" column="second_person_id" />
+        <result property="thirdPersonId" column="third_person_id" />
+        <result property="fourthPersonId" column="fourth_person_id" />
+        <result property="extraMemberIds" column="extra_member_ids" />
+        <result property="expectedScore1" column="expected_score1" />
+        <result property="expectedScore2" column="expected_score2" />
+        <result property="expectedScore3" column="expected_score3" />
+        <result property="expectedScore4" column="expected_score4" />
+        <result property="extraMemberScores" column="extra_member_scores" />
+        <!-- 个人积分信息 -->
+        <result property="personalRanking" column="personal_ranking" />
+        <result property="personalExpectedScore" column="personal_expected_score" />
+        <result property="personalActualScore" column="personal_actual_score" />
+    </resultMap>
 </mapper>
