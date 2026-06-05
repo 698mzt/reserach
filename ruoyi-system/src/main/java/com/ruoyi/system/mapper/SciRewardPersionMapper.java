@@ -11,7 +11,7 @@ import java.util.List;
  * 用于奖励模块的成员关联数据操作，支持成员账号登录后查看自己参与的奖励项目
  * 
  * @author wh
- * @date 2024-12-23
+ * @date 2026-6-5
  */
 public interface SciRewardPersionMapper {
 

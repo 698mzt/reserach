@@ -7,7 +7,7 @@ package com.ruoyi.system.domain;
  * 参考横向课题的 SciHorizontalPersion 设计模式
  * 
  * @author wh
- * @date 2024-12-23
+ * @date 2026-6-5
  */
 public class SciRewardPersion {
 

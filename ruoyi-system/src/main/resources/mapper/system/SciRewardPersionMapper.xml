@@ -9,7 +9,7 @@
  * 参考横向课题的 SciHorizontalPersionMapper.xml 设计模式
  * 
  * @author wh
- * @date 2024-12-23
+ * @date 2026-6-5
  -->
 <mapper namespace="com.ruoyi.system.mapper.SciRewardPersionMapper">
 
