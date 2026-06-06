@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--
+ * 奖励成员Mapper XML配置
+ * 
+ * 用于奖励模块的成员关联数据操作，支持成员账号登录后查看自己参与的奖励项目
+ * 参考横向课题的 SciHorizontalPersionMapper.xml 设计模式
+ * 
+ * @author wh
+ * @date 2026-6-5
+ -->
+<mapper namespace="com.ruoyi.system.mapper.SciRewardPersionMapper">
+
+    <!-- 结果映射：奖励成员信息 -->
+    <resultMap type="com.ruoyi.system.domain.SciRewardPersion" id="SciRewardPersionResult">
+        <id     property="id"            column="id"            />
+        <result property="rewardId"      column="reward_id"     />
+        <result property="persionId"     column="persion_id"    />
+        <result property="ranking"       column="ranking"       />
+        <result property="expectedScore" column="expected_score"/>
+        <result property="actualScore"   column="actual_score"  />
+    </resultMap>
+
+    <!-- 插入单条成员记录 -->
+    <insert id="insertPersion" parameterType="com.ruoyi.system.domain.SciRewardPersion">
+        INSERT INTO sci_reward_persion (reward_id, persion_id, ranking, expected_score, actual_score)
+        VALUES (#{rewardId}, #{persionId}, #{ranking}, #{expectedScore}, #{actualScore})
+    </insert>
+
+    <!-- 根据奖励ID删除成员记录（用于修改奖励时重新保存成员） -->
+    <delete id="deletePersionByRewardId" parameterType="Integer">
+        DELETE FROM sci_reward_persion WHERE reward_id = #{rewardId}
+    </delete>
+
+    <!-- 批量删除成员记录 -->
+    <delete id="deletePersionByIds">
+        DELETE FROM sci_reward_persion WHERE id IN 
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <!-- 根据奖励ID查询成员ID列表 -->
+    <select id="selectPersionIdsByRewardId" parameterType="Integer" resultType="String">
+        SELECT persion_id FROM sci_reward_persion WHERE reward_id = #{rewardId} ORDER BY ranking ASC
+    </select>
+
+    <!-- 根据奖励ID查询成员详细信息列表 -->
+    <select id="selectPersionsByRewardId" parameterType="Integer" resultMap="SciRewardPersionResult">
+        SELECT * FROM sci_reward_persion WHERE reward_id = #{rewardId} ORDER BY ranking ASC
+    </select>
+
+    <!-- 
+     * 根据成员ID查询参与的奖励关联列表
+     * 
+     * 核心SQL：用于成员账号登录后查询自己参与的所有奖励项目
+     * 通过该查询可获取成员参与的所有奖励ID，进而查询奖励详情
+     -->
+    <select id="selectPersionsByPersionId" parameterType="String" resultMap="SciRewardPersionResult">
+        SELECT * FROM sci_reward_persion WHERE persion_id = #{persionId} ORDER BY ranking ASC
+    </select>
+
+    <!-- 更新成员积分信息（预计积分和实际积分） -->
+    <update id="updatePersionScore" parameterType="com.ruoyi.system.domain.SciRewardPersion">
+        UPDATE sci_reward_persion 
+        SET expected_score = #{expectedScore}, actual_score = #{actualScore}
+        WHERE id = #{id}
+    </update>
+
+    <!-- 
+     * 根据奖励ID和成员ID查询成员记录
+     * 
+     * 核心SQL：用于查询当前登录用户在某个奖励中的个人积分信息
+     * 通过奖励ID和成员ID精确定位，获取该成员在该奖励中的排名、预计积分和实际积分
+     -->
+    <select id="selectPersionByRewardIdAndPersionId" resultMap="SciRewardPersionResult">
+        SELECT * FROM sci_reward_persion 
+        WHERE reward_id = #{rewardId} AND persion_id = #{persionId}
+    </select>
+
+</mapper>

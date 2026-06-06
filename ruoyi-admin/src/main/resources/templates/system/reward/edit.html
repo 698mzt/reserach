@@ -189,6 +189,12 @@
 
             <!-- 预计积分字段 -->
             <input type="hidden" name="expectedJifen" id="expectedJifen">
+            <!-- 各成员预计积分隐藏字段（用于表单提交） -->
+            <input type="hidden" name="expectedScore1" id="hiddenExpectedScore1">
+            <input type="hidden" name="expectedScore2" id="hiddenExpectedScore2">
+            <input type="hidden" name="expectedScore3" id="hiddenExpectedScore3">
+            <input type="hidden" name="expectedScore4" id="hiddenExpectedScore4">
+            <input type="hidden" name="extraMemberScores" id="extraMemberScores">
             <!-- 第5位及以后：可动态添加 -->
             <div class="col-xs-12">
                 <div class="form-group">
@@ -680,43 +686,56 @@
             // 1. 主持人（第1名）
             if (scoreConfigs.length > 0) {
                 $('#expectedScore1').val(scoreConfigs[0].totalScore);
+                $('#hiddenExpectedScore1').val(scoreConfigs[0].totalScore); // 同步到隐藏字段
                 // 设置预计积分隐藏字段（取主持人的积分作为预计积分）
                 $('#expectedJifen').val(scoreConfigs[0].totalScore);
             } else {
                 $('#expectedScore1').val('');
+                $('#hiddenExpectedScore1').val('');
                 $('#expectedJifen').val('');
             }
 
             // 2. 成员1（第2名）
             if (scoreConfigs.length > 1) {
                 $('#expectedScore2').val(scoreConfigs[1].totalScore);
+                $('#hiddenExpectedScore2').val(scoreConfigs[1].totalScore); // 同步到隐藏字段
             } else {
                 $('#expectedScore2').val('');
+                $('#hiddenExpectedScore2').val('');
             }
 
             // 3. 成员2（第3名）
             if (scoreConfigs.length > 2) {
                 $('#expectedScore3').val(scoreConfigs[2].totalScore);
+                $('#hiddenExpectedScore3').val(scoreConfigs[2].totalScore); // 同步到隐藏字段
             } else {
                 $('#expectedScore3').val('');
+                $('#hiddenExpectedScore3').val('');
             }
 
             // 4. 成员3（第4名）
             if (scoreConfigs.length > 3) {
                 $('#expectedScore4').val(scoreConfigs[3].totalScore);
+                $('#hiddenExpectedScore4').val(scoreConfigs[3].totalScore); // 同步到隐藏字段
             } else {
                 $('#expectedScore4').val('');
+                $('#hiddenExpectedScore4').val('');
             }
 
             // 5. 动态成员（从第5名开始）
+            var extraScores = [];
             $('.expected-score-input').each(function(index) {
                 var rankIndex = index + 4; // 第5名对应索引4
                 if (scoreConfigs.length > rankIndex) {
                     $(this).val(scoreConfigs[rankIndex].totalScore);
+                    extraScores.push(scoreConfigs[rankIndex].totalScore);
                 } else {
                     $(this).val('');
+                    extraScores.push('');
                 }
             });
+            // 将动态成员积分存入隐藏字段
+            $('#extraMemberScores').val(extraScores.join(","));
         }
 
         // 根据排名安排成员位置

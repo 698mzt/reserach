@@ -69,6 +69,14 @@ public class SysRewardController extends BaseController
 
     /**
      * 查询奖励列表
+     * 
+     * 支持成员账号登录后查看自己参与的奖励项目：
+     * 1. 查询用户自己创建的奖励（通过 @DataScope 控制数据权限）
+     * 2. 查询用户作为成员参与的奖励（通过关联表 sci_reward_persion）
+     * 3. 合并两个查询结果并去重，返回完整的奖励列表
+     * 
+     * @param sysReward 奖励查询条件
+     * @return 奖励列表（包含创建的和参与的奖励）
      */
     @PostMapping("/list")
     @ResponseBody
@@ -76,10 +84,22 @@ public class SysRewardController extends BaseController
         sysReward.setUid(getUserId());
         startPage();
 
-        // 统一使用 selectSysRewardList，通过 @DataScope 控制数据权限
-        List<SysReward> list = sysRewardService.selectSysRewardList(sysReward);
+        // 1. 查询用户自己创建的奖励
+        List<SysReward> createdList = sysRewardService.selectSysRewardList(sysReward);
 
-        return getDataTable(list);
+        // 2. 查询用户作为成员参与的奖励
+        List<SysReward> participatedList = sysRewardService.selectRewardsByPersionId(getUserId().toString());
+
+        // 3. 合并结果并去重（避免同一奖励被重复显示）
+        for (SysReward reward : participatedList) {
+            boolean exists = createdList.stream()
+                    .anyMatch(r -> r.getId().equals(reward.getId()));
+            if (!exists) {
+                createdList.add(reward);
+            }
+        }
+
+        return getDataTable(createdList);
     }
 
     /**
@@ -173,8 +193,8 @@ public class SysRewardController extends BaseController
     /**
      * 提交申请进行审批
      */
-    @RequiresPermissions("system:apply:add")
-    @Log(title = "申请横向课题", businessType = BusinessType.INSERT)
+    @RequiresPermissions("system:reward:edit")
+    @Log(title = "提交奖励申请", businessType = BusinessType.UPDATE)
     @PostMapping("/push/{id}")
     @ResponseBody
     @Transactional(rollbackFor = Exception.class)

@@ -16,6 +16,7 @@ import com.ruoyi.system.service.ISysUserService;
 import com.ruoyi.system.service.IApprovalProcessService;
 import com.ruoyi.system.service.IPageRenderService;
 import com.ruoyi.system.constant.PageRenderColorConstants;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -60,6 +61,9 @@ public class SysRewardServiceImpl implements ISysRewardService {
 
     @Autowired
     private SysRewardPiyueMapper sysRewardPiyueMapper;
+
+    @Autowired
+    private com.ruoyi.system.mapper.SciRewardPersionMapper sciRewardPersionMapper;
 
     @Autowired
     private SciRewardScoreCfgMapper sciRewardScoreCfgMapper;
@@ -124,6 +128,9 @@ public class SysRewardServiceImpl implements ISysRewardService {
             reward.setStatusMeta(result.getStatusMeta());
             // 过滤奖励模块不需要的按钮（通过、驳回），学院角色还需过滤批阅按钮
             reward.setActions(filterRewardActions(result.getActions(), permissions, reward.getState()));
+            
+            // 填充当前登录用户的个人积分信息
+            fillPersonalScoreInfo(reward, currentUser);
         }
         return list;
     }
@@ -140,6 +147,7 @@ public class SysRewardServiceImpl implements ISysRewardService {
      * @param state 当前状态
      * @return 过滤后的按钮列表
      */
+    @NotNull
     @SuppressWarnings("unchecked")
     private List<PageRenderActionItem> filterRewardActions(List<?> actions, Set<String> permissions, String state) {
         if (actions == null || actions.isEmpty()) {
@@ -262,11 +270,8 @@ public class SysRewardServiceImpl implements ISysRewardService {
      * @return 结果
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int insertSysReward(SysReward sysReward) {
-        // 预计积分由前端传入，直接保存
-        // 实际积分在审核通过后才计算，初始化为空或0
-
-        // 原有保存逻辑
         int a = sysRewardMapper.insertSysReward(sysReward);
         int id = Integer.parseInt(sysReward.getId().toString());
 
@@ -276,6 +281,9 @@ public class SysRewardServiceImpl implements ISysRewardService {
         sysRewardPiyue.setConcate("新增");
         sysRewardPiyue.setState("新增");
         sysRewardPiyueMapper.insertSysRewardPiyue(sysRewardPiyue);
+
+        saveRewardPersonsFromReward(id, sysReward);
+
         return a;
     }
 
@@ -286,11 +294,8 @@ public class SysRewardServiceImpl implements ISysRewardService {
      * @return 结果
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int updateSysReward(SysReward sysReward) {
-        // 预计积分由前端传入，直接保存
-        // 实际积分在审核通过后才计算，不在这里更新
-
-        // 原有更新逻辑
         sysRewardMapper.updateSysReward(sysReward);
 
         SysRewardPiyue sysRewardPiyue = new SysRewardPiyue();
@@ -303,6 +308,9 @@ public class SysRewardServiceImpl implements ISysRewardService {
             sysRewardPiyue.setConcate("修改");
             sysRewardPiyue.setState("修改");
         }
+
+        saveRewardPersonsFromReward(Integer.valueOf(sysReward.getId().toString()), sysReward);
+
         return sysRewardPiyueMapper.insertSysRewardPiyue(sysRewardPiyue);
     }
 
@@ -313,8 +321,13 @@ public class SysRewardServiceImpl implements ISysRewardService {
      * @return 结果
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int deleteSysRewardByIds(String ids) {
-        return sysRewardMapper.deleteSysRewardByIds(Convert.toStrArray(ids));
+        String[] idArray = Convert.toStrArray(ids);
+        for (String id : idArray) {
+            sciRewardPersionMapper.deletePersionByRewardId(Integer.parseInt(id));
+        }
+        return sysRewardMapper.deleteSysRewardByIds(idArray);
     }
 
     /**
@@ -324,7 +337,9 @@ public class SysRewardServiceImpl implements ISysRewardService {
      * @return 结果
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int deleteSysRewardById(Long id) {
+        sciRewardPersionMapper.deletePersionByRewardId(id.intValue());
         return sysRewardMapper.deleteSysRewardById(id);
     }
 
@@ -417,6 +432,11 @@ public class SysRewardServiceImpl implements ISysRewardService {
     /**
      * 根据奖励信息计算并更新积分
      *
+     * 积分分配逻辑：
+     * 1. 根据奖励分类、等级、排名计算总积分
+     * 2. 更新主表的jifen字段（总积分）
+     * 3. 更新关联表 sci_reward_persion 中每个成员的 actual_score（个人实际积分）
+     *
      * @param id 奖励ID
      */
     private void calculateAndUpdateScore(String id) {
@@ -438,6 +458,30 @@ public class SysRewardServiceImpl implements ISysRewardService {
         if (cfgList != null && !cfgList.isEmpty()) {
             int jifen = Integer.parseInt(cfgList.get(0).getTotalScore());
             sysRewardMapper.updateJifen(Long.valueOf(id), jifen);
+            
+            // 更新关联表中每个成员的实际积分
+            updateMemberActualScores(Integer.valueOf(id));
+        }
+    }
+
+    /**
+     * 更新成员实际积分
+     * 
+     * 将每个成员的预计积分作为实际积分写入关联表
+     * 
+     * @param rewardId 奖励ID
+     */
+    private void updateMemberActualScores(Integer rewardId) {
+        // 查询奖励的所有成员
+        List<SciRewardPersion> persions = sciRewardPersionMapper.selectPersionsByRewardId(rewardId);
+        if (persions == null || persions.isEmpty()) {
+            return;
+        }
+
+        // 更新每个成员的实际积分为其预计积分
+        for (SciRewardPersion persion : persions) {
+            persion.setActualScore(persion.getExpectedScore());
+            sciRewardPersionMapper.updatePersionScore(persion);
         }
     }
 
@@ -523,6 +567,186 @@ public class SysRewardServiceImpl implements ISysRewardService {
     public List<SysReward> getStatsQueryToCheck(Map<String, String> params) {
         DataScopeUtils.applyDataScopeToMap(params, "d", "u", "");
         return sysRewardMapper.getStatsQueryToCheck(params);
+    }
+
+    /**
+     * 保存奖励成员关联信息（仅保存成员ID）
+     * 
+     * 先删除原有成员记录，再批量插入新成员，实现奖励成员的更新
+     * 排名从1开始，依次对应主持人、成员1、成员2...
+     * 
+     * @param rewardId 奖励ID
+     * @param personIds 成员ID列表
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void saveRewardPersons(Integer rewardId, List<String> personIds) {
+        if (rewardId == null || personIds == null || personIds.isEmpty()) {
+            return;
+        }
+
+        // 调用带积分参数的重载方法
+        saveRewardPersonsWithScores(rewardId, personIds, null);
+    }
+
+    /**
+     * 保存奖励成员关联信息（包含预计积分）
+     * 
+     * @param rewardId 奖励ID
+     * @param personIds 成员ID列表
+     * @param expectedScores 预计积分列表（与personIds对应）
+     */
+    private void saveRewardPersonsWithScores(Integer rewardId, List<String> personIds, List<String> expectedScores) {
+        if (rewardId == null || personIds == null || personIds.isEmpty()) {
+            return;
+        }
+
+        // 删除原有成员记录
+        sciRewardPersionMapper.deletePersionByRewardId(rewardId);
+
+        // 按顺序插入新成员，排名从1开始
+        for (int i = 0; i < personIds.size(); i++) {
+            SciRewardPersion persion = new SciRewardPersion();
+            persion.setRewardId(rewardId);
+            persion.setPersionId(personIds.get(i));
+            persion.setRanking(String.valueOf(i + 1)); // 排名：1-主持人，2-成员1，...
+            
+            // 设置预计积分
+            if (expectedScores != null && i < expectedScores.size()) {
+                persion.setExpectedScore(expectedScores.get(i));
+            }
+            
+            sciRewardPersionMapper.insertPersion(persion);
+        }
+    }
+
+    /**
+     * 根据奖励ID查询成员ID列表
+     * 
+     * @param rewardId 奖励ID
+     * @return 成员ID列表（按排名排序）
+     */
+    @Override
+    public List<String> selectPersionIdsByRewardId(Integer rewardId) {
+        return sciRewardPersionMapper.selectPersionIdsByRewardId(rewardId);
+    }
+
+    /**
+     * 填充当前登录用户在奖励中的个人积分信息
+     * 
+     * 从关联表 sci_reward_persion 查询当前用户在该奖励中的排名、预计积分和实际积分
+     * 
+     * @param reward 奖励对象
+     * @param currentUser 当前登录用户
+     */
+    private void fillPersonalScoreInfo(SysReward reward, SysUser currentUser) {
+        if (reward == null || currentUser == null) {
+            return;
+        }
+
+        // 查询当前用户在该奖励中的关联记录
+        SciRewardPersion persion = sciRewardPersionMapper.selectPersionByRewardIdAndPersionId(
+                reward.getId().intValue(), currentUser.getUserId().toString());
+        
+        if (persion != null) {
+            // 设置个人排名、预计积分和实际积分
+            reward.setPersonalRanking(persion.getRanking());
+            reward.setPersonalExpectedScore(persion.getExpectedScore());
+            reward.setPersonalActualScore(persion.getActualScore());
+        }
+    }
+
+    /**
+     * 根据成员ID查询参与的奖励列表（包含个人积分信息）
+     * 
+     * 核心方法：用于成员账号登录后查看自己参与的所有奖励项目
+     * 通过关联表 sci_reward_persion 获取成员在每个奖励中的排名、预计积分和实际积分
+     * 
+     * @param persionId 成员用户ID
+     * @return 奖励列表（包含个人积分信息）
+     */
+    @Override
+    public List<SysReward> selectRewardsByPersionId(String persionId) {
+        // 直接通过Mapper查询，SQL已关联成员表获取个人积分信息
+        List<SysReward> rewards = sysRewardMapper.selectRewardsByPersionId(persionId);
+        
+        // 填充页面渲染数据（状态和按钮）
+        if (rewards != null && !rewards.isEmpty()) {
+            SysUser currentUser = ShiroUtils.getSysUser();
+            Set<String> permissions = pageRenderService.buildCurrentPermissions(currentUser);
+            
+            for (SysReward reward : rewards) {
+                PageRenderResult<?> result = pageRenderService.fillPageRenderData(
+                        "REWARD", "system:reward", REWARD_PROCESS_CODE,
+                        reward.getState(), reward.getId(), reward.getUserId(), permissions);
+                reward.setStatusMeta(result.getStatusMeta());
+                reward.setActions(filterRewardActions(result.getActions(), permissions, reward.getState()));
+            }
+        }
+        
+        return rewards != null ? rewards : new ArrayList<>();
+    }
+
+    /**
+     * 从奖励对象中提取成员ID和预计积分并保存到关联表
+     * 
+     * 将奖励对象中的 firstPersonId、secondPersonId、thirdPersonId、fourthPersonId
+     * 和 extraMemberIds 字段整合为成员列表，并对应提取预计积分，
+     * 保存到 sci_reward_persion 关联表
+     * 
+     * @param rewardId 奖励ID
+     * @param sysReward 奖励对象
+     */
+    private void saveRewardPersonsFromReward(Integer rewardId, SysReward sysReward) {
+        List<String> personIds = new ArrayList<>();
+        List<String> expectedScores = new ArrayList<>();
+
+        // 第一负责人
+        if (sysReward.getFirstPersonId() != null && !sysReward.getFirstPersonId().isEmpty()) {
+            personIds.add(sysReward.getFirstPersonId());
+            expectedScores.add(sysReward.getExpectedScore1());
+        }
+        // 第二负责人
+        if (sysReward.getSecondPersonId() != null && !sysReward.getSecondPersonId().isEmpty()) {
+            personIds.add(sysReward.getSecondPersonId());
+            expectedScores.add(sysReward.getExpectedScore2());
+        }
+        // 第三负责人
+        if (sysReward.getThirdPersonId() != null && !sysReward.getThirdPersonId().isEmpty()) {
+            personIds.add(sysReward.getThirdPersonId());
+            expectedScores.add(sysReward.getExpectedScore3());
+        }
+        // 第四负责人
+        if (sysReward.getFourthPersonId() != null && !sysReward.getFourthPersonId().isEmpty()) {
+            personIds.add(sysReward.getFourthPersonId());
+            expectedScores.add(sysReward.getExpectedScore4());
+        }
+        // 更多成员
+        if (sysReward.getExtraMemberIds() != null && !sysReward.getExtraMemberIds().isEmpty()) {
+            String[] extraIds = sysReward.getExtraMemberIds().split(",");
+            // 解析额外成员的积分
+            String[] extraScores = null;
+            if (sysReward.getExtraMemberScores() != null && !sysReward.getExtraMemberScores().isEmpty()) {
+                extraScores = sysReward.getExtraMemberScores().split(",");
+            }
+            
+            for (int i = 0; i < extraIds.length; i++) {
+                String trimmedId = extraIds[i].trim();
+                if (!trimmedId.isEmpty() && !personIds.contains(trimmedId)) {
+                    personIds.add(trimmedId);
+                    // 对应积分（如果存在）
+                    if (extraScores != null && i < extraScores.length) {
+                        expectedScores.add(extraScores[i].trim());
+                    } else {
+                        expectedScores.add(null);
+                    }
+                }
+            }
+        }
+
+        if (!personIds.isEmpty()) {
+            saveRewardPersonsWithScores(rewardId, personIds, expectedScores);
+        }
     }
 
 }

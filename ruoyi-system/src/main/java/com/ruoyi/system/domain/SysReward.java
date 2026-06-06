@@ -109,6 +109,21 @@ public class SysReward extends BaseEntity
     @Excel(name = "其他成员")
     private String extraMemberIds;
 
+    /** 第一负责人预计积分 */
+    private String expectedScore1;
+
+    /** 第二负责人预计积分 */
+    private String expectedScore2;
+
+    /** 第三负责人预计积分 */
+    private String expectedScore3;
+
+    /** 第四负责人预计积分 */
+    private String expectedScore4;
+
+    /** 更多成员预计积分（逗号分隔，与extraMemberIds对应） */
+    private String extraMemberScores;
+
 
     // 用于前端展示的列表（不映射数据库）
     @Excel(name = "其他成员列表")
@@ -128,6 +143,48 @@ public class SysReward extends BaseEntity
     /** 页面渲染：按钮动作列表 */
     @JsonInclude(JsonInclude.Include.ALWAYS)
     private List<PageRenderActionItem> actions;
+
+    /**
+     * 当前登录成员在该奖励中的个人排名
+     * 从关联表 sci_reward_persion 的 ranking 字段获取
+     */
+    private String personalRanking;
+
+    /**
+     * 当前登录成员在该奖励中的个人预计积分
+     * 从关联表 sci_reward_persion 的 expected_score 字段获取
+     */
+    private String personalExpectedScore;
+
+    /**
+     * 当前登录成员在该奖励中的个人实际积分
+     * 从关联表 sci_reward_persion 的 actual_score 字段获取
+     */
+    private String personalActualScore;
+
+    public String getPersonalRanking() {
+        return personalRanking;
+    }
+
+    public void setPersonalRanking(String personalRanking) {
+        this.personalRanking = personalRanking;
+    }
+
+    public String getPersonalExpectedScore() {
+        return personalExpectedScore;
+    }
+
+    public void setPersonalExpectedScore(String personalExpectedScore) {
+        this.personalExpectedScore = personalExpectedScore;
+    }
+
+    public String getPersonalActualScore() {
+        return personalActualScore;
+    }
+
+    public void setPersonalActualScore(String personalActualScore) {
+        this.personalActualScore = personalActualScore;
+    }
 
     public Long getUid() {
         return uid;
@@ -321,6 +378,46 @@ public class SysReward extends BaseEntity
         this.fourthPersonId = fourthPersonId;
     }
 
+    public String getExpectedScore1() {
+        return expectedScore1;
+    }
+
+    public void setExpectedScore1(String expectedScore1) {
+        this.expectedScore1 = expectedScore1;
+    }
+
+    public String getExpectedScore2() {
+        return expectedScore2;
+    }
+
+    public void setExpectedScore2(String expectedScore2) {
+        this.expectedScore2 = expectedScore2;
+    }
+
+    public String getExpectedScore3() {
+        return expectedScore3;
+    }
+
+    public void setExpectedScore3(String expectedScore3) {
+        this.expectedScore3 = expectedScore3;
+    }
+
+    public String getExpectedScore4() {
+        return expectedScore4;
+    }
+
+    public void setExpectedScore4(String expectedScore4) {
+        this.expectedScore4 = expectedScore4;
+    }
+
+    public String getExtraMemberScores() {
+        return extraMemberScores;
+    }
+
+    public void setExtraMemberScores(String extraMemberScores) {
+        this.extraMemberScores = extraMemberScores;
+    }
+
     public String getState() {
         return state;
     }
@@ -389,6 +486,11 @@ public class SysReward extends BaseEntity
                 .append("thirdPersonId", getThirdPersonId())
                 .append("fourthPersonId", getFourthPersonId())
                 .append("extraMemberIds", getExtraMemberIds())
+                .append("expectedScore1", getExpectedScore1())
+                .append("expectedScore2", getExpectedScore2())
+                .append("expectedScore3", getExpectedScore3())
+                .append("expectedScore4", getExpectedScore4())
+                .append("extraMemberScores", getExtraMemberScores())
                 .append("state", getState())
                 .append("role", getRole())
                 .toString();
