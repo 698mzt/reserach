@@ -423,6 +423,8 @@
             <if test="topName != null and topName != ''">top_name = #{topName},</if>
             <if test="topType != null and topType != ''">top_type = #{topType},</if>
             <if test="topNumber != null and topNumber != ''">top_number = #{topNumber},</if>
+            <if test="partyA != null and partyA != ''">party_A = #{partyA},</if>
+            <if test="partyB != null and partyB != ''">party_B = #{partyB},</if>
             <if test="signingData != null and signingData != ''">signing_data = #{signingData},</if>
             <if test="validityDate != null and validityDate != ''">validity_Date = #{validityDate},</if>
             <if test="firstPersonId != null and firstPersonId != ''">first_person_id = #{firstPersonId},</if>
