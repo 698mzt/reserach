@@ -594,6 +594,7 @@
     var kyrevokeFlag = [[${@permission.hasPermi('system:zhuanliruanzhu:kyrevoke')}]];
 
     var role = [[${role}]];
+    var isTeacher = [[${isTeacher}]];
     var isResearch = role === 'research' || proFlag !== 'hidden';
     var isDeptTeacher = role === 'dept_teacher' || hechaFlag !== 'hidden';
     var isSciTesearch = role === 'sci_tesearch' || chayueFlag !== 'hidden' || kyrevokeFlag !== 'hidden';
@@ -747,6 +748,7 @@
                         return $.table.selectDictLabel(fenleiDatas, value);
                     }
                 },
+                /*[# th:if="${isTeacher}"]*/
                 {
                     field: 'paiming',
                     title: '个人排名',
@@ -776,6 +778,7 @@
                         return value;
                     }
                 },
+                /*[/]*/
                 {
                     field: 'statusMeta',
                     title: '审核状态',

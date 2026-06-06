@@ -61,6 +61,7 @@ public class SciZhuanliruanzhuController extends BaseController
     public String zhuanliruanzhu(ModelMap mmap)
     {
         mmap.put("role", getRoleKey());
+        mmap.put("isTeacher", isActiveRoleTeacher());
         return prefix + "/zhuanliruanzhu";
     }
 
@@ -144,6 +145,26 @@ public class SciZhuanliruanzhuController extends BaseController
     /**
      * 获取当前用户角色
      */
+    /**
+     * 判断当前活跃角色是否为教师
+     */
+    private boolean isActiveRoleTeacher() {
+        Object activeRoleId = org.apache.shiro.SecurityUtils.getSubject().getSession(false).getAttribute("activeRoleId");
+        if (activeRoleId == null) {
+            return false;
+        }
+        List<SysRole> roles = getSysUser().getRoles();
+        if (roles == null) {
+            return false;
+        }
+        for (SysRole r : roles) {
+            if (activeRoleId.equals(r.getRoleId())) {
+                return "teacher".equals(r.getRoleKey());
+            }
+        }
+        return false;
+    }
+
     private String getRoleKey() {
         List<SysRole> roles = getSysUser().getRoles();
         if (roles == null || roles.isEmpty()) {
