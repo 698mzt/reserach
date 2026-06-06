@@ -194,9 +194,36 @@ public class SciHorizontalApplyVerticalController extends BaseController {
     @RequiresPermissions("system:apply_vertical:view")
     @Log(title = "访问纵向课题首页", businessType = BusinessType.OTHER)
     @GetMapping()
-    public String apply()
+    public String apply(ModelMap mmap)
     {
+        // 获取当前用户角色，用于前端控制字段显示
+        String role = getRoleKey();
+        mmap.put("role", role);
         return prefix + "/apply";
+    }
+
+    /**
+     * 获取当前用户角色Key
+     * 功能：根据用户角色列表返回对应的角色标识
+     * 返回：admin, sci_tesearch, research, dept_teacher, teacher
+     */
+    private String getRoleKey() {
+        List<SysRole> roles = getSysUser().getRoles();
+        if (roles == null || roles.isEmpty()) {
+            return "teacher"; // 默认返回教师角色
+        }
+        for (SysRole r : roles) {
+            if ("admin".equals(r.getRoleKey())) {
+                return "admin";
+            } else if ("sci_tesearch".equals(r.getRoleKey())) {
+                return "sci_tesearch";
+            } else if ("research".equals(r.getRoleKey())) {
+                return "research";
+            } else if (TEACHER_ROLES.contains(r.getRoleKey())) {
+                return "dept_teacher";
+            }
+        }
+        return "teacher"; // 默认返回教师角色
     }
 
     /**

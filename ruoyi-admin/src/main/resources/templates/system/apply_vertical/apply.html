@@ -564,6 +564,10 @@
     var KYCFlag = [[${@permission.hasPermi('system:apply_vertical:KYC')}]];
     var createFlag = [[${@permission.hasPermi('system:apply_vertical:add')}]];
     var downloadFlag = [[${@permission.hasPermi('system:apply_vertical:download')}]];
+    // 当前用户角色，用于控制字段显示
+    var currentRole = [[${role}]] || 'teacher';
+    // 判断是否为教师角色（只有教师角色显示个人排名、预期科研分、已获积分字段）
+    var isTeacherRole = currentRole === 'teacher';
     // 数据字典获取
     var topTypeDatas = [[${@dict.getType('sci_vertical_type')}]];
     var datas = [[${@dict.getType('sci_vertical_tasks')}]];
@@ -678,6 +682,7 @@
                 {
                     align: 'center',
                     title: '个人排名',
+                    visible: isTeacherRole, // 只有教师角色显示
                     formatter: function(value, row, index) {
                         var ranking = [];
                         if(row.firstPersonId == row.uid){
@@ -701,6 +706,7 @@
                     field: 'expectedScore',
                     align: 'center',
                     title: '预期科研分',
+                    visible: isTeacherRole, // 只有教师角色显示
                     formatter: function(value, row, index) {
                         if(row.expectedScore == null || row.expectedScore == ''){
                             return '0';
@@ -712,6 +718,7 @@
                     field: 'score',
                     align: 'center',
                     title: '已获积分',
+                    visible: isTeacherRole, // 只有教师角色显示
                     formatter: function(value, row, index) {
                         if(row.score == null){
                             row.score = 0;
@@ -846,6 +853,7 @@
                 {
                     align: 'center',
                     title: '个人排名',
+                    visible: isTeacherRole, // 只有教师角色显示
                     formatter: function(value, row, index) {
                         var ranking = [];
                         if(row.firstPersonId == row.uid){
@@ -869,6 +877,7 @@
                     field: 'expectedScore',
                     align: 'center',
                     title: '预期科研分',
+                    visible: isTeacherRole, // 只有教师角色显示
                     formatter: function(value, row, index) {
                         if(row.expectedScore == null || row.expectedScore == ''){
                             return '0';
@@ -880,6 +889,7 @@
                     field: 'score',
                     align: 'center',
                     title: '已获积分',
+                    visible: isTeacherRole, // 只有教师角色显示
                     formatter: function(value, row, index) {
                         if(row.score == null){
                             row.score = 0;
@@ -1010,6 +1020,7 @@
                 {
                     align: 'center',
                     title: '个人排名',
+                    visible: isTeacherRole, // 只有教师角色显示
                     formatter: function(value, row, index) {
                         var ranking = [];
                         if(row.firstPersonId == row.uid){
@@ -1033,6 +1044,7 @@
                     field: 'expectedScore',
                     align: 'center',
                     title: '预期科研分',
+                    visible: isTeacherRole, // 只有教师角色显示
                     formatter: function(value, row, index) {
                         if(row.expectedScore == null || row.expectedScore == ''){
                             return '0';
@@ -1044,6 +1056,7 @@
                     field: 'score',
                     align: 'center',
                     title: '已获积分',
+                    visible: isTeacherRole, // 只有教师角色显示
                     formatter: function(value, row, index) {
                         if(row.score == null){
                             row.score = 0;
