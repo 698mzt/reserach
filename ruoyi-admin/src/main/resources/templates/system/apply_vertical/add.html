@@ -370,35 +370,38 @@
     $ ("input[name='amount']").on("input", calculateExpectedScore);
 
     // 初始化文件上传组件
-    $("#file").fileinput({
-        uploadUrl: ctx + 'common/upload/zxkt',
-        initialPreviewAsData: true,
-        maxFileCount: 1,
-        maxFileSize: 51200,
-        autoReplace: true,
-        allowedFileExtensions: ["pdf"],
-        slugCallback: function (filename) {
-            if ($("#topName").val() === "") {
-                $(this).fileinput('clear');
-                $.modal.alertError("请先输入课题名称");
-                return false;
+    $(document).ready(function() {
+        $("#file").fileinput({
+            uploadUrl: ctx + 'common/upload/zxkt',
+            initialPreviewAsData: true,
+            maxFileCount: 1,
+            maxFileSize: 51200,
+            autoReplace: true,
+            allowedFileExtensions: ["pdf"],
+            slugCallback: function (filename) {
+                var topName = $("input[name='topName']").val();
+                if (!topName || topName.trim() === "") {
+                    $(this).fileinput('clear');
+                    $.modal.alertError("请先输入课题名称");
+                    return false;
+                }
+                // 自定义文件名生成规则
+                var fileExtension = filename.split('.').pop();
+                var year = new Date().getFullYear();
+                var newName = year + "-" + topName + "-" + "立项文件" + "." + fileExtension;
+                return newName;
             }
-            // 自定义文件名生成规则
-            fileExtension = filename.split('.').pop();
-            const year = new Date().getFullYear();
-            const newName = year + "-" + $("#topName").val() + "-" + "立项文件" + "." + fileExtension;
-            return newName;
-        }
-    }).on('fileuploaded', function (event, data, previewId, index) {
-        $("input[type='hidden'][name='file']").val(data.response.url)
-    }).on('fileremoved', function (event, id, index) {
-        $("input[type='hidden'][name='file']").val('')
-    }).on('filebatchselected', function (event) {
-        // 批量选择文件后立即上传
-        $(this).fileinput('upload');
-    }).on('fileselected', function (event) {
-        // 单个文件选择后立即上传
-        $(this).fileinput('upload');
+        }).on('fileuploaded', function (event, data, previewId, index) {
+            $("input[type='hidden'][name='file']").val(data.response.url);
+        }).on('fileremoved', function (event, id, index) {
+            $("input[type='hidden'][name='file']").val('');
+        }).on('filebatchselected', function (event) {
+            // 批量选择文件后立即上传
+            $(this).fileinput('upload');
+        }).on('fileselected', function (event) {
+            // 单个文件选择后立即上传
+            $(this).fileinput('upload');
+        });
     });
 
     // 动态新增成员下拉（第5位起）与编辑页预渲染
