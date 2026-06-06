@@ -28,6 +28,8 @@
         <!-- 新增字段映射 -->
         <result property="classificationName" column="classification_name"/>
         <result property="integralValue" column="integral_value"/>
+        <result property="personalRank" column="personal_rank"/>
+        <result property="expectedResearchScore" column="expected_research_score"/>
     </resultMap>
 
     <sql id="selectSciLectureReportVo">
@@ -53,6 +55,7 @@
                s.report_url,
                CASE WHEN s.state = 'LECTURE_PASSED' THEN coalesce(i.integral, '0') ELSE '0' END reportKeyanfen,
                CASE WHEN s.state = 'LECTURE_PASSED' THEN coalesce(i.integral, '0') ELSE '0' END integral_value,
+               coalesce(i.integral, '0') expected_research_score,
                i.rep_int_id
         from sci_lecture_report s
                  left join sys_user u on s.user_id = u.user_id

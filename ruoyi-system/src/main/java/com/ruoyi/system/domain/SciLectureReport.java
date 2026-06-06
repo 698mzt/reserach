@@ -121,6 +121,12 @@ public class SciLectureReport extends BaseEntity
     /** 积分值（从积分管理表关联查询） */
     private String integralValue;
 
+    /** 个人排名 */
+    private String personalRank;
+
+    /** 预计积分 */
+    private String expectedResearchScore;
+
     /** 部门ID */
     private Integer userdnameId;
 
@@ -358,6 +364,22 @@ public class SciLectureReport extends BaseEntity
         this.integralValue = integralValue;
     }
 
+    public String getPersonalRank() {
+        return personalRank;
+    }
+
+    public void setPersonalRank(String personalRank) {
+        this.personalRank = personalRank;
+    }
+
+    public String getExpectedResearchScore() {
+        return expectedResearchScore;
+    }
+
+    public void setExpectedResearchScore(String expectedResearchScore) {
+        this.expectedResearchScore = expectedResearchScore;
+    }
+
     public Integer getUserdnameId() {
         return userdnameId;
     }
@@ -396,6 +418,8 @@ public class SciLectureReport extends BaseEntity
             .append("reportDuration", getReportDuration())
             .append("reportClassify", getReportClassify())
             .append("reportKeyanfen", getReportKeyanfen())
+            .append("personalRank", getPersonalRank())
+            .append("expectedResearchScore", getExpectedResearchScore())
             .toString();
     }
 

@@ -467,6 +467,14 @@
     }
   function initTable(options) {
         options.url = getUrl();
+        // 非教师角色不显示积分相关字段（预计积分、已获积分、个人排名），保留列定义以维持表格列宽布局
+        if (userRole !== 'teacher') {
+            options.columns.forEach(function(col) {
+                if (col.title === '预计积分' || col.title === '已获积分' || col.title === '个人排名') {
+                    col.visible = false;
+                }
+            });
+        }
         $.table.init(options);
   }
 

@@ -534,8 +534,8 @@
             <th>教材名称</th>
             <th>出版时间</th>
             <th>分类</th>
-            <th>个人排名</th>
-            <th>得分</th>
+            <th th:if="${@permission.isAnyRoles('teacher')}">个人排名</th>
+            <th th:if="${@permission.isAnyRoles('teacher')}">得分</th>
             <th>当前状态</th>
             <th class="fixed-column">操作</th>
           </tr>
@@ -631,6 +631,7 @@
   var isDeptTeacher = [[${@permission.isAnyRoles('dept_teacher,discuss_college,dzgc_college,yssj_college,student_college,marxism_college,general')}]];
   var isResearch = [[${@permission.isAnyRoles('research')}]];
   var isSciTesearch = [[${@permission.isAnyRoles('sci_tesearch')}]];
+  var isNormalTeacher = [[${@permission.isAnyRoles('teacher')}]];
 
   var prefix = ctx + "system/jiaocairuanzhu";
 
@@ -900,6 +901,7 @@
         {
           field: 'paiming',
           title: '个人排名',
+          visible: isNormalTeacher,
           formatter: function (value, row, index) {
             return $.table.selectDictLabel(paiMingDatas, value);
           }
@@ -907,10 +909,11 @@
         {
           field: 'expectedJifen',
           title: '预期积分',
+          visible: isNormalTeacher,
           formatter: function (value, row, index) {
             var state = String(row.state);
-            var isPassed = state === 'TEXTBOOK_PASSED' || 
-                          state === '6' || 
+            var isPassed = state === 'TEXTBOOK_PASSED' ||
+                          state === '6' ||
                           state.indexOf('通过') !== -1;
             if (isPassed) {
               return 0;
@@ -921,10 +924,11 @@
         {
           field: 'jifen',
           title: '积分',
+          visible: isNormalTeacher,
           formatter: function (value, row, index) {
             var state = String(row.state);
-            var isPassed = state === 'TEXTBOOK_PASSED' || 
-                          state === '6' || 
+            var isPassed = state === 'TEXTBOOK_PASSED' ||
+                          state === '6' ||
                           state.indexOf('通过') !== -1;
             if (!isPassed) {
               return 0;

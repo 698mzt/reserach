@@ -656,60 +656,63 @@
 
 
 
-        $(".file-upload").each(function (i) {
-            var val = $ ("input[name='" + this.id + "']").val()
-            var initialPreview = [];
-            var initialPreviewConfig = [];
-            
-            if (val && val.trim() !== '') {
-                initialPreview = [val];
-                initialPreviewConfig = [{
-                    type: "pdf",
-                    caption: val.split('/').pop(),
-                    url: ctx + "common/delete",
-                    key: val
-                }];
-            }
-            
-            $(this).fileinput({
-                'uploadUrl': ctx + 'common/upload/zxkt',
-                initialPreviewAsData: true,
-                initialPreview: initialPreview,
-                initialPreviewConfig: initialPreviewConfig,
-                maxFileCount: 1,
-        maxFileSize: 51200,
-                autoReplace: true,
-                overwriteInitial: true,
-                allowedFileExtensions: ["pdf"],
-                slugCallback: function(filename) {
-                    if ($("input[name='topName']").val()===""){
-                        $(".file-upload").fileinput('clear');
-                        $.modal.alertError("请先输入课题名称");
-                        return false;
-                    }
-                    // 自定义文件名生成规则
-                    fileExtension = filename.split('.').pop();
-                    const year = new Date().getFullYear();
-                    const newName = year +"-"+ $("input[name='topName']").val() +"-"+ "立项文件"+ "." + fileExtension;
-                    return newName;
-                },
-                showUpload: false,  // 隐藏上传按钮
-            }).on('fileuploaded', function (event, data, previewId, index) {
-                if (data.response && data.response.url) {
-                    $("input[type='hidden'][name='file']").val(data.response.url);
+        $(document).ready(function() {
+            $(".file-upload").each(function (i) {
+                var val = $("input[name='" + this.id + "']").val();
+                var initialPreview = [];
+                var initialPreviewConfig = [];
+                
+                if (val && val.trim() !== '') {
+                    initialPreview = [val];
+                    initialPreviewConfig = [{
+                        type: "pdf",
+                        caption: val.split('/').pop(),
+                        url: ctx + "common/delete",
+                        key: val
+                    }];
                 }
-            }).on('fileremoved', function (event, id, index) {
-                $("input[type='hidden'][name='file']").val('');
-            }).on('fileclear', function (event) {
-                $("input[type='hidden'][name='file']").val('');
-            }).on('filebatchselected', function(event) {
-                // 批量选择文件后立即上传
-                $(this).fileinput('upload');
-            }).on('fileselected', function(event) {
-                // 单个文件选择后立即上传
-                $(this).fileinput('upload');
+                
+                $(this).fileinput({
+                    'uploadUrl': ctx + 'common/upload/zxkt',
+                    initialPreviewAsData: true,
+                    initialPreview: initialPreview,
+                    initialPreviewConfig: initialPreviewConfig,
+                    maxFileCount: 1,
+                    maxFileSize: 51200,
+                    autoReplace: true,
+                    overwriteInitial: true,
+                    allowedFileExtensions: ["pdf"],
+                    slugCallback: function(filename) {
+                        var topName = $("input[name='topName']").val();
+                        if (!topName || topName.trim() === ""){
+                            $(".file-upload").fileinput('clear');
+                            $.modal.alertError("请先输入课题名称");
+                            return false;
+                        }
+                        // 自定义文件名生成规则
+                        var fileExtension = filename.split('.').pop();
+                        var year = new Date().getFullYear();
+                        var newName = year + "-" + topName + "-" + "立项文件" + "." + fileExtension;
+                        return newName;
+                    },
+                    showUpload: false,  // 隐藏上传按钮
+                }).on('fileuploaded', function (event, data, previewId, index) {
+                    if (data.response && data.response.url) {
+                        $("input[type='hidden'][name='file']").val(data.response.url);
+                    }
+                }).on('fileremoved', function (event, id, index) {
+                    $("input[type='hidden'][name='file']").val('');
+                }).on('fileclear', function (event) {
+                    $("input[type='hidden'][name='file']").val('');
+                }).on('filebatchselected', function(event) {
+                    // 批量选择文件后立即上传
+                    $(this).fileinput('upload');
+                }).on('fileselected', function(event) {
+                    // 单个文件选择后立即上传
+                    $(this).fileinput('upload');
+                });
+                $(this).fileinput('_initFileActions');
             });
-            $(this).fileinput('_initFileActions');
         });
 
         // 计算预期积分

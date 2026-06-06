@@ -424,6 +424,7 @@
     var datas = [[${@dict.getType('sys_intraschpro_tasks')}]];
     var prefix = ctx + "IntraSchPro";
     var currentRole = [[${roleStr}]];
+    var showScoreAndRank = [[${@permission.isAnyRoles('teacher')}]];
 
     function getUrl() {
         var year = localStorage.getItem("year");
@@ -1045,87 +1046,98 @@
                 rowStyle: rowStyle0,
                 modalName: "成果转化",
                 sortOrder: "desc",
-                columns: [{
-                    checkbox: true,
-                    align: "center"
-                }, {
-                    field: "number",
-                    title: "序号",
-                    width: 5,
-                    align: "center",
-                    switchable: false,
-                    formatter: function (value, row, index) {
-                        return $.table.serialNumber(index);
-                    }
-                }, {
-                    field: "id",
-                    title: "id",
-                    visible: false
-                }, /*{
-                    title: "流程阶段",
-                    align: "center",
-                    formatter: function (value, row) {
-                        return getStageLabel(row.state);
+                columns: (function() {
+                    var cols = [{
+                        checkbox: true,
+                        align: "center"
+                    }, {
+                        field: "number",
+                        title: "序号",
+                        width: 5,
+                        align: "center",
+                        switchable: false,
+                        formatter: function (value, row, index) {
+                            return $.table.serialNumber(index);
+                        }
+                    }, {
+                        field: "id",
+                        title: "id",
+                        visible: false
+                    }, /*{
+                        title: "流程阶段",
+                        align: "center",
+                        formatter: function (value, row) {
+                            return getStageLabel(row.state);
 
+                        }
+                    },*/ /*{
+                        field: "state",
+                        title: "当前状态",
+                        align: "center",
+                        formatter: function (value) {
+                            return getStateLabel(value);
+                        }
+                    },*/ {
+                        field: "yname",
+                        align: "center",
+                        title: "学院"
+                    }, {
+                        field: "dname",
+                        align: "center",
+                        title: "专业"
+                    }, {
+                        field: "userName",
+                        align: "center",
+                        title: "主持人"
+                    }, {
+                        field: "topName",
+                        align: "center",
+                        title: "课题名称"
+                    }, {
+                        field: "signingData",
+                        align: "center",
+                        title: "签订日期"
+                    }, {
+                        field: "amount",
+                        align: "center",
+                        title: "项目金额"
+                    }];
+                    if (showScoreAndRank) {
+                        cols.push({
+                            title: "个人排名",
+                            align: "center",
+                            formatter: function (value, row) {
+                                return getResponsibilityTier(row);
+                            }
+                        });
                     }
-                },*/ /*{
-                    field: "state",
-                    title: "当前状态",
-                    align: "center",
-                    formatter: function (value) {
-                        return getStateLabel(value);
+                    cols.push({
+                        field: "approvalStage",
+                        title: "审批阶段",
+                        align: "center",
+                        formatter: function (value, row) {
+                            return renderApprovalStage(row);
+                        }
+                    });
+                    if (showScoreAndRank) {
+                        cols.push({
+                            title: "积分",
+                            align: "center",
+                            formatter: function (value, row) {
+                                return getScore(row);
+                            }
+                        });
                     }
-                },*/ {
-                    field: "yname",
-                    align: "center",
-                    title: "学院"
-                }, {
-                    field: "dname",
-                    align: "center",
-                    title: "专业"
-                }, {
-                    field: "userName",
-                    align: "center",
-                    title: "主持人"
-                }, {
-                    field: "topName",
-                    align: "center",
-                    title: "课题名称"
-                }, {
-                    field: "signingData",
-                    align: "center",
-                    title: "签订日期"
-                }, {
-                    field: "amount",
-                    align: "center",
-                    title: "项目金额"
-                }, {
-                    title: "个人排名",
-                    align: "center",
-                    formatter: function (value, row) {
-                        return getResponsibilityTier(row);
-                    }
-                }, {
-                    field: "approvalStage",
-                    title: "审批阶段",
-                    align: "center",
-                    formatter: function (value, row) {
-                        return renderApprovalStage(row);
-                    }
-                }, {
-                    title: "积分",
-                    align: "center",
-                    formatter: function (value, row) {
-                        return getScore(row);
-                    }
-                }, {
-                    title: "操作",
-                    align: "center",
-                    width: "200px",
-                    formatter: function (value, row) {
-                        return getOperationButtons(row);
-                    }
-                }]
+                    cols.push({
+                        title: "操作",
+                        align: "center",
+                        width: "200px",
+                        formatter: function (value, row) {
+                            return getOperationButtons(row);
+                        }
+                    });
+                    return cols;
+                })()
             };
             $.table.init(options);
         }
