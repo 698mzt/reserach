@@ -273,8 +273,6 @@ public class SysRewardController extends BaseController
     {
         SysReward sysReward = sysRewardService.selectSysRewardById(Long.valueOf(id));
         List<SysUser> userList1 = userService.selectAllUser();
-        // 将主持人设置为当前用户
-        sysReward.setFirstPersonId(String.valueOf(getUserId()));
         sysReward.setUrlFlag(urlFlag);
         mmap.put("sysUsers1", userList1);
         mmap.put("sysReward", sysReward);
