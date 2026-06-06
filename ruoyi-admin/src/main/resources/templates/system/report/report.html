@@ -764,7 +764,20 @@
                 {
                     field: 'reportKeyanfen',
                     align: 'center',
-                    title: '积分'
+                    title: '积分',
+                    visible: userRole === 'teacher'  // 仅教师角色显示
+                },
+                {
+                    field: 'expectedResearchScore',
+                    align: 'center',
+                    title: '预计积分',
+                    visible: userRole === 'teacher'  // 仅教师角色显示
+                },
+                {
+                    field: 'personalRank',
+                    align: 'center',
+                    title: '个人排名',
+                    visible: userRole === 'teacher'  // 仅教师角色显示
                 },
                 {
                     field: 'state',

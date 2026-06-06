@@ -596,6 +596,12 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService {
                 report.getUserId(),
                 currentUserId);
         
+        // 设置个人排名：如果当前用户是申请人，则排名为"1"
+        if (report.getUserId() != null && currentUserId != null && 
+            report.getUserId().longValue() == currentUserId) {
+            report.setPersonalRank("1");
+        }
+        
         report.setStatusMeta(result.getStatusMeta());
         report.setActions(actions);
     }
