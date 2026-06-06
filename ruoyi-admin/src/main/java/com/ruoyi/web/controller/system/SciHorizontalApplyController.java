@@ -235,6 +235,7 @@ public class SciHorizontalApplyController extends BaseController
     public String apply(ModelMap mmap) {
         // 将当前用户信息传递到模板，用于前端角色识别
         mmap.put("user", getSysUser());
+        mmap.put("role", getUserRoleKey());
         return prefix + "/apply";
     }
 
