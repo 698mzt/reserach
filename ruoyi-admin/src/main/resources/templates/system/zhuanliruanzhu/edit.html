@@ -38,7 +38,7 @@
                 <div class="col-sm-6">
                     <label class="col-sm-4 control-label is-required">名称：</label>
                     <div class="col-sm-8">
-                        <input name="mingcheng" th:field="*{mingcheng}" class="form-control" type="text" required maxlength="50">
+                        <input name="mingcheng" th:field="*{mingcheng}" class="form-control" type="text" required maxlength="50" pattern=".*V\d+(\.\d+)*.*" title="名称需包含版本号，格式如：XXX系统V1.0 或 XXX系统[简称：XXX]V1.0">
                     </div>
                 </div>
                 <div class="col-sm-6">
@@ -299,6 +299,14 @@
 
         function submitHandler() {
             if ($.validate.form()) {
+                // 校验名称格式：需包含版本号，如 V1.0
+                const mingcheng = $("input[name='mingcheng']").val();
+                const namePattern = /V\d+(\.\d+)*/;
+                if (!namePattern.test(mingcheng)) {
+                    $.modal.alertWarning("名称格式不正确，需包含版本号，格式如：XXX系统V1.0 或 XXX系统[简称：XXX]V1.0");
+                    return;
+                }
+
                 if ($("input[name='wenjian']").val() == "")
                     return $.modal.alertError("请上传专利文件");
                 $.operate.save(prefix + "/edit", $('#form-zhuanliruanzhu-edit').serialize(), function(result) {

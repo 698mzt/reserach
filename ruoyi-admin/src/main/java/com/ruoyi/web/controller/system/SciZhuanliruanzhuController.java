@@ -78,8 +78,48 @@ public class SciZhuanliruanzhuController extends BaseController
         sciZhuanliruanzhu.setUid(getUserId());
 
         startPage();
-        // 统一查询入口，利用 @DataScope 自动处理数据范围
-        List<SciZhuanliruanzhu> list = sciZhuanliruanzhuService.selectSciZhuanliruanzhuList(sciZhuanliruanzhu);
+        List<SciZhuanliruanzhu> list;
+        boolean isTeacherRole = isActiveRoleTeacher();
+
+        if (isTeacherRole) {
+            // 教师：使用包含成员匹配的查询
+            list = sciZhuanliruanzhuService.selectSciZhuanliruanzhuList1(sciZhuanliruanzhu);
+            // 为教师计算个人排名和对应积分
+            String currentUidStr = String.valueOf(getUserId());
+            for (SciZhuanliruanzhu row : list) {
+                String personalRank = resolvePersonalRank(row, currentUidStr);
+                if (!personalRank.isEmpty()) {
+                    row.setPaiming(personalRank);
+                    // 根据个人排名重新计算预计积分
+                    String expectedScore = sciZhuanliruanzhuService.calculateScoreByFenleiAndRank(row.getFenlei(), personalRank);
+                    if ("4".equals(row.getFenlei()) && "N".equals(row.getShifouyingyon())) {
+                        try {
+                            double score = Double.parseDouble(expectedScore) * 0.5;
+                            expectedScore = String.valueOf(score);
+                        } catch (NumberFormatException e) {
+                            // ignore
+                        }
+                    }
+                    row.setExpectedJifen(expectedScore);
+                    // 根据个人排名重新计算实际积分（仅当已有最终积分时）
+                    if (row.getFinalJifen() != null && !row.getFinalJifen().isEmpty() && !"0".equals(row.getFinalJifen())) {
+                        String finalScore = sciZhuanliruanzhuService.calculateScoreByFenleiAndRank(row.getFenlei(), personalRank);
+                        if ("4".equals(row.getFenlei()) && "N".equals(row.getShifouyingyon())) {
+                            try {
+                                double score = Double.parseDouble(finalScore) * 0.5;
+                                finalScore = String.valueOf(Math.round(score));
+                            } catch (NumberFormatException e) {
+                                // ignore
+                            }
+                        }
+                        row.setFinalJifen(finalScore);
+                    }
+                }
+            }
+        } else {
+            // 非教师：使用统一查询入口，利用 @DataScope 自动处理数据范围
+            list = sciZhuanliruanzhuService.selectSciZhuanliruanzhuList(sciZhuanliruanzhu);
+        }
 
         return getDataTable(list);
     }
