@@ -911,13 +911,6 @@
           title: '预期积分',
           visible: isNormalTeacher,
           formatter: function (value, row, index) {
-            var state = String(row.state);
-            var isPassed = state === 'TEXTBOOK_PASSED' ||
-                          state === '6' ||
-                          state.indexOf('通过') !== -1;
-            if (isPassed) {
-              return 0;
-            }
             return row.expectedJifen || 0;
           }
         },

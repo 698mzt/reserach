@@ -30,18 +30,17 @@
         <result property="fuzhubian" column="fuzhubian" />
     </resultMap>
     <sql id="selectSciJiaocairuanzhuVo">
-        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname,p.dept_id parent_id, s.user_id, s.mingcheng, s.isbn, s.chubanshijian, s.chubanshe, s.benxiaoshifoyongshu, s.fenlei, s.state,s.jifen, s.expected_jifen as expectedJifen, s.amount,
-        case when #{role} = 'research' or #{role} = 'sci_tesearch' then 
+        select #{uid} uid,s.id,u.user_name userName,d.dept_name dname,p.dept_name yname,p.dept_id parent_id, s.user_id, s.mingcheng, s.isbn, s.chubanshijian, s.chubanshe, s.benxiaoshifoyongshu, s.fenlei, s.state,s.jifen, s.amount,
+        case when #{role} = 'research' or #{role} = 'sci_tesearch' then
             COALESCE((select ranking from sci_jiaocairuanzhu_member where jiaocai_id = s.id and member_id = s.user_id), s.paiming)
-        else 
+        else
             COALESCE((select ranking from sci_jiaocairuanzhu_member where jiaocai_id = s.id and member_id = #{uid}), s.paiming)
         end as paiming,
         s.wenjian,s.createtime,s.zhubian,s.fuzhubian,
-        case when #{role} = 'research' or #{role} = 'sci_tesearch' then 
-            COALESCE((select research_score from sci_jiaocairuanzhu_member where jiaocai_id = s.id and member_id = s.user_id), 0)
-        else 
-            COALESCE((select research_score from sci_jiaocairuanzhu_member where jiaocai_id = s.id and member_id = #{uid}), 0)
-        end as personalScore
+        -- 个人预期积分：始终根据当前登录用户uid查询成员表，确保每个用户看到自己的实际预期积分
+        COALESCE((select research_score from sci_jiaocairuanzhu_member where jiaocai_id = s.id and member_id = #{uid}), 0) as personalScore,
+        -- 预期积分：同样根据当前登录用户uid查询成员表中的个人积分，而非主表的总积分
+        COALESCE((select research_score from sci_jiaocairuanzhu_member where jiaocai_id = s.id and member_id = #{uid}), 0) as expectedJifen
         from sci_jiaocairuanzhu s left join sys_user u on  s.user_id=u.user_id
                                   left join sys_dept d on u.dept_id = d.dept_id
                                   left join sys_dept p on d.parent_id =p.dept_id
