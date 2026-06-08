@@ -620,11 +620,11 @@ public class ResearchDashboardServiceImpl implements IResearchDashboardService
         {
             return null;
         }
-        if (user.getDept() != null && user.getDept().getParentId() != null)
+        if (user.getDeptId() != null)
         {
-            return user.getDept().getParentId();
+            return user.getDeptId();
         }
-        return user.getParentId() != null ? user.getParentId() : user.getDeptId();
+        return user.getDept() == null ? null : user.getDept().getDeptId();
     }
 
     private String roleName(String roleKey)

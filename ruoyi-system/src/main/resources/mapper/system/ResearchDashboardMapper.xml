@@ -6,12 +6,12 @@
 
     <sql id="horizontalYearCondition">
         <if test="year != null and year != ''">
-            AND YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}
+            AND YEAR(DATE_ADD(validity_Date,INTERVAL 1 MONTH)) = #{year}
         </if>
     </sql>
 
     <sql id="horizontalAliasYearCondition">
-        AND YEAR(DATE_ADD(a.signing_data,INTERVAL 1 MONTH)) = #{year}
+        AND YEAR(DATE_ADD(a.validity_Date,INTERVAL 1 MONTH)) = #{year}
     </sql>
 
     <sql id="verticalYearCondition">
@@ -29,7 +29,6 @@
             SELECT dept_id
             FROM sys_dept
             WHERE dept_id = #{deptId}
-               OR FIND_IN_SET(#{deptId}, ancestors)
         )
     </sql>
 
