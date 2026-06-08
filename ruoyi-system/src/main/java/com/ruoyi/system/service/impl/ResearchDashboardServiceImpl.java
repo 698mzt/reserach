@@ -45,6 +45,10 @@ public class ResearchDashboardServiceImpl implements IResearchDashboardService
             "HORIZONTAL_APPLY_XY_AUDIT", "HORIZONTAL_OVER_XY_AUDIT");
     private static final List<String> HORIZONTAL_KYC_STATES = Arrays.asList(
             "HORIZONTAL_APPLY_KYC_AUDIT", "HORIZONTAL_OVER_KYC_AUDIT");
+    private static final List<String> REAMOUNT_TEACHER_STATES = Arrays.asList(
+            "REAMOUNT_DRAFT", "REAMOUNT_REJECTED");
+    private static final List<String> REAMOUNT_RESEARCH_STATES = Collections.singletonList("REAMOUNT_JYS_AUDIT");
+    private static final List<String> REAMOUNT_KYC_STATES = Collections.singletonList("REAMOUNT_KYC_AUDIT");
 
     private static final List<String> VERTICAL_TEACHER_STATES = Arrays.asList(
             "VERTICAL_APPLY_DRAFT", "VERTICAL_APPLY_PASSED", "VERTICAL_APPLY_REJECTED",
@@ -177,7 +181,7 @@ public class ResearchDashboardServiceImpl implements IResearchDashboardService
 
     private int countHorizontal(SysUser user, String roleKey, String year)
     {
-        return countModule(user, roleKey, year,
+        int horizontalCount = countModule(user, roleKey, year,
                 HORIZONTAL_TEACHER_STATES, HORIZONTAL_RESEARCH_STATES, HORIZONTAL_COLLEGE_STATES, HORIZONTAL_KYC_STATES,
                 new ModuleCounter()
                 {
@@ -186,6 +190,26 @@ public class ResearchDashboardServiceImpl implements IResearchDashboardService
                     public int deptWithChildren(Long deptId, List<String> states, String year) { return dashboardMapper.countHorizontalByDeptAndStatesWithChildren(deptId, states, year); }
                     public int user(Long userId, List<String> states, String year) { return dashboardMapper.countHorizontalByUserAndStates(userId, states, year); }
                 });
+        return horizontalCount + countReamount(user, roleKey, year);
+    }
+
+    private int countReamount(SysUser user, String roleKey, String year)
+    {
+        Long userId = user != null ? user.getUserId() : null;
+        Long deptId = user != null ? user.getDeptId() : null;
+        if ("admin".equals(roleKey) || "sci_tesearch".equals(roleKey))
+        {
+            return dashboardMapper.countReamountByStates(REAMOUNT_KYC_STATES, year);
+        }
+        if ("research".equals(roleKey))
+        {
+            return deptId == null ? 0 : dashboardMapper.countReamountByDeptAndStates(deptId, REAMOUNT_RESEARCH_STATES, year);
+        }
+        if ("teacher".equals(roleKey))
+        {
+            return userId == null ? 0 : dashboardMapper.countReamountByUserAndStates(userId, REAMOUNT_TEACHER_STATES, year);
+        }
+        return 0;
     }
 
     private int countVertical(SysUser user, String roleKey, String year)
