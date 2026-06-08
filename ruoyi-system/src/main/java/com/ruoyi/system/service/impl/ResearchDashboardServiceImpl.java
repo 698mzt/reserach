@@ -366,7 +366,7 @@ public class ResearchDashboardServiceImpl implements IResearchDashboardService
             metrics.add(metric("我的申报", String.valueOf(totalCount), "当前年度汇总成果", "primary"));
             metrics.add(metric("待我处理", String.valueOf(totalTodo), "来自各业务菜单待办", "warning"));
             metrics.add(metric("科研积分", formatScore(totalScore), "来自统计积分汇总", "success"));
-            metrics.add(metric("已归档成果", String.valueOf(Math.max(0, totalCount - totalTodo)), "按统计汇总估算", "info"));
+            metrics.add(metric("数据范围", scopeName(roleKey), "跟随当前切换角色", "info"));
         }
         else
         {
