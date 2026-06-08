@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('科研首页')" />
+    <style>
+        :root {
+            --bg: #f4f6f8;
+            --panel: #ffffff;
+            --panel-soft: #f8fafc;
+            --line: #e6ebf0;
+            --text: #1f2d3d;
+            --muted: #6b7785;
+            --blue: #2f80ed;
+            --teal: #16a085;
+            --amber: #f5a623;
+            --red: #d9534f;
+            --green: #43a047;
+            --ink: #31465a;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: "Helvetica Neue", Arial, "Microsoft YaHei", sans-serif;
+        }
+
+        .home-page {
+            min-width: 1080px;
+            padding: 18px 20px 28px;
+        }
+
+        .home-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 20px;
+            margin-bottom: 14px;
+        }
+
+        .home-title h2 {
+            margin: 0 0 8px;
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: 0;
+        }
+
+        .home-title .sub {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .mark {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            height: 24px;
+            padding: 0 8px;
+            border-radius: 12px;
+            background: #eef2f6;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .metric {
+            min-height: 102px;
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 14px 16px;
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 6px;
+        }
+
+        .metric-label {
+            margin-bottom: 10px;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .metric-value {
+            font-size: 28px;
+            line-height: 1;
+            font-weight: 700;
+        }
+
+        .metric-extra {
+            margin-top: 8px;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .metric-icon,
+        .work-icon,
+        .risk-dot {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            border-radius: 6px;
+        }
+
+        .metric-icon {
+            width: 42px;
+            height: 42px;
+            flex-shrink: 0;
+        }
+
+        .blue { background: var(--blue); }
+        .teal { background: var(--teal); }
+        .amber { background: var(--amber); }
+        .green { background: var(--green); }
+        .ink { background: var(--ink); }
+        .red { background: var(--red); }
+
+        .layout-grid {
+            display: grid;
+            grid-template-columns: 1.45fr .95fr;
+            gap: 12px;
+            align-items: start;
+        }
+
+        .panel {
+            margin-bottom: 12px;
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 6px;
+            box-shadow: none;
+        }
+
+        .panel-head {
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 0 16px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .panel-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;
+            font-size: 15px;
+        }
+
+        .panel-note {
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .panel-body {
+            padding: 14px 16px 16px;
+        }
+
+        .workbench {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .work-item {
+            min-height: 118px;
+            padding: 12px;
+            border: 1px solid var(--line);
+            background: var(--panel-soft);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: border-color .18s ease, background .18s ease;
+        }
+
+        .work-item:hover {
+            border-color: #b6c8dc;
+            background: #fff;
+        }
+
+        .work-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .work-icon {
+            width: 32px;
+            height: 32px;
+        }
+
+        .work-badge {
+            min-width: 22px;
+            height: 22px;
+            padding: 0 7px;
+            border-radius: 11px;
+            background: #fff;
+            border: 1px solid var(--line);
+            color: var(--muted);
+            text-align: center;
+            line-height: 20px;
+            font-size: 12px;
+        }
+
+        .work-name {
+            margin-bottom: 8px;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .work-meta {
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .queue-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+
+        .queue-table th {
+            padding: 0 8px 10px;
+            border-bottom: 1px solid var(--line);
+            color: var(--muted);
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .queue-table td {
+            padding: 11px 8px;
+            border-bottom: 1px solid #edf1f5;
+            font-size: 13px;
+            vertical-align: middle;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .queue-table tr:last-child td {
+            border-bottom: 0;
+        }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            max-width: 100%;
+            height: 24px;
+            padding: 0 8px;
+            border-radius: 12px;
+            border: 1px solid transparent;
+            font-size: 12px;
+        }
+
+        .status-pill.warn { color: #9a6110; background: #fff5df; border-color: #f3d99a; }
+        .status-pill.info { color: #1f66aa; background: #e9f3ff; border-color: #c8ddf5; }
+        .status-pill.ok { color: #2f7d32; background: #eaf7eb; border-color: #cbe8cc; }
+        .status-pill.danger { color: #a94442; background: #fff0ef; border-color: #efc8c6; }
+
+        .progress-list,
+        .risk-list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .progress-row {
+            display: grid;
+            grid-template-columns: 96px 1fr 72px;
+            gap: 10px;
+            align-items: center;
+            font-size: 13px;
+        }
+
+        .progress-name {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .bar {
+            height: 10px;
+            background: #edf1f5;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .bar span {
+            display: block;
+            height: 100%;
+            border-radius: 5px;
+        }
+
+        .value-right {
+            color: var(--muted);
+            text-align: right;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .risk-item {
+            display: grid;
+            grid-template-columns: 30px 1fr auto;
+            gap: 10px;
+            align-items: center;
+            min-height: 42px;
+        }
+
+        .risk-dot {
+            width: 30px;
+            height: 30px;
+        }
+
+        .risk-title {
+            margin-bottom: 3px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .risk-desc {
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .risk-num {
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .role-summary {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 8px;
+        }
+
+        .role-step {
+            min-height: 88px;
+            padding: 10px;
+            border: 1px solid var(--line);
+            border-radius: 6px;
+            background: var(--panel-soft);
+        }
+
+        .role-step strong {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 13px;
+        }
+
+        .role-step span {
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .empty {
+            padding: 18px 8px;
+            color: var(--muted);
+            text-align: center;
+            font-size: 13px;
+        }
+
+        @media (max-width: 1280px) {
+            .home-page {
+                min-width: 960px;
+                padding: 14px;
+            }
+
+            .metrics-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .layout-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body class="gray-bg">
+<div class="home-page">
+    <div class="home-header">
+        <div class="home-title">
+            <h2>科研信息管理系统</h2>
+            <div class="sub">
+                <span>[[${#strings.defaultString(user.userName, '当前用户')}]]</span>
+                <span id="yearText">年度科研工作台</span>
+                <span class="mark" id="activeRoleText"><i class="fa fa-user-circle-o"></i> [[${#strings.defaultString(activeRoleName, '当前角色')}]]</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="metrics-grid" id="metricsGrid"></div>
+
+    <div class="layout-grid">
+        <div>
+            <div class="panel">
+                <div class="panel-head">
+                    <div class="panel-title"><i class="fa fa-th-large"></i> 工作入口</div>
+                    <div class="panel-note" id="roleHint">随当前系统角色展示待办角标</div>
+                </div>
+                <div class="panel-body">
+                    <div class="workbench" id="workbench"></div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-head">
+                    <div class="panel-title"><i class="fa fa-list-alt"></i> 当前队列</div>
+                    <div class="panel-note">需要关注的申请、审核与材料补正</div>
+                </div>
+                <div class="panel-body">
+                    <table class="queue-table">
+                        <thead>
+                        <tr>
+                            <th style="width: 18%">类型</th>
+                            <th>事项</th>
+                            <th style="width: 20%">状态</th>
+                            <th style="width: 14%">负责人</th>
+                            <th style="width: 16%">截止</th>
+                        </tr>
+                        </thead>
+                        <tbody id="queueBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+        <div>
+            <div class="panel">
+                <div class="panel-head">
+                    <div class="panel-title"><i class="fa fa-random"></i> 审批链路</div>
+                    <div class="panel-note">角色职责分工</div>
+                </div>
+                <div class="panel-body">
+                    <div class="role-summary">
+                        <div class="role-step">
+                            <strong>普通教师</strong>
+                            <span>申报课题、上传佐证、提交成果、跟踪退回与结项。</span>
+                        </div>
+                        <div class="role-step">
+                            <strong>教研室</strong>
+                            <span>初审材料真实性、成员排序、成果归属和退回意见。</span>
+                        </div>
+                        <div class="role-step">
+                            <strong>学院</strong>
+                            <span>复核学院范围数据，协调专业归口与年度任务。</span>
+                        </div>
+                        <div class="role-step">
+                            <strong>科研处</strong>
+                            <span>终审认定、核算积分、统计汇总和归档闭环。</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-head">
+                    <div class="panel-title"><i class="fa fa-signal"></i> 年度成果结构</div>
+                    <div class="panel-note">数量 / 积分</div>
+                </div>
+                <div class="panel-body">
+                    <div class="progress-list" id="progressList"></div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-head">
+                    <div class="panel-title"><i class="fa fa-exclamation-triangle"></i> 风险提醒</div>
+                    <div class="panel-note">优先处理会卡流程的事项</div>
+                </div>
+                <div class="panel-body">
+                    <div class="risk-list" id="riskList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<th:block th:include="include :: footer" />
+<script th:inline="javascript">
+    var activeRoleName = /*[[${activeRoleName}]]*/ '';
+    var currentYear = null;
+
+    var fixedEntries = [
+        { key: "horizontal", name: "横向课题", url: "system/apply", icon: "fa-handshake-o", color: "blue", meta: "立项、到账、追加金额、结项申请" },
+        { key: "vertical", name: "纵向课题", url: "system/apply_vertical", icon: "fa-cube", color: "teal", meta: "立项、开题、中期、结项" },
+        { key: "achievement", name: "成果转化", url: "IntraSchPro", icon: "fa-refresh", color: "ink", meta: "校内成果转化与项目材料" },
+        { key: "paper", name: "论文", url: "system/paper", icon: "fa-file-text-o", color: "blue", meta: "录入论文与收录证明" },
+        { key: "textbook", name: "教材专著", url: "system/jiaocairuanzhu", icon: "fa-book", color: "amber", meta: "教材、专著、软著材料" },
+        { key: "patent", name: "专利软著", url: "system/zhuanliruanzhu", icon: "fa-certificate", color: "teal", meta: "专利授权与软著登记" },
+        { key: "reward", name: "奖励", url: "system/reward", icon: "fa-trophy", color: "amber", meta: "科研获奖填报与审核" },
+        { key: "lecture", name: "讲座报告", url: "system/report", icon: "fa-microphone", color: "blue", meta: "学术讲座和报告记录" }
+    ];
+
+    function getPageYear() {
+        var year = "";
+        try {
+            if (window.parent && window.parent.localStorage) {
+                year = window.parent.localStorage.getItem("year") || "";
+            }
+        } catch (e) {}
+        if (!year) {
+            year = localStorage.getItem("year") || "";
+        }
+        return year || String(new Date().getFullYear());
+    }
+
+    function escapeHtml(value) {
+        return String(value == null ? "" : value)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#39;");
+    }
+
+    function loadDashboard() {
+        currentYear = getPageYear();
+        $("#yearText").text(currentYear + " 年度科研工作台");
+        $.get(ctx + "system/main/dashboard", { year: currentYear }, function(result) {
+            var data = result && result.data ? result.data : {};
+            renderDashboard(data);
+        });
+    }
+
+    function renderDashboard(data) {
+        var role = data.role || {};
+        $("#activeRoleText").html('<i class="fa fa-user-circle-o"></i> ' + escapeHtml(role.roleName || activeRoleName || "当前角色"));
+        $("#roleHint").text("当前角色：" + (role.roleName || activeRoleName || "当前角色") + "，数据随系统角色同步刷新");
+        renderMetrics(data.metrics || []);
+        renderWorkbench(data.workEntries || []);
+        renderQueue(data.queueItems || []);
+        renderProgress(data.progressItems || []);
+        renderRisks(data.riskItems || []);
+    }
+
+    function renderMetrics(metrics) {
+        var colors = ["blue", "amber", "teal", "ink"];
+        var icons = ["fa-send", "fa-bell", "fa-line-chart", "fa-archive"];
+        var html = [];
+        for (var i = 0; i < 4; i++) {
+            var item = metrics[i] || { label: "--", value: "--", extra: "暂无数据" };
+            html.push('<div class="metric">' +
+                '<div><div class="metric-label">' + escapeHtml(item.label) + '</div>' +
+                '<div class="metric-value">' + escapeHtml(item.value) + '</div>' +
+                '<div class="metric-extra">' + escapeHtml(item.extra) + '</div></div>' +
+                '<div class="metric-icon ' + colors[i] + '"><i class="fa ' + icons[i] + '"></i></div>' +
+                '</div>');
+        }
+        $("#metricsGrid").html(html.join(""));
+    }
+
+    function renderWorkbench(serverEntries) {
+        var serverMap = {};
+        serverEntries.forEach(function(item) {
+            serverMap[item.key] = item;
+        });
+        var html = fixedEntries.map(function(entry) {
+            return '<div class="work-item" data-url="' + escapeHtml(entry.url) + '" data-title="' + escapeHtml(entry.name) + '">' +
+                '<div class="work-top">' +
+                '<div class="work-icon ' + escapeHtml(entry.color) + '"><i class="fa ' + escapeHtml(entry.icon) + '"></i></div>' +
+                '</div>' +
+                '<div class="work-name">' + escapeHtml(entry.name) + '</div>' +
+                '<div class="work-meta">' + escapeHtml(entry.meta) + '</div>' +
+                '</div>';
+        }).join("");
+        $("#workbench").html(html);
+    }
+
+    function renderQueue(items) {
+        if (!items.length) {
+            $("#queueBody").html('<tr><td colspan="5"><div class="empty">当前角色暂无待处理事项</div></td></tr>');
+            return;
+        }
+        var html = items.map(function(item) {
+            return '<tr data-url="' + escapeHtml(item.url) + '">' +
+                '<td>' + escapeHtml(item.module) + '</td>' +
+                '<td title="' + escapeHtml(item.title) + '">' + escapeHtml(item.title) + '</td>' +
+                '<td><span class="status-pill ' + escapeHtml(item.level || "info") + '">' + escapeHtml(item.status) + '</span></td>' +
+                '<td>' + escapeHtml(item.owner) + '</td>' +
+                '<td>' + escapeHtml(item.deadline) + '</td>' +
+                '</tr>';
+        }).join("");
+        $("#queueBody").html(html);
+    }
+
+    function renderProgress(items) {
+        if (!items.length) {
+            $("#progressList").html('<div class="empty">暂无年度成果数据</div>');
+            return;
+        }
+        var html = items.map(function(item) {
+            var type = item.type || "blue";
+            var percent = Math.max(0, Math.min(100, parseInt(item.percent || 0, 10)));
+            return '<div class="progress-row">' +
+                '<div class="progress-name">' + escapeHtml(item.name) + '</div>' +
+                '<div class="bar"><span class="' + escapeHtml(type) + '" style="width:' + percent + '%"></span></div>' +
+                '<div class="value-right" title="' + escapeHtml(item.text) + '">' + escapeHtml(item.text) + '</div>' +
+                '</div>';
+        }).join("");
+        $("#progressList").html(html);
+    }
+
+    function renderRisks(items) {
+        if (!items.length) {
+            $("#riskList").html('<div class="empty">暂无风险提醒</div>');
+            return;
+        }
+        var levelMap = { red: "red", amber: "amber", blue: "blue", danger: "red", warn: "amber", info: "blue" };
+        var html = items.map(function(item) {
+            var color = levelMap[item.level] || "blue";
+            return '<div class="risk-item">' +
+                '<div class="risk-dot ' + color + '"><i class="fa fa-warning"></i></div>' +
+                '<div><div class="risk-title">' + escapeHtml(item.title) + '</div><div class="risk-desc">' + escapeHtml(item.desc) + '</div></div>' +
+                '<div class="risk-num">' + escapeHtml(item.value) + '</div>' +
+                '</div>';
+        }).join("");
+        $("#riskList").html(html);
+    }
+
+    function openMenu(url, title) {
+        if (!url) return;
+        var cleanUrl = url.charAt(0) === "/" ? url.substring(1) : url;
+        var $parent = window.parent && window.parent.$ ? window.parent.$ : null;
+        if ($parent) {
+            var $link = $parent('a[href$="' + cleanUrl + '"]');
+            if ($link.length > 0) {
+                $link.eq(0).click();
+                return;
+            }
+        }
+        if (window.parent && window.parent.$ && window.parent.$.modal && window.parent.$.modal.openTab) {
+            window.parent.$.modal.openTab($.trim(title) || "业务页面", ctx + cleanUrl);
+            return;
+        }
+        window.location.href = ctx + cleanUrl;
+    }
+
+    $(function() {
+        loadDashboard();
+
+        $(document).on("click", ".work-item", function() {
+            openMenu($(this).data("url"), $(this).data("title"));
+        });
+
+        $(document).on("click", "#queueBody tr[data-url]", function() {
+            openMenu($(this).data("url"), $(this).find("td:eq(1)").text());
+        });
+
+        setInterval(function() {
+            var nextYear = getPageYear();
+            if (nextYear !== currentYear) {
+                loadDashboard();
+            }
+        }, 1500);
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,459 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.ResearchDashboardMapper">
+
+    <sql id="horizontalYearCondition">
+        <if test="year != null and year != ''">
+            AND YEAR(DATE_ADD(validity_Date,INTERVAL 1 MONTH)) = #{year}
+        </if>
+    </sql>
+
+    <sql id="horizontalAliasYearCondition">
+        AND YEAR(DATE_ADD(a.validity_Date,INTERVAL 1 MONTH)) = #{year}
+    </sql>
+
+    <sql id="verticalYearCondition">
+        <if test="year != null and year != ''">
+            AND YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}
+        </if>
+    </sql>
+
+    <sql id="verticalAliasYearCondition">
+        AND YEAR(DATE_ADD(a.signing_data,INTERVAL 1 MONTH)) = #{year}
+    </sql>
+
+    <sql id="deptWithChildrenCondition">
+        u.dept_id IN (
+            SELECT dept_id
+            FROM sys_dept
+            WHERE dept_id = #{deptId}
+               OR FIND_IN_SET(#{deptId}, ancestors)
+        )
+    </sql>
+
+    <!-- 横向课题：首页当前队列统计 -->
+    <select id="countHorizontalByStates" resultType="int">
+        SELECT COUNT(*)
+        FROM sci_horizontal_apply
+        WHERE state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+        <include refid="horizontalYearCondition"/>
+    </select>
+
+    <select id="countHorizontalByDeptAndStatesWithChildren" resultType="int">
+        SELECT COUNT(*)
+        FROM sci_horizontal_apply a
+        JOIN sys_user u ON a.user_id = u.user_id
+        WHERE <include refid="deptWithChildrenCondition"/>
+        AND a.state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+        <include refid="horizontalAliasYearCondition"/>
+    </select>
+
+    <select id="countHorizontalByDeptAndStates" resultType="int">
+        SELECT COUNT(*)
+        FROM sci_horizontal_apply a
+        JOIN sys_user u ON a.user_id = u.user_id
+        WHERE u.dept_id = #{deptId}
+        AND a.state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+        <include refid="horizontalAliasYearCondition"/>
+    </select>
+
+    <select id="countHorizontalByUserAndStates" resultType="int">
+        SELECT COUNT(*)
+        FROM sci_horizontal_apply
+        WHERE user_id = #{userId}
+        AND state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+        <include refid="horizontalYearCondition"/>
+    </select>
+
+    <!-- 金额审批：首页/待办统计 -->
+    <select id="countReamountByStates" resultType="int">
+        SELECT COUNT(*)
+        FROM sci_horizontal_reamount
+        WHERE state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+        AND YEAR(DATE_ADD(account_data,INTERVAL 1 MONTH)) = #{year}
+    </select>
+
+    <select id="countReamountByDeptAndStatesWithChildren" resultType="int">
+        SELECT COUNT(*)
+        FROM sci_horizontal_reamount r
+        JOIN sci_horizontal_apply a ON r.apply_id = a.id
+        JOIN sys_user u ON a.user_id = u.user_id
+        WHERE <include refid="deptWithChildrenCondition"/>
+        AND r.state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+        AND YEAR(DATE_ADD(r.account_data,INTERVAL 1 MONTH)) = #{year}
+    </select>
+
+    <select id="countReamountByDeptAndStates" resultType="int">
+        SELECT COUNT(*)
+        FROM sci_horizontal_reamount r
+        JOIN sci_horizontal_apply a ON r.apply_id = a.id
+        JOIN sys_user u ON a.user_id = u.user_id
+        WHERE u.dept_id = #{deptId}
+        AND r.state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+        AND YEAR(DATE_ADD(r.account_data,INTERVAL 1 MONTH)) = #{year}
+    </select>
+
+    <select id="countReamountByUserAndStates" resultType="int">
+        SELECT COUNT(*)
+        FROM sci_horizontal_reamount r
+        JOIN sci_horizontal_apply a ON r.apply_id = a.id
+        WHERE a.user_id = #{userId}
+        AND r.state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+        AND YEAR(DATE_ADD(r.account_data,INTERVAL 1 MONTH)) = #{year}
+    </select>
+
+    <!-- 纵向课题：首页当前队列统计 -->
+    <select id="countVerticalByStates" resultType="int">
+        SELECT COUNT(*)
+        FROM sci_horizontal_apply_vertical
+        WHERE state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+        <include refid="verticalYearCondition"/>
+    </select>
+
+    <select id="countVerticalByDeptAndStatesWithChildren" resultType="int">
+        SELECT COUNT(*)
+        FROM sci_horizontal_apply_vertical a
+        JOIN sys_user u ON a.user_id = u.user_id
+        WHERE <include refid="deptWithChildrenCondition"/>
+        AND a.state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+        <include refid="verticalAliasYearCondition"/>
+    </select>
+
+    <select id="countVerticalByDeptAndStates" resultType="int">
+        SELECT COUNT(*)
+        FROM sci_horizontal_apply_vertical a
+        JOIN sys_user u ON a.user_id = u.user_id
+        WHERE u.dept_id = #{deptId}
+        AND a.state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+        <include refid="verticalAliasYearCondition"/>
+    </select>
+
+    <select id="countVerticalByUserAndStates" resultType="int">
+        SELECT COUNT(*)
+        FROM sci_horizontal_apply_vertical
+        WHERE user_id = #{userId}
+        AND state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+        <include refid="verticalYearCondition"/>
+    </select>
+
+    <!-- 论文：首页当前队列统计 -->
+    <select id="countPaperByStates" resultType="int">
+        SELECT COUNT(*)
+        FROM sci_paper_a
+        WHERE state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+        AND YEAR(DATE_ADD(publication_time,INTERVAL 1 MONTH)) = #{year}
+    </select>
+
+    <select id="countPaperByDeptAndStatesWithChildren" resultType="int">
+        SELECT COUNT(*)
+        FROM sci_paper_a a
+        JOIN sys_user u ON a.user_id = u.user_id
+        WHERE <include refid="deptWithChildrenCondition"/>
+        AND a.state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+        AND YEAR(DATE_ADD(a.publication_time,INTERVAL 1 MONTH)) = #{year}
+    </select>
+
+    <select id="countPaperByDeptAndStates" resultType="int">
+        SELECT COUNT(*)
+        FROM sci_paper_a a
+        JOIN sys_user u ON a.user_id = u.user_id
+        WHERE u.dept_id = #{deptId}
+        AND a.state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+        AND YEAR(DATE_ADD(a.publication_time,INTERVAL 1 MONTH)) = #{year}
+    </select>
+
+    <select id="countPaperByUserAndStates" resultType="int">
+        SELECT COUNT(*)
+        FROM sci_paper_a
+        WHERE user_id = #{userId}
+        AND state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+        AND YEAR(DATE_ADD(publication_time,INTERVAL 1 MONTH)) = #{year}
+    </select>
+
+    <!-- 成果转化：首页当前队列统计 -->
+    <select id="countAchievementByStates" resultType="int">
+        SELECT COUNT(*)
+        FROM sci_IntraSchPro_apply
+        WHERE state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+        AND YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}
+    </select>
+
+    <select id="countAchievementByDeptAndStatesWithChildren" resultType="int">
+        SELECT COUNT(*)
+        FROM sci_IntraSchPro_apply a
+        JOIN sys_user u ON a.user_id = u.user_id
+        WHERE <include refid="deptWithChildrenCondition"/>
+        AND a.state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+        AND YEAR(DATE_ADD(a.signing_data,INTERVAL 1 MONTH)) = #{year}
+    </select>
+
+    <select id="countAchievementByDeptAndStates" resultType="int">
+        SELECT COUNT(*)
+        FROM sci_IntraSchPro_apply a
+        JOIN sys_user u ON a.user_id = u.user_id
+        WHERE u.dept_id = #{deptId}
+        AND a.state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+        AND YEAR(DATE_ADD(a.signing_data,INTERVAL 1 MONTH)) = #{year}
+    </select>
+
+    <select id="countAchievementByUserAndStates" resultType="int">
+        SELECT COUNT(*)
+        FROM sci_IntraSchPro_apply
+        WHERE (
+            user_id = #{userId}
+            OR first_person_id = #{userId}
+            OR second_person_id = #{userId}
+            OR third_person_id = #{userId}
+            OR fourth_person_id = #{userId}
+        )
+        AND state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+        AND YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = #{year}
+    </select>
+
+    <!-- 教材软著：首页当前队列统计 -->
+    <select id="countTextbookByStates" resultType="int">
+        SELECT COUNT(*)
+        FROM sci_jiaocairuanzhu
+        WHERE state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+        AND YEAR(DATE_ADD(chubanshijian,INTERVAL 1 MONTH)) = #{year}
+    </select>
+
+    <select id="countTextbookByDeptAndStatesWithChildren" resultType="int">
+        SELECT COUNT(*)
+        FROM sci_jiaocairuanzhu a
+        JOIN sys_user u ON a.user_id = u.user_id
+        WHERE <include refid="deptWithChildrenCondition"/>
+        AND a.state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+        AND YEAR(DATE_ADD(a.chubanshijian,INTERVAL 1 MONTH)) = #{year}
+    </select>
+
+    <select id="countTextbookByDeptAndStates" resultType="int">
+        SELECT COUNT(*)
+        FROM sci_jiaocairuanzhu a
+        JOIN sys_user u ON a.user_id = u.user_id
+        WHERE u.dept_id = #{deptId}
+        AND a.state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+        AND YEAR(DATE_ADD(a.chubanshijian,INTERVAL 1 MONTH)) = #{year}
+    </select>
+
+    <select id="countTextbookByUserAndStates" resultType="int">
+        SELECT COUNT(*)
+        FROM sci_jiaocairuanzhu
+        WHERE user_id = #{userId}
+        AND state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+        AND YEAR(DATE_ADD(chubanshijian,INTERVAL 1 MONTH)) = #{year}
+    </select>
+
+    <!-- 专利软著：首页当前队列统计 -->
+    <select id="countPatentByStates" resultType="int">
+        SELECT COUNT(*)
+        FROM sci_zhuanliruanzhu
+        WHERE state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+        AND YEAR(DATE_ADD(huopishijain,INTERVAL 1 MONTH)) = #{year}
+    </select>
+
+    <select id="countPatentByDeptAndStatesWithChildren" resultType="int">
+        SELECT COUNT(*)
+        FROM sci_zhuanliruanzhu a
+        JOIN sys_user u ON a.user_id = u.user_id
+        WHERE <include refid="deptWithChildrenCondition"/>
+        AND a.state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+        AND YEAR(DATE_ADD(a.huopishijain,INTERVAL 1 MONTH)) = #{year}
+    </select>
+
+    <select id="countPatentByDeptAndStates" resultType="int">
+        SELECT COUNT(*)
+        FROM sci_zhuanliruanzhu a
+        JOIN sys_user u ON a.user_id = u.user_id
+        WHERE u.dept_id = #{deptId}
+        AND a.state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+        AND YEAR(DATE_ADD(a.huopishijain,INTERVAL 1 MONTH)) = #{year}
+    </select>
+
+    <select id="countPatentByUserAndStates" resultType="int">
+        SELECT COUNT(*)
+        FROM sci_zhuanliruanzhu
+        WHERE user_id = #{userId}
+        AND state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+        AND YEAR(DATE_ADD(huopishijain,INTERVAL 1 MONTH)) = #{year}
+    </select>
+
+    <!-- 奖励：首页当前队列统计 -->
+    <select id="countRewardByStates" resultType="int">
+        SELECT COUNT(*)
+        FROM sys_reward
+        WHERE state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+        AND YEAR(DATE_ADD(reward_time,INTERVAL 1 MONTH)) = #{year}
+    </select>
+
+    <select id="countRewardByDeptAndStatesWithChildren" resultType="int">
+        SELECT COUNT(*)
+        FROM sys_reward a
+        JOIN sys_user u ON a.user_id = u.user_id
+        WHERE <include refid="deptWithChildrenCondition"/>
+        AND a.state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+        AND YEAR(DATE_ADD(a.reward_time,INTERVAL 1 MONTH)) = #{year}
+    </select>
+
+    <select id="countRewardByDeptAndStates" resultType="int">
+        SELECT COUNT(*)
+        FROM sys_reward a
+        JOIN sys_user u ON a.user_id = u.user_id
+        WHERE u.dept_id = #{deptId}
+        AND a.state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+        AND YEAR(DATE_ADD(a.reward_time,INTERVAL 1 MONTH)) = #{year}
+    </select>
+
+    <select id="countRewardByUserAndStates" resultType="int">
+        SELECT COUNT(*)
+        FROM sys_reward
+        WHERE user_id = #{userId}
+        AND state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+        AND YEAR(DATE_ADD(reward_time,INTERVAL 1 MONTH)) = #{year}
+    </select>
+
+    <!-- 讲座报告：首页当前队列统计 -->
+    <select id="countLectureByStates" resultType="int">
+        SELECT COUNT(*)
+        FROM sci_lecture_report
+        WHERE state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+        AND YEAR(DATE_ADD(report_time,INTERVAL 1 MONTH)) = #{year}
+    </select>
+
+    <select id="countLectureByDeptAndStatesWithChildren" resultType="int">
+        SELECT COUNT(*)
+        FROM sci_lecture_report a
+        JOIN sys_user u ON a.user_id = u.user_id
+        WHERE <include refid="deptWithChildrenCondition"/>
+        AND a.state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+        AND YEAR(DATE_ADD(a.report_time,INTERVAL 1 MONTH)) = #{year}
+    </select>
+
+    <select id="countLectureByDeptAndStates" resultType="int">
+        SELECT COUNT(*)
+        FROM sci_lecture_report a
+        JOIN sys_user u ON a.user_id = u.user_id
+        WHERE u.dept_id = #{deptId}
+        AND a.state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+        AND YEAR(DATE_ADD(a.report_time,INTERVAL 1 MONTH)) = #{year}
+    </select>
+
+    <select id="countLectureByUserAndStates" resultType="int">
+        SELECT COUNT(*)
+        FROM sci_lecture_report
+        WHERE user_id = #{userId}
+        AND state IN
+        <foreach item="state" collection="states" open="(" separator="," close=")">
+            #{state}
+        </foreach>
+        AND YEAR(DATE_ADD(report_time,INTERVAL 1 MONTH)) = #{year}
+    </select>
+
+</mapper>
