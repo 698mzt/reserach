@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -39,6 +40,7 @@ public class DataSynchronizeTask {
    * 包括横向课题和纵向课题数据
    */
 //  todo:积分同步需要写（横向、纵向定时任务写完了）
+  @Transactional(rollbackFor = Exception.class)
   public void synchronizeAll() {
     // 同步用户数据
     SynchronizeUser();

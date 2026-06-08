@@ -236,10 +236,10 @@
             FROM sci_horizontal_apply sha
             JOIN sci_user_score_history ush ON sha.id = ush.apply_id
             WHERE
-            -- 条件1：change_status为立项 且 signing_data在2025年
-            (ush.change_status = '立项' AND YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = 2025)
-            -- 条件2：change_status为结项 且 validity_Date在2025年
-            OR (ush.change_status = '结项' AND YEAR(DATE_ADD(validity_Date,INTERVAL 1 MONTH)) = 2025)
+            -- 条件1：change_status为立项
+            (ush.change_status = '立项')
+            -- 条件2：change_status为结项
+            OR (ush.change_status = '结项')
             GROUP BY ush.user_id
             ) h ON a.userId = h.user_id
             SET a.hxkt = COALESCE(h.total_score, 0)
@@ -287,10 +287,10 @@
             JOIN sci_horizontal_apply_vertical shav ON ush.vertical_id = shav.id
             WHERE shav.top_type not in (6,7)
             AND (
-                -- 条件1：change_status为立项 且 signing_data在2025年
-                (ush.change_status = '立项' AND YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = 2025)
-                -- 条件2：change_status为结项 且 validity_Date在2025年
-                OR (ush.change_status = '结项' AND YEAR(DATE_ADD(validity_data,INTERVAL 1 MONTH)) = 2025)
+                -- 条件1：change_status为立项
+                (ush.change_status = '立项')
+                -- 条件2：change_status为结项
+                OR (ush.change_status = '结项')
             )
             GROUP BY ush.user_id
             ) h ON a.userId = h.user_id
@@ -309,10 +309,10 @@
             JOIN sci_horizontal_apply_vertical shav ON ush.vertical_id = shav.id
             WHERE shav.top_type in (6,7)
             AND (
-                -- 条件1：change_status为立项 且 signing_data在2025年
-                (ush.change_status = '立项' AND YEAR(DATE_ADD(signing_data,INTERVAL 1 MONTH)) = 2025)
-                -- 条件2：change_status为结项 且 validity_Date在2025年
-                OR (ush.change_status = '结项' AND YEAR(DATE_ADD(validity_data,INTERVAL 1 MONTH)) = 2025)
+                -- 条件1：change_status为立项
+                (ush.change_status = '立项')
+                -- 条件2：change_status为结项
+                OR (ush.change_status = '结项')
             )
             GROUP BY ush.user_id
             ) h ON a.userId = h.user_id
@@ -458,14 +458,14 @@
             GROUP BY user_id
             ) AS stats ON a.userId = stats.user_id
             SET
-                a.sjjxcgj = COALESCE(stats.fenlei_1, 0),
-                a.sjkxjsj = COALESCE(stats.fenlei_2, 0),
-                a.stjjzrkxlpj = COALESCE(stats.fenlei_3, 0),
-                a.stjjsklpj = COALESCE(stats.fenlei_4, 0),
-                a.xjjxcgj = COALESCE(stats.fenlei_5, 0),
-                a.yyxkyxjcgj = COALESCE(stats.fenlei_6, 0),
-                a.xhjjxcgj = COALESCE(stats.fenlei_7, 0),
-                a.xhjkycgj = COALESCE(stats.fenlei_8, 0)
+                a.sjjxcgj = COALESCE(stats.fenlei_1, '0个'),
+                a.sjkxjsj = COALESCE(stats.fenlei_2, '0个'),
+                a.stjjzrkxlpj = COALESCE(stats.fenlei_3, '0个'),
+                a.stjjsklpj = COALESCE(stats.fenlei_4, '0个'),
+                a.xjjxcgj = COALESCE(stats.fenlei_5, '0个'),
+                a.yyxkyxjcgj = COALESCE(stats.fenlei_6, '0个'),
+                a.xhjjxcgj = COALESCE(stats.fenlei_7, '0个'),
+                a.xhjkycgj = COALESCE(stats.fenlei_8, '0个')
     </update>
     <update id="SynchronizeScoreJL">
         -- 更新alltotle_score表中的奖励总积分

@@ -530,7 +530,7 @@
             </if>
             <!-- 年度过滤 -->
             <if test="year != null and year != ''">
-                AND YEAR(signing_data) = #{year}
+                AND YEAR(DATE_ADD(signing_data, INTERVAL 1 MONTH)) = #{year}
             </if>
         </where>
     </sql>
@@ -540,7 +540,7 @@
         SELECT COUNT(*)
         FROM sci_horizontal_apply
         WHERE state = #{state}
-                  AND YEAR(signing_data) = #{year}
+                  AND YEAR(DATE_ADD(signing_data, INTERVAL 1 MONTH)) = #{year}
     </select>
 
     <select id="countByStates" resultType="int">
@@ -549,7 +549,7 @@
         <foreach item="state" collection="states" open="(" separator="," close=")">
             #{state}
         </foreach>
-        AND YEAR(signing_data) = #{year}
+        AND YEAR(DATE_ADD(signing_data, INTERVAL 1 MONTH)) = #{year}
     </select>
 
     <select id="selectCreditedAmount" resultMap="creditedAmountResult">
@@ -624,7 +624,7 @@
         <foreach item="state" collection="states" open="(" separator="," close=")">
             #{state}
         </foreach>
-        AND YEAR(a.signing_data) = #{year}
+        AND YEAR(DATE_ADD(a.signing_data, INTERVAL 1 MONTH)) = #{year}
     </select>
 
 
@@ -638,7 +638,7 @@
         <foreach item="state" collection="states" open="(" separator="," close=")">
             #{state}
         </foreach>
-        AND YEAR(a.signing_data) = #{year}
+        AND YEAR(DATE_ADD(a.signing_data, INTERVAL 1 MONTH)) = #{year}
     </select>
 
     <!--    <select id="countByDeptAndStates" resultType="int">-->
@@ -662,7 +662,7 @@
         <foreach item="state" collection="states" open="(" separator="," close=")">
             #{state}
         </foreach>
-        AND YEAR(signing_data) = #{year}
+        AND YEAR(DATE_ADD(signing_data, INTERVAL 1 MONTH)) = #{year}
     </select>
 
 

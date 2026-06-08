@@ -22,6 +22,7 @@ import org.apache.shiro.authz.annotation.Logical;
 
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -686,6 +687,16 @@ public class SciHorizontalApplyController extends BaseController
      */
     private String getUserRoleKey()
     {
+        // 1. 优先从 session 获取活动角色（角色切换后的当前角色）
+        Long activeRoleId = getActiveRoleIdFromSession();
+        if (activeRoleId != null) {
+            for (SysRole r : getSysUser().getRoles()) {
+                if (activeRoleId.equals(r.getRoleId())) {
+                    return mapRoleKey(r.getRoleKey());
+                }
+            }
+        }
+        // 2. 无活动角色时，使用原有优先级逻辑
         List<SysRole> roles = getSysUser().getRoles();
         for (SysRole r : roles) {
             if ("sci_tesearch".equals(r.getRoleKey())) {
@@ -697,6 +708,30 @@ public class SciHorizontalApplyController extends BaseController
             }
         }
         return "teacher";
+    }
+
+    /**
+     * 将角色键映射为页面使用的角色标识
+     */
+    private String mapRoleKey(String roleKey) {
+        if ("sci_tesearch".equals(roleKey)) return "sci_tesearch";
+        else if ("research".equals(roleKey)) return "research";
+        else if (TEACHER_ROLES.contains(roleKey)) return "dept_teacher";
+        return roleKey;
+    }
+
+    /**
+     * 从 Shiro Session 获取当前活动角色 ID（角色切换后设置）
+     */
+    private Long getActiveRoleIdFromSession() {
+        Subject subject = SecurityUtils.getSubject();
+        if (subject != null) {
+            Session session = subject.getSession(false);
+            if (session != null) {
+                return (Long) session.getAttribute("activeRoleId");
+            }
+        }
+        return null;
     }
 
     /**
