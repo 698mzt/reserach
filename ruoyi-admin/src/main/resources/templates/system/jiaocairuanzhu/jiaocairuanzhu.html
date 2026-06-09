@@ -632,6 +632,7 @@
   var isResearch = [[${@permission.isAnyRoles('research')}]];
   var isSciTesearch = [[${@permission.isAnyRoles('sci_tesearch')}]];
   var isNormalTeacher = [[${@permission.isAnyRoles('teacher')}]];
+  var isAdmin = [[${@permission.isAnyRoles('admin')}]];
 
   var prefix = ctx + "system/jiaocairuanzhu";
 
@@ -974,7 +975,13 @@
                       if (action.actionKey === 'view' || action.actionKey === 'viewProcess') {
                           secondRowActions.push(action);
                       } else {
-                          firstRowActions.push(action);
+                          if (isAdmin) {
+                              if (action.actionKey !== 'submit' && action.actionKey !== 'edit' && action.actionKey !== 'remove') {
+                                  firstRowActions.push(action);
+                              }
+                          } else {
+                              firstRowActions.push(action);
+                          }
                       }
                   });
               } else {
@@ -994,6 +1001,10 @@
               }
               // 2. 教研室管理员在科研处审批状态下
               else if (isResearch && kyrevokeFlag && (row.state === 'TEXTBOOK_KYC_AUDIT' || row.state === '2' || row.state === '4')) {
+                  showRecall = true;
+              }
+              // 3. 教研室驳回后，教研室可撤回（回到驳回前的审批中状态）
+              else if (isResearch && kyrevokeFlag && (row.state === 'TEXTBOOK_REJECTED' || row.state === '3' || row.state === '5' || row.state === '7')) {
                   showRecall = true;
               }
               

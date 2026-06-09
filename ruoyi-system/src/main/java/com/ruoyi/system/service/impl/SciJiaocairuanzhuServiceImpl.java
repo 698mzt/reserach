@@ -727,6 +727,29 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
             return 0;
         }
 
+        String newState;
+        
+        // 处理驳回状态的撤回：直接回退到草稿状态
+        if (oldState.equals("TEXTBOOK_REJECTED") || oldState.equals("3") || oldState.equals("5") || oldState.equals("7")) {
+            newState = "TEXTBOOK_DRAFT";
+            
+            // 保存审批历史记录
+            saveApprovalHistory(id, oldState, newState, uid, "recall", remark);
+            
+            // 更改状态
+            int a = sciJiaocairuanzhuMapper.hxPass(id.toString(), newState);
+
+            // 插入日志
+            SciJiaocairuanzhuPiyue sciJiaocairuanzhuPiyue = new SciJiaocairuanzhuPiyue();
+            sciJiaocairuanzhuPiyue.setUid(uid);
+            sciJiaocairuanzhuPiyue.setJiaocai_id(id);
+            sciJiaocairuanzhuPiyue.setConcate(remark);
+            sciJiaocairuanzhuPiyue.setState("撤回（驳回状态）");
+            sciJiaocairuanzhuPiyueMapper.insertSciJiaocairuanzhuPiyue(sciJiaocairuanzhuPiyue);
+            
+            return a;
+        }
+
         // 构建审批请求
         ApprovalRequest request = ApprovalRequest.of(
                 "textbook_approval",

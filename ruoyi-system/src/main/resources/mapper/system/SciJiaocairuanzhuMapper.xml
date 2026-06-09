@@ -313,7 +313,7 @@
         <if test="mingcheng != null  and mingcheng != ''"> and mingcheng like concat('%', #{mingcheng}, '%')</if>
         <if test="chubanshijian != null "> and chubanshijian = #{chubanshijian}</if>
         <if test="fenlei != null  and fenlei != ''"> and fenlei = #{fenlei}</if>
-        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(createtime,INTERVAL 1 MONTH)) = #{year}</if>
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(chubanshijian,INTERVAL 1 MONTH)) = #{year}</if>
         and (s.user_id = #{uid} OR EXISTS (SELECT 1 FROM sci_jiaocairuanzhu_member m WHERE m.jiaocai_id = s.id AND m.member_id = CAST(#{uid} AS CHAR)) OR (1=1 ${params.dataScope}))
         <if test="params.orderByColumn != null and params.orderByColumn != ''">
             order by ${params.orderByColumn} ${params.isAsc}
