@@ -52,6 +52,9 @@
         <if test="rewardName != null and rewardName != ''">
             and s.reward_name like concat('%', #{rewardName}, '%')
         </if>
+        <if test="year != null and year != ''">
+            and YEAR(DATE_ADD(s.reward_time, INTERVAL 1 MONTH)) = #{year}
+        </if>
         order by state ,reward_time desc
     </select>
 
@@ -65,6 +68,9 @@
         </if>
         <if test="userName != null and userName != ''">
             and u.user_name like concat('%', #{userName}, '%')
+        </if>
+        <if test="year != null and year != ''">
+            and YEAR(DATE_ADD(s.reward_time, INTERVAL 1 MONTH)) = #{year}
         </if>
         ${params.dataScope}
         </where>
@@ -83,6 +89,9 @@
         </if>
         <if test="dname != null and dname != ''">
             and d.dept_name like concat('%', #{dname}, '%')
+        </if>
+        <if test="year != null and year != ''">
+            and YEAR(DATE_ADD(s.reward_time, INTERVAL 1 MONTH)) = #{year}
         </if>
         ${params.dataScope}
         </where>
@@ -104,6 +113,9 @@
         </if>
         <if test="yname != null and yname != ''">
             and p.dept_name like concat('%', #{yname}, '%')
+        </if>
+        <if test="year != null and year != ''">
+            and YEAR(DATE_ADD(s.reward_time, INTERVAL 1 MONTH)) = #{year}
         </if>
         ${params.dataScope}
         </where>
@@ -130,6 +142,10 @@
             <!-- 学院查询 -->
             <if test="yname != null and yname != ''">
                 and p.dept_name like concat('%', #{yname}, '%')
+            </if>
+            <!-- 年份过滤（参考论文模块实现） -->
+            <if test="year != null and year != ''">
+                and YEAR(DATE_ADD(s.reward_time, INTERVAL 1 MONTH)) = #{year}
             </if>
             <if test="rewardTime != null "> and s.reward_time = #{rewardTime}</if>
             <if test="rewardJibie != null  and rewardJibie != ''"> and s.reward_jibie like concat('%', #{rewardJibie}, '%')</if>
@@ -264,6 +280,9 @@
         <if test="yname != null and yname != ''">
             and p.dept_name like concat('%', #{yname}, '%')
         </if>
+        <if test="year != null and year != ''">
+            and YEAR(DATE_ADD(s.reward_time, INTERVAL 1 MONTH)) = #{year}
+        </if>
         <if test="rewardTime != null "> and s.reward_time = #{rewardTime}</if>
         <if test="state != null and state != ''"> and s.state = #{state}</if>
         ${params.dataScope}
@@ -290,6 +309,9 @@
         <if test="yname != null and yname != ''">
             and p.dept_name like concat('%', #{yname}, '%')
         </if>
+        <if test="year != null and year != ''">
+            and YEAR(DATE_ADD(s.reward_time, INTERVAL 1 MONTH)) = #{year}
+        </if>
         <if test="rewardTime != null "> and s.reward_time = #{rewardTime}</if>
         <if test="state != null  and state != ''"> and s.state = #{state}</if>
         ${params.dataScope}
@@ -314,6 +336,9 @@
         </if>
         <if test="yname != null and yname != ''">
             and p.dept_name like concat('%', #{yname}, '%')
+        </if>
+        <if test="year != null and year != ''">
+            and YEAR(DATE_ADD(s.reward_time, INTERVAL 1 MONTH)) = #{year}
         </if>
         <if test="rewardTime != null "> and s.reward_time = #{rewardTime}</if>
         <if test="state != null and state != ''"> and s.state = #{state}</if>
@@ -502,6 +527,9 @@
         LEFT JOIN sys_dept d ON u.dept_id = d.dept_id
         LEFT JOIN sys_dept p ON d.parent_id = p.dept_id
         WHERE rp.persion_id = #{persionId}
+        <if test="year != null and year != ''">
+            and YEAR(DATE_ADD(s.reward_time, INTERVAL 1 MONTH)) = #{year}
+        </if>
         ORDER BY s.reward_time DESC
     </select>
 

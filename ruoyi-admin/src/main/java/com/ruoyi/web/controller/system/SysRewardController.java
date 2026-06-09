@@ -76,19 +76,25 @@ public class SysRewardController extends BaseController
      * 3. 合并两个查询结果并去重，返回完整的奖励列表
      * 
      * @param sysReward 奖励查询条件
+     * @param year 年份过滤条件
      * @return 奖励列表（包含创建的和参与的奖励）
      */
     @PostMapping("/list")
     @ResponseBody
-    public TableDataInfo list(SysReward sysReward) {
+    public TableDataInfo list(SysReward sysReward, 
+                              @RequestParam(value = "year", required = false) String year,
+                              @RequestParam(value = "years", required = false) String years) {
+        // 支持多种参数名：year 和 years
+        String actualYear = org.springframework.util.StringUtils.hasText(year) ? year : years;
         sysReward.setUid(getUserId());
+        sysReward.setYear(actualYear);
         startPage();
 
         // 1. 查询用户自己创建的奖励
         List<SysReward> createdList = sysRewardService.selectSysRewardList(sysReward);
 
-        // 2. 查询用户作为成员参与的奖励
-        List<SysReward> participatedList = sysRewardService.selectRewardsByPersionId(getUserId().toString());
+        // 2. 查询用户作为成员参与的奖励（带年份过滤）
+        List<SysReward> participatedList = sysRewardService.selectRewardsByPersionId(getUserId().toString(), actualYear);
 
         // 3. 合并结果并去重（避免同一奖励被重复显示）
         for (SysReward reward : participatedList) {
@@ -113,14 +119,18 @@ public class SysRewardController extends BaseController
             @RequestParam(value = "userName", required = false) String userName,
             @RequestParam(value = "dname", required = false) String dname,
             @RequestParam(value = "yname", required = false) String yname,
+            @RequestParam(value = "year", required = false) String year,
+            @RequestParam(value = "years", required = false) String years,
             SysReward sysReward) {
         // 把额外参数塞进 SysReward 对象
         sysReward.setRewardName(rewardName);
         sysReward.setUserName(userName);
         sysReward.setDname(dname);
         sysReward.setYname(yname);
-        // 只传 SysReward 调用原 list 方法
-        return list(sysReward);
+        // 支持多种参数名：year 和 years
+        String actualYear = org.springframework.util.StringUtils.hasText(year) ? year : years;
+        // 调用 list 方法，传递 year 参数
+        return list(sysReward, actualYear, null);
     }
 
     /**
