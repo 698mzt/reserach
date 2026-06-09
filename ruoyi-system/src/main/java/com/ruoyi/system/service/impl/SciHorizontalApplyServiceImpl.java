@@ -20,6 +20,7 @@ import com.ruoyi.system.service.IPageRenderService;
 import com.ruoyi.system.service.ISysMenuService;
 import com.ruoyi.system.service.SciHorizontalReamountService;
 import com.ruoyi.system.service.IApprovalProcessService;
+import com.ruoyi.system.service.ISysApprovalHistoryService;
 import com.ruoyi.system.service.ISysUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -390,6 +391,26 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
             return nodeCode + "_AUDIT";
         }
         return nodeCode;
+    }
+
+    /**
+     * 记录驳回状态撤回的审批历史（绕过审批流引擎时使用）
+     */
+    private void saveRecallHistory(String processCode, Long businessId,
+            Long operatorId, String operatorName, String operatorDept,
+            String oldState, String newState, String comment) {
+        SysApprovalHistory history = new SysApprovalHistory();
+        history.setProcessCode(processCode);
+        history.setBusinessId(businessId);
+        history.setAction("recall");
+        history.setOperatorId(operatorId);
+        history.setOperatorName(operatorName);
+        history.setOperatorDept(operatorDept);
+        history.setOldState(oldState);
+        history.setNewState(newState);
+        history.setComment(comment);
+        history.setCreateTime(new Date());
+        sysApprovalHistoryService.insertSysApprovalHistory(history);
     }
 
     /**
@@ -2066,6 +2087,9 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
     @Autowired
     private IApprovalProcessService approvalProcessService;
 
+    @Autowired
+    private ISysApprovalHistoryService sysApprovalHistoryService;
+
     /**
      * 提交立项申请审批
      * <p>
@@ -2297,6 +2321,28 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
 
         if (!currentState.equals(apply.getState())) {
             return ApprovalResult.fail("申请状态已变更，请刷新后重试");
+        }
+
+        // 驳回状态为合成终态（由 rejectApply 统一修正），不经过审批流直接撤回
+        if (StringUtils.equals(currentState, "HORIZONTAL_APPLY_REJECTED")) {
+            // 从审批历史中查询最近一次驳回记录，获取驳回前的状态
+            SysApprovalHistory lastReject = sysApprovalHistoryService.selectLastRejectByBusinessId(
+                    "HORIZONTAL_APPLY", applyId.longValue());
+            String recallState;
+            if (lastReject != null && StringUtils.isNotEmpty(lastReject.getOldState())) {
+                // oldState 是审批节点编码（如 HORIZONTAL_APPLY_JYS），需转为业务状态编码
+                recallState = nodeCodeToState(lastReject.getOldState());
+            } else {
+                // 无历史记录时回退到草稿
+                recallState = "HORIZONTAL_APPLY_DRAFT";
+            }
+            sciHorizontalApplyMapper.updateState(applyId, recallState);
+            // 记录审批历史
+            saveRecallHistory("HORIZONTAL_APPLY", applyId.longValue(), operatorId, operatorName,
+                    operatorDept, currentState, recallState, comment);
+            log.info("立项申请撤回成功(从驳回状态): applyId={}, recallState={}, operator={}",
+                    applyId, recallState, operatorName);
+            return ApprovalResult.ok("撤回成功", recallState);
         }
 
         String nodeCode = stateToNodeCode(currentState);
@@ -2556,6 +2602,28 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
 
         if (!currentState.equals(apply.getState())) {
             return ApprovalResult.fail("申请状态已变更，请刷新后重试");
+        }
+
+        // 驳回状态为合成终态（由 rejectOver 统一修正），不经过审批流直接撤回
+        if (StringUtils.equals(currentState, "HORIZONTAL_OVER_REJECTED")) {
+            // 从审批历史中查询最近一次驳回记录，获取驳回前的状态
+            SysApprovalHistory lastReject = sysApprovalHistoryService.selectLastRejectByBusinessId(
+                    "HORIZONTAL_OVER", applyId.longValue());
+            String recallState;
+            if (lastReject != null && StringUtils.isNotEmpty(lastReject.getOldState())) {
+                // oldState 是审批节点编码（如 HORIZONTAL_OVER_JYS），需转为业务状态编码
+                recallState = nodeCodeToState(lastReject.getOldState());
+            } else {
+                // 无历史记录时回退到草稿
+                recallState = "HORIZONTAL_OVER_DRAFT";
+            }
+            sciHorizontalApplyMapper.updateState(applyId, recallState);
+            // 记录审批历史
+            saveRecallHistory("HORIZONTAL_OVER", applyId.longValue(), operatorId, operatorName,
+                    operatorDept, currentState, recallState, comment);
+            log.info("结项申请撤回成功(从驳回状态): applyId={}, recallState={}, operator={}",
+                    applyId, recallState, operatorName);
+            return ApprovalResult.ok("撤回成功", recallState);
         }
 
         String nodeCode = stateToNodeCode(currentState);
