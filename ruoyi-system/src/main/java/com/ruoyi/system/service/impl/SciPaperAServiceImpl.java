@@ -13,12 +13,14 @@ import com.ruoyi.common.annotation.DataScope;
 import com.ruoyi.common.utils.DataScopeUtils;
 import com.ruoyi.common.core.domain.entity.SysRole;
 import com.ruoyi.common.core.domain.entity.SysUser;
-import com.ruoyi.common.utils.ShiroUtils;
 import com.ruoyi.system.domain.*;
 import com.ruoyi.system.mapper.PaperUserScoreServiceMapper;
 import com.ruoyi.system.mapper.SciPaperACfgMapper;
+import com.ruoyi.common.utils.ShiroUtils;
+import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.system.service.IApprovalProcessService;
 import com.ruoyi.system.service.IPageRenderService;
+
 import com.ruoyi.system.service.ISysUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -49,6 +51,7 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
     private IApprovalProcessService approvalProcessService;
     @Autowired
     private IPageRenderService pageRenderService;
+
 
     /**
      * 查询论文

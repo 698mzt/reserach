@@ -10,6 +10,7 @@ import com.ruoyi.system.domain.ApprovalResult;
 import com.ruoyi.system.domain.SysApprovalProcess;
 import com.ruoyi.system.domain.SysApprovalNode;
 import com.ruoyi.system.domain.SysApprovalHistory;
+import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.system.mapper.SysApprovalProcessMapper;
 import com.ruoyi.system.service.IApprovalProcessService;
 import com.ruoyi.system.service.ISysApprovalNodeService;
@@ -386,6 +387,14 @@ public class ApprovalProcessServiceImpl implements IApprovalProcessService {
      * - 中间/末尾节点：优先取 currentNode.rejectState，为空则取前一节点的 enterState
      * </p>
      */
+    /**
+     * 撤回审批
+     * <p>
+     * 从审批历史记录中查找导致当前状态的最近一次操作（审批通过/驳回/提交），
+     * 恢复业务状态到该操作前的状态（oldState）。该操作人（及系统管理员）可撤回。
+     * 不再依赖节点配置的 rejectState 字段。
+     * </p>
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public ApprovalResult recall(ApprovalRequest request) {
@@ -399,32 +408,53 @@ public class ApprovalProcessServiceImpl implements IApprovalProcessService {
         }
 
         try {
-            ApprovalResult nodeResult = getCurrentNode(request.getProcessCode(), request.getCurrentState());
-            if (!nodeResult.isSuccess()) {
-                return nodeResult;
+            // 查询最近一次导致当前状态的审批历史记录（排除撤回操作自身避免循环）
+            SysApprovalHistory lastHistory = sysApprovalHistoryService.selectLastRecallableByBusinessId(
+                    request.getProcessCode(), request.getBusinessId(), request.getCurrentState());
+
+            if (lastHistory == null || StringUtils.isEmpty(lastHistory.getOldState())) {
+                return ApprovalResult.fail("未找到可撤回的历史记录，或历史记录的oldState为空");
             }
 
-            List<SysApprovalNode> nodeList = nodeResult.getNodeList();
-            SysApprovalNode currentNode = nodeResult.getCurrentNode();
-
-            if (!checkNodePermission(currentNode, request)) {
-                return ApprovalResult.fail("当前用户无权撤回节点[" + currentNode.getNodeNm() + "]");
+            // 权限校验：仅该条历史记录的操作人可撤回（系统管理员除外）
+            if (lastHistory.getOperatorId() != null
+                    && !lastHistory.getOperatorId().equals(request.getOperatorId())
+                    && !SysUser.isAdmin(request.getOperatorId())) {
+                return ApprovalResult.fail("仅操作人可撤回该记录");
             }
 
-            int currentNodeIndex = findNodeIndex(nodeList, currentNode);
-            if (currentNodeIndex == -1) {
-                return ApprovalResult.fail("未找到当前节点在流程中的位置");
+            String recallState = lastHistory.getOldState();
+
+            // 保存撤回审批历史
+            SysApprovalHistory history = new SysApprovalHistory();
+            history.setProcessCode(request.getProcessCode());
+            history.setBusinessId(request.getBusinessId());
+            history.setAction("recall");
+            history.setOperatorId(request.getOperatorId());
+            history.setOperatorName(request.getOperatorName());
+            history.setOperatorDept(request.getOperatorDept());
+            history.setOldState(request.getCurrentState());
+            history.setNewState(recallState);
+            // 审批意见：优先使用请求传入的意见，若为空则使用导致当前状态的历史记录的审批意见
+            if (StringUtils.isNotEmpty(request.getComment())) {
+                history.setComment(request.getComment());
+            } else if (StringUtils.isNotEmpty(lastHistory.getComment())) {
+                history.setComment(lastHistory.getComment());
+            }
+            history.setCreateTime(new Date());
+
+            // 设置节点信息：节点名称为导致当前状态的历史记录中的oldState对应的节点名称
+            // 即"驳回前的节点"，与驳回操作的节点保持一致
+            if (lastHistory.getNodeId() != null) {
+                history.setNodeId(lastHistory.getNodeId());
+            }
+            if (StringUtils.isNotEmpty(lastHistory.getNodeName())) {
+                history.setNodeName(lastHistory.getNodeName());
             }
 
-            String recallState = computeRecallState(nodeList, currentNode, currentNodeIndex, request.getCurrentState());
-            if (StringUtils.isEmpty(recallState)) {
-                return ApprovalResult.fail("无法确定撤回目标状态，请检查节点配置的rejectState");
-            }
+            sysApprovalHistoryService.insertSysApprovalHistory(history);
 
-            saveApprovalHistory(request.getProcessCode(), request.getBusinessId(), currentNode, "recall",
-                    request.getOperatorId(), request.getOperatorName(), request.getOperatorDept(),
-                    request.getCurrentState(), recallState, request.getComment());
-
+            // 更新业务表状态
             updateBusinessState(request.getProcessCode(), request.getBusinessId(), recallState);
 
             return ApprovalResult.ok("撤回成功", recallState);

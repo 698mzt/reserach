@@ -16,6 +16,10 @@ public interface SysApprovalHistoryMapper {
     public SysApprovalHistory selectLastRejectByBusinessId(@Param("processCode") String processCode,
                                                            @Param("businessId") Long businessId);
 
+    public SysApprovalHistory selectLastRecallableByBusinessId(@Param("processCode") String processCode,
+                                                               @Param("businessId") Long businessId,
+                                                               @Param("currentState") String currentState);
+
     public int insertSysApprovalHistory(SysApprovalHistory sysApprovalHistory);
 
     public int deleteSysApprovalHistoryById(Long id);

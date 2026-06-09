@@ -173,6 +173,14 @@ public class SysApprovalHistoryServiceImpl implements ISysApprovalHistoryService
     }
 
     @Override
+    public SysApprovalHistory selectLastRecallableByBusinessId(String processCode, Long businessId, String currentState) {
+        if (processCode == null || processCode.trim().isEmpty() || businessId == null || currentState == null || currentState.trim().isEmpty()) {
+            return null;
+        }
+        return sysApprovalHistoryMapper.selectLastRecallableByBusinessId(processCode, businessId, currentState);
+    }
+
+    @Override
     public int insertSysApprovalHistory(SysApprovalHistory sysApprovalHistory) {
         if (sysApprovalHistory == null) {
             return 0;
