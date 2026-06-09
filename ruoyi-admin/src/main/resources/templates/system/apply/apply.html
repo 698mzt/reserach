@@ -642,29 +642,10 @@
 
     var prefix = ctx + "system/apply";
 
-    // 获取当前用户角色信息
-    var userRole = '';
-    var userRoles = /*[[${user.roles}]]*/ [];
-    if (userRoles) {
-        for (var i = 0; i < userRoles.length; i++) {
-            var roleKey = userRoles[i].roleKey;
-            if (roleKey === 'sci_tesearch') {
-                userRole = 'sci_tesearch';  // 科研处
-                break;
-            } else if (roleKey === 'research') {
-                userRole = 'research';  // 教研室
-                break;
-            } else if (['dept_teacher', 'discuss_college', 'dzgc_college', 'yssj_college', 
-                       'student_college', 'marxism_college', 'general'].indexOf(roleKey) !== -1) {
-                userRole = 'dept_teacher';  // 学院
-                break;
-            }
-        }
-    }
-    // 默认为教师角色
-    if (!userRole) {
-        userRole = 'teacher';
-    }
+    // 获取当前用户角色信息（由后端根据 activeRoleId 确定）
+    var userRole = /*[[${role}]]*/ 'teacher';
+    // 是否是教师角色（仅有教师身份才能看到教师特有操作按钮）
+    var isTeacherRole = (userRole === 'teacher');
 
     function hasPagePermission(flag) {
         return flag !== 'hidden';
@@ -711,13 +692,13 @@
                 return hasPagePermission(editInfo) || hasPagePermission(hechaFlag);
             }
             if (key === 'edit') {
-                return owner && hasPagePermission(editFlag) && (isDraftState(state) || isRejectedState(state));
+                return isTeacherRole && owner && hasPagePermission(editFlag) && (isDraftState(state) || isRejectedState(state));
             }
             if (key === 'remove') {
-                return owner && hasPagePermission(removeFlag) && isDraftState(state);
+                return isTeacherRole && owner && hasPagePermission(removeFlag) && isDraftState(state);
             }
             if (key === 'submit') {
-                return owner && hasPagePermission(editFlag) && isDraftState(state);
+                return isTeacherRole && owner && hasPagePermission(editFlag) && isDraftState(state);
             }
             if (key === 'recall') {
                 if (isRejectedState(state)) {
@@ -753,10 +734,10 @@
                 return false;
             }
             if (key === 'overApply' || key === 'submitOver') {
-                return owner && hasPagePermission(createFlag) && isPassedState(state);
+                return isTeacherRole && owner && hasPagePermission(createFlag) && isPassedState(state);
             }
             if (key === 'reamount') {
-                return owner && hasPagePermission(editFlag);
+                return isTeacherRole && owner && hasPagePermission(editFlag);
             }
             return true;
         });

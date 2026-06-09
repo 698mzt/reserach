@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -648,6 +649,12 @@ public class PageRenderServiceImpl implements IPageRenderService {
 
         boolean isOwner = context.isOwner();
         boolean isAdmin = context.hasRole("admin");
+        // 判断当前活跃角色是否为教师角色（非管理员角色的用户以教师身份操作）
+        // 管理员角色（科研处、教研室、学院等）下不应显示教师操作按钮
+        // 系统管理员（roleKey=admin）除外，始终显示所有按钮
+        boolean isTeacherActive = isTeacherRole(context.getActiveRoleKey());
+        // 所有者是否能以教师身份操作：是系统管理员 或 当前活跃角色为教师角色
+        boolean canOwnerActAsTeacher = isAdmin || isTeacherActive;
         StateSemantic semantic = parseStateSemantic(state);
 
         // 获取模块配置（用于动态权限解析）
@@ -672,20 +679,20 @@ public class PageRenderServiceImpl implements IPageRenderService {
 
         // 草稿状态按钮
         if (semantic == StateSemantic.DRAFT) {
-            // 编辑按钮
-            if ((isOwner || isAdmin) && context.hasPermission(config.getPermission("edit"))) {
+            // 编辑按钮：仅系统管理员 或 所有者且当前为教师角色时显示
+            if ((isOwner && canOwnerActAsTeacher || isAdmin) && context.hasPermission(config.getPermission("edit"))) {
                 actions.add(PageRenderActionItem.of(
                         PageRenderActionConstants.ACTION_EDIT, "编辑",
                         PageRenderColorConstants.COLOR_PRIMARY, 10));
             }
-            // 删除按钮
-            if ((isOwner || isAdmin) && context.hasPermission(config.getPermission("remove"))) {
+            // 删除按钮：仅系统管理员 或 所有者且当前为教师角色时显示
+            if ((isOwner && canOwnerActAsTeacher || isAdmin) && context.hasPermission(config.getPermission("remove"))) {
                 actions.add(PageRenderActionItem.of(
                         PageRenderActionConstants.ACTION_REMOVE, "删除",
                         PageRenderColorConstants.COLOR_DANGER, 20, "确定要删除该记录吗？"));
             }
-            // 提交按钮
-            if ((isOwner || isAdmin) && context.hasPermission(config.getPermission("edit"))) {
+            // 提交按钮：仅系统管理员 或 所有者且当前为教师角色时显示
+            if ((isOwner && canOwnerActAsTeacher || isAdmin) && context.hasPermission(config.getPermission("edit"))) {
                 actions.add(PageRenderActionItem.of(
                         PageRenderActionConstants.ACTION_SUBMIT, "提交",
                         PageRenderColorConstants.COLOR_SUCCESS, 5, "确定要提交该记录吗？"));
@@ -694,8 +701,8 @@ public class PageRenderServiceImpl implements IPageRenderService {
 
         // 驳回状态按钮
         if (semantic == StateSemantic.REJECTED) {
-            // 编辑按钮
-            if ((isOwner || isAdmin) && context.hasPermission(config.getPermission("edit"))) {
+            // 编辑按钮：仅系统管理员 或 所有者且当前为教师角色时显示
+            if ((isOwner && canOwnerActAsTeacher || isAdmin) && context.hasPermission(config.getPermission("edit"))) {
                 actions.add(PageRenderActionItem.of(
                         PageRenderActionConstants.ACTION_EDIT, "编辑",
                         PageRenderColorConstants.COLOR_PRIMARY, 10));
@@ -843,8 +850,10 @@ public class PageRenderServiceImpl implements IPageRenderService {
         if ("HORIZONTAL_APPLY".equals(moduleCode) && context.getCurrentState() != null) {
             boolean isOwner = context.isOwner();
             boolean isAdmin = context.hasRole("admin");
-            // 申请结项：仅所有者和管理员，需add权限
-            if ((isOwner || isAdmin) && context.hasPermission(config.getPermission("add"))) {
+            boolean isTeacherActive = isTeacherRole(context.getActiveRoleKey());
+            boolean canOwnerActAsTeacher = isAdmin || isTeacherActive;
+            // 申请结项：仅系统管理员 或 所有者且当前为教师角色时显示，需add权限
+            if ((isOwner && canOwnerActAsTeacher || isAdmin) && context.hasPermission(config.getPermission("add"))) {
                 if (context.getCurrentState().endsWith("_PASSED")) {
                     specificActions.add(PageRenderActionItem.of(
                             "submitOver", "申请结项",
@@ -878,7 +887,10 @@ public class PageRenderServiceImpl implements IPageRenderService {
                 && (context.getCurrentState().endsWith("_PASS") || context.getCurrentState().endsWith("_PASSED"))) {
             boolean isOwner = context.isOwner();
             boolean isAdmin = context.hasRole("admin");
-            if ((isOwner || isAdmin) && context.hasPermission(config.getPermission("add"))) {
+            boolean isTeacherActive = isTeacherRole(context.getActiveRoleKey());
+            boolean canOwnerActAsTeacher = isAdmin || isTeacherActive;
+            // 申请结项：仅系统管理员 或 所有者且当前为教师角色时显示，需add权限
+            if ((isOwner && canOwnerActAsTeacher || isAdmin) && context.hasPermission(config.getPermission("add"))) {
                 specificActions.add(PageRenderActionItem.of(
                         "overApply", "申请结项",
                         PageRenderColorConstants.COLOR_PRIMARY, 52));
@@ -890,6 +902,8 @@ public class PageRenderServiceImpl implements IPageRenderService {
                 && context.getCurrentState().endsWith("_REJECTED")) {
             boolean isOwner = context.isOwner();
             boolean isAdmin = context.hasRole("admin");
+            boolean isTeacherActive = isTeacherRole(context.getActiveRoleKey());
+            boolean canOwnerActAsTeacher = isAdmin || isTeacherActive;
             boolean canApprove = context.hasPermission(config.getPermission("approve"));
             boolean canKyrevoke = context.hasPermission("system:apply:kyrevoke");
             // 申请人/教研室/科研处均可撤回，目标状态不同
@@ -898,7 +912,8 @@ public class PageRenderServiceImpl implements IPageRenderService {
                         PageRenderActionConstants.ACTION_RECALL, "撤回",
                         PageRenderColorConstants.COLOR_WARNING, 40, "确定要撤回该记录吗？"));
             }
-            if ((isOwner || isAdmin) && context.hasPermission(config.getPermission("edit"))) {
+            // 重新提交：仅系统管理员 或 所有者且当前为教师角色时显示，需edit权限
+            if ((isOwner && canOwnerActAsTeacher || isAdmin) && context.hasPermission(config.getPermission("edit"))) {
                 specificActions.add(PageRenderActionItem.of(
                         "submit", "重新提交",
                         PageRenderColorConstants.COLOR_SUCCESS, 5, "确定要重新提交该记录吗？"));
@@ -963,6 +978,7 @@ public class PageRenderServiceImpl implements IPageRenderService {
             context.setRoleKeys(roleKeys);
             context.setPermPrefix(permPrefix);
             context.setProcessCode(processCode);
+            context.setActiveRoleKey(getActiveRoleKey(currentUser));
 
             PageRenderStatusMeta statusMeta = buildStatusMeta(context);
             List<PageRenderActionItem> actions = buildActions(context);
@@ -1142,6 +1158,57 @@ public class PageRenderServiceImpl implements IPageRenderService {
 
         // 未找到授权域时抛出异常（正常情况下不应该发生）
         throw new IllegalStateException("未找到可用的 Shiro AuthorizingRealm");
+    }
+
+    /**
+     * 判断指定角色标识是否为教师角色
+     * 教师角色指普通教师（如 roleKey=teacher 或无特殊角色标识的用户），
+     * 不包括管理员角色（科研处、教研室、学院管理等）
+     * 系统管理员（roleKey=admin）不属于教师角色，但通过 isAdmin 单独判断
+     *
+     * @param roleKey 角色标识
+     * @return true 表示为教师角色
+     */
+    private boolean isTeacherRole(String roleKey) {
+        if (roleKey == null) {
+            // 无特定角色标识时默认为教师角色
+            return true;
+        }
+        // 已知的非教师角色（管理员角色）列表
+        Set<String> nonTeacherRoles = new HashSet<>(Arrays.asList(
+                "admin", "sci_tesearch", "research", "dept_teacher",
+                "discuss_college", "dzgc_college", "yssj_college",
+                "student_college", "marxism_college", "general"));
+        return !nonTeacherRoles.contains(roleKey);
+    }
+
+    /**
+     * 获取当前用户的活跃角色标识（roleKey）
+     * 从 Shiro Session 中获取 activeRoleId，再查询对应的角色标识
+     *
+     * @param currentUser 当前用户
+     * @return 活跃角色标识，如果获取失败返回 null
+     */
+    private String getActiveRoleKey(SysUser currentUser) {
+        try {
+            Subject subject = SecurityUtils.getSubject();
+            if (subject == null) {
+                return null;
+            }
+            Session session = subject.getSession(false);
+            if (session == null) {
+                return null;
+            }
+            Long activeRoleId = (Long) session.getAttribute("activeRoleId");
+            if (activeRoleId == null) {
+                return null;
+            }
+            SysRole activeRole = roleService.selectRoleById(activeRoleId);
+            return activeRole != null ? activeRole.getRoleKey() : null;
+        } catch (Exception e) {
+            log.debug("获取活跃角色标识失败", e);
+            return null;
+        }
     }
 
     private List<String> buildRoleKeys(SysUser currentUser) {

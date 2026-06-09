@@ -104,11 +104,9 @@
 
 
     <select id="selectAllTeacher" resultMap="ResearchWorkloadResult">
-        select su.login_name , ac.userId, ac.userName, ac.partenId, ac.partenName, ac.deptId, ac.deptName, ac.hxkt, ac.zxktxj, ac.zxktxjys, ac.cgzh, ac.xslw, ac.jczz, ac.zl, ac.rz, ac.jl, ac.jzbg,
-        alt.zcgjjjkyxm, alt.zcsbjjjkyxm, alt.zcsbjjgxm, alt.zcsbjzxkyxm, alt.zctjjxhjkyxm, alt.zcxjjxglxmywyys, alt.zcxjjxglxmywyyx
+        select su.login_name , ac.userId, ac.userName, ac.partenId, ac.partenName, ac.deptId, ac.deptName, ac.hxkt, ac.zxktxj, ac.zxktxjys, ac.cgzh, ac.xslw, ac.jczz, ac.zl, ac.rz, ac.jl, ac.jzbg
         from Alltotle_score ac
         left join sys_user su on su.user_id  = ac.userId
-        left join Alltotle alt on alt.userId = ac.userId
         <where>
             <if test="dictValue != null and dictValue.size() > 0">
                 AND ac.partenId IN
@@ -144,43 +142,6 @@
             sum(ac.hxkt) hxkt, sum(ac.zxktxj) zxktxj, sum(ac.zxktxjys) zxktxjys,
             sum(ac.cgzh) cgzh, sum(ac.xslw) xslw, sum(ac.jczz) jczz,
             sum(ac.zl) zl, sum(ac.rz) rz, sum(ac.jl) jl, sum(ac.jzbg) jzbg,
-            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.zcgjjjkyxm, '个', 1) AS UNSIGNED)), '个'), '0个') AS zcgjjjkyxm,
-            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.zcsbjjjkyxm, '个', 1) AS UNSIGNED)), '个'), '0个') AS zcsbjjjkyxm,
-            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.zcsbjjgxm, '个', 1) AS UNSIGNED)), '个'), '0个') AS zcsbjjgxm,
-            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.zcsbjzxkyxm, '个', 1) AS UNSIGNED)), '个'), '0个') AS zcsbjzxkyxm,
-            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.zctjjxhjkyxm, '个', 1) AS UNSIGNED)), '个'), '0个') AS zctjjxhjkyxm,
-            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.zcxjjxglxmywyys, '个', 1) AS UNSIGNED)), '个'), '0个') AS zcxjjxglxmywyys,
-            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.zcxjjxglxmywyyx, '个', 1) AS UNSIGNED)), '个'), '0个') AS zcxjjxglxmywyyx,
-            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.SCI, '个', 1) AS UNSIGNED)), '个'), '0个') AS SCI,
-            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.EI, '个', 1) AS UNSIGNED)), '个'), '0个') AS EI,
-            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.hx, '个', 1) AS UNSIGNED)), '个'), '0个') AS hx,
-            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.sw, '个', 1) AS UNSIGNED)), '个'), '0个') AS sw,
-            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.pt, '个', 1) AS UNSIGNED)), '个'), '0个') AS pt,
-            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.xb, '个', 1) AS UNSIGNED)), '个'), '0个') AS xb,
-            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.cbzz1, '个', 1) AS UNSIGNED)), '个'), '0个') AS cbzz1,
-            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.cbzz2, '个', 1) AS UNSIGNED)), '个'), '0个') AS cbzz2,
-            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.cbyz1, '个', 1) AS UNSIGNED)), '个'), '0个') AS cbyz1,
-            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.cbyz2, '个', 1) AS UNSIGNED)), '个'), '0个') AS cbyz2,
-            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.cbjc1, '个', 1) AS UNSIGNED)), '个'), '0个') AS cbjc1,
-            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.cbjc2, '个', 1) AS UNSIGNED)), '个'), '0个') AS cbjc2,
-            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.zbjc, '个', 1) AS UNSIGNED)), '个'), '0个') AS zbjc,
-            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.sqfmzl, '个', 1) AS UNSIGNED)), '个'), '0个') AS sqfmzl,
-            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.syxxzl, '个', 1) AS UNSIGNED)), '个'), '0个') AS syxxzl,
-            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.wxsjzl, '个', 1) AS UNSIGNED)), '个'), '0个') AS wxsjzl,
-            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.jsjrjzzq, '个', 1) AS UNSIGNED)), '个'), '0个') AS jsjrjzzq,
-            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.sjjxcgj, '个', 1) AS UNSIGNED)), '个'), '0个') AS sjjxcgj,
-            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.sjkxjsj, '个', 1) AS UNSIGNED)), '个'), '0个') AS sjkxjsj,
-            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.stjjzrkxlpj, '个', 1) AS UNSIGNED)), '个'), '0个') AS stjjzrkxlpj,
-            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.stjjsklpj, '个', 1) AS UNSIGNED)), '个'), '0个') AS stjjsklpj,
-            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.xjjxcgj, '个', 1) AS UNSIGNED)), '个'), '0个') AS xjjxcgj,
-            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.yyxkyxjcgj, '个', 1) AS UNSIGNED)), '个'), '0个') AS yyxkyxjcgj,
-            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.xhjjxcgj, '个', 1) AS UNSIGNED)), '个'), '0个') AS xhjjxcgj,
-            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.xhjkycgj, '个', 1) AS UNSIGNED)), '个'), '0个') AS xhjkycgj,
-            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.jbgj, '个', 1) AS UNSIGNED)), '个'), '0个') AS jbgj,
-            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.jbgn, '个', 1) AS UNSIGNED)), '个'), '0个') AS jbgn,
-            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.cjgj, '个', 1) AS UNSIGNED)), '个'), '0个') AS cjgj,
-            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.cjgn, '个', 1) AS UNSIGNED)), '个'), '0个') AS cjgn,
-            COALESCE(CONCAT(SUM(CAST(SUBSTRING_INDEX(alt.xjxs, '个', 1) AS UNSIGNED)), '个'), '0个') AS xjxs,
             MAX(COALESCE(hx.ewyyx, '0个（0万）')) AS ewyyx,
             MAX(COALESCE(hx.edwwy, '0个（0万）')) AS edwwy,
             MAX(COALESCE(hx.wdswy, '0个（0万）')) AS wdswy,
@@ -197,7 +158,6 @@
             MAX(COALESCE(cg.sswdwsxx, '0个（0万）')) AS sswdwsxx,
             MAX(COALESCE(cg.dywsxx, '0个（0万）')) AS dywsxx
         from Alltotle_score ac
-        left join Alltotle alt on alt.userId = ac.userId
         left join (
             select su1.dept_id,
                 CONCAT(SUM(CASE WHEN h.amount &lt; 2 THEN 1 ELSE 0 END), '个（', ROUND(SUM(CASE WHEN h.amount &lt; 2 THEN h.amount ELSE 0 END), 2), '万）') AS ewyyx,

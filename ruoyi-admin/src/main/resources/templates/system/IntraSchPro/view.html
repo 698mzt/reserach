@@ -307,6 +307,19 @@
     .track-list li:hover .time {
         color: #666;
     }
+
+    .btn-custom-green {
+        background-color: #1ab394;
+        border-color: #1ab394;
+        color: #fff;
+    }
+    .btn-custom-green:hover,
+    .btn-custom-green:focus,
+    .btn-custom-green:active {
+        background-color: #18a689;
+        border-color: #18a689;
+        color: #fff;
+    }
 </style>
 <body class="gray-bg">
 <div class="wrapper wrapper-content animated fadeIn">
@@ -426,6 +439,11 @@
     var currentRole = [[${roleStr}]];
     var showScoreAndRank = [[${@permission.isAnyRoles('teacher')}]];
 
+    // 注册成果转化专属颜色（驳回编辑按钮的 #1ab394 绿色）
+    PageRender.updateColorConfig({
+        button: { 'customGreen': 'btn-custom-green' }
+    });
+
     function getUrl() {
         var year = localStorage.getItem("year");
         return prefix + "/list?year=" + year;
@@ -530,18 +548,30 @@
         $.modal.openTab(title || "查看成果转化", prefix + "/detail/" + id + "/" + urlFlag);
     }
 
-    function actionButton(text, colorType, onclick, extraAttr) {
-        var attr = extraAttr ? " " + extraAttr : "";
-        return '<a href="javascript:void(0)" class="btn btn-xs btn-' + colorType + '"' + attr + ' onclick="' + onclick + '">' + text + '</a>';
+    /**
+     * 构建操作按钮对象
+     * @param {string} actionKey 动作标识
+     * @param {string} actionText 按钮文字
+     * @param {string} colorType 颜色类型
+     * @param {number} sortOrder 排序权重
+     * @param {string} [confirmMsg] 确认提示
+     */
+    function makeAction(actionKey, actionText, colorType, sortOrder, confirmMsg) {
+        var action = {actionKey: actionKey, actionText: actionText, colorType: colorType, sortOrder: sortOrder || 0};
+        if (confirmMsg) action.confirmMsg = confirmMsg;
+        return action;
     }
 
-    function rejectedEditButton(id) {
-        return actionButton("编辑", "success", "$.operate.editTab('" + id + "')",
-            'style="background-color:#1ab394!important;border-color:#1ab394!important;color:#fff!important;"');
-    }
-
-    function reviewButton(row, state, urlFlag, title) {
-        return actionButton("批阅", "primary", "openStagePage(" + row.id + ", '" + state + "', '" + urlFlag + "', '" + (title || "详细成果转化") + "')");
+    /** 获取批阅 actionKey（根据 urlFlag） */
+    function reviewActionKey(urlFlag) {
+        var map = {
+            'pro': 'reviewPro',
+            'hecha': 'reviewHecha',
+            'dept_teacher': 'reviewDept',
+            'JYSOVER': 'reviewJysOver',
+            'KYCOVER': 'reviewKycOver'
+        };
+        return map[urlFlag] || 'reviewPro';
     }
 
     function canShowRecallButton(row, state) {
@@ -620,33 +650,33 @@
         var state = normalizeState(row.state);
 
         if (["15", "TEC_TRA_DRAFT"].includes(state) && row.userId == row.uid) {
-            actions.push(actionButton("提交", "primary", "subDraft('" + row.id + "')"));
-            actions.push(actionButton("编辑", "success", "$.operate.editTab('" + row.id + "')"));
-            actions.push(actionButton("删除", "danger", "$.operate.remove('" + row.id + "')"));
+            actions.push(makeAction("submit", "提交", "primary", 1));
+            actions.push(makeAction("edit", "编辑", "success", 2));
+            actions.push(makeAction("delete", "删除", "danger", 3));
         }
 
         if (row.role === "research") {
             if (["1", "TEC_TRA_JYS_AUDIT"].includes(state)) {
-                actions.push(reviewButton(row, state, "pro"));
+                actions.push(makeAction(reviewActionKey("pro"), "批阅", "primary", 1));
             } else if (row.userId == row.uid && ["3", "12", "5", "TEC_TRA_REJECTED"].includes(state)) {
-                actions.push(rejectedEditButton(row.id));
+                actions.push(makeAction("edit", "编辑", "customGreen", 2));
             }
         } else if (row.role === "dept_teacher") {
             if (["11", "TEC_TRA_KYC_AUDIT"].includes(state) && false && isDeptMatched(row)) {
-                actions.push(reviewButton(row, state, "dept_teacher"));
+                actions.push(makeAction(reviewActionKey("dept_teacher"), "批阅", "primary", 1));
             } else if (row.userId == row.uid && ["9", "10", "14"].includes(state)) {
-                actions.push(actionButton("编辑", "success", "$.operate.editTab('" + row.id + "')"));
+                actions.push(makeAction("edit", "编辑", "success", 2));
             }
         } else if (row.role === "sci_tesearch") {
             if (["2", "TEC_TRA_KYC_AUDIT"].includes(state)) {
-                actions.push(reviewButton(row, state, "hecha"));
+                actions.push(makeAction(reviewActionKey("hecha"), "批阅", "primary", 1));
             } else if (row.userId == row.uid && ["3", "12", "5", "TEC_TRA_REJECTED"].includes(state)) {
-                actions.push(rejectedEditButton(row.id));
+                actions.push(makeAction("edit", "编辑", "customGreen", 2));
             }
         } else if (row.role === "teacher") {
             if (row.userId == row.uid) {
                 if (["3", "12", "5", "TEC_TRA_REJECTED"].includes(state)) {
-                    actions.push(rejectedEditButton(row.id));
+                    actions.push(makeAction("edit", "编辑", "customGreen", 2));
                 }
             }
         }
@@ -658,77 +688,57 @@
         if (row.role === "research") {
             if (isDeptMatched(row)) {
                 if (state === "7") {
-                    actions.push(reviewButton(row, state, "JYSOVER"));
+                    actions.push(makeAction(reviewActionKey("JYSOVER"), "批阅", "primary", 1));
                 }
             }
             if (row.userId == row.uid) {
                 if (["9", "10", "14"].includes(state)) {
-                    actions.push(actionButton("编辑", "success", "$.operate.editTab('" + row.id + "')"));
+                    actions.push(makeAction("edit", "编辑", "success", 2));
                 } else if (state === "16") {
-                    actions.push(actionButton("提交", "primary", "subDraft('" + row.id + "')"));
-                    actions.push(actionButton("编辑", "success", "$.operate.editTab('" + row.id + "')"));
+                    actions.push(makeAction("submit", "提交", "primary", 1));
+                    actions.push(makeAction("edit", "编辑", "success", 2));
                 }
             }
         } else if (row.role === "dept_teacher") {
             if (isDeptMatched(row)) {
                 if (state === "13") {
-                    actions.push(reviewButton(row, state, "dept_teacher"));
+                    actions.push(makeAction(reviewActionKey("dept_teacher"), "批阅", "primary", 1));
                 } else if (row.userId == row.uid && ["9", "10", "14"].includes(state)) {
-                    actions.push(actionButton("编辑", "success", "$.operate.editTab('" + row.id + "')"));
+                    actions.push(makeAction("edit", "编辑", "success", 2));
                 }
             }
         } else if (row.role === "sci_tesearch") {
             if (state === "8") {
-                actions.push(reviewButton(row, state, "KYCOVER"));
+                actions.push(makeAction(reviewActionKey("KYCOVER"), "批阅", "primary", 1));
             } else if (row.userId == row.uid && ["9", "10", "14"].includes(state)) {
-                actions.push(actionButton("编辑", "success", "$.operate.editTab('" + row.id + "')"));
+                actions.push(makeAction("edit", "编辑", "success", 2));
             }
         } else if (row.role === "teacher") {
             if (row.userId == row.uid) {
                 if (state === "16") {
-                    actions.push(actionButton("提交", "primary", "subDraft('" + row.id + "')"));
-                    actions.push(actionButton("编辑", "success", "$.operate.editTab('" + row.id + "')"));
+                    actions.push(makeAction("submit", "提交", "primary", 1));
+                    actions.push(makeAction("edit", "编辑", "success", 2));
                 } else if (["9", "10", "14"].includes(state)) {
-                    actions.push(actionButton("编辑", "success", "$.operate.editTab('" + row.id + "')"));
+                    actions.push(makeAction("edit", "编辑", "success", 2));
                 }
             }
         }
     }
 
-    function arrangeButtons(actions) {
-        var result = '';
-        for (var i = 0; i < actions.length; i++) {
-            if (i > 0 && i % 3 === 0) {
-                result += '<br>';
-            }
-            result += '<span class="action-item">' + actions[i] + '</span>';
-        }
-        return result;
-    }
-
-    function arrangeOperationButtons(actions, viewActions) {
-        var result = arrangeButtons(actions);
-        if (viewActions.length > 0) {
-            if (result) {
-                result += '<br>';
-            }
-            result += arrangeButtons(viewActions);
-        }
-        return result;
-    }
-
     function getOperationButtons(row) {
         var actions = [];
-        var viewActions = [];
-        var stage = getStageKey(row.state);
         var state = normalizeState(row.state);
         var role = currentRole || row.role || "";
 
+        // dept_teacher 角色只显示查看按钮
         if (role === "dept_teacher") {
-            viewActions.push(actionButton("查看", "info", "openStagePage(" + row.id + ", '" + state + "', 'chakan', '查看成果转化')"));
-            viewActions.push(actionButton("查看流程", "info", "openReviewModal(" + row.id + ", '" + state + "')"));
-            return arrangeOperationButtons(actions, viewActions);
+            return PageRender.renderActionsToString([
+                makeAction("view", "查看", "info", 1),
+                makeAction("viewProcess", "查看流程", "info", 2)
+            ], {style: 'table'});
         }
+
+        var stage = getStageKey(row.state);
 
         if (stage === "approval") {
             buildApprovalActions(row, actions);
@@ -736,19 +746,40 @@
             buildClosureActions(row, actions);
         }
 
+        
         if (["3", "5", "12", "TEC_TRA_REJECTED"].includes(state)
             && row.userId == row.uid
-            && actions.join("").indexOf("$.operate.editTab") === -1) {
-            actions.unshift(rejectedEditButton(row.id));
+            && !actions.some(function(a) { return a.actionKey === 'edit'; })) {
+            actions.unshift(makeAction("edit", "编辑", "customGreen", 0));
         }
 
+        // 撤回按钮
         if (canShowRecallButton(row, state)) {
-            actions.push(actionButton("撤回", "warning", "recallTecTra('" + row.id + "', '" + state + "')"));
+            actions.push(makeAction("recall", "撤回", "warning", 90));
         }
-        viewActions.push(actionButton("查看", "info", "openStagePage(" + row.id + ", '" + state + "', 'chakan', '查看成果转化')"));
-        viewActions.push(actionButton("查看流程", "info", "openReviewModal(" + row.id + ", '" + state + "')"));
 
-        return arrangeOperationButtons(actions, viewActions);
+        // 查看和查看流程放在最后
+        actions.push(makeAction("view", "查看", "info", 98));
+        actions.push(makeAction("viewProcess", "查看流程", "info", 99));
+
+        // 拆分为操作按钮和查看按钮两行（与原逻辑一致）
+        var opActions = actions.filter(function(a) {
+            return a.actionKey !== 'view' && a.actionKey !== 'viewProcess';
+        });
+        var viewActions = actions.filter(function(a) {
+            return a.actionKey === 'view' || a.actionKey === 'viewProcess';
+        });
+
+        var opHtml = PageRender.renderActionsToString(opActions, {style: 'table'});
+        var viewHtml = PageRender.renderActionsToString(viewActions, {style: 'table'});
+
+        if (opHtml && viewHtml) {
+            return '<div style="margin-bottom: 5px;">' + opHtml + '</div>' + viewHtml;
+        } else if (opHtml) {
+            return opHtml;
+        } else {
+            return viewHtml;
+        }
     }
 
     function rowStyle0(row, index) {
@@ -1028,6 +1059,60 @@
 
         xhr.send();
     }
+
+    // === PageRender 动作处理器注册 ===
+    PageRender.registerHandlers({
+        'submit': function(actionKey, data) {
+            subDraft(data.id);
+        },
+        'edit': function(actionKey, data) {
+            $.operate.editTab(data.id);
+        },
+        'delete': function(actionKey, data) {
+            $.operate.remove(data.id);
+        },
+        'recall': function(actionKey, data) {
+            recallTecTra(data.id, data.state);
+        },
+        'reviewPro': function(actionKey, data) {
+            openStagePage(data.id, data.state, 'pro', '详细成果转化');
+        },
+        'reviewHecha': function(actionKey, data) {
+            openStagePage(data.id, data.state, 'hecha', '详细成果转化');
+        },
+        'reviewDept': function(actionKey, data) {
+            openStagePage(data.id, data.state, 'dept_teacher', '详细成果转化');
+        },
+        'reviewJysOver': function(actionKey, data) {
+            openStagePage(data.id, data.state, 'JYSOVER', '详细成果转化');
+        },
+        'reviewKycOver': function(actionKey, data) {
+            openStagePage(data.id, data.state, 'KYCOVER', '详细成果转化');
+        },
+        'view': function(actionKey, data) {
+            openStagePage(data.id, data.state, 'chakan', '查看成果转化');
+        },
+        'viewProcess': function(actionKey, data) {
+            openReviewModal(data.id, data.state);
+        }
+    });
+
+    // === 事件委托：处理 bootstrap-table 中 PageRender 渲染的按钮点击 ===
+    $(document).off('click.intraSchAction').on('click.intraSchAction', 'a[data-action-key], button[data-action-key]', function(e) {
+        e.preventDefault();
+        var $btn = $(this);
+        var actionKey = $btn.data('action-key');
+        var confirmMsg = $btn.data('confirm');
+        var $tr = $btn.closest('tr');
+        var row = $('#bootstrap-table').bootstrapTable('getData')[$tr.data('index')];
+        if (confirmMsg) {
+            $.modal.confirm(confirmMsg, function() {
+                PageRender.dispatchAction(actionKey, row);
+            });
+        } else {
+            PageRender.dispatchAction(actionKey, row);
+        }
+    });
 
     $(function () {
         function initTable() {

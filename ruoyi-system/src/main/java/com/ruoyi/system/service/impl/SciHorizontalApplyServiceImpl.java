@@ -20,6 +20,7 @@ import com.ruoyi.system.service.IPageRenderService;
 import com.ruoyi.system.service.ISysMenuService;
 import com.ruoyi.system.service.SciHorizontalReamountService;
 import com.ruoyi.system.service.IApprovalProcessService;
+import com.ruoyi.system.service.ISysApprovalHistoryService;
 import com.ruoyi.system.service.ISysUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -40,6 +41,8 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
 {
     @Autowired
     private SciHorizontalApplyMapper sciHorizontalApplyMapper;
+    @Autowired
+    private ResearchDashboardMapper researchDashboardMapper;
     @Autowired
     private SciHorizontalPiyueMapper sciHorizontalPiyueMapper;
     @Autowired
@@ -388,6 +391,26 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
             return nodeCode + "_AUDIT";
         }
         return nodeCode;
+    }
+
+    /**
+     * 记录驳回状态撤回的审批历史（绕过审批流引擎时使用）
+     */
+    private void saveRecallHistory(String processCode, Long businessId,
+            Long operatorId, String operatorName, String operatorDept,
+            String oldState, String newState, String comment) {
+        SysApprovalHistory history = new SysApprovalHistory();
+        history.setProcessCode(processCode);
+        history.setBusinessId(businessId);
+        history.setAction("recall");
+        history.setOperatorId(operatorId);
+        history.setOperatorName(operatorName);
+        history.setOperatorDept(operatorDept);
+        history.setOldState(oldState);
+        history.setNewState(newState);
+        history.setComment(comment);
+        history.setCreateTime(new Date());
+        sysApprovalHistoryService.insertSysApprovalHistory(history);
     }
 
     /**
@@ -1144,21 +1167,21 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
 
     // 金额审批的个人待办统计
     private int countPersonalReamountTodos(Long userId, List<String> states) {
-        return sciHorizontalApplyMapper.countReamountByUserAndStates(userId, states, getCurrentYear());
+        return researchDashboardMapper.countReamountByUserAndStates(userId, states, getCurrentYear());
     }
 
     // 金额审批的部门统计（包含子部门）
     private int countReamountByDeptAndStates(Long deptId, List<String> states, String roleKey) {
         if (isCollegeLevelRole(roleKey)) {
-            return sciHorizontalApplyMapper.countReamountByDeptAndStatesWithChildren(deptId, states, getCurrentYear());
+            return researchDashboardMapper.countReamountByDeptAndStatesWithChildren(deptId, states, getCurrentYear());
         } else {
-            return sciHorizontalApplyMapper.countReamountByDeptAndStates(deptId, states, getCurrentYear());
+            return researchDashboardMapper.countReamountByDeptAndStates(deptId, states, getCurrentYear());
         }
     }
 
     // 金额审批的状态统计
     private int countReamountByStates(List<String> states) {
-        return sciHorizontalApplyMapper.countReamountByStates(states, getCurrentYear());
+        return researchDashboardMapper.countReamountByStates(states, getCurrentYear());
     }
 
     /**
@@ -1182,17 +1205,17 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
      * 计算横向课题待办数量
      */
     private int countApprovalItems(List<String> states) {
-        return sciHorizontalApplyMapper.countByStates(states, getCurrentYear());
+        return researchDashboardMapper.countHorizontalByStates(states, getCurrentYear());
     }
 
     //    private int countDeptApprovals(Long deptId, List<String> states) {
-//        return sciHorizontalApplyMapper.countByDeptAndStates(deptId, states, getCurrentYear());
+//        return researchDashboardMapper.countHorizontalByDeptAndStates(deptId, states, getCurrentYear());
 //    }
 // 修改后的部门统计方法
 //    private int countDeptApprovals(Long deptId, List<String> states, String roleKey) {
 //        return isCollegeLevelRole(roleKey) ?
-//                sciHorizontalApplyMapper.countByDeptAndStatesWithChildren(deptId, states, getCurrentYear()) :
-//                sciHorizontalApplyMapper.countByDeptAndStates(deptId, states, getCurrentYear());
+//                researchDashboardMapper.countHorizontalByDeptAndStatesWithChildren(deptId, states, getCurrentYear()) :
+//                researchDashboardMapper.countHorizontalByDeptAndStates(deptId, states, getCurrentYear());
 //    }
 
     // 判断学院级角色
@@ -1201,11 +1224,11 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
 //    }
 
     private int countResearchApprovals(Long deptId, List<String> states) {
-        return sciHorizontalApplyMapper.countByDeptAndStates(deptId, states, getCurrentYear());
+        return researchDashboardMapper.countHorizontalByDeptAndStates(deptId, states, getCurrentYear());
     }
 
     private int countPersonalTodos(Long userId, List<String> states) {
-        return sciHorizontalApplyMapper.countByUserAndStates(userId, states, getCurrentYear());
+        return researchDashboardMapper.countHorizontalByUserAndStates(userId, states, getCurrentYear());
     }
 
     private String getCurrentYear() {
@@ -1271,7 +1294,7 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
 //                int deptCount2 = countDeptApprovals(user.getDeptId(), Arrays.asList("11", "4568"), roleKey);
                 // 部门待办：所有状态为11的项目（学院通过后提交到科研处）
 //                int deptCount2 = sciHorizontalApplyMapper.countByState("11", getCurrentYear());
-                int deptCount2 = sciHorizontalApplyMapper.countByStates(Arrays.asList("11", "33"), getCurrentYear());
+                int deptCount2 = researchDashboardMapper.countHorizontalByStates(Arrays.asList("11", "33"), getCurrentYear());
                 count = personalCount2 + deptCount2;
                 break;
             case "dept_teacher": // 学院
@@ -1297,11 +1320,11 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
     private int countDeptApprovals(Long deptId, List<String> states, String roleKey) {
         // 学院和科研处角色需要递归查询子部门
         if (isCollegeLevelRole(roleKey)) {
-            return sciHorizontalApplyMapper.countByDeptAndStatesWithChildren(deptId, states, getCurrentYear());
+            return researchDashboardMapper.countHorizontalByDeptAndStatesWithChildren(deptId, states, getCurrentYear());
         }
         // 教研室只需查询本部门
         else {
-            return sciHorizontalApplyMapper.countByDeptAndStates(deptId, states, getCurrentYear());
+            return researchDashboardMapper.countHorizontalByDeptAndStates(deptId, states, getCurrentYear());
         }
     }
 
@@ -1319,7 +1342,7 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
         switch (roleKey) {
             case "sci_tesearch": // 科研处
                 int personalCount2 = countPersonalVerticalTodos(user.getUserId(), Arrays.asList("99", "3", "5", "7", "6", "33", "55", "77"));
-                int deptCount2 = sciHorizontalApplyMapper.countVerticalByStates(Arrays.asList("4", "44"), getCurrentYear());
+                int deptCount2 = researchDashboardMapper.countVerticalByStates(Arrays.asList("4", "44"), getCurrentYear());
                 count = personalCount2 + deptCount2;
                 break;
             case "dept_teacher": // 学院
@@ -1341,15 +1364,15 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
 
     // 添加纵向课题的个人待办统计
     private int countPersonalVerticalTodos(Long userId, List<String> states) {
-        return sciHorizontalApplyMapper.countVerticalByUserAndStates(userId, states, getCurrentYear());
+        return researchDashboardMapper.countVerticalByUserAndStates(userId, states, getCurrentYear());
     }
 
     // 添加纵向课题的部门统计
     private int countVerticalByDeptAndStates(Long deptId, List<String> states, String roleKey) {
         if (isCollegeLevelRole(roleKey)) {
-            return sciHorizontalApplyMapper.countVerticalByDeptAndStatesWithChildren(deptId, states, getCurrentYear());
+            return researchDashboardMapper.countVerticalByDeptAndStatesWithChildren(deptId, states, getCurrentYear());
         } else {
-            return sciHorizontalApplyMapper.countVerticalByDeptAndStates(deptId, states, getCurrentYear());
+            return researchDashboardMapper.countVerticalByDeptAndStates(deptId, states, getCurrentYear());
         }
     }
 
@@ -1360,7 +1383,7 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
         switch (roleKey) {
             case "sci_tesearch": // 科研处
                 int personalCount2 = countPersonalPaperTodos(user.getUserId(), Arrays.asList("99", "3", "5", "0"));
-                int deptCount2 = sciHorizontalApplyMapper.countPaperByStates(Arrays.asList("4"), getCurrentYear());
+                int deptCount2 = researchDashboardMapper.countPaperByStates(Arrays.asList("4"), getCurrentYear());
                 count = personalCount2 + deptCount2;
                 break;
             case "dept_teacher": // 学院
@@ -1382,15 +1405,15 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
 
     // 添加论文的个人待办统计
     private int countPersonalPaperTodos(Long userId, List<String> states) {
-        return sciHorizontalApplyMapper.countPaperByUserAndStates(userId, states, getCurrentYear());
+        return researchDashboardMapper.countPaperByUserAndStates(userId, states, getCurrentYear());
     }
 
     // 添加论文的部门统计
     private int countPaperByDeptAndStates(Long deptId, List<String> states, String roleKey) {
         if (isCollegeLevelRole(roleKey)) {
-            return sciHorizontalApplyMapper.countPaperByDeptAndStatesWithChildren(deptId, states, getCurrentYear());
+            return researchDashboardMapper.countPaperByDeptAndStatesWithChildren(deptId, states, getCurrentYear());
         } else {
-            return sciHorizontalApplyMapper.countPaperByDeptAndStates(deptId, states, getCurrentYear());
+            return researchDashboardMapper.countPaperByDeptAndStates(deptId, states, getCurrentYear());
         }
     }
 
@@ -1400,11 +1423,11 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
         int count = 0;
         switch (roleKey) {
             case "admin": // 超级管理员：查看全部待办
-                count = sciHorizontalApplyMapper.countAchievementByStates(Arrays.asList("15", "3", "12", "5", "4", "9", "14", "10", "1", "2", "7", "8", "11", "13"), getCurrentYear());
+                count = researchDashboardMapper.countAchievementByStates(Arrays.asList("15", "3", "12", "5", "4", "9", "14", "10", "1", "2", "7", "8", "11", "13"), getCurrentYear());
                 break;
             case "sci_tesearch": // 科研处
                 int personalCount2 = countPersonalAchievementTodos(user.getUserId(), Arrays.asList("15", "3", "12", "5", "4", "9", "14", "10"));
-                int deptCount2 = sciHorizontalApplyMapper.countAchievementByStates(Arrays.asList("2", "8"), getCurrentYear());
+                int deptCount2 = researchDashboardMapper.countAchievementByStates(Arrays.asList("2", "8"), getCurrentYear());
                 count = personalCount2 + deptCount2;
                 break;
             case "dept_teacher": // 学院
@@ -1426,15 +1449,15 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
 
     // 添加成果转化的个人待办统计
     private int countPersonalAchievementTodos(Long userId, List<String> states) {
-        return sciHorizontalApplyMapper.countAchievementByUserAndStates(userId, states, getCurrentYear());
+        return researchDashboardMapper.countAchievementByUserAndStates(userId, states, getCurrentYear());
     }
 
     // 添加成果转化的部门统计
     private int countAchievementByDeptAndStates(Long deptId, List<String> states, String roleKey) {
         if (isCollegeLevelRole(roleKey)) {
-            return sciHorizontalApplyMapper.countAchievementByDeptAndStatesWithChildren(deptId, states, getCurrentYear());
+            return researchDashboardMapper.countAchievementByDeptAndStatesWithChildren(deptId, states, getCurrentYear());
         } else {
-            return sciHorizontalApplyMapper.countAchievementByDeptAndStates(deptId, states, getCurrentYear());
+            return researchDashboardMapper.countAchievementByDeptAndStates(deptId, states, getCurrentYear());
         }
     }
 
@@ -1445,7 +1468,7 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
         switch (roleKey) {
             case "sci_tesearch": // 科研处
                 int personalCount2 = countPersonalTextbookTodos(user.getUserId(), Arrays.asList("0", "3", "5", "7"));
-                int deptCount2 = sciHorizontalApplyMapper.countTextbookByStates(Arrays.asList("4"), getCurrentYear());
+                int deptCount2 = researchDashboardMapper.countTextbookByStates(Arrays.asList("4"), getCurrentYear());
                 count = personalCount2 + deptCount2;
                 break;
             case "dept_teacher": // 学院
@@ -1467,15 +1490,15 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
 
     // 添加教材软著的个人待办统计
     private int countPersonalTextbookTodos(Long userId, List<String> states) {
-        return sciHorizontalApplyMapper.countTextbookByUserAndStates(userId, states, getCurrentYear());
+        return researchDashboardMapper.countTextbookByUserAndStates(userId, states, getCurrentYear());
     }
 
     // 添加教材软著的部门统计
     private int countTextbookByDeptAndStates(Long deptId, List<String> states, String roleKey) {
         if (isCollegeLevelRole(roleKey)) {
-            return sciHorizontalApplyMapper.countTextbookByDeptAndStatesWithChildren(deptId, states, getCurrentYear());
+            return researchDashboardMapper.countTextbookByDeptAndStatesWithChildren(deptId, states, getCurrentYear());
         } else {
-            return sciHorizontalApplyMapper.countTextbookByDeptAndStates(deptId, states, getCurrentYear());
+            return researchDashboardMapper.countTextbookByDeptAndStates(deptId, states, getCurrentYear());
         }
     }
 
@@ -1486,7 +1509,7 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
         switch (roleKey) {
             case "sci_tesearch": // 科研处
                 int personalCount2 = countPersonalPatentTodos(user.getUserId(), Arrays.asList("0", "3", "5", "7"));
-                int deptCount2 = sciHorizontalApplyMapper.countPatentByStates(Arrays.asList("4"), getCurrentYear());
+                int deptCount2 = researchDashboardMapper.countPatentByStates(Arrays.asList("4"), getCurrentYear());
                 count = personalCount2 + deptCount2;
                 break;
             case "dept_teacher": // 学院
@@ -1508,15 +1531,15 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
 
     // 添加专利软著的个人待办统计
     private int countPersonalPatentTodos(Long userId, List<String> states) {
-        return sciHorizontalApplyMapper.countPatentByUserAndStates(userId, states, getCurrentYear());
+        return researchDashboardMapper.countPatentByUserAndStates(userId, states, getCurrentYear());
     }
 
     // 添加专利软著的部门统计
     private int countPatentByDeptAndStates(Long deptId, List<String> states, String roleKey) {
         if (isCollegeLevelRole(roleKey)) {
-            return sciHorizontalApplyMapper.countPatentByDeptAndStatesWithChildren(deptId, states, getCurrentYear());
+            return researchDashboardMapper.countPatentByDeptAndStatesWithChildren(deptId, states, getCurrentYear());
         } else {
-            return sciHorizontalApplyMapper.countPatentByDeptAndStates(deptId, states, getCurrentYear());
+            return researchDashboardMapper.countPatentByDeptAndStates(deptId, states, getCurrentYear());
         }
     }
 
@@ -1527,7 +1550,7 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
         switch (roleKey) {
             case "sci_tesearch": // 科研处
                 int personalCount2 = countPersonalRewardTodos(user.getUserId(), Arrays.asList("11", "3", "5", "7"));
-                int deptCount2 = sciHorizontalApplyMapper.countRewardByStates(Arrays.asList("4"), getCurrentYear());
+                int deptCount2 = researchDashboardMapper.countRewardByStates(Arrays.asList("4"), getCurrentYear());
                 count = personalCount2 + deptCount2;
                 break;
             case "dept_teacher": // 学院
@@ -1549,15 +1572,15 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
 
     // 添加奖励的个人待办统计
     private int countPersonalRewardTodos(Long userId, List<String> states) {
-        return sciHorizontalApplyMapper.countRewardByUserAndStates(userId, states, getCurrentYear());
+        return researchDashboardMapper.countRewardByUserAndStates(userId, states, getCurrentYear());
     }
 
     // 添加奖励的部门统计
     private int countRewardByDeptAndStates(Long deptId, List<String> states, String roleKey) {
         if (isCollegeLevelRole(roleKey)) {
-            return sciHorizontalApplyMapper.countRewardByDeptAndStatesWithChildren(deptId, states, getCurrentYear());
+            return researchDashboardMapper.countRewardByDeptAndStatesWithChildren(deptId, states, getCurrentYear());
         } else {
-            return sciHorizontalApplyMapper.countRewardByDeptAndStates(deptId, states, getCurrentYear());
+            return researchDashboardMapper.countRewardByDeptAndStates(deptId, states, getCurrentYear());
         }
     }
 
@@ -1568,7 +1591,7 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
         switch (roleKey) {
             case "sci_tesearch": // 科研处
                 int personalCount2 = countPersonalLectureTodos(user.getUserId(), Arrays.asList("0", "3", "7", "5"));
-                int deptCount2 = sciHorizontalApplyMapper.countLectureByStates(Arrays.asList("2"), getCurrentYear());
+                int deptCount2 = researchDashboardMapper.countLectureByStates(Arrays.asList("2"), getCurrentYear());
                 count = personalCount2 + deptCount2;
                 break;
             case "dept_teacher": // 学院
@@ -1590,15 +1613,15 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
 
     // 添加讲座报告的个人待办统计
     private int countPersonalLectureTodos(Long userId, List<String> states) {
-        return sciHorizontalApplyMapper.countLectureByUserAndStates(userId, states, getCurrentYear());
+        return researchDashboardMapper.countLectureByUserAndStates(userId, states, getCurrentYear());
     }
 
     // 添加讲座报告的部门统计
     private int countLectureByDeptAndStates(Long deptId, List<String> states, String roleKey) {
         if (isCollegeLevelRole(roleKey)) {
-            return sciHorizontalApplyMapper.countLectureByDeptAndStatesWithChildren(deptId, states, getCurrentYear());
+            return researchDashboardMapper.countLectureByDeptAndStatesWithChildren(deptId, states, getCurrentYear());
         } else {
-            return sciHorizontalApplyMapper.countLectureByDeptAndStates(deptId, states, getCurrentYear());
+            return researchDashboardMapper.countLectureByDeptAndStates(deptId, states, getCurrentYear());
         }
     }
 
@@ -2064,6 +2087,9 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
     @Autowired
     private IApprovalProcessService approvalProcessService;
 
+    @Autowired
+    private ISysApprovalHistoryService sysApprovalHistoryService;
+
     /**
      * 提交立项申请审批
      * <p>
@@ -2295,6 +2321,28 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
 
         if (!currentState.equals(apply.getState())) {
             return ApprovalResult.fail("申请状态已变更，请刷新后重试");
+        }
+
+        // 驳回状态为合成终态（由 rejectApply 统一修正），不经过审批流直接撤回
+        if (StringUtils.equals(currentState, "HORIZONTAL_APPLY_REJECTED")) {
+            // 从审批历史中查询最近一次驳回记录，获取驳回前的状态
+            SysApprovalHistory lastReject = sysApprovalHistoryService.selectLastRejectByBusinessId(
+                    "HORIZONTAL_APPLY", applyId.longValue());
+            String recallState;
+            if (lastReject != null && StringUtils.isNotEmpty(lastReject.getOldState())) {
+                // oldState 是审批节点编码（如 HORIZONTAL_APPLY_JYS），需转为业务状态编码
+                recallState = nodeCodeToState(lastReject.getOldState());
+            } else {
+                // 无历史记录时回退到草稿
+                recallState = "HORIZONTAL_APPLY_DRAFT";
+            }
+            sciHorizontalApplyMapper.updateState(applyId, recallState);
+            // 记录审批历史
+            saveRecallHistory("HORIZONTAL_APPLY", applyId.longValue(), operatorId, operatorName,
+                    operatorDept, currentState, recallState, comment);
+            log.info("立项申请撤回成功(从驳回状态): applyId={}, recallState={}, operator={}",
+                    applyId, recallState, operatorName);
+            return ApprovalResult.ok("撤回成功", recallState);
         }
 
         String nodeCode = stateToNodeCode(currentState);
@@ -2554,6 +2602,28 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
 
         if (!currentState.equals(apply.getState())) {
             return ApprovalResult.fail("申请状态已变更，请刷新后重试");
+        }
+
+        // 驳回状态为合成终态（由 rejectOver 统一修正），不经过审批流直接撤回
+        if (StringUtils.equals(currentState, "HORIZONTAL_OVER_REJECTED")) {
+            // 从审批历史中查询最近一次驳回记录，获取驳回前的状态
+            SysApprovalHistory lastReject = sysApprovalHistoryService.selectLastRejectByBusinessId(
+                    "HORIZONTAL_OVER", applyId.longValue());
+            String recallState;
+            if (lastReject != null && StringUtils.isNotEmpty(lastReject.getOldState())) {
+                // oldState 是审批节点编码（如 HORIZONTAL_OVER_JYS），需转为业务状态编码
+                recallState = nodeCodeToState(lastReject.getOldState());
+            } else {
+                // 无历史记录时回退到草稿
+                recallState = "HORIZONTAL_OVER_DRAFT";
+            }
+            sciHorizontalApplyMapper.updateState(applyId, recallState);
+            // 记录审批历史
+            saveRecallHistory("HORIZONTAL_OVER", applyId.longValue(), operatorId, operatorName,
+                    operatorDept, currentState, recallState, comment);
+            log.info("结项申请撤回成功(从驳回状态): applyId={}, recallState={}, operator={}",
+                    applyId, recallState, operatorName);
+            return ApprovalResult.ok("撤回成功", recallState);
         }
 
         String nodeCode = stateToNodeCode(currentState);

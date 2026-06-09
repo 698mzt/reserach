@@ -596,13 +596,10 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
         return list;
     }
     /**
-     * 查询专利软著列表（教师）
-     *
-     * @param sciZhuanliruanzhu 专利软著
-     * @return 专利软著集合
+     * 查询专利软著列表（教师，含成员可见）
+     * 不使用 @DataScope，SQL 中已通过成员字段匹配处理数据范围
      */
     @Override
-    @DataScope(deptAlias = "d", userAlias = "u")
     public List<SciZhuanliruanzhu> selectSciZhuanliruanzhuList1(SciZhuanliruanzhu sciZhuanliruanzhu)
     {
         List<SciZhuanliruanzhu> list = sciZhuanliruanzhuMapper.selectSciZhuanliruanzhuList1(sciZhuanliruanzhu);

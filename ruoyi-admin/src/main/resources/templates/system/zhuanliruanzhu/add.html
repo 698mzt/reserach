@@ -29,7 +29,7 @@
                 <div class="col-sm-6">
                     <label class="col-sm-4 control-label is-required">名称：</label>
                     <div class="col-sm-8">
-                        <input name="mingcheng" class="form-control" type="text" required maxlength="50" placeholder="XXX系统[简称：XXX]V1.0(与软著名称一致)">
+                        <input name="mingcheng" class="form-control" type="text" required maxlength="50" placeholder="XXX系统[简称：XXX]V1.0(与软著名称一致)" pattern=".*V\d+(\.\d+)*.*" title="名称需包含版本号，格式如：XXX系统V1.0 或 XXX系统[简称：XXX]V1.0">
                     </div>
                 </div>
                 <div class="col-sm-6">
@@ -221,14 +221,21 @@
         });
         function submitHandler() {
             if ($.validate.form()) {
+                // 校验名称格式：需包含版本号，如 V1.0
+                const mingcheng = $("input[name='mingcheng']").val();
+                const namePattern = /V\d+(\.\d+)*/;
+                if (!namePattern.test(mingcheng)) {
+                    $.modal.alertWarning("名称格式不正确，需包含版本号，格式如：XXX系统V1.0 或 XXX系统[简称：XXX]V1.0");
+                    return;
+                }
+
                 // 检查文件是否上传
                 if ($("input[name='wenjian']").val() == "") {
                     return $.modal.alertError("请上传专利文件");
                 }
 
                 // 获取名称和负责人级别
-                const mingcheng = $("input[name='mingcheng']").val();
-                // 本系统中新增时默认“负责人级别=1”（主持人），成员位置不通过该下拉框控制科研分
+                // 本系统中新增时默认"负责人级别=1"（主持人），成员位置不通过该下拉框控制科研分
                 const paiming = "1";
 
                 // 发起异步请求验证是否存在相同记录

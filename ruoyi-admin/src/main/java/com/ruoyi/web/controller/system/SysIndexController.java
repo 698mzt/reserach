@@ -14,6 +14,7 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import com.alibaba.fastjson.JSON;
 import com.ruoyi.common.config.RuoYiConfig;
@@ -33,6 +34,7 @@ import com.ruoyi.framework.shiro.service.SysPasswordService;
 import com.ruoyi.system.service.ISysConfigService;
 import com.ruoyi.system.service.ISysMenuService;
 import com.ruoyi.system.service.ISysRoleService;
+import com.ruoyi.system.service.IResearchDashboardService;
 
 /**
  * 首页 业务处理
@@ -42,8 +44,6 @@ import com.ruoyi.system.service.ISysRoleService;
 @Controller
 public class SysIndexController extends BaseController
 {
-    private String prefix = "system/StatsQuery/view";
-
     @Autowired
     private ISysMenuService menuService;
 
@@ -55,6 +55,9 @@ public class SysIndexController extends BaseController
 
     @Autowired
     private ISysRoleService roleService;
+
+    @Autowired
+    private IResearchDashboardService researchDashboardService;
 
     // 系统首页
     @GetMapping("/index")
@@ -191,8 +194,16 @@ public class SysIndexController extends BaseController
         SysUser user = getSysUser();
         mmap.put("user", user);
         //首页设置
-        return prefix;
+        putMainRoleSwitchData(mmap, user);
+        return "main_research";
         //return "main_v2";
+    }
+
+    @GetMapping("/system/main/dashboard")
+    @ResponseBody
+    public AjaxResult dashboard(@RequestParam(value = "year", required = false) String year)
+    {
+        return AjaxResult.success(researchDashboardService.getDashboard(ShiroUtils.getSysUser(), year));
     }
 
     // content-main class
@@ -258,5 +269,36 @@ public class SysIndexController extends BaseController
                 filterAdminStatisticMenus(menu.getChildren());
             }
         }
+    }
+
+    private void putMainRoleSwitchData(ModelMap mmap, SysUser user)
+    {
+        List<SysRole> allRoles = roleService.selectRolesByUserIdExcludingDataScope(user.getUserId());
+        List<SysRole> activeRoles = allRoles.stream()
+                .filter(r -> "0".equals(r.getStatus()))
+                .collect(Collectors.toList());
+        Object activeRoleId = ShiroUtils.getSubject().getSession(false).getAttribute("activeRoleId");
+        mmap.put("roleListJson", activeRoles.size() <= 1 ? "[]" : JSON.toJSONString(activeRoles));
+        mmap.put("activeRoleId", activeRoleId);
+        mmap.put("activeRoleName", getActiveRoleName(activeRoles, activeRoleId));
+    }
+
+    private String getActiveRoleName(List<SysRole> activeRoles, Object activeRoleId)
+    {
+        if (activeRoles == null || activeRoles.isEmpty())
+        {
+            return "";
+        }
+        if (activeRoleId != null)
+        {
+            for (SysRole role : activeRoles)
+            {
+                if (role.getRoleId() != null && role.getRoleId().toString().equals(activeRoleId.toString()))
+                {
+                    return role.getRoleName();
+                }
+            }
+        }
+        return activeRoles.get(0).getRoleName();
     }
 }

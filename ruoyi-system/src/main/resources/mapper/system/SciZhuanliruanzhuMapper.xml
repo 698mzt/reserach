@@ -58,7 +58,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <if test="mingcheng != null  and mingcheng != ''"> and mingcheng like concat('%', #{mingcheng}, '%')</if>
         <if test="huopishijain != null "> and huopishijain = #{huopishijain}</if>
         <if test="fenlei != null  and fenlei != ''"> and fenlei = #{fenlei}</if>
-        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(createtime,INTERVAL 1 MONTH)) = #{year}</if>
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(s.huopishijain,INTERVAL 1 MONTH)) = #{year}</if>
         <if test="userId != null  and userId != ''">and s.user_id = #{uid}</if>
         ${params.dataScope}
         order by
@@ -72,7 +72,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <if test="mingcheng != null  and mingcheng != ''"> and mingcheng like concat('%', #{mingcheng}, '%')</if>
         <if test="huopishijain != null "> and huopishijain = #{huopishijain}</if>
         <if test="fenlei != null  and fenlei != ''"> and fenlei = #{fenlei}</if>
-        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(createtime,INTERVAL 1 MONTH)) = #{year}</if>
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(s.huopishijain,INTERVAL 1 MONTH)) = #{year}</if>
         <if test="userId != null  and userId != ''">and s.user_id = #{uid}</if>
         ${params.dataScope}
         order by
@@ -86,23 +86,29 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <if test="mingcheng != null  and mingcheng != ''"> and mingcheng like concat('%', #{mingcheng}, '%')</if>
         <if test="huopishijain != null "> and huopishijain = #{huopishijain}</if>
         <if test="fenlei != null  and fenlei != ''"> and fenlei = #{fenlei}</if>
-        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(createtime,INTERVAL 1 MONTH)) = #{year}</if>
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(s.huopishijain,INTERVAL 1 MONTH)) = #{year}</if>
         <if test="userId != null  and userId != ''">and s.user_id = #{uid}</if>
         ${params.dataScope}
         order by
         s.createtime desc
     </select>
 
-<!--    教师查询语句-->
+<!--    教师查询语句（包含成员可见）-->
     <select id="selectSciZhuanliruanzhuList1" parameterType="SciZhuanliruanzhu" resultMap="SciZhuanliruanzhuResult">
         <include refid="selectSciZhuanliruanzhuVo"/>
-        where state in (0,1,2,3,4,5,6,7) and s.user_id = #{uid}
-        <if test="userId != null  and userId != ''">and s.user_id = #{uid}</if>
+        where state in (0,1,2,3,4,5,6,7)
+        and (
+            s.user_id = #{uid}
+            OR s.first_person_id = #{uid}
+            OR s.second_person_id = #{uid}
+            OR s.third_person_id = #{uid}
+            OR s.fourth_person_id = #{uid}
+            OR s.members LIKE CONCAT('%"', #{uid}, '"%')
+        )
         <if test="mingcheng != null  and mingcheng != ''"> and mingcheng like concat('%', #{mingcheng}, '%')</if>
             <if test="huopishijain != null "> and huopishijain = #{huopishijain}</if>
             <if test="fenlei != null  and fenlei != ''"> and fenlei = #{fenlei}</if>
-        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(createtime,INTERVAL 1 MONTH)) = #{year}</if>
-        ${params.dataScope}
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(s.huopishijain,INTERVAL 1 MONTH)) = #{year}</if>
         order by
         case
 --         草稿箱
@@ -125,7 +131,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <if test="mingcheng != null  and mingcheng != ''"> and mingcheng like concat('%', #{mingcheng}, '%')</if>
         <if test="huopishijain != null "> and huopishijain = #{huopishijain}</if>
         <if test="fenlei != null  and fenlei != ''"> and fenlei = #{fenlei}</if>
-        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(createtime,INTERVAL 1 MONTH)) = #{year}</if>
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(s.huopishijain,INTERVAL 1 MONTH)) = #{year}</if>
         ${params.dataScope}
         order by
         case
@@ -149,7 +155,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <if test="mingcheng != null  and mingcheng != ''"> and mingcheng like concat('%', #{mingcheng}, '%')</if>
         <if test="huopishijain != null "> and huopishijain = #{huopishijain}</if>
         <if test="fenlei != null  and fenlei != ''"> and fenlei = #{fenlei}</if>
-        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(createtime,INTERVAL 1 MONTH)) = #{year}</if>
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(s.huopishijain,INTERVAL 1 MONTH)) = #{year}</if>
         ${params.dataScope}
         order by
         case
@@ -174,7 +180,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <if test="mingcheng != null  and mingcheng != ''"> and mingcheng like concat('%', #{mingcheng}, '%')</if>
         <if test="huopishijain != null "> and huopishijain = #{huopishijain}</if>
         <if test="fenlei != null  and fenlei != ''"> and fenlei = #{fenlei}</if>
-        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(createtime,INTERVAL 1 MONTH)) = #{year}</if>
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(s.huopishijain,INTERVAL 1 MONTH)) = #{year}</if>
         <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
         ${params.dataScope}
         order by
