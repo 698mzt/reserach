@@ -2336,7 +2336,7 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
                 // 无历史记录时回退到草稿
                 recallState = "HORIZONTAL_APPLY_DRAFT";
             }
-            sciHorizontalApplyMapper.updateState(applyId, recallState);
+            approvalProcessService.updateBusinessState("HORIZONTAL_APPLY", applyId.longValue(), recallState);
             // 记录审批历史
             saveRecallHistory("HORIZONTAL_APPLY", applyId.longValue(), operatorId, operatorName,
                     operatorDept, currentState, recallState, comment);
@@ -2363,7 +2363,7 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
             String newState = result.getNewState();
             String correctedState = nodeCodeToState(newState);
             if (!correctedState.equals(newState)) {
-                sciHorizontalApplyMapper.updateState(applyId, correctedState);
+                approvalProcessService.updateBusinessState("HORIZONTAL_APPLY", applyId.longValue(), correctedState);
                 result = ApprovalResult.ok(result.getMessage(), correctedState);
             }
             log.info("立项申请撤回成功: applyId={}, currentState={}, newState={}, operator={}",
@@ -2617,7 +2617,7 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
                 // 无历史记录时回退到草稿
                 recallState = "HORIZONTAL_OVER_DRAFT";
             }
-            sciHorizontalApplyMapper.updateState(applyId, recallState);
+            approvalProcessService.updateBusinessState("HORIZONTAL_OVER", applyId.longValue(), recallState);
             // 记录审批历史
             saveRecallHistory("HORIZONTAL_OVER", applyId.longValue(), operatorId, operatorName,
                     operatorDept, currentState, recallState, comment);
@@ -2644,7 +2644,7 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
             String newState = result.getNewState();
             String correctedState = nodeCodeToState(newState);
             if (!correctedState.equals(newState)) {
-                sciHorizontalApplyMapper.updateState(applyId, correctedState);
+                approvalProcessService.updateBusinessState("HORIZONTAL_OVER", applyId.longValue(), correctedState);
                 result = ApprovalResult.ok(result.getMessage(), correctedState);
             }
             log.info("结项申请撤回成功: applyId={}, currentState={}, newState={}, operator={}",
