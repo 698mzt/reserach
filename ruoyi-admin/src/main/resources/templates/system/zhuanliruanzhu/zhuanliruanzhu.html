@@ -821,6 +821,7 @@
                             var state = String(row.state);
                             var isPassed = state === 'PATENT_PASSED' || state === '6';
                             var isKycAudit = state === 'PATENT_KYC_AUDIT' || state === '2' || state === '4';
+                            var isRejected = state === 'PATENT_REJECTED' || ['3', '5', '7'].indexOf(state) !== -1;
                             
                             var hasReviewAction = row.actions.some(function(action) {
                                 return action.actionKey === 'review' || action.actionKey === 'kyReview';
@@ -831,18 +832,18 @@
                                     return false;
                                 }
                                 if (isResearch && a.actionKey === 'recall') {
-                                    return isKycAudit;
+                                    return isKycAudit || isRejected;
                                 }
                                 if (isSciTesearch && a.actionKey === 'recall') {
                                     if (hasReviewAction) {
                                         return false;
                                     }
-                                    return isPassed;
+                                    return isPassed || isRejected;
                                 }
                                 return a.actionKey !== 'approve' && a.actionKey !== 'reject';
                             });
                             
-                            if (isResearch && isKycAudit) {
+                            if (isResearch && (isKycAudit || isRejected)) {
                                 var hasRecallAction = listActions.some(function(a) {
                                     return a.actionKey === 'recall';
                                 });
@@ -857,7 +858,7 @@
                                 }
                             }
                             
-                            if (isSciTesearch && isPassed && !hasReviewAction) {
+                            if (isSciTesearch && (isPassed || isRejected) && !hasReviewAction) {
                                 var hasRecallAction = listActions.some(function(a) {
                                     return a.actionKey === 'recall';
                                 });
