@@ -680,7 +680,10 @@
 
         function getUrl(tableId) {
             var year = localStorage.getItem("year");
-            return prefix + "/list/?year=" + year;
+            if (year && year !== '全部') {
+                return prefix + "/list/?year=" + year;
+            }
+            return prefix + "/list/";
         }
 
         var options = {
