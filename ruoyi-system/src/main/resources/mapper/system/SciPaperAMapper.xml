@@ -166,7 +166,7 @@
             <if test="paperRanking != null  and paperRanking != ''"> and paper_ranking = #{paperRanking}</if>
             <if test="researchScore != null  and researchScore != ''"> and research_score = #{researchScore}</if>
             <if test="remarks != null  and remarks != ''"> and remarks = #{remarks}</if>
-            <if test="year != null  and year != ''"> and YEAR(publication_time) = #{year}</if>
+            <if test="year != null  and year != ''"> and YEAR(DATE_ADD(publication_time, INTERVAL 1 MONTH)) = #{year}</if>
             <if test="college != null  and college != ''"> and pt.dept_name like concat('%', #{college}, '%')</if>
             <if test="researchRoom != null  and researchRoom != ''"> and d.dept_name like concat('%', #{researchRoom}, '%')</if>
             <if test="firstAuthorName != null  and firstAuthorName != ''"> and pa1.user_name like concat('%', #{firstAuthorName}, '%')</if>
@@ -293,7 +293,7 @@
             <if test="paperRanking != null  and paperRanking != ''"> and paper_ranking = #{paperRanking}</if>
             <if test="researchScore != null  and researchScore != ''"> and research_score = #{researchScore}</if>
             <if test="remarks != null  and remarks != ''"> and remarks = #{remarks}</if>
-            <if test="year != null  and year != ''"> and YEAR(publication_time) = #{year}</if>
+            <if test="year != null  and year != ''"> and YEAR(DATE_ADD(publication_time, INTERVAL 1 MONTH)) = #{year}</if>
             <if test="college != null  and college != ''"> and pt.dept_name like concat('%', #{college}, '%')</if>
             <if test="researchRoom != null  and researchRoom != ''"> and d.dept_name like concat('%', #{researchRoom}, '%')</if>
             <if test="firstAuthorName != null  and firstAuthorName != ''"> and pa1.user_name like concat('%', #{firstAuthorName}, '%')</if>
@@ -327,7 +327,7 @@
             <if test="paperRanking != null  and paperRanking != ''"> and paper_ranking = #{paperRanking}</if>
             <if test="researchScore != null  and researchScore != ''"> and research_score = #{researchScore}</if>
             <if test="remarks != null  and remarks != ''"> and remarks = #{remarks}</if>
-            <if test="year != null  and year != ''"> and YEAR(publication_time) = #{year}</if>
+            <if test="year != null  and year != ''"> and YEAR(DATE_ADD(publication_time, INTERVAL 1 MONTH)) = #{year}</if>
             <if test="college != null  and college != ''"> and pt.dept_name like concat('%', #{college}, '%')</if>
             <if test="researchRoom != null  and researchRoom != ''"> and d.dept_name like concat('%', #{researchRoom}, '%')</if>
             <if test="firstAuthorName != null  and firstAuthorName != ''"> and pa1.user_name like concat('%', #{firstAuthorName}, '%')</if>
@@ -448,7 +448,7 @@
             <if test="paperRanking != null  and paperRanking != ''"> and paper_ranking = #{paperRanking}</if>
             <if test="researchScore != null  and researchScore != ''"> and research_score = #{researchScore}</if>
             <if test="remarks != null  and remarks != ''"> and remarks = #{remarks}</if>
-            <if test="year != null  and year != ''"> and YEAR(publication_time) = #{year}</if>
+            <if test="year != null  and year != ''"> and YEAR(DATE_ADD(publication_time, INTERVAL 1 MONTH)) = #{year}</if>
         </where>
       order by 
         case 
@@ -545,7 +545,7 @@
             <if test="paperRanking != null  and paperRanking != ''"> and paper_ranking = #{paperRanking}</if>
             <if test="researchScore != null  and researchScore != ''"> and research_score = #{researchScore}</if>
             <if test="remarks != null  and remarks != ''"> and remarks = #{remarks}</if>
-            <if test="year != null  and year != ''"> and YEAR(publication_time) = #{year}</if>
+            <if test="year != null  and year != ''"> and YEAR(DATE_ADD(publication_time, INTERVAL 1 MONTH)) = #{year}</if>
         </where>
 
       order by 
@@ -693,7 +693,7 @@
         <if test="paperRanking != null  and paperRanking != ''"> and paper_ranking = #{paperRanking}</if>
         <if test="researchScore != null  and researchScore != ''"> and research_score = #{researchScore}</if>
         <if test="remarks != null  and remarks != ''"> and remarks = #{remarks}</if>
-        <if test="year != null  and year != ''"> and YEAR(publication_time) = #{year}</if>
+        <if test="year != null  and year != ''"> and YEAR(DATE_ADD(publication_time, INTERVAL 1 MONTH)) = #{year}</if>
       </where>
       order by 
         case 
