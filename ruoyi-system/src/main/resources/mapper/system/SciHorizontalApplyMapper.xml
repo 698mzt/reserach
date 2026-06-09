@@ -826,7 +826,7 @@
             </if>
             <!-- 年度过滤 -->
             <if test="year != null and year != ''">
-                AND YEAR(publication_time) = #{year}
+                AND YEAR(DATE_ADD(publication_time, INTERVAL 1 MONTH)) = #{year}
             </if>
         </where>
     </sql>
@@ -856,7 +856,7 @@
         <foreach item="state" collection="states" open="(" separator="," close=")">
             #{state}
         </foreach>
-        AND YEAR(a.publication_time) = #{year}
+        AND YEAR(DATE_ADD(a.publication_time, INTERVAL 1 MONTH)) = #{year}
     </select>
 
     <!-- 论文部门统计 -->
@@ -869,7 +869,7 @@
         <foreach item="state" collection="states" open="(" separator="," close=")">
             #{state}
         </foreach>
-        AND YEAR(a.publication_time) = #{year}
+        AND YEAR(DATE_ADD(a.publication_time, INTERVAL 1 MONTH)) = #{year}
     </select>
 
     <!-- 论文个人待办统计 -->
@@ -880,7 +880,7 @@
         <foreach item="state" collection="states" open="(" separator="," close=")">
             #{state}
         </foreach>
-        AND YEAR(publication_time) = #{year}
+        AND YEAR(DATE_ADD(publication_time, INTERVAL 1 MONTH)) = #{year}
     </select>
 
 

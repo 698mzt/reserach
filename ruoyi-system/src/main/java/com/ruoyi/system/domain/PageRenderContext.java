@@ -46,6 +46,9 @@ public class PageRenderContext implements Serializable {
     /** 流程编码（如 PAPER_APPROVAL、HORIZONTAL_APPLY），由调用方设置，用于查询审批流程配置 */
     private String processCode;
 
+    /** 当前活跃角色标识（roleKey），用于判断当前登录用户是以何种角色操作 */
+    private String activeRoleKey;
+
     public PageRenderContext() {
     }
 
@@ -208,6 +211,14 @@ public class PageRenderContext implements Serializable {
 
     public void setProcessCode(String processCode) {
         this.processCode = processCode;
+    }
+
+    public String getActiveRoleKey() {
+        return activeRoleKey;
+    }
+
+    public void setActiveRoleKey(String activeRoleKey) {
+        this.activeRoleKey = activeRoleKey;
     }
 
     @Override
