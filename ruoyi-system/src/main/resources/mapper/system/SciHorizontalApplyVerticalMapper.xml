@@ -252,7 +252,7 @@
                                               left join sys_dept d on u.dept_id = d.dept_id
                                               left join sys_dept p on d.parent_id =p.dept_id
                                               left join sys_approval_state st on s.state = st.state_code
-        where  s.state  in ('VERTICAL_OVER_JYS_AUDIT','VERTICAL_OVER_XY_AUDIT','VERTICAL_OVER_KYC_AUDIT')
+        where  s.state  in ('VERTICAL_OVER_JYS_AUDIT','VERTICAL_OVER_XY_AUDIT','VERTICAL_OVER_KYC_AUDIT','VERTICAL_OVER_REJECTED')
         <if test="year != null and year != ''">
             AND YEAR(DATE_ADD(COALESCE(s.validity_data, s.signing_data), INTERVAL 1 MONTH)) = #{year}
         </if>
@@ -303,7 +303,7 @@
                                               left join sys_dept d on u.dept_id = d.dept_id
                                               left join sys_dept p on d.parent_id =p.dept_id
                                               left join sys_approval_state st on s.state = st.state_code
-        where s.state in ('VERTICAL_OVER_KYC_AUDIT')
+        where s.state in ('VERTICAL_OVER_JYS_AUDIT','VERTICAL_OVER_XY_AUDIT','VERTICAL_OVER_KYC_AUDIT','VERTICAL_OVER_REJECTED')
         <if test="year != null and year != ''">
             AND YEAR(DATE_ADD(COALESCE(s.validity_data, s.signing_data), INTERVAL 1 MONTH)) = #{year}
         </if>
