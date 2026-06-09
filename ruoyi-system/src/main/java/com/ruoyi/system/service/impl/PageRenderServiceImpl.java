@@ -3,6 +3,7 @@ package com.ruoyi.system.service.impl;
 import com.ruoyi.common.core.domain.entity.SysRole;
 import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.common.utils.ShiroUtils;
+import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.system.constant.PageRenderActionConstants;
 import com.ruoyi.system.constant.PageRenderColorConstants;
 import com.ruoyi.system.domain.*;
@@ -10,6 +11,7 @@ import com.ruoyi.system.mapper.SysApprovalNodeMapper;
 import com.ruoyi.system.mapper.SysApprovalProcessMapper;
 import com.ruoyi.system.mapper.SysApprovalStateMapper;
 import com.ruoyi.system.service.IPageRenderService;
+import com.ruoyi.system.service.ISysApprovalHistoryService;
 import com.ruoyi.system.service.ISysMenuService;
 import com.ruoyi.system.service.ISysRoleService;
 import org.apache.shiro.SecurityUtils;
@@ -149,6 +151,9 @@ public class PageRenderServiceImpl implements IPageRenderService {
 
     @Autowired
     private ISysRoleService roleService;
+
+    @Autowired
+    private ISysApprovalHistoryService sysApprovalHistoryService;
 
     /** 八大模块配置注册表（moduleCode -> ModuleConfig） */
     private final Map<String, ModuleConfig> MODULE_REGISTRY = new HashMap<>();
@@ -880,6 +885,32 @@ public class PageRenderServiceImpl implements IPageRenderService {
             specificActions.add(PageRenderActionItem.of(
                     PageRenderActionConstants.ACTION_RECALL, "撤回",
                     PageRenderColorConstants.COLOR_WARNING, 40, "确定要撤回该驳回记录吗？"));
+        }
+
+        // 论文驳回状态：仅该条驳回操作的执行人可撤回，不能替他人撤回
+        if ("PAPER".equals(moduleCode) && context.getCurrentState() != null
+                && SciPaperA.PAPER_REJECTED.equals(context.getCurrentState())) {
+            boolean isAdmin = context.hasRole("admin");
+            boolean isOwner = context.isOwner();
+            boolean hasRevokePerm = context.hasPermission(config.getPermission("revoke"));
+            boolean hasKypyPerm = context.hasPermission(config.getPermission("kypy"));
+            boolean hasApprovePerm = context.hasPermission(config.getPermission("approve"));
+            // 查询最近一次驳回记录，检查是否为当前用户驳回
+            boolean isRejectOperator = false;
+            if (context.getBusinessId() != null && StringUtils.isNotEmpty(context.getProcessCode())) {
+                SysApprovalHistory lastReject = sysApprovalHistoryService.selectLastRejectByBusinessId(
+                        context.getProcessCode(), context.getBusinessId());
+                if (lastReject != null && lastReject.getOperatorId() != null
+                        && context.getCurrentUser() != null) {
+                    isRejectOperator = lastReject.getOperatorId().equals(context.getCurrentUser().getUserId());
+                }
+            }
+            // 系统管理员 或 驳回操作人（且拥有相应权限）才能撤回
+            if (isAdmin || (isRejectOperator && (hasRevokePerm || hasKypyPerm || hasApprovePerm || isOwner))) {
+                specificActions.add(PageRenderActionItem.of(
+                        PageRenderActionConstants.ACTION_RECALL, "撤回",
+                        PageRenderColorConstants.COLOR_WARNING, 40, "确定要撤回该记录吗？"));
+            }
         }
 
         // 纵向课题立项通过后显示"申请结项"按钮

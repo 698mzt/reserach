@@ -98,4 +98,12 @@
         order by h.create_time desc
         limit 1
     </select>
+
+    <select id="selectLastRecallableByBusinessId" resultMap="SysApprovalHistoryResult">
+        <include refid="selectSysApprovalHistoryVo"/>
+        where h.process_code = #{processCode} and h.business_id = #{businessId}
+          and h.action != 'recall' and h.new_state = #{currentState}
+        order by h.create_time desc
+        limit 1
+    </select>
 </mapper>
