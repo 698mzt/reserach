@@ -13,6 +13,8 @@ public interface ISysApprovalHistoryService {
 
     public SysApprovalHistory selectLastRejectByBusinessId(String processCode, Long businessId);
 
+    public SysApprovalHistory selectLastRecallableByBusinessId(String processCode, Long businessId, String currentState);
+
     public int insertSysApprovalHistory(SysApprovalHistory sysApprovalHistory);
 
     public int deleteSysApprovalHistoryByIds(Long[] ids);
