@@ -574,17 +574,31 @@
         return map[urlFlag] || 'reviewPro';
     }
 
+    /**
+     * 撤回按钮显隐判断
+     * 参考论文模块 PageRenderService.buildSpecificActions()，
+     * 公有方法 approvalProcessService.recall() 已基于审批记录处理所有撤回逻辑
+     * （含驳回态撤回），前端只需根据角色和状态控制按钮显示
+     */
     function canShowRecallButton(row, state) {
         var role = currentRole || row.role || "";
+        var s = normalizeTecTraStatusCode(state);
+
         if (role === "admin") {
             return true;
         }
-        if (role === "research") {
-            return ["2", "TEC_TRA_KYC_AUDIT"].includes(state);
-        }
+
+        // 科研处：通过后撤回、驳回态撤回（公有方法根据审批记录判断实际回退目标）
         if (role === "sci_tesearch") {
-            return ["4", "6", "TEC_TRA_PASSED"].includes(state);
+            return s === "TEC_TRA_PASSED" || s === "TEC_TRA_REJECTED";
         }
+
+        // 教研室：科研处审批中撤回、驳回态撤回
+        if (role === "research") {
+            return s === "TEC_TRA_KYC_AUDIT" || s === "TEC_TRA_REJECTED";
+        }
+
+        // 教师暂不显示撤回按钮
         return false;
     }
 
@@ -648,79 +662,69 @@
 
     function buildApprovalActions(row, actions) {
         var state = normalizeState(row.state);
+        var role = currentRole || row.role || "";
 
-        if (["15", "TEC_TRA_DRAFT"].includes(state) && row.userId == row.uid) {
+        // 草稿状态：仅 teacher / admin 可见提交、编辑、删除
+        if (["15", "TEC_TRA_DRAFT"].includes(state) && row.userId == row.uid
+                && (role === "teacher" || role === "admin")) {
             actions.push(makeAction("submit", "提交", "primary", 1));
             actions.push(makeAction("edit", "编辑", "success", 2));
             actions.push(makeAction("delete", "删除", "danger", 3));
         }
 
-        if (row.role === "research") {
+        // 驳回状态：仅 teacher / admin 可见编辑按钮
+        // 科研处 / 教研室 / 学院管理员角色不应看到编辑按钮
+        if (["3", "12", "5", "TEC_TRA_REJECTED"].includes(state) && row.userId == row.uid
+                && (role === "teacher" || role === "admin")) {
+            actions.push(makeAction("edit", "编辑", "customGreen", 2));
+        }
+
+        // 管理员角色的审批按钮（不包含驳回态的编辑按钮）
+        if (role === "research") {
             if (["1", "TEC_TRA_JYS_AUDIT"].includes(state)) {
                 actions.push(makeAction(reviewActionKey("pro"), "批阅", "primary", 1));
-            } else if (row.userId == row.uid && ["3", "12", "5", "TEC_TRA_REJECTED"].includes(state)) {
-                actions.push(makeAction("edit", "编辑", "customGreen", 2));
             }
-        } else if (row.role === "dept_teacher") {
+        } else if (role === "dept_teacher") {
             if (["11", "TEC_TRA_KYC_AUDIT"].includes(state) && false && isDeptMatched(row)) {
                 actions.push(makeAction(reviewActionKey("dept_teacher"), "批阅", "primary", 1));
-            } else if (row.userId == row.uid && ["9", "10", "14"].includes(state)) {
-                actions.push(makeAction("edit", "编辑", "success", 2));
             }
-        } else if (row.role === "sci_tesearch") {
+        } else if (role === "sci_tesearch") {
             if (["2", "TEC_TRA_KYC_AUDIT"].includes(state)) {
                 actions.push(makeAction(reviewActionKey("hecha"), "批阅", "primary", 1));
-            } else if (row.userId == row.uid && ["3", "12", "5", "TEC_TRA_REJECTED"].includes(state)) {
-                actions.push(makeAction("edit", "编辑", "customGreen", 2));
-            }
-        } else if (row.role === "teacher") {
-            if (row.userId == row.uid) {
-                if (["3", "12", "5", "TEC_TRA_REJECTED"].includes(state)) {
-                    actions.push(makeAction("edit", "编辑", "customGreen", 2));
-                }
             }
         }
     }
 
     function buildClosureActions(row, actions) {
         var state = normalizeState(row.state);
+        var role = currentRole || row.role || "";
 
-        if (row.role === "research") {
-            if (isDeptMatched(row)) {
-                if (state === "7") {
-                    actions.push(makeAction(reviewActionKey("JYSOVER"), "批阅", "primary", 1));
-                }
+        // 结项草稿：仅 teacher / admin 可见提交、编辑
+        if (state === "16" && row.userId == row.uid
+                && (role === "teacher" || role === "admin")) {
+            actions.push(makeAction("submit", "提交", "primary", 1));
+            actions.push(makeAction("edit", "编辑", "success", 2));
+        }
+
+        // 结项驳回：仅 teacher / admin 可见编辑按钮
+        // 科研处 / 教研室 / 学院管理员角色不应看到编辑按钮
+        if (["9", "10", "14"].includes(state) && row.userId == row.uid
+                && (role === "teacher" || role === "admin")) {
+            actions.push(makeAction("edit", "编辑", "success", 2));
+        }
+
+        // 管理员角色的结项审批按钮（不包含驳回态的编辑按钮）
+        if (role === "research") {
+            if (isDeptMatched(row) && state === "7") {
+                actions.push(makeAction(reviewActionKey("JYSOVER"), "批阅", "primary", 1));
             }
-            if (row.userId == row.uid) {
-                if (["9", "10", "14"].includes(state)) {
-                    actions.push(makeAction("edit", "编辑", "success", 2));
-                } else if (state === "16") {
-                    actions.push(makeAction("submit", "提交", "primary", 1));
-                    actions.push(makeAction("edit", "编辑", "success", 2));
-                }
+        } else if (role === "dept_teacher") {
+            if (isDeptMatched(row) && state === "13") {
+                actions.push(makeAction(reviewActionKey("dept_teacher"), "批阅", "primary", 1));
             }
-        } else if (row.role === "dept_teacher") {
-            if (isDeptMatched(row)) {
-                if (state === "13") {
-                    actions.push(makeAction(reviewActionKey("dept_teacher"), "批阅", "primary", 1));
-                } else if (row.userId == row.uid && ["9", "10", "14"].includes(state)) {
-                    actions.push(makeAction("edit", "编辑", "success", 2));
-                }
-            }
-        } else if (row.role === "sci_tesearch") {
+        } else if (role === "sci_tesearch") {
             if (state === "8") {
                 actions.push(makeAction(reviewActionKey("KYCOVER"), "批阅", "primary", 1));
-            } else if (row.userId == row.uid && ["9", "10", "14"].includes(state)) {
-                actions.push(makeAction("edit", "编辑", "success", 2));
-            }
-        } else if (row.role === "teacher") {
-            if (row.userId == row.uid) {
-                if (state === "16") {
-                    actions.push(makeAction("submit", "提交", "primary", 1));
-                    actions.push(makeAction("edit", "编辑", "success", 2));
-                } else if (["9", "10", "14"].includes(state)) {
-                    actions.push(makeAction("edit", "编辑", "success", 2));
-                }
             }
         }
     }
@@ -746,16 +750,27 @@
             buildClosureActions(row, actions);
         }
 
-        
+        // 驳回状态兜底编辑按钮：同样仅 teacher / admin 可见
         if (["3", "5", "12", "TEC_TRA_REJECTED"].includes(state)
             && row.userId == row.uid
+            && (role === "teacher" || role === "admin")
             && !actions.some(function(a) { return a.actionKey === 'edit'; })) {
             actions.unshift(makeAction("edit", "编辑", "customGreen", 0));
         }
 
-        // 撤回按钮
-        if (canShowRecallButton(row, state)) {
-            actions.push(makeAction("recall", "撤回", "warning", 90));
+        // 撤回按钮：优先使用服务端 actions 中的计算结果
+        // 服务端 fillPageRenderData() 已调用公有方法查审批记录，
+        // 驳回态仅驳回操作人可见撤回按钮（与论文模块逻辑一致）
+        if (row.actions && row.actions.length) {
+            for (var i = 0; i < row.actions.length; i++) {
+                if (row.actions[i].actionKey === 'recall') {
+                    var recallAction = row.actions[i];
+                    actions.push(makeAction('recall', recallAction.actionText || '撤回',
+                            recallAction.colorType || 'warning', recallAction.sortOrder || 90,
+                            recallAction.confirmMsg));
+                    break;
+                }
+            }
         }
 
         // 查看和查看流程放在最后
@@ -924,15 +939,17 @@
         });
     }
 
+    /**
+     * 撤回时的 urlFlag 参数
+     * 公有方法 approvalProcessService.recall() 已基于审批记录处理状态回退，
+     * urlFlag 仅作辅助标识，REJECTED 状态传空由公有方法全权处理
+     */
     function getRecallUrlFlag(state) {
-        var normalizedState = normalizeTecTraStatusCode(state);
-        if (normalizedState === "TEC_TRA_KYC_AUDIT") {
-            return "pro";
-        }
-        if (normalizedState === "TEC_TRA_PASSED") {
-            return "hecha";
-        }
-        return "";
+        var s = normalizeTecTraStatusCode(state);
+        if (s === "TEC_TRA_KYC_AUDIT") return "pro";
+        if (s === "TEC_TRA_PASSED") return "hecha";
+        // REJECTED 等其余状态由公有 recall() 根据审批记录判断回退目标
+        return "recall";
     }
 
     var batchDownloadInProgress = false;
@@ -1236,6 +1253,7 @@
             }
         });
     });
+
 </script>
 </body>
 </html>

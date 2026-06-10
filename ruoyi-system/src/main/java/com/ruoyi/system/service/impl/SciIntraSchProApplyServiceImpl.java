@@ -4,19 +4,30 @@ import com.ruoyi.common.annotation.DataScope;
 import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.common.utils.DataScopeUtils;
 import com.ruoyi.common.core.text.Convert;
+import com.ruoyi.system.domain.ApprovalRequest;
+import com.ruoyi.system.domain.ApprovalResult;
+import com.ruoyi.system.domain.PageRenderActionItem;
 import com.ruoyi.system.domain.SciIntraSchProPiyue;
 import com.ruoyi.system.domain.SciIntraSchoolPro;
+import com.ruoyi.system.domain.SysApprovalHistory;
 import com.ruoyi.system.mapper.SciIntraSchProApplyMapper;
 import com.ruoyi.system.mapper.SciIntraSchProPiyueMapper;
+import com.ruoyi.system.service.IApprovalProcessService;
 import com.ruoyi.system.service.ISciIntraSchProApplyService;
+import com.ruoyi.system.service.ISysApprovalHistoryService;
+import com.ruoyi.system.service.ISysUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.ruoyi.common.utils.ShiroUtils;
 import com.ruoyi.system.service.IPageRenderService;
 import com.ruoyi.system.domain.PageRenderResult;
+import com.ruoyi.system.constant.PageRenderActionConstants;
+import com.ruoyi.system.constant.PageRenderColorConstants;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Service
 public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyService {
@@ -35,6 +46,12 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
     private SciIntraSchProPiyueMapper sciIntraSchProPiyueMapper;
     @Autowired
     private IPageRenderService pageRenderService;
+    @Autowired
+    private IApprovalProcessService approvalProcessService;
+    @Autowired
+    private ISysUserService sysUserService;
+    @Autowired
+    private ISysApprovalHistoryService sysApprovalHistoryService;
 
     @Override
     @DataScope(deptAlias = "d", userAlias = "u")
@@ -136,108 +153,147 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
 
 
     /**
-     * 开题通过
+     * 立项审批通过
+     * 参考论文模块实现，调用公有方法 approvalProcessService.approve()
+     * 公有方法中已包含后端身份校验、节点权限判断和状态流转逻辑
      * @param id
      * @param uid
      * @param urlFlag
      * @return
      */
     @Override
-    public int sch_hxPass(String id,Long uid,String urlFlag) {
+    @Transactional(rollbackFor = Exception.class)
+    public int sch_hxPass(String id, Long uid, String urlFlag) {
         SciIntraSchoolPro apply = sciIntraSchProApplyMapper.sel_IntraSchPro_by_id(Integer.valueOf(id));
         if (apply == null) {
-            return 0;
+            return -1;
         }
 
         String currentState = normalizeTecTraState(apply.getState());
-        if (!isTecTraState(currentState)) {
-            return 0;
+        SysUser user = sysUserService.selectUserById(uid);
+        if (user == null) {
+            return -1;
         }
-        String newState = null;
-        if (TEC_TRA_JYS_AUDIT.equals(currentState)) {
-            newState = TEC_TRA_KYC_AUDIT;
-        } else if (TEC_TRA_KYC_AUDIT.equals(currentState)) {
-            newState = TEC_TRA_PASSED;
+
+        // 调用公有审批服务执行审批通过
+        ApprovalRequest request = ApprovalRequest.of(TEC_TRA_PROCESS_CODE,
+                Long.valueOf(id), currentState, "审批通过",
+                uid, user.getUserName(),
+                user.getDept() != null ? user.getDept().getDeptName() : "");
+
+        ApprovalResult result = approvalProcessService.approve(request);
+        if (!result.isSuccess()) {
+            return -1;
         }
-        if (newState == null) {
-            return 0;
-        }
+
+        String newState = result.getNewState();
         int rows = sciIntraSchProApplyMapper.sch_hxPass(id, newState);
         if (rows > 0) {
-            insertTecTraPiyue(id, uid, getApproveText(newState), "通过");
+            boolean isLast = result.isLast();
+            String piyueText = isLast ? "成果转化-科研处审批通过" : "成果转化-教研室审批通过";
+            insertTecTraPiyue(id, uid, piyueText, "通过");
         }
         return rows;
     }
 
     /**
-     * 结项通过
+     * 结项审批通过
+     * 参考论文模块实现，调用公有方法 approvalProcessService.approve()
+     * 公有方法中已包含后端身份校验、节点权限判断和状态流转逻辑
      * @param id
      * @param userId
      * @param urlFlag
      * @return
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int sch_hxover(String id, Long userId, String urlFlag) {
-        String state = "0";
-        SciIntraSchProPiyue sciIntraSchProPiyue = new SciIntraSchProPiyue();
-        if(urlFlag.equals("JYSOVER")){
-            state ="13";
-            sciIntraSchProPiyue.setConcate("教研：结题同意");
-            sciIntraSchProPiyue.setState("教研：结题同意");
-        }else if(urlFlag.equals("KYCOVER")){
-            state ="6";
-            sciIntraSchProPiyue.setConcate("科研：结题同意");
-            sciIntraSchProPiyue.setState("科研：结题同意");
-
-        }else if(urlFlag.equals("dept_teacher")){
-            state ="8";
-            sciIntraSchProPiyue.setConcate("学院：结题同意");
-            sciIntraSchProPiyue.setState("学院：结题同意");
-
+        SciIntraSchoolPro apply = sciIntraSchProApplyMapper.sel_IntraSchPro_by_id(Integer.valueOf(id));
+        if (apply == null) {
+            return -1;
         }
-        if ("0".equals(state)) {
+
+        String currentState = normalizeTecTraState(apply.getState());
+        SysUser user = sysUserService.selectUserById(userId);
+        if (user == null) {
+            return -1;
+        }
+
+        // 调用公有审批服务执行结项审批通过
+        String approveComment;
+        if ("JYSOVER".equals(urlFlag)) {
+            approveComment = "教研：结题同意";
+        } else if ("KYCOVER".equals(urlFlag)) {
+            approveComment = "科研：结题同意";
+        } else if ("dept_teacher".equals(urlFlag)) {
+            approveComment = "学院：结题同意";
+        } else {
             return 0;
         }
-        //int b =  sciIntraSchProApplyMapper.sch_hxover(id,state);
-        int a =  sciIntraSchProApplyMapper.sch_hxPass(id,state);
-        //System.out.println(b);
 
-        sciIntraSchProPiyue.setUid(userId);
-        sciIntraSchProPiyue.setSchxktId(Integer.valueOf(id));
+        ApprovalRequest request = ApprovalRequest.of(TEC_TRA_PROCESS_CODE,
+                Long.valueOf(id), currentState, approveComment,
+                userId, user.getUserName(),
+                user.getDept() != null ? user.getDept().getDeptName() : "");
 
+        ApprovalResult result = approvalProcessService.approve(request);
+        if (!result.isSuccess()) {
+            return -1;
+        }
 
-        sciIntraSchProPiyueMapper.insertIntraSchProPiyue(sciIntraSchProPiyue);
-        return a;
+        String newState = result.getNewState();
+        int rows = sciIntraSchProApplyMapper.sch_hxPass(id, newState);
+        if (rows > 0) {
+            insertTecTraPiyue(id, userId, approveComment, approveComment);
+        }
+        return rows;
     }
     /**
-     * 开题驳回
+     * 立项审批驳回
+     * 参考论文模块实现，调用公有方法 approvalProcessService.reject()
+     * 公有方法中已包含后端身份校验、节点权限判断和状态流转逻辑
      * @param id
      * @param uid
      * @param remark 驳回理由
      * @param urlFlag
      * @return
-     * 0:成功 1:失败
      */
     @Override
-    public int sch_hxBh(String id,Long uid, String remark,String urlFlag) {
+    @Transactional(rollbackFor = Exception.class)
+    public int sch_hxBh(String id, Long uid, String remark, String urlFlag) {
         SciIntraSchoolPro apply = sciIntraSchProApplyMapper.sel_IntraSchPro_by_id(Integer.valueOf(id));
         if (apply == null) {
-            return 0;
+            return -1;
         }
 
         String currentState = normalizeTecTraState(apply.getState());
-        if (!isTecTraState(currentState)) {
-            return 0;
+        SysUser user = sysUserService.selectUserById(uid);
+        if (user == null) {
+            return -1;
         }
+
+        // 调用公有审批服务执行驳回
+        ApprovalRequest request = ApprovalRequest.of(TEC_TRA_PROCESS_CODE,
+                Long.valueOf(id), currentState, remark,
+                uid, user.getUserName(),
+                user.getDept() != null ? user.getDept().getDeptName() : "");
+
+        ApprovalResult result = approvalProcessService.reject(request);
+        if (!result.isSuccess()) {
+            return -1;
+        }
+
+        // 驳回后设置为已驳回状态
         int rows = sciIntraSchProApplyMapper.sch_hxPass(id, TEC_TRA_REJECTED);
-        if (rows <= 0) {
-            return 0;
+        if (rows > 0) {
+            insertTecTraPiyue(id, uid, "成果转化-驳回", remark);
         }
-        insertTecTraPiyue(id, uid, "成果转化-驳回", remark);
         return rows;
     }
     /**
-     * 结项驳回
+     * 结项审批驳回
+     * 参考论文模块实现，调用公有方法 approvalProcessService.reject()
+     * 公有方法中已包含后端身份校验、节点权限判断和状态流转逻辑
      * @param id
      * @param userId
      * @param remark
@@ -245,99 +301,142 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
      * @return
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int sch_hxoverBh(String id, Long userId, String remark, String urlFlag) {
-        String state = "0";
-        SciIntraSchProPiyue sciIntraSchProPiyue = new SciIntraSchProPiyue();
-        if(urlFlag.equals("JYSOVER")){
-            sciIntraSchProPiyue.setState("结题：教研驳回");
-            state ="9";
-        }else if(urlFlag.equals("KYCOVER")){
-            sciIntraSchProPiyue.setState("结题：科研驳回");
-            state ="10";
-        }else if(urlFlag.equals("dept_teacher")){
-            sciIntraSchProPiyue.setState("结题：学院驳回");
-            state ="14";
+        SciIntraSchoolPro apply = sciIntraSchProApplyMapper.sel_IntraSchPro_by_id(Integer.valueOf(id));
+        if (apply == null) {
+            return -1;
         }
-        if ("0".equals(state)) {
-            return 0;
-        }
-        int a =  sciIntraSchProApplyMapper.sch_hxPass(id,state);
 
-        sciIntraSchProPiyue.setUid(userId);
-        sciIntraSchProPiyue.setSchxktId(Integer.valueOf(id));
-        sciIntraSchProPiyue.setConcate(remark);
-        sciIntraSchProPiyueMapper.insertIntraSchProPiyue(sciIntraSchProPiyue);
-        return a;
+        String currentState = normalizeTecTraState(apply.getState());
+        SysUser user = sysUserService.selectUserById(userId);
+        if (user == null) {
+            return -1;
+        }
+
+        // 调用公有审批服务执行结项驳回
+        ApprovalRequest request = ApprovalRequest.of(TEC_TRA_PROCESS_CODE,
+                Long.valueOf(id), currentState, remark,
+                userId, user.getUserName(),
+                user.getDept() != null ? user.getDept().getDeptName() : "");
+
+        ApprovalResult result = approvalProcessService.reject(request);
+        if (!result.isSuccess()) {
+            return -1;
+        }
+
+        String newState = result.getNewState();
+        int rows = sciIntraSchProApplyMapper.sch_hxPass(id, newState);
+        if (rows > 0) {
+            String piyueState;
+            if ("JYSOVER".equals(urlFlag)) {
+                piyueState = "结题：教研驳回";
+            } else if ("KYCOVER".equals(urlFlag)) {
+                piyueState = "结题：科研驳回";
+            } else if ("dept_teacher".equals(urlFlag)) {
+                piyueState = "结题：学院驳回";
+            } else {
+                piyueState = "结题：驳回";
+            }
+            insertTecTraPiyue(id, userId, piyueState, remark);
+        }
+        return rows;
     }
 
     /**
-     * 开题撤回
+     * 立项审批撤回
+     * 参考论文模块实现，调用公有方法 approvalProcessService.recall()
+     * 公有方法中已包含后端身份校验、节点权限判断和状态流转逻辑
      * @param id
+     * @param userId
      * @param remark
      * @param urlFlag
      * @return
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int sch_hxCH(String id, Long userId, String remark, String urlFlag) {
         SciIntraSchoolPro apply = sciIntraSchProApplyMapper.sel_IntraSchPro_by_id(Integer.valueOf(id));
         if (apply == null) {
-            return 0;
+            return -1;
         }
+
         String currentState = normalizeTecTraState(apply.getState());
-        if (!isTecTraState(currentState)) {
-            return 0;
+        SysUser user = sysUserService.selectUserById(userId);
+        if (user == null) {
+            return -1;
         }
-        String recallState = getRecallState(currentState);
-        if (recallState == null) {
-            return 0;
+
+        // 调用公有审批服务执行撤回
+        ApprovalRequest request = ApprovalRequest.of(TEC_TRA_PROCESS_CODE,
+                Long.valueOf(id), currentState, remark,
+                userId, user.getUserName(),
+                user.getDept() != null ? user.getDept().getDeptName() : "");
+
+        ApprovalResult result = approvalProcessService.recall(request);
+        if (!result.isSuccess()) {
+            return -1;
         }
-        int rows = sciIntraSchProApplyMapper.sch_hxPass(id, recallState);
-        if (rows <= 0) {
-            return 0;
+
+        String newState = result.getNewState();
+        int rows = sciIntraSchProApplyMapper.sch_hxPass(id, newState);
+        if (rows > 0) {
+            insertTecTraPiyue(id, userId, "成果转化-撤回", remark);
         }
-        insertTecTraPiyue(id, userId, "成果转化-撤回", remark);
         return rows;
     }
 
-    /*
-    * 结项撤回
-    * @param id
-    * @param userId
-    * @param remark
-    * @param urlFlag
-    * @return
-    * 0:成功 1:失败
-    * */
+    /**
+     * 结项审批撤回
+     * 参考论文模块实现，调用公有方法 approvalProcessService.recall()
+     * 公有方法中已包含后端身份校验、节点权限判断和状态流转逻辑
+     * @param id
+     * @param userId
+     * @param remark
+     * @param urlFlag
+     * @return
+     */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int sch_hxOverCH(String id, Long userId, String remark, String urlFlag) {
-        String state = "0";
-        SciIntraSchProPiyue sciIntraSchProPiyue = new SciIntraSchProPiyue();
-        if(urlFlag.equals("JYSOVER")){
-            sciIntraSchProPiyue.setState("结题：教研驳回（撤回）");
-            state ="7";
-
-        }else if(urlFlag.equals("KYCOVER")){
-            sciIntraSchProPiyue.setState("结题：科研驳回（撤回）");
-            state ="8";
-
-        }else if(urlFlag.equals("dept_teacher")){
-            sciIntraSchProPiyue.setState("结题：学院驳回（撤回）");
-            state ="13";
-
+        SciIntraSchoolPro apply = sciIntraSchProApplyMapper.sel_IntraSchPro_by_id(Integer.valueOf(id));
+        if (apply == null) {
+            return -1;
         }
-        if ("0".equals(state)) {
-            return 0;
+
+        String currentState = normalizeTecTraState(apply.getState());
+        SysUser user = sysUserService.selectUserById(userId);
+        if (user == null) {
+            return -1;
         }
-        //改状态
-        int a =  sciIntraSchProApplyMapper.sch_hxPass(id,state);
 
-        //插入记录
-        sciIntraSchProPiyue.setUid(userId);
-        sciIntraSchProPiyue.setSchxktId(Integer.valueOf(id));
-        sciIntraSchProPiyue.setConcate(remark);
-        sciIntraSchProPiyueMapper.insertIntraSchProPiyue(sciIntraSchProPiyue);
+        // 调用公有审批服务执行结项撤回
+        ApprovalRequest request = ApprovalRequest.of(TEC_TRA_PROCESS_CODE,
+                Long.valueOf(id), currentState, remark,
+                userId, user.getUserName(),
+                user.getDept() != null ? user.getDept().getDeptName() : "");
 
-        return a;
+        ApprovalResult result = approvalProcessService.recall(request);
+        if (!result.isSuccess()) {
+            return -1;
+        }
+
+        String newState = result.getNewState();
+        int rows = sciIntraSchProApplyMapper.sch_hxPass(id, newState);
+        if (rows > 0) {
+            String piyueState;
+            if ("JYSOVER".equals(urlFlag)) {
+                piyueState = "结题：教研撤回";
+            } else if ("KYCOVER".equals(urlFlag)) {
+                piyueState = "结题：科研撤回";
+            } else if ("dept_teacher".equals(urlFlag)) {
+                piyueState = "结题：学院撤回";
+            } else {
+                piyueState = "结题：撤回";
+            }
+            insertTecTraPiyue(id, userId, piyueState, remark);
+        }
+        return rows;
     }
     @Override
     public int updateIntraSchoolApply(SciIntraSchoolPro sciIntraSchoolPro, Long userId) {
@@ -439,38 +538,42 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
     }
 
     /**
-     * 更改自己的草稿状态，提交到教研室，加入操作记录
+     * 提交草稿到教研室审批
+     * 参考论文模块实现，调用公有方法 approvalProcessService.submitApproval()
+     * 公有方法中已包含后端身份校验和所有审批逻辑
      * @param id
      * @return
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public int subDraft(String id, Long userid,String state) {
+    public int subDraft(String id, Long userid, String state) {
         SciIntraSchoolPro apply = sciIntraSchProApplyMapper.sel_IntraSchPro_by_id(Integer.valueOf(id));
-        if (apply != null && (isTecTraState(apply.getState()) || TEC_TRA_JYS_AUDIT.equals(state))) {
-            int rows = sciIntraSchProApplyMapper.sch_hxPass(id, TEC_TRA_JYS_AUDIT);
-            if (rows <= 0) {
-                return 0;
-            }
-            insertTecTraPiyue(id, userid, "成果转化-提交", "提交审批");
-            return rows;
+        if (apply == null) {
+            return 0;
+        }
+        String currentState = normalizeTecTraState(apply.getState());
+        SysUser user = sysUserService.selectUserById(userid);
+        if (user == null) {
+            return 0;
         }
 
-        //1.更改草稿状态
-        sciIntraSchProApplyMapper.sch_hxPass(id,state);
-        //2.插入操作记录
-        SciIntraSchProPiyue sciIntraSchProPiyue = new SciIntraSchProPiyue();
-        sciIntraSchProPiyue.setUid(userid);
-        sciIntraSchProPiyue.setSchxktId(Integer.valueOf(id));
-        if(state.equals("1")){
-            sciIntraSchProPiyue.setState("开题：提交草稿");
-            sciIntraSchProPiyue.setConcate("开题：提交草稿");
-        }else if(state.equals("7")){
-            sciIntraSchProPiyue.setState("结题：提交草稿");
-            sciIntraSchProPiyue.setConcate("结题：提交草稿");
+        // 调用公有审批服务提交申请
+        ApprovalRequest request = ApprovalRequest.of(TEC_TRA_PROCESS_CODE,
+                Long.valueOf(id), currentState, "提交申请",
+                userid, user.getUserName(),
+                user.getDept() != null ? user.getDept().getDeptName() : "");
+
+        ApprovalResult result = approvalProcessService.submitApproval(request);
+        if (!result.isSuccess()) {
+            return 0;
         }
-        sciIntraSchProPiyueMapper.insertIntraSchProPiyue(sciIntraSchProPiyue);
-        return 1;
+
+        String newState = result.getNewState();
+        int rows = sciIntraSchProApplyMapper.sch_hxPass(id, newState);
+        if (rows > 0) {
+            insertTecTraPiyue(id, userid, "成果转化-提交", "提交审批");
+        }
+        return rows;
     }
     @Override
     public List<SciIntraSchoolPro> getStatsQuery(Map<String, String> params) {
@@ -486,55 +589,47 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
     }
 
     /**
-     * 判断是否为旧状态码（数字格式）
+     * 判断状态是否为新格式的TEC_TRA状态码
      */
     private boolean isTecTraState(String state) {
-        return "TEC_TRA_DRAFT".equals(state)
-                || "TEC_TRA_JYS_AUDIT".equals(state)
-                || "TEC_TRA_KYC_AUDIT".equals(state)
-                || "TEC_TRA_PASSED".equals(state)
-                || "TEC_TRA_REJECTED".equals(state);
-    }
-
-    private String getRecallState(String currentState) {
-        if (TEC_TRA_PASSED.equals(currentState)) {
-            return TEC_TRA_KYC_AUDIT;
-        }
-        if (TEC_TRA_KYC_AUDIT.equals(currentState)) {
-            return TEC_TRA_JYS_AUDIT;
-        }
-        return null;
+        if (state == null) return false;
+        return state.startsWith("TEC_TRA_");
     }
 
     /**
-     * 将旧状态码映射为新状态编码
+     * 将旧数字状态码映射为新语义化状态编码（TEC_TRA_*格式）
+     * 涵盖立项和结项两类流程的所有状态码
      */
     private String normalizeTecTraState(String state) {
-        if (isTecTraState(state)) {
-            return state; // 已经是新状态码
+        if (state == null || state.trim().isEmpty()) {
+            return TEC_TRA_DRAFT;
         }
-        // 旧状态码映射（根据实际业务调整）
+        // 已经是新状态码，直接返回
+        if (isTecTraState(state)) {
+            return state;
+        }
+        // 旧数字状态码映射（含立项和结项）
         switch (state) {
-            case "15": return "TEC_TRA_DRAFT";
-            case "1": return "TEC_TRA_JYS_AUDIT";
-            case "2": return "TEC_TRA_KYC_AUDIT";
-            case "3": return "TEC_TRA_REJECTED";
-            case "4": return "TEC_TRA_PASSED";
-            case "5": return "TEC_TRA_REJECTED";
-            case "6": return "TEC_TRA_PASSED";
-            case "12": return "TEC_TRA_REJECTED";
+            // 立项状态码
+            case "15": return TEC_TRA_DRAFT;
+            case "1":  return TEC_TRA_JYS_AUDIT;
+            case "11": return TEC_TRA_JYS_AUDIT;
+            case "2":  return TEC_TRA_KYC_AUDIT;
+            case "3":  return TEC_TRA_REJECTED;
+            case "4":  return TEC_TRA_PASSED;
+            case "5":  return TEC_TRA_REJECTED;
+            case "12": return TEC_TRA_REJECTED;
+            // 结项状态码 — 复用对应的立项状态语义
+            case "16": return TEC_TRA_DRAFT;
+            case "7":  return TEC_TRA_JYS_AUDIT;   // 结项教研室审批中
+            case "13": return TEC_TRA_JYS_AUDIT;   // 结项教研室审批中
+            case "8":  return TEC_TRA_KYC_AUDIT;   // 结项科研处审批中
+            case "6":  return TEC_TRA_PASSED;       // 结项通过
+            case "9":  return TEC_TRA_REJECTED;     // 结项驳回
+            case "10": return TEC_TRA_REJECTED;     // 结项驳回
+            case "14": return TEC_TRA_REJECTED;     // 结项驳回
             default: return state;
         }
-    }
-
-    private String getApproveText(String newState) {
-        if (TEC_TRA_KYC_AUDIT.equals(newState)) {
-            return "成果转化-教研室审批通过";
-        }
-        if (TEC_TRA_PASSED.equals(newState)) {
-            return "成果转化-科研处审批通过";
-        }
-        return "成果转化-审批通过";
     }
 
     private void insertTecTraPiyue(String id, Long uid, String state, String concate) {
@@ -548,7 +643,11 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
 
     /**
      * 填充页面渲染数据（statusMeta和actions）
-     * 调用标准公有方法 fillPageRenderData() 实现页面渲染数据填充
+     * 参考论文模块实现，提前计算当前用户权限并传入 fillPageRenderData()
+     * 确保角色切换后按钮显隐正确。
+     * 驳回态撤回按钮参照论文模块 addModuleSpecificActions()：
+     * 调用公有方法 sysApprovalHistoryService.selectLastRejectByBusinessId()
+     * 查询最近一次驳回记录，仅驳回操作人（或 admin）可见撤回按钮。
      *
      * @param pro 成果转化对象
      */
@@ -558,6 +657,7 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
         }
         SysUser currentUser = ShiroUtils.getSysUser();
         String normalizedState = normalizeTecTraState(pro.getState());
+        Set<String> permissions = pageRenderService.buildCurrentPermissions(currentUser);
         PageRenderResult<?> result = pageRenderService.fillPageRenderData(
                 MODULE_CODE,
                 PERM_PREFIX,
@@ -565,9 +665,44 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
                 normalizedState,
                 pro.getId() != null ? pro.getId().longValue() : null,
                 pro.getUid() != null ? pro.getUid() : null,
-                null  // 传 null，由公共服务内部处理缓存
+                permissions
         );
         pro.setStatusMeta(result.getStatusMeta());
-        pro.setActions(result.getActions());
+
+        // 驳回状态撤回按钮：参考论文模块，仅驳回操作人（或admin）可撤回
+        // 调用公有方法 sysApprovalHistoryService 查审批记录，不修改公有方法
+        List<PageRenderActionItem> actions = result.getActions() != null
+                ? new ArrayList<>(result.getActions()) : new ArrayList<>();
+        if (normalizedState != null && normalizedState.endsWith("_REJECTED")
+                && pro.getId() != null) {
+            boolean isAdmin = currentUser != null && currentUser.isAdmin();
+            boolean isOwner = pro.getUid() != null
+                    && currentUser != null
+                    && pro.getUid().equals(currentUser.getUserId());
+            boolean hasRevokePerm = permissions.contains("system:intraSch:JYCH");
+            boolean hasKypyPerm = permissions.contains("system:intraSch:KYPY");
+            boolean hasApprovePerm = permissions.contains("system:intraSch:JYPY");
+            boolean isRejectOperator = false;
+            try {
+                SysApprovalHistory lastReject = sysApprovalHistoryService
+                        .selectLastRejectByBusinessId(TEC_TRA_PROCESS_CODE,
+                                pro.getId().longValue());
+                if (lastReject != null && lastReject.getOperatorId() != null
+                        && currentUser != null) {
+                    isRejectOperator = lastReject.getOperatorId()
+                            .equals(currentUser.getUserId());
+                }
+            } catch (Exception e) {
+                // 查询失败时不追加撤回按钮
+            }
+            if (isAdmin || (isRejectOperator
+                    && (hasRevokePerm || hasKypyPerm || hasApprovePerm || isOwner))) {
+                actions.add(PageRenderActionItem.of(
+                        PageRenderActionConstants.ACTION_RECALL, "撤回",
+                        PageRenderColorConstants.COLOR_WARNING, 40,
+                        "确定要撤回该记录吗？"));
+            }
+        }
+        pro.setActions(actions);
     }
 }

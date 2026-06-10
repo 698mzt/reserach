@@ -12,6 +12,11 @@ import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.system.domain.*;
 import com.ruoyi.system.service.*;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authz.annotation.Logical;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.apache.shiro.session.Session;
+import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -53,11 +58,12 @@ public class SciIntraSchoolProController extends BaseController {
   private ISysApprovalStateService sysApprovalStateService;
   //private String role_str="";
   /**
-   * 成果转化列表页面入口，组装当前用户角色信息到前端
+   * 成果转化列表页面入口，传入当前活跃角色供前端按钮显隐判断
+   * 优先从 Shiro Session 读取切换后的 activeRoleId，回退到 panRole_str()
    */
   @GetMapping("")
   String view(ModelMap mmap) {
-    mmap.put("roleStr", panRole_str());
+    mmap.put("roleStr", getActiveRoleKey());
     return prefix + "/view";
   }
 
@@ -406,6 +412,34 @@ public class SciIntraSchoolProController extends BaseController {
   }
 
   /**
+   * 获取当前会话的活跃角色标识（roleKey）
+   * 优先从 Shiro Session 读取切换后的 activeRoleId，
+   * 若未取到则回退到 panRole_str()（基于角色优先级）
+   * 确保前端按钮显隐反映用户当前切换到的角色
+   */
+  private String getActiveRoleKey() {
+    try {
+      Subject subject = SecurityUtils.getSubject();
+      if (subject != null) {
+        Session session = subject.getSession(false);
+        if (session != null) {
+          Long activeRoleId = (Long) session.getAttribute("activeRoleId");
+          if (activeRoleId != null) {
+            for (SysRole role : getSysUser().getRoles()) {
+              if (activeRoleId.equals(role.getRoleId())) {
+                return role.getRoleKey();
+              }
+            }
+          }
+        }
+      }
+    } catch (Exception e) {
+      // ignore
+    }
+    return panRole_str();
+  }
+
+  /**
    * 成果转化新增页面，加载用户列表供负责人下拉框选择
    */
   @GetMapping("/add")
@@ -482,6 +516,7 @@ public class SciIntraSchoolProController extends BaseController {
 
   /**
    * 成果转化详情/批阅页面，设置部门匹配标志和角色信息供前端判定按钮显隐
+   * 使用 getActiveRoleKey() 确保角色切换后前端按钮正确显隐
    */
   @GetMapping("/detail/{id}/{urlFlag}")
   public String detail(@PathVariable("id") Integer id, @PathVariable("urlFlag") String urlFlag, ModelMap mmap) {
@@ -490,8 +525,8 @@ public class SciIntraSchoolProController extends BaseController {
     //获取当前用户的部门名字
     String user_dname = sciIntraSchProApplyService.getuser_dnameById(getUserId());
     System.out.println("user_dname = " + user_dname);
-    //这里把全局变量role_str放进去用于对detail.html处理的判定
-    sciIntraSchoolPro.setRole(panRole_str());
+    //使用活跃角色（从Session读取切换后的角色），确保角色切换后前端按钮正确显隐
+    sciIntraSchoolPro.setRole(getActiveRoleKey());
     System.out.println("sciIntraSchoolPro = " + sciIntraSchoolPro);
     List<SysUser> userList1 = userService.selectAllUser();
     sciIntraSchoolPro.setUrlFlag(urlFlag);
@@ -523,8 +558,8 @@ public class SciIntraSchoolProController extends BaseController {
   public String overdetail(@PathVariable("id") Integer id, @PathVariable("urlFlag") String urlFlag, ModelMap mmap) {
     SciIntraSchoolPro sciIntraSchoolPro = sciIntraSchProApplyService.sel_IntraSchPro_by_id(id);
 
-    //这里把全局变量role_str放进去用于对overdetail.html处理的判定
-    sciIntraSchoolPro.setRole(panRole_str());
+    //使用活跃角色（从Session读取切换后的角色），确保角色切换后前端按钮正确显隐
+    sciIntraSchoolPro.setRole(getActiveRoleKey());
     System.out.println("sciIntraSchoolPro = " + sciIntraSchoolPro);
     List<SysUser> userList1 = userService.selectAllUser();
     sciIntraSchoolPro.setUrlFlag(urlFlag);
@@ -608,14 +643,14 @@ public class SciIntraSchoolProController extends BaseController {
 
 
   /**
-   * 更改自己的草稿状态，提交到教研室，加入操作记录
-   *只用在view页面点击确认就可以直接提交草稿  view.html
-   * @param id
-   * @return
+   * 提交草稿到教研室审批
+   * 参考论文模块实现，调用公有方法 approvalProcessService.submitApproval()
+   * 公有方法中已包含后端身份校验和所有审批逻辑
    */
+  @RequiresPermissions(value = {"system:intraSch:edit", "system:intraSch:add"}, logical = Logical.OR)
+  @Log(title = "成果转化提交草稿", businessType = BusinessType.UPDATE)
   @PostMapping("/subDraft/{id}")
   @ResponseBody
-
   public AjaxResult subDraft(@PathVariable("id") Integer id) {
     String sid = String.valueOf(id);
     SciIntraSchoolPro sciIntraSchoolPro = sciIntraSchProApplyService.sel_IntraSchPro_by_id(id);
@@ -628,48 +663,45 @@ public class SciIntraSchoolProController extends BaseController {
     } else if (sciIntraSchoolPro.getState().equals("16")) {
       state = "7";
     }
-    return toAjax(sciIntraSchProApplyService.subDraft(sid, getUserId(),state));
+    return toAjax(sciIntraSchProApplyService.subDraft(sid, getUserId(), state));
   }
 
   /**
-   * 驳回
-   *
-   * @param id
-   * @param remark
-   * @param urlFlag
-   * @return
+   * 立项审批驳回
+   * 参考论文模块实现，调用公有方法 approvalProcessService.reject()
+   * 公有方法中已包含后端身份校验和所有审批逻辑
    */
+  @RequiresPermissions(value = {"system:intraSch:JYPY", "system:intraSch:KYPY"}, logical = Logical.OR)
+  @Log(title = "成果转化立项驳回", businessType = BusinessType.UPDATE)
   @PostMapping("/sch_hxBh")
   @ResponseBody
   public AjaxResult hxBh(String id, String remark, String urlFlag) {
-    SciIntraSchoolPro apply = sciIntraSchProApplyService.sel_IntraSchPro_by_id(Integer.valueOf(id));
-    if (!canApproveTecTra(apply, urlFlag)) {
-      return AjaxResult.error("当前账号无此审批权限");
+    int result = sciIntraSchProApplyService.sch_hxBh(id, getUserId(), remark, urlFlag);
+    if (result <= 0) {
+      return AjaxResult.error("审批驳回失败，请检查当前状态和审批权限");
     }
-    return toAjax(sciIntraSchProApplyService.sch_hxBh(id, getUserId(), remark, urlFlag));
+    return AjaxResult.success("驳回成功");
   }
 
   /**
-   * 开题通过
-   *
-   * @param id
-   * @param urlFlag
-   * @return
+   * 立项审批通过
+   * 参考论文模块实现，调用公有方法 approvalProcessService.approve()
+   * 公有方法中已包含后端身份校验和所有审批逻辑
    */
+  @RequiresPermissions(value = {"system:intraSch:JYPY", "system:intraSch:KYPY"}, logical = Logical.OR)
+  @Log(title = "成果转化立项通过", businessType = BusinessType.UPDATE)
   @PostMapping("/sch_hxPass")
   @ResponseBody
   public AjaxResult hxPass(String id, String urlFlag) {
-    SciIntraSchoolPro apply = sciIntraSchProApplyService.sel_IntraSchPro_by_id(Integer.valueOf(id));
-    if (!canApproveTecTra(apply, urlFlag)) {
-      return AjaxResult.error("当前账号无此审批权限");
-    }
-    // 通过，修改状态
     int rows = sciIntraSchProApplyService.sch_hxPass(id, getUserId(), urlFlag);
+    if (rows <= 0) {
+      return AjaxResult.error("审批通过失败，请检查当前状态和审批权限");
+    }
     SciIntraSchoolPro updated = sciIntraSchProApplyService.sel_IntraSchPro_by_id(Integer.valueOf(id));
-    if (rows > 0 && updated != null && TEC_TRA_PASSED.equals(updated.getState())) {
+    if (updated != null && TEC_TRA_PASSED.equals(updated.getState())) {
       sciIntraSchProScoreService.set_SchPro_score(updated, 1);
     }
-    return toAjax(rows);
+    return AjaxResult.success("审批通过");
   }
 
   /**
@@ -733,25 +765,24 @@ public class SciIntraSchoolProController extends BaseController {
   }
 
   /**
-   * 开题撤回
-   *
-   * @param
-   * @return
+   * 立项审批撤回
+   * 参考论文模块实现，调用公有方法 approvalProcessService.recall()
+   * 公有方法中已包含后端身份校验和所有审批逻辑
    */
+  @RequiresPermissions(value = {"system:intraSch:JYCH", "system:intraSch:KYCH"}, logical = Logical.OR)
+  @Log(title = "成果转化立项撤回", businessType = BusinessType.UPDATE)
   @PostMapping("/retract")
   @ResponseBody
   public AjaxResult retract(String id, String remark, String urlFlag) {
-    //更改积分
     SciIntraSchoolPro sciIntraSchoolPro1 = sciIntraSchProApplyService.sel_IntraSchPro_by_id(Integer.valueOf(id));
-    if (!canRecallTecTra(sciIntraSchoolPro1)) {
-      return AjaxResult.error("当前账号无此撤回权限");
-    }
     if (isPassedTecTraState(sciIntraSchoolPro1.getState())) {
-      int i = sciIntraSchProScoreService.update_SchPro_score(sciIntraSchoolPro1);
-      System.out.println("i = " + i);
+      sciIntraSchProScoreService.update_SchPro_score(sciIntraSchoolPro1);
     }
-    //撤回
-    return toAjax(sciIntraSchProApplyService.sch_hxCH(id, getUserId(), remark, urlFlag));
+    int result = sciIntraSchProApplyService.sch_hxCH(id, getUserId(), remark, urlFlag);
+    if (result <= 0) {
+      return AjaxResult.error("撤回失败，请检查当前状态和审批权限");
+    }
+    return AjaxResult.success("撤回成功");
   }
 
   /**
@@ -766,19 +797,24 @@ public class SciIntraSchoolProController extends BaseController {
   }
 
   /**
-   * 执行撤回操作，先校验撤回权限，通过后扣除积分并修改状态
+   * 执行撤回操作，先扣除积分（若已通过）再修改状态
+   * 参考论文模块实现，调用公有方法 approvalProcessService.recall()
+   * 公有方法中已包含后端身份校验和所有审批逻辑
    */
+  @RequiresPermissions(value = {"system:intraSch:JYCH", "system:intraSch:KYCH"}, logical = Logical.OR)
+  @Log(title = "成果转化撤回", businessType = BusinessType.UPDATE)
   @PostMapping("/recallsave")
   @ResponseBody
   public AjaxResult recallSave(String id, String state, String remark, String urlFlag) {
     SciIntraSchoolPro sciIntraSchoolPro1 = sciIntraSchProApplyService.sel_IntraSchPro_by_id(Integer.valueOf(id));
-    if (!canRecallTecTra(sciIntraSchoolPro1)) {
-      return AjaxResult.error("当前账号无此撤回权限");
-    }
     if (isPassedTecTraState(sciIntraSchoolPro1.getState())) {
       sciIntraSchProScoreService.update_SchPro_score(sciIntraSchoolPro1);
     }
-    return toAjax(sciIntraSchProApplyService.sch_hxCH(id, getUserId(), remark, urlFlag));
+    int result = sciIntraSchProApplyService.sch_hxCH(id, getUserId(), remark, urlFlag);
+    if (result <= 0) {
+      return AjaxResult.error("撤回失败，请检查当前状态和审批权限");
+    }
+    return AjaxResult.success("撤回成功");
   }
 
   /**
@@ -822,21 +858,22 @@ public class SciIntraSchoolProController extends BaseController {
   }
 
   /**
-   * 结题撤回
-   *
-   * @param
-   * @return
+   * 结项审批撤回
+   * 参考论文模块实现，调用公有方法 approvalProcessService.recall()
+   * 公有方法中已包含后端身份校验和所有审批逻辑
    */
+  @RequiresPermissions(value = {"system:intraSch:JYCH", "system:intraSch:KYCH"}, logical = Logical.OR)
+  @Log(title = "成果转化结项撤回", businessType = BusinessType.UPDATE)
   @PostMapping("/over_retract")
   @ResponseBody
   public AjaxResult over_retract(String id, String remark, String urlFlag) {
-    if (!canApproveOverTecTra(urlFlag) && !"admin".equals(panRole_str())) {
-      return AjaxResult.error("当前账号无此撤回权限");
-    }
-    //更改积分
     SciIntraSchoolPro sciIntraSchoolPro1 = sciIntraSchProApplyService.sel_IntraSchPro_by_id(Integer.valueOf(id));
-    int i = sciIntraSchProScoreService.update_SchPro_score_jt(sciIntraSchoolPro1);
-    return toAjax(sciIntraSchProApplyService.sch_hxOverCH(id, getUserId(), remark, urlFlag));
+    sciIntraSchProScoreService.update_SchPro_score_jt(sciIntraSchoolPro1);
+    int result = sciIntraSchProApplyService.sch_hxOverCH(id, getUserId(), remark, urlFlag);
+    if (result <= 0) {
+      return AjaxResult.error("结项撤回失败，请检查当前状态和审批权限");
+    }
+    return AjaxResult.success("结项撤回成功");
   }
 
   /**
@@ -882,24 +919,24 @@ public class SciIntraSchoolProController extends BaseController {
   }
 
   /**
-   * 结项通过
-   *
-   * @param id
-   * @param urlFlag
-   * @return
+   * 结项审批通过
+   * 参考论文模块实现，调用公有方法 approvalProcessService.approve()
+   * 公有方法中已包含后端身份校验和所有审批逻辑
    */
+  @RequiresPermissions(value = {"system:intraSch:JYPY", "system:intraSch:KYPY"}, logical = Logical.OR)
+  @Log(title = "成果转化结项通过", businessType = BusinessType.UPDATE)
   @PostMapping("/sch_hxover")
   @ResponseBody
   public AjaxResult hxover(String id, String urlFlag) {
-    System.out.println("SciIntraSchoolProController.hxover" + "id=" + id + " urlFlag=" + urlFlag);
-    if (!canApproveOverTecTra(urlFlag)) {
-      return AjaxResult.error("当前账号无此审批权限");
+    int rows = sciIntraSchProApplyService.sch_hxover(id, getUserId(), urlFlag);
+    if (rows <= 0) {
+      return AjaxResult.error("结项审批通过失败，请检查当前状态和审批权限");
     }
-    if (urlFlag.equals("KYCOVER")) {
+    if ("KYCOVER".equals(urlFlag)) {
       SciIntraSchoolPro sciIntraSchoolPro1 = sciIntraSchProApplyService.sel_IntraSchPro_by_id(Integer.valueOf(id));
       sciIntraSchProScoreService.set_SchPro_score(sciIntraSchoolPro1, 1);
     }
-    return toAjax(sciIntraSchProApplyService.sch_hxover(id, getUserId(), urlFlag));
+    return AjaxResult.success("结项审批通过");
   }
 
   /**
@@ -923,15 +960,20 @@ public class SciIntraSchoolProController extends BaseController {
   }
 
   /**
-   * 结题驳回，校验结题审批权限后执行
+   * 结项审批驳回
+   * 参考论文模块实现，调用公有方法 approvalProcessService.reject()
+   * 公有方法中已包含后端身份校验和所有审批逻辑
    */
+  @RequiresPermissions(value = {"system:intraSch:JYPY", "system:intraSch:KYPY"}, logical = Logical.OR)
+  @Log(title = "成果转化结项驳回", businessType = BusinessType.UPDATE)
   @PostMapping("/sch_hxoverBh")
   @ResponseBody
   public AjaxResult hxoverBh(String id, String remark, String urlFlag) {
-    if (!canApproveOverTecTra(urlFlag)) {
-      return AjaxResult.error("当前账号无此审批权限");
+    int result = sciIntraSchProApplyService.sch_hxoverBh(id, getUserId(), remark, urlFlag);
+    if (result <= 0) {
+      return AjaxResult.error("结项驳回失败，请检查当前状态和审批权限");
     }
-    return toAjax(sciIntraSchProApplyService.sch_hxoverBh(id, getUserId(), remark, urlFlag));
+    return AjaxResult.success("结项驳回成功");
   }
 
 
