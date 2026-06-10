@@ -887,6 +887,31 @@ public class PageRenderServiceImpl implements IPageRenderService {
                     PageRenderColorConstants.COLOR_WARNING, 40, "确定要撤回该驳回记录吗？"));
         }
 
+        // 专利软著模块：驳回状态下所有角色均可撤回，申请人在审批中可撤回
+        if ("PATENT".equals(moduleCode) && context.getCurrentState() != null) {
+            boolean isOwner = context.isOwner();
+            boolean isAdmin = context.hasRole("admin");
+            boolean isTeacherActive = isTeacherRole(context.getActiveRoleKey());
+            boolean canOwnerActAsTeacher = isAdmin || isTeacherActive;
+            // 驳回状态：所有可见该页面的角色均可撤回
+            if (context.getCurrentState().endsWith("_REJECTED")) {
+                specificActions.add(PageRenderActionItem.of(
+                        PageRenderActionConstants.ACTION_RECALL, "撤回",
+                        PageRenderColorConstants.COLOR_WARNING, 40, "确定要撤回该驳回记录吗？"));
+            }
+            // 申请人撤回：仅系统管理员或所有者且当前为教师角色时显示
+            if ((isOwner && canOwnerActAsTeacher || isAdmin) 
+                    && context.hasPermission(config.getPermission("revoke"))) {
+                String currentState = context.getCurrentState();
+                // 审批中状态（教研室/科研处审批）允许申请人撤回
+                if (currentState != null && (currentState.contains("_JYS_") || currentState.contains("_KYC_"))) {
+                    specificActions.add(PageRenderActionItem.of(
+                            PageRenderActionConstants.ACTION_RECALL, "撤回",
+                            PageRenderColorConstants.COLOR_WARNING, 40, "确定要撤回该记录吗？"));
+                }
+            }
+        }
+
         // 论文驳回状态：仅该条驳回操作的执行人可撤回，不能替他人撤回
         if ("PAPER".equals(moduleCode) && context.getCurrentState() != null
                 && SciPaperA.PAPER_REJECTED.equals(context.getCurrentState())) {
