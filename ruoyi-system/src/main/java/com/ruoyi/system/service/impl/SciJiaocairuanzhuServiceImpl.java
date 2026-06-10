@@ -20,6 +20,7 @@ import com.ruoyi.system.domain.SysApprovalNode;
 import com.ruoyi.system.domain.PageRenderResult;
 import com.ruoyi.system.domain.PageRenderActionItem;
 import com.ruoyi.system.constant.PageRenderActionConstants;
+import com.ruoyi.system.constant.PageRenderColorConstants;
 import com.ruoyi.system.mapper.SciHorizontalPiyueMapper;
 import com.ruoyi.system.mapper.SciJiaocairuanzhuMemberMapper;
 import com.ruoyi.system.mapper.SciJiaocairuanzhuPiyueMapper;
@@ -119,8 +120,9 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
                 entity.getUserId() != null ? entity.getUserId().longValue() : null,
                 pageRenderService.buildCurrentPermissions(currentUser));
         
-        // 对按钮列表进行后处理：科研处审批状态下移除撤回按钮
-        List<PageRenderActionItem> filteredActions = filterActions(result.getActions(), mappedState);
+        // 对按钮列表进行后处理：控制撤回按钮显示逻辑
+        List<PageRenderActionItem> filteredActions = filterActions(result.getActions(), mappedState, 
+                entity.getId() != null ? entity.getId().longValue() : null);
         
         entity.setStatusMeta(result.getStatusMeta());
         entity.setActions(filteredActions);
@@ -148,8 +150,9 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
                     entity.getUserId() != null ? entity.getUserId().longValue() : null,
                     permissions);
             
-            // 对按钮列表进行后处理：科研处审批状态下移除撤回按钮
-            List<PageRenderActionItem> filteredActions = filterActions(result.getActions(), mappedState);
+            // 对按钮列表进行后处理：控制撤回按钮显示逻辑
+            List<PageRenderActionItem> filteredActions = filterActions(result.getActions(), mappedState,
+                    entity.getId() != null ? entity.getId().longValue() : null);
             
             entity.setStatusMeta(result.getStatusMeta());
             entity.setActions(filteredActions);
@@ -365,7 +368,7 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
             }
 
             SysApprovalHistory history = new SysApprovalHistory();
-            history.setProcessCode("textbook_approval");
+            history.setProcessCode(PROCESS_CODE);
             history.setBusinessId(businessId.longValue());
 
             // 根据状态设置审批节点信息
@@ -448,7 +451,7 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
             ApprovalResult nodeResult = approvalProcessService.getCurrentNode(PROCESS_CODE, currentState);
             if (nodeResult.isSuccess() && nodeResult.getCurrentNode() != null) {
                 SysApprovalHistory history = new SysApprovalHistory();
-                history.setProcessCode("textbook_approval");
+                history.setProcessCode(PROCESS_CODE);
                 history.setBusinessId(Long.valueOf(id));
                 history.setNodeId(nodeResult.getCurrentNode().getId());
                 history.setNodeName(nodeResult.getCurrentNode().getNodeNm());
@@ -598,8 +601,9 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
                     entity.getUserId() != null ? entity.getUserId().longValue() : null,
                     permissions);
             
-            // 对按钮列表进行后处理：科研处审批状态下移除撤回按钮
-            List<PageRenderActionItem> filteredActions = filterActions(result.getActions(), mappedState);
+            // 对按钮列表进行后处理：控制撤回按钮显示逻辑
+            List<PageRenderActionItem> filteredActions = filterActions(result.getActions(), mappedState,
+                    entity.getId() != null ? entity.getId().longValue() : null);
             
             entity.setStatusMeta(result.getStatusMeta());
             entity.setActions(filteredActions);
@@ -608,32 +612,128 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
     }
 
     /**
-     * 后处理按钮列表：科研处审批状态下不显示撤回按钮
+     * 后处理按钮列表：控制撤回按钮的显示逻辑
+     * 核心规则：谁驳回的，谁才能撤回
+     * 策略：先移除所有现有撤回按钮，再根据规则主动添加
      *
      * @param actions 原始按钮列表
      * @param state 当前状态
+     * @param businessId 业务ID
      * @return 过滤后的按钮列表
      */
-    private List<PageRenderActionItem> filterActions(List<PageRenderActionItem> actions, String state) {
-        if (actions == null || actions.isEmpty()) {
-            return actions;
+    private List<PageRenderActionItem> filterActions(List<PageRenderActionItem> actions, String state, Long businessId) {
+        if (actions == null) {
+            actions = new ArrayList<>();
         }
         
-        // 只有通过后的状态才显示撤回按钮
-        boolean isPassedState = "TEXTBOOK_PASSED".equals(state);
-        
-        if (isPassedState) {
-            return actions;
-        }
-        
-        // 非通过状态下过滤掉撤回按钮
-        List<PageRenderActionItem> filtered = new ArrayList<>();
+        // 第一步：移除所有现有撤回按钮（清除通用逻辑生成的撤回按钮）
+        List<PageRenderActionItem> cleanedActions = new ArrayList<>();
         for (PageRenderActionItem action : actions) {
             if (!PageRenderActionConstants.ACTION_RECALL.equals(action.getActionKey())) {
-                filtered.add(action);
+                cleanedActions.add(action);
             }
         }
-        return filtered;
+        
+        // 第二步：根据不同状态和规则，主动添加撤回按钮
+        if ("TEXTBOOK_PASSED".equals(state)) {
+            // 通过状态：有撤回权限的角色（科研处、管理员）可以撤回
+            if (canCurrentUserRecallOnPassed()) {
+                cleanedActions.add(PageRenderActionItem.of(
+                        PageRenderActionConstants.ACTION_RECALL, "撤回",
+                        PageRenderColorConstants.COLOR_WARNING, 40, "确定要撤回该记录吗？"));
+            }
+        } else if ("TEXTBOOK_REJECTED".equals(state)) {
+            // 驳回状态：谁驳回的，谁才能撤回
+            if (canCurrentUserRecallOnRejected(businessId)) {
+                cleanedActions.add(PageRenderActionItem.of(
+                        PageRenderActionConstants.ACTION_RECALL, "撤回",
+                        PageRenderColorConstants.COLOR_WARNING, 40, "确定要撤回该记录吗？"));
+            }
+        }
+        
+        // 审批中状态（JYS_AUDIT、KYC_AUDIT）：不显示撤回按钮
+        
+        // 按排序号排序
+        cleanedActions.sort((a, b) -> {
+            int orderA = a.getSortOrder() != null ? a.getSortOrder() : 0;
+            int orderB = b.getSortOrder() != null ? b.getSortOrder() : 0;
+            return Integer.compare(orderA, orderB);
+        });
+        
+        return cleanedActions;
+    }
+
+    /**
+     * 判断当前用户在通过状态下是否可以撤回
+     * 有撤回权限（kyrevoke）的角色或管理员可以撤回
+     *
+     * @return true表示可以撤回，false表示不可以
+     */
+    private boolean canCurrentUserRecallOnPassed() {
+        SysUser currentUser = ShiroUtils.getSysUser();
+        if (currentUser == null || currentUser.getUserId() == null) {
+            return false;
+        }
+        
+        // 超级管理员可以撤回
+        if (SysUser.isAdmin(currentUser.getUserId())) {
+            return true;
+        }
+        
+        // 检查是否有 kyrevoke 或 revoke 权限
+        Set<String> permissions = pageRenderService.buildCurrentPermissions(currentUser);
+        return permissions.contains("system:jiaocairuanzhu:kyrevoke") 
+                || permissions.contains("system:jiaocairuanzhu:revoke");
+    }
+
+    /**
+     * 判断当前用户在驳回状态下是否可以撤回
+     * 核心规则：谁驳回的，谁才能撤回（管理员除外）
+     * 额外要求：必须有审批角色权限（撤回是审批行为，普通教师即使是操作人也不能撤回）
+     *
+     * @param businessId 业务ID
+     * @return true表示可以撤回，false表示不可以
+     */
+    private boolean canCurrentUserRecallOnRejected(Long businessId) {
+        if (businessId == null) {
+            return false;
+        }
+        
+        SysUser currentUser = ShiroUtils.getSysUser();
+        if (currentUser == null || currentUser.getUserId() == null) {
+            return false;
+        }
+        
+        // 超级管理员可以撤回所有
+        if (SysUser.isAdmin(currentUser.getUserId())) {
+            return true;
+        }
+        
+        // 查询最近一次驳回记录
+        SysApprovalHistory lastReject = sysApprovalHistoryService.selectLastRejectByBusinessId(
+                PROCESS_CODE, businessId);
+        
+        // 如果没有驳回记录，不允许撤回
+        if (lastReject == null || lastReject.getOperatorId() == null) {
+            return false;
+        }
+        
+        // 条件1：必须是驳回操作人本人
+        boolean isOperator = lastReject.getOperatorId().equals(currentUser.getUserId());
+        if (!isOperator) {
+            return false;
+        }
+        
+        // 条件2：必须有审批角色权限（撤回是审批行为）
+        // 普通教师即使是操作人，也因没有审批权限而不能撤回
+        Set<String> permissions = pageRenderService.buildCurrentPermissions(currentUser);
+        boolean hasApprovalPermission = permissions.contains("system:jiaocairuanzhu:hecha")
+                || permissions.contains("system:jiaocairuanzhu:chayue")
+                || permissions.contains("system:jiaocairuanzhu:process")
+                || permissions.contains("system:jiaocairuanzhu:chexiao")
+                || permissions.contains("system:jiaocairuanzhu:kyrevoke");
+        
+        return hasApprovalPermission;
     }
 
     /**
@@ -645,7 +745,7 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
      */
     @Override
     public ApprovalResult getNextState(String currentState) {
-        return approvalProcessService.getCurrentNode("textbook_approval", currentState);
+        return approvalProcessService.getCurrentNode(PROCESS_CODE, currentState);
     }
 
     /**
@@ -686,7 +786,7 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
 
             // 保存审批历史记录
             SysApprovalHistory history = new SysApprovalHistory();
-            history.setProcessCode("textbook_approval");
+            history.setProcessCode(PROCESS_CODE);
             history.setBusinessId(businessId.longValue());
             history.setNodeId(currentNode != null ? currentNode.getId() : null);
             history.setNodeName(currentNode != null ? currentNode.getNodeNm() : "");
@@ -729,7 +829,7 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
 
         // 构建审批请求
         ApprovalRequest request = ApprovalRequest.of(
-                "textbook_approval",
+                PROCESS_CODE,
                 Long.valueOf(id),
                 oldState,
                 remark,
@@ -908,8 +1008,9 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
                     entity.getUserId() != null ? entity.getUserId().longValue() : null,
                     permissions);
             
-            // 对按钮列表进行后处理：科研处审批状态下移除撤回按钮
-            List<PageRenderActionItem> filteredActions = filterActions(result.getActions(), mappedState);
+            // 对按钮列表进行后处理：控制撤回按钮显示逻辑
+            List<PageRenderActionItem> filteredActions = filterActions(result.getActions(), mappedState,
+                    entity.getId() != null ? entity.getId().longValue() : null);
             
             entity.setStatusMeta(result.getStatusMeta());
             entity.setActions(filteredActions);
