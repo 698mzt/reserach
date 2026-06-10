@@ -706,14 +706,10 @@
                     return false;
                 }
                 if (isRejectedState(state)) {
-                    // 驳回状态：哪个角色驳回，哪个角色可撤回
-                    var rejectRole = row.params ? row.params.lastRejectRole : null;
-                    if (rejectRole === 'JYS') {
-                        return hasPagePermission(proFlag);
-                    } else if (rejectRole === 'KYC') {
-                        return hasPagePermission(kyrevokeFlag);
-                    }
-                    return false;
+                    // 驳回状态：仅驳回操作人可撤回
+                    var rejectOperatorId = row.params ? row.params.lastRejectOperatorId : null;
+                    return rejectOperatorId && String(rejectOperatorId) === String(row.uid) &&
+                           (hasPagePermission(proFlag) || hasPagePermission(kyrevokeFlag));
                 }
                 // 通过状态（立项/结项/到账金额）：科研处（kyrevoke权限）可撤回
                 if (isPassedState(state)) {
