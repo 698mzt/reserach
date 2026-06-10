@@ -416,8 +416,10 @@ public class ApprovalProcessServiceImpl implements IApprovalProcessService {
                 return ApprovalResult.fail("未找到可撤回的历史记录，或历史记录的oldState为空");
             }
 
-            // 权限校验：仅该条历史记录的操作人可撤回（系统管理员除外）
-            if (lastHistory.getOperatorId() != null
+            // 权限校验：仅驳回操作人可撤回驳回记录（系统管理员除外）
+            // 从其他状态（审批中、通过等）撤回时不校验操作人
+            if ("reject".equals(lastHistory.getAction())
+                    && lastHistory.getOperatorId() != null
                     && !lastHistory.getOperatorId().equals(request.getOperatorId())
                     && !SysUser.isAdmin(request.getOperatorId())) {
                 return ApprovalResult.fail("仅操作人可撤回该记录");
