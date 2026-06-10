@@ -959,14 +959,14 @@
               var firstRowActions = [];
               var secondRowActions = [];
               var hasRecallInActions = false;
+              var recallAction = null;
               
               if (row.actions && row.actions.length > 0) {
-                  console.log('row.actions:', row.actions);
-                  console.log('row.state:', row.state);
                   var listActions = row.actions.filter(function(a) {
                       if (a.actionKey === 'recall') {
                           hasRecallInActions = true;
-                          return false; // 先过滤掉recall，我们后面统一处理
+                          recallAction = a; // 保存撤回按钮，稍后单独处理
+                          return false;
                       }
                       return a.actionKey !== 'approve' && a.actionKey !== 'reject';
                   });
@@ -992,25 +992,12 @@
               }
               
               var html = '';
-              var showRecall = false;
               
-              // 判断是否显示撤回按钮
-              // 1. 科研处角色在通过状态下
-              if (isSciTesearch && kyrevokeFlag && (row.state === 'TEXTBOOK_PASSED' || row.state === '6')) {
-                  showRecall = true;
-              }
-              // 2. 教研室管理员在科研处审批状态下
-              else if (isResearch && kyrevokeFlag && (row.state === 'TEXTBOOK_KYC_AUDIT' || row.state === '2' || row.state === '4')) {
-                  showRecall = true;
-              }
-              // 3. 教研室驳回后，教研室可撤回（回到驳回前的审批中状态）
-              else if (isResearch && kyrevokeFlag && (row.state === 'TEXTBOOK_REJECTED' || row.state === '3' || row.state === '5' || row.state === '7')) {
-                  showRecall = true;
-              }
-              
-              // 显示撤回按钮
-              if (showRecall) {
-                  html += '<a href="javascript:void(0)" class="btn btn-xs btn-warning" data-action-key="recall" data-confirm="确定要撤回该记录吗？">撤回</a>';
+              // 撤回按钮的显示逻辑完全由后端控制（row.actions中的recall）
+              // 后端filterActions方法已经根据"谁驳回的谁才能撤回"的规则生成按钮
+              if (hasRecallInActions && recallAction) {
+                  var confirmText = recallAction.confirmMsg || '确定要撤回该记录吗？';
+                  html += '<a href="javascript:void(0)" class="btn btn-xs btn-warning" data-action-key="recall" data-confirm="' + confirmText + '">撤回</a>';
               }
               
               if ((!isDeptTeacher || isSciTesearch) && firstRowActions.length > 0) {

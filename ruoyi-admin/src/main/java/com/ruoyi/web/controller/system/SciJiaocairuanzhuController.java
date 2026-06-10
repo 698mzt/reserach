@@ -42,6 +42,7 @@ import com.ruoyi.system.mapper.SciProjectScoreCfgMapper;
 public class SciJiaocairuanzhuController extends BaseController
 {
     private String prefix = "system/jiaocairuanzhu";
+    private static final String PROCESS_CODE = "TEXTBOOK_APPROVAL";
 
     @Autowired
     private ISciJiaocairuanzhuService sciJiaocairuanzhuService;
@@ -542,7 +543,7 @@ public class SciJiaocairuanzhuController extends BaseController
     public TableDataInfo approvalHistory(@PathVariable("kid")Integer kid)
     {
         // 查询审批历史记录（会填充关联数据）
-        List<SysApprovalHistory> list = sysApprovalHistoryService.selectSysApprovalHistoryByBusinessId("textbook_approval", kid.longValue());
+        List<SysApprovalHistory> list = sysApprovalHistoryService.selectSysApprovalHistoryByBusinessId(PROCESS_CODE, kid.longValue());
         return getDataTable(list);
     }
 
