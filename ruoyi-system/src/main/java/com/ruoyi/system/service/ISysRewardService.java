@@ -135,12 +135,13 @@ public interface ISysRewardService
      * 根据成员ID查询参与的奖励列表
      * 
      * 核心方法：用于成员账号登录后查看自己参与的所有奖励项目
-     * 通过关联表 sci_reward_persion 查询成员参与的奖励
+     * 通过关联表 sci_reward_persion 获取成员信息
      * 
      * @param persionId 成员用户ID
+     * @param year 年份过滤条件
      * @return 奖励列表
      */
-    List<SysReward> selectRewardsByPersionId(String persionId);
+    List<SysReward> selectRewardsByPersionId(String persionId, String year);
     //
     //    @Override
     //    public int hxover(String id, Long uid, String urlFlag) {

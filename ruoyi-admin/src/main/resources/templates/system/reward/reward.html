@@ -414,6 +414,16 @@
 
     var prefix = ctx + "system/reward";
 
+    function getUrl() {
+        var year = localStorage.getItem("year");
+        return prefix + "/list/?year=" + year;
+    }
+
+    function initTable(options) {
+        options.url = getUrl();
+        $.table.init(options);
+    }
+
     function renderActionsWithSplit(listActions) {
         if (!listActions || !listActions.length) {
             return '';
@@ -434,7 +444,6 @@
 
     $(function() {
         var options = {
-            url: prefix + "/list",  // 统一使用 /list 接口
             createUrl: prefix + "/add",
             updateUrl: prefix + "/edit/{id}",
             removeUrl: prefix + "/remove",
@@ -444,6 +453,7 @@
             pushUrl: prefix + "/push/{id}",
             addUrl: prefix + "/add",
             modalName: "奖励",
+            uniqueId: "id",
             rowStyle: rowStyle0,
             // 【关键修复】添加 queryParams 函数，确保搜索参数正确传递
             queryParams: function(params) {
@@ -459,6 +469,12 @@
                 $.each(formData, function(index, field) {
                     queryParams[field.name] = field.value;
                 });
+
+                // 【重要】从 localStorage 获取年份参数（参考论文模块实现）
+                var year = localStorage.getItem("year");
+                if (year && year !== '全部') {
+                    queryParams['year'] = year;
+                }
 
                 return queryParams;
             },
@@ -569,8 +585,8 @@
             ]
         };
 
-        // 【关键修复】直接使用包含 queryParams 的 options 初始化表格
-        $.table.init(options);
+        // 使用动态URL初始化表格
+        initTable(options);
 
         // 注册 PageRender 动作处理器（奖励模块）
         PageRender.registerHandlers({
@@ -620,43 +636,18 @@
             }
         });
 
-        // 奖励模块本地事件委托：捕获 PageRender 按钮点击，分发动作
-        // 因为 renderActionsToString 只返回 HTML，不绑定事件，所以需要在模块内自行绑定
-        $('#bootstrap-table').off('click.pageRender').on('click.pageRender', '.btn[data-action-key]', function (e) {
+        // 绑定 PageRender 按钮点击事件（绑定在 document 上，确保表格销毁重建后事件仍然有效）
+        $(document).off('click.rewardAction').on('click.rewardAction', 'button[data-action-key], a[data-action-key]', function(e) {
             e.preventDefault();
             var $btn = $(this);
             var actionKey = $btn.data('action-key');
             var confirmMsg = $btn.data('confirm');
-
-            // 从按钮所在的表格行获取 Bootstrap Table 存储的行数据
+            // 从最近的 tr 中获取行数据
             var $tr = $btn.closest('tr');
-            var rowData = {};
-            // Bootstrap Table 在 tr 上以 data- 属性存储字段
-            var attrs = $tr[0].attributes;
-            for (var i = 0; i < attrs.length; i++) {
-                if (attrs[i].name.indexOf('data-') === 0) {
-                    var key = attrs[i].name.replace('data-', '');
-                    // 尝试解析为数字
-                    var val = attrs[i].value;
-                    rowData[key] = val;
-                }
-            }
-            // 兜底：从 table 的 getData 中根据 index 查找
-            var indexAttr = $tr.attr('data-index');
-            if (indexAttr != null) {
-                var tableData = $('#bootstrap-table').bootstrapTable('getData');
-                if (tableData[indexAttr]) {
-                    rowData = tableData[indexAttr];
-                }
-            }
-
-            if (!rowData.id) {
-                $.modal.alertWarning('无法获取操作数据，请刷新页面');
-                return;
-            }
+            var rowData = $('#bootstrap-table').bootstrapTable('getData')[$tr.data('index')];
 
             if (confirmMsg) {
-                $.modal.confirm(confirmMsg, function () {
+                $.modal.confirm(confirmMsg, function() {
                     PageRender.dispatchAction(actionKey, rowData);
                 });
             } else {
@@ -668,7 +659,7 @@
         window.addEventListener("storage", function(event) {
             if (event.key === "year") {
                 $('#bootstrap-table').bootstrapTable('destroy');
-                $.table.init(options);
+                initTable(options);
             }
         });
     });

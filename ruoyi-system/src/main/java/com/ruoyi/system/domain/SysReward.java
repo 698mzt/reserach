@@ -133,6 +133,9 @@ public class SysReward extends BaseEntity
     @Excel(name = "状态")
     private String state;
 
+    /** 年份 */
+    private String year;
+
     /** 用户角色字段 */
     private String role;
 
@@ -424,6 +427,14 @@ public class SysReward extends BaseEntity
 
     public void setState(String state) {
         this.state = state;
+    }
+
+    public String getYear() {
+        return year;
+    }
+
+    public void setYear(String year) {
+        this.year = year;
     }
 
     public String getRole() {

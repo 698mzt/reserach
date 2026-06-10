@@ -140,7 +140,8 @@ public interface SysRewardMapper
      * 通过关联表 sci_reward_persion 获取成员在每个奖励中的排名、预计积分和实际积分
      * 
      * @param persionId 成员用户ID
+     * @param year 年份过滤条件
      * @return 奖励列表（包含个人积分信息）
      */
-    List<SysReward> selectRewardsByPersionId(@Param("persionId") String persionId);
+    List<SysReward> selectRewardsByPersionId(@Param("persionId") String persionId, @Param("year") String year);
 }

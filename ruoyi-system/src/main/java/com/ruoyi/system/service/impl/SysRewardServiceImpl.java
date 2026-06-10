@@ -663,12 +663,13 @@ public class SysRewardServiceImpl implements ISysRewardService {
      * 通过关联表 sci_reward_persion 获取成员在每个奖励中的排名、预计积分和实际积分
      * 
      * @param persionId 成员用户ID
+     * @param year 年份过滤条件
      * @return 奖励列表（包含个人积分信息）
      */
     @Override
-    public List<SysReward> selectRewardsByPersionId(String persionId) {
+    public List<SysReward> selectRewardsByPersionId(String persionId, String year) {
         // 直接通过Mapper查询，SQL已关联成员表获取个人积分信息
-        List<SysReward> rewards = sysRewardMapper.selectRewardsByPersionId(persionId);
+        List<SysReward> rewards = sysRewardMapper.selectRewardsByPersionId(persionId, year);
         
         // 填充页面渲染数据（状态和按钮）
         if (rewards != null && !rewards.isEmpty()) {
