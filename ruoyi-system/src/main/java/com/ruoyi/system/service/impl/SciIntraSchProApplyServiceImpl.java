@@ -6,12 +6,15 @@ import com.ruoyi.common.utils.DataScopeUtils;
 import com.ruoyi.common.core.text.Convert;
 import com.ruoyi.system.domain.ApprovalRequest;
 import com.ruoyi.system.domain.ApprovalResult;
+import com.ruoyi.system.domain.PageRenderActionItem;
 import com.ruoyi.system.domain.SciIntraSchProPiyue;
 import com.ruoyi.system.domain.SciIntraSchoolPro;
+import com.ruoyi.system.domain.SysApprovalHistory;
 import com.ruoyi.system.mapper.SciIntraSchProApplyMapper;
 import com.ruoyi.system.mapper.SciIntraSchProPiyueMapper;
 import com.ruoyi.system.service.IApprovalProcessService;
 import com.ruoyi.system.service.ISciIntraSchProApplyService;
+import com.ruoyi.system.service.ISysApprovalHistoryService;
 import com.ruoyi.system.service.ISysUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,6 +22,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.ruoyi.common.utils.ShiroUtils;
 import com.ruoyi.system.service.IPageRenderService;
 import com.ruoyi.system.domain.PageRenderResult;
+import com.ruoyi.system.constant.PageRenderActionConstants;
+import com.ruoyi.system.constant.PageRenderColorConstants;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -44,6 +50,8 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
     private IApprovalProcessService approvalProcessService;
     @Autowired
     private ISysUserService sysUserService;
+    @Autowired
+    private ISysApprovalHistoryService sysApprovalHistoryService;
 
     @Override
     @DataScope(deptAlias = "d", userAlias = "u")
@@ -636,7 +644,10 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
     /**
      * 填充页面渲染数据（statusMeta和actions）
      * 参考论文模块实现，提前计算当前用户权限并传入 fillPageRenderData()
-     * 确保角色切换后按钮显隐正确
+     * 确保角色切换后按钮显隐正确。
+     * 驳回态撤回按钮参照论文模块 addModuleSpecificActions()：
+     * 调用公有方法 sysApprovalHistoryService.selectLastRejectByBusinessId()
+     * 查询最近一次驳回记录，仅驳回操作人（或 admin）可见撤回按钮。
      *
      * @param pro 成果转化对象
      */
@@ -654,9 +665,44 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
                 normalizedState,
                 pro.getId() != null ? pro.getId().longValue() : null,
                 pro.getUid() != null ? pro.getUid() : null,
-                permissions  // 显式传入当前用户权限，角色切换后正确反映新角色权限
+                permissions
         );
         pro.setStatusMeta(result.getStatusMeta());
-        pro.setActions(result.getActions());
+
+        // 驳回状态撤回按钮：参考论文模块，仅驳回操作人（或admin）可撤回
+        // 调用公有方法 sysApprovalHistoryService 查审批记录，不修改公有方法
+        List<PageRenderActionItem> actions = result.getActions() != null
+                ? new ArrayList<>(result.getActions()) : new ArrayList<>();
+        if (normalizedState != null && normalizedState.endsWith("_REJECTED")
+                && pro.getId() != null) {
+            boolean isAdmin = currentUser != null && currentUser.isAdmin();
+            boolean isOwner = pro.getUid() != null
+                    && currentUser != null
+                    && pro.getUid().equals(currentUser.getUserId());
+            boolean hasRevokePerm = permissions.contains("system:intraSch:JYCH");
+            boolean hasKypyPerm = permissions.contains("system:intraSch:KYPY");
+            boolean hasApprovePerm = permissions.contains("system:intraSch:JYPY");
+            boolean isRejectOperator = false;
+            try {
+                SysApprovalHistory lastReject = sysApprovalHistoryService
+                        .selectLastRejectByBusinessId(TEC_TRA_PROCESS_CODE,
+                                pro.getId().longValue());
+                if (lastReject != null && lastReject.getOperatorId() != null
+                        && currentUser != null) {
+                    isRejectOperator = lastReject.getOperatorId()
+                            .equals(currentUser.getUserId());
+                }
+            } catch (Exception e) {
+                // 查询失败时不追加撤回按钮
+            }
+            if (isAdmin || (isRejectOperator
+                    && (hasRevokePerm || hasKypyPerm || hasApprovePerm || isOwner))) {
+                actions.add(PageRenderActionItem.of(
+                        PageRenderActionConstants.ACTION_RECALL, "撤回",
+                        PageRenderColorConstants.COLOR_WARNING, 40,
+                        "确定要撤回该记录吗？"));
+            }
+        }
+        pro.setActions(actions);
     }
 }

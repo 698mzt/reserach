@@ -758,9 +758,19 @@
             actions.unshift(makeAction("edit", "编辑", "customGreen", 0));
         }
 
-        // 撤回按钮
-        if (canShowRecallButton(row, state)) {
-            actions.push(makeAction("recall", "撤回", "warning", 90));
+        // 撤回按钮：优先使用服务端 actions 中的计算结果
+        // 服务端 fillPageRenderData() 已调用公有方法查审批记录，
+        // 驳回态仅驳回操作人可见撤回按钮（与论文模块逻辑一致）
+        if (row.actions && row.actions.length) {
+            for (var i = 0; i < row.actions.length; i++) {
+                if (row.actions[i].actionKey === 'recall') {
+                    var recallAction = row.actions[i];
+                    actions.push(makeAction('recall', recallAction.actionText || '撤回',
+                            recallAction.colorType || 'warning', recallAction.sortOrder || 90,
+                            recallAction.confirmMsg));
+                    break;
+                }
+            }
         }
 
         // 查看和查看流程放在最后
