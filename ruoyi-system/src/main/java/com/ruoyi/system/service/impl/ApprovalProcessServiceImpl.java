@@ -416,17 +416,11 @@ public class ApprovalProcessServiceImpl implements IApprovalProcessService {
                 return ApprovalResult.fail("未找到可撤回的历史记录，或历史记录的oldState为空");
             }
 
-            // 权限校验：按审批节点权限控制（与 approve/reject 一致）
-            // 查找导致当前状态的历史记录所关联的审批节点，校验用户角色/部门是否匹配
-            if (lastHistory.getNodeId() != null) {
-                SysApprovalNode node = sysApprovalNodeService.selectSysApprovalNodeById(lastHistory.getNodeId());
-                if (node != null && !checkNodePermission(node, request)
-                        && !SysUser.isAdmin(request.getOperatorId())) {
-                    return ApprovalResult.fail("当前用户无权撤回");
-                }
-            } else if (!SysUser.isAdmin(request.getOperatorId())) {
-                // 无节点信息时，仅管理员可撤回
-                return ApprovalResult.fail("当前用户无权撤回");
+            // 权限校验：仅该条历史记录的操作人可撤回（系统管理员除外）
+            if (lastHistory.getOperatorId() != null
+                    && !lastHistory.getOperatorId().equals(request.getOperatorId())
+                    && !SysUser.isAdmin(request.getOperatorId())) {
+                return ApprovalResult.fail("仅操作人可撤回该记录");
             }
 
             String recallState = lastHistory.getOldState();
