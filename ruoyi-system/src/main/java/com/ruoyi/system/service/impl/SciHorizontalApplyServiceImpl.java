@@ -2346,12 +2346,12 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
         }
 
         // 非驳回状态：使用公有审批流撤回（按节点角色权限控制）
-        // 注意：需将业务状态码转为节点编码（去掉 _AUDIT 后缀），与 approveApply/rejectApply 保持一致
-        String nodeCode = stateToNodeCode(currentState);
+        // 直接传入原始 currentState（如 HORIZONTAL_APPLY_KYC_AUDIT），
+        // 公有 recall 方法用 h.new_state = #{currentState} 精确匹配审批历史记录
         ApprovalRequest request = ApprovalRequest.of(
                 "HORIZONTAL_APPLY",
                 applyId.longValue(),
-                nodeCode,
+                currentState,
                 comment,
                 operatorId,
                 operatorName,
@@ -2628,12 +2628,12 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
         }
 
         // 非驳回状态：使用公有审批流撤回（按节点角色权限控制）
-        // 注意：需将业务状态码转为节点编码（去掉 _AUDIT 后缀），与 approveApply/rejectApply 保持一致
-        String nodeCode = stateToNodeCode(currentState);
+        // 直接传入原始 currentState（如 HORIZONTAL_OVER_KYC_AUDIT），
+        // 公有 recall 方法用 h.new_state = #{currentState} 精确匹配审批历史记录
         ApprovalRequest request = ApprovalRequest.of(
                 "HORIZONTAL_OVER",
                 applyId.longValue(),
-                nodeCode,
+                currentState,
                 comment,
                 operatorId,
                 operatorName,

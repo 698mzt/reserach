@@ -42,6 +42,7 @@ import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.system.service.ISciHorizontalApplyService;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
+import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.common.core.page.TableDataInfo;
 
@@ -400,7 +401,7 @@ public class SciHorizontalApplyController extends BaseController
             }
         }
 
-        // 为驳回状态的课题填充 lastRejectOperatorId，用于前端控制仅驳回操作人可撤回
+        // 为驳回状态的课题填充 lastRejectRole，用于前端控制对应角色显示撤回按钮
         for (SciHorizontalApply apply : distinctList) {
             String state = apply.getState();
             if (state != null && state.endsWith("_REJECTED")) {
@@ -418,8 +419,13 @@ public class SciHorizontalApplyController extends BaseController
                 }
                 if (processCode != null && businessId != null) {
                     SysApprovalHistory lastReject = sysApprovalHistoryService.selectLastRejectByBusinessId(processCode, businessId);
-                    if (lastReject != null && lastReject.getOperatorId() != null) {
-                        apply.getParams().put("lastRejectOperatorId", lastReject.getOperatorId());
+                    if (lastReject != null && StringUtils.isNotEmpty(lastReject.getOldState())) {
+                        String oldState = lastReject.getOldState();
+                        // 根据驳回前的节点编码判断是哪个角色驳回的
+                        String rejectRole = oldState.contains("_JYS") ? "JYS" : oldState.contains("_KYC") ? "KYC" : "";
+                        if (StringUtils.isNotEmpty(rejectRole)) {
+                            apply.getParams().put("lastRejectRole", rejectRole);
+                        }
                     }
                 }
             }
