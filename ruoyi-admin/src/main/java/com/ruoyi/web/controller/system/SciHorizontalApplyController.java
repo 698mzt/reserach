@@ -400,6 +400,32 @@ public class SciHorizontalApplyController extends BaseController
             }
         }
 
+        // 为驳回状态的课题填充 lastRejectRole，用于前端控制对应角色显示撤回按钮
+        for (SciHorizontalApply apply : distinctList) {
+            String state = apply.getState();
+            if (state != null && state.endsWith("_REJECTED")) {
+                String processCode = null;
+                Long businessId = null;
+                if (state.startsWith("HORIZONTAL_APPLY_")) {
+                    processCode = "HORIZONTAL_APPLY";
+                    businessId = apply.getId() != null ? apply.getId().longValue() : null;
+                } else if (state.startsWith("HORIZONTAL_OVER_")) {
+                    processCode = "HORIZONTAL_OVER";
+                    businessId = apply.getId() != null ? apply.getId().longValue() : null;
+                } else if (state.startsWith("REAMOUNT_")) {
+                    processCode = "HORIZONTAL_REAMOUNT";
+                    businessId = apply.getReid() != null ? apply.getReid().longValue() : null;
+                }
+                if (processCode != null && businessId != null) {
+                    SysApprovalHistory lastReject = sysApprovalHistoryService.selectLastRejectByBusinessId(processCode, businessId);
+                    if (lastReject != null && lastReject.getOperatorId() != null) {
+                        // 记录驳回操作人ID，用于前端控制仅驳回者显示撤回按钮
+                        apply.getParams().put("lastRejectOperatorId", lastReject.getOperatorId().toString());
+                    }
+                }
+            }
+        }
+
         // 获取分页参数
         PageDomain pageDomain = TableSupport.buildPageRequest();
         Integer pageNum = pageDomain.getPageNum();
@@ -1520,14 +1546,35 @@ public class SciHorizontalApplyController extends BaseController
         boolean canRecall;
 
         if (currentState != null && currentState.endsWith("_REJECTED")) {
-            // 驳回态：拥有审批权(process)或撤回权(revoke)的角色均可撤回
+            // 驳回态：仅驳回操作人可撤回
             SysUser user = getSysUser();
             if (user == null) {
                 return AjaxResult.error("无权操作");
             }
-            canRecall = org.apache.shiro.SecurityUtils.getSubject().isPermitted("system:apply:process")
-              || org.apache.shiro.SecurityUtils.getSubject().isPermitted("system:apply:revoke")
-              || org.apache.shiro.SecurityUtils.getSubject().isPermitted("system:apply:kyrevoke");
+            // 查询驳回记录，验证当前用户是否为驳回操作人
+            String processCode = null;
+            Long businessId = null;
+            if (currentState.startsWith("HORIZONTAL_APPLY_")) {
+                processCode = "HORIZONTAL_APPLY";
+                businessId = apply.getId() != null ? apply.getId().longValue() : null;
+            } else if (currentState.startsWith("HORIZONTAL_OVER_")) {
+                processCode = "HORIZONTAL_OVER";
+                businessId = apply.getId() != null ? apply.getId().longValue() : null;
+            }
+            if (processCode != null && businessId != null) {
+                SysApprovalHistory lastReject = sysApprovalHistoryService.selectLastRejectByBusinessId(processCode, businessId);
+                if (lastReject != null && lastReject.getOperatorId() != null
+                        && !lastReject.getOperatorId().equals(getUserId())) {
+                    return AjaxResult.error("仅驳回操作人可撤回");
+                }
+            }
+            canRecall = true;
+        } else if (currentState != null && currentState.endsWith("_PASSED")) {
+            // 通过状态（立项/结项）：拥有 kyrevoke 权限的（科研处）可撤回
+            canRecall = org.apache.shiro.SecurityUtils.getSubject().isPermitted("system:apply:kyrevoke");
+        } else if (currentState != null && currentState.indexOf("_KYC_AUDIT") != -1) {
+            // KYC审批中状态（立项/结项）：拥有 process 权限的（教研室）可撤回
+            canRecall = org.apache.shiro.SecurityUtils.getSubject().isPermitted("system:apply:process");
         } else if (currentState != null && currentState.startsWith("HORIZONTAL_OVER_")) {
             canRecall = canApproveOver(currentState);
         } else {
@@ -1796,6 +1843,13 @@ public class SciHorizontalApplyController extends BaseController
             }
             targetState = "REAMOUNT_JYS_AUDIT";
         } else if ("REAMOUNT_REJECTED".equals(currentState)) {
+            // 驳回状态：仅驳回操作人可撤回
+            SysApprovalHistory lastReject = sysApprovalHistoryService.selectLastRejectByBusinessId(
+                    "HORIZONTAL_REAMOUNT", id.longValue());
+            if (lastReject == null || lastReject.getOperatorId() == null
+                    || !lastReject.getOperatorId().equals(getUserId())) {
+                return AjaxResult.error("仅驳回操作人可撤回");
+            }
             // 申请人撤回→DRAFT，教研室撤回→JYS_AUDIT，科研处撤回→KYC_AUDIT
             boolean isOwner = reamount.getUserId() != null && getUserId().longValue() == reamount.getUserId().longValue();
             boolean isJYS = getSysUser().getRoles().stream().anyMatch(r -> "102".equals(r.getRoleId()));
@@ -1810,12 +1864,12 @@ public class SciHorizontalApplyController extends BaseController
                 return AjaxResult.error("无权操作");
             }
         } else if ("REAMOUNT_PASSED".equals(currentState)) {
-            // 科研处撤回 → JYS_AUDIT
+            // 科研处撤回 → KYC_AUDIT（回到科研处审批中状态）
             boolean canRecall = getSysUser().getRoles().stream().anyMatch(r -> "101".equals(r.getRoleId()));
             if (!canRecall) {
                 return AjaxResult.error("无权操作");
             }
-            targetState = "REAMOUNT_JYS_AUDIT";
+            targetState = "REAMOUNT_KYC_AUDIT";
         } else {
             return AjaxResult.error("当前状态不允许撤回");
         }
