@@ -413,7 +413,7 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService {
 
         SysUser currentUser = ShiroUtils.getSysUser();
 
-        // 调用共有方法处理审批驳回（记录审批历史）
+        // 处理审批驳回（记录审批历史）
         ApprovalRequest rejectRequest = ApprovalRequest.of("LECTURE_APPROVAL",
                 id.longValue(), report.getState(),
                 remark, userId, currentUser.getUserName(),
@@ -425,7 +425,7 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService {
         return handleApprovalResult(id, userId, "LECTURE_REJECTED", remark, "驳回");
     }
 
-    // 撤回审批业务处理方法 - 调用共有方法，通过状态撤回回到科研处审批
+    // 撤回审批业务处理方法
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int recall(Integer id, Long userId, String remark) {
@@ -632,40 +632,9 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService {
         }
     }
     
-    /**
-     * 构建当前用户的权限集合
-     * 超级管理员权限处理：由于PageRenderServiceImpl的按钮渲染依赖权限检查，
-     * 而selectPermsByUserId方法没有特殊处理超级管理员，导致管理员权限列表可能为空，
-     * 因此需要手动添加讲座报告模块的所有权限，确保超级管理员能看到所有操作按钮
-     * 
-     * @param currentUser 当前用户
-     * @return 权限集合
-     */
-    private Set<String> buildPermissions(SysUser currentUser) {
-        Set<String> permissions = pageRenderService.buildCurrentPermissions(currentUser);
-        
-        if (currentUser != null && currentUser.isAdmin()) {
-            permissions.add("system:report:info");
-            permissions.add("system:report:edit");
-            permissions.add("system:report:add");
-            permissions.add("system:report:remove");
-            permissions.add("system:report:process");
-            permissions.add("system:report:check");
-            permissions.add("system:report:revoke");
-            permissions.add("system:report:kyrevoke");
-            permissions.add("system:report:xyprocess");
-        }
-        
-        return permissions;
-    }
     
     /**
      * 调整讲座报告按钮：确保正确显示撤回、驳回和提交按钮
-     * 逻辑：
-     * - 教研室审批中（LECTURE_JYS_AUDIT）：教研室角色可驳回，无撤回按钮
-     * - 科研处审批中（LECTURE_KYC_AUDIT）：科研处可驳回，无撤回按钮
-     * - 通过状态（LECTURE_PASSED）：科研处角色或管理员可撤回
-     * - 驳回状态（LECTURE_REJECTED）：教研室和科研处角色都能撤回，作者可编辑
      * 
      * @param state 当前状态
      * @param actions 已有按钮列表
@@ -684,39 +653,24 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService {
         // 判断是否为管理员
         boolean isAdmin = SecurityUtils.getSubject().isPermitted("*:*:*");
         
-        // 移除共有方法可能添加的撤回按钮，统一在本方法中处理
-        actions.removeIf(a -> "recall".equals(a.getActionKey()));
-        
         // 权限检查
         boolean hasProcess = SecurityUtils.getSubject().isPermitted("system:report:process"); // 教研室审批权限
         boolean hasCheck = SecurityUtils.getSubject().isPermitted("system:report:check");     // 科研处审批权限
         boolean hasKyRevoke = SecurityUtils.getSubject().isPermitted("system:report:kyrevoke"); // 科研处撤回权限
         
-        // 教研室审批中：教研室角色可驳回
-        if ("LECTURE_JYS_AUDIT".equals(state)) {
-            // 确保显示驳回按钮（教研室）
-            boolean hasReject = actions.stream().anyMatch(a -> "reject".equals(a.getActionKey()));
-            if (!hasReject && hasProcess) {
-                actions.add(PageRenderActionItem.of(
-                        "reject", "驳回",
-                        PageRenderColorConstants.COLOR_DANGER, 32, "确定要驳回该记录吗？"));
-            }
-            // 不显示撤回按钮
-        }
-        
-        // 科研处审批中：科研处可驳回
+        // 科研处审批中（LECTURE_KYC_AUDIT）：教研室角色可撤回
+        // approvalProcessService.recall
         if ("LECTURE_KYC_AUDIT".equals(state)) {
-            // 确保显示驳回按钮（科研处）
-            boolean hasReject = actions.stream().anyMatch(a -> "reject".equals(a.getActionKey()));
-            if (!hasReject && hasCheck) {
+            boolean hasRecall = actions.stream().anyMatch(a -> "recall".equals(a.getActionKey()));
+            if (!hasRecall && (hasProcess || isAdmin)) {
                 actions.add(PageRenderActionItem.of(
-                        "reject", "驳回",
-                        PageRenderColorConstants.COLOR_DANGER, 32, "确定要驳回该记录吗？"));
+                        "recall", "撤回",
+                        PageRenderColorConstants.COLOR_WARNING, 40, "确定要撤回该记录吗？"));
             }
-            // 不显示撤回按钮
         }
         
-        // 通过状态：科研处角色或管理员可撤回
+        // 通过状态（LECTURE_PASSED）：科研处角色或管理员可撤回
+        //  approvalProcessService.recall
         if ("LECTURE_PASSED".equals(state)) {
             boolean hasRecall = actions.stream().anyMatch(a -> "recall".equals(a.getActionKey()));
             if (!hasRecall && (hasCheck || hasKyRevoke || isAdmin)) {
@@ -727,6 +681,7 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService {
         }
         
         // 驳回状态：教研室和科研处角色都能撤回，作者可编辑
+        // approvalProcessService.recall
         if ("LECTURE_REJECTED".equals(state)) {
             // 教研室和科研处角色都可撤回
             boolean hasRecall = actions.stream().anyMatch(a -> "recall".equals(a.getActionKey()));
