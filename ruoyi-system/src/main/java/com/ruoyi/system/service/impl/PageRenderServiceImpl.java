@@ -712,6 +712,8 @@ public class PageRenderServiceImpl implements IPageRenderService {
                         PageRenderActionConstants.ACTION_EDIT, "编辑",
                         PageRenderColorConstants.COLOR_PRIMARY, 10));
             }
+            // 驳回状态通用撤回按钮：所有可见该页面的角色均可撤回
+            addRejectRecallAction(context, actions, config);
         }
 
         // 审批中状态按钮（教研室/科研处）
@@ -831,6 +833,29 @@ public class PageRenderServiceImpl implements IPageRenderService {
     }
 
     /**
+     * 驳回状态通用撤回按钮
+     * 驳回状态下所有可见该页面的角色均可撤回（论文模块除外）
+     *
+     * @param context  页面渲染上下文
+     * @param actions  按钮列表（追加）
+     * @param config   模块配置（含权限映射表）
+     */
+    private void addRejectRecallAction(PageRenderContext context, List<PageRenderActionItem> actions,
+            ModuleConfig config) {
+        if (context == null || actions == null || config == null) {
+            return;
+        }
+        // 论文模块驳回状态使用特殊逻辑（在addModuleSpecificActions中处理），此处跳过
+        if ("PAPER".equals(context.getModuleCode())) {
+            return;
+        }
+        // 其他模块驳回状态：所有可见该页面的角色均可撤回
+        actions.add(PageRenderActionItem.of(
+                PageRenderActionConstants.ACTION_RECALL, "撤回",
+                PageRenderColorConstants.COLOR_WARNING, 40, "确定要撤回该驳回记录吗？"));
+    }
+
+    /**
      * 追加模块特有按钮
      * 在通用按钮规则之后，追加模块特有的按钮
      *
@@ -871,48 +896,11 @@ public class PageRenderServiceImpl implements IPageRenderService {
                         "reamount", "追加金额",
                         PageRenderColorConstants.COLOR_PRIMARY, 51));
             }
-            // 驳回状态：所有可见该页面的角色均可撤回
-            if (context.getCurrentState().endsWith("_REJECTED")) {
-                specificActions.add(PageRenderActionItem.of(
-                        PageRenderActionConstants.ACTION_RECALL, "撤回",
-                        PageRenderColorConstants.COLOR_WARNING, 40, "确定要撤回该驳回记录吗？"));
-            }
-        }
-
-        // 横向课题结项：驳回状态下显示撤回按钮
-        if ("HORIZONTAL_OVER".equals(moduleCode) && context.getCurrentState() != null
-                && context.getCurrentState().endsWith("_REJECTED")) {
-            specificActions.add(PageRenderActionItem.of(
-                    PageRenderActionConstants.ACTION_RECALL, "撤回",
-                    PageRenderColorConstants.COLOR_WARNING, 40, "确定要撤回该驳回记录吗？"));
-        }
-
-        // 专利软著模块：驳回状态下所有角色均可撤回，申请人在审批中可撤回
-        if ("PATENT".equals(moduleCode) && context.getCurrentState() != null) {
-            boolean isOwner = context.isOwner();
-            boolean isAdmin = context.hasRole("admin");
-            boolean isTeacherActive = isTeacherRole(context.getActiveRoleKey());
-            boolean canOwnerActAsTeacher = isAdmin || isTeacherActive;
-            // 驳回状态：所有可见该页面的角色均可撤回
-            if (context.getCurrentState().endsWith("_REJECTED")) {
-                specificActions.add(PageRenderActionItem.of(
-                        PageRenderActionConstants.ACTION_RECALL, "撤回",
-                        PageRenderColorConstants.COLOR_WARNING, 40, "确定要撤回该驳回记录吗？"));
-            }
-            // 申请人撤回：仅系统管理员或所有者且当前为教师角色时显示
-            if ((isOwner && canOwnerActAsTeacher || isAdmin) 
-                    && context.hasPermission(config.getPermission("revoke"))) {
-                String currentState = context.getCurrentState();
-                // 审批中状态（教研室/科研处审批）允许申请人撤回
-                if (currentState != null && (currentState.contains("_JYS_") || currentState.contains("_KYC_"))) {
-                    specificActions.add(PageRenderActionItem.of(
-                            PageRenderActionConstants.ACTION_RECALL, "撤回",
-                            PageRenderColorConstants.COLOR_WARNING, 40, "确定要撤回该记录吗？"));
-                }
-            }
+            // 注意：驳回状态撤回按钮已在通用方法 addRejectRecallAction() 中统一处理
         }
 
         // 论文驳回状态：仅该条驳回操作的执行人可撤回，不能替他人撤回
+        // 此特殊逻辑不在通用方法中处理，因为需要查询审批历史
         if ("PAPER".equals(moduleCode) && context.getCurrentState() != null
                 && SciPaperA.PAPER_REJECTED.equals(context.getCurrentState())) {
             boolean isAdmin = context.hasRole("admin");
@@ -938,6 +926,7 @@ public class PageRenderServiceImpl implements IPageRenderService {
             }
         }
 
+        // 横向课题结项：驳回状态撤回按钮已在通用方法 addRejectRecallAction() 中统一处理
         // 纵向课题立项通过后显示"申请结项"按钮
         if ("VERTICAL_APPLY".equals(moduleCode) && context.getCurrentState() != null
                 && (context.getCurrentState().endsWith("_PASS") || context.getCurrentState().endsWith("_PASSED"))) {
