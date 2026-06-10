@@ -608,7 +608,8 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService {
                 report.getState(), 
                 result.getActions(), 
                 report.getUserId(),
-                currentUserId);
+                currentUserId,
+                report.getId());
         
         // 设置个人排名：如果当前用户是申请人，则排名为"1"
         if (report.getUserId() != null && currentUserId != null && 
@@ -643,7 +644,7 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService {
      * @return 调整后的按钮列表
      */
     private List<PageRenderActionItem> adjustActionsForLecture(String state, List<PageRenderActionItem> actions,
-            Integer creatorId, Long currentUserId) {
+            Integer creatorId, Long currentUserId, Integer businessId) {
         if (actions == null) {
             actions = new ArrayList<>();
         }
@@ -680,12 +681,23 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService {
             }
         }
         
-        // 驳回状态：教研室和科研处角色都能撤回，作者可编辑
+        // 驳回状态：仅该条驳回操作的执行人可撤回，作者可编辑
         // approvalProcessService.recall
         if ("LECTURE_REJECTED".equals(state)) {
-            // 教研室和科研处角色都可撤回
+            // 查询最近一次驳回记录，检查是否为当前用户驳回
+            boolean isRejectOperator = false;
+            if (businessId != null) {
+                SysApprovalHistory lastReject = sysApprovalHistoryService.selectLastRejectByBusinessId(
+                        "LECTURE_APPROVAL", businessId.longValue());
+                if (lastReject != null && lastReject.getOperatorId() != null && currentUserId != null) {
+                    isRejectOperator = lastReject.getOperatorId().equals(currentUserId);
+                }
+            }
+            
+            // 系统管理员 或 驳回操作人（且拥有相应权限）才能撤回
+            boolean canRecall = isAdmin || (isRejectOperator && (hasProcess || hasCheck || hasKyRevoke));
             boolean hasRecall = actions.stream().anyMatch(a -> "recall".equals(a.getActionKey()));
-            if (!hasRecall && (hasProcess || hasCheck || hasKyRevoke || isAdmin)) {
+            if (!hasRecall && canRecall) {
                 actions.add(PageRenderActionItem.of(
                         "recall", "撤回",
                         PageRenderColorConstants.COLOR_WARNING, 40, "确定要撤回该记录吗？"));
