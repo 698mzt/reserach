@@ -7,7 +7,9 @@ import com.ruoyi.common.core.text.Convert;
 import com.ruoyi.common.utils.DataScopeUtils;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.ShiroUtils;
+import com.ruoyi.system.constant.PageRenderActionConstants;
 import com.ruoyi.system.domain.*;
+import com.ruoyi.system.domain.SysApprovalHistory;
 import com.ruoyi.system.constant.PageRenderColorConstants;
 import com.ruoyi.system.mapper.SciHorizontalApplyVerticalMapper;
 import com.ruoyi.system.mapper.SciHorizontalPiyueMapper;
@@ -16,6 +18,7 @@ import com.ruoyi.system.service.IApprovalProcessService;
 import com.ruoyi.system.service.ISciHorizontalApplyVerticalService;
 import com.ruoyi.system.service.IPageRenderService;
 import com.ruoyi.system.service.SciHorizontalReamountService;
+import com.ruoyi.system.service.ISysApprovalHistoryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +50,9 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
 
     @Autowired
     private SciHorizontalReamountService sciHorizontalReamountService;
+
+    @Autowired
+    private ISysApprovalHistoryService sysApprovalHistoryService;
 
     @Autowired
     private IApprovalProcessService approvalProcessService;
@@ -645,64 +651,140 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
     /**
      * 撤回操作
      * 功能：撤回纵向课题申请，删除积分记录，添加审批记录
-     * SQL：DELETE FROM sci_user_score WHERE vertical_id = ? AND change_status = ?
-     * SQL：INSERT INTO sci_horizontal_piyue
-     * SQL：UPDATE sci_horizontal_apply_vertical SET state = ? WHERE id = ?
+     * 通过调用 IApprovalProcessService.recall() 实现状态回退
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int recall(Integer id, String state, Long userId, String remark, String urlFlag) {
-        String newState = state;
-        switch (state){
-//            立项申请 - 待教研室 / 被驳回 → 回退到草稿
-            case "V_APPLY_JYS": case "V_APPLY_REJ":
-            case "VERTICAL_APPLY_JYS_AUDIT": case "VERTICAL_APPLY_REJECTED":
-                newState = "VERTICAL_APPLY_DRAFT";
-                break;
-//            立项申请 - 待科研处 → 回退到待教研室
-            case "V_APPLY_KYC":
-            case "VERTICAL_APPLY_KYC_AUDIT":
-                newState = "VERTICAL_APPLY_JYS_AUDIT";
-                break;
-//            立项申请 - 已完结 → 回退到待科研处
-            case "V_APPLY_PASS":
-            case "VERTICAL_APPLY_PASSED":
-                newState = "VERTICAL_APPLY_KYC_AUDIT";
-                break;
-//            结项申请 - 待教研室 / 被驳回 → 回退到草稿
-            case "V_OVER_JYS": case "V_OVER_REJ":
-            case "VERTICAL_OVER_JYS_AUDIT": case "VERTICAL_OVER_REJECTED":
-                newState = "VERTICAL_OVER_DRAFT";
-                break;
-//            结项申请 - 待科研处 → 回退到待教研室
-            case "V_OVER_KYC":
-            case "VERTICAL_OVER_KYC_AUDIT":
-                newState = "VERTICAL_OVER_JYS_AUDIT";
-                break;
-//            结项申请 - 已完结 → 回退到待科研处
-            case "V_OVER_PASS":
-            case "VERTICAL_OVER_PASSED":
-                newState = "VERTICAL_OVER_KYC_AUDIT";
-                break;
-        }
-        if(state.equals("V_APPLY_PASS") || state.equals("VERTICAL_APPLY_PASSED")){
-            String status = "立项";
-//            sciUserScoreMapper.deleteVerticalScoreById(id.toString(),status);
-        }else
-        if(state.equals("V_OVER_PASS") || state.equals("VERTICAL_OVER_PASSED")){
-            String status = "结项";
-//            sciUserScoreMapper.deleteVerticalScoreById(id.toString(),status);
+        // 获取操作人信息
+        SysUser user = ShiroUtils.getSysUser();
+        String operatorName = user != null ? user.getUserName() : "";
+        String operatorDept = user != null && user.getDept() != null ? user.getDept().getDeptName() : "";
+
+        // 获取流程编码
+        String processCode = getProcessCode(state);
+        
+        // 驳回状态为合成终态，不经过审批流直接撤回
+        if (StringUtils.equals(state, "VERTICAL_APPLY_REJECTED") || 
+            StringUtils.equals(state, "VERTICAL_OVER_REJECTED")) {
+            // 从审批历史中查询最近一次驳回记录，获取驳回前的状态
+            SysApprovalHistory lastReject = approvalProcessService.getApprovalHistory(processCode, id.longValue())
+                    .stream()
+                    .filter(h -> "reject".equals(h.getAction()))
+                    .max(Comparator.comparing(SysApprovalHistory::getId))
+                    .orElse(null);
+            
+            String recallState;
+            if (lastReject != null && StringUtils.isNotEmpty(lastReject.getOldState())) {
+                // oldState 是审批节点编码，需转为业务状态编码
+                recallState = nodeCodeToState(lastReject.getOldState());
+            } else {
+                // 无历史记录时回退到草稿
+                recallState = processCode.equals("VERTICAL_APPLY") ? "VERTICAL_APPLY_DRAFT" : "VERTICAL_OVER_DRAFT";
+            }
+            
+            // 更新业务状态
+            approvalProcessService.updateBusinessState(processCode, id.longValue(), recallState);
+            
+            // 插入审批日志
+            SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
+            sciHorizontalPiyue.setUid(userId);
+            sciHorizontalPiyue.setVerticalId(id);
+            sciHorizontalPiyue.setConcate(remark != null && !remark.isEmpty() ? remark : "撤回");
+            sciHorizontalPiyue.setState("撤回（驳回状态）");
+            sciHorizontalPiyueMapper.insertVerticalPiyue(sciHorizontalPiyue);
+            
+            log.info("纵向课题撤回成功(从驳回状态): id={}, recallState={}, operator={}", id, recallState, operatorName);
+            return 1;
         }
 
-//        插入日志
-        SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
-        sciHorizontalPiyue.setUid(userId);
-        sciHorizontalPiyue.setVerticalId(id);
-        sciHorizontalPiyue.setConcate(remark);
-        sciHorizontalPiyue.setState("撤回");
-        sciHorizontalPiyueMapper.insertVerticalPiyue(sciHorizontalPiyue);
+        // 正常撤回流程：调用审批流程服务
+        String nodeCode = stateToNodeCode(state);
+        
+        ApprovalRequest request = ApprovalRequest.of(
+                processCode,
+                id.longValue(),
+                nodeCode,
+                remark != null && !remark.isEmpty() ? remark : "撤回",
+                userId,
+                operatorName,
+                operatorDept
+        );
+        
+        ApprovalResult result = approvalProcessService.recall(request);
+        
+        if (result.isSuccess()) {
+            String newState = result.getNewState();
+            String correctedState = nodeCodeToState(newState);
+            
+            // 如果状态需要转换，则更新业务状态
+            if (!correctedState.equals(newState)) {
+                approvalProcessService.updateBusinessState(processCode, id.longValue(), correctedState);
+                newState = correctedState;
+            }
+            
+            // 插入审批日志
+            SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
+            sciHorizontalPiyue.setUid(userId);
+            sciHorizontalPiyue.setVerticalId(id);
+            sciHorizontalPiyue.setConcate(remark != null && !remark.isEmpty() ? remark : "撤回");
+            sciHorizontalPiyue.setState("撤回");
+            sciHorizontalPiyueMapper.insertVerticalPiyue(sciHorizontalPiyue);
+            
+            log.info("纵向课题撤回成功: id={}, currentState={}, newState={}, operator={}", 
+                    id, state, newState, operatorName);
+            return 1;
+        } else {
+            log.error("纵向课题撤回失败: id={}, reason={}", id, result.getMessage());
+            return 0;
+        }
+    }
 
-        return sciHorizontalApplyVerticalMapper.applyPass(id.toString(),newState,null);
+    /**
+     * 获取流程编码
+     */
+    private String getProcessCode(String state) {
+        if (state.startsWith("VERTICAL_OVER") || state.startsWith("V_OVER") || state.startsWith("V_")) {
+            // V_1~V_7 是旧编码，用于结项
+            boolean isApply = state.equals("V_0") || state.startsWith("VERTICAL_APPLY");
+            return isApply ? "VERTICAL_APPLY" : "VERTICAL_OVER";
+        }
+        return "VERTICAL_APPLY";
+    }
+
+    /**
+     * 业务状态编码转节点编码
+     * 将 xxx_AUDIT 转换为 xxx
+     */
+    private String stateToNodeCode(String stateCode) {
+        if (stateCode == null || stateCode.isEmpty()) {
+            return stateCode;
+        }
+        if (stateCode.endsWith("_AUDIT")) {
+            return stateCode.substring(0, stateCode.length() - 6);
+        }
+        return stateCode;
+    }
+
+    /**
+     * 节点编码转业务状态编码
+     * 将 xxx 转换为 xxx_AUDIT（终态除外）
+     * 注意：如果传入的已经是业务状态编码（带 _AUDIT 后缀），则直接返回
+     */
+    private String nodeCodeToState(String nodeCode) {
+        if (nodeCode == null || nodeCode.isEmpty()) {
+            return nodeCode;
+        }
+        // 如果已经是终态或草稿状态，直接返回
+        if (nodeCode.endsWith("_PASSED") || nodeCode.endsWith("_REJECTED") || nodeCode.endsWith("_DRAFT")) {
+            return nodeCode;
+        }
+        // 如果已经带有 _AUDIT 后缀，说明已经是业务状态编码，直接返回
+        if (nodeCode.endsWith("_AUDIT")) {
+            return nodeCode;
+        }
+        // 否则添加 _AUDIT 后缀
+        return nodeCode + "_AUDIT";
     }
 
 
@@ -854,7 +936,11 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
             );
 
             apply.setStatusMeta(result.getStatusMeta());
-            apply.setActions(filterVerticalActions(result.getActions()));
+            
+            // 过滤按钮并添加驳回状态下的撤回按钮
+            List<PageRenderActionItem> actions = filterVerticalActions(result.getActions());
+            addRecallButtonForRejectedState(actions, apply, currentUser, processCode);
+            apply.setActions(actions);
         } catch (Exception e) {
             // 页面渲染数据填充失败不影响主流程，提供兜底数据
             log.error("填充纵向课题页面渲染数据失败, applyId={}", apply.getId(), e);
@@ -887,6 +973,55 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
             }
         }
         return filtered;
+    }
+
+    /**
+     * 为驳回状态或审批通过后的状态添加撤回按钮
+     * 谁操作谁撤回原则：只有驳回/通过操作人或系统管理员才能撤回
+     *
+     * @param actions      现有按钮列表
+     * @param apply        纵向课题实体
+     * @param currentUser  当前用户
+     * @param processCode  流程编码
+     */
+    private void addRecallButtonForRejectedState(List<PageRenderActionItem> actions, 
+            SciHorizontalApplyVertical apply, SysUser currentUser, String processCode) {
+        String currentState = apply.getState();
+        if (currentState == null) {
+            return;
+        }
+
+        boolean isAdmin = currentUser.getRoles().stream()
+                .anyMatch(role -> role != null && "admin".equals(role.getRoleKey()));
+        
+        // 判断是否为操作人（驳回或通过）
+        boolean isOperator = false;
+        String confirmMessage = "确定要撤回该记录吗？";
+        
+        if (apply.getId() != null && StringUtils.isNotEmpty(processCode)) {
+            // 查询最近一次可撤回的审批记录（包括通过和驳回）
+            SysApprovalHistory lastAction = sysApprovalHistoryService.selectLastRecallableByBusinessId(
+                    processCode, apply.getId().longValue(), currentState);
+            
+            if (lastAction != null && lastAction.getOperatorId() != null) {
+                isOperator = lastAction.getOperatorId().equals(currentUser.getUserId());
+                
+                // 根据操作类型设置提示消息
+                if ("reject".equals(lastAction.getAction())) {
+                    confirmMessage = "确定要撤回该驳回记录吗？";
+                } else if ("pass".equals(lastAction.getAction())) {
+                    confirmMessage = "确定要撤回该通过记录吗？";
+                }
+            }
+        }
+
+        // 系统管理员 或 操作人（驳回/通过）才能撤回
+        if (isAdmin || isOperator) {
+            PageRenderActionItem recallAction = PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_RECALL, "撤回",
+                    PageRenderColorConstants.COLOR_WARNING, 40, confirmMessage);
+            actions.add(recallAction);
+        }
     }
 
     /**
