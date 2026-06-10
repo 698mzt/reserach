@@ -644,6 +644,8 @@
 
     // 获取当前用户角色信息（由后端根据 activeRoleId 确定）
     var userRole = /*[[${role}]]*/ 'teacher';
+    // 当前用户ID
+    var currentUserId = /*[[${user.userId}]]*/ null;
     // 是否是教师角色（仅有教师身份才能看到教师特有操作按钮）
     var isTeacherRole = (userRole === 'teacher');
 
@@ -701,12 +703,25 @@
                 return isTeacherRole && owner && hasPagePermission(editFlag) && isDraftState(state);
             }
             if (key === 'recall') {
-                if (isRejectedState(state)) {
-                    return hasPagePermission(proFlag) || hasPagePermission(kyrevokeFlag);
+                // 已完结 sheet 页不显示撤回按钮
+                if (tableId === 'bootstrap-table0') {
+                    return false;
                 }
-                // 结项通过状态：仅科研处（kyrevoke权限）可撤回
-                if (isPassedState(state) && state.indexOf('HORIZONTAL_OVER_') !== -1) {
+                if (isRejectedState(state)) {
+                    // 驳回状态：仅驳回操作人可撤回
+                    if (hasPagePermission(proFlag) || hasPagePermission(kyrevokeFlag)) {
+                        var rejectOperatorId = row.params ? row.params.lastRejectOperatorId : null;
+                        return rejectOperatorId && String(rejectOperatorId) === String(currentUserId);
+                    }
+                    return false;
+                }
+                // 通过状态（立项/结项/到账金额）：科研处（kyrevoke权限）可撤回
+                if (isPassedState(state)) {
                     return hasPagePermission(kyrevokeFlag);
+                }
+                // KYC审批中状态（立项/结项/到账金额）：教研室（pro权限）可撤回
+                if (state && state.indexOf('_KYC_AUDIT') !== -1) {
+                    return hasPagePermission(proFlag);
                 }
                 return false;
             }

@@ -400,6 +400,31 @@ public class SciHorizontalApplyController extends BaseController
             }
         }
 
+        // 为驳回状态的课题填充 lastRejectOperatorId，用于前端控制仅驳回操作人可撤回
+        for (SciHorizontalApply apply : distinctList) {
+            String state = apply.getState();
+            if (state != null && state.endsWith("_REJECTED")) {
+                String processCode = null;
+                Long businessId = null;
+                if (state.startsWith("HORIZONTAL_APPLY_")) {
+                    processCode = "HORIZONTAL_APPLY";
+                    businessId = apply.getId() != null ? apply.getId().longValue() : null;
+                } else if (state.startsWith("HORIZONTAL_OVER_")) {
+                    processCode = "HORIZONTAL_OVER";
+                    businessId = apply.getId() != null ? apply.getId().longValue() : null;
+                } else if (state.startsWith("REAMOUNT_")) {
+                    processCode = "HORIZONTAL_REAMOUNT";
+                    businessId = apply.getReid() != null ? apply.getReid().longValue() : null;
+                }
+                if (processCode != null && businessId != null) {
+                    SysApprovalHistory lastReject = sysApprovalHistoryService.selectLastRejectByBusinessId(processCode, businessId);
+                    if (lastReject != null && lastReject.getOperatorId() != null) {
+                        apply.getParams().put("lastRejectOperatorId", lastReject.getOperatorId());
+                    }
+                }
+            }
+        }
+
         // 获取分页参数
         PageDomain pageDomain = TableSupport.buildPageRequest();
         Integer pageNum = pageDomain.getPageNum();
@@ -1528,6 +1553,12 @@ public class SciHorizontalApplyController extends BaseController
             canRecall = org.apache.shiro.SecurityUtils.getSubject().isPermitted("system:apply:process")
               || org.apache.shiro.SecurityUtils.getSubject().isPermitted("system:apply:revoke")
               || org.apache.shiro.SecurityUtils.getSubject().isPermitted("system:apply:kyrevoke");
+        } else if (currentState != null && currentState.endsWith("_PASSED")) {
+            // 通过状态（立项/结项）：拥有 kyrevoke 权限的（科研处）可撤回
+            canRecall = org.apache.shiro.SecurityUtils.getSubject().isPermitted("system:apply:kyrevoke");
+        } else if (currentState != null && currentState.indexOf("_KYC_AUDIT") != -1) {
+            // KYC审批中状态（立项/结项）：拥有 process 权限的（教研室）可撤回
+            canRecall = org.apache.shiro.SecurityUtils.getSubject().isPermitted("system:apply:process");
         } else if (currentState != null && currentState.startsWith("HORIZONTAL_OVER_")) {
             canRecall = canApproveOver(currentState);
         } else {
@@ -1810,12 +1841,12 @@ public class SciHorizontalApplyController extends BaseController
                 return AjaxResult.error("无权操作");
             }
         } else if ("REAMOUNT_PASSED".equals(currentState)) {
-            // 科研处撤回 → JYS_AUDIT
+            // 科研处撤回 → KYC_AUDIT（回到科研处审批中状态）
             boolean canRecall = getSysUser().getRoles().stream().anyMatch(r -> "101".equals(r.getRoleId()));
             if (!canRecall) {
                 return AjaxResult.error("无权操作");
             }
-            targetState = "REAMOUNT_JYS_AUDIT";
+            targetState = "REAMOUNT_KYC_AUDIT";
         } else {
             return AjaxResult.error("当前状态不允许撤回");
         }
