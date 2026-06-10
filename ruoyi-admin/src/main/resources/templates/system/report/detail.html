@@ -244,15 +244,25 @@
             var state = $("#state").val();
             var urlFlag = $("#urlFlag").val();
             
-            // 判断是否为撤回场景：
-            // 1. urlFlag为撤回相关（tuihui, xytuihui, zgqxtuihui）
-            // 2. 状态为通过状态且urlFlag不为空
-            var isRecallScene = (urlFlag === 'tuihui' || urlFlag === 'xytuihui' || urlFlag === 'zgqxtuihui' || urlFlag === 'recall');
+            // 判断是否为撤回场景
+            // 1. urlFlag为撤回相关（tuihui, xytuihui, zgqxtuihui, recall, jys_recall, kyc_recall）
+            // 2. 驳回状态下的撤回（jys_recall表示教研室驳回撤回，kyc_recall表示科研处驳回撤回）
+            var isRecallScene = (urlFlag === 'tuihui' || urlFlag === 'xytuihui' || urlFlag === 'zgqxtuihui' || 
+                               urlFlag === 'recall' || urlFlag === 'jys_recall' || urlFlag === 'kyc_recall');
             
-            if (isRecallScene || (state === 'LECTURE_PASSED' && urlFlag)) {
+            // 驳回状态下的撤回场景
+            var isRejectedRecall = (state === 'LECTURE_REJECTED' && (urlFlag === 'jys_recall' || urlFlag === 'kyc_recall'));
+            
+            if (isRecallScene || isRejectedRecall || (state === 'LECTURE_PASSED' && urlFlag)) {
                 $("#rejectBtnText").text("撤 回");
             } else {
                 $("#rejectBtnText").text("驳 回");
+            }
+            
+            // 根据urlFlag控制撤回理由区域显示
+            if (['jys_recall', 'kyc_recall', 'tuihui', 'xytuihui', 'zgqxtuihui', 'recall'].includes(urlFlag)) {
+                $(".tdiv1").show();
+                $(".tdiv2").show();
             }
         });
 
@@ -263,11 +273,21 @@
                 $.operate.saveTab(prefix + "/criticism", $('#form-report-edit').serialize());
             // }
         }
-        // 讲座报告驳回保存方法
+        // 讲座报告驳回/撤回保存方法
         function submitHandlerBH() {
-            // 根据按钮文字判断当前动作：撤回 or 驳回
-            var isWithdraw = $("#rejectBtnText").text().trim() === "撤 回";
-
+            var urlFlag = $("#urlFlag").val();
+            var state = $("#state").val();
+            
+            // 判断操作类型：撤回 or 驳回（根据URL参数）
+            var operationType = 'reject'; // 默认驳回
+            var isWithdraw = false;
+            
+            // 撤回场景：通过URL参数判断
+            if (['tuihui', 'xytuihui', 'zgqxtuihui', 'recall', 'jys_recall', 'kyc_recall'].includes(urlFlag)) {
+                operationType = 'recall';
+                isWithdraw = true;
+            }
+            
             // 撤回：取消必填；驳回：启用必填
             if (isWithdraw) {
                 $('textarea[name="remark"]').removeAttr('required');
@@ -276,8 +296,16 @@
             }
 
             if ($.validate.form()) {
-                // reject ===> 驳回
-                $.operate.saveTab(prefix + "/reject", $('#form-report-edit').serialize());
+                var url = prefix + "/reject";
+                if (operationType === 'recall') {
+                    // 撤回操作
+                    $.modal.confirm("确定 撤回 吗?", function() {
+                        $.operate.saveTab(url, $('#form-report-edit').serialize());
+                    });
+                } else {
+                    // 驳回操作
+                    $.operate.saveTab(url, $('#form-report-edit').serialize());
+                }
             }
         }
         function ziliao(){
