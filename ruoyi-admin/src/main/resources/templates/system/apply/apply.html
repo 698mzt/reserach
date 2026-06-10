@@ -701,8 +701,9 @@
                 return isTeacherRole && owner && hasPagePermission(editFlag) && isDraftState(state);
             }
             if (key === 'recall') {
+                // 驳回状态的撤回按钮：由后端 PageRenderServiceImpl 根据驳回历史控制可见性
                 if (isRejectedState(state)) {
-                    return hasPagePermission(proFlag) || hasPagePermission(kyrevokeFlag);
+                    return true;
                 }
                 // 结项通过状态：仅科研处（kyrevoke权限）可撤回
                 if (isPassedState(state) && state.indexOf('HORIZONTAL_OVER_') !== -1) {

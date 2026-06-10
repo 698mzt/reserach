@@ -831,6 +831,59 @@ public class PageRenderServiceImpl implements IPageRenderService {
     }
 
     /**
+     * 检查当前用户是否有权在驳回状态下看到撤回按钮
+     * <p>
+     * 规则：哪个审批角色驳回的，只有该角色才能看到撤回按钮。
+     * 通过查询最后一次驳回记录中的 oldState（驳回前状态）来判断驳回来源：
+     * <ul>
+     *   <li>oldState 含 _JYS_ → 教研室驳回 → 需有 revoke/approve 权限</li>
+     *   <li>oldState 含 _KYC_/_KY_ → 科研处驳回 → 需有 kyrevoke/kypy 权限</li>
+     *   <li>无历史记录或无法识别 → 仅管理员可撤回</li>
+     * </ul>
+     * </p>
+     *
+     * @param context 页面渲染上下文
+     * @return true=有权看到撤回按钮
+     */
+    private boolean canRecallOnRejectedState(PageRenderContext context) {
+        String processCode = context.getProcessCode();
+        Long businessId = context.getBusinessId();
+        if (processCode == null || businessId == null) {
+            return context.hasRole("admin");
+        }
+
+        // 查询最后一次驳回记录
+        SysApprovalHistory lastReject = sysApprovalHistoryService.selectLastRejectByBusinessId(
+                processCode, businessId);
+        if (lastReject == null || lastReject.getOldState() == null) {
+            // 无驳回历史记录，仅管理员可撤回
+            return context.hasRole("admin");
+        }
+
+        String oldState = lastReject.getOldState();
+        ModuleConfig config = getModuleConfig(context.getModuleCode(), context.getPermPrefix());
+        if (config == null) {
+            return context.hasRole("admin");
+        }
+
+        // 根据驳回前的状态判断是由哪一级别驳回的
+        if (oldState.contains("_JYS_") || oldState.contains("_JY_")) {
+            // 教研室级别驳回 → 拥有 revoke/approve 权限的角色可撤回
+            return context.hasPermission(config.getPermission("revoke"))
+                    || context.hasPermission(config.getPermission("approve"))
+                    || context.hasRole("admin");
+        } else if (oldState.contains("_KYC_") || oldState.contains("_KY_") || oldState.contains("_KYPY_")) {
+            // 科研处级别驳回 → 拥有 kyrevoke/kypy 权限的角色可撤回
+            return context.hasPermission(config.getPermission("kyrevoke"))
+                    || context.hasPermission(config.getPermission("kypy"))
+                    || context.hasRole("admin");
+        }
+
+        // 无法识别驳回来源，仅管理员可撤回
+        return context.hasRole("admin");
+    }
+
+    /**
      * 追加模块特有按钮
      * 在通用按钮规则之后，追加模块特有的按钮
      *
@@ -871,35 +924,30 @@ public class PageRenderServiceImpl implements IPageRenderService {
                         "reamount", "追加金额",
                         PageRenderColorConstants.COLOR_PRIMARY, 51));
             }
-            // 驳回状态：所有可见该页面的角色均可撤回
-            if (context.getCurrentState().endsWith("_REJECTED")) {
+            // 驳回状态：根据驳回历史判断哪个角色驳回的，该角色才能撤回
+            if (context.getCurrentState().endsWith("_REJECTED") && canRecallOnRejectedState(context)) {
                 specificActions.add(PageRenderActionItem.of(
                         PageRenderActionConstants.ACTION_RECALL, "撤回",
                         PageRenderColorConstants.COLOR_WARNING, 40, "确定要撤回该驳回记录吗？"));
             }
         }
 
-        // 横向课题结项：驳回状态下显示撤回按钮
+        // 横向课题结项：驳回状态下根据驳回历史判断撤回权限
         if ("HORIZONTAL_OVER".equals(moduleCode) && context.getCurrentState() != null
-                && context.getCurrentState().endsWith("_REJECTED")) {
+                && context.getCurrentState().endsWith("_REJECTED")
+                && canRecallOnRejectedState(context)) {
             specificActions.add(PageRenderActionItem.of(
                     PageRenderActionConstants.ACTION_RECALL, "撤回",
                     PageRenderColorConstants.COLOR_WARNING, 40, "确定要撤回该驳回记录吗？"));
         }
 
-        // 论文驳回状态：有相关权限的用户可撤回（不限制为驳回操作人）
+        // 论文驳回状态：根据驳回历史判断撤回权限
         if ("PAPER".equals(moduleCode) && context.getCurrentState() != null
-                && SciPaperA.PAPER_REJECTED.equals(context.getCurrentState())) {
-            boolean isAdmin = context.hasRole("admin");
-            boolean hasRevokePerm = context.hasPermission(config.getPermission("revoke"));
-            boolean hasKypyPerm = context.hasPermission(config.getPermission("kypy"));
-            boolean hasApprovePerm = context.hasPermission(config.getPermission("approve"));
-            // 系统管理员 或 有相关权限的用户（审批/科研处角色）可撤回，普通教师不可见
-            if (isAdmin || hasRevokePerm || hasKypyPerm || hasApprovePerm) {
-                specificActions.add(PageRenderActionItem.of(
-                        PageRenderActionConstants.ACTION_RECALL, "撤回",
-                        PageRenderColorConstants.COLOR_WARNING, 40, "确定要撤回该记录吗？"));
-            }
+                && SciPaperA.PAPER_REJECTED.equals(context.getCurrentState())
+                && canRecallOnRejectedState(context)) {
+            specificActions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_RECALL, "撤回",
+                    PageRenderColorConstants.COLOR_WARNING, 40, "确定要撤回该记录吗？"));
         }
 
         // 纵向课题立项通过后显示"申请结项"按钮
@@ -924,10 +972,9 @@ public class PageRenderServiceImpl implements IPageRenderService {
             boolean isAdmin = context.hasRole("admin");
             boolean isTeacherActive = isTeacherRole(context.getActiveRoleKey());
             boolean canOwnerActAsTeacher = isAdmin || isTeacherActive;
-            boolean canApprove = context.hasPermission(config.getPermission("approve"));
-            boolean canKyrevoke = context.hasPermission("system:apply:kyrevoke");
-            // 申请人/教研室/科研处均可撤回，目标状态不同
-            if (isOwner || isAdmin || canApprove || canKyrevoke) {
+            boolean canRecall = isOwner || isAdmin || canRecallOnRejectedState(context);
+            // 驳回状态下：申请人 或 驳回角色的审批人可撤回，目标状态不同
+            if (canRecall) {
                 specificActions.add(PageRenderActionItem.of(
                         PageRenderActionConstants.ACTION_RECALL, "撤回",
                         PageRenderColorConstants.COLOR_WARNING, 40, "确定要撤回该记录吗？"));

@@ -1520,14 +1520,32 @@ public class SciHorizontalApplyController extends BaseController
         boolean canRecall;
 
         if (currentState != null && currentState.endsWith("_REJECTED")) {
-            // 驳回态：拥有审批权(process)或撤回权(revoke)的角色均可撤回
+            // 驳回态：查询驳回历史，哪个角色驳回的，该角色才能撤回
             SysUser user = getSysUser();
             if (user == null) {
                 return AjaxResult.error("无权操作");
             }
-            canRecall = org.apache.shiro.SecurityUtils.getSubject().isPermitted("system:apply:process")
-              || org.apache.shiro.SecurityUtils.getSubject().isPermitted("system:apply:revoke")
-              || org.apache.shiro.SecurityUtils.getSubject().isPermitted("system:apply:kyrevoke");
+            // 查询最后一次驳回记录，判断驳回来源
+            String processCode = currentState.startsWith("HORIZONTAL_OVER_")
+                    ? "HORIZONTAL_OVER" : "HORIZONTAL_APPLY";
+            SysApprovalHistory lastReject = sysApprovalHistoryService.selectLastRejectByBusinessId(
+                    processCode, id.longValue());
+            if (lastReject != null && lastReject.getOldState() != null) {
+                String oldState = lastReject.getOldState();
+                if (oldState.contains("_JYS_") || oldState.contains("_JY_")) {
+                    // 教研室驳回 → 需有 process/revoke 权限
+                    canRecall = org.apache.shiro.SecurityUtils.getSubject().isPermitted("system:apply:process")
+                            || org.apache.shiro.SecurityUtils.getSubject().isPermitted("system:apply:revoke");
+                } else if (oldState.contains("_KYC_") || oldState.contains("_KY_")) {
+                    // 科研处驳回 → 需有 hecha/kyrevoke 权限
+                    canRecall = org.apache.shiro.SecurityUtils.getSubject().isPermitted("system:apply:hecha")
+                            || org.apache.shiro.SecurityUtils.getSubject().isPermitted("system:apply:kyrevoke");
+                } else {
+                    canRecall = user.isAdmin();
+                }
+            } else {
+                canRecall = user.isAdmin();
+            }
         } else if (currentState != null && currentState.startsWith("HORIZONTAL_OVER_")) {
             canRecall = canApproveOver(currentState);
         } else {
