@@ -2345,27 +2345,7 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
             return ApprovalResult.ok("撤回成功", recallState);
         }
 
-        // 通过状态（PASSED）：直接查询审批历史记录，回退到上一审批节点
-        // 不调用公共 approvalProcessService.recall()（因公有方法限制了仅操作人可撤回），
-        // 此处允许拥有对应撤回权限的角色撤回
-        if (currentState.endsWith("_PASSED")) {
-            SysApprovalHistory lastHistory = sysApprovalHistoryService.selectLastRecallableByBusinessId(
-                    "HORIZONTAL_APPLY", applyId.longValue(), currentState);
-            String recallState;
-            if (lastHistory != null && StringUtils.isNotEmpty(lastHistory.getOldState())) {
-                recallState = nodeCodeToState(lastHistory.getOldState());
-            } else {
-                return ApprovalResult.fail("未找到可撤回的历史记录");
-            }
-            approvalProcessService.updateBusinessState("HORIZONTAL_APPLY", applyId.longValue(), recallState);
-            saveRecallHistory("HORIZONTAL_APPLY", applyId.longValue(), operatorId, operatorName,
-                    operatorDept, currentState, recallState, comment);
-            log.info("立项申请撤回成功(从通过状态): applyId={}, recallState={}, operator={}",
-                    applyId, recallState, operatorName);
-            return ApprovalResult.ok("撤回成功", recallState);
-        }
-
-        // 非驳回非通过状态：传入原始currentState（不经过stateToNodeCode转换），
+        // 非驳回状态：传入原始currentState（不经过stateToNodeCode转换），
         // 因为审批历史中new_state存储的是带_AUDIT后缀的业务状态码，
         // 需保持与历史记录中的new_state一致以便selectLastRecallableByBusinessId能匹配
         ApprovalRequest request = ApprovalRequest.of(
@@ -2647,27 +2627,7 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
             return ApprovalResult.ok("撤回成功", recallState);
         }
 
-        // 通过状态（PASSED）：直接查询审批历史记录，回退到上一审批节点
-        // 不调用公共 approvalProcessService.recall()（因公有方法限制了仅操作人可撤回），
-        // 此处允许拥有对应撤回权限的角色撤回
-        if (currentState.endsWith("_PASSED")) {
-            SysApprovalHistory lastHistory = sysApprovalHistoryService.selectLastRecallableByBusinessId(
-                    "HORIZONTAL_OVER", applyId.longValue(), currentState);
-            String recallState;
-            if (lastHistory != null && StringUtils.isNotEmpty(lastHistory.getOldState())) {
-                recallState = nodeCodeToState(lastHistory.getOldState());
-            } else {
-                return ApprovalResult.fail("未找到可撤回的历史记录");
-            }
-            approvalProcessService.updateBusinessState("HORIZONTAL_OVER", applyId.longValue(), recallState);
-            saveRecallHistory("HORIZONTAL_OVER", applyId.longValue(), operatorId, operatorName,
-                    operatorDept, currentState, recallState, comment);
-            log.info("结项申请撤回成功(从通过状态): applyId={}, recallState={}, operator={}",
-                    applyId, recallState, operatorName);
-            return ApprovalResult.ok("撤回成功", recallState);
-        }
-
-        // 非驳回非通过状态：传入原始currentState（不经过stateToNodeCode转换），
+        // 非驳回状态：传入原始currentState（不经过stateToNodeCode转换），
         // 因为审批历史中new_state存储的是带_AUDIT后缀的业务状态码，
         // 需保持与历史记录中的new_state一致以便selectLastRecallableByBusinessId能匹配
         ApprovalRequest request = ApprovalRequest.of(
