@@ -644,8 +644,6 @@
 
     // 获取当前用户角色信息（由后端根据 activeRoleId 确定）
     var userRole = /*[[${role}]]*/ 'teacher';
-    // 当前用户ID
-    var currentUserId = /*[[${user.userId}]]*/ null;
     // 是否是教师角色（仅有教师身份才能看到教师特有操作按钮）
     var isTeacherRole = (userRole === 'teacher');
 
@@ -708,10 +706,12 @@
                     return false;
                 }
                 if (isRejectedState(state)) {
-                    // 驳回状态：仅驳回操作人可撤回
-                    if (hasPagePermission(proFlag) || hasPagePermission(kyrevokeFlag)) {
-                        var rejectOperatorId = row.params ? row.params.lastRejectOperatorId : null;
-                        return rejectOperatorId && String(rejectOperatorId) === String(currentUserId);
+                    // 驳回状态：哪个角色驳回，哪个角色可撤回
+                    var rejectRole = row.params ? row.params.lastRejectRole : null;
+                    if (rejectRole === 'JYS') {
+                        return hasPagePermission(proFlag);
+                    } else if (rejectRole === 'KYC') {
+                        return hasPagePermission(kyrevokeFlag);
                     }
                     return false;
                 }

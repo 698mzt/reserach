@@ -2345,13 +2345,13 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
             return ApprovalResult.ok("撤回成功", recallState);
         }
 
-        // 非驳回状态：传入原始currentState（不经过stateToNodeCode转换），
-        // 因为审批历史中new_state存储的是带_AUDIT后缀的业务状态码，
-        // 需保持与历史记录中的new_state一致以便selectLastRecallableByBusinessId能匹配
+        // 非驳回状态：使用公有审批流撤回（按节点角色权限控制）
+        // 注意：需将业务状态码转为节点编码（去掉 _AUDIT 后缀），与 approveApply/rejectApply 保持一致
+        String nodeCode = stateToNodeCode(currentState);
         ApprovalRequest request = ApprovalRequest.of(
                 "HORIZONTAL_APPLY",
                 applyId.longValue(),
-                currentState,
+                nodeCode,
                 comment,
                 operatorId,
                 operatorName,
@@ -2627,13 +2627,13 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
             return ApprovalResult.ok("撤回成功", recallState);
         }
 
-        // 非驳回状态：传入原始currentState（不经过stateToNodeCode转换），
-        // 因为审批历史中new_state存储的是带_AUDIT后缀的业务状态码，
-        // 需保持与历史记录中的new_state一致以便selectLastRecallableByBusinessId能匹配
+        // 非驳回状态：使用公有审批流撤回（按节点角色权限控制）
+        // 注意：需将业务状态码转为节点编码（去掉 _AUDIT 后缀），与 approveApply/rejectApply 保持一致
+        String nodeCode = stateToNodeCode(currentState);
         ApprovalRequest request = ApprovalRequest.of(
                 "HORIZONTAL_OVER",
                 applyId.longValue(),
-                currentState,
+                nodeCode,
                 comment,
                 operatorId,
                 operatorName,
