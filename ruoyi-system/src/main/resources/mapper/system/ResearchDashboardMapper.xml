@@ -25,10 +25,14 @@
     </sql>
 
     <sql id="deptWithChildrenCondition">
-        u.dept_id IN (
-            SELECT dept_id
-            FROM sys_dept
-            WHERE dept_id = #{deptId}
+        (
+            u.dept_id = #{deptId}
+            OR u.dept_id IN (
+                SELECT dept_id
+                FROM sys_dept
+                WHERE parent_id = #{deptId}
+                AND del_flag = '0'
+            )
         )
     </sql>
 

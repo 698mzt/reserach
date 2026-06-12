@@ -73,6 +73,7 @@
         }
 
         .metric {
+            position: relative;
             min-height: 102px;
             display: flex;
             justify-content: space-between;
@@ -81,6 +82,77 @@
             background: var(--panel);
             border: 1px solid var(--line);
             border-radius: 6px;
+        }
+
+        .metric.has-popover {
+            cursor: default;
+        }
+
+        .metric-popover {
+            position: absolute;
+            left: 14px;
+            right: 14px;
+            top: calc(100% + 8px);
+            z-index: 20;
+            display: none;
+            padding: 10px 12px;
+            background: #fff;
+            border: 1px solid #d8e1eb;
+            border-radius: 6px;
+            box-shadow: 0 8px 24px rgba(31, 45, 61, .14);
+        }
+
+        .metric-popover:before {
+            content: "";
+            position: absolute;
+            top: -6px;
+            left: 22px;
+            width: 10px;
+            height: 10px;
+            background: #fff;
+            border-left: 1px solid #d8e1eb;
+            border-top: 1px solid #d8e1eb;
+            transform: rotate(45deg);
+        }
+
+        .metric.has-popover:hover .metric-popover {
+            display: block;
+        }
+
+        .metric-popover-title {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 8px;
+            color: var(--text);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .metric-popover-list {
+            display: grid;
+            gap: 6px;
+        }
+
+        .metric-popover-row {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 10px;
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.4;
+        }
+
+        .metric-popover-row span:first-child {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .metric-popover-count {
+            color: var(--text);
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
         }
 
         .metric-label {
@@ -538,27 +610,56 @@
         var role = data.role || {};
         $("#activeRoleText").html('<i class="fa fa-user-circle-o"></i> ' + escapeHtml(role.roleName || activeRoleName || "当前角色"));
         $("#roleHint").text("当前角色：" + (role.roleName || activeRoleName || "当前角色") + "，数据随系统角色同步刷新");
-        renderMetrics(data.metrics || []);
+        renderMetrics(data.metrics || [], {
+            declarations: data.declarationEntries || [],
+            todos: data.todoEntries || []
+        });
         renderWorkbench(data.workEntries || []);
         renderQueue(data.queueItems || []);
         renderProgress(data.progressItems || []);
         renderRisks(data.riskItems || []);
     }
 
-    function renderMetrics(metrics) {
+    function renderMetrics(metrics, detailGroups) {
         var colors = ["blue", "amber", "teal", "ink"];
         var icons = ["fa-send", "fa-bell", "fa-line-chart", "fa-archive"];
         var html = [];
         for (var i = 0; i < 4; i++) {
             var item = metrics[i] || { label: "--", value: "--", extra: "暂无数据" };
-            html.push('<div class="metric">' +
+            var popover = buildMetricPopover(item, detailGroups);
+            html.push('<div class="metric' + (popover ? ' has-popover' : '') + '">' +
                 '<div><div class="metric-label">' + escapeHtml(item.label) + '</div>' +
                 '<div class="metric-value">' + escapeHtml(item.value) + '</div>' +
                 '<div class="metric-extra">' + escapeHtml(item.extra) + '</div></div>' +
-                '<div class="metric-icon ' + colors[i] + '"><i class="fa ' + icons[i] + '"></i></div>' +
+                '<div class="metric-icon ' + colors[i] + '"><i class="fa ' + icons[i] + '"></i></div>' + popover +
                 '</div>');
         }
         $("#metricsGrid").html(html.join(""));
+    }
+
+    function buildMetricPopover(metric, detailGroups) {
+        var detailKey = metric && metric.detailKey;
+        if (!detailKey || !detailGroups || !detailGroups[detailKey]) {
+            return "";
+        }
+        var entries = detailGroups[detailKey] || [];
+        var total = entries.reduce(function(sum, item) {
+            return sum + parseInt(item.badge || 0, 10);
+        }, 0);
+        var rows = entries.map(function(item) {
+            var count = parseInt(item.badge || 0, 10);
+            return '<div class="metric-popover-row">' +
+                '<span>' + escapeHtml(item.name) + '</span>' +
+                '<span class="metric-popover-count">' + count + ' 条</span>' +
+                '</div>';
+        }).join("");
+        if (!rows) {
+            rows = '<div class="empty">暂无明细数据</div>';
+        }
+        return '<div class="metric-popover">' +
+            '<div class="metric-popover-title"><span>菜单明细</span><span>合计 ' + total + ' 条</span></div>' +
+            '<div class="metric-popover-list">' + rows + '</div>' +
+            '</div>';
     }
 
     function renderWorkbench(serverEntries) {

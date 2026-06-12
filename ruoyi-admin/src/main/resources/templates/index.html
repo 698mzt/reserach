@@ -15,6 +15,48 @@
     <link th:href="@{/css/style.min.css}" rel="stylesheet"/>
     <link th:href="@{/css/skins.css}" rel="stylesheet"/>
     <link th:href="@{/ruoyi/css/ry-ui.css?v=4.7.8}" rel="stylesheet"/>
+    <style>
+        #roleDropdown,
+        #yearDropdown {
+            min-width: 120px !important;
+            margin-top: 4px !important;
+            padding: 6px !important;
+            border: 1px solid #d8e1eb;
+            border-radius: 6px;
+            background: #fff;
+            box-shadow: 0 8px 24px rgba(31, 45, 61, .14);
+        }
+
+        #roleDropdown > li > a,
+        #yearDropdown > li > a {
+            min-height: 30px;
+            display: flex !important;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            padding: 0 10px !important;
+            border-radius: 4px;
+            color: #1f2d3d !important;
+            font-size: 13px;
+            line-height: 30px !important;
+        }
+
+        #roleDropdown > li > a:hover,
+        #yearDropdown > li > a:hover,
+        #roleDropdown > li.active > a,
+        #yearDropdown > li.active > a {
+            background: #eef5ff !important;
+            color: #2f80ed !important;
+        }
+
+        #roleDropdown > li.active > a:after,
+        #yearDropdown > li.active > a:after {
+            content: "\f00c";
+            font-family: FontAwesome;
+            color: #2f80ed;
+            font-size: 12px;
+        }
+    </style>
 </head>
 <body class="fixed-sidebar full-height-layout gray-bg " th:classappend="${isMobile} ? 'canvas-menu'" style="overflow: hidden">
 <div id="wrapper">
@@ -189,7 +231,7 @@
 							<span class="hidden-xs" id="currentRoleName">角色</span>
                             <span>▼</span>
 						</a>
-						<ul class="dropdown-menu" id="roleDropdown" style="min-width: 120px !important;">
+						<ul class="dropdown-menu" id="roleDropdown">
 						</ul>
 					</li>
 					<li>
@@ -197,7 +239,7 @@
 							<span class="hidden-xs" id="n-year"></span><span class="hidden-xs">年</span>
                             <span>▼</span>
 						</a>
-						<ul class="dropdown-menu" id="yearDropdown" style="min-width: 100px !important;">
+						<ul class="dropdown-menu" id="yearDropdown">
 <!--							生成动态下拉框-->
 						</ul>
 					</li>
@@ -406,17 +448,16 @@ $(function() {
 	for (let i = 0; i < 5; i++) {
 		const year = currentYear - i;
 		const li = document.createElement('li');
-		li.style.height = '21px';
-		li.style.width = '100px';
+		if (i === 0) {
+			li.className = 'active';
+		}
 
 		const a = document.createElement('a');
 		a.href = '#';
-		a.style.display = 'block';
-		a.style.height = '20px';
-		a.style.lineHeight = '20px';
-		a.style.textAlign = 'center';
 		a.onclick = function() {
 			selectByYear(year);
+			$('#yearDropdown li').removeClass('active');
+			$(li).addClass('active');
 		};
 		a.textContent = year;
 
@@ -457,19 +498,11 @@ window.onload = generateYearDropdown;
 	var dropdown = $('#roleDropdown');
 	for (var i = 0; i < roleList.length; i++) {
 		(function(role) {
-			var li = $('<li></li>').css({
-				height: '21px',
-				width: '120px'
-			});
-			var a = $('<a href="#"></a>').css({
-				display: 'block',
-				height: '20px',
-				lineHeight: '20px',
-				textAlign: 'center'
-			}).text(role.roleName);
+			var li = $('<li></li>');
+			var a = $('<a href="#"></a>').text(role.roleName);
 
-			if (role.roleId === activeRoleIdNum) {
-				a.css('color', '#1ab394').css('font-weight', 'bold');
+			if (currentRole && role.roleId === currentRole.roleId) {
+				li.addClass('active');
 			}
 
 			a.on('click', function(e) {

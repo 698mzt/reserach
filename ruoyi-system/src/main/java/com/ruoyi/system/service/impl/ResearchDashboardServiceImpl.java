@@ -9,11 +9,14 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import com.ruoyi.common.core.domain.entity.SysDictData;
 import com.ruoyi.common.core.domain.entity.SysRole;
 import com.ruoyi.common.core.domain.entity.SysUser;
+import com.ruoyi.common.utils.DictUtils;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.system.domain.Alltotle;
 import com.ruoyi.system.domain.AlltotleScore;
@@ -91,6 +94,15 @@ public class ResearchDashboardServiceImpl implements IResearchDashboardService
     private static final List<String> LECTURE_COLLEGE_STATES = Collections.singletonList("LECTURE_XY_AUDIT");
     private static final List<String> LECTURE_KYC_STATES = Collections.singletonList("LECTURE_KYC_AUDIT");
 
+    private static final List<String> HORIZONTAL_FINISHED_STATES = Collections.singletonList("HORIZONTAL_OVER_PASSED");
+    private static final List<String> VERTICAL_FINISHED_STATES = Collections.singletonList("VERTICAL_OVER_PASSED");
+    private static final List<String> ACHIEVEMENT_FINISHED_STATES = Arrays.asList("TEC_TRA_PASSED", "6");
+    private static final List<String> PAPER_FINISHED_STATES = Collections.singletonList("PAPER_PASSED");
+    private static final List<String> TEXTBOOK_FINISHED_STATES = Collections.singletonList("TEXTBOOK_PASSED");
+    private static final List<String> PATENT_FINISHED_STATES = Collections.singletonList("PATENT_PASSED");
+    private static final List<String> REWARD_FINISHED_STATES = Collections.singletonList("REWARD_PASSED");
+    private static final List<String> LECTURE_FINISHED_STATES = Collections.singletonList("LECTURE_PASSED");
+
     @Autowired
     private ResearchDashboardMapper dashboardMapper;
 
@@ -106,18 +118,21 @@ public class ResearchDashboardServiceImpl implements IResearchDashboardService
         String safeYear = StringUtils.isNotEmpty(year) ? year : String.valueOf(Year.now().getValue());
         String roleKey = determineRoleKey(user);
         Map<String, Integer> todoCounts = buildTodoCounts(user, roleKey, safeYear);
+        Map<String, Integer> declarationCounts = buildFinishedDeclarationCounts(user, roleKey, safeYear);
         List<Alltotle> alltotles = selectAlltotleScope(user, roleKey);
         List<AlltotleScore> scores = selectAlltotleScoreScope(user, roleKey);
         List<Map<String, Object>> progressItems = buildProgressItems(alltotles, scores);
-        int totalCount = progressItems.stream().mapToInt(item -> intValue(item.get("count"))).sum();
+        int finishedCount = declarationCounts.values().stream().mapToInt(Integer::intValue).sum();
         double totalScore = progressItems.stream().mapToDouble(item -> doubleValue(item.get("score"))).sum();
         int totalTodo = todoCounts.values().stream().mapToInt(Integer::intValue).sum();
 
         Map<String, Object> data = new HashMap<>();
         data.put("role", buildRole(user, roleKey));
         data.put("year", safeYear);
-        data.put("metrics", buildMetrics(roleKey, totalCount, totalTodo, totalScore));
+        data.put("metrics", buildMetrics(roleKey, finishedCount, totalTodo, totalScore));
         data.put("workEntries", buildWorkEntries(todoCounts));
+        data.put("declarationEntries", buildWorkEntries(declarationCounts));
+        data.put("todoEntries", buildWorkEntries(todoCounts));
         data.put("queueItems", buildQueueItems(todoCounts, roleKey));
         data.put("progressItems", progressItems);
         data.put("riskItems", buildRiskItems(todoCounts));
@@ -169,6 +184,84 @@ public class ResearchDashboardServiceImpl implements IResearchDashboardService
                 }));
         counts.put("lecture", countModule(user, roleKey, year,
                 LECTURE_TEACHER_STATES, LECTURE_RESEARCH_STATES, LECTURE_COLLEGE_STATES, LECTURE_KYC_STATES,
+                new ModuleCounter()
+                {
+                    public int all(List<String> states, String year) { return dashboardMapper.countLectureByStates(states, year); }
+                    public int dept(Long deptId, List<String> states, String year) { return dashboardMapper.countLectureByDeptAndStates(deptId, states, year); }
+                    public int deptWithChildren(Long deptId, List<String> states, String year) { return dashboardMapper.countLectureByDeptAndStatesWithChildren(deptId, states, year); }
+                    public int user(Long userId, List<String> states, String year) { return dashboardMapper.countLectureByUserAndStates(userId, states, year); }
+                }));
+        return counts;
+    }
+
+    private Map<String, Integer> buildFinishedDeclarationCounts(SysUser user, String roleKey, String year)
+    {
+        Map<String, Integer> counts = new LinkedHashMap<>();
+        counts.put("horizontal", countModule(user, roleKey, year,
+                HORIZONTAL_FINISHED_STATES, HORIZONTAL_FINISHED_STATES, HORIZONTAL_FINISHED_STATES, HORIZONTAL_FINISHED_STATES,
+                new ModuleCounter()
+                {
+                    public int all(List<String> states, String year) { return dashboardMapper.countHorizontalByStates(states, year); }
+                    public int dept(Long deptId, List<String> states, String year) { return dashboardMapper.countHorizontalByDeptAndStates(deptId, states, year); }
+                    public int deptWithChildren(Long deptId, List<String> states, String year) { return dashboardMapper.countHorizontalByDeptAndStatesWithChildren(deptId, states, year); }
+                    public int user(Long userId, List<String> states, String year) { return dashboardMapper.countHorizontalByUserAndStates(userId, states, year); }
+                }));
+        counts.put("vertical", countModule(user, roleKey, year,
+                VERTICAL_FINISHED_STATES, VERTICAL_FINISHED_STATES, VERTICAL_FINISHED_STATES, VERTICAL_FINISHED_STATES,
+                new ModuleCounter()
+                {
+                    public int all(List<String> states, String year) { return dashboardMapper.countVerticalByStates(states, year); }
+                    public int dept(Long deptId, List<String> states, String year) { return dashboardMapper.countVerticalByDeptAndStates(deptId, states, year); }
+                    public int deptWithChildren(Long deptId, List<String> states, String year) { return dashboardMapper.countVerticalByDeptAndStatesWithChildren(deptId, states, year); }
+                    public int user(Long userId, List<String> states, String year) { return dashboardMapper.countVerticalByUserAndStates(userId, states, year); }
+                }));
+        counts.put("achievement", countModule(user, roleKey, year,
+                ACHIEVEMENT_FINISHED_STATES, ACHIEVEMENT_FINISHED_STATES, ACHIEVEMENT_FINISHED_STATES, ACHIEVEMENT_FINISHED_STATES,
+                new ModuleCounter()
+                {
+                    public int all(List<String> states, String year) { return dashboardMapper.countAchievementByStates(states, year); }
+                    public int dept(Long deptId, List<String> states, String year) { return dashboardMapper.countAchievementByDeptAndStates(deptId, states, year); }
+                    public int deptWithChildren(Long deptId, List<String> states, String year) { return dashboardMapper.countAchievementByDeptAndStatesWithChildren(deptId, states, year); }
+                    public int user(Long userId, List<String> states, String year) { return dashboardMapper.countAchievementByUserAndStates(userId, states, year); }
+                }));
+        counts.put("paper", countModule(user, roleKey, year,
+                PAPER_FINISHED_STATES, PAPER_FINISHED_STATES, PAPER_FINISHED_STATES, PAPER_FINISHED_STATES,
+                new ModuleCounter()
+                {
+                    public int all(List<String> states, String year) { return dashboardMapper.countPaperByStates(states, year); }
+                    public int dept(Long deptId, List<String> states, String year) { return dashboardMapper.countPaperByDeptAndStates(deptId, states, year); }
+                    public int deptWithChildren(Long deptId, List<String> states, String year) { return dashboardMapper.countPaperByDeptAndStatesWithChildren(deptId, states, year); }
+                    public int user(Long userId, List<String> states, String year) { return dashboardMapper.countPaperByUserAndStates(userId, states, year); }
+                }));
+        counts.put("textbook", countModule(user, roleKey, year,
+                TEXTBOOK_FINISHED_STATES, TEXTBOOK_FINISHED_STATES, TEXTBOOK_FINISHED_STATES, TEXTBOOK_FINISHED_STATES,
+                new ModuleCounter()
+                {
+                    public int all(List<String> states, String year) { return dashboardMapper.countTextbookByStates(states, year); }
+                    public int dept(Long deptId, List<String> states, String year) { return dashboardMapper.countTextbookByDeptAndStates(deptId, states, year); }
+                    public int deptWithChildren(Long deptId, List<String> states, String year) { return dashboardMapper.countTextbookByDeptAndStatesWithChildren(deptId, states, year); }
+                    public int user(Long userId, List<String> states, String year) { return dashboardMapper.countTextbookByUserAndStates(userId, states, year); }
+                }));
+        counts.put("patent", countModule(user, roleKey, year,
+                PATENT_FINISHED_STATES, PATENT_FINISHED_STATES, PATENT_FINISHED_STATES, PATENT_FINISHED_STATES,
+                new ModuleCounter()
+                {
+                    public int all(List<String> states, String year) { return dashboardMapper.countPatentByStates(states, year); }
+                    public int dept(Long deptId, List<String> states, String year) { return dashboardMapper.countPatentByDeptAndStates(deptId, states, year); }
+                    public int deptWithChildren(Long deptId, List<String> states, String year) { return dashboardMapper.countPatentByDeptAndStatesWithChildren(deptId, states, year); }
+                    public int user(Long userId, List<String> states, String year) { return dashboardMapper.countPatentByUserAndStates(userId, states, year); }
+                }));
+        counts.put("reward", countModule(user, roleKey, year,
+                REWARD_FINISHED_STATES, REWARD_FINISHED_STATES, REWARD_FINISHED_STATES, REWARD_FINISHED_STATES,
+                new ModuleCounter()
+                {
+                    public int all(List<String> states, String year) { return dashboardMapper.countRewardByStates(states, year); }
+                    public int dept(Long deptId, List<String> states, String year) { return dashboardMapper.countRewardByDeptAndStates(deptId, states, year); }
+                    public int deptWithChildren(Long deptId, List<String> states, String year) { return dashboardMapper.countRewardByDeptAndStatesWithChildren(deptId, states, year); }
+                    public int user(Long userId, List<String> states, String year) { return dashboardMapper.countRewardByUserAndStates(userId, states, year); }
+                }));
+        counts.put("lecture", countModule(user, roleKey, year,
+                LECTURE_FINISHED_STATES, LECTURE_FINISHED_STATES, LECTURE_FINISHED_STATES, LECTURE_FINISHED_STATES,
                 new ModuleCounter()
                 {
                     public int all(List<String> states, String year) { return dashboardMapper.countLectureByStates(states, year); }
@@ -281,7 +374,7 @@ public class ResearchDashboardServiceImpl implements IResearchDashboardService
         {
             query.setPartenId(getCollegeDeptId(user));
         }
-        return alltotleMapper.selectAlltotleList(query);
+        return filterAlltotleToStatisticScope(roleKey, alltotleMapper.selectAlltotleList(query));
     }
 
     private List<AlltotleScore> selectAlltotleScoreScope(SysUser user, String roleKey)
@@ -304,7 +397,7 @@ public class ResearchDashboardServiceImpl implements IResearchDashboardService
         {
             query.setPartenId(getCollegeDeptId(user));
         }
-        return alltotleScoreMapper.selectAlltotleScoreList(query);
+        return filterAlltotleScoreToStatisticScope(roleKey, alltotleScoreMapper.selectAlltotleScoreList(query));
     }
 
     private List<Map<String, Object>> buildWorkEntries(Map<String, Integer> counts)
@@ -363,17 +456,17 @@ public class ResearchDashboardServiceImpl implements IResearchDashboardService
         List<Map<String, Object>> metrics = new ArrayList<>();
         if ("teacher".equals(roleKey))
         {
-            metrics.add(metric("我的申报", String.valueOf(totalCount), "当前年度汇总成果", "primary"));
-            metrics.add(metric("待我处理", String.valueOf(totalTodo), "来自各业务菜单待办", "warning"));
-            metrics.add(metric("科研积分", formatScore(totalScore), "来自统计积分汇总", "success"));
-            metrics.add(metric("数据范围", scopeName(roleKey), "跟随当前切换角色", "info"));
+            metrics.add(metric("我的申报", String.valueOf(totalCount), "当前年度汇总成果", "primary", "declarations"));
+            metrics.add(metric("待我处理", String.valueOf(totalTodo), "来自各业务菜单待办", "warning", "todos"));
+            metrics.add(metric("科研积分", formatScore(totalScore), "来自统计积分汇总", "success", null));
+            metrics.add(metric("数据范围", scopeName(roleKey), "跟随当前切换角色", "info", null));
         }
         else
         {
-            metrics.add(metric("待处理", String.valueOf(totalTodo), "当前角色待办事项", "warning"));
-            metrics.add(metric("年度成果", String.valueOf(totalCount), "当前数据范围成果", "primary"));
-            metrics.add(metric("科研积分", formatScore(totalScore), "来自统计积分汇总", "success"));
-            metrics.add(metric("数据范围", scopeName(roleKey), "跟随当前切换角色", "info"));
+            metrics.add(metric("待处理", String.valueOf(totalTodo), "当前角色待办事项", "warning", "todos"));
+            metrics.add(metric("年度成果", String.valueOf(totalCount), "当前数据范围成果", "primary", "declarations"));
+            metrics.add(metric("科研积分", formatScore(totalScore), "来自统计积分汇总", "success", null));
+            metrics.add(metric("数据范围", scopeName(roleKey), "跟随当前切换角色", "info", null));
         }
         return metrics;
     }
@@ -429,13 +522,14 @@ public class ResearchDashboardServiceImpl implements IResearchDashboardService
         return item;
     }
 
-    private Map<String, Object> metric(String label, String value, String extra, String type)
+    private Map<String, Object> metric(String label, String value, String extra, String type, String detailKey)
     {
         Map<String, Object> item = new HashMap<>();
         item.put("label", label);
         item.put("value", value);
         item.put("extra", extra);
         item.put("type", type);
+        item.put("detailKey", detailKey);
         return item;
     }
 
@@ -570,11 +664,64 @@ public class ResearchDashboardServiceImpl implements IResearchDashboardService
                 }
             }
         }
-        if (hasRole(roles, "admin")) return "admin";
-        if (hasRole(roles, "sci_tesearch")) return "sci_tesearch";
-        if (roles.stream().anyMatch(role -> COLLEGE_ROLES.contains(role.getRoleKey()))) return "dept_teacher";
-        if (hasRole(roles, "research")) return "research";
+        if (roles != null && !roles.isEmpty() && roles.get(0) != null)
+        {
+            return normalizeRoleKey(roles.get(0).getRoleKey());
+        }
         return "teacher";
+    }
+
+    private List<Alltotle> filterAlltotleToStatisticScope(String roleKey, List<Alltotle> list)
+    {
+        if (!isSchoolWideStatisticRole(roleKey) || list == null || list.isEmpty())
+        {
+            return list;
+        }
+        Set<String> parentIds = academicParentIds();
+        if (parentIds.isEmpty())
+        {
+            return list;
+        }
+        return list.stream()
+                .filter(item -> item != null && item.getPartenId() != null
+                        && parentIds.contains(String.valueOf(item.getPartenId())))
+                .collect(Collectors.toList());
+    }
+
+    private List<AlltotleScore> filterAlltotleScoreToStatisticScope(String roleKey, List<AlltotleScore> list)
+    {
+        if (!isSchoolWideStatisticRole(roleKey) || list == null || list.isEmpty())
+        {
+            return list;
+        }
+        Set<String> parentIds = academicParentIds();
+        if (parentIds.isEmpty())
+        {
+            return list;
+        }
+        return list.stream()
+                .filter(item -> item != null && item.getPartenId() != null
+                        && parentIds.contains(String.valueOf(item.getPartenId())))
+                .collect(Collectors.toList());
+    }
+
+    private boolean isSchoolWideStatisticRole(String roleKey)
+    {
+        return "admin".equals(roleKey) || "sci_tesearch".equals(roleKey);
+    }
+
+    private Set<String> academicParentIds()
+    {
+        List<SysDictData> dict = DictUtils.getDictCache("sys_acade_dept");
+        if (dict == null || dict.isEmpty())
+        {
+            return Collections.emptySet();
+        }
+        return dict.stream()
+                .filter(Objects::nonNull)
+                .map(SysDictData::getDictValue)
+                .filter(StringUtils::isNotEmpty)
+                .collect(Collectors.toSet());
     }
 
     private Long getActiveRoleId()
@@ -611,11 +758,6 @@ public class ResearchDashboardServiceImpl implements IResearchDashboardService
             return "dept_teacher";
         }
         return "teacher";
-    }
-
-    private boolean hasRole(List<SysRole> roles, String roleKey)
-    {
-        return roles != null && roles.stream().anyMatch(r -> Objects.equals(roleKey, r.getRoleKey()));
     }
 
     private SysRole firstRole(SysUser user)
