@@ -18,6 +18,7 @@ import com.ruoyi.common.core.text.Convert;
 import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.common.utils.ShiroUtils;
 import com.ruoyi.common.utils.StringUtils;
+import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.bean.BeanValidators;
 import com.ruoyi.common.utils.security.Md5Utils;
 import com.ruoyi.common.utils.spring.SpringUtils;
@@ -292,6 +293,39 @@ public class SysUserServiceImpl implements ISysUserService
     public int resetUserPwd(SysUser user)
     {
         return updateUserInfo(user);
+    }
+
+    /**
+     * 批量重置用户密码为系统初始密码
+     * 
+     * @param userIds 用户ID数组
+     * @return 结果
+     */
+    @Override
+    @Transactional
+    public int batchResetPwd(Long[] userIds)
+    {
+        // 从系统参数获取初始密码
+        String initPassword = configService.selectConfigByKey("sys.user.initPassword");
+        if (StringUtils.isEmpty(initPassword))
+        {
+            throw new ServiceException("系统未配置初始密码，请在参数设置中配置 sys.user.initPassword");
+        }
+        for (Long userId : userIds)
+        {
+            // 根据用户ID查询用户信息
+            SysUser user = userMapper.selectUserById(userId);
+            if (user != null)
+            {
+                // 生成随机盐值，使用MD5(登录名 + 初始密码 + 盐值) 加密，与登录校验算法保持一致
+                user.setSalt(ShiroUtils.randomSalt());
+                user.setPassword(Md5Utils.hash(user.getLoginName() + initPassword + user.getSalt()));
+                // 更新密码修改时间为当前时间
+                user.setPwdUpdateDate(DateUtils.getNowDate());
+                userMapper.updateUser(user);
+            }
+        }
+        return userIds.length;
     }
 
     /**

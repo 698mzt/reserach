@@ -80,6 +80,9 @@
 		            <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:user:export">
 			            <i class="fa fa-download"></i> 导出
 			        </a>
+		            <a class="btn btn-danger" onclick="batchResetPwd()" shiro:hasPermission="system:user:resetPwd">
+			            <i class="fa fa-key"></i> 批量重置密码
+			        </a>
 		        </div>
 		        
 		        <div class="col-sm-12 select-table table-striped">
@@ -96,6 +99,7 @@
 		var editFlag = [[${@permission.hasPermi('system:user:edit')}]];
 		var removeFlag = [[${@permission.hasPermi('system:user:remove')}]];
 		var resetPwdFlag = [[${@permission.hasPermi('system:user:resetPwd')}]];
+		var initPassword = [[${@config.getKey('sys.user.initPassword')}]];
 		var prefix = ctx + "system/user";
 
 		$(function() {
@@ -249,6 +253,34 @@
 		function resetPwd(userId) {
 		    var url = prefix + '/resetPwd/' + userId;
 		    $.modal.open("重置密码", url, '800', '300');
+		}
+		
+		/* 用户管理-批量重置密码 */
+		function batchResetPwd() {
+		    // 获取选中行的userId字段值
+		    var userIds = $.table.selectColumns("userId");
+		    if (userIds.length == 0) {
+		        $.modal.alertWarning("请至少选择一条要重置密码的用户数据");
+		        return;
+		    }
+		    // 确认是否执行批量重置，并显示默认密码
+		    layer.confirm("确认将选中的 " + userIds.length + " 个用户密码重置为默认密码 [ " + initPassword + " ] 吗？", function(index) {
+		        // 发送批量重置请求
+		        $.ajax({
+		            type: "POST",
+		            url: prefix + "/batchResetPwd",
+		            data: { userIds: userIds.join(",") },
+		            success: function(result) {
+		                if (result.code == 0) {
+		                    $.modal.alertSuccess("密码重置成功，共重置 " + userIds.length + " 个用户");
+		                    $.table.refresh();
+		                } else {
+		                    $.modal.alertError(result.msg);
+		                }
+		            }
+		        });
+		        layer.close(index);
+		    });
 		}
 		
 		/* 用户管理-分配角色 */
