@@ -263,6 +263,18 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
     @Override
     @Transactional
     public int hxPass(String id, Long uid, String urlFlag) {
+        return hxPass(id, uid, urlFlag, null, null);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int hxPass(String id, Long uid, String urlFlag, SciJiaocairuanzhu approvalEdit) {
+        return hxPass(id, uid, urlFlag, approvalEdit, null);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int hxPass(String id, Long uid, String urlFlag, SciJiaocairuanzhu approvalEdit, String membersJson) {
         // 获取原始状态
         SciJiaocairuanzhu originalJiaocairuanzhu = sciJiaocairuanzhuMapper
                 .selectSciJiaocairuanzhuById(Integer.valueOf(id));
@@ -306,11 +318,18 @@ public class SciJiaocairuanzhuServiceImpl implements ISciJiaocairuanzhuService {
         }
 
         if (!result.isSuccess()) {
-            return 0;
+            throw new RuntimeException("审批操作失败: " + result.getMessage());
         }
 
         // 更改状态
         int a = sciJiaocairuanzhuMapper.hxPass(id, result.getNewState());
+        if (approvalEdit != null && !"tijiao".equals(urlFlag)) {
+            approvalEdit.setId(Integer.valueOf(id));
+            sciJiaocairuanzhuMapper.updateApprovalEditableFields(approvalEdit);
+            if (membersJson != null && !membersJson.isEmpty()) {
+                saveJiaocairuanzhuMembers(Integer.valueOf(id), membersJson);
+            }
+        }
 
         // 插入批阅记录
         SciJiaocairuanzhuPiyue sciJiaocairuanzhuPiyue = new SciJiaocairuanzhuPiyue();

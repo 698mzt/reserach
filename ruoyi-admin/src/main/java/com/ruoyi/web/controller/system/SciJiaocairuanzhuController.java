@@ -459,9 +459,10 @@ public class SciJiaocairuanzhuController extends BaseController
     @Log(title = "教材软著审核通过", businessType = BusinessType.UPDATE)
     @PostMapping( "/hxPass")
     @ResponseBody
-    public AjaxResult hxPass(String id, String urlFlag, String amount, SciProjectScoreCfg sciProjectScoreCfg)
+    public AjaxResult hxPass(String id, String urlFlag, String amount, SciProjectScoreCfg sciProjectScoreCfg, SciJiaocairuanzhu sciJiaocairuanzhu,
+                             @RequestParam(value = "members", required = false) String members)
     {
-        return toAjax(sciJiaocairuanzhuService.hxPass(id, getUserId(), urlFlag));
+        return toAjax(sciJiaocairuanzhuService.hxPass(id, getUserId(), urlFlag, sciJiaocairuanzhu, members));
     }
 
 

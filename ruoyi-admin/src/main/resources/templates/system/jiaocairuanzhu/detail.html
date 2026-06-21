@@ -98,6 +98,12 @@
                     </select>
                 </div>
             </div>
+            <div class="col-sm-6">
+                <label class="col-sm-4 control-label is-required">项目金额(万)：</label>
+                <div class="col-sm-8">
+                    <input name="amount" th:field="*{amount}" class="form-control" type="number" required step="0.0001" maxlength="9" disabled="true">
+                </div>
+            </div>
         </div>
 
         <!-- 主持人 -->
@@ -230,6 +236,7 @@
 <th:block th:include="include :: datetimepicker-js" />
 <th:block th:include="include :: bootstrap-fileinput-js"/>
 <th:block th:include="include :: select2-js" />
+<script th:src="@{/ruoyi/js/approval-edit-confirm.js}"></script>
 <script th:src="@{/ruoyi/js/page-render.js}"></script>
 <script th:inline="javascript"  type="text/javascript">
     var prefix = ctx + "system/jiaocairuanzhu";
@@ -313,6 +320,30 @@
 
 
     $(document).ready(function(){
+        $.approvalEditConfirm.init({
+            formSelector: "#form-jiaocairuanzhu-edit",
+            isApprovalPage: function () {
+                var urlFlag = $("#urlFlag").val();
+                var state = $("#state").val();
+                return urlFlag !== "chakan" && urlFlag !== "JCZZ" &&
+                    (state === "TEXTBOOK_JYS_AUDIT" || state === "TEXTBOOK_KYC_AUDIT" || state === "1" || state === "4");
+            },
+            editableNames: [
+                "mingcheng",
+                "isbn",
+                "chubanshijian",
+                "chubanshe",
+                "benxiaoshifoyongshu",
+                "fenlei",
+                "paiming",
+                "amount"
+            ],
+            onApprove: function () {
+                var data = $("#form-jiaocairuanzhu-edit").serializeArray();
+                data.push({ name: "remark", value: $("#remark").val() });
+                $.operate.saveTab(prefix + "/hxPass", $.param(data));
+            }
+        });
         PageRender.registerHandlers({
             'view': function(actionKey, data) {
                 closeItem();
@@ -541,9 +572,7 @@
     });
 
     function submitHandler() {
-        var urlFlag = $("#urlFlag").val();
-        var remark = $('#remark').val();
-        $.operate.saveTab(prefix + "/hxPass", {"id":$("input[name='id']").val(),"urlFlag":urlFlag,"amount":$("#amount").val(), "comment": remark});
+        $.approvalEditConfirm.submit("#form-jiaocairuanzhu-edit");
     }
 
     function submitHandlerBH() {

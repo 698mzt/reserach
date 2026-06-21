@@ -69,6 +69,8 @@ public interface SciJiaocairuanzhuMapper
 
     int hxPass(@Param("id") String id, @Param("state") String state);
 
+    int updateApprovalEditableFields(SciJiaocairuanzhu sciJiaocairuanzhu);
+
 
     int updateJifen(@Param("id") Long id, @Param("jifen") int jifen);
 

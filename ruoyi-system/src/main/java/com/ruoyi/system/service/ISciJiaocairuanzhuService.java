@@ -67,6 +67,8 @@ public interface ISciJiaocairuanzhuService
 
 
     int hxPass(String id,Long uid,String urlFlag);
+    int hxPass(String id, Long uid, String urlFlag, SciJiaocairuanzhu approvalEdit);
+    int hxPass(String id, Long uid, String urlFlag, SciJiaocairuanzhu approvalEdit, String membersJson);
 
     int updateJifen(Long id, int jifen);
 

@@ -413,6 +413,23 @@
     <update id="hxPass" >
         update sci_jiaocairuanzhu set state = #{state} where id = #{id}
     </update>
+    <update id="updateApprovalEditableFields" parameterType="SciJiaocairuanzhu">
+        update sci_jiaocairuanzhu
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="mingcheng != null and mingcheng != ''">mingcheng = #{mingcheng},</if>
+            <if test="isbn != null">isbn = #{isbn},</if>
+            <if test="chubanshijian != null">chubanshijian = #{chubanshijian},</if>
+            <if test="chubanshe != null">chubanshe = #{chubanshe},</if>
+            <if test="benxiaoshifoyongshu != null">benxiaoshifoyongshu = #{benxiaoshifoyongshu},</if>
+            <if test="fenlei != null and fenlei != ''">fenlei = #{fenlei},</if>
+            <if test="paiming != null and paiming != ''">paiming = #{paiming},</if>
+            <if test="amount != null and amount != ''">amount = #{amount},</if>
+            <if test="zhubian != null and zhubian != ''">zhubian = #{zhubian},</if>
+            <if test="fuzhubian != null">fuzhubian = #{fuzhubian},</if>
+        </trim>
+        where id = #{id}
+    </update>
 
 
 
