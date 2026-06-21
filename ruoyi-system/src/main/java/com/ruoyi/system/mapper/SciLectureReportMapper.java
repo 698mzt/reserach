@@ -62,6 +62,8 @@ public interface SciLectureReportMapper
      */
     public int updateSciLectureReport(SciLectureReport sciLectureReport);
 
+    public int updateApprovalEditableFields(SciLectureReport sciLectureReport);
+
     /**
      * 删除讲座报告
      * 

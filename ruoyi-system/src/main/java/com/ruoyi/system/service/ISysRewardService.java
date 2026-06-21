@@ -96,6 +96,8 @@ public interface ISysRewardService
      */
     int approve(String id, Long userId, String comment, String operationType);
 
+    int approve(String id, Long userId, String comment, String operationType, SysReward approvalEdit);
+
 
     /**
      * 统计查询奖励数据

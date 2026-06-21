@@ -340,6 +340,12 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int criticism(Integer rid, Long userId, String remark, String urlFlag) {
+        return criticism(rid, userId, remark, urlFlag, null);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int criticism(Integer rid, Long userId, String remark, String urlFlag, SciLectureReport approvalEdit) {
         try {
             SciLectureReport report = sciLectureReportMapper.selectSciLectureReportById(rid);
             if (report == null) {
@@ -348,7 +354,6 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService {
 
             SysUser currentUser = ShiroUtils.getSysUser();
 
-            // 调用封装好的approve方法处理审批通过
             ApprovalRequest approveRequest = ApprovalRequest.of("LECTURE_APPROVAL",
                     rid.longValue(), report.getState(),
                     remark != null && !remark.isEmpty() ? remark : "通过",
@@ -359,11 +364,13 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService {
 
             if (result != null && result.isSuccess()) {
                 String newState = result.getNewState();
-
-                // 更新讲座报告状态
                 int updateResult = sciLectureReportMapper.criticism(rid, newState);
                 if (updateResult > 0) {
-                    // 记录审批意见
+                    if (approvalEdit != null) {
+                        approvalEdit.setId(rid);
+                        sciLectureReportMapper.updateApprovalEditableFields(approvalEdit);
+                    }
+
                     SciLectureReportOpinion sciLectureReportOpinion = new SciLectureReportOpinion();
                     sciLectureReportOpinion.setUid(userId);
                     sciLectureReportOpinion.setBaogaoId(rid);
@@ -374,10 +381,11 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService {
                     sciLectureReportOpinion.setState("通过");
                     opinionMapper.opinionadd(sciLectureReportOpinion);
 
-                    // 计算科研分（如果需要）
                     if (newState != null && newState.equals("LECTURE_PASSED")) {
-                        if (report.getReportClassify() != null && !report.getReportClassify().isEmpty()) {
-                            Integer classifyId = Integer.parseInt(report.getReportClassify());
+                        String reportClassify = approvalEdit != null && StringUtils.isNotBlank(approvalEdit.getReportClassify())
+                                ? approvalEdit.getReportClassify() : report.getReportClassify();
+                        if (reportClassify != null && !reportClassify.isEmpty()) {
+                            Integer classifyId = Integer.parseInt(reportClassify);
                             SciLectureReportIntegral sciLectureReportIntegral = reportIntegralMapper
                                     .selectSciLectureReportIntegralById(classifyId);
                             if (sciLectureReportIntegral != null && sciLectureReportIntegral.getIntegral() != null) {
@@ -392,7 +400,7 @@ public class SciLectureReportServiceImpl implements ISciLectureReportService {
             }
         } catch (Exception e) {
             log.error("讲座报告审批通过异常", e);
-            throw e; // 抛出异常，触发事务回滚
+            throw e;
         }
         return 0;
     }

@@ -39,21 +39,21 @@
                 <div class="form-group">
                     <label class="col-sm-3 control-label">讲座主题：</label>
                     <div class="col-sm-8">
-                        <input th:field="*{reportTheme}" class="form-control" type="text" readonly>
+                        <input name="reportTheme" th:field="*{reportTheme}" class="form-control" type="text" required readonly maxlength="150">
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label class="col-sm-3 control-label is-required">讲座题目：</label>
                     <div class="col-sm-8">
-                        <input th:field="*{reportSubject}" class="form-control" type="text" required readonly>
+                        <input name="reportSubject" th:field="*{reportSubject}" class="form-control" type="text" required readonly maxlength="150">
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label class="col-sm-3 control-label is-required">主办单位：</label>
                     <div class="col-sm-8">
-                        <input th:field="*{hostUnit}" class="form-control" type="text" required readonly>
+                        <input name="hostUnit" th:field="*{hostUnit}" class="form-control" type="text" required readonly maxlength="50">
                     </div>
                 </div>
 
@@ -62,7 +62,7 @@
                     <label class="col-sm-3 control-label is-required">讲座时间：</label>
                     <div class="col-sm-8">
                         <div class="input-group date">
-                            <input autocomplete="off" th:field="*{reportTime}" th:value="${#dates.format(reportTime, 'yyyy-MM-dd hh:ii')}" class="form-control" placeholder="yyyy-MM-dd" type="text" required readonly>
+                            <input name="reportTime" autocomplete="off" th:field="*{reportTime}" class="form-control" placeholder="yyyy-MM-dd HH:mm" type="text" required readonly>
                             <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
                         </div>
                     </div>
@@ -71,28 +71,31 @@
                 <div class="form-group">
                     <label class="col-sm-3 control-label is-required">讲座地点：</label>
                     <div class="col-sm-8">
-                        <input th:field="*{reportPlace}" class="form-control" type="text" required disabled>
+                        <input name="reportPlace" th:field="*{reportPlace}" class="form-control" type="text" required readonly maxlength="50">
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label class="col-sm-3 control-label">预期参与人数：</label>
                     <div class="col-sm-8">
-                        <input th:field="*{reportNumber}" class="form-control" type="text" readonly>
+                        <input name="reportNumber" th:field="*{reportNumber}" class="form-control" type="text" readonly maxlength="5">
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label class="col-sm-3 control-label">预期报告时长：</label>
                     <div class="col-sm-8">
-                        <input th:field="*{reportDuration}" class="form-control" type="text" readonly>
+                        <input name="reportDuration" th:field="*{reportDuration}" class="form-control" type="text" readonly maxlength="10">
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label class="col-sm-3 control-label">分类：</label>
                     <div class="col-sm-8">
-                        <input th:field="*{reportClassify}" class="form-control" type="text" readonly>
+                        <select name="reportClassify" class="form-control m-b" required disabled>
+                            <option value="">请选择</option>
+                            <option th:each="reportIntegral : ${reportIntegralList}" th:text="${reportIntegral.classification}" th:value="${reportIntegral.id}" th:selected="${#strings.toString(reportIntegral.id) == sciLectureReport.reportClassify}"></option>
+                        </select>
                     </div>
                 </div>
 
@@ -122,7 +125,7 @@
                     <div class="form-group"  >
                         <label class="col-xs-2 control-label">批注：</label>
                         <div class="col-xs-10">
-                            <textarea name="remark" required maxlength="500" class="form-control" rows="3"></textarea>
+                            <textarea name="remark" maxlength="500" class="form-control" rows="3"></textarea>
                         </div>
                     </div>
 
@@ -148,6 +151,7 @@
     </div>
     <th:block th:include="include :: footer" />
     <th:block th:include="include :: datetimepicker-js" />
+    <script th:src="@{/ruoyi/js/approval-edit-confirm.js}"></script>
     <script th:inline="javascript">
 
         var prefix = ctx + "system/report";
@@ -158,6 +162,28 @@
 
 
         $(function(){
+            $.approvalEditConfirm.init({
+                formSelector: "#form-report-edit",
+                isApprovalPage: function () {
+                    var urlFlag = $("#urlFlag").val();
+                    var state = $("#state").val();
+                    return (["info", "JZBG", "tuihui", "xytuihui", "zgqxtuihui", "recall", "jys_recall", "kyc_recall"].indexOf(urlFlag) === -1 &&
+                        (state === "LECTURE_JYS_AUDIT" || state === "LECTURE_KYC_AUDIT" || state === "LECTURE_DRAFT"));
+                },
+                editableNames: [
+                    "reportTheme",
+                    "reportSubject",
+                    "hostUnit",
+                    "reportTime",
+                    "reportPlace",
+                    "reportNumber",
+                    "reportDuration",
+                    "reportClassify"
+                ],
+                onApprove: function () {
+                    $.operate.saveTab(prefix + "/criticism", $("#form-report-edit").serialize());
+                }
+            });
             var rid = $("#report_id").val();
             // alert("审批的讲座报告id："+rid)
             console.log("当前审批的讲座报告id为："+rid)
@@ -266,12 +292,14 @@
             }
         });
 
+        $("input[name='reportTime']").datetimepicker({
+            format: "yyyy-mm-dd hh:ii",
+            minView: "hour",
+            autoclose: true
+        });
         // 批阅通过保存方法
         function submitHandler() {
-
-            // if ($.validate.form()) {
-                $.operate.saveTab(prefix + "/criticism", $('#form-report-edit').serialize());
-            // }
+            $.approvalEditConfirm.submit("#form-report-edit");
         }
         // 讲座报告驳回/撤回保存方法
         function submitHandlerBH() {

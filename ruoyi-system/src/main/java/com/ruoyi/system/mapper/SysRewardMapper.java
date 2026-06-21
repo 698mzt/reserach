@@ -76,6 +76,8 @@ public interface SysRewardMapper
      */
     public int updateSysReward(SysReward sysReward);
 
+    public int updateApprovalEditableFields(SysReward sysReward);
+
     /**
      * 删除奖励
      *

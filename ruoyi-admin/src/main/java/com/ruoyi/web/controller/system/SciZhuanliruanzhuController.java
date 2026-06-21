@@ -569,10 +569,12 @@ public class SciZhuanliruanzhuController extends BaseController
     @Log(title = "专利软著审核通过", businessType = BusinessType.UPDATE)
     @PostMapping( "/hxPass")
     @ResponseBody
-    public AjaxResult hxPass(String id, String urlFlag, String amount, SciProjectScoreCfg sciProjectScoreCfg)
+    public AjaxResult hxPass(String id, String urlFlag, String amount, SciProjectScoreCfg sciProjectScoreCfg, SciZhuanliruanzhu sciZhuanliruanzhu)
     {
-
-        return toAjax(sciZhuanliruanzhuService.hxPass(id,getUserId(),urlFlag));
+        if (sciZhuanliruanzhu != null && id != null) {
+            sciZhuanliruanzhu.setId(Integer.valueOf(id));
+        }
+        return toAjax(sciZhuanliruanzhuService.hxPass(id, getUserId(), urlFlag, sciZhuanliruanzhu));
     }
 
     /**

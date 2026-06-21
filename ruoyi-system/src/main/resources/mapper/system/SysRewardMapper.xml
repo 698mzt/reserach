@@ -246,6 +246,29 @@
         </trim>
         where id = #{id}
     </update>
+    <update id="updateApprovalEditableFields" parameterType="SysReward">
+        update sys_reward
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="rewardName != null and rewardName != ''">reward_name = #{rewardName},</if>
+            <if test="rewardDanwei != null and rewardDanwei != ''">reward_danwei = #{rewardDanwei},</if>
+            <if test="rewardTime != null">reward_time = #{rewardTime},</if>
+            <if test="rewardFenlei != null and rewardFenlei != ''">reward_fenlei = #{rewardFenlei},</if>
+            <if test="rewardDengji != null and rewardDengji != ''">reward_dengji = #{rewardDengji},</if>
+            <if test="rewardPaiming != null and rewardPaiming != ''">reward_paiming = #{rewardPaiming},</if>
+            <if test="expectedJifen != null">expected_jifen = #{expectedJifen},</if>
+            <if test="firstPersonId != null and firstPersonId != ''">first_person_id = #{firstPersonId},</if>
+            <if test="secondPersonId != null and secondPersonId != ''">second_person_id = #{secondPersonId},</if>
+            <if test="thirdPersonId != null and thirdPersonId != ''">third_person_id = #{thirdPersonId},</if>
+            <if test="fourthPersonId != null and fourthPersonId != ''">fourth_person_id = #{fourthPersonId},</if>
+            <if test="extraMemberIds != null">extra_member_ids = #{extraMemberIds},</if>
+            <if test="expectedScore1 != null">expected_score1 = #{expectedScore1},</if>
+            <if test="expectedScore2 != null">expected_score2 = #{expectedScore2},</if>
+            <if test="expectedScore3 != null">expected_score3 = #{expectedScore3},</if>
+            <if test="expectedScore4 != null">expected_score4 = #{expectedScore4},</if>
+            <if test="extraMemberScores != null">extra_member_scores = #{extraMemberScores},</if>
+        </trim>
+        where id = #{id}
+    </update>
 
     <!-- 原有删除方法，保留不变 -->
     <delete id="deleteSysRewardById" parameterType="Long">

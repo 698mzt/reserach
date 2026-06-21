@@ -285,6 +285,28 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where id = #{id}
     </update>
 
+
+    <update id="updateApprovalEditableFields" parameterType="SciZhuanliruanzhu">
+        update sci_zhuanliruanzhu
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="mingcheng != null and mingcheng != ''">mingcheng = #{mingcheng},</if>
+            <if test="shoquanhao != null">shoquanhao = #{shoquanhao},</if>
+            <if test="huopishijain != null">huopishijain = #{huopishijain},</if>
+            <if test="shifouyingyon != null">shifouyingyon = #{shifouyingyon},</if>
+            <if test="hangyelianhe != null">hangyelianhe = #{hangyelianhe},</if>
+            <if test="fenlei != null and fenlei != ''">fenlei = #{fenlei},</if>
+            <if test="paiming != null and paiming != ''">paiming = #{paiming},</if>
+            <if test="wenjian != null and wenjian != ''">wenjian = #{wenjian},</if>
+            <if test="jifen != null and jifen != ''">jifen = #{jifen},</if>
+            <if test="expectedJifen != null and expectedJifen != ''">expected_jifen = #{expectedJifen},</if>
+            <if test="firstPersonId != null and firstPersonId != ''">first_person_id = #{firstPersonId},</if>
+            <if test="secondPersonId != null and secondPersonId != ''">second_person_id = #{secondPersonId},</if>
+            <if test="thirdPersonId != null and thirdPersonId != ''">third_person_id = #{thirdPersonId},</if>
+            <if test="fourthPersonId != null and fourthPersonId != ''">fourth_person_id = #{fourthPersonId},</if>
+            <if test="members != null and members != ''">members = #{members},</if>
+        </trim>
+        where id = #{id}
+    </update>
     <delete id="deleteSciZhuanliruanzhuById" parameterType="Integer">
         delete from sci_zhuanliruanzhu where id = #{id}
     </delete>

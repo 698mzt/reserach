@@ -69,6 +69,8 @@ public interface ISciZhuanliruanzhuService
 
     int hxPass(String id,Long uid,String urlFlag);
 
+    int hxPass(String id, Long uid, String urlFlag, SciZhuanliruanzhu approvalEdit);
+
     int hxPass(String id, Long uid, String newState, boolean isLast);
 
     int updateJifen(Long id, int jifen);

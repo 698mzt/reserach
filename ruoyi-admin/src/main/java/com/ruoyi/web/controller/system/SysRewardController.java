@@ -337,9 +337,15 @@ public class SysRewardController extends BaseController
     @Log(title = "奖励审批操作", businessType = BusinessType.UPDATE)
     @PostMapping("/approve/{id}")
     @ResponseBody
-    public AjaxResult approve(@PathVariable("id") String id, String comment, String operationType)
+    public AjaxResult approve(@PathVariable("id") String id,
+                              @RequestParam(value = "comment", required = false) String comment,
+                              @RequestParam(value = "operationType", required = false, defaultValue = "approve") String operationType,
+                              @ModelAttribute SysReward sysReward)
     {
-        return toAjax(sysRewardService.approve(id, getUserId(), comment, operationType));
+        if (sysReward != null && id != null) {
+            sysReward.setId(Long.valueOf(id));
+        }
+        return toAjax(sysRewardService.approve(id, getUserId(), comment, operationType, sysReward));
     }
 
     /**

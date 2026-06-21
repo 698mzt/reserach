@@ -72,6 +72,8 @@ public interface SciZhuanliruanzhuMapper
 
     int updateJifen(@Param("id") Long id, @Param("jifen") int jifen);
 
+    int updateApprovalEditableFields(SciZhuanliruanzhu sciZhuanliruanzhu);
+
     /**
      * 更新最终积分（final_jifen）
      * urlFlag="chayue"（科研处通过）时写入，未最终确认则为空

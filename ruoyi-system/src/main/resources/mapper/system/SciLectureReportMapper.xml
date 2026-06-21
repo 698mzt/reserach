@@ -289,6 +289,20 @@
         where id = #{id}
     </update>
 
+    <update id="updateApprovalEditableFields" parameterType="SciLectureReport">
+        update sci_lecture_report
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="reportTime != null and reportTime != ''">report_time = #{reportTime},</if>
+            <if test="reportTheme != null and reportTheme != ''">report_theme = #{reportTheme},</if>
+            <if test="hostUnit != null and hostUnit != ''">host_unit = #{hostUnit},</if>
+            <if test="reportPlace != null and reportPlace != ''">report_place = #{reportPlace},</if>
+            <if test="reportNumber != null">report_number = #{reportNumber},</if>
+            <if test="reportSubject != null and reportSubject != ''">report_subject = #{reportSubject},</if>
+            <if test="reportDuration != null">report_duration = #{reportDuration},</if>
+            <if test="reportClassify != null and reportClassify != ''">report_classify = #{reportClassify},</if>
+        </trim>
+        where id = #{id}
+    </update>
     <!--    结项申请的保存-->
     <update id="SciLectureReportOverAdd" parameterType="SciLectureReport">
         update sci_lecture_report

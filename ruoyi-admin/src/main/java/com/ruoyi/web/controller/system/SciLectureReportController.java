@@ -427,7 +427,7 @@ public class SciLectureReportController extends BaseController
      */
     @RequiresPermissions("system:report:info")
     @GetMapping("/detail/{id}/{urlFlag}")
-    public String detail(@PathVariable("id") Integer id, @PathVariable("urlFlag") String urlFlag, ModelMap mmap)
+    public String detail(@PathVariable("id") Integer id, @PathVariable("urlFlag") String urlFlag, ModelMap mmap, SciLectureReportIntegral sciLectureReportIntegral)
     {
         SciLectureReport sciLectureReport = sciLectureReportService.selectSciLectureReportById(id);
         if (sciLectureReport == null) {
@@ -439,7 +439,9 @@ public class SciLectureReportController extends BaseController
             String roleKey = getRoleKey();
             boolean canApprove = canApprove(sciLectureReport.getState(), roleKey);
             List<SysUser> userList =  userService.selectAllUser();
+            List<SciLectureReportIntegral> reportIntegralList = sciLectureReportIntegralService.selectSciLectureReportIntegralList(sciLectureReportIntegral);
             mmap.put("sysUsers", userList);
+            mmap.put("reportIntegralList", reportIntegralList);
             mmap.put("sciLectureReport", sciLectureReport);
             mmap.put("canApprove", canApprove);
             mmap.put("role", roleKey);
@@ -456,10 +458,10 @@ public class SciLectureReportController extends BaseController
     @Log(title = "讲座报告审核通过", businessType = BusinessType.UPDATE)
     @PostMapping("/criticism")
     @ResponseBody
-    public AjaxResult criticism(Integer id,String remark,String urlFlag)
+    public AjaxResult criticism(Integer id,String remark,String urlFlag,SciLectureReport sciLectureReport)
     {
         System.out.println(remark);
-        return toAjax(sciLectureReportService.criticism(id,getUserId(),remark,urlFlag));
+        return toAjax(sciLectureReportService.criticism(id,getUserId(),remark,urlFlag,sciLectureReport));
     }
 
     /**

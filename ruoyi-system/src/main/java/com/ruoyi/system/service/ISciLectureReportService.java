@@ -88,6 +88,8 @@ public interface ISciLectureReportService
      */
     int criticism(Integer id, Long userId,String remark,String urlFlag);
 
+    int criticism(Integer id, Long userId, String remark, String urlFlag, SciLectureReport approvalEdit);
+
     int reject(Integer id, Long userId, String remark, String urlFlag);
 
     /**

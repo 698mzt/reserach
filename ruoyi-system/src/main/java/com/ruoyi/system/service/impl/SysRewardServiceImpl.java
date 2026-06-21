@@ -22,6 +22,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -367,26 +369,28 @@ public class SysRewardServiceImpl implements ISysRewardService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int approve(String id, Long userId, String comment, String operationType) {
-        // 1. 查询奖励信息
+        return approve(id, userId, comment, operationType, null);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int approve(String id, Long userId, String comment, String operationType, SysReward approvalEdit) {
         SysReward reward = sysRewardMapper.selectSysRewardById(Long.valueOf(id));
         if (reward == null) {
             return -1;
         }
 
-        // 2. 获取当前状态和操作用户信息
         String currentState = reward.getState();
         SysUser user = sysUserService.selectUserById(userId);
         if (user == null) {
             return -1;
         }
 
-        // 3. 构建审批请求
         ApprovalRequest request = ApprovalRequest.of(REWARD_PROCESS_CODE,
                 Long.valueOf(id), currentState, comment,
                 userId, user.getUserName(),
                 user.getDept() != null ? user.getDept().getDeptName() : "");
 
-        // 4. 执行审批操作
         ApprovalResult result = null;
         if ("approve".equals(operationType)) {
             result = approvalProcessService.approve(request);
@@ -396,39 +400,53 @@ public class SysRewardServiceImpl implements ISysRewardService {
             result = approvalProcessService.recall(request);
         }
 
-        // 5. 检查审批结果
         if (result == null || !result.isSuccess()) {
             return -1;
         }
 
-        // 6. 获取新状态
         String newState = result.getNewState();
 
-        // 7. 特殊处理：驳回操作直接设置为驳回状态
         if ("reject".equals(operationType)) {
             newState = REWARD_REJECTED;
-            // 更新数据库状态（绕过审批流程服务的自动更新，使用自定义状态）
             sysRewardMapper.hxPass(id, newState);
-        } else {
-            // 审批流程服务已自动更新状态，无需额外操作
         }
 
-        // 8. 积分计算逻辑（仅最后一个审批节点通过时计算）
+        if ("approve".equals(operationType) && approvalEdit != null) {
+            approvalEdit.setId(Long.valueOf(id));
+            clearInvalidApprovalRewardTime(approvalEdit);
+            fillApprovalRewardScores(approvalEdit);
+            sysRewardMapper.updateApprovalEditableFields(approvalEdit);
+            saveRewardPersonsFromReward(Integer.valueOf(id), approvalEdit);
+        }
+
         if ("approve".equals(operationType) && result.isLast()) {
             calculateAndUpdateScore(id);
         }
 
-        // 9. 撤回时重置积分（当撤回会影响已计算的积分时）
         if ("recall".equals(operationType) && REWARD_KYC_AUDIT.equals(newState)) {
             sysRewardMapper.resetJifenById(Long.valueOf(id));
         }
 
-        // 10. 记录审批意见
         saveApprovalOpinion(id, userId, comment, operationType);
 
         return 1;
     }
 
+    private void clearInvalidApprovalRewardTime(SysReward approvalEdit) {
+        if (approvalEdit == null || approvalEdit.getRewardTime() == null) {
+            return;
+        }
+        if (approvalEdit.getRewardTime().before(getMinValidApprovalRewardTime())) {
+            approvalEdit.setRewardTime(null);
+        }
+    }
+
+    private Date getMinValidApprovalRewardTime() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.clear();
+        calendar.set(1900, Calendar.JANUARY, 1);
+        return calendar.getTime();
+    }
     /**
      * 根据奖励信息计算并更新积分
      *
@@ -699,6 +717,7 @@ public class SysRewardServiceImpl implements ISysRewardService {
      * @param sysReward 奖励对象
      */
     private void saveRewardPersonsFromReward(Integer rewardId, SysReward sysReward) {
+        fillApprovalRewardScores(sysReward);
         List<String> personIds = new ArrayList<>();
         List<String> expectedScores = new ArrayList<>();
 
@@ -750,4 +769,39 @@ public class SysRewardServiceImpl implements ISysRewardService {
         }
     }
 
+    private void fillApprovalRewardScores(SysReward sysReward) {
+        if (sysReward == null || sysReward.getRewardFenlei() == null || sysReward.getRewardDengji() == null) {
+            return;
+        }
+
+        List<SciRewardScoreCfg> scoreConfigs = scoreCfgService.selectScoreConfigsByFenLeiAndDengJi(
+                sysReward.getRewardFenlei(), sysReward.getRewardDengji());
+        if (scoreConfigs == null || scoreConfigs.isEmpty()) {
+            return;
+        }
+
+        if (scoreConfigs.size() > 0) {
+            sysReward.setExpectedScore1(scoreConfigs.get(0).getTotalScore());
+            sysReward.setExpectedJifen(scoreConfigs.get(0).getTotalScore());
+        }
+        if (scoreConfigs.size() > 1) {
+            sysReward.setExpectedScore2(scoreConfigs.get(1).getTotalScore());
+        }
+        if (scoreConfigs.size() > 2) {
+            sysReward.setExpectedScore3(scoreConfigs.get(2).getTotalScore());
+        }
+        if (scoreConfigs.size() > 3) {
+            sysReward.setExpectedScore4(scoreConfigs.get(3).getTotalScore());
+        }
+
+        if (sysReward.getExtraMemberIds() != null && !sysReward.getExtraMemberIds().isEmpty()) {
+            String[] extraIds = sysReward.getExtraMemberIds().split(",");
+            List<String> extraScores = new ArrayList<>();
+            for (int i = 0; i < extraIds.length; i++) {
+                int scoreIndex = i + 4;
+                extraScores.add(scoreIndex < scoreConfigs.size() ? scoreConfigs.get(scoreIndex).getTotalScore() : "");
+            }
+            sysReward.setExtraMemberScores(extraScores.stream().collect(Collectors.joining(",")));
+        }
+    }
 }

@@ -334,6 +334,12 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int hxPass(String id, Long uid, String urlFlag) {
+        return hxPass(id, uid, urlFlag, null);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int hxPass(String id, Long uid, String urlFlag, SciZhuanliruanzhu approvalEdit) {
         // 获取专利软著信息，用于获取当前状态
         SciZhuanliruanzhu sci = sciZhuanliruanzhuMapper.selectSciZhuanliruanzhuById(Integer.valueOf(id));
         if (sci == null) {
@@ -377,7 +383,24 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
             throw new RuntimeException("审批操作失败: " + result.getMessage());
         }
 
-        // 科研处通过（流程结束）时：写入最终积分（final_jifen）
+        
+        if (approvalEdit != null && !"tijiao".equals(urlFlag)) {
+            approvalEdit.setId(Integer.valueOf(id));
+            String approvalJifen = calculateScore(approvalEdit.getFenlei(), approvalEdit.getPaiming());
+            approvalEdit.setJifen(approvalJifen);
+            approvalEdit.setExpectedJifen(approvalJifen);
+            if ("4".equals(approvalEdit.getFenlei()) && "N".equals(approvalEdit.getShifouyingyon())) {
+                try {
+                    double expectedJifen = Double.parseDouble(approvalJifen) * 0.5;
+                    approvalEdit.setExpectedJifen(String.valueOf(expectedJifen));
+                } catch (NumberFormatException e) {
+                    // ignore
+                }
+            }
+            sciZhuanliruanzhuMapper.updateApprovalEditableFields(approvalEdit);
+            sci = sciZhuanliruanzhuMapper.selectSciZhuanliruanzhuById(Integer.valueOf(id));
+        }
+// 科研处通过（流程结束）时：写入最终积分（final_jifen）
         if (result.isLast()) {
             String finalJifen;
             if (sci != null) {
@@ -421,7 +444,7 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
         }
         sciZhuanliruanzhuPiyueMapper.insertSciZhuanliruanzhuPiyue(piyue);
 
-        return 1;
+        return sciZhuanliruanzhuMapper.hxPass(String.valueOf(id), result.getNewState());
     }
 
     @Override
@@ -509,8 +532,7 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
         if (!result.isSuccess()) {
             throw new RuntimeException("驳回操作失败: " + result.getMessage());
         }
-
-        // 记录批阅记录到业务模块批阅表
+// 记录批阅记录到业务模块批阅表
         SciZhuanliruanzhuPiyue piyue = new SciZhuanliruanzhuPiyue();
         piyue.setUid(uid);
         piyue.setHxktId(Integer.valueOf(id));
@@ -673,7 +695,6 @@ public class SciZhuanliruanzhuServiceImpl implements ISciZhuanliruanzhuService
         if (!result.isSuccess()) {
             throw new RuntimeException("撤回操作失败: " + result.getMessage());
         }
-
         String newState = result.getNewState();
 
         // 如果撤回后回到科研处审批状态，清空积分（参考论文模块）

@@ -213,6 +213,7 @@
 <th:block th:include="include :: bootstrap-fileinput-js"/>
 <th:block th:include="include :: select2-js" />
 <script th:src="@{/ruoyi/js/page-render.js}"></script>
+<script th:src="@{/ruoyi/js/approval-edit-confirm.js}"></script>
 <script th:inline="javascript"  type="text/javascript">
     var prefix = ctx + "system/zhuanliruanzhu";
     
@@ -332,11 +333,33 @@
             alert("网址无效");
         }
     }
-
-
-
     $(function() {
-        // 注册PageRender动作处理器
+        $.approvalEditConfirm.init({
+            formSelector: "#form-zhuanliruanzhu-edit",
+            isApprovalPage: function () {
+                var urlFlag = $("#urlFlag").val();
+                var state = $("#state").val();
+                return urlFlag !== "ZLRZ" && urlFlag !== "info" && urlFlag !== "chakan" &&
+                    (state === "PATENT_JYS_AUDIT" || state === "PATENT_KYC_AUDIT" || state === "1" || state === "4");
+            },
+            editableNames: [
+                "mingcheng",
+                "fenlei",
+                "shoquanhao",
+                "huopishijain",
+                "secondPersonId",
+                "thirdPersonId",
+                "fourthPersonId",
+                "shifouyingyon",
+                "hangyelianhe",
+                "paiming"
+            ],
+            onApprove: function () {
+                var data = $("#form-zhuanliruanzhu-edit").serializeArray();
+                data.push({ name: "remark", value: $("#remark").val() });
+                $.operate.saveTab(prefix + "/hxPass", $.param(data));
+            }
+        });
         PageRender.registerHandlers({
             'view': function(actionKey, data) {
                 closeItem();
@@ -458,9 +481,7 @@
     });
 
     function submitHandler() {
-        var urlFlag = $("#urlFlag").val();
-        var remark = $('#remark').val();
-        $.operate.saveTab(prefix + "/hxPass", {"id": $("#ktid").val(), "urlFlag": urlFlag, "remark": remark});
+        $.approvalEditConfirm.submit("#form-zhuanliruanzhu-edit");
     }
 
     function submitHandlerBH() {
