@@ -212,6 +212,14 @@ public interface ISysUserService
      */
     public int changeStatus(SysUser user);
 
+    /**
+     * 批量重置用户密码为初始密码
+     * 
+     * @param userIds 用户ID数组
+     * @return 结果
+     */
+    public int batchResetPwd(Long[] userIds);
+
     List<SysUser> selectAllUser();
 
     List<SysUser> selectUser(Integer deptId);

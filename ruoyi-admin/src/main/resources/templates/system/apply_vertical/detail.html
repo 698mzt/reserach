@@ -38,10 +38,11 @@
             <div class="form-group">
                 <label class="col-sm-4 control-label is-required">课题来源：</label>
                 <div class="col-sm-8">
-                    <select name="subjectSource" class="form-control" th:with="source=${@dict.getType('sci_subject_source')}" disabled>
-                        <option value="" selected>----请选择----</option>
-                        <option th:each="dict : ${source}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}" th:field="*{subjectSource}"></option>
+                    <select name="subjectSource" class="form-control" id="subjectSourceSelect" th:with="source=${@dict.getType('sci_subject_source')}" disabled>
+                        <option th:each="dict : ${source}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
                     </select>
+                    <input class="form-control" type="text" id="subjectSourceCustom" style="display:none; margin-top:5px" readonly placeholder="请填写课题来源">
+                    <input type="hidden" id="subjectSourceOriginal" th:value="*{subjectSource}">
                 </div>
             </div>
         </div>
@@ -368,7 +369,10 @@
     // 计算预期积分
     function calculateExpectedScore() {
         const topType = $("select[name='topType']").val();
-        const subjectSource = $("select[name='subjectSource']").val();
+        var subjectSource = $("select[name='subjectSource']").val();
+        if (!subjectSource) {
+            subjectSource = $('#subjectSourceOriginal').val();
+        }
         const amount = $("input[name='amount']").val();
 
         // 如果必填字段未填写，不计算积分
@@ -600,6 +604,47 @@
     // window.onload = function() {
     //     displayFileName('filing', 'filingFileName');
     // };
+
+    // 课题来源：选择"其他"（value=52）时显示自定义输入框
+    $(document).ready(function() {
+        $('#subjectSourceSelect').on('change', function() {
+            if ($(this).val() === '52') {
+                $('#subjectSourceSelect').hide();
+                $('#subjectSourceCustom').show().focus();
+            } else {
+                $('#subjectSourceCustom').hide().val('');
+                $('#subjectSourceSelect').show();
+            }
+        });
+
+        // 回显：延迟执行确保 Thymeleaf 渲染完成
+        setTimeout(function() {
+            var originalSubjectSource = $('#subjectSourceOriginal').val();
+            if (originalSubjectSource) {
+                var isDictValue = false;
+                $('#subjectSourceSelect option').each(function() {
+                    if ($(this).val() === originalSubjectSource) {
+                        isDictValue = true;
+                        return false;
+                    }
+                });
+                if (isDictValue) {
+                    // 标准字典值，设置选中
+                    $('#subjectSourceSelect').val(originalSubjectSource);
+                } else {
+                    // 自定义值：选中"其他"（value=52），触发 change 显示输入框，再填入原值
+                    $('#subjectSourceSelect').val('52').change();
+                    $('#subjectSourceCustom').val(originalSubjectSource);
+                }
+            }
+        }, 200);
+    });
+
+    // 为相关字段添加change事件监听器
+    $("select[name='topType'], select[name='subjectSource'], input[name='amount']").on("change", calculateExpectedScore);
+
+    // 页面加载时计算初始积分
+    calculateExpectedScore();
 
     $("input[name='signingData']").datetimepicker({
         format: "yyyy-mm-dd",

@@ -40,10 +40,11 @@
             <div class="form-group">
                 <label class="col-sm-4 control-label is-required">课题来源：</label>
                 <div class="col-sm-8">
-                    <select name="subjectSource" class="form-control" th:with="source=${@dict.getType('sci_subject_source')}" required>
+                    <select name="subjectSource" class="form-control" id="subjectSourceSelect" th:with="source=${@dict.getType('sci_subject_source')}" required>
                         <option value="" selected>----请选择----</option>
                         <option th:each="dict : ${source}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
                     </select>
+                    <input class="form-control" type="text" id="subjectSourceCustom" style="display:none; margin-top:5px" placeholder="请填写课题来源">
                 </div>
             </div>
         </div>
@@ -300,6 +301,21 @@
             if (topName.length > 50) {
                 return $.modal.alertError("课题名称不能超过50个字符");
             }
+            // 处理课题来源：选择"其他"时提交自定义输入值
+            var customInput = $('#subjectSourceCustom');
+            $('#subjectSourceCustomHidden').remove();
+            if (customInput.is(':visible') && customInput.val().trim() !== '') {
+                $('select[name="subjectSource"]').prop('disabled', true);
+                $('<input>').attr({
+                    type: 'hidden',
+                    id: 'subjectSourceCustomHidden',
+                    name: 'subjectSource',
+                    value: customInput.val().trim()
+                }).appendTo('#form-apply-add');
+            } else {
+                $('select[name="subjectSource"]').prop('disabled', false);
+            }
+
             $.operate.saveTab(prefix + "/add", $('#form-apply-add').serialize());
         }
     }
@@ -364,6 +380,17 @@
             }
         });
     }
+
+    // 课题来源：选择"其他"（value=52）时显示自定义输入框
+    $('#subjectSourceSelect').on('change', function() {
+        if ($(this).val() === '52') {
+            $('#subjectSourceSelect').hide().removeAttr('required');
+            $('#subjectSourceCustom').show().attr('required', true).focus();
+        } else {
+            $('#subjectSourceCustom').hide().val('').removeAttr('required');
+            $('#subjectSourceSelect').show().attr('required', true);
+        }
+    });
 
     // 为相关字段添加change事件监听器
     $ ("select[name='topType'], select[name='subjectSource'], input[name='amount']").on("change", calculateExpectedScore);
