@@ -239,6 +239,29 @@ public class SysUserController extends BaseController
     }
 
     /**
+     * 批量重置用户密码为初始密码
+     * 
+     * @param userIds 用户ID数组，格式: 1,2,3
+     * @return 结果
+     */
+    @RequiresPermissions("system:user:resetPwd")
+    @Log(title = "批量重置密码", businessType = BusinessType.UPDATE)
+    @PostMapping("/batchResetPwd")
+    @ResponseBody
+    public AjaxResult batchResetPwd(String userIds)
+    {
+        // 将逗号分隔的用户ID字符串转换为Long数组
+        Long[] userIdArray = Convert.toLongArray(userIds);
+        if (ArrayUtils.isEmpty(userIdArray))
+        {
+            return error("请选择需要重置密码的用户");
+        }
+        // 批量重置密码
+        userService.batchResetPwd(userIdArray);
+        return success();
+    }
+
+    /**
      * 进入授权角色页
      */
     @GetMapping("/authRole/{userId}")

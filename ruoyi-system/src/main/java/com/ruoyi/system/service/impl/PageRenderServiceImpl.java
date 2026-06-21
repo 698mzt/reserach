@@ -5,7 +5,6 @@ import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.common.utils.ShiroUtils;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.system.constant.PageRenderActionConstants;
-import com.ruoyi.system.constant.PageRenderColorConstants;
 import com.ruoyi.system.domain.*;
 import com.ruoyi.system.mapper.SysApprovalNodeMapper;
 import com.ruoyi.system.mapper.SysApprovalProcessMapper;
@@ -15,12 +14,7 @@ import com.ruoyi.system.service.ISysApprovalHistoryService;
 import com.ruoyi.system.service.ISysMenuService;
 import com.ruoyi.system.service.ISysRoleService;
 import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.authz.AuthorizationInfo;
-import org.apache.shiro.cache.Cache;
 import org.apache.shiro.session.Session;
-import org.apache.shiro.mgt.RealmSecurityManager;
-import org.apache.shiro.realm.AuthorizingRealm;
-import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +22,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -86,6 +79,14 @@ public class PageRenderServiceImpl implements IPageRenderService {
 
     /** 专利软著审批 */
     private static final String PATENT_APPLY_PROCESS_CODE = "PATENT_APPLY";
+
+    // ========== 颜色常量（内联替代 PageRenderColorConstants） ==========
+    private static final String COLOR_PRIMARY = "primary";
+    private static final String COLOR_SUCCESS = "success";
+    private static final String COLOR_WARNING = "warning";
+    private static final String COLOR_DANGER = "danger";
+    private static final String COLOR_INFO = "info";
+    private static final String COLOR_DEFAULT = "default";
 
     /**
      * 模块配置内部类，封装单个模块的渲染配置信息
@@ -176,8 +177,10 @@ public class PageRenderServiceImpl implements IPageRenderService {
             log.info("开始加载八大模块审批流程配置...");
             registerModuleConfigs();
             loadAllModuleConfigs();
+            int statusCount = allStatusMappings.values().stream().mapToInt(Map::size).sum();
+            int nodeCount = allNodeMappings.values().stream().mapToInt(Map::size).sum();
             log.info("八大模块审批流程配置加载完成，注册模块数: {}, 总状态数: {}, 总节点数: {}",
-                    MODULE_REGISTRY.size(), countAllStatusMappings(), countAllNodeMappings());
+                    MODULE_REGISTRY.size(), statusCount, nodeCount);
         } catch (Exception e) {
             log.error("加载八大模块审批流程配置失败，将使用空配置", e);
         }
@@ -458,32 +461,6 @@ public class PageRenderServiceImpl implements IPageRenderService {
     }
 
     /**
-     * 统计所有流程的状态映射总数
-     *
-     * @return 状态映射总数
-     */
-    private int countAllStatusMappings() {
-        int count = 0;
-        for (Map<String, StatusMapping> mapping : allStatusMappings.values()) {
-            count += mapping.size();
-        }
-        return count;
-    }
-
-    /**
-     * 统计所有流程的节点映射总数
-     *
-     * @return 节点映射总数
-     */
-    private int countAllNodeMappings() {
-        int count = 0;
-        for (Map<String, SysApprovalNode> mapping : allNodeMappings.values()) {
-            count += mapping.size();
-        }
-        return count;
-    }
-
-    /**
      * 刷新配置缓存（用于管理员修改配置后手动刷新）
      */
     public void refreshCache() {
@@ -537,17 +514,17 @@ public class PageRenderServiceImpl implements IPageRenderService {
         StateSemantic semantic = parseStateSemantic(stateCode);
         switch (semantic) {
             case DRAFT:
-                return PageRenderColorConstants.COLOR_DEFAULT;
+                return COLOR_DEFAULT;
             case JYS_AUDIT:
-                return PageRenderColorConstants.COLOR_WARNING;
+                return COLOR_WARNING;
             case KYC_AUDIT:
-                return PageRenderColorConstants.COLOR_INFO;
+                return COLOR_INFO;
             case PASSED:
-                return PageRenderColorConstants.COLOR_SUCCESS;
+                return COLOR_SUCCESS;
             case REJECTED:
-                return PageRenderColorConstants.COLOR_DANGER;
+                return COLOR_DANGER;
             default:
-                return PageRenderColorConstants.COLOR_PRIMARY;
+                return COLOR_PRIMARY;
         }
     }
 
@@ -584,7 +561,7 @@ public class PageRenderServiceImpl implements IPageRenderService {
     @Override
     public PageRenderStatusMeta buildStatusMeta(PageRenderContext context) {
         if (context == null || context.getCurrentState() == null) {
-            return PageRenderStatusMeta.of("", "未知", PageRenderColorConstants.COLOR_DEFAULT);
+            return PageRenderStatusMeta.of("", "未知", COLOR_DEFAULT);
         }
 
         String stateCode = context.getCurrentState();
@@ -607,7 +584,7 @@ public class PageRenderServiceImpl implements IPageRenderService {
 
     /**
      * 构建按钮动作列表
-     * 统一入口：调用通用规则引擎 + 模块特有按钮扩展
+     * 按状态语义分组生成按钮：通用按钮（全部状态）→ 状态特有按钮 → 模块特有扩展
      *
      * @param context 页面渲染上下文
      * @return 按钮动作列表
@@ -625,110 +602,138 @@ public class PageRenderServiceImpl implements IPageRenderService {
 
         List<PageRenderActionItem> actions = new ArrayList<>();
 
-        // 1. 调用通用规则引擎
-        actions.addAll(buildCommonActions(context));
+        // 1. 通用按钮：查看、查看流程（所有状态）
+        actions.addAll(addAlwaysVisibleActions(context));
 
-        // 2. 追加模块特有按钮
+        // 2. 按状态语义分组生成按钮
+        StateSemantic semantic = parseStateSemantic(context.getCurrentState());
+        switch (semantic) {
+            case DRAFT:
+                actions.addAll(addDraftStateActions(context));
+                break;
+            case REJECTED:
+                actions.addAll(addRejectedStateActions(context));
+                break;
+            case JYS_AUDIT:
+            case KYC_AUDIT:
+                addAuditStateActions(context, actions);
+                break;
+            case PASSED:
+                actions.addAll(addPassedStateActions(context));
+                break;
+            default:
+                break;
+        }
+
+        // 3. 追加模块特有按钮
         actions.addAll(addModuleSpecificActions(context));
 
-        // 3. 按排序号排序
+        // 4. 按排序号排序
         Collections.sort(actions);
 
         return actions;
     }
 
     /**
-     * 构建通用按钮动作列表
-     * 根据状态编码后缀语义 + 权限映射表动态生成按钮列表
-     * 所有权限均通过 ModuleConfig.getPermission(actionKey) 动态解析，消除 if-else
+     * 添加通用按钮：查看、查看流程（所有状态都显示）
      *
      * @param context 页面渲染上下文
      * @return 按钮动作列表
      */
-    private List<PageRenderActionItem> buildCommonActions(PageRenderContext context) {
+    private List<PageRenderActionItem> addAlwaysVisibleActions(PageRenderContext context) {
         List<PageRenderActionItem> actions = new ArrayList<>();
-        String state = context.getCurrentState();
-        if (state == null) {
-            return actions;
-        }
-
-        boolean isOwner = context.isOwner();
-        boolean isAdmin = context.hasRole("admin");
-        // 判断当前活跃角色是否为教师角色（非管理员角色的用户以教师身份操作）
-        // 管理员角色（科研处、教研室、学院等）下不应显示教师操作按钮
-        // 系统管理员（roleKey=admin）除外，始终显示所有按钮
-        boolean isTeacherActive = isTeacherRole(context.getActiveRoleKey());
-        // 所有者是否能以教师身份操作：是系统管理员 或 当前活跃角色为教师角色
-        boolean canOwnerActAsTeacher = isAdmin || isTeacherActive;
-        StateSemantic semantic = parseStateSemantic(state);
-
-        // 获取模块配置（用于动态权限解析）
         ModuleConfig config = getModuleConfig(context.getModuleCode(), context.getPermPrefix());
         if (config == null) {
             return actions;
         }
-
-        // 查看按钮：所有状态都显示
+        // 查看按钮
         if (context.hasPermission(config.getPermission("info"))) {
             actions.add(PageRenderActionItem.of(
-                    PageRenderActionConstants.ACTION_VIEW, "查看",
-                    PageRenderColorConstants.COLOR_INFO, 100));
+                    PageRenderActionConstants.ACTION_VIEW, "查看", COLOR_INFO, 100));
         }
-
-        // 查看流程按钮：所有状态都显示（草稿状态也需查看流程定义）
+        // 查看流程按钮
         if (context.hasPermission(config.getPermission("info"))) {
             actions.add(PageRenderActionItem.of(
-                    PageRenderActionConstants.ACTION_VIEW_PROCESS, "查看流程",
-                    PageRenderColorConstants.COLOR_INFO, 101));
+                    PageRenderActionConstants.ACTION_VIEW_PROCESS, "查看流程", COLOR_INFO, 101));
         }
+        return actions;
+    }
 
-        // 草稿状态按钮
-        if (semantic == StateSemantic.DRAFT) {
-            // 编辑按钮：仅系统管理员 或 所有者且当前为教师角色时显示
-            if ((isOwner && canOwnerActAsTeacher || isAdmin) && context.hasPermission(config.getPermission("edit"))) {
-                actions.add(PageRenderActionItem.of(
-                        PageRenderActionConstants.ACTION_EDIT, "编辑",
-                        PageRenderColorConstants.COLOR_PRIMARY, 10));
-            }
-            // 删除按钮：仅系统管理员 或 所有者且当前为教师角色时显示
-            if ((isOwner && canOwnerActAsTeacher || isAdmin) && context.hasPermission(config.getPermission("remove"))) {
-                actions.add(PageRenderActionItem.of(
-                        PageRenderActionConstants.ACTION_REMOVE, "删除",
-                        PageRenderColorConstants.COLOR_DANGER, 20, "确定要删除该记录吗？"));
-            }
-            // 提交按钮：仅系统管理员 或 所有者且当前为教师角色时显示
-            if ((isOwner && canOwnerActAsTeacher || isAdmin) && context.hasPermission(config.getPermission("edit"))) {
-                actions.add(PageRenderActionItem.of(
-                        PageRenderActionConstants.ACTION_SUBMIT, "提交",
-                        PageRenderColorConstants.COLOR_SUCCESS, 5, "确定要提交该记录吗？"));
-            }
+    /**
+     * 添加草稿状态按钮：提交、编辑、删除
+     *
+     * @param context 页面渲染上下文
+     * @return 按钮动作列表
+     */
+    private List<PageRenderActionItem> addDraftStateActions(PageRenderContext context) {
+        List<PageRenderActionItem> actions = new ArrayList<>();
+        boolean isOwner = context.isOwner();
+        boolean isAdmin = context.hasRole("admin");
+        boolean isTeacherActive = isTeacherRole(context.getActiveRoleKey());
+        boolean canOwnerActAsTeacher = isAdmin || isTeacherActive;
+        ModuleConfig config = getModuleConfig(context.getModuleCode(), context.getPermPrefix());
+        if (config == null) {
+            return actions;
         }
-
-        // 驳回状态按钮
-        if (semantic == StateSemantic.REJECTED) {
-            // 编辑按钮：仅系统管理员 或 所有者且当前为教师角色时显示
-            if ((isOwner && canOwnerActAsTeacher || isAdmin) && context.hasPermission(config.getPermission("edit"))) {
-                actions.add(PageRenderActionItem.of(
-                        PageRenderActionConstants.ACTION_EDIT, "编辑",
-                        PageRenderColorConstants.COLOR_PRIMARY, 10));
-            }
+        // 提交：仅系统管理员 或 所有者且为教师角色，需edit权限
+        if ((isOwner && canOwnerActAsTeacher || isAdmin) && context.hasPermission(config.getPermission("edit"))) {
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_SUBMIT, "提交", COLOR_SUCCESS, 5, "确定要提交该记录吗？"));
         }
-
-        // 审批中状态按钮（教研室/科研处）
-        if (semantic == StateSemantic.JYS_AUDIT || semantic == StateSemantic.KYC_AUDIT) {
-            addAuditActions(context, actions, semantic, config, isOwner, isAdmin);
+        // 编辑：仅系统管理员 或 所有者且为教师角色，需edit权限
+        if ((isOwner && canOwnerActAsTeacher || isAdmin) && context.hasPermission(config.getPermission("edit"))) {
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_EDIT, "编辑", COLOR_PRIMARY, 10));
         }
-
-        // 通过状态按钮
-        if (semantic == StateSemantic.PASSED) {
-            // 撤回按钮（需有 kyrevoke 权限）
-            if (context.hasPermission(config.getPermission("kyrevoke"))) {
-                actions.add(PageRenderActionItem.of(
-                        PageRenderActionConstants.ACTION_RECALL, "撤回",
-                        PageRenderColorConstants.COLOR_WARNING, 40, "确定要撤回该记录吗？"));
-            }
+        // 删除：仅系统管理员 或 所有者且为教师角色，需remove权限
+        if ((isOwner && canOwnerActAsTeacher || isAdmin) && context.hasPermission(config.getPermission("remove"))) {
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_REMOVE, "删除", COLOR_DANGER, 20, "确定要删除该记录吗？"));
         }
+        return actions;
+    }
 
+    /**
+     * 添加驳回状态按钮：编辑
+     *
+     * @param context 页面渲染上下文
+     * @return 按钮动作列表
+     */
+    private List<PageRenderActionItem> addRejectedStateActions(PageRenderContext context) {
+        List<PageRenderActionItem> actions = new ArrayList<>();
+        boolean isOwner = context.isOwner();
+        boolean isAdmin = context.hasRole("admin");
+        boolean isTeacherActive = isTeacherRole(context.getActiveRoleKey());
+        boolean canOwnerActAsTeacher = isAdmin || isTeacherActive;
+        ModuleConfig config = getModuleConfig(context.getModuleCode(), context.getPermPrefix());
+        if (config == null) {
+            return actions;
+        }
+        // 编辑：仅系统管理员 或 所有者且为教师角色，需edit权限
+        if ((isOwner && canOwnerActAsTeacher || isAdmin) && context.hasPermission(config.getPermission("edit"))) {
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_EDIT, "编辑", COLOR_PRIMARY, 10));
+        }
+        return actions;
+    }
+
+    /**
+     * 添加通过状态按钮：撤回
+     *
+     * @param context 页面渲染上下文
+     * @return 按钮动作列表
+     */
+    private List<PageRenderActionItem> addPassedStateActions(PageRenderContext context) {
+        List<PageRenderActionItem> actions = new ArrayList<>();
+        ModuleConfig config = getModuleConfig(context.getModuleCode(), context.getPermPrefix());
+        if (config == null) {
+            return actions;
+        }
+        // 撤回：需有 kyrevoke 权限
+        if (context.hasPermission(config.getPermission("kyrevoke"))) {
+            actions.add(PageRenderActionItem.of(
+                    PageRenderActionConstants.ACTION_RECALL, "撤回", COLOR_WARNING, 40, "确定要撤回该记录吗？"));
+        }
         return actions;
     }
 
@@ -756,7 +761,7 @@ public class PageRenderServiceImpl implements IPageRenderService {
     }
 
     /**
-     * 根据节点配置动态生成审批按钮
+     * 添加审批中状态按钮：批阅、通过、驳回、撤回
      * 不引用业务模块常量，通过权限映射表动态获取权限标识
      *
      * 权限映射规则：
@@ -764,69 +769,47 @@ public class PageRenderServiceImpl implements IPageRenderService {
      * - 科研处审批（第二级）：使用 config.getPermission("kypy") 动态解析
      * - 撤回（科研处审批中）：教研室审批人使用 config.getPermission("approve") 权限撤回
      *
-     * @param context  页面渲染上下文
-     * @param actions  按钮列表（追加）
-     * @param semantic 状态语义
-     * @param config   模块配置（含权限映射表）
-     * @param isOwner  是否为创建人
-     * @param isAdmin  是否为管理员
+     * @param context 页面渲染上下文
+     * @param actions 按钮列表（追加）
      */
-    private void addAuditActions(PageRenderContext context, List<PageRenderActionItem> actions,
-            StateSemantic semantic, ModuleConfig config, boolean isOwner, boolean isAdmin) {
+    private void addAuditStateActions(PageRenderContext context, List<PageRenderActionItem> actions) {
         String state = context.getCurrentState();
-        if (state == null || config == null) {
+        if (state == null) {
             return;
         }
 
-        // 判断是否为第一级节点（教研室审批）
+        ModuleConfig config = getModuleConfig(context.getModuleCode(), context.getPermPrefix());
+        if (config == null) {
+            return;
+        }
+
+        StateSemantic semantic = parseStateSemantic(state);
         boolean isFirstAuditNode = semantic == StateSemantic.JYS_AUDIT;
-        // 判断是否为最后一级节点（科研处审批）
         boolean isLastAuditNode = semantic == StateSemantic.KYC_AUDIT;
 
-        // 教研室审批按钮：使用 config.getPermission("approve") 动态获取权限
-        // 各模块映射示例：
-        // 论文 -> system:paper:process
-        // 纵向 -> system:apply_vertical:JYS
-        // 成果转化 -> system:intraSch:JYPY
+        // 教研室审批按钮
         if (isFirstAuditNode && context.hasPermission(config.getPermission("approve"))) {
             actions.add(PageRenderActionItem.of(
-                    PageRenderActionConstants.ACTION_REVIEW, "批阅",
-                    PageRenderColorConstants.COLOR_PRIMARY, 30));
+                    PageRenderActionConstants.ACTION_REVIEW, "批阅", COLOR_PRIMARY, 30));
             actions.add(PageRenderActionItem.of(
-                    PageRenderActionConstants.ACTION_APPROVE, "通过",
-                    PageRenderColorConstants.COLOR_SUCCESS, 31, "确定要通过该记录吗？"));
+                    PageRenderActionConstants.ACTION_APPROVE, "通过", COLOR_SUCCESS, 31, "确定要通过该记录吗？"));
             actions.add(PageRenderActionItem.of(
-                    PageRenderActionConstants.ACTION_REJECT, "驳回",
-                    PageRenderColorConstants.COLOR_DANGER, 32, "确定要驳回该记录吗？"));
+                    PageRenderActionConstants.ACTION_REJECT, "驳回", COLOR_DANGER, 32, "确定要驳回该记录吗？"));
         }
-
-        // 科研处审批按钮：使用 config.getPermission("kypy") 动态获取权限
-        // 各模块映射示例：
-        // 论文 -> system:paper:kypy
-        // 纵向 -> system:apply_vertical:KYC（注意大写）
-        // 成果转化 -> system:intraSch:KYPY
-        // 奖励 -> system:reward:hecha
-        // 横向 -> system:apply:hecha
+        // 科研处审批按钮
         else if (isLastAuditNode && context.hasPermission(config.getPermission("kypy"))) {
             actions.add(PageRenderActionItem.of(
-                    PageRenderActionConstants.ACTION_KY_REVIEW, "批阅",
-                    PageRenderColorConstants.COLOR_PRIMARY, 30));
+                    PageRenderActionConstants.ACTION_KY_REVIEW, "批阅", COLOR_PRIMARY, 30));
             actions.add(PageRenderActionItem.of(
-                    PageRenderActionConstants.ACTION_APPROVE, "通过",
-                    PageRenderColorConstants.COLOR_SUCCESS, 31, "确定要通过该记录吗？"));
+                    PageRenderActionConstants.ACTION_APPROVE, "通过", COLOR_SUCCESS, 31, "确定要通过该记录吗？"));
             actions.add(PageRenderActionItem.of(
-                    PageRenderActionConstants.ACTION_REJECT, "驳回",
-                    PageRenderColorConstants.COLOR_DANGER, 32, "确定要驳回该记录吗？"));
+                    PageRenderActionConstants.ACTION_REJECT, "驳回", COLOR_DANGER, 32, "确定要驳回该记录吗？"));
         }
 
-        // 撤回按钮规则：
-        // 1. 教研室审批（第一级）：不显示撤回按钮
-        // 2. 科研处审批（第二级）：教研室审批人（有 revoke 权限）可撤回
-        // 注意：使用独立的撤回权限（revoke），而非批阅权限（approve），避免按钮耦合
+        // 撤回按钮：科研处审批中，教研室审批人可撤回
         if (isLastAuditNode && context.hasPermission(config.getPermission("revoke"))) {
             actions.add(PageRenderActionItem.of(
-                    PageRenderActionConstants.ACTION_RECALL, "撤回",
-                    PageRenderColorConstants.COLOR_WARNING, 40, "确定要撤回该记录吗？"));
+                    PageRenderActionConstants.ACTION_RECALL, "撤回", COLOR_WARNING, 40, "确定要撤回该记录吗？"));
         }
     }
 
@@ -861,21 +844,18 @@ public class PageRenderServiceImpl implements IPageRenderService {
             if ((isOwner && canOwnerActAsTeacher || isAdmin) && context.hasPermission(config.getPermission("add"))) {
                 if (context.getCurrentState().endsWith("_PASSED")) {
                     specificActions.add(PageRenderActionItem.of(
-                            "submitOver", "申请结项",
-                            PageRenderColorConstants.COLOR_PRIMARY, 50));
+                            "submitOver", "申请结项", COLOR_PRIMARY, 50));
                 }
             }
             // 追加金额：仅申请人本人在立项流程各状态可见
             if (isOwner && context.hasPermission(config.getPermission("edit"))) {
                 specificActions.add(PageRenderActionItem.of(
-                        "reamount", "追加金额",
-                        PageRenderColorConstants.COLOR_PRIMARY, 51));
+                        "reamount", "追加金额", COLOR_PRIMARY, 51));
             }
             // 驳回状态：所有可见该页面的角色均可撤回
             if (context.getCurrentState().endsWith("_REJECTED")) {
                 specificActions.add(PageRenderActionItem.of(
-                        PageRenderActionConstants.ACTION_RECALL, "撤回",
-                        PageRenderColorConstants.COLOR_WARNING, 40, "确定要撤回该驳回记录吗？"));
+                        PageRenderActionConstants.ACTION_RECALL, "撤回", COLOR_WARNING, 40, "确定要撤回该驳回记录吗？"));
             }
         }
 
@@ -883,8 +863,7 @@ public class PageRenderServiceImpl implements IPageRenderService {
         if ("HORIZONTAL_OVER".equals(moduleCode) && context.getCurrentState() != null
                 && context.getCurrentState().endsWith("_REJECTED")) {
             specificActions.add(PageRenderActionItem.of(
-                    PageRenderActionConstants.ACTION_RECALL, "撤回",
-                    PageRenderColorConstants.COLOR_WARNING, 40, "确定要撤回该驳回记录吗？"));
+                    PageRenderActionConstants.ACTION_RECALL, "撤回", COLOR_WARNING, 40, "确定要撤回该驳回记录吗？"));
         }
 
         // 论文驳回状态：仅该条驳回操作的执行人可撤回，不能替他人撤回
@@ -908,8 +887,7 @@ public class PageRenderServiceImpl implements IPageRenderService {
             // 系统管理员 或 驳回操作人（且拥有相应权限）才能撤回
             if (isAdmin || (isRejectOperator && (hasRevokePerm || hasKypyPerm || hasApprovePerm || isOwner))) {
                 specificActions.add(PageRenderActionItem.of(
-                        PageRenderActionConstants.ACTION_RECALL, "撤回",
-                        PageRenderColorConstants.COLOR_WARNING, 40, "确定要撤回该记录吗？"));
+                        PageRenderActionConstants.ACTION_RECALL, "撤回", COLOR_WARNING, 40, "确定要撤回该记录吗？"));
             }
         }
 
@@ -923,8 +901,7 @@ public class PageRenderServiceImpl implements IPageRenderService {
             // 申请结项：仅系统管理员 或 所有者且当前为教师角色时显示，需add权限
             if ((isOwner && canOwnerActAsTeacher || isAdmin) && context.hasPermission(config.getPermission("add"))) {
                 specificActions.add(PageRenderActionItem.of(
-                        "overApply", "申请结项",
-                        PageRenderColorConstants.COLOR_PRIMARY, 52));
+                        "overApply", "申请结项", COLOR_PRIMARY, 52));
             }
         }
 
@@ -940,14 +917,12 @@ public class PageRenderServiceImpl implements IPageRenderService {
             // 申请人/教研室/科研处均可撤回，目标状态不同
             if (isOwner || isAdmin || canApprove || canKyrevoke) {
                 specificActions.add(PageRenderActionItem.of(
-                        PageRenderActionConstants.ACTION_RECALL, "撤回",
-                        PageRenderColorConstants.COLOR_WARNING, 40, "确定要撤回该记录吗？"));
+                        PageRenderActionConstants.ACTION_RECALL, "撤回", COLOR_WARNING, 40, "确定要撤回该记录吗？"));
             }
             // 重新提交：仅系统管理员 或 所有者且当前为教师角色时显示，需edit权限
             if ((isOwner && canOwnerActAsTeacher || isAdmin) && context.hasPermission(config.getPermission("edit"))) {
                 specificActions.add(PageRenderActionItem.of(
-                        "submit", "重新提交",
-                        PageRenderColorConstants.COLOR_SUCCESS, 5, "确定要重新提交该记录吗？"));
+                        "submit", "重新提交", COLOR_SUCCESS, 5, "确定要重新提交该记录吗？"));
             }
         }
 
@@ -956,8 +931,7 @@ public class PageRenderServiceImpl implements IPageRenderService {
                 && context.getCurrentState().endsWith("_JYS_AUDIT")
                 && context.isOwner()) {
             specificActions.add(PageRenderActionItem.of(
-                    PageRenderActionConstants.ACTION_RECALL, "撤回",
-                    PageRenderColorConstants.COLOR_WARNING, 40, "确定要撤回该记录吗？"));
+                    PageRenderActionConstants.ACTION_RECALL, "撤回", COLOR_WARNING, 40, "确定要撤回该记录吗？"));
         }
 
         return specificActions;
@@ -983,7 +957,7 @@ public class PageRenderServiceImpl implements IPageRenderService {
     public PageRenderResult<?> fillPageRenderData(String moduleCode, String permPrefix,
             String processCode, String currentState,
             Long businessId, Long creatorId, Set<String> permissions) {
-        PageRenderStatusMeta fallbackMeta = PageRenderStatusMeta.of("", "未知", PageRenderColorConstants.COLOR_DEFAULT);
+        PageRenderStatusMeta fallbackMeta = PageRenderStatusMeta.of("", "未知", COLOR_DEFAULT);
         List<PageRenderActionItem> emptyActions = Collections.emptyList();
 
         if (currentState == null) {
@@ -1022,16 +996,8 @@ public class PageRenderServiceImpl implements IPageRenderService {
     }
 
     /**
-     * 构建当前用户的权限列表
-     * <p>
-     * 采用两级策略获取用户权限：
-     * 1. 优先从 Shiro 授权缓存中读取（性能最优，避免数据库查询）
-     * 2. 缓存未命中时，直接查询数据库获取最新权限数据
-     * </p>
-     * <p>
-     * 该方法的优先级设计保证了在大多数场景下能够快速响应，
-     * 同时在权限变更后也能通过数据库查询获取最新数据。
-     * </p>
+     * 构建当前用户的权限列表（仅从数据库查询）
+     * 使用 Shiro 自身的 isPermitted() 方法已有缓存机制，无需额外反射读缓存
      *
      * @param currentUser 当前登录用户对象，不能为 null
      * @return 用户权限标识列表，如果用户为空或无权限则返回空列表
@@ -1042,15 +1008,7 @@ public class PageRenderServiceImpl implements IPageRenderService {
             return Collections.emptySet();
         }
 
-        // 优先从 Shiro 授权缓存读取（无论是否切换角色）
-        // 缓存由 @RequiresPermissions 触发 UserRealm.doGetAuthorizationInfo() 填充
-        // 缓存 key 已包含 activeRoleId，切换角色后缓存独立，不会串数据
-        Set<String> cachedPermissions = getCachedPermissions(currentUser);
-        if (!cachedPermissions.isEmpty()) {
-            return cachedPermissions;
-        }
-
-        // 缓存未命中，从数据库查询
+        // 从数据库查询
         Long activeRoleId = null;
         Subject subject = SecurityUtils.getSubject();
         if (subject != null) {
@@ -1060,8 +1018,7 @@ public class PageRenderServiceImpl implements IPageRenderService {
             }
         }
         if (activeRoleId != null) {
-            com.ruoyi.common.core.domain.entity.SysRole activeRole =
-                    roleService.selectRoleById(activeRoleId);
+            SysRole activeRole = roleService.selectRoleById(activeRoleId);
             if (activeRole != null) {
                 if (activeRole.isAdmin()) {
                     Set<String> adminPerms = new LinkedHashSet<>();
@@ -1085,110 +1042,6 @@ public class PageRenderServiceImpl implements IPageRenderService {
         }
 
         return permsSet;
-    }
-
-    /**
-     * 从 Shiro 授权缓存中读取用户权限
-     * <p>
-     * 通过反射机制访问 Shiro 内部的授权缓存，避免重复数据库查询。
-     * 缓存通常在用户登录时由 UserRealm 的 doGetAuthorizationInfo 方法填充，
-     * 并在用户登出或权限变更时失效。
-     * </p>
-     * <p>
-     * 该方法使用反射是为了避免直接依赖 ruoyi-framework 模块的具体实现类，
-     * 保持代码的灵活性和可测试性。
-     * </p>
-     *
-     * @param currentUser 当前登录用户对象，用于获取 PrincipalCollection
-     * @return 缓存中的权限列表，如果缓存未命中或异常则返回空列表
-     */
-    private Set<String> getCachedPermissions(SysUser currentUser) {
-        try {
-            // 获取当前 Shiro Subject（代表当前用户的安全上下文）
-            Subject subject = SecurityUtils.getSubject();
-            if (subject == null) {
-                return Collections.emptySet();
-            }
-
-            // 获取主体的身份集合（包含用户信息等）
-            PrincipalCollection principals = subject.getPrincipals();
-            if (principals == null) {
-                return Collections.emptySet();
-            }
-
-            // 获取授权域（负责权限验证的核心组件）
-            AuthorizingRealm realm = getAuthorizingRealm();
-
-            // 通过反射获取授权缓存对象
-            Cache<Object, AuthorizationInfo> authorizationCache = getAuthorizationCache(realm);
-            if (authorizationCache == null) {
-                return Collections.emptySet();
-            }
-
-            // 使用与 UserRealm.getAuthorizationCacheKey() 相同的 key 计算方式查询缓存
-            // 避免直接使用 principals 作为 key（缓存实际以 CacheKey(userId, activeRoleId) 存储）
-            Method getCacheKeyMethod = AuthorizingRealm.class.getDeclaredMethod("getAuthorizationCacheKey", PrincipalCollection.class);
-            getCacheKeyMethod.setAccessible(true);
-            Object cacheKey = getCacheKeyMethod.invoke(realm, principals);
-            AuthorizationInfo authorizationInfo = authorizationCache.get(cacheKey);
-            if (authorizationInfo == null || authorizationInfo.getStringPermissions() == null
-                    || authorizationInfo.getStringPermissions().isEmpty()) {
-                return Collections.emptySet();
-            }
-
-            return new LinkedHashSet<>(authorizationInfo.getStringPermissions());
-        } catch (Exception e) {
-            // 缓存读取失败不影响业务流程，降级为数据库查询
-            log.debug("从 Shiro 授权缓存读取当前用户权限失败, userId={}", currentUser.getUserId(), e);
-            return Collections.emptySet();
-        }
-    }
-
-    /**
-     * 通过反射获取 Shiro 授权缓存对象
-     * <p>
-     * 使用反射访问 AuthorizingRealm 的受保护方法 getAuthorizationCache()，
-     * 这样可以避免直接依赖具体的 Realm 实现类，提高代码的可移植性。
-     * </p>
-     *
-     * @param realm 授权域对象，用于获取其内部的授权缓存
-     * @return 授权缓存对象，类型为 Cache&lt;Object, AuthorizationInfo&gt;
-     * @throws Exception 反射调用失败时抛出异常
-     */
-    @SuppressWarnings("unchecked")
-    private Cache<Object, AuthorizationInfo> getAuthorizationCache(AuthorizingRealm realm) throws Exception {
-        // 获取 AuthorizingRealm 类的 getAuthorizationCache 方法（受保护方法）
-        Method method = AuthorizingRealm.class.getDeclaredMethod("getAuthorizationCache");
-        // 设置方法可访问（突破 protected 访问限制）
-        method.setAccessible(true);
-        // 调用方法并强制类型转换返回缓存对象
-        return (Cache<Object, AuthorizationInfo>) method.invoke(realm);
-    }
-
-    /**
-     * 获取 Shiro 授权域（AuthorizingRealm）
-     * <p>
-     * 从 SecurityManager 中遍历所有 Realm，找到第一个 AuthorizingRealm 类型的域。
-     * AuthorizingRealm 是 Shiro 中负责授权（权限验证）的核心组件，
-     * 通常对应项目中的 UserRealm 实现类。
-     * </p>
-     *
-     * @return AuthorizingRealm 授权域对象
-     * @throws IllegalStateException 当未找到可用的 AuthorizingRealm 时抛出异常
-     */
-    private AuthorizingRealm getAuthorizingRealm() {
-        // 获取安全管理器并转换为 RealmSecurityManager 类型
-        RealmSecurityManager securityManager = (RealmSecurityManager) SecurityUtils.getSecurityManager();
-
-        // 遍历所有注册的 Realm，查找 AuthorizingRealm 类型的域
-        for (org.apache.shiro.realm.Realm realm : securityManager.getRealms()) {
-            if (realm instanceof AuthorizingRealm) {
-                return (AuthorizingRealm) realm;
-            }
-        }
-
-        // 未找到授权域时抛出异常（正常情况下不应该发生）
-        throw new IllegalStateException("未找到可用的 Shiro AuthorizingRealm");
     }
 
     /**

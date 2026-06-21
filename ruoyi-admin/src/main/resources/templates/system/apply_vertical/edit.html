@@ -40,9 +40,11 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label is-required">课题来源：</label>
                     <div class="col-sm-8">
-                        <select name="subjectSource" class="form-control" th:with="source=${@dict.getType('sci_subject_source')}" required>
-                            <option th:each="dict : ${source}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}" th:field="*{subjectSource}"></option>
+                        <select name="subjectSource" class="form-control" id="subjectSourceSelect" th:with="source=${@dict.getType('sci_subject_source')}" required>
+                            <option th:each="dict : ${source}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
                         </select>
+                        <input class="form-control" type="text" id="subjectSourceCustom" style="display:none; margin-top:5px" placeholder="请填写课题来源">
+                        <input type="hidden" id="subjectSourceOriginal" th:value="*{subjectSource}">
                     </div>
                 </div>
             </div>
@@ -644,6 +646,21 @@
                 }
 
             }
+                // 处理课题来源：选择"其他"时提交自定义输入值
+                var customInput = $('#subjectSourceCustom');
+                $('#subjectSourceCustomHidden').remove();
+                if (customInput.is(':visible') && customInput.val().trim() !== '') {
+                    $('select[name="subjectSource"]').prop('disabled', true);
+                    $('<input>').attr({
+                        type: 'hidden',
+                        id: 'subjectSourceCustomHidden',
+                        name: 'subjectSource',
+                        value: customInput.val().trim()
+                    }).appendTo('#form-apply-edit');
+                } else {
+                    $('select[name="subjectSource"]').prop('disabled', false);
+                }
+
                 $.operate.saveTab(prefix + "/edit", $('#form-apply-edit').serialize());
             }
         }
@@ -768,6 +785,41 @@
                 }
             });
         }
+
+        // 课题来源：选择"其他"（value=52）时显示自定义输入框
+        $(document).ready(function() {
+            $('#subjectSourceSelect').on('change', function() {
+                if ($(this).val() === '52') {
+                    $('#subjectSourceSelect').hide().removeAttr('required');
+                    $('#subjectSourceCustom').show().attr('required', true).focus();
+                } else {
+                    $('#subjectSourceCustom').hide().val('').removeAttr('required');
+                    $('#subjectSourceSelect').show().attr('required', true);
+                }
+            });
+
+            // 编辑回显：延迟执行确保 Thymeleaf 渲染完成
+            setTimeout(function() {
+                var originalSubjectSource = $('#subjectSourceOriginal').val();
+                if (originalSubjectSource) {
+                    var isDictValue = false;
+                    $('#subjectSourceSelect option').each(function() {
+                        if ($(this).val() === originalSubjectSource) {
+                            isDictValue = true;
+                            return false;
+                        }
+                    });
+                    if (isDictValue) {
+                        // 标准字典值，设置选中
+                        $('#subjectSourceSelect').val(originalSubjectSource);
+                    } else {
+                        // 自定义值：选中"其他"（value=52），触发 change 显示输入框，再填入原值
+                        $('#subjectSourceSelect').val('52').change();
+                        $('#subjectSourceCustom').val(originalSubjectSource);
+                    }
+                }
+            }, 200);
+        });
 
         // 为相关字段添加change事件监听器
         $ ("select[name='topType'], select[name='subjectSource'], input[name='amount']").on("change", calculateExpectedScore);
