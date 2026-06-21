@@ -411,6 +411,10 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
         
         // 更新纵向课题状态
         int a = sciHorizontalApplyVerticalMapper.applyPass(id, newState, sciHorizontalApplyVertical1 != null ? sciHorizontalApplyVertical1.getSubjectSource() : null);
+        if (sciHorizontalApplyVertical1 != null) {
+            sciHorizontalApplyVertical1.setId(Integer.valueOf(id));
+            sciHorizontalApplyVerticalMapper.updateApplyApprovalEditableFields(sciHorizontalApplyVertical1);
+        }
         
         // 添加审批记录
         SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
@@ -481,6 +485,14 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int overPass(String id, Long userId, String urlFlag,List score,List persion,String verticalId,String subjectSource) {
+        SciHorizontalApplyVertical approvalEdit = new SciHorizontalApplyVertical();
+        approvalEdit.setSubjectSource(subjectSource);
+        return overPass(id, userId, urlFlag, score, persion, verticalId, approvalEdit);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int overPass(String id, Long userId, String urlFlag,List score,List persion,String verticalId,SciHorizontalApplyVertical approvalEdit) {
         // 通过id查询获取SciHorizontalApplyVertical对象
         SciHorizontalApplyVertical sciHorizontalApplyVertical = sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalById(Integer.valueOf(id));
         String currentState = sciHorizontalApplyVertical.getState();
@@ -536,7 +548,11 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
         }
         
         // 更新纵向课题状态
-        int a = sciHorizontalApplyVerticalMapper.overPass(id, newState, subjectSource);
+        int a = sciHorizontalApplyVerticalMapper.overPass(id, newState, approvalEdit != null ? approvalEdit.getSubjectSource() : null);
+        if (approvalEdit != null) {
+            approvalEdit.setId(Integer.valueOf(id));
+            sciHorizontalApplyVerticalMapper.updateOverApprovalEditableFields(approvalEdit);
+        }
         
         // 添加审批记录
         SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();

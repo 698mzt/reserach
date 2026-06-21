@@ -796,29 +796,31 @@ public class SciHorizontalApplyVerticalController extends BaseController {
         List<Map<String, Object>> fundsList = (List<Map<String, Object>>) verticalScoreCfg.get("fundsList");
         
         // 主持人（排名第一）
-        if (sciHorizontalApplyVertical.getFirstPersonId() != null && !sciHorizontalApplyVertical.getFirstPersonId().isEmpty()) {
-            persion.add(sciHorizontalApplyVertical.getFirstPersonId());
+        SciHorizontalApplyVertical scoreSource = sciHorizontalApplyVertical1 != null ? sciHorizontalApplyVertical1 : sciHorizontalApplyVertical;
+
+        if (scoreSource.getFirstPersonId() != null && !scoreSource.getFirstPersonId().isEmpty()) {
+            persion.add(scoreSource.getFirstPersonId());
             double score1 = getScoreFromConfig(fundsList, type, 1, is2026JointProject, true); // 直接使用type参数
             score.add(String.valueOf(score1));
         }
         
         // 成员1（排名第二）
-        if (sciHorizontalApplyVertical.getSecondPersonId() != null && !sciHorizontalApplyVertical.getSecondPersonId().isEmpty()) {
-            persion.add(sciHorizontalApplyVertical.getSecondPersonId());
+        if (scoreSource.getSecondPersonId() != null && !scoreSource.getSecondPersonId().isEmpty()) {
+            persion.add(scoreSource.getSecondPersonId());
             double score2 = getScoreFromConfig(fundsList, type, 2, is2026JointProject, true); // 直接使用type参数
             score.add(String.valueOf(score2));
         }
         
         // 成员2（排名第三）
-        if (sciHorizontalApplyVertical.getThirdPersonId() != null && !sciHorizontalApplyVertical.getThirdPersonId().isEmpty()) {
-            persion.add(sciHorizontalApplyVertical.getThirdPersonId());
+        if (scoreSource.getThirdPersonId() != null && !scoreSource.getThirdPersonId().isEmpty()) {
+            persion.add(scoreSource.getThirdPersonId());
             double score3 = getScoreFromConfig(fundsList, type, 3, is2026JointProject, true); // 直接使用type参数
             score.add(String.valueOf(score3));
         }
         
         // 成员3（排名第四）
-        if (sciHorizontalApplyVertical.getFourthPersonId() != null && !sciHorizontalApplyVertical.getFourthPersonId().isEmpty()) {
-            persion.add(sciHorizontalApplyVertical.getFourthPersonId());
+        if (scoreSource.getFourthPersonId() != null && !scoreSource.getFourthPersonId().isEmpty()) {
+            persion.add(scoreSource.getFourthPersonId());
             double score4 = getScoreFromConfig(fundsList, type, 4, is2026JointProject, true); // 直接使用type参数
             score.add(String.valueOf(score4));
         }
@@ -893,34 +895,36 @@ public class SciHorizontalApplyVerticalController extends BaseController {
         List<Map<String, Object>> fundsList = (List<Map<String, Object>>) verticalScoreCfg.get("fundsList");
         
         // 主持人（排名第一）
-        if (sciHorizontalApplyVertical.getFirstPersonId() != null && !sciHorizontalApplyVertical.getFirstPersonId().isEmpty()) {
-            persion.add(sciHorizontalApplyVertical.getFirstPersonId());
+        SciHorizontalApplyVertical scoreSource = sciHorizontalApplyVertical1 != null ? sciHorizontalApplyVertical1 : sciHorizontalApplyVertical;
+
+        if (scoreSource.getFirstPersonId() != null && !scoreSource.getFirstPersonId().isEmpty()) {
+            persion.add(scoreSource.getFirstPersonId());
             double score1 = getScoreFromConfig(fundsList, type, 1, is2026JointProject, false); // 直接使用type参数
             score.add(String.valueOf(score1));
         }
         
         // 成员1（排名第二）
-        if (sciHorizontalApplyVertical.getSecondPersonId() != null && !sciHorizontalApplyVertical.getSecondPersonId().isEmpty()) {
-            persion.add(sciHorizontalApplyVertical.getSecondPersonId());
+        if (scoreSource.getSecondPersonId() != null && !scoreSource.getSecondPersonId().isEmpty()) {
+            persion.add(scoreSource.getSecondPersonId());
             double score2 = getScoreFromConfig(fundsList, type, 2, is2026JointProject, false); // 直接使用type参数
             score.add(String.valueOf(score2));
         }
         
         // 成员2（排名第三）
-        if (sciHorizontalApplyVertical.getThirdPersonId() != null && !sciHorizontalApplyVertical.getThirdPersonId().isEmpty()) {
-            persion.add(sciHorizontalApplyVertical.getThirdPersonId());
+        if (scoreSource.getThirdPersonId() != null && !scoreSource.getThirdPersonId().isEmpty()) {
+            persion.add(scoreSource.getThirdPersonId());
             double score3 = getScoreFromConfig(fundsList, type, 3, is2026JointProject, false); // 直接使用type参数
             score.add(String.valueOf(score3));
         }
         
         // 成员3（排名第四）
-        if (sciHorizontalApplyVertical.getFourthPersonId() != null && !sciHorizontalApplyVertical.getFourthPersonId().isEmpty()) {
-            persion.add(sciHorizontalApplyVertical.getFourthPersonId());
+        if (scoreSource.getFourthPersonId() != null && !scoreSource.getFourthPersonId().isEmpty()) {
+            persion.add(scoreSource.getFourthPersonId());
             double score4 = getScoreFromConfig(fundsList, type, 4, is2026JointProject, false); // 直接使用type参数
             score.add(String.valueOf(score4));
         }
         
-        int result = sciHorizontalApplyVerticalService.overPass(id, getUserId(), urlFlag, score, persion, verticalId, sciHorizontalApplyVertical1.getSubjectSource());
+        int result = sciHorizontalApplyVerticalService.overPass(id, getUserId(), urlFlag, score, persion, verticalId, sciHorizontalApplyVertical1);
         return toAjax(result);
     }
 

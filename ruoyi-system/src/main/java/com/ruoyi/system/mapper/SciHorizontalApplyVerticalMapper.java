@@ -63,6 +63,16 @@ public interface SciHorizontalApplyVerticalMapper {
     public  int updateSciHorizontalApplyVertical(SciHorizontalApplyVertical sciHorizontalApplyVertical);
 
     /**
+     * 审批页专用更新：只保存纵向课题立项审批允许编辑的业务字段。
+     */
+    int updateApplyApprovalEditableFields(SciHorizontalApplyVertical sciHorizontalApplyVertical);
+
+    /**
+     * 审批页专用更新：只保存纵向课题结项审批允许编辑的业务字段。
+     */
+    int updateOverApprovalEditableFields(SciHorizontalApplyVertical sciHorizontalApplyVertical);
+
+    /**
      * 删除纵向课题信息
      *
      * @param ids 纵向课题主键
