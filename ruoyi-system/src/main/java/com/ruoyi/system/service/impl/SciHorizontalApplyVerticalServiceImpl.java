@@ -411,6 +411,10 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
         
         // 更新纵向课题状态
         int a = sciHorizontalApplyVerticalMapper.applyPass(id, newState, sciHorizontalApplyVertical1 != null ? sciHorizontalApplyVertical1.getSubjectSource() : null);
+        if (sciHorizontalApplyVertical1 != null) {
+            sciHorizontalApplyVertical1.setId(Integer.valueOf(id));
+            sciHorizontalApplyVerticalMapper.updateApplyApprovalEditableFields(sciHorizontalApplyVertical1);
+        }
         
         // 添加审批记录
         SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
@@ -481,6 +485,14 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int overPass(String id, Long userId, String urlFlag,List score,List persion,String verticalId,String subjectSource) {
+        SciHorizontalApplyVertical approvalEdit = new SciHorizontalApplyVertical();
+        approvalEdit.setSubjectSource(subjectSource);
+        return overPass(id, userId, urlFlag, score, persion, verticalId, approvalEdit);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int overPass(String id, Long userId, String urlFlag,List score,List persion,String verticalId,SciHorizontalApplyVertical approvalEdit) {
         // 通过id查询获取SciHorizontalApplyVertical对象
         SciHorizontalApplyVertical sciHorizontalApplyVertical = sciHorizontalApplyVerticalMapper.selectSciHorizontalApplyVerticalById(Integer.valueOf(id));
         String currentState = sciHorizontalApplyVertical.getState();
@@ -536,7 +548,11 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
         }
         
         // 更新纵向课题状态
-        int a = sciHorizontalApplyVerticalMapper.overPass(id, newState, subjectSource);
+        int a = sciHorizontalApplyVerticalMapper.overPass(id, newState, approvalEdit != null ? approvalEdit.getSubjectSource() : null);
+        if (approvalEdit != null) {
+            approvalEdit.setId(Integer.valueOf(id));
+            sciHorizontalApplyVerticalMapper.updateOverApprovalEditableFields(approvalEdit);
+        }
         
         // 添加审批记录
         SciHorizontalPiyue sciHorizontalPiyue = new SciHorizontalPiyue();
@@ -937,8 +953,9 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
 
             apply.setStatusMeta(result.getStatusMeta());
             
-            // 过滤按钮并添加驳回状态下的撤回按钮
+            // 过滤按钮：纵向课题审批操作统一在详情页完成，列表页只保留批阅按钮
             List<PageRenderActionItem> actions = filterVerticalActions(result.getActions());
+            // 添加撤回按钮（内部已做去重检查，避免重复）
             addRecallButtonForRejectedState(actions, apply, currentUser, processCode);
             apply.setActions(actions);
         } catch (Exception e) {
@@ -1017,10 +1034,15 @@ public class SciHorizontalApplyVerticalServiceImpl implements ISciHorizontalAppl
 
         // 系统管理员 或 操作人（驳回/通过）才能撤回
         if (isAdmin || isOperator) {
-            PageRenderActionItem recallAction = PageRenderActionItem.of(
-                    PageRenderActionConstants.ACTION_RECALL, "撤回",
-                    PageRenderColorConstants.COLOR_WARNING, 40, confirmMessage);
-            actions.add(recallAction);
+            // 检查是否已存在撤回按钮，避免重复添加
+            boolean hasRecallButton = actions.stream()
+                    .anyMatch(action -> PageRenderActionConstants.ACTION_RECALL.equals(action.getActionKey()));
+            if (!hasRecallButton) {
+                PageRenderActionItem recallAction = PageRenderActionItem.of(
+                        PageRenderActionConstants.ACTION_RECALL, "撤回",
+                        PageRenderColorConstants.COLOR_WARNING, 40, confirmMessage);
+                actions.add(recallAction);
+            }
         }
     }
 

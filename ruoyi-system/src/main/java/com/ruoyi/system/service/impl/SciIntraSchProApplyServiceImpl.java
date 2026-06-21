@@ -164,6 +164,12 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int sch_hxPass(String id, Long uid, String urlFlag) {
+        return sch_hxPass(id, uid, urlFlag, null);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int sch_hxPass(String id, Long uid, String urlFlag, SciIntraSchoolPro approvalEdit) {
         SciIntraSchoolPro apply = sciIntraSchProApplyMapper.sel_IntraSchPro_by_id(Integer.valueOf(id));
         if (apply == null) {
             return -1;
@@ -188,6 +194,10 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
 
         String newState = result.getNewState();
         int rows = sciIntraSchProApplyMapper.sch_hxPass(id, newState);
+        if (rows > 0 && approvalEdit != null) {
+            approvalEdit.setId(Integer.valueOf(id));
+            sciIntraSchProApplyMapper.updateApprovalEditableFields(approvalEdit);
+        }
         if (rows > 0) {
             boolean isLast = result.isLast();
             String piyueText = isLast ? "成果转化-科研处审批通过" : "成果转化-教研室审批通过";
@@ -208,6 +218,12 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int sch_hxover(String id, Long userId, String urlFlag) {
+        return sch_hxover(id, userId, urlFlag, null);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int sch_hxover(String id, Long userId, String urlFlag, SciIntraSchoolPro approvalEdit) {
         SciIntraSchoolPro apply = sciIntraSchProApplyMapper.sel_IntraSchPro_by_id(Integer.valueOf(id));
         if (apply == null) {
             return -1;
@@ -243,6 +259,10 @@ public class SciIntraSchProApplyServiceImpl implements ISciIntraSchProApplyServi
 
         String newState = result.getNewState();
         int rows = sciIntraSchProApplyMapper.sch_hxPass(id, newState);
+        if (rows > 0 && approvalEdit != null) {
+            approvalEdit.setId(Integer.valueOf(id));
+            sciIntraSchProApplyMapper.updateOverApprovalEditableFields(approvalEdit);
+        }
         if (rows > 0) {
             insertTecTraPiyue(id, userId, approveComment, approveComment);
         }

@@ -692,8 +692,9 @@ public class SciIntraSchoolProController extends BaseController {
   @Log(title = "成果转化立项通过", businessType = BusinessType.UPDATE)
   @PostMapping("/sch_hxPass")
   @ResponseBody
-  public AjaxResult hxPass(String id, String urlFlag) {
-    int rows = sciIntraSchProApplyService.sch_hxPass(id, getUserId(), urlFlag);
+  public AjaxResult hxPass(SciIntraSchoolPro sciIntraSchoolPro) {
+    String id = String.valueOf(sciIntraSchoolPro.getId());
+    int rows = sciIntraSchProApplyService.sch_hxPass(id, getUserId(), sciIntraSchoolPro.getUrlFlag(), sciIntraSchoolPro);
     if (rows <= 0) {
       return AjaxResult.error("审批通过失败，请检查当前状态和审批权限");
     }
@@ -927,8 +928,10 @@ public class SciIntraSchoolProController extends BaseController {
   @Log(title = "成果转化结项通过", businessType = BusinessType.UPDATE)
   @PostMapping("/sch_hxover")
   @ResponseBody
-  public AjaxResult hxover(String id, String urlFlag) {
-    int rows = sciIntraSchProApplyService.sch_hxover(id, getUserId(), urlFlag);
+  public AjaxResult hxover(SciIntraSchoolPro sciIntraSchoolPro) {
+    String id = String.valueOf(sciIntraSchoolPro.getId());
+    String urlFlag = sciIntraSchoolPro.getUrlFlag();
+    int rows = sciIntraSchProApplyService.sch_hxover(id, getUserId(), urlFlag, sciIntraSchoolPro);
     if (rows <= 0) {
       return AjaxResult.error("结项审批通过失败，请检查当前状态和审批权限");
     }

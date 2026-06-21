@@ -63,6 +63,7 @@ public interface ISciHorizontalApplyVerticalService {
     int applyBh(String id, Long userId, String remark, String urlFlag);
 
     int overPass(String id, Long userId, String urlFlag,List score,List persion,String verticalId,String subjectSource);
+    int overPass(String id, Long userId, String urlFlag,List score,List persion,String verticalId,SciHorizontalApplyVertical approvalEdit);
 
     int overBh(String id, Long userId, String remark, String urlFlag);
 

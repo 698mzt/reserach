@@ -77,7 +77,7 @@
                 <label class="col-sm-4 control-label is-required">立项日期：</label>
                 <div class="col-sm-8">
                     <div class="input-group date">
-                        <input  readonly th:field="*{signingData}" th:value="${#dates.format(signingData, 'yyyy-MM-dd')}" class="form-control" placeholder="yyyy-MM-dd" type="text" required>
+                        <input autocomplete="off" readonly th:field="*{signingData}" th:value="${#dates.format(signingData, 'yyyy-MM-dd')}" class="form-control" placeholder="yyyy-MM-dd" type="text" required>
                         <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
                     </div>
                 </div>
@@ -149,7 +149,7 @@
                     <label class="col-sm-4 control-label is-required">成员2：</label>
                     <div class="col-sm-8">
                         <!--                        <input name="thirdPersonId" th:field="*{thirdPersonId}" class="form-control" type="text" required>-->
-                        <select  class="form-control m-b" disabled>
+                        <select name="thirdPersonId" class="form-control m-b" disabled>
                             <option value="">无</option>
                             <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ #strings.toString(user.userId) == sciHorizontalApplyVertical.thirdPersonId}"  ></option>
                         </select>
@@ -173,7 +173,7 @@
                     <label class="col-sm-4 control-label is-required">成员3：</label>
                     <div class="col-sm-8">
                         <!--                        <input name="fourthPersonId" th:field="*{fourthPersonId}" class="form-control" type="text" required>-->
-                        <select  class="form-control m-b" disabled>
+                        <select name="fourthPersonId" class="form-control m-b" disabled>
                             <option value="">无</option>
                             <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ #strings.toString(user.userId) == sciHorizontalApplyVertical.fourthPersonId}"  ></option>
                         </select>
@@ -281,6 +281,7 @@
 <th:block th:include="include :: datetimepicker-js" />
 <th:block th:include="include :: bootstrap-fileinput-js"/>
 <th:block th:include="include :: select2-js" />
+<script th:src="@{/ruoyi/js/approval-edit-confirm.js}"></script>
 <style>
 /* 仅限制第二个权重下拉三行高度 */
 #score-weight-wrapper .select2-results__options { max-height: 90px; overflow-y: auto; }
@@ -537,20 +538,42 @@
         focusCleanup: true
     });
 
+    function setRemarkRequired(required) {
+        var $remark = $("textarea[name='remark']");
+        if (!$remark.length) {
+            return;
+        }
+        if (required) {
+            $remark.attr("required", "required");
+            if ($remark.rules) {
+                $remark.rules("add", { required: true });
+            }
+        } else {
+            $remark.removeAttr("required");
+            if ($remark.rules) {
+                $remark.rules("remove", "required");
+            }
+        }
+    }
+
+    function serializeWithApprovalParams() {
+        var data = $("#form-apply-edit").serializeArray();
+        data.push({name: "type", value: getSelectValue("topType")});
+        data.push({name: "weight", value: getSelectValue("weight") || "1"});
+        data.push({name: "expectedScore1", value: $("#expectedScore1").val()});
+        data.push({name: "expectedScore2", value: $("#expectedScore2").val()});
+        data.push({name: "expectedScore3", value: $("#expectedScore3").val()});
+        data.push({name: "expectedScore4", value: $("#expectedScore4").val()});
+        return $.param(data);
+    }
+
     function submitHandler() {
-          //获取 URLflag
-        var a = $("#urlFlag").val();
-        var type = getSelectValue("topType")
-        var weight = getSelectValue("weight") || '1';
-        var subjectSource = $("input[name='subjectSource']").val();
-        var expectedScore1 = $("#expectedScore1").val();
-        var expectedScore2 = $("#expectedScore2").val();
-        var expectedScore3 = $("#expectedScore3").val();
-        var expectedScore4 = $("#expectedScore4").val();
-            $.operate.saveTab(prefix + "/applyPass", {"id":$("#ktid").val(),"urlFlag":a,"type":type,"weight": weight,"subjectSource": subjectSource,"expectedScore1": expectedScore1,"expectedScore2": expectedScore2,"expectedScore3": expectedScore3,"expectedScore4": expectedScore4});
+        setRemarkRequired(false);
+        $.approvalEditConfirm.submit("#form-apply-edit");
     }
     function submitHandlerBH() {
         var a = $("#urlFlag").val();
+        setRemarkRequired(true);
         if ($.validate.form()) {
             $.modal.confirm("确定 驳回 吗" ,function() {
                 $.operate.saveTab(prefix + "/applyBh", $('#form-apply-edit').serialize());
@@ -619,9 +642,40 @@
 
     // 为相关字段添加change事件监听器
     $("select[name='topType'], select[name='subjectSource'], input[name='amount']").on("change", calculateExpectedScore);
-    
+
     // 页面加载时计算初始积分
     calculateExpectedScore();
+
+    $("input[name='signingData']").datetimepicker({
+        format: "yyyy-mm-dd",
+        minView: "month",
+        autoclose: true
+    });
+
+    $.approvalEditConfirm.init({
+        formSelector: "#form-apply-edit",
+        isApprovalPage: function () {
+            var state = $("#state").val();
+            return state === "VERTICAL_APPLY_JYS_AUDIT" ||
+                state === "VERTICAL_APPLY_XY_AUDIT" ||
+                state === "VERTICAL_APPLY_KYC_AUDIT";
+        },
+        editableNames: [
+            "topType",
+            "subjectSource",
+            "topName",
+            "topNumber",
+            "amount",
+            "signingData",
+            "firstPersonId",
+            "secondPersonId",
+            "thirdPersonId",
+            "fourthPersonId"
+        ],
+        onApprove: function () {
+            $.operate.saveTab(prefix + "/applyPass", serializeWithApprovalParams());
+        }
+    });
 </script>
 </body>
 </html>

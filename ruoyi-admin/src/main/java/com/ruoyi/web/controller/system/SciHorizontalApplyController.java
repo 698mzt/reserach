@@ -974,8 +974,10 @@ public class SciHorizontalApplyController extends BaseController
     @Log(title = "横向课题审核通过", businessType = BusinessType.UPDATE)
     @PostMapping( "/hxPass")
     @ResponseBody
-    public AjaxResult hxPass(String id, String urlFlag)
+    public AjaxResult hxPass(SciHorizontalApply approvalEdit)
     {
+        String id = String.valueOf(approvalEdit.getId());
+        String urlFlag = approvalEdit.getUrlFlag();
         // 1. 查询课题当前状态
         SciHorizontalApply apply = sciHorizontalApplyService.selectSciHorizontalApplyById(Integer.valueOf(id));
         if (apply == null) {
@@ -990,7 +992,7 @@ public class SciHorizontalApplyController extends BaseController
         }
 
         // 3. 执行审核
-        return toAjax(sciHorizontalApplyService.hxPass(id, getUserId(), urlFlag));
+        return toAjax(sciHorizontalApplyService.hxPass(id, getUserId(), urlFlag, approvalEdit));
     }
 
     /**
@@ -1001,8 +1003,10 @@ public class SciHorizontalApplyController extends BaseController
     @Log(title = "结项横向课题审核通过", businessType = BusinessType.UPDATE)
     @PostMapping( "/hxover")
     @ResponseBody
-    public AjaxResult hxover(String id, String urlFlag)
+    public AjaxResult hxover(SciHorizontalApply approvalEdit)
     {
+        String id = String.valueOf(approvalEdit.getId());
+        String urlFlag = approvalEdit.getUrlFlag();
         // 1. 查询课题当前状态
         SciHorizontalApply apply = sciHorizontalApplyService.selectSciHorizontalApplyById(Integer.valueOf(id));
         if (apply == null) {
@@ -1017,7 +1021,7 @@ public class SciHorizontalApplyController extends BaseController
         }
 
         // 3. 执行审核
-        return toAjax(sciHorizontalApplyService.hxover(id, getUserId(), urlFlag));
+        return toAjax(sciHorizontalApplyService.hxover(id, getUserId(), urlFlag, approvalEdit));
     }
 
     /**

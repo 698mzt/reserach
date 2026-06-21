@@ -420,6 +420,40 @@
         where id = #{id}
     </update>
 
+    <update id="updateApplyApprovalEditableFields" parameterType="SciHorizontalApplyVertical">
+        update sci_horizontal_apply_vertical
+        <set>
+            top_type = #{topType},
+            subject_source = #{subjectSource},
+            top_name = #{topName},
+            top_number = #{topNumber},
+            amount = #{amount},
+            signing_data = #{signingData},
+            first_person_id = #{firstPersonId},
+            second_person_id = #{secondPersonId},
+            third_person_id = #{thirdPersonId},
+            fourth_person_id = #{fourthPersonId}
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateOverApprovalEditableFields" parameterType="SciHorizontalApplyVertical">
+        update sci_horizontal_apply_vertical
+        <set>
+            top_type = #{topType},
+            subject_source = #{subjectSource},
+            top_name = #{topName},
+            top_number = #{topNumber},
+            amount = #{amount},
+            validity_data = #{validityData},
+            first_person_id = #{firstPersonId},
+            second_person_id = #{secondPersonId},
+            third_person_id = #{thirdPersonId},
+            fourth_person_id = #{fourthPersonId}
+        </set>
+        where id = #{id}
+    </update>
+
     <delete id="deleteSciHorizontalApplyVerticalByIds" parameterType="String">
         delete from sci_horizontal_apply_vertical where id in
         <foreach item="id" collection="array" open="(" separator="," close=")">

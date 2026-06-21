@@ -661,6 +661,12 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
 
     @Override
     public int hxPass(String id,Long uid,String urlFlag) {
+        return hxPass(id, uid, urlFlag, null);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int hxPass(String id, Long uid, String urlFlag, SciHorizontalApply approvalEdit) {
         try {
             Integer applyId = Integer.valueOf(id);
             SciHorizontalApply apply = sciHorizontalApplyMapper.selectSciHorizontalApplyById(applyId);
@@ -686,12 +692,16 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
                     null
             );
             if (result.isSuccess()) {
+                if (approvalEdit != null) {
+                    approvalEdit.setId(applyId);
+                    sciHorizontalApplyMapper.updateApprovalEditableFields(approvalEdit);
+                }
                 return 1;
             }
             return 0;
         } catch (Exception e) {
             log.error("横向课题立项审批通过失败: id={}, operatorId={}", id, uid, e);
-            return 0;
+            throw new RuntimeException(e);
         }
     }
 
@@ -732,6 +742,12 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
 
     @Override
     public int hxover(String id,Long uid,String urlFlag) {
+        return hxover(id, uid, urlFlag, null);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int hxover(String id, Long uid, String urlFlag, SciHorizontalApply approvalEdit) {
         try {
             Integer applyId = Integer.valueOf(id);
             SciHorizontalApply apply = sciHorizontalApplyMapper.selectSciHorizontalApplyById(applyId);
@@ -757,12 +773,16 @@ public class SciHorizontalApplyServiceImpl implements ISciHorizontalApplyService
                     null
             );
             if (result.isSuccess()) {
+                if (approvalEdit != null) {
+                    approvalEdit.setId(applyId);
+                    sciHorizontalApplyMapper.updateOverApprovalEditableFields(approvalEdit);
+                }
                 return 1;
             }
             return 0;
         } catch (Exception e) {
             log.error("横向课题结项审批通过失败: id={}, operatorId={}", id, uid, e);
-            return 0;
+            throw new RuntimeException(e);
         }
     }
 
