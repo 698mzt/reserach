@@ -723,6 +723,12 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int approve(String id, Long userId, String comment, String operationType, String order) {
+        return approve(id, userId, comment, operationType, order, null);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int approve(String id, Long userId, String comment, String operationType, String order, SciPaperA approvalEdit) {
         SciPaperA paper = sciPaperAMapper.selectSciPaperAById(Long.valueOf(id));
         if (paper == null) {
             return -1;
@@ -779,6 +785,10 @@ public class SciPaperAServiceImpl implements ISciPaperAService {
         }
 
         int a = sciPaperAMapper.pytg(id, newState);
+        if (a > 0 && "approve".equals(operationType) && approvalEdit != null) {
+            approvalEdit.setId(Long.valueOf(id));
+            sciPaperAMapper.updateApprovalEditableFields(approvalEdit);
+        }
 
         SciPaperAr sciPaperAr = new SciPaperAr();
         sciPaperAr.setUid(userId);

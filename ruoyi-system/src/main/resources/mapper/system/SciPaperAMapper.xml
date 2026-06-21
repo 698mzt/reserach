@@ -891,6 +891,24 @@
         </trim>
         where id = #{id}
     </update>
+    <update id="updateApprovalEditableFields" parameterType="SciPaperA">
+        update sci_paper_a
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="paperTitle != null and paperTitle != ''">paper_title = #{paperTitle},</if>
+            <if test="paperType != null and paperType != ''">paper_type = #{paperType},</if>
+            <if test="paperCategory != null and paperCategory != ''">paper_category = #{paperCategory},</if>
+            <if test="publishedJournal != null and publishedJournal != ''">published_journal = #{publishedJournal},</if>
+            <if test="publicationTime != null and publicationTime != ''">publication_time = #{publicationTime},</if>
+            <if test="search_web != null">search_web = #{search_web},</if>
+            <if test="isIndustryCollaborative != null and isIndustryCollaborative != ''">is_industry_collaborative = #{isIndustryCollaborative},</if>
+            <if test="isLocalCollaborative != null and isLocalCollaborative != ''">is_local_collaborative = #{isLocalCollaborative},</if>
+            <if test="isInternationalCollaborative != null and isInternationalCollaborative != ''">is_international_collaborative = #{isInternationalCollaborative},</if>
+            <if test="isCrossDiscipline != null and isCrossDiscipline != ''">is_cross_discipline = #{isCrossDiscipline},</if>
+            <if test="isIndependentauthor != null and isIndependentauthor != ''">is_Independentauthor = #{isIndependentauthor},</if>
+            <if test="remarks != null">remarks = #{remarks},</if>
+        </trim>
+        where id = #{id}
+    </update>
     <update id="updateSciPaperAState">
         update sci_paper_a set state = 'PAPER_JYS_AUDIT' where id = #{id}
     </update>

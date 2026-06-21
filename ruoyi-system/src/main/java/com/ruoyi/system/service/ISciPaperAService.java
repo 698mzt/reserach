@@ -95,6 +95,8 @@ public interface ISciPaperAService
      */
     int approve(String id, Long userId, String comment, String operationType, String order);
 
+    int approve(String id, Long userId, String comment, String operationType, String order, SciPaperA approvalEdit);
+
     List<SciPaperA> selectAllPaperName(String query);
 
     public List<SciPaperA> selectSciPaperAListCxList(SciPaperA sciPaperA);

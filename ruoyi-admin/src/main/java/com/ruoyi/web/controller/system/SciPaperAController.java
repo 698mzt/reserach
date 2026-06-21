@@ -800,8 +800,8 @@ public class SciPaperAController extends BaseController {
     @Log(title = "论文审批操作", businessType = BusinessType.UPDATE)
     @PostMapping("/approve/{id}")
     @ResponseBody
-    public AjaxResult approve(@PathVariable("id") String id, String comment, String operationType, String paperCategory) {
-        return toAjax(sciPaperAService.approve(id, getUserId(), comment, operationType, paperCategory));
+    public AjaxResult approve(@PathVariable("id") String id, String comment, String operationType, String paperCategory, SciPaperA sciPaperA) {
+        return toAjax(sciPaperAService.approve(id, getUserId(), comment, operationType, paperCategory, sciPaperA));
     }
 
 

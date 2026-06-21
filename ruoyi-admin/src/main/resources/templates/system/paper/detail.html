@@ -109,9 +109,10 @@
                     <label class="col-sm-4 control-label">发表时间：</label>
                     <div class="col-sm-8">
                         <div class="input-group date">
-                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                            <input disabled name="publicationTimeDisplay" id="publicationTimeDisplay"
+                            <input disabled autocomplete="off" name="publicationTime" id="publicationTime"
+                                   th:field="*{publicationTime}"
                                    class="form-control" placeholder="yyyy-MM-dd" type="text">
+                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
                         </div>
                     </div>
                 </div>
@@ -315,20 +316,8 @@
             <div class="col-md-6">
                 <div class="form-group">
                     <label class="col-sm-4 control-label">论文网址：</label>
-                    <div class="col-sm-7 url-link-container">
-                        <a th:href="*{search_web}"
-                           th:title="*{search_web}"
-                           th:target="*{search_web != null and search_web != ''} ? '_blank' : null"
-                           th:class="*{search_web != null and search_web != ''} ? 'form-control url-link' : 'form-control url-link url-empty'"
-                           th:onclick="*{search_web == null or search_web == ''} ? 'return false;' : null"
-                           onmouseenter="showTooltip(this)"
-                           onmouseleave="hideTooltip()"
-                        >
-                            <span th:if="*{search_web != null and #strings.length(search_web) > 44}"
-                                  th:text="*{#strings.substring(search_web, 0, 44)} + '...'"></span>
-                            <span th:if="*{search_web == null or #strings.length(search_web) <= 44}"
-                                  th:text="*{search_web}"></span>
-                        </a>
+                    <div class="col-sm-7">
+                        <input disabled name="search_web" th:field="*{search_web}" class="form-control" type="text">
                     </div>
                 </div>
             </div>
@@ -397,7 +386,6 @@
         <input type="hidden" th:field="*{researchRoom}" name="researchRoom">
         <input type="hidden" th:field="*{teacherName}" name="teacherName">
         <input type="hidden" th:field="*{text_paper}" name="text_paper">
-        <input type="hidden" th:field="*{publicationTime}" name="publicationTime">
         <input type="hidden" value="论文" name="paper">
     </form>
 </div>
@@ -410,6 +398,7 @@
 <th:block th:include="include :: footer" />
 <th:block th:include="include :: datetimepicker-js" />
 <script th:src="@{/ruoyi/js/page-render.js}"></script>
+<script th:src="@{/ruoyi/js/approval-edit-confirm.js}"></script>
 <script th:inline="javascript">
     var prefix = ctx + "system/paper";
     var QWERDates = [[${@dict.getType('sci_paper_qwer')}]];
@@ -479,6 +468,35 @@
     }
 
     $(function() {
+        $.approvalEditConfirm.init({
+            formSelector: "#form-paper-process",
+            isApprovalPage: function () {
+                var urlFlag = $("#urlFlag").val();
+                return urlFlag === "pro" || urlFlag === "kyc_approve";
+            },
+            editableNames: [
+                "paperTitle",
+                "paperType",
+                "paperCategory",
+                "publishedJournal",
+                "publicationTime",
+                "isIndustryCollaborative",
+                "isLocalCollaborative",
+                "isInternationalCollaborative",
+                "isCrossDiscipline",
+                "isIndependentauthor",
+                "search_web",
+                "remarks"
+            ],
+            onApprove: function () {
+                var url = prefix + "/approve/" + encodeURIComponent($("#pid").val());
+                var data = $("#form-paper-process").serializeArray();
+                data.push({ name: "comment", value: $("#remark").val() });
+                data.push({ name: "operationType", value: "approve" });
+                $.operate.saveTab(url, $.param(data));
+            }
+        });
+
         // 注册PageRender动作处理器
         PageRender.registerHandlers({
             'view': function(actionKey, data) {
@@ -619,14 +637,7 @@
     })
 
     function submitHandler() {
-        var paperCategory = $("#paperCategory").val();
-        var remark = $('#remark').val();
-        // 构建完整的URL
-        var Url = prefix + "/approve/" + encodeURIComponent($("#pid").val());
-
-        $.operate.saveTab(Url, {"comment": remark,"paperCategory":paperCategory, "operationType": "approve"}, function(response){
-            // console.log("Server response:", response);
-        });
+        $.approvalEditConfirm.submit("#form-paper-process");
     }
 
     function submitHandlerBH() {
@@ -737,20 +748,8 @@
         displayFileName('text_paper', 'contractFileName');
         displayFileName('word_paper', 'wordFileName');
         calculateAndUpdateScores();
-        initPublicationTime();
     };
 
-    function initPublicationTime() {
-        var publicationTime = /*[[${sciPaperA.publicationTime}]]*/ '';
-        if (publicationTime) {
-            var date = new Date(publicationTime);
-            var year = date.getFullYear();
-            var month = (date.getMonth() + 1).toString().padStart(2, '0');
-            var day = date.getDate().toString().padStart(2, '0');
-            var formattedDate = year + '-' + month + '-' + day;
-            $('#publicationTimeDisplay').val(formattedDate);
-        }
-    }
     
     // 获取当前作者信息
     function getCurrentAuthors() {

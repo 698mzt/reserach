@@ -59,6 +59,8 @@ public interface SciPaperAMapper {
      */
     public int updateSciPaperA(SciPaperA sciPaperA);
 
+    public int updateApprovalEditableFields(SciPaperA sciPaperA);
+
     /**
      * 删除论文
      *
