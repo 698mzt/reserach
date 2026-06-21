@@ -30,6 +30,8 @@ public interface ISciIntraSchProApplyService {
 
     int sch_hxPass(String id, Long userId, String urlFlag);
 
+    int sch_hxPass(String id, Long userId, String urlFlag, SciIntraSchoolPro approvalEdit);
+
     int sch_hxBh(String id, Long userId, String remark, String urlFlag);
 
     int updateIntraSchoolApply(SciIntraSchoolPro sciIntraSchoolPro, Long userId);
@@ -39,6 +41,8 @@ public interface ISciIntraSchProApplyService {
     int update_IntraSchPro_OverApply(SciIntraSchoolPro sciIntraSchoolPro);
 
     int sch_hxover(String id, Long userId, String urlFlag);
+
+    int sch_hxover(String id, Long userId, String urlFlag, SciIntraSchoolPro approvalEdit);
 
     int sch_hxoverBh(String id, Long userId, String remark, String urlFlag);
 

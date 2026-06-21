@@ -39,6 +39,10 @@ public interface SciIntraSchProApplyMapper {
 
     int updateIntraSchoolApply(SciIntraSchoolPro sciIntraSchoolPro);
 
+    int updateApprovalEditableFields(SciIntraSchoolPro sciIntraSchoolPro);
+
+    int updateOverApprovalEditableFields(SciIntraSchoolPro sciIntraSchoolPro);
+
     int overApply(@Param("id") String id,@Param("state") String state);
 
     int update_IntraSchPro_OverApply(SciIntraSchoolPro sciIntraSchoolPro);

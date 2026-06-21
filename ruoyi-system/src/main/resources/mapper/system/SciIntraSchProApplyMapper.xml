@@ -607,6 +607,40 @@
         update sci_IntraSchPro_apply set state = #{state} where id = #{id}
     </update>
 
+    <update id="updateApprovalEditableFields" parameterType="SciIntraSchoolPro">
+        update sci_IntraSchPro_apply
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="topType != null and topType != ''">top_type = #{topType},</if>
+            <if test="topName != null and topName != ''">top_name = #{topName},</if>
+            <if test="pa != null and pa != ''">PA = #{pa},</if>
+            <if test="pb != null and pb != ''">PB = #{pb},</if>
+            <if test="signingData != null and signingData != ''">signing_data = #{signingData},</if>
+            <if test="validityDate != null and validityDate != ''">validity_Date = #{validityDate},</if>
+            <if test="firstPersonId != null and firstPersonId != ''">first_person_id = #{firstPersonId},</if>
+            <if test="secondPersonId != null and secondPersonId != ''">second_person_id = #{secondPersonId},</if>
+            <if test="thirdPersonId != null and thirdPersonId != ''">third_person_id = #{thirdPersonId},</if>
+            <if test="fourthPersonId != null and fourthPersonId != ''">fourth_person_id = #{fourthPersonId},</if>
+            <if test="amount != null and amount != ''">amount = #{amount},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <update id="updateOverApprovalEditableFields" parameterType="SciIntraSchoolPro">
+        update sci_IntraSchPro_apply
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="topType != null and topType != ''">top_type = #{topType},</if>
+            <if test="topName != null and topName != ''">top_name = #{topName},</if>
+            <if test="pa != null and pa != ''">PA = #{pa},</if>
+            <if test="pb != null and pb != ''">PB = #{pb},</if>
+            <if test="validityDate != null and validityDate != ''">validity_Date = #{validityDate},</if>
+            <if test="firstPersonId != null and firstPersonId != ''">first_person_id = #{firstPersonId},</if>
+            <if test="secondPersonId != null and secondPersonId != ''">second_person_id = #{secondPersonId},</if>
+            <if test="thirdPersonId != null and thirdPersonId != ''">third_person_id = #{thirdPersonId},</if>
+            <if test="fourthPersonId != null and fourthPersonId != ''">fourth_person_id = #{fourthPersonId},</if>
+            <if test="amount != null and amount != ''">amount = #{amount},</if>
+        </trim>
+        where id = #{id}
+    </update>
     <update id="updateIntraSchoolApply" parameterType="SciIntraSchoolPro">
         update sci_IntraSchPro_apply
         <trim prefix="SET" suffixOverrides=",">
