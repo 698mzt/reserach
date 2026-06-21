@@ -12,7 +12,6 @@
         <input name="urlFlag" id="urlFlag" th:field="*{urlFlag}"  type="hidden">
         <input name="state" id="state" th:field="*{state}" type="hidden">
         <input name="id" id="ktid" th:field="*{id}" type="hidden">
-        <input name="amount" id="amount" th:field="*{amount}" type="hidden">
         <h4 class="form-header h4">基本信息</h4>
         <div class="row">
         <div class="col-xs-6">
@@ -35,8 +34,8 @@
             <div class="form-group">
                 <label class="col-sm-4 control-label is-required">课题类型：</label>
                 <div class="col-sm-8">
-                    <select  readonly class="form-control" th:with="type=${@dict.getType('sci_top_type')}" required disabled>
-                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}" th:field="*{topType}"></option>
+                    <select name="topType" class="form-control" th:with="type=${@dict.getType('sci_top_type')}" th:field="*{topType}" required disabled>
+                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
                     </select>
                 </div>
             </div>
@@ -62,7 +61,7 @@
                 <label class="col-sm-4 control-label is-required">立项日期：</label>
                 <div class="col-sm-8">
                     <div class="input-group date">
-                        <input  readonly th:field="*{signingData}" th:value="${#dates.format(signingData, 'yyyy-MM-dd')}" class="form-control" placeholder="yyyy-MM-dd" type="text" required>
+                        <input autocomplete="off" readonly th:field="*{signingData}" th:value="${#dates.format(signingData, 'yyyy-MM-dd')}" class="form-control" placeholder="yyyy-MM-dd" type="text" required>
                         <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
                     </div>
                 </div>
@@ -96,7 +95,7 @@
             <div class="form-group">
                 <label class="col-sm-4 control-label is-required">成员2：</label>
                 <div class="col-sm-8">
-                    <select  class="form-control m-b" disabled>
+                    <select name="thirdPersonId" class="form-control m-b" disabled>
                         <option value="">无</option>
                         <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ #strings.toString(user.userId) == sciHorizontalApply.thirdPersonId}"  ></option>
                     </select>
@@ -108,7 +107,7 @@
             <div class="form-group">
                 <label class="col-sm-4 control-label is-required">成员3：</label>
                 <div class="col-sm-8">
-                   <select  class="form-control m-b" disabled>
+                   <select name="fourthPersonId" class="form-control m-b" disabled>
                        <option value="">无</option>
                        <option th:each="user : ${sysUsers1}" th:text="${user.userName}" th:value="${user.userId}" th:selected="${ #strings.toString(user.userId) == sciHorizontalApply.fourthPersonId}"  ></option>
                     </select>
@@ -192,6 +191,7 @@
 <th:block th:include="include :: bootstrap-fileinput-js"/>
 <th:block th:include="include :: select2-js" />
 <script th:src="@{/ruoyi/js/page-render.js}"></script>
+<script th:src="@{/ruoyi/js/approval-edit-confirm.js}"></script>
 <script th:inline="javascript" type="text/javascript">
     function displayFileName(inputId, fileNameId) {
         const input = document.getElementById(inputId);
@@ -512,12 +512,31 @@
         focusCleanup: true
     });
 
+    function setRemarkRequired(required) {
+        var $remark = $("textarea[name='remark']");
+        if (!$remark.length) {
+            return;
+        }
+        if (required) {
+            $remark.attr("required", "required");
+            if ($remark.rules) {
+                $remark.rules("add", { required: true });
+            }
+        } else {
+            $remark.removeAttr("required");
+            if ($remark.rules) {
+                $remark.rules("remove", "required");
+            }
+        }
+    }
+
     function submitHandler() {
-        var a = $("#urlFlag").val();
-        $.operate.saveTab(prefix + "/hxPass", {"id":$("#ktid").val(),"urlFlag":a});
+        setRemarkRequired(false);
+        $.approvalEditConfirm.submit("#form-apply-edit");
     }
     function submitHandlerBH() {
         var a = $("#urlFlag").val();
+        setRemarkRequired(true);
         if ($.validate.form()) {
             $.modal.confirm("确定驳回当前横向课题申请吗？" ,function() {
                 $.operate.saveTab(prefix + "/hxBh", $('#form-apply-edit').serialize());
@@ -526,6 +545,7 @@
     }
 
     function submitHandlerRecall() {
+        setRemarkRequired(true);
         $.modal.confirm("确定撤回当前横向课题申请吗？", function() {
             $.operate.recallTab($("#ktid").val());
         });
@@ -550,6 +570,34 @@
             $(this).fileinput('upload');
             $(this).fileinput('_initFileActions');
         });
+
+    $("input[name='signingData']").datetimepicker({
+        format: "yyyy-mm-dd",
+        minView: "month",
+        autoclose: true
+    });
+
+    $.approvalEditConfirm.init({
+        formSelector: "#form-apply-edit",
+        isApprovalPage: function () {
+            var urlFlag = $("#urlFlag").val();
+            return urlFlag === "pro" || urlFlag === "Dept" || urlFlag === "KYC";
+        },
+        editableNames: [
+            "topNumber",
+            "topType",
+            "topName",
+            "amount",
+            "signingData",
+            "firstPersonId",
+            "secondPersonId",
+            "thirdPersonId",
+            "fourthPersonId"
+        ],
+        onApprove: function () {
+            $.operate.saveTab(prefix + "/hxPass", $("#form-apply-edit").serialize());
+        }
+    });
 </script>
 </body>
 </html>

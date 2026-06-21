@@ -441,6 +441,38 @@
         where id = #{id}
     </update>
 
+    <update id="updateApprovalEditableFields" parameterType="SciHorizontalApply">
+        update sci_horizontal_apply
+        <set>
+            top_number = #{topNumber},
+            top_type = #{topType},
+            top_name = #{topName},
+            amount = #{amount},
+            signing_data = #{signingData},
+            first_person_id = #{firstPersonId},
+            second_person_id = #{secondPersonId},
+            third_person_id = #{thirdPersonId},
+            fourth_person_id = #{fourthPersonId}
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateOverApprovalEditableFields" parameterType="SciHorizontalApply">
+        update sci_horizontal_apply
+        <set>
+            top_number = #{topNumber},
+            top_type = #{topType},
+            top_name = #{topName},
+            amount = #{amount},
+            validity_Date = #{validityDate},
+            first_person_id = #{firstPersonId},
+            second_person_id = #{secondPersonId},
+            third_person_id = #{thirdPersonId},
+            fourth_person_id = #{fourthPersonId}
+        </set>
+        where id = #{id}
+    </update>
+
     <delete id="deleteSciHorizontalApplyById" parameterType="Integer">
         delete from sci_horizontal_apply where id = #{id}
     </delete>
