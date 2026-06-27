@@ -786,9 +786,9 @@ public class ResearchDashboardServiceImpl implements IResearchDashboardService
         {
             return null;
         }
-        if (user.getDeptId() != null)
+        if (user.getParentId() != null)
         {
-            return user.getDeptId();
+            return user.getParentId();
         }
         return user.getDept() == null ? null : user.getDept().getDeptId();
     }

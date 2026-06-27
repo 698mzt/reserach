@@ -45,7 +45,7 @@ public class SciCollegePlanController extends BaseController {
                 .map(SysDictData::getDictValue)
                 .collect(Collectors.toList());
         startPage();
-        List<ResearchWorkloadByJYS> list = statisticService.selectAllDept(dictValues, null, null, null, getSysUser().getDeptId());
+        List<ResearchWorkloadByJYS> list = statisticService.selectAllDept(dictValues, null, null, null, getSysUser().getParentId());
         return getDataTable(list);
     }
 
@@ -56,7 +56,7 @@ public class SciCollegePlanController extends BaseController {
         List<String> dictValues = DictUtils.getDictCache("sys_acade_dept").stream()
                 .map(SysDictData::getDictValue)
                 .collect(Collectors.toList());
-        List<ResearchWorkloadByJYS> list = statisticService.selectAllDept(dictValues, null, null, null, getSysUser().getDeptId());
+        List<ResearchWorkloadByJYS> list = statisticService.selectAllDept(dictValues, null, null, null, getSysUser().getParentId());
         ExcelUtil<ResearchWorkloadByJYS> util = new ExcelUtil<ResearchWorkloadByJYS>(ResearchWorkloadByJYS.class);
         return util.exportExcel(list, "学院科研任务计划");
     }

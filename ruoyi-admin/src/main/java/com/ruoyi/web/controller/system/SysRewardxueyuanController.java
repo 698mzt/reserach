@@ -35,7 +35,7 @@ public class SysRewardxueyuanController extends BaseController {
     @PostMapping("/list")
     @ResponseBody
     public TableDataInfo list() {
-        Long collegeId = getSysUser().getDeptId();
+        Long collegeId = getSysUser().getParentId();
         List<Map<String, Object>> list = statisticYJCGSService.selectYJCGSXYByCollege(collegeId);
         return getDataTable(list);
     }
@@ -44,7 +44,7 @@ public class SysRewardxueyuanController extends BaseController {
     @PostMapping("/export")
     @ResponseBody
     public AjaxResult export() {
-        Long collegeId = getSysUser().getDeptId();
+        Long collegeId = getSysUser().getParentId();
         List<Map<String, Object>> list = statisticYJCGSService.selectYJCGSXYByCollege(collegeId);
         String[] headers = {"学院", "专业", "纵向科研项目-校级以上", "纵向科研项目-校级", "横向课题科研项目", "成果转化", "学术论文", "教材著作", "专利", "软著", "奖励", "学术报告(讲座类)"};
         String[] fieldKeys = {"parentName", "deptName", "纵向科研项目-校级以上", "纵向科研项目-校级", "横向课题科研项目", "成果转化", "学术论文", "教材著作", "专利", "软著", "奖励", "学术报告(讲座类)"};
