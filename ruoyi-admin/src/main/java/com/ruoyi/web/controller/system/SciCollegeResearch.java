@@ -52,7 +52,7 @@ public class SciCollegeResearch extends BaseController {
         if (roles != null && !roles.isEmpty()) {
             Long roleId = roles.get(0).getRoleId();
             if ((roleId >= 103L && roleId <= 108L) || (roleId >= 116L && roleId <= 120L)) {
-                return user.getDeptId();
+                return user.getParentId();
             }
         }
         return null;
@@ -85,3 +85,4 @@ public class SciCollegeResearch extends BaseController {
         return util.exportExcel(list, "学院科研工作量");
     }
 }
+
