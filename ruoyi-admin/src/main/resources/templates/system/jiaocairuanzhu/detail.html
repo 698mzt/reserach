@@ -376,7 +376,7 @@
                             if (String(member.memberId) === '-1') {
                                 memberName = '其他';
                             }
-                            var researchScore = member.researchScore || member.expectedScore || '';
+                            var researchScore = String(member.memberId) === '-1' ? '0' : (member.researchScore || member.expectedScore || '');
                             
                             if (member.ranking === '1') {
                                 $("#hostPerson").val(memberName);

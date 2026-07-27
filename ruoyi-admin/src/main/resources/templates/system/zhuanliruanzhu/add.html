@@ -538,6 +538,11 @@
             $("select[name='fenlei'], input[name='shifouyingyon']").on("change", loadExpectedJifenSlots);
             loadExpectedJifenSlots();
         });
+        bindOtherScoreDisplays([
+            ["#member1Select", "#secondPersonExpectedJifen"],
+            ["#member2Select", "#thirdPersonExpectedJifen"],
+            ["#member3Select", "#fourthPersonExpectedJifen"]
+        ]);
     </script>
 </body>
 </html>

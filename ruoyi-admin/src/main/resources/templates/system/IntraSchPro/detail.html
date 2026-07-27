@@ -554,6 +554,11 @@
             });
         });
     });
+    bindOtherScoreDisplays([
+        ["select[name='secondPersonId']", "#secondPersonScore"],
+        ["select[name='thirdPersonId']", "#thirdPersonScore"],
+        ["select[name='fourthPersonId']", "#fourthPersonScore"]
+    ]);
 </script>
 <script th:inline="javascript">
     var prefix = ctx + "IntraSchPro";
