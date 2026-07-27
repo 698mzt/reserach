@@ -380,7 +380,7 @@
                 
                 members.push({
                     memberId: member.memberId,
-                    memberName: member.memberName,
+                    memberName: String(member.memberId) === '-1' ? '其他' : member.memberName,
                     ranking: member.ranking,
                     researchScore: member.researchScore || calculateResearchScore(member.ranking)
                 });

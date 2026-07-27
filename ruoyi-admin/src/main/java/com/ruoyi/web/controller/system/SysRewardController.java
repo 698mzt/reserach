@@ -40,6 +40,14 @@ public class SysRewardController extends BaseController
 {
     private String prefix = "system/reward";
 
+    private static void addOtherUserOption(List<SysUser> users)
+    {
+        SysUser other = new SysUser();
+        other.setUserId(-1L);
+        other.setUserName("其他");
+        users.add(other);
+    }
+
     @Autowired
     private ISysRewardService sysRewardService;
 
@@ -181,6 +189,7 @@ public class SysRewardController extends BaseController
                 break;
             }
         }
+        addOtherUserOption(userList);
         mmap.put("sysUsers", userList);
         return prefix + "/add";
     }
@@ -229,6 +238,7 @@ public class SysRewardController extends BaseController
     {
         SysReward sysReward = sysRewardService.selectSysRewardById(id);
         List<SysUser> userList1 = userService.selectAllUser();
+        addOtherUserOption(userList1);
         mmap.put("sysUsers1", userList1);
         mmap.put("sysReward", sysReward);
         mmap.put("extraMembers", sysReward.getExtraMembers());
@@ -283,6 +293,7 @@ public class SysRewardController extends BaseController
     {
         SysReward sysReward = sysRewardService.selectSysRewardById(Long.valueOf(id));
         List<SysUser> userList1 = userService.selectAllUser();
+        addOtherUserOption(userList1);
         sysReward.setUrlFlag(urlFlag);
         mmap.put("sysUsers1", userList1);
         mmap.put("sysReward", sysReward);
@@ -357,6 +368,7 @@ public class SysRewardController extends BaseController
     {
         SysReward sysReward = sysRewardService.selectSysRewardById(Long.valueOf(id));
         List<SysUser> userList1 = userService.selectAllUser();
+        addOtherUserOption(userList1);
         mmap.put("sysUsers1", userList1);
         mmap.put("sysReward", sysReward);
         mmap.put("extraMembers", sysReward.getExtraMembers());
