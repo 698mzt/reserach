@@ -380,7 +380,7 @@
                 
                 members.push({
                     memberId: member.memberId,
-                    memberName: member.memberName,
+                    memberName: String(member.memberId) === '-1' ? '其他' : member.memberName,
                     ranking: member.ranking,
                     researchScore: member.researchScore || calculateResearchScore(member.ranking)
                 });
@@ -825,6 +825,11 @@
         })
         $(this).fileinput('_initFileActions');
     });
+    bindOtherScoreDisplays([
+        ["#member1Select", "#expectedScore2"],
+        ["#member2Select", "#expectedScore3"],
+        ["#member3Select", "#expectedScore4"]
+    ]);
 
 </script>
 </body>

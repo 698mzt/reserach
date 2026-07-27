@@ -481,6 +481,11 @@
             });
         });
     });
+    bindOtherScoreDisplays([
+        ["select[name='secondPersonId']", "#expectedScore2"],
+        ["select[name='thirdPersonId']", "#expectedScore3"],
+        ["select[name='fourthPersonId']", "#expectedScore4"]
+    ]);
 </script>
 <script th:inline="javascript">
     var prefix = ctx + "system/apply_vertical";

@@ -38,6 +38,14 @@ public class SciZhuanliruanzhuController extends BaseController
 {
     private String prefix = "system/zhuanliruanzhu";
 
+    private static void addOtherUserOption(List<SysUser> users)
+    {
+        SysUser other = new SysUser();
+        other.setUserId(-1L);
+        other.setUserName("其他");
+        users.add(other);
+    }
+
     @Autowired
     private ISciZhuanliruanzhuService sciZhuanliruanzhuService;
 
@@ -375,6 +383,7 @@ public class SciZhuanliruanzhuController extends BaseController
             });
         }
 
+        addOtherUserOption(userList);
         mmap.put("sysUsers",userList);
         return prefix + "/add";
     }
@@ -384,6 +393,8 @@ public class SciZhuanliruanzhuController extends BaseController
     @GetMapping("/detail/{id}")
     public String detail(@PathVariable("id") Integer id, ModelMap mmap) {
         SciZhuanliruanzhu sciZhuanliruanzhu = sciZhuanliruanzhuService.selectSciZhuanliruanzhuById(id);
+        List<SysUser> userList = userService.selectAllUser();
+        addOtherUserOption(userList);
 
         // 获取当前用户角色
         String roleKey = getRoleKey();
@@ -395,6 +406,7 @@ public class SciZhuanliruanzhuController extends BaseController
         mmap.put("canApprove", canApprove);
         mmap.put("role", roleKey);
         mmap.put("sysUser", getSysUser());
+        mmap.put("sysUsers1", userList);
 
         return prefix + "/detail";
     }
@@ -470,6 +482,7 @@ public class SciZhuanliruanzhuController extends BaseController
             });
         }
 
+        addOtherUserOption(userList1);
         mmap.put("sysUsers1",userList1);
         return prefix + "/edit";
     }
@@ -532,6 +545,7 @@ public class SciZhuanliruanzhuController extends BaseController
             String roleKey = getRoleKey();
             boolean canApprove = canApprove(sciZhuanliruanzhu.getState(), roleKey);
             List<SysUser> userList1 =  userService.selectAllUser();
+            addOtherUserOption(userList1);
             mmap.put("sysUsers1",userList1);
             mmap.put("sciZhuanliruanzhu", sciZhuanliruanzhu);
             mmap.put("canApprove", canApprove);
@@ -606,6 +620,7 @@ public class SciZhuanliruanzhuController extends BaseController
     {
         SciZhuanliruanzhu sciZhuanliruanzhu = sciZhuanliruanzhuService.selectSciZhuanliruanzhuById(id);
         List<SysUser> userList1 =  userService.selectAllUser();
+        addOtherUserOption(userList1);
         mmap.put("sysUsers1",userList1);
         mmap.put("sciZhuanliruanzhu", sciZhuanliruanzhu);
         return prefix + "/recall";

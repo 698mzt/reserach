@@ -479,6 +479,11 @@
             $("select[name='fenlei']").on("change", loadExpectedSlots);
             loadExpectedSlots();
         });
+        bindOtherScoreDisplays([
+            ["select[name='secondPersonId']", "#secondPersonExpectedJifen"],
+            ["select[name='thirdPersonId']", "#thirdPersonExpectedJifen"],
+            ["select[name='fourthPersonId']", "#fourthPersonExpectedJifen"]
+        ]);
     </script>
 
 </body>

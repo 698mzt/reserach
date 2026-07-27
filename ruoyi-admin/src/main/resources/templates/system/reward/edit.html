@@ -188,6 +188,7 @@
             </div>
 
             <!-- 预计积分字段 -->
+            <input type="hidden" name="extraMemberIds" id="extraMemberIds">
             <input type="hidden" name="expectedJifen" id="expectedJifen">
             <!-- 各成员预计积分隐藏字段（用于表单提交） -->
             <input type="hidden" name="expectedScore1" id="hiddenExpectedScore1">
@@ -393,6 +394,7 @@
                 var val = $(this).val();
                 if (val) extraIds.push(val);
             });
+            $('#extraMemberIds').val(extraIds.join(','));
         }
 
         /**
@@ -410,7 +412,7 @@
             var tempDiv = $('<div>' + originalOptions + '</div>');
             tempDiv.find('option').each(function() {
                 var value = $(this).val();
-                if (value && (!selectedIds.has(value) || value === currentValue)) {
+                if (value && (!selectedIds.has(value) || value === currentValue || value === "-1")) {
                     $select.append($(this).clone());
                 }
             });
@@ -431,7 +433,7 @@
             tempDiv.find('option').each(function() {
                 var value = $(this).val();
                 var text = $(this).text();
-                if (value && (!selectedIds.has(value) || value === currentValue)) {
+                if (value && (!selectedIds.has(value) || value === currentValue || value === "-1")) {
                     $select.append($('<option></option>').val(value).text(text));
                 }
             });
@@ -457,7 +459,7 @@
                 '<div class="col-sm-6">' +
                 '<div class="input-group">' +
                 '<label class="input-group-addon" style="min-width: 90px;">成员' + memberNumber + '：</label>' +
-                '<select id="' + memberId + '" name="extraMemberIds" class="form-control member-select" onchange="updateMemberLists()">' +
+                '<select id="' + memberId + '" class="form-control member-select" onchange="updateMemberLists()">' +
                 '<option value="">---请选择--</option>' +
                 '</select>' +
                 '<span class="input-group-btn">' +
@@ -517,7 +519,7 @@
                 '<div class="col-sm-6">' +
                 '<div class="input-group">' +
                 '<label class="input-group-addon" style="min-width: 90px;">成员' + memberNumber + '：</label>' +
-                '<select id="' + memberId + '" name="extraMemberIds" class="form-control member-select" onchange="updateMemberLists()">' +
+                '<select id="' + memberId + '" class="form-control member-select" onchange="updateMemberLists()">' +
                 '<option value="">---请选择--</option>' +
                 '</select>' +
                 '<span class="input-group-btn">' +
@@ -573,6 +575,7 @@
         function submitHandler() {
             // 提交前重新启用所有禁用的下拉框，确保值能被提交
             $('#firstPersonSelect, #member1Select, #member2Select, #member3Select, .member-select, select[name="rewardPaiming"]').prop('disabled', false);
+            updateExtraMemberIds();
 
             if ($.validate.form()) {
                 $.operate.saveTab(prefix + "/edit", $('#form-reward-edit').serialize());
@@ -814,6 +817,12 @@
                 $select.html(originalOptions);
             }
         }
+        bindOtherScoreDisplays([
+            ["#firstPersonSelect", "#expectedScore1"],
+            ["#member1Select", "#expectedScore2"],
+            ["#member2Select", "#expectedScore3"],
+            ["#member3Select", "#expectedScore4"]
+        ]);
     </script>
 </body>
 </html>

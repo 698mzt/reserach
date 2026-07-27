@@ -524,6 +524,12 @@
             $('#expectedScore4').val('');
         }
     }
+    bindOtherScoreDisplays([
+        ["select[name='firstPersonId']", "#expectedScore1"],
+        ["select[name='secondPersonId']", "#expectedScore2"],
+        ["select[name='thirdPersonId']", "#expectedScore3"],
+        ["select[name='fourthPersonId']", "#expectedScore4"]
+    ]);
 </script>
 </body>
 </html>

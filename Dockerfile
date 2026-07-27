@@ -1,5 +1,5 @@
 # 基础镜像
-FROM eclipse-temurin:17-jdk
+FROM 172.16.28.201:17000/eclipse-temurin:17-jdk
 
 # 设置时区（Linux 容器中用环境变量即可）
 ENV TZ=Asia/Shanghai
@@ -10,11 +10,7 @@ RUN mkdir -p /app
 
 # 复制 Jar 包到 /app
 COPY ruoyi-admin/target/ruoyi-admin.jar /app/ruoyi-admin.jar
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    iproute2 net-tools telnet netcat-openbsd dnsutils iputils-ping \
-    vim unzip tar coreutils procps htop \
-    && rm -rf /var/lib/apt/lists/* \
-    && update-ca-certificates
+
 
 # 安装 Arthas 诊断工具（构建时集成，下载 arthas-boot.jar 自举包）
 RUN mkdir -p /opt/arthas && \

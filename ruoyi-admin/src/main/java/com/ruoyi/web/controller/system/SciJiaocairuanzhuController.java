@@ -44,6 +44,14 @@ public class SciJiaocairuanzhuController extends BaseController
     private String prefix = "system/jiaocairuanzhu";
     private static final String PROCESS_CODE = "TEXTBOOK_APPROVAL";
 
+    private static void addOtherUserOption(List<SysUser> users)
+    {
+        SysUser other = new SysUser();
+        other.setUserId(-1L);
+        other.setUserName("其他");
+        users.add(other);
+    }
+
     @Autowired
     private ISciJiaocairuanzhuService sciJiaocairuanzhuService;
 
@@ -255,6 +263,7 @@ public class SciJiaocairuanzhuController extends BaseController
                 break;
             }
         }
+        addOtherUserOption(userList);
         mmap.put("sysUsers", userList);
         return prefix + "/add";
     }
@@ -314,6 +323,7 @@ public class SciJiaocairuanzhuController extends BaseController
         SysUser user = new SysUser();
         user.setParams(new HashMap<String, Object>());
         List<SysUser> sysUsers = userService.selectUserList(user);
+        addOtherUserOption(sysUsers);
         mmap.put("sysUsers1", sysUsers);
         
         // 获取所有用户列表用于成员选择
@@ -327,6 +337,7 @@ public class SciJiaocairuanzhuController extends BaseController
                 break;
             }
         }
+        addOtherUserOption(allUsers);
         mmap.put("sysUsers", allUsers);
 
         // 获取教材著作成员列表
@@ -434,6 +445,7 @@ public class SciJiaocairuanzhuController extends BaseController
         SysUser user = new SysUser();
         user.setParams(new HashMap<String, Object>());
         List<SysUser> userList1 = userService.selectUserList(user);
+        addOtherUserOption(userList1);
         sciJiaocairuanzhu.setUrlFlag(urlFlag);
         mmap.put("sysUsers1", userList1);
         mmap.put("sciJiaocairuanzhu", sciJiaocairuanzhu);
@@ -494,6 +506,7 @@ public class SciJiaocairuanzhuController extends BaseController
     {
         SciJiaocairuanzhu sciJiaocairuanzhu = sciJiaocairuanzhuService.selectSciJiaocairuanzhuById(id);
         List<SysUser> userList1 =  userService.selectUserList(null);
+        addOtherUserOption(userList1);
         // 获取教材著作成员列表
         List<com.ruoyi.system.domain.SciJiaocairuanzhuMember> members = sciJiaocairuanzhuService.getJiaocairuanzhuMembers(id);
         mmap.put("sysUsers1",userList1);

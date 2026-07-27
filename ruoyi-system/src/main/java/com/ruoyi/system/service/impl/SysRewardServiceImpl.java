@@ -752,7 +752,8 @@ public class SysRewardServiceImpl implements ISysRewardService {
             
             for (int i = 0; i < extraIds.length; i++) {
                 String trimmedId = extraIds[i].trim();
-                if (!trimmedId.isEmpty() && !personIds.contains(trimmedId)) {
+                if (!trimmedId.isEmpty()
+                        && (!personIds.contains(trimmedId) || "-1".equals(trimmedId))) {
                     personIds.add(trimmedId);
                     // 对应积分（如果存在）
                     if (extraScores != null && i < extraScores.length) {

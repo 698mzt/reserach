@@ -373,7 +373,10 @@
                         for (var i = 0; i < members.length; i++) {
                             var member = members[i];
                             var memberName = member.memberName || member.userName || '';
-                            var researchScore = member.researchScore || member.expectedScore || '';
+                            if (String(member.memberId) === '-1') {
+                                memberName = '其他';
+                            }
+                            var researchScore = String(member.memberId) === '-1' ? '0' : (member.researchScore || member.expectedScore || '');
                             
                             if (member.ranking === '1') {
                                 $("#hostPerson").val(memberName);

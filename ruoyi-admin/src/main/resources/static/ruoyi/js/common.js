@@ -910,3 +910,42 @@ function extractDownloadErrorMessage(text) {
         return text || "批量下载失败";
     }
 }
+
+function bindOtherScoreDisplays(pairs) {
+    $(function () {
+        var bindings = [];
+        var $people = $();
+
+        $.each(pairs, function (_, pair) {
+            var $person = $(pair[0]);
+            var $score = $(pair[1]);
+            if (!$person.length || !$score.length) return;
+
+            var $display = $score.clone(false)
+                .removeAttr("id name")
+                .attr("data-other-score-display", "true")
+                .val("0")
+                .hide();
+            $score.after($display);
+            bindings.push({ person: $person, score: $score, display: $display });
+            $people = $people.add($person);
+        });
+
+        function refresh() {
+            $.each(bindings, function (_, binding) {
+                var value = binding.person.val();
+                var label = binding.person.is("select")
+                    ? binding.person.find("option:selected").text()
+                    : value;
+                var isOther = String(value) === "-1" || /\u5176\u4ed6/.test(label || "");
+                binding.score.toggle(!isOther);
+                binding.display.toggle(isOther);
+            });
+        }
+
+        $people.on("change.otherScoreDisplay select2:select.otherScoreDisplay select2:clear.otherScoreDisplay", function () {
+            setTimeout(refresh, 0);
+        });
+        refresh();
+    });
+}

@@ -826,6 +826,11 @@
         
         // 页面加载时计算初始积分
         calculateExpectedScore();
+        bindOtherScoreDisplays([
+            ["#member1Select", "#expectedScore2"],
+            ["#member2Select", "#expectedScore3"],
+            ["#member3Select", "#expectedScore4"]
+        ]);
     </script>
 </body>
 </html>
